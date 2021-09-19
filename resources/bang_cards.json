@@ -9,8 +9,11 @@
             "image": "01_barile",
             "expansion": "base",
             "color": "blue",
-            "type": "equip",
-            "effect": "barrel"
+            "effects": [
+                {
+                    "class": "barrel"
+                }
+            ]
         },
         {
             "name": "Dinamite",
@@ -20,8 +23,11 @@
             "image": "01_dinamite",
             "expansion": "base",
             "color": "blue",
-            "type": "equip",
-            "effect": "dynamite"
+            "effects": [
+                {
+                    "class": "dynamite"
+                }
+            ]
         },
         {
             "name": "Mirino",
@@ -31,8 +37,11 @@
             "image": "01_mirino",
             "expansion": "base",
             "color": "blue",
-            "type": "equip",
-            "effect": "scope"
+            "effects": [
+                {
+                    "class": "scope"
+                }
+            ]
         },
         {
             "name": "Mustang",
@@ -43,8 +52,11 @@
             "image": "01_mustang",
             "expansion": "base",
             "color": "blue",
-            "type": "equip",
-            "effect": "mustang"
+            "effects": [
+                {
+                    "class": "mustang"
+                }
+            ]
         },
         {
             "name": "Prigione",
@@ -56,9 +68,12 @@
             "image": "01_prigione",
             "expansion": "base",
             "color": "blue",
-            "type": "equip",
-            "equip_target": "notsheriff",
-            "effect": "jail"
+            "effects": [
+                {
+                    "target": "notsheriff",
+                    "class": "jail"
+                }
+            ]
         },
         {
             "name": "Remington",
@@ -68,8 +83,12 @@
             "image": "01_remington",
             "expansion": "base",
             "color": "blue",
-            "type": "weapon",
-            "distance": 3
+            "effects": [
+                {
+                    "class": "weapon",
+                    "maxdistance": 3
+                }
+            ]
         },
         {
             "name": "Rev. Carabine",
@@ -79,8 +98,12 @@
             "image": "01_carabine",
             "expansion": "base",
             "color": "blue",
-            "type": "weapon",
-            "distance": 4
+            "effects": [
+                {
+                    "class": "weapon",
+                    "maxdistance": 4
+                }
+            ]
         },
         {
             "name": "Schofield",
@@ -92,8 +115,12 @@
             "image": "01_schofield",
             "expansion": "base",
             "color": "blue",
-            "type": "weapon",
-            "distance": 2
+            "effects": [
+                {
+                    "class": "weapon",
+                    "maxdistance": 2
+                }
+            ]
         },
         {
             "name": "Volcanic",
@@ -104,9 +131,15 @@
             "image": "01_volcanic",
             "expansion": "base",
             "color": "blue",
-            "type": "weapon",
-            "distance": 1,
-            "effect": "volcanic"
+            "effects": [
+                {
+                    "class": "weapon",
+                    "maxdistance": 1
+                },
+                {
+                    "class": "volcanic"
+                }
+            ]
         },
         {
             "name": "Winchester",
@@ -116,8 +149,12 @@
             "image": "01_winchester",
             "expansion": "base",
             "color": "blue",
-            "type": "weapon",
-            "distance": 5
+            "effects": [
+                {
+                    "class": "weapon",
+                    "maxdistance": 5
+                }
+            ]
         },
         {
             "name": "Bang!",
@@ -151,8 +188,12 @@
             "image": "01_bang",
             "expansion": "base",
             "color": "brown",
-            "effect": "bangcard",
-            "target": "reachable"
+            "effects": [
+                {
+                    "target": "reachable",
+                    "class": "bangcard"
+                }
+            ]
         },
         {
             "name": "Birra",
@@ -167,8 +208,12 @@
             "image": "01_birra",
             "expansion": "base",
             "color": "brown",
-            "effect": "beer",
-            "target": "self"
+            "effects": [
+                {
+                    "target": "self",
+                    "class": "beer"
+                }
+            ]
         },
         {
             "name": "Cat Balou",
@@ -181,8 +226,12 @@
             "image": "01_catbalou",
             "expansion": "base",
             "color": "brown",
-            "effect": "delete",
-            "target": "any"
+            "effects": [
+                {
+                    "target": "card",
+                    "class": "destroy"
+                }
+            ]
         },
         {
             "name": "Diligenza",
@@ -193,7 +242,19 @@
             "image": "01_diligenza",
             "expansion": "base",
             "color": "brown",
-            "effect": "draw draw changewws"
+            "effects": [
+                {
+                    "target": "self",
+                    "class": "draw"
+                },
+                {
+                    "target": "self",
+                    "class": "draw"
+                },
+                {
+                    "class": "changewws"
+                }
+            ]
         },
         {
             "name": "Duello",
@@ -205,8 +266,12 @@
             "image": "01_duello",
             "expansion": "base",
             "color": "brown",
-            "effect": "duel",
-            "target": "notself"
+            "effects": [
+                {
+                    "target": "notself",
+                    "class": "duel"
+                }
+            ]
         },
         {
             "name": "Emporio",
@@ -217,7 +282,11 @@
             "image": "01_emporio",
             "expansion": "base",
             "color": "brown",
-            "effect": "generalstore"
+            "effects": [
+                {
+                    "class": "generalstore"
+                }
+            ]
         },
         {
             "name": "Gatling",
@@ -227,8 +296,12 @@
             "image": "01_gatling",
             "expansion": "base",
             "color": "brown",
-            "effect": "bang",
-            "target": "others"
+            "effects": [
+                {
+                    "target": "others",
+                    "class": "bang"
+                }
+            ]
         },
         {
             "name": "Indiani!",
@@ -239,8 +312,12 @@
             "image": "01_indiani",
             "expansion": "base",
             "color": "brown",
-            "effect": "indians",
-            "target": "others"
+            "effects": [
+                {
+                    "target": "others",
+                    "class": "indians"
+                }
+            ]
         },
         {
             "name": "Mancato!",
@@ -261,7 +338,11 @@
             "image": "01_mancato",
             "expansion": "base",
             "color": "brown",
-            "effect": "missedcard"
+            "effects": [
+                {
+                    "class": "missedcard"
+                }
+            ]
         },
         {
             "name": "Panico!",
@@ -274,9 +355,13 @@
             "image": "01_panico",
             "expansion": "base",
             "color": "brown",
-            "effect": "steal",
-            "target": "distance",
-            "distance": 1
+            "effects": [
+                {
+                    "target": "card",
+                    "maxdistance": 1,
+                    "class": "steal"
+                }
+            ]
         },
         {
             "name": "Saloon",
@@ -286,8 +371,12 @@
             "image": "01_saloon",
             "expansion": "base",
             "color": "brown",
-            "effect": "heal",
-            "target": "everyone"
+            "effects": [
+                {
+                    "target": "everyone",
+                    "class": "heal"
+                }
+            ]
         },
         {
             "name": "Wells Fargo",
@@ -297,7 +386,23 @@
             "image": "01_wellsfargo",
             "expansion": "base",
             "color": "brown",
-            "effect": "draw draw draw changewws"
+            "effects": [
+                {
+                    "target": "self",
+                    "class": "draw"
+                },
+                {
+                    "target": "self",
+                    "class": "draw"
+                },
+                {
+                    "target": "self",
+                    "class": "draw"
+                },
+                {
+                    "class": "changewws"
+                }
+            ]
         },
         {
             "name": "Barile",
@@ -307,8 +412,11 @@
             "image": "03_barile",
             "expansion": "dodgecity",
             "color": "blue",
-            "type": "equip",
-            "effect": "barrel"
+            "effects": [
+                {
+                    "class": "barrel"
+                }
+            ]
         },
         {
             "name": "Binocolo",
@@ -318,8 +426,11 @@
             "image": "03_binocolo",
             "expansion": "dodgecity",
             "color": "blue",
-            "type": "equip",
-            "effect": "scope"
+            "effects": [
+                {
+                    "class": "scope"
+                }
+            ]
         },
         {
             "name": "Dinamite",
@@ -329,9 +440,11 @@
             "image": "03_dinamite",
             "expansion": "dodgecity",
             "color": "blue",
-            "type": "equip",
-            "equip_target": "self",
-            "effect": "dynamite"
+            "effects": [
+                {
+                    "class": "dynamite"
+                }
+            ]
         },
         {
             "name": "Mustang",
@@ -341,8 +454,11 @@
             "image": "03_mustang",
             "expansion": "dodgecity",
             "color": "blue",
-            "type": "equip",
-            "effect": "mustang"
+            "effects": [
+                {
+                    "class": "mustang"
+                }
+            ]
         },
         {
             "name": "Remington",
@@ -352,8 +468,12 @@
             "image": "03_remington",
             "expansion": "dodgecity",
             "color": "blue",
-            "type": "weapon",
-            "distance": 3
+            "effects": [
+                {
+                    "class": "weapon",
+                    "maxdistance": 3
+                }
+            ]
         },
         {
             "name": "Rev. Carabine",
@@ -363,8 +483,12 @@
             "image": "03_rev_carabine",
             "expansion": "dodgecity",
             "color": "blue",
-            "type": "weapon",
-            "distance": 4
+            "effects": [
+                {
+                    "class": "weapon",
+                    "maxdistance": 4
+                }
+            ]
         },
         {
             "name": "Riparo",
@@ -374,8 +498,11 @@
             "image": "03_riparo",
             "expansion": "dodgecity",
             "color": "blue",
-            "type": "equip",
-            "effect": "mustang"
+            "effects": [
+                {
+                    "class": "mustang"
+                }
+            ]
         },
         {
             "name": "Bang!",
@@ -388,8 +515,12 @@
             "image": "03_bang",
             "expansion": "dodgecity",
             "color": "brown",
-            "target": "reachable",
-            "effect": "bangcard"
+            "effects": [
+                {
+                    "target": "reachable",
+                    "class": "bangcard"
+                }
+            ]
         },
         {
             "name": "Birra",
@@ -400,8 +531,12 @@
             "image": "03_birra",
             "expansion": "dodgecity",
             "color": "brown",
-            "effect": "beer",
-            "target": "self"
+            "effects": [
+                {
+                    "target": "self",
+                    "class": "beer"
+                }
+            ]
         },
         {
             "name": "Cat Balou",
@@ -411,8 +546,12 @@
             "image": "03_cat_balou",
             "expansion": "dodgecity",
             "color": "brown",
-            "target": "any",
-            "effect": "delete"
+            "effects": [
+                {
+                    "target": "card",
+                    "class": "destroy"
+                }
+            ]
         },
         {
             "name": "Emporio",
@@ -422,7 +561,11 @@
             "image": "03_emporio",
             "expansion": "dodgecity",
             "color": "brown",
-            "effect": "generalstore"
+            "effects": [
+                {
+                    "class": "generalstore"
+                }
+            ]
         },
         {
             "name": "Indiani",
@@ -432,8 +575,12 @@
             "image": "03_indiani",
             "expansion": "dodgecity",
             "color": "brown",
-            "target": "others",
-            "effect": "indians"
+            "effects": [
+                {
+                    "target": "others",
+                    "class": "indians"
+                }
+            ]
         },
         {
             "name": "Mancato!",
@@ -443,7 +590,11 @@
             "image": "03_mancato",
             "expansion": "dodgecity",
             "color": "brown",
-            "effect": "missedcard"
+            "effects": [
+                {
+                    "class": "missedcard"
+                }
+            ]
         },
         {
             "name": "Panico!",
@@ -453,8 +604,13 @@
             "image": "03_panico",
             "expansion": "dodgecity",
             "color": "brown",
-            "target": "distance",
-            "effect": "steal"
+            "effects": [
+                {
+                    "target": "card",
+                    "maxdistance": 1,
+                    "class": "steal"
+                }
+            ]
         },
         {
             "name": "Pugno",
@@ -464,9 +620,13 @@
             "image": "03_pugno",
             "expansion": "dodgecity",
             "color": "brown",
-            "target": "distance",
-            "effect": "bang",
-            "distance": 1
+            "effects": [
+                {
+                    "target": "notself",
+                    "maxdistance": 1,
+                    "class": "bang"
+                }
+            ]
         },
         {
             "name": "Rag Time",
@@ -476,8 +636,15 @@
             "image": "03_rag_time",
             "expansion": "dodgecity",
             "color": "brown",
-            "target": "any",
-            "effect": "discard steal"
+            "effects": [
+                {
+                    "class": "discard"
+                },
+                {
+                    "target": "card",
+                    "class": "steal"
+                }
+            ]
         },
         {
             "name": "Rissa",
@@ -487,8 +654,15 @@
             "image": "03_rissa",
             "expansion": "dodgecity",
             "color": "brown",
-            "target": "others",
-            "effect": "discard delete"
+            "effects": [
+                {
+                    "class": "discard"
+                },
+                {
+                    "target": "others",
+                    "class": "destroy"
+                }
+            ]
         },
         {
             "name": "Schivata",
@@ -499,7 +673,15 @@
             "image": "03_schivata",
             "expansion": "dodgecity",
             "color": "brown",
-            "effect": "missed draw"
+            "effects": [
+                {
+                    "class": "missed"
+                },
+                {
+                    "target": "self",
+                    "class": "draw"
+                }
+            ]
         },
         {
             "name": "Springfield",
@@ -509,8 +691,15 @@
             "image": "03_springfield",
             "expansion": "dodgecity",
             "color": "brown",
-            "target": "notself",
-            "effect": "discard bang"
+            "effects": [
+                {
+                    "class": "discard"
+                },
+                {
+                    "target": "notself",
+                    "class": "bang"
+                }
+            ]
         },
         {
             "name": "Tequila",
@@ -520,8 +709,15 @@
             "image": "03_tequila",
             "expansion": "dodgecity",
             "color": "brown",
-            "target": "any",
-            "effect": "discard heal"
+            "effects": [
+                {
+                    "class": "discard"
+                },
+                {
+                    "target": "any",
+                    "class": "heal"
+                }
+            ]
         },
         {
             "name": "Whisky",
@@ -531,8 +727,19 @@
             "image": "03_whisky",
             "expansion": "dodgecity",
             "color": "brown",
-            "target": "self",
-            "effect": "discard heal heal"
+            "effects": [
+                {
+                    "class": "discard"
+                },
+                {
+                    "target": "self",
+                    "class": "heal"
+                },
+                {
+                    "target": "self",
+                    "class": "heal"
+                }
+            ]
         },
         {
             "name": "Bibbia",
@@ -542,7 +749,15 @@
             "image": "03_bibbia",
             "expansion": "dodgecity",
             "color": "green",
-            "effect": "missed draw"
+            "effects": [
+                {
+                    "class": "missed"
+                },
+                {
+                    "target": "self",
+                    "class": "draw"
+                }
+            ]
         },
         {
             "name": "Borraccia",
@@ -552,7 +767,12 @@
             "image": "03_borraccia",
             "expansion": "dodgecity",
             "color": "green",
-            "effect": "heal"
+            "effects": [
+                {
+                    "target": "self",
+                    "class": "heal"
+                }
+            ]
         },
         {
             "name": "Can Can",
@@ -562,8 +782,12 @@
             "image": "03_can_can",
             "expansion": "dodgecity",
             "color": "green",
-            "target": "any",
-            "effect": "delete"
+            "effects": [
+                {
+                    "target": "card",
+                    "class": "destroy"
+                }
+            ]
         },
         {
             "name": "Cappello",
@@ -573,7 +797,11 @@
             "image": "03_cappello",
             "expansion": "dodgecity",
             "color": "green",
-            "effect": "missed"
+            "effects": [
+                {
+                    "class": "missed"
+                }
+            ]
         },
         {
             "name": "Conestoga",
@@ -583,8 +811,12 @@
             "image": "03_conestoga",
             "expansion": "dodgecity",
             "color": "green",
-            "target": "any",
-            "effect": "steal"
+            "effects": [
+                {
+                    "target": "card",
+                    "class": "steal"
+                }
+            ]
         },
         {
             "name": "Derringer",
@@ -594,9 +826,17 @@
             "image": "03_derringer",
             "expansion": "dodgecity",
             "color": "green",
-            "target": "distance",
-            "effect": "bang draw",
-            "distance": 1
+            "effects": [
+                {
+                    "target": "notself",
+                    "maxdistance": 1,
+                    "class": "bang"
+                },
+                {
+                    "target": "self",
+                    "class": "draw"
+                }
+            ]
         },
         {
             "name": "Fucile da Caccia",
@@ -606,8 +846,12 @@
             "image": "03_fucile_da_caccia",
             "expansion": "dodgecity",
             "color": "green",
-            "target": "notself",
-            "effect": "bang"
+            "effects": [
+                {
+                    "target": "notself",
+                    "class": "bang"
+                }
+            ]
         },
         {
             "name": "Howitzer",
@@ -617,8 +861,12 @@
             "image": "03_howitzer",
             "expansion": "dodgecity",
             "color": "green",
-            "target": "others",
-            "effect": "bang"
+            "effects": [
+                {
+                    "target": "others",
+                    "class": "bang"
+                }
+            ]
         },
         {
             "name": "Pepperbox",
@@ -628,8 +876,12 @@
             "image": "03_pepperbox",
             "expansion": "dodgecity",
             "color": "green",
-            "target": "reachable",
-            "effect": "bang"
+            "effects": [
+                {
+                    "target": "reachable",
+                    "class": "bang"
+                }
+            ]
         },
         {
             "name": "Placca di Ferro",
@@ -639,8 +891,11 @@
             ],
             "image": "03_placca_di_ferro",
             "expansion": "dodgecity",
-            "color": "green",
-            "effect": "missed"
+            "effects": [
+                {
+                    "class": "missed"
+                }
+            ]
         },
         {
             "name": "Pony Express",
@@ -650,7 +905,23 @@
             "image": "03_pony_express",
             "expansion": "dodgecity",
             "color": "green",
-            "effect": "draw draw draw changewws"
+            "effects": [
+                {
+                    "target": "self",
+                    "class": "draw"
+                },
+                {
+                    "target": "self",
+                    "class": "draw"
+                },
+                {
+                    "target": "self",
+                    "class": "draw"
+                },
+                {
+                    "class": "changewws"
+                }
+            ]
         },
         {
             "name": "Pugnale",
@@ -660,9 +931,13 @@
             "image": "03_pugnale",
             "expansion": "dodgecity",
             "color": "green",
-            "target": "distance",
-            "effect": "bang",
-            "distance": 1
+            "effects": [
+                {
+                    "target": "notself",
+                    "maxdistance": 1,
+                    "class": "bang"
+                }
+            ]
         },
         {
             "name": "Sombrero",
@@ -672,7 +947,11 @@
             "image": "03_sombrero",
             "expansion": "dodgecity",
             "color": "green",
-            "effect": "missed"
+            "effects": [
+                {
+                    "class": "missed"
+                }
+            ]
         },
         {
             "name": "Fantasma",
@@ -683,9 +962,12 @@
             "image": "07_fantasma",
             "expansion": "valleyofshadows",
             "color": "blue",
-            "type": "equip",
-            "target": "any",
-            "effect": "ghost"
+            "effects": [
+                {
+                    "target": "any",
+                    "class": "ghost"
+                }
+            ]
         },
         {
             "name": "Lemat",
@@ -695,9 +977,15 @@
             "image": "07_lemat",
             "expansion": "valleyofshadows",
             "color": "blue",
-            "type": "weapon",
-            "distance": 1,
-            "effect": "lemat"
+            "effects": [
+                {
+                    "class": "weapon",
+                    "maxdistance": 1
+                },
+                {
+                    "class": "lemat"
+                }
+            ]
         },
         {
             "name": "Serpente a Sonagli",
@@ -707,9 +995,12 @@
             "image": "07_serpenteasonagli",
             "expansion": "valleyofshadows",
             "color": "blue",
-            "type": "equip",
-            "target": "notself",
-            "effect": "snake"
+            "effects": [
+                {
+                    "target": "notself",
+                    "class": "snake"
+                }
+            ]
         },
         {
             "name": "Shotgun",
@@ -719,9 +1010,15 @@
             "image": "07_shotgun",
             "expansion": "valleyofshadows",
             "color": "blue",
-            "type": "weapon",
-            "distance": 1,
-            "effect": "shotgun"
+            "effects": [
+                {
+                    "class": "weapon",
+                    "maxdistance": 1
+                },
+                {
+                    "class": "shotgun"
+                }
+            ]
         },
         {
             "name": "Taglia",
@@ -731,9 +1028,12 @@
             "image": "07_taglia",
             "expansion": "valleyofshadows",
             "color": "blue",
-            "type": "equip",
-            "target": "notself",
-            "effect": "bounty"
+            "effects": [
+                {
+                    "target": "any",
+                    "class": "bounty"
+                }
+            ]
         },
         {
             "name": "Bandidos",
@@ -743,7 +1043,12 @@
             "image": "07_bandidos",
             "expansion": "valleyofshadows",
             "color": "brown",
-            "effect": "bandidos"
+            "effects": [
+                {
+                    "target": "everyone",
+                    "class": "bandidos"
+                }
+            ]
         },
         {
             "name": "Fuga",
@@ -753,7 +1058,11 @@
             "image": "07_fuga",
             "expansion": "valleyofshadows",
             "color": "brown",
-            "effect": "flight"
+            "effects": [
+                {
+                    "class": "flight"
+                }
+            ]
         },
         {
             "name": "Mira",
@@ -763,7 +1072,11 @@
             "image": "07_mira",
             "expansion": "valleyofshadows",
             "color": "brown",
-            "effect": "aim"
+            "effects": [
+                {
+                    "class": "aim"
+                }
+            ]
         },
         {
             "name": "Poker",
@@ -773,7 +1086,11 @@
             "image": "07_poker",
             "expansion": "valleyofshadows",
             "color": "brown",
-            "effect": "poker"
+            "effects": [
+                {
+                    "class": "poker"
+                }
+            ]
         },
         {
             "name": "Ritorno di Fiamma",
@@ -783,7 +1100,11 @@
             "image": "07_ritornodifiamma",
             "expansion": "valleyofshadows",
             "color": "brown",
-            "effect": "backfire"
+            "effects": [
+                {
+                    "class": "backfire"
+                }
+            ]
         },
         {
             "name": "Salvo!",
@@ -793,7 +1114,11 @@
             "image": "07_salvo",
             "expansion": "valleyofshadows",
             "color": "brown",
-            "effect": "saved"
+            "effects": [
+                {
+                    "class": "saved"
+                }
+            ]
         },
         {
             "name": "Sventagliata",
@@ -803,8 +1128,12 @@
             "image": "07_sventagliata",
             "expansion": "valleyofshadows",
             "color": "brown",
-            "target": "reachable",
-            "effect": "fanning"
+            "effects": [
+                {
+                    "target": "reachable",
+                    "class": "fanning"
+                }
+            ]
         },
         {
             "name": "Tomahawk",
@@ -814,9 +1143,13 @@
             "image": "07_tomahawk",
             "expansion": "valleyofshadows",
             "color": "brown",
-            "target": "distance",
-            "effect": "bang",
-            "distance": 2
+            "effects": [
+                {
+                    "target": "notself",
+                    "maxdistance": 2,
+                    "class": "bang"
+                }
+            ]
         },
         {
             "name": "Tornado",
@@ -826,7 +1159,12 @@
             "image": "07_tornado",
             "expansion": "valleyofshadows",
             "color": "brown",
-            "effect": "tornado"
+            "effects": [
+                {
+                    "target": "everyone",
+                    "class": "tornado"
+                }
+            ]
         },
         {
             "name": "Ultimo Giro",
@@ -836,8 +1174,12 @@
             "image": "07_ultimogiro",
             "expansion": "valleyofshadows",
             "color": "brown",
-            "effect": "heal",
-            "target": "self"
+            "effects": [
+                {
+                    "target": "self",
+                    "class": "heal"
+                }
+            ]
         },
         {
             "name": "Bang!",
@@ -850,8 +1192,12 @@
             "image": "17_bang",
             "expansion": "armedanddangerous",
             "color": "brown",
-            "target": "reachable",
-            "effect": "bangcard"
+            "effects": [
+                {
+                    "target": "reachable",
+                    "class": "bangcard"
+                }
+            ]
         },
         {
             "name": "Carovana",
@@ -861,10 +1207,22 @@
             "image": "17_carovana",
             "expansion": "armedanddangerous",
             "color": "brown",
-            "cube_cost": 2,
-            "effect": "draw draw",
-            "cube_effect": "draw",
-            "multiple": 1
+            "effects": [
+                {
+                    "target": "self",
+                    "class": "draw"
+                },
+                {
+                    "target": "self",
+                    "class": "draw"
+                },
+                {
+                    "cost": 2,
+                    "repeatable": true,
+                    "target": "self",
+                    "class": "draw"
+                }
+            ]
         },
         {
             "name": "Cat Balou",
@@ -874,8 +1232,12 @@
             "image": "17_catbalou",
             "expansion": "armedanddangerous",
             "color": "brown",
-            "target": "any",
-            "effect": "delete"
+            "effects": [
+                {
+                    "target": "card",
+                    "class": "destroy"
+                }
+            ]
         },
         {
             "name": "Cicchetto",
@@ -885,10 +1247,18 @@
             "image": "17_cicchetto",
             "expansion": "armedanddangerous",
             "color": "brown",
-            "cube_cost": 3,
-            "effect": "heal",
-            "cube_effect": "heal",
-            "multiple": 1
+            "effects": [
+                {
+                    "target": "self",
+                    "class": "heal"
+                },
+                {
+                    "cost": 3,
+                    "repeatable": true,
+                    "target": "Self",
+                    "class": "heal"
+                }
+            ]
         },
         {
             "name": "Colpo Rapido",
@@ -898,12 +1268,18 @@
             "image": "17_colporapido",
             "expansion": "armedanddangerous",
             "color": "brown",
-            "cube_cost": 1,
-            "target": "reachable",
-            "effect": "bang",
-            "cube_effect": "bang",
-            "cube_target": "reachable new",
-            "multiple": 1
+            "effects": [
+                {
+                    "target": "reachable",
+                    "class": "bang"
+                },
+                {
+                    "cost": 1,
+                    "repeatable": true,
+                    "target": "reachable_new",
+                    "class": "bang"
+                }
+            ]
         },
         {
             "name": "Flintlock",
@@ -913,10 +1289,16 @@
             "image": "17_flintlock",
             "expansion": "armedanddangerous",
             "color": "brown",
-            "cube_cost": 2,
-            "target": "reachable",
-            "effect": "bang",
-            "cube_effect": "flintlock"
+            "effects": [
+                {
+                    "target": "reachable",
+                    "class": "bang"
+                },
+                {
+                    "cost": 2,
+                    "class": "flintlock"
+                }
+            ]
         },
         {
             "name": "Freccia",
@@ -926,12 +1308,18 @@
             "image": "17_freccia",
             "expansion": "armedanddangerous",
             "color": "brown",
-            "cube_cost": 1,
-            "target": "notself",
-            "effect": "indians",
-            "cube_effect": "indians",
-            "cube_target": "notself new",
-            "multiple": 1
+            "effects": [
+                {
+                    "target": "notself",
+                    "class": "indians"
+                },
+                {
+                    "cost": 1,
+                    "repeatable": true,
+                    "target": "notself_new",
+                    "class": "indians"
+                }
+            ]
         },
         {
             "name": "Gi\u00f9 la Testa!",
@@ -941,9 +1329,15 @@
             "image": "17_giulatesta",
             "expansion": "armedanddangerous",
             "color": "brown",
-            "cube_cost": 2,
-            "effect": "missed",
-            "cube_effect": "duck"
+            "effects": [
+                {
+                    "class": "missed"
+                },
+                {
+                    "cost": 2,
+                    "class": "duck"
+                }
+            ]
         },
         {
             "name": "Mancato!",
@@ -953,7 +1347,11 @@
             "image": "17_mancato",
             "expansion": "armedanddangerous",
             "color": "brown",
-            "effect": "missedcard"
+            "effects": [
+                {
+                    "class": "missedcard"
+                }
+            ]
         },
         {
             "name": "Ricarica",
@@ -963,7 +1361,11 @@
             "image": "17_ricarica",
             "expansion": "armedanddangerous",
             "color": "brown",
-            "effect": "reload"
+            "effects": [
+                {
+                    "class": "reload"
+                }
+            ]
         },
         {
             "name": "Ruggine",
@@ -973,7 +1375,11 @@
             "image": "17_ruggine",
             "expansion": "armedanddangerous",
             "color": "brown",
-            "effect": "rust"
+            "effects": [
+                {
+                    "class": "rust"
+                }
+            ]
         },
         {
             "name": "Squaw",
@@ -983,10 +1389,16 @@
             "image": "17_squaw",
             "expansion": "armedanddangerous",
             "color": "brown",
-            "cube_cost": 2,
-            "target": "any",
-            "effect": "delete",
-            "cube_effect": "squaw"
+            "class": [
+                {
+                    "target": "card",
+                    "class": "destroy"
+                },
+                {
+                    "cost": 2,
+                    "class": "squaw"
+                }
+            ]
         },
         {
             "name": "Asso nella Manica",
@@ -996,9 +1408,16 @@
             "image": "17_assonellamanica",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "type": "equip",
-            "cube_cost": 2,
-            "cube_effect": "draw changewws"
+            "effects": [
+                {
+                    "cost": 2,
+                    "target": "self",
+                    "class": "draw"
+                },
+                {
+                    "class": "changewws"
+                }
+            ]
         },
         {
             "name": "Bandoliera",
@@ -1008,9 +1427,12 @@
             "image": "17_bandoliera",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "type": "equip",
-            "cube_cost": 1,
-            "cube_effect": "bandolier"
+            "effects": [
+                {
+                    "cost": 1,
+                    "class": "bandolier"
+                }
+            ]
         },
         {
             "name": "Big Fifty",
@@ -1020,10 +1442,16 @@
             "image": "17_bigfifty",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "type": "weapon",
-            "cube_cost": 1,
-            "distance": 6,
-            "cube_effect": "bigfifty"
+            "effects": [
+                {
+                    "class": "weapon",
+                    "maxdistance": 6
+                },
+                {
+                    "cost": 1,
+                    "class": "bigfifty"
+                }
+            ]
         },
         {
             "name": "Bomba",
@@ -1033,9 +1461,12 @@
             "image": "17_bomba",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "type": "equip",
-            "equip_target": "any",
-            "effect": "bomb"
+            "effects": [
+                {
+                    "target": "any",
+                    "class": "bomb"
+                }
+            ]
         },
         {
             "name": "Buntline Special",
@@ -1045,10 +1476,16 @@
             "image": "17_buntlinespecial",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "type": "weapon",
-            "cube_cost": 1,
-            "distance": 2,
-            "cube_effect": "buntlinespecial"
+            "effects": [
+                {
+                    "class": "weapon",
+                    "maxdistance": 2
+                },
+                {
+                    "cost": 1,
+                    "class": "buntlinespecial"
+                }
+            ]
         },
         {
             "name": "Campanile",
@@ -1058,9 +1495,12 @@
             "image": "17_campanile",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "type": "equip",
-            "cube_cost": 1,
-            "cube_effect": "belltower"
+            "effects": [
+                {
+                    "cost": 1,
+                    "class": "belltower"
+                }
+            ]
         },
         {
             "name": "Cassa",
@@ -1070,9 +1510,12 @@
             "image": "17_cassa",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "type": "equip",
-            "cube_cost": 2,
-            "cube_effect": "missed"
+            "effects": [
+                {
+                    "cost": 2,
+                    "class": "missed"
+                }
+            ]
         },
         {
             "name": "Cespuglio",
@@ -1082,9 +1525,12 @@
             "image": "17_cespuglio",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "type": "equip",
-            "cube_cost": 1,
-            "cube_effect": "bush"
+            "effects": [
+                {
+                    "cost": 1,
+                    "class": "bush"
+                }
+            ]
         },
         {
             "name": "Doppia Canna",
@@ -1094,10 +1540,16 @@
             "image": "17_doppiacanna",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "type": "weapon",
-            "cube_cost": 1,
-            "distance": 1,
-            "cube_effect": "doublebarrel"
+            "effects": [
+                {
+                    "class": "weapon",
+                    "maxdistance": 1
+                },
+                {
+                    "cost": 1,
+                    "class": "doublebarrel"
+                }
+            ]
         },
         {
             "name": "Frusta",
@@ -1107,10 +1559,13 @@
             "image": "17_frusta",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "type": "equip",
-            "cube_cost": 3,
-            "cube_effect": "discard",
-            "cube_target": "table"
+            "class": [
+                {
+                    "cost": 3,
+                    "target": "table_card",
+                    "class": "destroy"
+                }
+            ]
         },
         {
             "name": "Fusto di Birra",
@@ -1120,10 +1575,13 @@
             "image": "17_fustodibirra",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "type": "equip",
-            "cube_cost": 3,
-            "cube_effect": "heal",
-            "cube_target": "self"
+            "class": [
+                {
+                    "cost": 3,
+                    "target": "self",
+                    "class": "heal"
+                }
+            ]
         },
         {
             "name": "Grimaldello",
@@ -1133,10 +1591,13 @@
             "image": "17_grimaldello",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "type": "equip",
-            "cube_cost": 3,
-            "cube_effect": "steal",
-            "cube_target": "hand"
+            "effects": [
+                {
+                    "cost": 3,
+                    "target": "hand_card",
+                    "class": "steal"
+                }
+            ]
         },
         {
             "name": "Thunderer",
@@ -1146,10 +1607,16 @@
             "image": "17_thunderer",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "type": "weapon",
-            "cube_cost": 1,
-            "cube_effect": "thunderer",
-            "distance": 3
+            "class": [
+                {
+                    "class": "weapon",
+                    "maxdistance": 3
+                },
+                {
+                    "cost": 1,
+                    "class": "thunderer"
+                }
+            ]
         }
     ],
     "characters": [
