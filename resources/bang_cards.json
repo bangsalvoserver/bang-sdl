@@ -1,0 +1,1933 @@
+{
+    "cards": [
+        {
+            "name": "Barile",
+            "signs": [
+                "QP",
+                "KP"
+            ],
+            "image": "01_barile",
+            "expansion": "base",
+            "color": "blue",
+            "type": "equip",
+            "effect": "barrel"
+        },
+        {
+            "name": "Dinamite",
+            "signs": [
+                "2C"
+            ],
+            "image": "01_dinamite",
+            "expansion": "base",
+            "color": "blue",
+            "type": "equip",
+            "effect": "dynamite"
+        },
+        {
+            "name": "Mirino",
+            "signs": [
+                "AP"
+            ],
+            "image": "01_mirino",
+            "expansion": "base",
+            "color": "blue",
+            "type": "equip",
+            "effect": "scope"
+        },
+        {
+            "name": "Mustang",
+            "signs": [
+                "8C",
+                "9C"
+            ],
+            "image": "01_mustang",
+            "expansion": "base",
+            "color": "blue",
+            "type": "equip",
+            "effect": "mustang"
+        },
+        {
+            "name": "Prigione",
+            "signs": [
+                "JP",
+                "4C",
+                "10P"
+            ],
+            "image": "01_prigione",
+            "expansion": "base",
+            "color": "blue",
+            "type": "equip",
+            "equip_target": "notsheriff",
+            "effect": "jail"
+        },
+        {
+            "name": "Remington",
+            "signs": [
+                "KF"
+            ],
+            "image": "01_remington",
+            "expansion": "base",
+            "color": "blue",
+            "type": "weapon",
+            "distance": 3
+        },
+        {
+            "name": "Rev. Carabine",
+            "signs": [
+                "AF"
+            ],
+            "image": "01_carabine",
+            "expansion": "base",
+            "color": "blue",
+            "type": "weapon",
+            "distance": 4
+        },
+        {
+            "name": "Schofield",
+            "signs": [
+                "JF",
+                "QF",
+                "KP"
+            ],
+            "image": "01_schofield",
+            "expansion": "base",
+            "color": "blue",
+            "type": "weapon",
+            "distance": 2
+        },
+        {
+            "name": "Volcanic",
+            "signs": [
+                "10P",
+                "10F"
+            ],
+            "image": "01_volcanic",
+            "expansion": "base",
+            "color": "blue",
+            "type": "weapon",
+            "distance": 1,
+            "effect": "volcanic"
+        },
+        {
+            "name": "Winchester",
+            "signs": [
+                "8P"
+            ],
+            "image": "01_winchester",
+            "expansion": "base",
+            "color": "blue",
+            "type": "weapon",
+            "distance": 5
+        },
+        {
+            "name": "Bang!",
+            "signs": [
+                "2F",
+                "3F",
+                "4F",
+                "5F",
+                "6F",
+                "7F",
+                "8F",
+                "9F",
+                "AQ",
+                "2Q",
+                "3Q",
+                "4Q",
+                "5Q",
+                "6Q",
+                "7Q",
+                "8Q",
+                "9Q",
+                "10Q",
+                "JQ",
+                "QQ",
+                "KQ",
+                "AC",
+                "QC",
+                "KC",
+                "AP"
+            ],
+            "image": "01_bang",
+            "expansion": "base",
+            "color": "brown",
+            "effect": "bangcard",
+            "target": "reachable"
+        },
+        {
+            "name": "Birra",
+            "signs": [
+                "6C",
+                "7C",
+                "8C",
+                "9C",
+                "10C",
+                "JC"
+            ],
+            "image": "01_birra",
+            "expansion": "base",
+            "color": "brown",
+            "effect": "beer",
+            "target": "self"
+        },
+        {
+            "name": "Cat Balou",
+            "signs": [
+                "KC",
+                "9Q",
+                "10Q",
+                "JQ"
+            ],
+            "image": "01_catbalou",
+            "expansion": "base",
+            "color": "brown",
+            "effect": "delete",
+            "target": "any"
+        },
+        {
+            "name": "Diligenza",
+            "signs": [
+                "9P",
+                "9P"
+            ],
+            "image": "01_diligenza",
+            "expansion": "base",
+            "color": "brown",
+            "effect": "draw draw changewws"
+        },
+        {
+            "name": "Duello",
+            "signs": [
+                "QQ",
+                "JP",
+                "8F"
+            ],
+            "image": "01_duello",
+            "expansion": "base",
+            "color": "brown",
+            "effect": "duel",
+            "target": "notself"
+        },
+        {
+            "name": "Emporio",
+            "signs": [
+                "9F",
+                "QP"
+            ],
+            "image": "01_emporio",
+            "expansion": "base",
+            "color": "brown",
+            "effect": "generalstore"
+        },
+        {
+            "name": "Gatling",
+            "signs": [
+                "10C"
+            ],
+            "image": "01_gatling",
+            "expansion": "base",
+            "color": "brown",
+            "effect": "bang",
+            "target": "others"
+        },
+        {
+            "name": "Indiani!",
+            "signs": [
+                "KQ",
+                "AQ"
+            ],
+            "image": "01_indiani",
+            "expansion": "base",
+            "color": "brown",
+            "effect": "indians",
+            "target": "others"
+        },
+        {
+            "name": "Mancato!",
+            "signs": [
+                "2P",
+                "3P",
+                "4P",
+                "5P",
+                "6P",
+                "7P",
+                "8P",
+                "AF",
+                "10F",
+                "JF",
+                "QF",
+                "KF"
+            ],
+            "image": "01_mancato",
+            "expansion": "base",
+            "color": "brown",
+            "effect": "missedcard"
+        },
+        {
+            "name": "Panico!",
+            "signs": [
+                "JC",
+                "QC",
+                "AC",
+                "8Q"
+            ],
+            "image": "01_panico",
+            "expansion": "base",
+            "color": "brown",
+            "effect": "steal",
+            "target": "distance",
+            "distance": 1
+        },
+        {
+            "name": "Saloon",
+            "signs": [
+                "5C"
+            ],
+            "image": "01_saloon",
+            "expansion": "base",
+            "color": "brown",
+            "effect": "heal",
+            "target": "everyone"
+        },
+        {
+            "name": "Wells Fargo",
+            "signs": [
+                "3C"
+            ],
+            "image": "01_wellsfargo",
+            "expansion": "base",
+            "color": "brown",
+            "effect": "draw draw draw changewws"
+        },
+        {
+            "name": "Barile",
+            "signs": [
+                "AF"
+            ],
+            "image": "03_barile",
+            "expansion": "dodgecity",
+            "color": "blue",
+            "type": "equip",
+            "effect": "barrel"
+        },
+        {
+            "name": "Binocolo",
+            "signs": [
+                "10Q"
+            ],
+            "image": "03_binocolo",
+            "expansion": "dodgecity",
+            "color": "blue",
+            "type": "equip",
+            "effect": "scope"
+        },
+        {
+            "name": "Dinamite",
+            "signs": [
+                "10F"
+            ],
+            "image": "03_dinamite",
+            "expansion": "dodgecity",
+            "color": "blue",
+            "type": "equip",
+            "equip_target": "self",
+            "effect": "dynamite"
+        },
+        {
+            "name": "Mustang",
+            "signs": [
+                "5C"
+            ],
+            "image": "03_mustang",
+            "expansion": "dodgecity",
+            "color": "blue",
+            "type": "equip",
+            "effect": "mustang"
+        },
+        {
+            "name": "Remington",
+            "signs": [
+                "6Q"
+            ],
+            "image": "03_remington",
+            "expansion": "dodgecity",
+            "color": "blue",
+            "type": "weapon",
+            "distance": 3
+        },
+        {
+            "name": "Rev. Carabine",
+            "signs": [
+                "5P"
+            ],
+            "image": "03_rev_carabine",
+            "expansion": "dodgecity",
+            "color": "blue",
+            "type": "weapon",
+            "distance": 4
+        },
+        {
+            "name": "Riparo",
+            "signs": [
+                "KQ"
+            ],
+            "image": "03_riparo",
+            "expansion": "dodgecity",
+            "color": "blue",
+            "type": "equip",
+            "effect": "mustang"
+        },
+        {
+            "name": "Bang!",
+            "signs": [
+                "8P",
+                "5F",
+                "6F",
+                "KF"
+            ],
+            "image": "03_bang",
+            "expansion": "dodgecity",
+            "color": "brown",
+            "target": "reachable",
+            "effect": "bangcard"
+        },
+        {
+            "name": "Birra",
+            "signs": [
+                "6C",
+                "6P"
+            ],
+            "image": "03_birra",
+            "expansion": "dodgecity",
+            "color": "brown",
+            "effect": "beer",
+            "target": "self"
+        },
+        {
+            "name": "Cat Balou",
+            "signs": [
+                "8F"
+            ],
+            "image": "03_cat_balou",
+            "expansion": "dodgecity",
+            "color": "brown",
+            "target": "any",
+            "effect": "delete"
+        },
+        {
+            "name": "Emporio",
+            "signs": [
+                "AP"
+            ],
+            "image": "03_emporio",
+            "expansion": "dodgecity",
+            "color": "brown",
+            "effect": "generalstore"
+        },
+        {
+            "name": "Indiani",
+            "signs": [
+                "5Q"
+            ],
+            "image": "03_indiani",
+            "expansion": "dodgecity",
+            "color": "brown",
+            "target": "others",
+            "effect": "indians"
+        },
+        {
+            "name": "Mancato!",
+            "signs": [
+                "8Q"
+            ],
+            "image": "03_mancato",
+            "expansion": "dodgecity",
+            "color": "brown",
+            "effect": "missedcard"
+        },
+        {
+            "name": "Panico!",
+            "signs": [
+                "JC"
+            ],
+            "image": "03_panico",
+            "expansion": "dodgecity",
+            "color": "brown",
+            "target": "distance",
+            "effect": "steal"
+        },
+        {
+            "name": "Pugno",
+            "signs": [
+                "10P"
+            ],
+            "image": "03_pugno",
+            "expansion": "dodgecity",
+            "color": "brown",
+            "target": "distance",
+            "effect": "bang",
+            "distance": 1
+        },
+        {
+            "name": "Rag Time",
+            "signs": [
+                "9C"
+            ],
+            "image": "03_rag_time",
+            "expansion": "dodgecity",
+            "color": "brown",
+            "target": "any",
+            "effect": "discard steal"
+        },
+        {
+            "name": "Rissa",
+            "signs": [
+                "JP"
+            ],
+            "image": "03_rissa",
+            "expansion": "dodgecity",
+            "color": "brown",
+            "target": "others",
+            "effect": "discard delete"
+        },
+        {
+            "name": "Schivata",
+            "signs": [
+                "7Q",
+                "KC"
+            ],
+            "image": "03_schivata",
+            "expansion": "dodgecity",
+            "color": "brown",
+            "effect": "missed draw"
+        },
+        {
+            "name": "Springfield",
+            "signs": [
+                "KP"
+            ],
+            "image": "03_springfield",
+            "expansion": "dodgecity",
+            "color": "brown",
+            "target": "notself",
+            "effect": "discard bang"
+        },
+        {
+            "name": "Tequila",
+            "signs": [
+                "9F"
+            ],
+            "image": "03_tequila",
+            "expansion": "dodgecity",
+            "color": "brown",
+            "target": "any",
+            "effect": "discard heal"
+        },
+        {
+            "name": "Whisky",
+            "signs": [
+                "QC"
+            ],
+            "image": "03_whisky",
+            "expansion": "dodgecity",
+            "color": "brown",
+            "target": "self",
+            "effect": "discard heal heal"
+        },
+        {
+            "name": "Bibbia",
+            "signs": [
+                "10C"
+            ],
+            "image": "03_bibbia",
+            "expansion": "dodgecity",
+            "color": "green",
+            "effect": "missed draw"
+        },
+        {
+            "name": "Borraccia",
+            "signs": [
+                "7C"
+            ],
+            "image": "03_borraccia",
+            "expansion": "dodgecity",
+            "color": "green",
+            "effect": "heal"
+        },
+        {
+            "name": "Can Can",
+            "signs": [
+                "JF"
+            ],
+            "image": "03_can_can",
+            "expansion": "dodgecity",
+            "color": "green",
+            "target": "any",
+            "effect": "delete"
+        },
+        {
+            "name": "Cappello",
+            "signs": [
+                "JQ"
+            ],
+            "image": "03_cappello",
+            "expansion": "dodgecity",
+            "color": "green",
+            "effect": "missed"
+        },
+        {
+            "name": "Conestoga",
+            "signs": [
+                "9Q"
+            ],
+            "image": "03_conestoga",
+            "expansion": "dodgecity",
+            "color": "green",
+            "target": "any",
+            "effect": "steal"
+        },
+        {
+            "name": "Derringer",
+            "signs": [
+                "7P"
+            ],
+            "image": "03_derringer",
+            "expansion": "dodgecity",
+            "color": "green",
+            "target": "distance",
+            "effect": "bang draw",
+            "distance": 1
+        },
+        {
+            "name": "Fucile da Caccia",
+            "signs": [
+                "9F"
+            ],
+            "image": "03_fucile_da_caccia",
+            "expansion": "dodgecity",
+            "color": "green",
+            "target": "notself",
+            "effect": "bang"
+        },
+        {
+            "name": "Howitzer",
+            "signs": [
+                "9P"
+            ],
+            "image": "03_howitzer",
+            "expansion": "dodgecity",
+            "color": "green",
+            "target": "others",
+            "effect": "bang"
+        },
+        {
+            "name": "Pepperbox",
+            "signs": [
+                "AC"
+            ],
+            "image": "03_pepperbox",
+            "expansion": "dodgecity",
+            "color": "green",
+            "target": "reachable",
+            "effect": "bang"
+        },
+        {
+            "name": "Placca di Ferro",
+            "signs": [
+                "AQ",
+                "QP"
+            ],
+            "image": "03_placca_di_ferro",
+            "expansion": "dodgecity",
+            "color": "green",
+            "effect": "missed"
+        },
+        {
+            "name": "Pony Express",
+            "signs": [
+                "QQ"
+            ],
+            "image": "03_pony_express",
+            "expansion": "dodgecity",
+            "color": "green",
+            "effect": "draw draw draw changewws"
+        },
+        {
+            "name": "Pugnale",
+            "signs": [
+                "8C"
+            ],
+            "image": "03_pugnale",
+            "expansion": "dodgecity",
+            "color": "green",
+            "target": "distance",
+            "effect": "bang",
+            "distance": 1
+        },
+        {
+            "name": "Sombrero",
+            "signs": [
+                "7F"
+            ],
+            "image": "03_sombrero",
+            "expansion": "dodgecity",
+            "color": "green",
+            "effect": "missed"
+        },
+        {
+            "name": "Fantasma",
+            "signs": [
+                "9P",
+                "10P"
+            ],
+            "image": "07_fantasma",
+            "expansion": "valleyofshadows",
+            "color": "blue",
+            "type": "equip",
+            "target": "any",
+            "effect": "ghost"
+        },
+        {
+            "name": "Lemat",
+            "signs": [
+                "4Q"
+            ],
+            "image": "07_lemat",
+            "expansion": "valleyofshadows",
+            "color": "blue",
+            "type": "weapon",
+            "distance": 1,
+            "effect": "lemat"
+        },
+        {
+            "name": "Serpente a Sonagli",
+            "signs": [
+                "7C"
+            ],
+            "image": "07_serpenteasonagli",
+            "expansion": "valleyofshadows",
+            "color": "blue",
+            "type": "equip",
+            "target": "notself",
+            "effect": "snake"
+        },
+        {
+            "name": "Shotgun",
+            "signs": [
+                "KP"
+            ],
+            "image": "07_shotgun",
+            "expansion": "valleyofshadows",
+            "color": "blue",
+            "type": "weapon",
+            "distance": 1,
+            "effect": "shotgun"
+        },
+        {
+            "name": "Taglia",
+            "signs": [
+                "9F"
+            ],
+            "image": "07_taglia",
+            "expansion": "valleyofshadows",
+            "color": "blue",
+            "type": "equip",
+            "target": "notself",
+            "effect": "bounty"
+        },
+        {
+            "name": "Bandidos",
+            "signs": [
+                "QQ"
+            ],
+            "image": "07_bandidos",
+            "expansion": "valleyofshadows",
+            "color": "brown",
+            "effect": "bandidos"
+        },
+        {
+            "name": "Fuga",
+            "signs": [
+                "3C"
+            ],
+            "image": "07_fuga",
+            "expansion": "valleyofshadows",
+            "color": "brown",
+            "effect": "flight"
+        },
+        {
+            "name": "Mira",
+            "signs": [
+                "6F"
+            ],
+            "image": "07_mira",
+            "expansion": "valleyofshadows",
+            "color": "brown",
+            "effect": "aim"
+        },
+        {
+            "name": "Poker",
+            "signs": [
+                "JC"
+            ],
+            "image": "07_poker",
+            "expansion": "valleyofshadows",
+            "color": "brown",
+            "effect": "poker"
+        },
+        {
+            "name": "Ritorno di Fiamma",
+            "signs": [
+                "QF"
+            ],
+            "image": "07_ritornodifiamma",
+            "expansion": "valleyofshadows",
+            "color": "brown",
+            "effect": "backfire"
+        },
+        {
+            "name": "Salvo!",
+            "signs": [
+                "5C"
+            ],
+            "image": "07_salvo",
+            "expansion": "valleyofshadows",
+            "color": "brown",
+            "effect": "saved"
+        },
+        {
+            "name": "Sventagliata",
+            "signs": [
+                "2P"
+            ],
+            "image": "07_sventagliata",
+            "expansion": "valleyofshadows",
+            "color": "brown",
+            "target": "reachable",
+            "effect": "fanning"
+        },
+        {
+            "name": "Tomahawk",
+            "signs": [
+                "AQ"
+            ],
+            "image": "07_tomahawk",
+            "expansion": "valleyofshadows",
+            "color": "brown",
+            "target": "distance",
+            "effect": "bang",
+            "distance": 2
+        },
+        {
+            "name": "Tornado",
+            "signs": [
+                "AF"
+            ],
+            "image": "07_tornado",
+            "expansion": "valleyofshadows",
+            "color": "brown",
+            "effect": "tornado"
+        },
+        {
+            "name": "Ultimo Giro",
+            "signs": [
+                "8Q"
+            ],
+            "image": "07_ultimogiro",
+            "expansion": "valleyofshadows",
+            "color": "brown",
+            "effect": "heal",
+            "target": "self"
+        },
+        {
+            "name": "Bang!",
+            "signs": [
+                "6C",
+                "2F",
+                "2Q",
+                "3Q"
+            ],
+            "image": "17_bang",
+            "expansion": "armedanddangerous",
+            "color": "brown",
+            "target": "reachable",
+            "effect": "bangcard"
+        },
+        {
+            "name": "Carovana",
+            "signs": [
+                "2P"
+            ],
+            "image": "17_carovana",
+            "expansion": "armedanddangerous",
+            "color": "brown",
+            "cube_cost": 2,
+            "effect": "draw draw",
+            "cube_effect": "draw",
+            "multiple": 1
+        },
+        {
+            "name": "Cat Balou",
+            "signs": [
+                "3C"
+            ],
+            "image": "17_catbalou",
+            "expansion": "armedanddangerous",
+            "color": "brown",
+            "target": "any",
+            "effect": "delete"
+        },
+        {
+            "name": "Cicchetto",
+            "signs": [
+                "5C"
+            ],
+            "image": "17_cicchetto",
+            "expansion": "armedanddangerous",
+            "color": "brown",
+            "cube_cost": 3,
+            "effect": "heal",
+            "cube_effect": "heal",
+            "multiple": 1
+        },
+        {
+            "name": "Colpo Rapido",
+            "signs": [
+                "3P"
+            ],
+            "image": "17_colporapido",
+            "expansion": "armedanddangerous",
+            "color": "brown",
+            "cube_cost": 1,
+            "target": "reachable",
+            "effect": "bang",
+            "cube_effect": "bang",
+            "cube_target": "reachable new",
+            "multiple": 1
+        },
+        {
+            "name": "Flintlock",
+            "signs": [
+                "AP"
+            ],
+            "image": "17_flintlock",
+            "expansion": "armedanddangerous",
+            "color": "brown",
+            "cube_cost": 2,
+            "target": "reachable",
+            "effect": "bang",
+            "cube_effect": "flintlock"
+        },
+        {
+            "name": "Freccia",
+            "signs": [
+                "5Q"
+            ],
+            "image": "17_freccia",
+            "expansion": "armedanddangerous",
+            "color": "brown",
+            "cube_cost": 1,
+            "target": "notself",
+            "effect": "indians",
+            "cube_effect": "indians",
+            "cube_target": "notself new",
+            "multiple": 1
+        },
+        {
+            "name": "Gi\u00f9 la Testa!",
+            "signs": [
+                "3Q"
+            ],
+            "image": "17_giulatesta",
+            "expansion": "armedanddangerous",
+            "color": "brown",
+            "cube_cost": 2,
+            "effect": "missed",
+            "cube_effect": "duck"
+        },
+        {
+            "name": "Mancato!",
+            "signs": [
+                "KP"
+            ],
+            "image": "17_mancato",
+            "expansion": "armedanddangerous",
+            "color": "brown",
+            "effect": "missedcard"
+        },
+        {
+            "name": "Ricarica",
+            "signs": [
+                "4Q"
+            ],
+            "image": "17_ricarica",
+            "expansion": "armedanddangerous",
+            "color": "brown",
+            "effect": "reload"
+        },
+        {
+            "name": "Ruggine",
+            "signs": [
+                "9P"
+            ],
+            "image": "17_ruggine",
+            "expansion": "armedanddangerous",
+            "color": "brown",
+            "effect": "rust"
+        },
+        {
+            "name": "Squaw",
+            "signs": [
+                "3Q"
+            ],
+            "image": "17_squaw",
+            "expansion": "armedanddangerous",
+            "color": "brown",
+            "cube_cost": 2,
+            "target": "any",
+            "effect": "delete",
+            "cube_effect": "squaw"
+        },
+        {
+            "name": "Asso nella Manica",
+            "signs": [
+                "AC"
+            ],
+            "image": "17_assonellamanica",
+            "expansion": "armedanddangerous",
+            "color": "orange",
+            "type": "equip",
+            "cube_cost": 2,
+            "cube_effect": "draw changewws"
+        },
+        {
+            "name": "Bandoliera",
+            "signs": [
+                "2C"
+            ],
+            "image": "17_bandoliera",
+            "expansion": "armedanddangerous",
+            "color": "orange",
+            "type": "equip",
+            "cube_cost": 1,
+            "cube_effect": "bandolier"
+        },
+        {
+            "name": "Big Fifty",
+            "signs": [
+                "QP"
+            ],
+            "image": "17_bigfifty",
+            "expansion": "armedanddangerous",
+            "color": "orange",
+            "type": "weapon",
+            "cube_cost": 1,
+            "distance": 6,
+            "cube_effect": "bigfifty"
+        },
+        {
+            "name": "Bomba",
+            "signs": [
+                "7Q"
+            ],
+            "image": "17_bomba",
+            "expansion": "armedanddangerous",
+            "color": "orange",
+            "type": "equip",
+            "equip_target": "any",
+            "effect": "bomb"
+        },
+        {
+            "name": "Buntline Special",
+            "signs": [
+                "JP"
+            ],
+            "image": "17_buntlinespecial",
+            "expansion": "armedanddangerous",
+            "color": "orange",
+            "type": "weapon",
+            "cube_cost": 1,
+            "distance": 2,
+            "cube_effect": "buntlinespecial"
+        },
+        {
+            "name": "Campanile",
+            "signs": [
+                "7F"
+            ],
+            "image": "17_campanile",
+            "expansion": "armedanddangerous",
+            "color": "orange",
+            "type": "equip",
+            "cube_cost": 1,
+            "cube_effect": "belltower"
+        },
+        {
+            "name": "Cassa",
+            "signs": [
+                "3C"
+            ],
+            "image": "17_cassa",
+            "expansion": "armedanddangerous",
+            "color": "orange",
+            "type": "equip",
+            "cube_cost": 2,
+            "cube_effect": "missed"
+        },
+        {
+            "name": "Cespuglio",
+            "signs": [
+                "4F"
+            ],
+            "image": "17_cespuglio",
+            "expansion": "armedanddangerous",
+            "color": "orange",
+            "type": "equip",
+            "cube_cost": 1,
+            "cube_effect": "bush"
+        },
+        {
+            "name": "Doppia Canna",
+            "signs": [
+                "6F"
+            ],
+            "image": "17_doppiacanna",
+            "expansion": "armedanddangerous",
+            "color": "orange",
+            "type": "weapon",
+            "cube_cost": 1,
+            "distance": 1,
+            "cube_effect": "doublebarrel"
+        },
+        {
+            "name": "Frusta",
+            "signs": [
+                "5F"
+            ],
+            "image": "17_frusta",
+            "expansion": "armedanddangerous",
+            "color": "orange",
+            "type": "equip",
+            "cube_cost": 3,
+            "cube_effect": "discard",
+            "cube_target": "table"
+        },
+        {
+            "name": "Fusto di Birra",
+            "signs": [
+                "4C"
+            ],
+            "image": "17_fustodibirra",
+            "expansion": "armedanddangerous",
+            "color": "orange",
+            "type": "equip",
+            "cube_cost": 3,
+            "cube_effect": "heal",
+            "cube_target": "self"
+        },
+        {
+            "name": "Grimaldello",
+            "signs": [
+                "2F"
+            ],
+            "image": "17_grimaldello",
+            "expansion": "armedanddangerous",
+            "color": "orange",
+            "type": "equip",
+            "cube_cost": 3,
+            "cube_effect": "steal",
+            "cube_target": "hand"
+        },
+        {
+            "name": "Thunderer",
+            "signs": [
+                "3F"
+            ],
+            "image": "17_thunderer",
+            "expansion": "armedanddangerous",
+            "color": "orange",
+            "type": "weapon",
+            "cube_cost": 1,
+            "cube_effect": "thunderer",
+            "distance": 3
+        }
+    ],
+    "characters": [
+        {
+            "name": "Bart Cassidy",
+            "image": "01_bartcassidy",
+            "hp": 4,
+            "expansion": "base",
+            "effect": "boots"
+        },
+        {
+            "name": "Black Jack",
+            "image": "01_blackjack",
+            "hp": 4,
+            "expansion": "base",
+            "effect": "black_jack"
+        },
+        {
+            "name": "Calamity Janet",
+            "image": "01_calamityjanet",
+            "hp": 4,
+            "expansion": "base",
+            "effect": "calamity_janet"
+        },
+        {
+            "name": "El Gringo",
+            "image": "01_elgringo",
+            "hp": 3,
+            "expansion": "base",
+            "effect": "el_gringo"
+        },
+        {
+            "name": "Jesse Jones",
+            "image": "01_jessejones",
+            "hp": 4,
+            "expansion": "base",
+            "effect": "jesse_jones"
+        },
+        {
+            "name": "Jourdonnais",
+            "image": "01_jourdonnais",
+            "hp": 4,
+            "expansion": "base",
+            "effect": "barrel"
+        },
+        {
+            "name": "Kit Carlson",
+            "image": "01_kitcarlson",
+            "hp": 4,
+            "expansion": "base",
+            "effect": "kit_carlson"
+        },
+        {
+            "name": "Lucky Duke",
+            "image": "01_luckyduke",
+            "hp": 4,
+            "expansion": "base",
+            "effect": "horsecharm"
+        },
+        {
+            "name": "Paul Regret",
+            "image": "01_paulregret",
+            "hp": 3,
+            "expansion": "base",
+            "effect": "mustang"
+        },
+        {
+            "name": "Pedro Ramirez",
+            "image": "01_pedroramirez",
+            "hp": 4,
+            "expansion": "base",
+            "effect": "pedro_ramirez"
+        },
+        {
+            "name": "Rose Doolan",
+            "image": "01_rosedoolan",
+            "hp": 4,
+            "expansion": "base",
+            "effect": "scope"
+        },
+        {
+            "name": "Sid Ketchum",
+            "image": "01_sidketchum",
+            "hp": 4,
+            "expansion": "base",
+            "effect": "sid_ketchum"
+        },
+        {
+            "name": "Slab the Killer",
+            "image": "01_slab",
+            "hp": 4,
+            "expansion": "base",
+            "effect": "slab_the_killer"
+        },
+        {
+            "name": "Suzy Lafayette",
+            "image": "01_suzylafayette",
+            "hp": 4,
+            "expansion": "base",
+            "effect": "suzy_lafayette"
+        },
+        {
+            "name": "Vulture Sam",
+            "image": "01_vulturesam",
+            "hp": 4,
+            "expansion": "base",
+            "effect": "vulture_sam"
+        },
+        {
+            "name": "Willy the Kid",
+            "image": "01_willythekid",
+            "hp": 4,
+            "expansion": "base",
+            "effect": "volcanic"
+        },
+        {
+            "name": "Claus \"The Saint\"",
+            "image": "02_clausthesaint",
+            "hp": 3,
+            "expansion": "thebullet",
+            "effect": "claus_the_saint"
+        },
+        {
+            "name": "Johnny Kisch",
+            "image": "02_johnnykisch",
+            "hp": 4,
+            "expansion": "thebullet",
+            "effect": "johnny_kisch"
+        },
+        {
+            "name": "Uncle Will",
+            "image": "02_unclewill",
+            "hp": 4,
+            "expansion": "thebullet",
+            "effect": "uncle_will"
+        },
+        {
+            "name": "Apache Kid",
+            "image": "03_apache_kid",
+            "hp": 3,
+            "expansion": "dodgecity",
+            "effect": "calumet"
+        },
+        {
+            "name": "Belle Star",
+            "image": "03_belle_star",
+            "hp": 4,
+            "expansion": "dodgecity",
+            "effect": "bellestar"
+        },
+        {
+            "name": "Bill Noface",
+            "image": "03_bill_noface",
+            "hp": 4,
+            "expansion": "dodgecity",
+            "effect": "bill_noface"
+        },
+        {
+            "name": "Chuck Wengam",
+            "image": "03_chuck_wengam",
+            "hp": 4,
+            "expansion": "dodgecity",
+            "effect": "chuck_wengam"
+        },
+        {
+            "name": "Doc Holyday",
+            "image": "03_doc_holyday",
+            "hp": 4,
+            "expansion": "dodgecity",
+            "effect": "doc_holyday"
+        },
+        {
+            "name": "Elena Fuente",
+            "image": "03_elena_fuente",
+            "hp": 3,
+            "expansion": "dodgecity",
+            "effect": "elena_fuente"
+        },
+        {
+            "name": "Greg Digger",
+            "image": "03_greg_digger",
+            "hp": 4,
+            "expansion": "dodgecity",
+            "effect": "greg_digger"
+        },
+        {
+            "name": "Herb Hunter",
+            "image": "03_herb_hunter",
+            "hp": 4,
+            "expansion": "dodgecity",
+            "effect": "herb_hunter"
+        },
+        {
+            "name": "Jos\u00e8 Delgado",
+            "image": "03_jose_delgado",
+            "hp": 4,
+            "expansion": "dodgecity",
+            "effect": "jose_delgado"
+        },
+        {
+            "name": "Molly Stark",
+            "image": "03_molly_stark",
+            "hp": 4,
+            "expansion": "dodgecity",
+            "effect": "molly_stark"
+        },
+        {
+            "name": "Pat Brennan",
+            "image": "03_pat_brennan",
+            "hp": 4,
+            "expansion": "dodgecity",
+            "effect": "pat_brennan"
+        },
+        {
+            "name": "Pixie Pete",
+            "image": "03_pixie_pete",
+            "hp": 3,
+            "expansion": "dodgecity",
+            "effect": "pixie_pete"
+        },
+        {
+            "name": "Sean Mallory",
+            "image": "03_sean_mallory",
+            "hp": 3,
+            "expansion": "dodgecity",
+            "effect": "sean_mallory"
+        },
+        {
+            "name": "Tequila Joe",
+            "image": "03_tequila_joe",
+            "hp": 4,
+            "expansion": "dodgecity",
+            "effect": "tequila_joe"
+        },
+        {
+            "name": "Vera Custer",
+            "image": "03_vera_custer",
+            "hp": 3,
+            "expansion": "dodgecity",
+            "effect": "vera_custer"
+        },
+        {
+            "name": "Black Flower",
+            "image": "07_blackflower",
+            "hp": 4,
+            "expansion": "valleyofshadows",
+            "effect": "black_flower"
+        },
+        {
+            "name": "Colorado Bill",
+            "image": "07_coloradobill",
+            "hp": 4,
+            "expansion": "valleyofshadows",
+            "effect": "colorado_bill"
+        },
+        {
+            "name": "Der Spot - Burst Ringer",
+            "image": "07_derspot",
+            "hp": 4,
+            "expansion": "valleyofshadows",
+            "effect": "der_spot_burst_ringer"
+        },
+        {
+            "name": "Evelyn Shebang",
+            "image": "07_evelynshebang",
+            "hp": 4,
+            "expansion": "valleyofshadows",
+            "effect": "evelyn_shebang"
+        },
+        {
+            "name": "Henry Block",
+            "image": "07_henryblock",
+            "hp": 4,
+            "expansion": "valleyofshadows",
+            "effect": "henry_block"
+        },
+        {
+            "name": "Lemonade Jim",
+            "image": "07_lemonadejim",
+            "hp": 4,
+            "expansion": "valleyofshadows",
+            "effect": "lemonade_jim"
+        },
+        {
+            "name": "Mick Defender",
+            "image": "07_mickdefender",
+            "hp": 4,
+            "expansion": "valleyofshadows",
+            "effect": "mick_defender"
+        },
+        {
+            "name": "Tuco Franziskaner",
+            "image": "07_tucofranziskaner",
+            "hp": 5,
+            "expansion": "valleyofshadows",
+            "effect": "tuco_franziskaner"
+        },
+        {
+            "name": "Big Spencer",
+            "image": "06_bigspencer",
+            "hp": 9,
+            "expansion": "wildwestshow",
+            "effect": "big_spencer"
+        },
+        {
+            "name": "Flint Westwood",
+            "image": "06_flintwestwood",
+            "hp": 4,
+            "expansion": "wildwestshow",
+            "effect": "flint_westwood"
+        },
+        {
+            "name": "Gary Looter",
+            "image": "06_garylooter",
+            "hp": 5,
+            "expansion": "wildwestshow",
+            "effect": "gary_looter"
+        },
+        {
+            "name": "Greygory Deck",
+            "image": "06_greygorydeck",
+            "hp": 4,
+            "expansion": "wildwestshow",
+            "effect": "gregory_deck"
+        },
+        {
+            "name": "John Pain",
+            "image": "06_johnpain",
+            "hp": 4,
+            "expansion": "wildwestshow",
+            "effect": "john_pain"
+        },
+        {
+            "name": "Lee Van Kliff",
+            "image": "06_leevankliff",
+            "hp": 4,
+            "expansion": "wildwestshow",
+            "effect": "lee_van_kliff"
+        },
+        {
+            "name": "Teren Kill",
+            "image": "06_terenkill",
+            "hp": 3,
+            "expansion": "wildwestshow",
+            "effect": "teren_kill"
+        },
+        {
+            "name": "Youl Grinner",
+            "image": "06_youlgrinner",
+            "hp": 4,
+            "expansion": "wildwestshow",
+            "effect": "youl_grinner"
+        },
+        {
+            "name": "Al Preacher",
+            "image": "17_alpreacher",
+            "hp": 4,
+            "expansion": "armedanddangerous",
+            "effect": "al_preacher"
+        },
+        {
+            "name": "Bass Greeves",
+            "image": "17_bassgreeves",
+            "hp": 4,
+            "expansion": "armedanddangerous",
+            "effect": "bass_greeves"
+        },
+        {
+            "name": "Bloody Mary",
+            "image": "17_bloodymary",
+            "hp": 4,
+            "expansion": "armedanddangerous",
+            "effect": "bloody_mary"
+        },
+        {
+            "name": "Frankie Canton",
+            "image": "17_frankiecanton",
+            "hp": 4,
+            "expansion": "armedanddangerous",
+            "effect": "frankie_canton"
+        },
+        {
+            "name": "Julie Cutter",
+            "image": "17_juliecutter",
+            "hp": 4,
+            "expansion": "armedanddangerous",
+            "effect": "julie_cutter"
+        },
+        {
+            "name": "Mexicali Kid",
+            "image": "17_mexicalikid",
+            "hp": 4,
+            "expansion": "armedanddangerous",
+            "effect": "mexicali_kid"
+        },
+        {
+            "name": "Ms. Abigail",
+            "image": "17_msabigail",
+            "hp": 4,
+            "expansion": "armedanddangerous",
+            "effect": "ms_abigail"
+        },
+        {
+            "name": "Red Ringo",
+            "image": "17_redringo",
+            "hp": 5,
+            "expansion": "armedanddangerous",
+            "effect": "red_ringo"
+        },
+        {
+            "name": "Don Bell",
+            "image": "04_don_bell",
+            "hp": 4,
+            "expansion": "goldrush",
+            "effect": "don_bell"
+        },
+        {
+            "name": "Dutch Will",
+            "image": "04_dutch_will",
+            "hp": 4,
+            "expansion": "goldrush",
+            "effect": "dutch_will"
+        },
+        {
+            "name": "Jacky Murieta",
+            "image": "04_jacky_murieta",
+            "hp": 4,
+            "expansion": "goldrush",
+            "effect": "jacky_murieta"
+        },
+        {
+            "name": "Josh McCloud",
+            "image": "04_josh_mccloud",
+            "hp": 4,
+            "expansion": "goldrush",
+            "effect": "josh_mccloud"
+        },
+        {
+            "name": "Madame Yto",
+            "image": "04_madame_yto",
+            "hp": 4,
+            "expansion": "goldrush",
+            "effect": "madame_yto"
+        },
+        {
+            "name": "Pretty Luzena",
+            "image": "04_pretty_luzena",
+            "hp": 4,
+            "expansion": "goldrush",
+            "effect": "pretty_luzena"
+        },
+        {
+            "name": "Raddie Snake",
+            "image": "04_raddie_snake",
+            "hp": 4,
+            "expansion": "goldrush",
+            "effect": "goldpan"
+        },
+        {
+            "name": "Simeon Picos",
+            "image": "04_simeon_picos",
+            "hp": 4,
+            "expansion": "goldrush",
+            "effect": "luckycharm"
+        }
+    ],
+    "roles": [
+        {
+            "name": "Fuorilegge",
+            "image": "01_fuorilegge"
+        },
+        {
+            "name": "Rinnegato",
+            "image": "01_rinnegato"
+        },
+        {
+            "name": "Sceriffo",
+            "image": "01_sceriffo"
+        },
+        {
+            "name": "Vice",
+            "image": "01_vice"
+        }
+    ],
+    "highnoon": [
+        {
+            "name": "Benedizione",
+            "image": "05_benedizione"
+        },
+        {
+            "name": "Citt\u00e0 Fantasma",
+            "image": "05_cittafantasma"
+        },
+        {
+            "name": "Corsa all'Oro",
+            "image": "05_corsaalloro"
+        },
+        {
+            "name": "I Dalton",
+            "image": "05_idalton"
+        },
+        {
+            "name": "Il Dottore",
+            "image": "05_ildottore"
+        },
+        {
+            "name": "Il Reverendo",
+            "image": "05_ilreverendo"
+        },
+        {
+            "name": "Il Treno",
+            "image": "05_iltreno"
+        },
+        {
+            "name": "Maledizione",
+            "image": "05_maledizione"
+        },
+        {
+            "name": "Mezzogiorno di Fuoco",
+            "image": "05_mezzogiornodifuoco",
+            "last_card": 1
+        },
+        {
+            "name": "Sbornia",
+            "image": "05_sbornia"
+        },
+        {
+            "name": "Sermone",
+            "image": "05_sermone"
+        },
+        {
+            "name": "Sete",
+            "image": "05_sete"
+        },
+        {
+            "name": "Sparatoria",
+            "image": "05_sparatoria"
+        }
+    ],
+    "fistfulofcards": [
+        {
+            "name": "Agguato",
+            "image": "05_agguato"
+        },
+        {
+            "name": "Cecchino",
+            "image": "05_cecchino"
+        },
+        {
+            "name": "Dead Man",
+            "image": "05_deadman"
+        },
+        {
+            "name": "Fratelli di Sangue",
+            "image": "05_fratellidisangue"
+        },
+        {
+            "name": "Il Giudice",
+            "image": "05_ilgiudice"
+        },
+        {
+            "name": "Lazo",
+            "image": "05_lazo"
+        },
+        {
+            "name": "Legge del West",
+            "image": "05_leggedelwest"
+        },
+        {
+            "name": "Liquore Forte",
+            "image": "05_liquoreforte"
+        },
+        {
+            "name": "Miniera Abbandonata",
+            "image": "05_minieraabbandonata"
+        },
+        {
+            "name": "Per un Pugno di Carte",
+            "image": "05_perunpugnodicarte",
+            "last_card": 1
+        },
+        {
+            "name": "Peyote",
+            "image": "05_peyote"
+        },
+        {
+            "name": "Ranch",
+            "image": "05_ranch"
+        },
+        {
+            "name": "Rimbalzo",
+            "image": "05_rimbalzo"
+        },
+        {
+            "name": "Roulette Russa",
+            "image": "05_rouletterussa"
+        },
+        {
+            "name": "Vendetta",
+            "image": "05_vendetta"
+        }
+    ],
+    "wildwestshow": [
+        {
+            "name": "Bavaglio",
+            "image": "06_bavaglio",
+            "disabled": 1
+        },
+        {
+            "name": "Camposanto",
+            "image": "06_camposanto"
+        },
+        {
+            "name": "Darling Valentine",
+            "image": "06_darlingvalentine"
+        },
+        {
+            "name": "Dorothy Rage",
+            "image": "06_dorothyrage",
+            "disabled": 1
+        },
+        {
+            "name": "Helena Zontero",
+            "image": "06_helenazontero"
+        },
+        {
+            "name": "Lady Rosa del Texas",
+            "image": "06_ladyrosadeltexas"
+        },
+        {
+            "name": "Miss Susanna",
+            "image": "06_misssusanna"
+        },
+        {
+            "name": "Regolamento di Conti",
+            "image": "06_regolamentodiconti"
+        },
+        {
+            "name": "Sacagaway",
+            "image": "06_sacagaway"
+        },
+        {
+            "name": "Wild West Show",
+            "image": "06_wildwestshow",
+            "last_card": 1
+        }
+    ],
+    "goldrush": [
+        {
+            "name": "Bicchierino",
+            "count": 3,
+            "image": "04_bicchierino",
+            "color": "brown",
+            "gold_cost": 1,
+            "target": "any",
+            "effect": "heal"
+        },
+        {
+            "name": "Bottiglia",
+            "count": 3,
+            "image": "04_bottiglia",
+            "color": "brown",
+            "gold_cost": 2,
+            "effect": "bottle"
+        },
+        {
+            "name": "Calumet",
+            "count": 1,
+            "image": "04_calumet",
+            "color": "black",
+            "type": "equip",
+            "gold_cost": 3,
+            "effect": "calumet"
+        },
+        {
+            "name": "Cinturone",
+            "count": 1,
+            "image": "04_cinturone",
+            "color": "black",
+            "type": "equip",
+            "gold_cost": 2,
+            "effect": "gunbelt"
+        },
+        {
+            "name": "Complice",
+            "count": 3,
+            "image": "04_complice",
+            "color": "brown",
+            "gold_cost": 2,
+            "effect": "pardner"
+        },
+        {
+            "name": "Corsa all' Oro",
+            "count": 1,
+            "image": "04_corsa_all_oro",
+            "color": "brown",
+            "gold_cost": 5,
+            "effect": "goldrush"
+        },
+        {
+            "name": "Ferro di Cavallo",
+            "count": 1,
+            "image": "04_ferro_di_cavallo",
+            "color": "black",
+            "type": "equip",
+            "gold_cost": 2,
+            "effect": "horseshoe"
+        },
+        {
+            "name": "Piccone",
+            "count": 1,
+            "image": "04_piccone",
+            "color": "black",
+            "type": "equip",
+            "gold_cost": 4,
+            "effect": "pickaxe"
+        },
+        {
+            "name": "Ricercato",
+            "count": 3,
+            "image": "04_ricercato",
+            "color": "black",
+            "gold_cost": 2,
+            "type": "equip",
+            "equip_target": "notself",
+            "effect": "wanted"
+        },
+        {
+            "name": "Rum",
+            "count": 2,
+            "image": "04_rum",
+            "color": "brown",
+            "gold_cost": 3,
+            "effect": "rum"
+        },
+        {
+            "name": "Setaccio",
+            "count": 1,
+            "image": "04_setaccio",
+            "color": "black",
+            "type": "equip",
+            "gold_cost": 3,
+            "effect": "goldpan"
+        },
+        {
+            "name": "Stivali",
+            "count": 1,
+            "image": "04_stivali",
+            "color": "black",
+            "gold_cost": 3,
+            "type": "equip",
+            "effect": "boots"
+        },
+        {
+            "name": "Talismano",
+            "count": 1,
+            "image": "04_talismano",
+            "color": "black",
+            "gold_cost": 3,
+            "type": "equip",
+            "effect": "luckycharm"
+        },
+        {
+            "name": "Union Pacific",
+            "count": 1,
+            "image": "04_union_pacific",
+            "color": "brown",
+            "gold_cost": 4,
+            "effect": "draw draw draw draw changewws"
+        },
+        {
+            "name": "Zaino",
+            "count": 1,
+            "image": "04_zaino",
+            "color": "black",
+            "type": "equip",
+            "gold_cost": 3,
+            "effect": "rucksack"
+        }
+    ]
+}
