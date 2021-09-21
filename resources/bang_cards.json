@@ -228,7 +228,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "card",
+                    "target": "anycard",
                     "class": "destroy"
                 }
             ]
@@ -340,6 +340,7 @@
             "color": "brown",
             "effects": [
                 {
+                    "target": "response",
                     "class": "missedcard"
                 }
             ]
@@ -357,7 +358,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "card",
+                    "target": "anycard",
                     "maxdistance": 1,
                     "class": "steal"
                 }
@@ -548,7 +549,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "card",
+                    "target": "anycard",
                     "class": "destroy"
                 }
             ]
@@ -592,6 +593,7 @@
             "color": "brown",
             "effects": [
                 {
+                    "target": "response",
                     "class": "missedcard"
                 }
             ]
@@ -606,7 +608,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "card",
+                    "target": "anycard",
                     "maxdistance": 1,
                     "class": "steal"
                 }
@@ -638,10 +640,11 @@
             "color": "brown",
             "effects": [
                 {
-                    "class": "discard"
+                    "target": "selfhand",
+                    "class": "destroy"
                 },
                 {
-                    "target": "card",
+                    "target": "anycard",
                     "class": "steal"
                 }
             ]
@@ -656,10 +659,11 @@
             "color": "brown",
             "effects": [
                 {
-                    "class": "discard"
+                    "target": "selfhand",
+                    "class": "destroy"
                 },
                 {
-                    "target": "others",
+                    "target": "othercards",
                     "class": "destroy"
                 }
             ]
@@ -675,6 +679,7 @@
             "color": "brown",
             "effects": [
                 {
+                    "target": "response",
                     "class": "missed"
                 },
                 {
@@ -693,7 +698,8 @@
             "color": "brown",
             "effects": [
                 {
-                    "class": "discard"
+                    "target": "selfhand",
+                    "class": "destroy"
                 },
                 {
                     "target": "notself",
@@ -711,7 +717,8 @@
             "color": "brown",
             "effects": [
                 {
-                    "class": "discard"
+                    "target": "selfhand",
+                    "class": "destroy"
                 },
                 {
                     "target": "any",
@@ -729,7 +736,8 @@
             "color": "brown",
             "effects": [
                 {
-                    "class": "discard"
+                    "target": "selfhand",
+                    "class": "destroy"
                 },
                 {
                     "target": "self",
@@ -751,6 +759,7 @@
             "color": "green",
             "effects": [
                 {
+                    "target": "response",
                     "class": "missed"
                 },
                 {
@@ -784,7 +793,7 @@
             "color": "green",
             "effects": [
                 {
-                    "target": "card",
+                    "target": "anycard",
                     "class": "destroy"
                 }
             ]
@@ -799,6 +808,7 @@
             "color": "green",
             "effects": [
                 {
+                    "target": "response",
                     "class": "missed"
                 }
             ]
@@ -813,7 +823,7 @@
             "color": "green",
             "effects": [
                 {
-                    "target": "card",
+                    "target": "anycard",
                     "class": "steal"
                 }
             ]
@@ -891,8 +901,10 @@
             ],
             "image": "03_placca_di_ferro",
             "expansion": "dodgecity",
+            "color": "green",
             "effects": [
                 {
+                    "target": "response",
                     "class": "missed"
                 }
             ]
@@ -949,6 +961,7 @@
             "color": "green",
             "effects": [
                 {
+                    "target": "response",
                     "class": "missed"
                 }
             ]
@@ -964,7 +977,7 @@
             "color": "blue",
             "effects": [
                 {
-                    "target": "any",
+                    "target": "dead",
                     "class": "ghost"
                 }
             ]
@@ -997,7 +1010,7 @@
             "color": "blue",
             "effects": [
                 {
-                    "target": "notself",
+                    "target": "any",
                     "class": "snake"
                 }
             ]
@@ -1060,6 +1073,7 @@
             "color": "brown",
             "effects": [
                 {
+                    "target": "response",
                     "class": "flight"
                 }
             ]
@@ -1102,7 +1116,12 @@
             "color": "brown",
             "effects": [
                 {
-                    "class": "backfire"
+                    "target": "response",
+                    "class": "missed"
+                },
+                {
+                    "target": "attacker",
+                    "class": "bang"
                 }
             ]
         },
@@ -1116,6 +1135,7 @@
             "color": "brown",
             "effects": [
                 {
+                    "target": "response",
                     "class": "saved"
                 }
             ]
@@ -1132,6 +1152,10 @@
                 {
                     "target": "reachable",
                     "class": "fanning"
+                },
+                {
+                    "target": "fanning_target",
+                    "class": "bang"
                 }
             ]
         },
@@ -1234,7 +1258,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "card",
+                    "target": "anycard",
                     "class": "destroy"
                 }
             ]
@@ -1255,7 +1279,7 @@
                 {
                     "cost": 3,
                     "repeatable": true,
-                    "target": "Self",
+                    "target": "self",
                     "class": "heal"
                 }
             ]
@@ -1331,6 +1355,7 @@
             "color": "brown",
             "effects": [
                 {
+                    "target": "response",
                     "class": "missed"
                 },
                 {
@@ -1349,6 +1374,7 @@
             "color": "brown",
             "effects": [
                 {
+                    "target": "response",
                     "class": "missedcard"
                 }
             ]
@@ -1391,7 +1417,7 @@
             "color": "brown",
             "class": [
                 {
-                    "target": "card",
+                    "target": "anycard",
                     "class": "destroy"
                 },
                 {
@@ -1513,6 +1539,7 @@
             "effects": [
                 {
                     "cost": 2,
+                    "target": "response",
                     "class": "missed"
                 }
             ]
@@ -2086,19 +2113,23 @@
     "roles": [
         {
             "name": "Fuorilegge",
-            "image": "01_fuorilegge"
+            "image": "01_fuorilegge",
+            "class": "outlaw"
         },
         {
             "name": "Rinnegato",
-            "image": "01_rinnegato"
+            "image": "01_rinnegato",
+            "class": "renegade"
         },
         {
             "name": "Sceriffo",
-            "image": "01_sceriffo"
+            "image": "01_sceriffo",
+            "class": "sheriff"
         },
         {
             "name": "Vice",
-            "image": "01_vice"
+            "image": "01_vice",
+            "class": "deputy"
         }
     ],
     "highnoon": [
@@ -2341,7 +2372,7 @@
             "color": "black",
             "gold_cost": 2,
             "type": "equip",
-            "equip_target": "notself",
+            "equip_target": "any",
             "effect": "wanted"
         },
         {

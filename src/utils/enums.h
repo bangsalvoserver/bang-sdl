@@ -110,13 +110,21 @@ namespace enums {
     template<reflected_enum auto Enum> constexpr bool has_type = requires { typename enum_type<Enum>::type; };
     template<reflected_enum auto Enum> using enum_type_t = typename enum_type<Enum>::type;
 
-    template<reflected_enum T> constexpr T invalid_enum_value = static_cast<T>(std::numeric_limits<std::underlying_type_t<T>>::max());
+    template<reflected_enum T> struct invalid_enum {
+        static constexpr T value = static_cast<T>(std::numeric_limits<std::underlying_type_t<T>>::max());
+    };
+
+    template<reflected_enum T> requires flags_enum<T> struct invalid_enum<T> {
+        static constexpr T value = static_cast<T>(0);
+    };
+
+    template<reflected_enum T> constexpr T invalid_enum_v = invalid_enum<T>::value;
 
     template<reflected_enum T> constexpr T from_string(std::string_view str) {
         if (auto it = std::ranges::find(enum_names<T>::value, str); it != enum_names<T>::value.end()) {
             return enum_values_v<T>[it - enum_names<T>::value.begin()];
         } else {
-            return invalid_enum_value<T>;
+            return invalid_enum_v<T>;
         }
     }
 
@@ -163,6 +171,13 @@ namespace enums {
             return lhs = lhs ^ rhs;
         }
     }
+
+    template<flags_enum T> constexpr T flags_none = static_cast<T>(0);
+
+    template<flags_enum T> constexpr T flags_all = []<T ... values>(enum_sequence<values...>) {
+        using namespace flag_operators;
+        return (values | ...);
+    }(make_enum_sequence<T>());
 
     inline namespace stream_operators {
         template<typename Stream, has_names T>

@@ -1,33 +1,65 @@
+#include <SDL2/SDL.h>
 #include <iostream>
-#include <random>
+#include <map>
 
-#include "read_cards.h"
-
-template<std::ranges::random_access_range R, typename Gen>
-void shuffle_cards(R &&r, Gen &&gen) {
-    auto id_view = r | std::views::transform(&banggame::card::id);
-    std::vector<int> card_ids(id_view.begin(), id_view.end());
-    std::ranges::shuffle(card_ids, gen);
-    auto it = r.begin();
-    for (int id : card_ids) {
-        it->id = id;
-        ++it;
-    }
-    std::ranges::shuffle(r, gen);
-}
+#include "manager.h"
 
 int main(int argc, char **argv) {
-    using namespace enums::stream_operators;
+    sdlnet::initializer init;
 
-    auto cards = banggame::read_cards();
+    sdlnet::socket_set set(banggame::server_max_clients);
+    sdlnet::tcp_server_socket server(banggame::server_port);
+    set.add(server);
 
-    std::random_device rd;
-    std::mt19937 rng{rd()};
+    std::map<sdlnet::ip_address, sdlnet::tcp_peer_socket> clients;
 
-    shuffle_cards(cards, rng);
+    game_manager mgr;
 
-    for (const auto &c : cards) {
-        std::cout << c.id << " " << c.name << " " << c.suit << " " << c.value << std::endl;
+    bool quit = false;
+    while(!quit) {
+        if (set.check(banggame::socket_set_timeout)) {
+            for (auto it = clients.begin(); it != clients.end();) {
+                try {
+                    if (set.ready(it->second)) {
+                        std::string str = it->second.recv_string();
+                        mgr.parse_message(it->first, str);
+                    }
+                    ++it;
+                } catch (const sdlnet::sdlnet_error &error) {
+                    mgr.client_disconnected(it->first);
+                    std::cout << it->first.ip_string() << " Error (" << error.what() << ")\n";
+                    set.erase(it->second);
+                    it = clients.erase(it);
+                } catch (sdlnet::socket_disconnected) {
+                    mgr.client_disconnected(it->first);
+                    std::cout << it->first.ip_string() << " Disconnected\n";
+                    set.erase(it->second);
+                    it = clients.erase(it);
+                }
+            }
+            if (set.ready(server)) {
+                auto peer = server.accept();
+                set.add(peer);
+                std::cout << peer.addr.ip_string() << " Connected\n";
+                clients.emplace(peer.addr, std::move(peer));
+            }
+            while (mgr.pending_messages()) {
+                auto msg = mgr.pop_message();
+                auto it = clients.find(msg.addr);
+                if (it != clients.end()) {
+                    Json::Value json_msg = Json::objectValue;
+                    json_msg["type"] = std::string(enums::to_string(msg.type));
+                    if (!msg.value.isNull()) {
+                        json_msg["value"] = msg.value;
+                    }
+
+                    std::stringstream ss;
+                    ss << json_msg;
+                    it->second.send_string(ss.str());
+                }
+            }
+        }
     }
+
     return 0;
 }

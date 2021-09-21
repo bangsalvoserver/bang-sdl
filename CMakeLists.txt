@@ -16,9 +16,12 @@ set(bangclient_srcs
 
 set(bangserver_srcs
     src/server/main.cpp
-    src/server/read_cards.cpp
-    src/server/player.cpp
-    src/server/effects/effects.cpp
+    src/server/manager.cpp
+    src/server/game/card.cpp
+    src/server/game/effects.cpp
+    src/server/game/game.cpp
+    src/server/game/player.cpp
+    src/server/game/responses.cpp
 )
 
 add_subdirectory(resources)
@@ -27,6 +30,14 @@ find_package(Boost REQUIRED)
 
 add_executable(bangclient ${bangclient_srcs})
 target_link_libraries(bangclient PkgConfig::SDL2 jsoncpp_static)
+target_include_directories(bangclient PUBLIC src)
 
 add_executable(bangserver ${bangserver_srcs})
-target_link_libraries(bangserver jsoncpp_static resources)
+target_include_directories(bangserver PUBLIC src)
+target_link_libraries(bangserver PkgConfig::SDL2_net jsoncpp_static bang_cards)
+target_link_options(bangserver PRIVATE -mconsole)
+
+add_executable(bangservertest src/server/test.cpp)
+target_include_directories(bangservertest PUBLIC src)
+target_link_libraries(bangservertest PkgConfig::SDL2_net jsoncpp_static bang_cards)
+target_link_options(bangservertest PRIVATE -mconsole)
