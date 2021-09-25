@@ -21,7 +21,11 @@ namespace banggame {
         character m_character;
         player_role m_role;
 
-        using predraw_check_t = std::pair<effect_holder, int>;
+        struct predraw_check_t {
+            int card_id;
+            int priority;
+        };
+
         std::vector<predraw_check_t> m_predraw_checks;
         std::vector<predraw_check_t> m_pending_predraw_checks;
 
@@ -40,11 +44,17 @@ namespace banggame {
         explicit player(game *game) : m_game(game) {}
 
         void equip_card(card &&target);
-        void unequip_card(card &target);
+        bool has_card_equipped(const std::string &name) const;
 
         void discard_weapon();
 
-        void discard_hand_card(int index);
+        card &get_hand_card(int index) {
+            return m_hand.at(index);
+        }
+
+        card &get_table_card(int index) {
+            return m_table.at(index);
+        }
         
         card get_card_removed(card *target);
         card &discard_card(card *target);
@@ -90,15 +100,22 @@ namespace banggame {
             return m_game;
         }
 
-        template<std::derived_from<card_effect> T>
-        void add_predraw_check(int priority) {
-            m_predraw_checks.emplace_back(effect_holder::make<T>(), priority);
+        void add_predraw_check(int card_id, int priority) {
+            m_predraw_checks.emplace_back(card_id, priority);
         }
 
-        template<std::derived_from<card_effect> T>
-        void remove_predraw_check() {
-            m_predraw_checks.erase(std::ranges::find_if(m_predraw_checks, &effect_holder::is<T>, &predraw_check_t::first));
+        void remove_predraw_check(int card_id) {
+            m_predraw_checks.erase(std::ranges::find(m_predraw_checks, card_id, &predraw_check_t::card_id));
         }
+
+        bool is_top_predraw_check(const card &e) {
+            int top_priority = std::ranges::max(m_pending_predraw_checks | std::views::transform(&predraw_check_t::priority));
+            if (e.effects.empty()) return false;
+            auto it = std::ranges::find(m_pending_predraw_checks, e.id, &predraw_check_t::card_id);
+            return it != m_pending_predraw_checks.end();
+        }
+
+        void next_predraw_check(int card_id);
 
         void set_character_and_role(const character &c, player_role role);
 

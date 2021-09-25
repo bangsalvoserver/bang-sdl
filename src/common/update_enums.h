@@ -9,7 +9,6 @@
 namespace banggame {
 
     DEFINE_ENUM_IN_NS(banggame, game_notify_type,
-        (game_started)
         (game_over)
         (deck_shuffled)
     )
@@ -20,6 +19,11 @@ namespace banggame {
         (destination_value, int)
     )
 
+    DEFINE_SERIALIZABLE(card_target_data,
+        (target, target_type)
+        (maxdistance, int)
+    )
+
     DEFINE_SERIALIZABLE(show_card_update,
         (card_id, int)
         (name, std::string)
@@ -27,7 +31,7 @@ namespace banggame {
         (suit, card_suit_type)
         (value, card_value_type)
         (color, card_color_type)
-        (targets, std::vector<target_type>)
+        (targets, std::vector<card_target_data>)
     )
 
     DEFINE_SERIALIZABLE(hide_card_update,

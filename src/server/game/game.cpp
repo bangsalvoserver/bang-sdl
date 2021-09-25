@@ -16,7 +16,7 @@ namespace banggame {
         obj.suit = c.suit;
         obj.value = c.value;
         for (const auto &value : c.effects) {
-            obj.targets.push_back(value->target);
+            obj.targets.emplace_back(value->target, value->maxdistance);
         }
 
         if (!owner) {
@@ -43,12 +43,16 @@ namespace banggame {
         for (auto &p : m_players) {
             add_private_update<game_update_type::player_own_id>(&p, p.id);
         }
-        add_public_update<game_update_type::game_notify>(game_notify_type::game_started);
         
         std::random_device rd;
         rng.seed(rd());
 
         auto all_cards = read_cards(options.allowed_expansions);
+
+        for (const auto &c : all_cards.cards) {
+            add_public_update<game_update_type::move_card>(c.id, card_pile_type::main_deck);
+        }
+
         shuffle_cards_and_ids(all_cards.cards, rng);
         std::ranges::shuffle(all_cards.characters, rng);
 
@@ -84,7 +88,10 @@ namespace banggame {
     card game::draw_card() {
         if (m_deck.empty()) {
             card top_discards = std::move(m_discards.back());
-            m_deck = m_discards;
+            m_discards.resize(m_discards.size()-1);
+            m_deck = std::move(m_discards);
+            m_discards.clear();
+            m_discards.emplace_back(std::move(top_discards));
             shuffle_cards_and_ids(m_deck, rng);
             add_public_update<game_update_type::game_notify>(game_notify_type::deck_shuffled);
         }
@@ -101,7 +108,8 @@ namespace banggame {
 
     void game::draw_check_then(player *p, draw_check_function &&fun) {
         if (p->get_num_checks() == 1) {
-            fun(&add_to_discards(draw_card()));
+            auto &moved = add_to_discards(draw_card());
+            fun(moved.suit, moved.value);
         } else {
             m_pending_checks.push_back(std::move(fun));
             for (int i=0; i<p->get_num_checks(); ++i) {
@@ -117,11 +125,10 @@ namespace banggame {
                 add_to_discards(std::move(m_temps[i]));
             }
         }
-        card &c = m_temps.at(check_index);
-        m_pending_checks.front()(&c);
-        m_pending_checks.pop_front();
-        add_to_discards(std::move(c));
+        card &moved = add_to_discards(std::move(m_temps.at(check_index)));
         m_temps.clear();
+        m_pending_checks.front()(moved.suit, moved.value);
+        m_pending_checks.pop_front();
     }
 
     void game::handle_action(enums::enum_constant<game_action_type::pick_card>, player *p, const pick_card_args &args) {
@@ -150,7 +157,7 @@ namespace banggame {
                 next_turn();
             } else {
                 for (int i=p->get_hp(); i<p->num_hand_cards(); ++i) {
-                    add_response<response_type::discard>(nullptr, p);
+                    queue_response<response_type::discard>(nullptr, p);
                 }
             }
         }

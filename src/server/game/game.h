@@ -15,7 +15,7 @@
 
 namespace banggame {
 
-    using draw_check_function = std::function<void(card *)>;
+    using draw_check_function = std::function<void(card_suit_type, card_value_type)>;
 
     struct game_options {
         int nplayers = 0;
@@ -70,6 +70,16 @@ namespace banggame {
             auto ret = response_holder::make<enums::enum_type_t<E>>();
             ret->origin = origin;
             ret->target = target;
+            m_responses.emplace_front(E, std::move(ret));
+
+            add_response_update();
+        }
+
+        template<response_type E>
+        void queue_response(player *origin, player *target) {
+            auto ret = response_holder::make<enums::enum_type_t<E>>();
+            ret->origin = origin;
+            ret->target = target;
             m_responses.emplace_back(E, std::move(ret));
 
             if (m_responses.size() == 1) {
@@ -110,9 +120,9 @@ namespace banggame {
 
         player &get_next_player(player *p) {
             auto it = m_players.begin() + (p - m_players.data());
-            while(!it->alive()) {
+            do {
                 if (++it == m_players.end()) it = m_players.begin();
-            }
+            } while(!it->alive());
             return *it;
         }
 

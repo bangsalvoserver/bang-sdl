@@ -7,11 +7,22 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(SDL2 REQUIRED SDL2 IMPORTED_TARGET)
 pkg_check_modules(SDL2_net REQUIRED SDL2_net IMPORTED_TARGET)
+pkg_check_modules(SDL2_ttf REQUIRED SDL2_ttf IMPORTED_TARGET)
+pkg_check_modules(SDL2_image REQUIRED SDL2_image IMPORTED_TARGET)
 
 find_package(jsoncpp REQUIRED)
 
 set(bangclient_srcs
     src/client/main.cpp
+    src/client/manager.cpp
+    src/client/scenes/game/game.cpp
+    src/client/scenes/game/card.cpp
+    src/client/scenes/widgets/button.cpp
+    src/client/scenes/widgets/textbox.cpp
+    src/client/scenes/connect.cpp
+    src/client/scenes/lobby_list.cpp
+    src/client/scenes/lobby.cpp
+    src/client/scenes/make_lobby.cpp
 )
 
 set(bangserver_srcs
@@ -24,20 +35,16 @@ set(bangserver_srcs
     src/server/game/responses.cpp
 )
 
+include_directories(bangclient src)
 add_subdirectory(resources)
 
 find_package(Boost REQUIRED)
 
 add_executable(bangclient ${bangclient_srcs})
-target_link_libraries(bangclient PkgConfig::SDL2 jsoncpp_static)
-target_include_directories(bangclient PUBLIC src)
+target_link_libraries(bangclient PkgConfig::SDL2 PkgConfig::SDL2_net PkgConfig::SDL2_ttf PkgConfig::SDL2_image jsoncpp_static)
+target_link_libraries(bangclient fonts card_images)
+target_link_options(bangclient PRIVATE -mconsole)
 
 add_executable(bangserver ${bangserver_srcs})
-target_include_directories(bangserver PUBLIC src)
 target_link_libraries(bangserver PkgConfig::SDL2_net jsoncpp_static bang_cards)
 target_link_options(bangserver PRIVATE -mconsole)
-
-add_executable(bangservertest src/server/test.cpp)
-target_include_directories(bangservertest PUBLIC src)
-target_link_libraries(bangservertest PkgConfig::SDL2_net jsoncpp_static bang_cards)
-target_link_options(bangservertest PRIVATE -mconsole)

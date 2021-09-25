@@ -17,6 +17,10 @@ namespace banggame {
         virtual void on_pick(card_pile_type pile, int index) = 0;
     };
 
+    struct response_predraw: picking_response {
+        virtual void on_pick(card_pile_type pile, int index) override;
+    };
+
     struct response_draw : picking_response {
         virtual void on_pick(card_pile_type pile, int index) override;
     };
@@ -59,6 +63,8 @@ namespace banggame {
     };
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, response_type,
+        (none)
+        (predraw,       response_predraw)
         (draw,          response_draw)
         (check,         response_check)
         (generalstore,  response_generalstore)

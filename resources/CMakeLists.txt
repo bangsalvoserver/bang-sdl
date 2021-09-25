@@ -21,5 +21,10 @@ function(compile_resources out_list)
 endfunction()
 
 compile_resources(bang_cards bang_cards.json)
-
 add_library(bang_cards OBJECT ${bang_cards})
+
+compile_resources(fonts arial.ttf)
+add_library(fonts OBJECT ${fonts})
+
+compile_resources(card_images cards.pak characters.pak misc.pak)
+add_library(card_images OBJECT ${card_images})

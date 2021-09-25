@@ -55,7 +55,7 @@ void game_manager::handle_message(enums::enum_constant<client_message_type::lobb
     std::vector<lobby_data> vec;
     for (const auto &lobby : m_lobbies) {
         lobby_data obj;
-        obj.id = lobby.id;
+        obj.lobby_id = lobby.id;
         obj.name = lobby.name;
         obj.num_players = lobby.users.size();
         obj.max_players = lobby.maxplayers;
@@ -79,9 +79,10 @@ void game_manager::handle_message(enums::enum_constant<client_message_type::lobb
     new_lobby.name = value.lobby_name;
     new_lobby.state = lobby_state::waiting;
     new_lobby.maxplayers = value.max_players;
+    new_lobby.allowed_expansions = value.expansions;
     m_lobbies.push_back(new_lobby);
 
-    send_message<server_message_type::lobby_joined>(addr, u.id, new_lobby.name);
+    send_message<server_message_type::lobby_entered>(addr, value.lobby_name, u.id, u.id);
 }
 
 void game_manager::handle_message(enums::enum_constant<client_message_type::lobby_join>, const sdlnet::ip_address &addr, const lobby_join_args &value) {
@@ -90,10 +91,22 @@ void game_manager::handle_message(enums::enum_constant<client_message_type::lobb
         throw std::runtime_error("Id Lobby non valido");
     }
 
-    auto &u = it->users.emplace(addr, user()).first->second;
-    u.name = value.player_name;
+    if (it->state != lobby_state::waiting) {
+        throw std::runtime_error("Lobby non in attesa");
+    }
 
-    send_message<server_message_type::lobby_joined>(addr, u.id, it->name);
+    if (it->users.size() < it->maxplayers) {
+        auto &u = it->users.emplace(addr, user()).first->second;
+        u.name = value.player_name;
+
+        for (auto &p : it->users) {
+            if (p.second.id == u.id) {
+                send_message<server_message_type::lobby_entered>(p.first, it->name, u.id, it->users.at(it->owner).id);
+            } else {
+                send_message<server_message_type::lobby_joined>(p.first, u.id, u.name);
+            }
+        }
+    }
 }
 
 void game_manager::handle_message(enums::enum_constant<client_message_type::lobby_players>, const sdlnet::ip_address &addr) {
@@ -135,7 +148,7 @@ void game_manager::handle_message(enums::enum_constant<client_message_type::lobb
     }
 
     const auto &u = it->users.at(addr);
-    broadcast_message<server_message_type::lobby_chat>(*it, u.name, value.message);
+    broadcast_message<server_message_type::lobby_chat>(*it, u.id, value.message);
 }
 
 void game_manager::handle_message(enums::enum_constant<client_message_type::game_start>, const sdlnet::ip_address &addr) {
@@ -153,6 +166,8 @@ void game_manager::handle_message(enums::enum_constant<client_message_type::game
     }
 
     it->state = lobby_state::playing;
+
+    broadcast_message<server_message_type::game_started>(*it);
 
     it->start_game();
     it->send_updates(*this);
@@ -191,6 +206,7 @@ void lobby::send_updates(game_manager &mgr) {
 void lobby::start_game() {
     game_options opts;
     opts.nplayers = users.size();
+    opts.allowed_expansions = allowed_expansions;
     
     game.start_game(opts);
 

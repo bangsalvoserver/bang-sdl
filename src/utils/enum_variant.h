@@ -79,7 +79,7 @@ namespace enums {
     }
 
     template<typename RetType, typename Visitor, reflected_enum T>
-    RetType visit(Visitor &&visitor, enum_variant<T> &&v) {
+    RetType visit(Visitor &&visitor, enum_variant<T> &v) {
         return do_visit<RetType, T>(visitor, v);
     }
 
@@ -98,7 +98,7 @@ namespace enums {
     }
 
     template<typename Visitor, reflected_enum T>
-    auto visit(Visitor &&visitor, enum_variant<T> &&v) {
+    auto visit(Visitor &&visitor, enum_variant<T> &v) {
         return do_visit<visit_return_type_t<Visitor, enum_values_v<T>[0]>, T>(visitor, v);
     }
 }

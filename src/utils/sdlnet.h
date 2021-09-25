@@ -80,6 +80,8 @@ namespace sdlnet {
     struct tcp_socket {
         TCPsocket sock = nullptr;
 
+        tcp_socket() = default;
+
         tcp_socket(const tcp_socket &other) = delete;
         tcp_socket(tcp_socket &&other) {
             std::swap(sock, other.sock);
@@ -95,10 +97,26 @@ namespace sdlnet {
             if (!sock) throw sdlnet_error();
         }
 
-        explicit tcp_socket(ip_address addr) : tcp_socket(SDLNet_TCP_Open(&addr)) {}
+        explicit tcp_socket(ip_address addr) {
+            open(addr);
+        }
 
         ~tcp_socket() {
             close();
+        }
+
+        bool isopen() {
+            return sock != nullptr;
+        }
+
+        void open(ip_address addr) {
+            if (sock) {
+                close();
+            }
+            sock = SDLNet_TCP_Open(&addr);
+            if (!sock) {
+                throw sdlnet_error();
+            }
         }
 
         void close() {
@@ -110,50 +128,32 @@ namespace sdlnet {
 
         int send(const void *data, int len) const {
             int nbytes = SDLNet_TCP_Send(sock, data, len);
-            if (nbytes == 0) {
+            if (nbytes <= 0) {
                 throw socket_disconnected();
-            } else if (nbytes < 0) {
-                throw sdlnet_error();
             }
             return nbytes;
         }
 
         int recv(void *data, int maxlen) const {
             int nbytes = SDLNet_TCP_Recv(sock, data, maxlen);
-            if (nbytes == 0) {
+            if (nbytes <= 0) {
                 throw socket_disconnected();
-            } else if (nbytes < 0) {
-                throw sdlnet_error();
             }
             return nbytes;
         }
 
         void send_string(const std::string &str) const {
-            char buffer[buffer_size];
-            const char *begin = str.data();
-            const char *mid = begin;
-            const char *end = str.data() + str.size() + 1;
-            
-            while (mid != end) {
-                mid = begin + buffer_size;
-                if (mid > end) mid = end;
-                begin += send(begin, mid - begin);
-            }
+            std::byte str_len[sizeof(uint32_t)];
+            SDLNet_Write32(str.size(), &str_len);
+            send(&str_len, sizeof(str_len));
+            send(str.data(), str.size());
         }
 
         std::string recv_string() const {
-            std::string ret;
-            char buffer[buffer_size];
-
-            while(true) {
-                int nbytes = recv(buffer, buffer_size);
-                if (buffer[nbytes - 1]) {
-                    ret.append(buffer, nbytes);
-                } else {
-                    ret.append(buffer, nbytes - 1);
-                    break;
-                }
-            }
+            std::byte buf[sizeof(uint32_t)];
+            recv(&buf, sizeof(buf));
+            std::string ret(SDLNet_Read32(&buf), '\0');
+            recv(ret.data(), ret.size());
             return ret;
         }
     };
@@ -167,6 +167,8 @@ namespace sdlnet {
     };
 
     struct socket_set {
+        static constexpr int default_maxsockets = 16;
+        
         SDLNet_SocketSet set;
 
         socket_set(const socket_set &other) = delete;
@@ -180,7 +182,7 @@ namespace sdlnet {
             return *this;
         }
 
-        socket_set(int maxsockets) {
+        socket_set(int maxsockets = default_maxsockets) {
             set = SDLNet_AllocSocketSet(maxsockets);
         }
 

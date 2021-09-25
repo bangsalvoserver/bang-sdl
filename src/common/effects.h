@@ -45,39 +45,44 @@ namespace banggame {
     };
 
     struct effect_mustang : card_effect {
-        virtual void on_equip(player *target) override;
-        virtual void on_unequip(player *target) override;
+        virtual void on_equip(player *target_player, card *target_card) override;
+        virtual void on_unequip(player *target_player, card *target_card) override;
     };
 
     struct effect_scope : card_effect {
-        virtual void on_equip(player *target) override;
-        virtual void on_unequip(player *target) override;
+        virtual void on_equip(player *target_player, card *target_card) override;
+        virtual void on_unequip(player *target_player, card *target_card) override;
     };
 
     struct effect_jail : card_effect {
-        virtual void on_equip(player *target) override;
-        virtual void on_unequip(player *target) override;
+        virtual void on_equip(player *target_player, card *target_card) override;
+        virtual void on_unequip(player *target_player, card *target_card) override;
         virtual void on_predraw_check(player *target_player, card *target_card) override;
     };
 
     struct effect_dynamite : card_effect {
-        virtual void on_equip(player *target) override;
-        virtual void on_unequip(player *target) override;
+        virtual void on_equip(player *target_player, card *target_card) override;
+        virtual void on_unequip(player *target_player, card *target_card) override;
         virtual void on_predraw_check(player *target_player, card *target_card) override;
     };
 
     struct effect_weapon : card_effect {
-        virtual void on_equip(player *target) override;
-        virtual void on_unequip(player *target) override;
+        virtual void on_equip(player *target_player, card *target_card) override;
+        virtual void on_unequip(player *target_player, card *target_card) override;
     };
 
     struct effect_volcanic : card_effect {
-        virtual void on_equip(player *target) override;
-        virtual void on_unequip(player *target) override;
+        virtual void on_equip(player *target_player, card *target_card) override;
+        virtual void on_unequip(player *target_player, card *target_card) override;
     };
 
     struct effect_generalstore : card_effect {
         virtual void on_play(player *origin) override;
+    };
+
+    struct effect_horsecharm : card_effect {
+        virtual void on_equip(player *target_player, card *target_card) override;
+        virtual void on_unequip(player *target_player, card *target_card) override;
     };
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, effect_type,
@@ -107,7 +112,7 @@ namespace banggame {
         (el_gringo)
         (jesse_jones)
         (kit_carlson)
-        (horsecharm)
+        (horsecharm,    effect_horsecharm)
         (pedro_ramirez)
         (sid_ketchum)
         (slab_the_killer)

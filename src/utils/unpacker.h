@@ -1,0 +1,64 @@
+#ifndef __UNPACKER_H__
+#define __UNPACKER_H__
+
+#include "resource.h"
+
+#include <map>
+#include <vector>
+#include <string>
+#include <cstring>
+#include <iostream>
+
+template<typename T>
+T read_data(const char **pos) {
+    T buf;
+    std::memcpy(&buf, *pos, sizeof(buf));
+    *pos += sizeof(buf);
+    return buf;
+}
+
+class unpacker {
+public:
+    unpacker(const resource &data) {
+        struct packed_data {
+            std::string name;
+            int pos;
+            int size;
+        };
+
+        std::vector<packed_data> items;
+
+        const char *pos = data.data;
+        size_t nitems = read_data<size_t>(&pos);
+
+        for (; nitems!=0; --nitems) {
+            packed_data item;
+
+            size_t len = read_data<size_t>(&pos);
+            item.name = std::string(pos, len);
+            pos += len;
+
+            item.pos = read_data<int>(&pos);
+            item.size = read_data<int>(&pos);
+
+            items.push_back(item);
+        }
+
+        for (const auto &item : items) {
+            m_data.emplace(item.name, resource{pos + item.pos, item.size});
+        }
+    }
+
+    const resource &operator[](std::string_view key) const {
+        auto it = m_data.find(key);
+        if (it == m_data.end()) {
+            throw std::out_of_range("Impossibile trovare risorsa");
+        }
+        return it->second;
+    }
+
+private:
+    std::map<std::string, resource, std::less<>> m_data;
+};
+
+#endif

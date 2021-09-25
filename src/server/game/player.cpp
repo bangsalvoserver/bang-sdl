@@ -10,38 +10,33 @@ namespace banggame {
         return !c.effects.empty() && c.effects.front().is<effect_weapon>();
     };
 
-    void player::discard_hand_card(int index) {
-        auto it = m_hand.begin() + index;
-        get_game()->add_to_discards(std::move(*it));
-        m_hand.erase(it);
-    }
-
     void player::discard_weapon() {
         auto it = std::ranges::find_if(m_table, is_weapon);
         if (it != m_table.end()) {
+            auto &moved = get_game()->add_to_discards(std::move(*it));
+            for (auto &e : moved.effects) {
+                e->on_unequip(this, &moved);
+            }
             m_table.erase(it);
-            unequip_card(*it);
         }
     }
 
     void player::equip_card(card &&target) {
-        get_game()->add_show_card(target);
-        get_game()->add_public_update<game_update_type::move_card>(target.id, card_pile_type::player_table, id);
-        card &moved = m_table.emplace_back(std::move(target));
-        for (auto &e : moved.effects) {
-            e->on_equip(this);
+        for (auto &e : target.effects) {
+            e->on_equip(this, &target);
         }
+        auto &moved = m_table.emplace_back(std::move(target));
+        get_game()->add_show_card(moved);
+        get_game()->add_public_update<game_update_type::move_card>(moved.id, card_pile_type::player_table, id);
     }
-    
-    void player::unequip_card(card &c) {
-        for (auto &e : c.effects) {
-            e->on_unequip(this);
-        }
+
+    bool player::has_card_equipped(const std::string &name) const {
+        return std::ranges::find(m_table, name, &card::name) != m_table.end();
     }
 
     card player::get_card_removed(card *target) {
-        card c;
         auto it = std::ranges::find(m_table, target->id, &card::id);
+        card c;
         if (it == m_table.end()) {
             it = std::ranges::find(m_hand, target->id, &card::id);
             c = std::move(*it);
@@ -50,8 +45,10 @@ namespace banggame {
             if (auto inactive_it = std::ranges::find(m_inactive_cards, it->id); inactive_it != m_inactive_cards.end()) {
                 m_inactive_cards.erase(inactive_it);
             }
-            unequip_card(*it);
             c = std::move(*it);
+            for (auto &e : c.effects) {
+                e->on_unequip(this, &c);
+            }
             m_table.erase(it);
         }
         return c;
@@ -148,20 +145,22 @@ namespace banggame {
                 get_game()->add_to_discards(std::move(removed));
                 break;
             }
-            case card_color_type::blue: {
-                card removed = std::move(*card_it);
-                m_hand.erase(card_it);
-                equip_card(std::move(removed));
+            case card_color_type::blue:
+                if (!has_card_equipped(card_it->name)) {
+                    card removed = std::move(*card_it);
+                    m_hand.erase(card_it);
+                    equip_card(std::move(removed));
+                }
                 break;
-            }
-            case card_color_type::green: {
-                card removed = std::move(*card_it);
-                int card_id = m_inactive_cards.emplace_back(removed.id);
-                m_hand.erase(card_it);
-                equip_card(std::move(removed));
-                get_game()->add_public_update<game_update_type::tap_card>(card_id, false);
+            case card_color_type::green:
+                if (!has_card_equipped(card_it->name)) {
+                    card removed = std::move(*card_it);
+                    int card_id = m_inactive_cards.emplace_back(removed.id);
+                    m_hand.erase(card_it);
+                    equip_card(std::move(removed));
+                    get_game()->add_public_update<game_update_type::tap_card>(card_id, false);
+                }
                 break;
-            }
             }
         }
     }
@@ -206,7 +205,21 @@ namespace banggame {
 
         m_pending_predraw_checks = m_predraw_checks;
 
-        get_game()->add_response<response_type::draw>(nullptr, this);
+        if (m_pending_predraw_checks.empty()) {
+            get_game()->queue_response<response_type::draw>(nullptr, this);
+        } else {
+            get_game()->queue_response<response_type::predraw>(nullptr, this);
+        }
+    }
+
+    void player::next_predraw_check(int card_id) {
+        m_pending_predraw_checks.erase(std::ranges::find(m_pending_predraw_checks, card_id, &predraw_check_t::card_id));
+
+        if (m_pending_predraw_checks.empty()) {
+            get_game()->queue_response<response_type::draw>(nullptr, this);
+        } else {
+            get_game()->queue_response<response_type::predraw>(nullptr, this);
+        }
     }
 
     void player::end_of_turn() {
@@ -232,7 +245,7 @@ namespace banggame {
 
         m_max_hp = c.max_hp;
 
-        m_character.effect->on_equip(this);
+        m_character.effect->on_equip(this, nullptr);
         get_game()->add_public_update<game_update_type::player_character>(id, c.id, c.name, c.image, c.effect->target);
 
         if (role == player_role::sheriff) {

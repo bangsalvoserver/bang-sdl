@@ -6,11 +6,11 @@
 #include <json/json.h>
 
 #include "utils/svstream.h"
+#include "utils/resource.h"
 
 #include "common/effects.h"
 
-extern const char __resource__bang_cards_json[];
-extern const int __resource__bang_cards_json_length;
+DECLARE_RESOURCE(bang_cards_json)
 
 using namespace banggame;
 
@@ -50,7 +50,7 @@ all_cards banggame::read_cards(card_expansion_type allowed_expansions) {
 
     all_cards ret;
 
-    util::isviewstream ss({__resource__bang_cards_json, (size_t)__resource__bang_cards_json_length});
+    util::isviewstream ss({RESOURCE_NAME(bang_cards_json), (size_t) RESOURCE_LENGTH(bang_cards_json)});
 
     Json::Value json_cards;
     ss >> json_cards;

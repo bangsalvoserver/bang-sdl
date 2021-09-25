@@ -12,6 +12,7 @@ DEFINE_ENUM(lobby_state,
 DEFINE_SERIALIZABLE(lobby_make_args,
     (lobby_name, std::string)
     (player_name, std::string)
+    (expansions, banggame::card_expansion_type)
     (max_players, int)
 )
 
@@ -36,7 +37,7 @@ DEFINE_ENUM_TYPES(client_message_type,
 )
 
 DEFINE_SERIALIZABLE(lobby_data,
-    (id, int)
+    (lobby_id, int)
     (name, std::string)
     (num_players, int)
     (max_players, int)
@@ -44,13 +45,14 @@ DEFINE_SERIALIZABLE(lobby_data,
 )
 
 DEFINE_SERIALIZABLE(lobby_player_data,
-    (id, int)
+    (user_id, int)
     (name, std::string)
 )
 
-DEFINE_SERIALIZABLE(lobby_joined_args,
+DEFINE_SERIALIZABLE(lobby_entered_args,
+    (lobby_name, std::string)
     (user_id, int)
-    (name, std::string)
+    (owner_id, int)
 )
 
 DEFINE_SERIALIZABLE(lobby_left_args,
@@ -62,17 +64,19 @@ DEFINE_SERIALIZABLE(lobby_deleted_args,
 )
 
 DEFINE_SERIALIZABLE(lobby_chat_args,
-    (name, std::string)
+    (user_id, int)
     (message, std::string)
 )
 
 DEFINE_ENUM_TYPES(server_message_type,
     (lobby_list, std::vector<lobby_data>)
+    (lobby_entered, lobby_entered_args)
     (lobby_players, std::vector<lobby_player_data>)
-    (lobby_joined, lobby_joined_args)
+    (lobby_joined, lobby_player_data)
     (lobby_left, lobby_left_args)
     (lobby_deleted, lobby_deleted_args)
     (lobby_chat, lobby_chat_args)
+    (game_started)
     (game_update, game_update)
 )
 

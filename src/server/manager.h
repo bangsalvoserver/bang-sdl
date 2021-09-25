@@ -26,6 +26,7 @@ struct lobby : util::id_counter<lobby> {
     sdlnet::ip_address owner;
     std::string name;
     lobby_state state;
+    banggame::card_expansion_type allowed_expansions;
     int maxplayers;
 
     banggame::game game;

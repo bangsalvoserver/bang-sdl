@@ -41,6 +41,7 @@ namespace banggame {
     )
 
     DEFINE_ENUM_IN_NS(banggame, player_role,
+        (unknown)
         (sheriff)
         (deputy)
         (outlaw)

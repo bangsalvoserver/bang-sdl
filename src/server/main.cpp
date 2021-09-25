@@ -25,11 +25,6 @@ int main(int argc, char **argv) {
                         mgr.parse_message(it->first, str);
                     }
                     ++it;
-                } catch (const sdlnet::sdlnet_error &error) {
-                    mgr.client_disconnected(it->first);
-                    std::cout << it->first.ip_string() << " Error (" << error.what() << ")\n";
-                    set.erase(it->second);
-                    it = clients.erase(it);
                 } catch (sdlnet::socket_disconnected) {
                     mgr.client_disconnected(it->first);
                     std::cout << it->first.ip_string() << " Disconnected\n";

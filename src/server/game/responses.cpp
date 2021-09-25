@@ -5,6 +5,19 @@
 #include "game.h"
 
 namespace banggame {
+    void response_predraw::on_pick(card_pile_type pile, int index) {
+        if (pile == card_pile_type::player_table) {
+            card &c = target->get_table_card(index);
+            if (target->is_top_predraw_check(c)) {
+                auto t = target;
+                t->get_game()->pop_response();
+                for (auto &e : c.effects) {
+                    e->on_predraw_check(t, &c);
+                }
+            }
+        }
+    }
+
     void response_draw::on_pick(card_pile_type pile, int index) {
         if (pile == card_pile_type::main_deck) {
             target->add_to_hand(target->get_game()->draw_card());
@@ -29,7 +42,10 @@ namespace banggame {
 
     void response_discard::on_pick(card_pile_type pile, int index) {
         if (pile == card_pile_type::player_hand) {
-            target->discard_hand_card(index);
+            target->discard_card(&target->get_hand_card(index));
+            if (target->num_hand_cards() <= target->get_hp()) {
+                target->get_game()->next_turn();
+            }
             target->get_game()->pop_response();
         }
     }
@@ -37,8 +53,8 @@ namespace banggame {
     bool response_bang::on_respond(card *target_card) {
         if (!target_card->effects.empty()) {
             if (target_card->effects.front().is<effect_barrel>()) {
-                target->get_game()->draw_check_then(target, [&](card *c) {
-                    if (c->suit == card_suit_type::hearts) {
+                target->get_game()->draw_check_then(target, [target = target](card_suit_type suit, card_value_type) {
+                    if (suit == card_suit_type::hearts) {
                         target->get_game()->pop_response();
                     }
                 });
@@ -60,7 +76,7 @@ namespace banggame {
         if (!target_card->effects.empty()) {
             if (target_card->effects.front().is<effect_bangcard>()) {
                 target->get_game()->pop_response();
-                target->get_game()->add_response<response_type::duel>(target, origin);
+                target->get_game()->queue_response<response_type::duel>(target, origin);
                 return true;
             }
         }

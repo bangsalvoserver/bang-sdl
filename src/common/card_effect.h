@@ -16,8 +16,8 @@ namespace banggame {
         target_type target = target_type::none;
         int maxdistance = 0;
 
-        virtual void on_equip(player *target) { }
-        virtual void on_unequip(player *target) { }
+        virtual void on_equip(player *target_player, card *target_card) { }
+        virtual void on_unequip(player *target, card *target_card) { }
 
         virtual void on_play(player *origin) { }
         virtual void on_play(player *origin, player *target) { }
