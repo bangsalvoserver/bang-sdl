@@ -32,8 +32,8 @@ namespace banggame {
         int m_weapon_range = 1;
         int m_distance_mod = 0;
 
-        unsigned int m_hp = 0;
-        unsigned int m_max_hp = 0;
+        int m_hp = 0;
+        int m_max_hp = 0;
 
         int m_infinite_bangs = 0;
 

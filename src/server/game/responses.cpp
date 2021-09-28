@@ -28,8 +28,9 @@ namespace banggame {
 
     void response_check::on_pick(card_pile_type pile, int card_id) {
         if (pile == card_pile_type::temp_table) {
-            target->get_game()->resolve_check(card_id);
+            auto t = target;
             target->get_game()->pop_response();
+            t->get_game()->resolve_check(card_id);
         }
     }
 
@@ -118,5 +119,6 @@ namespace banggame {
     void response_death::on_resolve() {
         target->get_game()->player_death(target);
         target->get_game()->pop_response();
+        target->get_game()->next_turn();
     }
 }

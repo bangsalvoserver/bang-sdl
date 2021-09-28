@@ -143,9 +143,13 @@ namespace banggame {
         }
 
         void next_turn() {
-            m_playing->end_of_turn();
-            m_playing = get_next_player(m_playing);
-            m_playing->start_of_turn();
+            if (m_playing->alive()) {
+                m_playing->end_of_turn();
+            }
+            if (num_alive() > 0) {
+                m_playing = get_next_player(m_playing);
+                m_playing->start_of_turn();
+            }
         }
 
         void player_death(player *p) {

@@ -117,7 +117,7 @@ namespace banggame {
                 return get_game()->get_player(tgts.front().player_id)->role() != player_role::sheriff
                     && in_range(tgts.front().player_id, c.effects.front()->maxdistance);
             case target_type::reachable:
-                return in_range(tgts.front().player_id, m_weapon_range);
+                return tgts.front().player_id != id && in_range(tgts.front().player_id, m_weapon_range);
             default:
                 return false;
             }
@@ -150,7 +150,7 @@ namespace banggame {
                         return args.size() == 1 && get_game()->get_player(args.front().player_id)->role() != player_role::sheriff
                             && in_range(args.front().player_id, c.effects.front()->maxdistance);
                     case target_type::reachable:
-                        return args.size() == 1 && in_range(args.front().player_id, m_weapon_range);
+                        return args.size() == 1 && args.front().player_id != id && in_range(args.front().player_id, m_weapon_range);
                     default:
                         return false;
                     }
@@ -330,12 +330,14 @@ namespace banggame {
     }
 
     void player::next_predraw_check(int card_id) {
-        m_pending_predraw_checks.erase(std::ranges::find(m_pending_predraw_checks, card_id, &predraw_check_t::card_id));
+        if (alive()) {
+            m_pending_predraw_checks.erase(std::ranges::find(m_pending_predraw_checks, card_id, &predraw_check_t::card_id));
 
-        if (m_pending_predraw_checks.empty()) {
-            get_game()->queue_response<response_type::draw>(nullptr, this);
-        } else {
-            get_game()->queue_response<response_type::predraw>(nullptr, this);
+            if (m_pending_predraw_checks.empty()) {
+                get_game()->queue_response<response_type::draw>(nullptr, this);
+            } else {
+                get_game()->queue_response<response_type::predraw>(nullptr, this);
+            }
         }
     }
 

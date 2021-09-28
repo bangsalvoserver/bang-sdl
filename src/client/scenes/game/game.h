@@ -11,26 +11,6 @@
 
 namespace banggame {
 
-    struct player_view_cards {
-        player_view player;
-
-        std::vector<int> hand;
-        std::vector<int> table;
-    };
-
-    struct card_view_location {
-        card_view card;
-        card_pile_type pile = card_pile_type::main_deck;
-        int player_id = 0;
-        
-        sdl::texture texture_front;
-        static inline sdl::texture texture_back;
-
-        SDL_Point pos;
-        float flip_amt = 0.f;
-        float rotation = 0.f;
-    };
-
     struct response_view {
         response_type type = response_type::none;
         int origin_id;
@@ -38,9 +18,9 @@ namespace banggame {
     };
 
     struct card_move_animation {
-        std::map<card_view_location *, std::pair<SDL_Point, SDL_Point>> data;
+        std::map<card_view *, std::pair<SDL_Point, SDL_Point>> data;
 
-        void add_move_card(card_view_location &c, SDL_Point pt) {
+        void add_move_card(card_view &c, SDL_Point pt) {
             auto [it, inserted] = data.try_emplace(&c, c.pos, pt);
             if (!inserted) {
                 it->second.second = pt;
@@ -56,16 +36,16 @@ namespace banggame {
     };
 
     struct card_flip_animation {
-        card_view_location *card;
+        card_view *card;
         bool flips;
 
         void do_animation(float amt) {
-            card->flip_amt = flips ? amt : 1.f - amt;
+            card->flip_amt = flips ? 1.f - amt : amt;
         }
     };
 
     struct card_tap_animation {
-        card_view_location *card;
+        card_view *card;
         bool taps;
 
         void do_animation(float amt) {
@@ -150,8 +130,20 @@ namespace banggame {
         std::vector<int> discard_pile;
         std::vector<int> temp_table;
 
-        std::map<int, card_view_location> m_cards;
-        std::map<int, player_view_cards> m_players;
+        std::map<int, card_view> m_cards;
+        std::map<int, player_view> m_players;
+
+        card_view &get_card(int id) {
+            auto it = m_cards.find(id);
+            if (it == m_cards.end()) throw std::runtime_error("ID Carta Non trovato");
+            return it->second;
+        }
+
+        player_view &get_player(int id) {
+            auto it = m_players.find(id);
+            if (it == m_players.end()) throw std::runtime_error("ID Giocatore Non trovato");
+            return it->second;
+        }
 
         int m_player_own_id = 0;
 

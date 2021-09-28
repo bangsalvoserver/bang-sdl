@@ -68,4 +68,21 @@ namespace banggame {
     sdl::texture make_backface_texture() {
         return apply_card_mask(sdl::surface(misc_resources["back_card"]));
     }
+
+    void card_view::render(sdl::renderer &renderer) {
+        sdl::texture *tex = nullptr;
+        if (flip_amt > 0.5f && texture_front) tex = &texture_front;
+        else if (texture_back) tex = &texture_back;
+        else return;
+        
+        SDL_Rect rect = tex->get_rect();
+        rect.x = pos.x;
+        rect.y = pos.y;
+        scale_rect(rect, 70);
+
+        float wscale = std::abs(1.f - 2.f * flip_amt);
+        rect.x += rect.w * (1.f - wscale) * 0.5f;
+        rect.w *= wscale;
+        SDL_RenderCopyEx(renderer.get(), tex->get_texture(renderer), nullptr, &rect, rotation, nullptr, SDL_FLIP_NONE);
+    }
 }

@@ -28,28 +28,6 @@ SDL_Point player_table_card_position(int player_index, int index) {
 game_scene::game_scene(class game_manager *parent)
     : scene_base(parent) {}
 
-static void scale_rect(SDL_Rect &rect, int new_w) {
-    rect.h = new_w * rect.h / rect.w;
-    rect.w = new_w;
-}
-
-static void render_card(sdl::renderer &renderer, card_view_location &c) {
-    sdl::texture *tex = nullptr;
-    if (c.flip_amt < 0.5f && c.texture_front) tex = &c.texture_front;
-    else if (c.texture_back) tex = &c.texture_back;
-    else return;
-    
-    SDL_Rect rect = tex->get_rect();
-    rect.x = c.pos.x;
-    rect.y = c.pos.y;
-    scale_rect(rect, 70);
-
-    float wscale = 2.f * std::abs(0.5f - c.flip_amt);
-    rect.x += rect.w * (1.f - wscale) * 0.5f;
-    rect.w *= wscale;
-    SDL_RenderCopyEx(renderer.get(), tex->get_texture(renderer), nullptr, &rect, c.rotation, nullptr, SDL_FLIP_NONE);
-}
-
 void game_scene::render(sdl::renderer &renderer, int w, int h) {
     if (m_animations.empty()) {
         pop_update();
@@ -61,39 +39,36 @@ void game_scene::render(sdl::renderer &renderer, int w, int h) {
         }
     }
 
-    if (card_view_location::texture_back) {
-        SDL_Rect rect = card_view_location::texture_back.get_rect();
+    if (card_view::texture_back) {
+        SDL_Rect rect = card_view::texture_back.get_rect();
         rect.x = main_deck_position.x;
         rect.y = main_deck_position.y;
         scale_rect(rect, 70);
-        card_view_location::texture_back.render(renderer, rect);
+        card_view::texture_back.render(renderer, rect);
     }
 
     for (int id : main_deck) {
-        auto &c = m_cards.at(id);
-        if (c.flip_amt < 1.f) {
-            render_card(renderer, c);
+        auto &c = get_card(id);
+        if (c.flip_amt > 0.f) {
+            c.render(renderer);
             break;
         }
     }
 
-    if (!discard_pile.empty()) {
-        if (discard_pile.size() > 1) {
-            render_card(renderer, m_cards.at(*(discard_pile.rbegin() + 1)));
-        }
-        render_card(renderer, m_cards.at(discard_pile.back()));
+    for (int id : discard_pile | std::views::reverse | std::views::take(2) | std::views::reverse) {
+        get_card(id).render(renderer);
     }
     
     for (int id : temp_table) {
-        render_card(renderer, m_cards.at(id));
+        get_card(id).render(renderer);
     }
     
     for (auto &p : m_players) {
         for (int id : p.second.table) {
-            render_card(renderer, m_cards.at(id));
+            get_card(id).render(renderer);
         }
         for (int id : p.second.hand) {
-            render_card(renderer, m_cards.at(id));
+            get_card(id).render(renderer);
         }
     }
 }
@@ -120,7 +95,7 @@ void game_scene::handle_event(const SDL_Event &event) {
             add_action<game_action_type::pass_turn>();
             break;
         case SDLK_a:
-            if (auto &hand = m_players.at(m_player_own_id).hand; !hand.empty()) {
+            if (auto &hand = get_player(m_player_own_id).hand; !hand.empty()) {
                 add_action<game_action_type::pick_card>(card_pile_type::player_hand, hand.front());
             }
             break;
@@ -133,9 +108,9 @@ void game_scene::handle_event(const SDL_Event &event) {
             add_action<game_action_type::resolve>();
             break;
         case SDLK_e:
-            for (int id : m_players.at(m_player_own_id).hand) {
-                auto &c = m_cards.at(id);
-                switch (c.card.color) {
+            for (int id : get_player(m_player_own_id).hand) {
+                auto &c = get_card(id);
+                switch (c.color) {
                 case card_color_type::blue: {
                     add_action<game_action_type::play_card>(id, std::vector{make_player_target(m_player_own_id)});
                     break;
@@ -149,9 +124,9 @@ void game_scene::handle_event(const SDL_Event &event) {
             }
             break;
         case SDLK_r: {
-            auto &table = m_players.at(m_player_own_id).table;
+            auto &table = get_player(m_player_own_id).table;
             auto check_for = [&](const std::string &name) {
-                auto it = std::ranges::find(table, name, [&](int id) { return m_cards.at(id).card.name; });
+                auto it = std::ranges::find(table, name, [&](int id) { return get_card(id).name; });
                 if (it != table.end()) {
                     add_action<game_action_type::pick_card>(card_pile_type::player_table, *it);
                 }
@@ -174,13 +149,18 @@ void game_scene::handle_update(const game_update &update) {
 }
 
 void game_scene::pop_update() {
-    if (!m_pending_updates.empty()) {
-        const auto update = std::move(m_pending_updates.front());
+    try {
+        if (!m_pending_updates.empty()) {
+            const auto update = std::move(m_pending_updates.front());
 
-        m_pending_updates.pop_front();
-        enums::visit([this]<game_update_type E>(enums::enum_constant<E> tag, const auto & ... data) {
-            handle_update(tag, data ...);
-        }, update);
+            m_pending_updates.pop_front();
+            enums::visit([this]<game_update_type E>(enums::enum_constant<E> tag, const auto & ... data) {
+                handle_update(tag, data ...);
+            }, update);
+        }
+    } catch (const std::exception &error) {
+        std::cerr << "Errore: " << error.what() << '\n';
+        parent->disconnect();
     }
 }
 
@@ -197,11 +177,11 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::game_notif
         discard_pile.clear();
         discard_pile.push_back(top_discard);
         for (int c : main_deck) {
-            card_view_location &loc = m_cards.at(c);
-            loc.card.known = false;
+            card_view &loc = get_card(c);
+            loc.known = false;
             loc.pile = card_pile_type::main_deck;
             loc.pos = main_deck_position;
-            loc.flip_amt = 1.f;
+            loc.flip_amt = 0.f;
         }
         std::cout << "Deck shuffled\n";
         break;
@@ -217,7 +197,6 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::move_card>
     card_move_animation anim;
     if (inserted) {
         card_it->second.pos = main_deck_position;
-        card_it->second.flip_amt = 1.f;
         if (!card_it->second.texture_back) {
             card_it->second.texture_back = make_backface_texture();
         }
@@ -230,7 +209,7 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::move_card>
                 auto &l = player_it->second.hand;
                 l.erase(std::ranges::find(l, args.card_id));
                 for (size_t i=0; i<l.size(); ++i) {
-                    anim.add_move_card(m_cards.at(l[i]), player_hand_card_position(p_idx, i));
+                    anim.add_move_card(get_card(l[i]), player_hand_card_position(p_idx, i));
                 }
             }
             break;
@@ -242,7 +221,7 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::move_card>
                 auto &l = player_it->second.table;
                 l.erase(std::ranges::find(l, args.card_id));
                 for (size_t i=0; i<l.size(); ++i) {
-                    anim.add_move_card(m_cards.at(l[i]), player_table_card_position(p_idx, i));
+                    anim.add_move_card(get_card(l[i]), player_table_card_position(p_idx, i));
                 }
             }
             break;
@@ -258,7 +237,7 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::move_card>
         case card_pile_type::temp_table: {
             temp_table.erase(std::ranges::find(temp_table, args.card_id));
             for (size_t i=0; i<temp_table.size(); ++i) {
-                anim.add_move_card(m_cards.at(temp_table[i]), temp_table_card_position(i));
+                anim.add_move_card(get_card(temp_table[i]), temp_table_card_position(i));
             }
             break;
         }
@@ -272,7 +251,7 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::move_card>
             auto &l = player_it->second.hand;
             l.push_back(args.card_id);
             for (size_t i=0; i<l.size(); ++i) {
-                anim.add_move_card(m_cards.at(l[i]), player_hand_card_position(p_idx, i));
+                anim.add_move_card(get_card(l[i]), player_hand_card_position(p_idx, i));
             }
         }
         break;
@@ -284,7 +263,7 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::move_card>
             auto &l = player_it->second.table;
             l.push_back(args.card_id);
             for (size_t i=0; i<l.size(); ++i) {
-                anim.add_move_card(m_cards.at(l[i]), player_table_card_position(p_idx, i));
+                anim.add_move_card(get_card(l[i]), player_table_card_position(p_idx, i));
             }
         }
         break;
@@ -300,7 +279,7 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::move_card>
     case card_pile_type::temp_table: {
         temp_table.push_back(args.card_id);
         for (size_t i=0; i<temp_table.size(); ++i) {
-            anim.add_move_card(m_cards.at(temp_table[i]), temp_table_card_position(i));
+            anim.add_move_card(get_card(temp_table[i]), temp_table_card_position(i));
         }
         break;
     }
@@ -315,24 +294,18 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::move_card>
 }
 
 void game_scene::handle_update(enums::enum_constant<game_update_type::show_card>, const show_card_update &args) {
-    auto &c_view = m_cards.at(args.card_id);
-    
-    auto &c = c_view.card;
+    auto &c_view = get_card(args.card_id);
 
-    if (!c.known) {
-        c.known = true;
-        c.name = args.name;
-        c.image = args.image;
-        c.suit = args.suit;
-        c.value = args.value;
-        c.color = args.color;
-        c.targets.clear();
+    if (!c_view.known) {
+        c_view.known = true;
+        c_view.name = args.name;
+        c_view.image = args.image;
+        c_view.suit = args.suit;
+        c_view.value = args.value;
+        c_view.color = args.color;
+        c_view.targets = args.targets;
 
-        for (const auto &t : args.targets) {
-            c.targets.emplace_back(t.target, t.maxdistance);
-        }
-
-        c_view.texture_front = make_card_texture(c);
+        c_view.texture_front = make_card_texture(c_view);
 
         m_animations.emplace_back(10, card_flip_animation{&c_view, false});
     } else {
@@ -341,9 +314,9 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::show_card>
 }
 
 void game_scene::handle_update(enums::enum_constant<game_update_type::hide_card>, const hide_card_update &args) {
-    auto &c_view = m_cards.at(args.card_id);
-    if (c_view.card.known) {
-        c_view.card.known = false;
+    auto &c_view = get_card(args.card_id);
+    if (c_view.known) {
+        c_view.known = false;
         m_animations.emplace_back(10, card_flip_animation{&c_view, true});
     } else {
         pop_update();
@@ -351,9 +324,9 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::hide_card>
 }
 
 void game_scene::handle_update(enums::enum_constant<game_update_type::tap_card>, const tap_card_update &args) {
-    auto &c_view = m_cards.at(args.card_id);
-    if (c_view.card.inactive != args.inactive) {
-        c_view.card.inactive = args.inactive;
+    auto &c_view = get_card(args.card_id);
+    if (c_view.inactive != args.inactive) {
+        c_view.inactive = args.inactive;
         m_animations.emplace_back(10, card_tap_animation{&c_view, args.inactive});
     } else {
         pop_update();
@@ -367,7 +340,7 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::player_own
 }
 
 void game_scene::handle_update(enums::enum_constant<game_update_type::player_hp>, const player_hp_update &args) {
-    auto &p = m_players.at(args.player_id).player;
+    auto &p = get_player(args.player_id);
     if (p.hp == 0) {
         pop_update();
     } else {
@@ -377,7 +350,7 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::player_hp>
 }
 
 void game_scene::handle_update(enums::enum_constant<game_update_type::player_character>, const player_character_update &args) {
-    auto &p = m_players[args.player_id].player;
+    auto &p = m_players[args.player_id];
     p.name = args.name;
     p.image = args.image;
     p.character_id = args.card_id;
@@ -387,7 +360,7 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::player_cha
 }
 
 void game_scene::handle_update(enums::enum_constant<game_update_type::player_show_role>, const player_show_role_update &args) {
-    m_players.at(args.player_id).player.role = args.role;
+    get_player(args.player_id).role = args.role;
     
     pop_update();
 }
