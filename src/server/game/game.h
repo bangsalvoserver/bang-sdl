@@ -98,21 +98,21 @@ namespace banggame {
 
         card &add_to_discards(card &&c) {
             add_show_card(c);
-            add_public_update<game_update_type::move_card>(c.id, card_pile_type::discard_pile);
+            add_public_update<game_update_type::move_card>(c.id, 0, card_pile_type::discard_pile);
             return m_discards.emplace_back(std::move(c));
         }
 
         card &add_to_temps(card &&c) {
             add_show_card(c);
-            add_public_update<game_update_type::move_card>(c.id, card_pile_type::temp_table);
+            add_public_update<game_update_type::move_card>(c.id, 0, card_pile_type::temp_table);
             return m_temps.emplace_back(std::move(c));
         }
 
         card draw_card();
-        card draw_from_temp(int index);
+        card draw_from_temp(int card_id);
 
         void draw_check_then(player *p, draw_check_function &&fun);
-        void resolve_check(int check_index);
+        void resolve_check(int card_id);
 
         int num_alive() const {
             return std::ranges::count_if(m_players, &player::alive);

@@ -16,7 +16,7 @@ namespace banggame {
 
     struct card_view {
         bool known = false;
-        bool active = true;
+        bool inactive = false;
 
         std::string name;
         std::string image;

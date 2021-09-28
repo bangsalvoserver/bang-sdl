@@ -28,11 +28,23 @@ namespace banggame {
         }
         auto &moved = m_table.emplace_back(std::move(target));
         get_game()->add_show_card(moved);
-        get_game()->add_public_update<game_update_type::move_card>(moved.id, card_pile_type::player_table, id);
+        get_game()->add_public_update<game_update_type::move_card>(moved.id, id, card_pile_type::player_table);
     }
 
     bool player::has_card_equipped(const std::string &name) const {
         return std::ranges::find(m_table, name, &card::name) != m_table.end();
+    }
+
+    card &player::get_hand_card(int card_id) {
+        auto it = std::ranges::find(m_hand, card_id, &card::id);
+        if (it == m_hand.end()) throw error_message("ID non trovato");
+        return *it;
+    }
+
+    card &player::get_table_card(int card_id) {
+        auto it = std::ranges::find(m_table, card_id, &card::id);
+        if (it == m_table.end()) throw error_message("ID non trovato");
+        return *it;
     }
 
     card player::get_card_removed(card *target) {
@@ -40,11 +52,13 @@ namespace banggame {
         card c;
         if (it == m_table.end()) {
             it = std::ranges::find(m_hand, target->id, &card::id);
+            if (it == m_hand.end()) throw error_message("ID non trovato");
             c = std::move(*it);
             m_hand.erase(it);
         } else {
-            if (auto inactive_it = std::ranges::find(m_inactive_cards, it->id); inactive_it != m_inactive_cards.end()) {
-                m_inactive_cards.erase(inactive_it);
+            if (it->inactive) {
+                it->inactive = false;
+                get_game()->add_public_update<game_update_type::tap_card>(it->id, false);
             }
             c = std::move(*it);
             for (auto &e : c.effects) {
@@ -62,7 +76,7 @@ namespace banggame {
     void player::steal_card(player *target, card *target_card) {
         const card &c = m_hand.emplace_back(target->get_card_removed(target_card));
         get_game()->add_show_card(c, this);
-        get_game()->add_public_update<game_update_type::move_card>(c.id, card_pile_type::player_hand, id);
+        get_game()->add_public_update<game_update_type::move_card>(c.id, id, card_pile_type::player_hand);
     }
 
     void player::damage(int value) {
@@ -81,7 +95,7 @@ namespace banggame {
     void player::add_to_hand(card &&target) {
         const auto &c = m_hand.emplace_back(std::move(target));
         get_game()->add_show_card(c, this);
-        get_game()->add_public_update<game_update_type::move_card>(c.id, card_pile_type::player_hand, id);
+        get_game()->add_public_update<game_update_type::move_card>(c.id, id, card_pile_type::player_hand);
     }
 
     bool player::verify_card_targets(const card &c, const std::vector<play_card_target> &targets) {
@@ -144,7 +158,7 @@ namespace banggame {
                 [&](enums::enum_constant<play_card_target_type::target_card>, const std::vector<target_card_id> &args) {
                     switch (e->target) {
                     case target_type::selfhand:
-                        return args.size() == 1 && args.front().player_id == id && m_hand.at(args.front().card_index).id != c.id;
+                        return args.size() == 1 && args.front().player_id == id && args.front().card_id != c.id;
                     case target_type::othercards:
                         if (args.size() != get_game()->m_players.size() - 1) return false;
                         return std::ranges::all_of(get_game()->m_players, [&](int pid) {
@@ -154,8 +168,10 @@ namespace banggame {
                     case target_type::anycard:
                         if (args.size() != 1) return false;
                         if (!in_range(args.front().player_id, e->maxdistance)) return false;
-                        if (args.front().player_id == id && args.front().from_hand
-                            && m_hand.at(args.front().card_index).id == c.id) return false;
+                        if (args.front().from_hand) {
+                            if (args.front().player_id == id && args.front().card_id == c.id) return false;
+                            if (get_game()->get_player(args.front().player_id)->is_hand_empty()) return false;
+                        }
                         return true;
                     default:
                         return false;
@@ -183,12 +199,12 @@ namespace banggame {
                         card *target_card = nullptr;
                         if (target.from_hand) {
                             if (target_player == this) {
-                                target_card = &m_hand.at(target.card_index);
+                                target_card = &get_hand_card(target.card_id);
                             } else {
-                                target_card = &target_player->m_hand.at(get_game()->rng() % target_player->m_hand.size());
+                                target_card = &target_player->m_hand[get_game()->rng() % target_player->m_hand.size()];
                             }
                         } else {
-                            target_card = &target_player->m_table.at(target.card_index);
+                            target_card = &target_player->get_table_card(target.card_id);
                         }
                         e->on_play(this, target_player, target_card);
                     }
@@ -203,7 +219,7 @@ namespace banggame {
             card_it = std::ranges::find(m_table, args.card_id, &card::id);
             switch (card_it->color) {
             case card_color_type::green:
-                if (std::ranges::find(m_inactive_cards, card_it->id) == m_inactive_cards.end()) {
+                if (!card_it->inactive) {
                     if (verify_card_targets(*card_it, args.targets)) {
                         card removed = std::move(*card_it);
                         m_hand.erase(card_it);
@@ -236,6 +252,8 @@ namespace banggame {
                         card removed = std::move(*card_it);
                         m_hand.erase(card_it);
                         target_player->equip_card(std::move(removed));
+                    } else {
+                        throw error_message("Carte duplicate");
                     }
                 } else {
                     throw error_message("Target non validi");
@@ -243,11 +261,13 @@ namespace banggame {
                 break;
             case card_color_type::green:
                 if (!has_card_equipped(card_it->name)) {
+                    card_it->inactive = true;
                     card removed = std::move(*card_it);
-                    int card_id = m_inactive_cards.emplace_back(removed.id);
                     m_hand.erase(card_it);
                     equip_card(std::move(removed));
-                    get_game()->add_public_update<game_update_type::tap_card>(card_id, false);
+                    get_game()->add_public_update<game_update_type::tap_card>(removed.id, true);
+                } else {
+                    throw error_message("Carte duplicate");
                 }
                 break;
             }
@@ -262,7 +282,7 @@ namespace banggame {
         if (card_it == m_hand.end()) {
             switch (card_it->color) {
             case card_color_type::green:
-                if (std::ranges::find(m_inactive_cards, card_it->id) == m_inactive_cards.end()) {
+                if (!card_it->inactive) {
                     if (verify_card_targets(*card_it, args.targets)) {
                         if (resp->on_respond(&*card_it)) {
                             card removed = std::move(*card_it);
@@ -320,10 +340,12 @@ namespace banggame {
     }
 
     void player::end_of_turn() {
-        for (int id : m_inactive_cards) {
-            get_game()->add_public_update<game_update_type::tap_card>(id, true);
+        for (auto &c : m_table) {
+            if (c.inactive) {
+                c.inactive = false;
+                get_game()->add_public_update<game_update_type::tap_card>(c.id, false);
+            }
         }
-        m_inactive_cards.clear();
         m_pending_predraw_checks.clear();
     }
 

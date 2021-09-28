@@ -5,9 +5,9 @@
 #include "game.h"
 
 namespace banggame {
-    void response_predraw::on_pick(card_pile_type pile, int index) {
+    void response_predraw::on_pick(card_pile_type pile, int card_id) {
         if (pile == card_pile_type::player_table) {
-            card &c = target->get_table_card(index);
+            card &c = target->get_table_card(card_id);
             if (target->is_top_predraw_check(c)) {
                 auto t = target;
                 t->get_game()->pop_response();
@@ -18,7 +18,7 @@ namespace banggame {
         }
     }
 
-    void response_draw::on_pick(card_pile_type pile, int index) {
+    void response_draw::on_pick(card_pile_type pile, int card_id) {
         if (pile == card_pile_type::main_deck) {
             target->add_to_hand(target->get_game()->draw_card());
             target->add_to_hand(target->get_game()->draw_card());
@@ -26,23 +26,23 @@ namespace banggame {
         }
     }
 
-    void response_check::on_pick(card_pile_type pile, int index) {
+    void response_check::on_pick(card_pile_type pile, int card_id) {
         if (pile == card_pile_type::temp_table) {
-            target->get_game()->resolve_check(index);
+            target->get_game()->resolve_check(card_id);
             target->get_game()->pop_response();
         }
     }
 
-    void response_generalstore::on_pick(card_pile_type pile, int index) {
+    void response_generalstore::on_pick(card_pile_type pile, int card_id) {
         if (pile == card_pile_type::temp_table) {
-            target->add_to_hand(target->get_game()->draw_from_temp(index));
+            target->add_to_hand(target->get_game()->draw_from_temp(card_id));
             target->get_game()->pop_response();
         }
     }
 
-    void response_discard::on_pick(card_pile_type pile, int index) {
+    void response_discard::on_pick(card_pile_type pile, int card_id) {
         if (pile == card_pile_type::player_hand) {
-            target->discard_card(&target->get_hand_card(index));
+            target->discard_card(&target->get_hand_card(card_id));
             if (target->num_hand_cards() <= target->get_hp()) {
                 target->get_game()->next_turn();
             }

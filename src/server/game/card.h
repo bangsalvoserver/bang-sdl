@@ -19,6 +19,7 @@ namespace banggame {
         std::vector<effect_holder> effects;
         std::string name;
         std::string image;
+        bool inactive = false;
     };
 
     struct character {

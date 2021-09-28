@@ -15,8 +15,8 @@ namespace banggame {
 
     DEFINE_SERIALIZABLE(move_card_update,
         (card_id, int)
-        (destination, card_pile_type)
-        (destination_value, int)
+        (player_id, int)
+        (pile, card_pile_type)
     )
 
     DEFINE_SERIALIZABLE(card_target_data,
@@ -40,7 +40,7 @@ namespace banggame {
 
     DEFINE_SERIALIZABLE(tap_card_update,
         (card_id, int)
-        (active, bool)
+        (inactive, bool)
     )
 
     DEFINE_SERIALIZABLE(player_own_id_update,
@@ -97,7 +97,7 @@ namespace banggame {
     )
     DEFINE_SERIALIZABLE(target_card_id,
         (player_id, int)
-        (card_index, int)
+        (card_id, int)
         (from_hand, bool)
     )
 
@@ -110,8 +110,8 @@ namespace banggame {
     using play_card_target = enums::enum_variant<play_card_target_type>;
 
     DEFINE_SERIALIZABLE(pick_card_args,
-        (source, card_pile_type)
-        (source_value, int)
+        (pile, card_pile_type)
+        (card_id, int)
     )
 
     DEFINE_SERIALIZABLE(play_card_args,

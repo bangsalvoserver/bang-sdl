@@ -14,27 +14,27 @@ namespace banggame {
     using response_holder = vbase_holder<response_effect>;
 
     struct picking_response : response_effect {
-        virtual void on_pick(card_pile_type pile, int index) = 0;
+        virtual void on_pick(card_pile_type pile, int card_id) = 0;
     };
 
     struct response_predraw: picking_response {
-        virtual void on_pick(card_pile_type pile, int index) override;
+        virtual void on_pick(card_pile_type pile, int card_id) override;
     };
 
     struct response_draw : picking_response {
-        virtual void on_pick(card_pile_type pile, int index) override;
+        virtual void on_pick(card_pile_type pile, int card_id) override;
     };
 
     struct response_check : picking_response {
-        virtual void on_pick(card_pile_type pile, int index) override;
+        virtual void on_pick(card_pile_type pile, int card_id) override;
     };
 
     struct response_generalstore : picking_response {
-        virtual void on_pick(card_pile_type pile, int index) override;
+        virtual void on_pick(card_pile_type pile, int card_id) override;
     };
 
     struct response_discard : picking_response {
-        virtual void on_pick(card_pile_type pile, int index) override;
+        virtual void on_pick(card_pile_type pile, int card_id) override;
     };
 
     struct card_response : response_effect {

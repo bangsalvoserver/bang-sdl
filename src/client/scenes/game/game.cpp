@@ -120,10 +120,14 @@ void game_scene::handle_event(const SDL_Event &event) {
             add_action<game_action_type::pass_turn>();
             break;
         case SDLK_a:
-            add_action<game_action_type::pick_card>(card_pile_type::player_hand, 0);
+            if (auto &hand = m_players.at(m_player_own_id).hand; !hand.empty()) {
+                add_action<game_action_type::pick_card>(card_pile_type::player_hand, hand.front());
+            }
             break;
         case SDLK_s:
-            add_action<game_action_type::pick_card>(card_pile_type::temp_table, 0);
+            if (!temp_table.empty()) {
+                add_action<game_action_type::pick_card>(card_pile_type::temp_table, temp_table.front());
+            }
             break;
         case SDLK_g:
             add_action<game_action_type::resolve>();
@@ -145,15 +149,15 @@ void game_scene::handle_event(const SDL_Event &event) {
             }
             break;
         case SDLK_r: {
-            auto find_card_named = [&](auto &&range, const std::string &name) {
-                return std::ranges::find(range, name, [&](int id) { return m_cards.at(id).card.name; });
-            };
             auto &table = m_players.at(m_player_own_id).table;
-            if (auto it_dinamite = find_card_named(table, "Dinamite"); it_dinamite != table.end()) {
-                add_action<game_action_type::pick_card>(card_pile_type::player_table, it_dinamite - table.begin());
-            } else if (auto it_prigione = find_card_named(table, "Prigione"); it_prigione != table.end()) {
-                add_action<game_action_type::pick_card>(card_pile_type::player_table, it_prigione - table.begin());
-            }
+            auto check_for = [&](const std::string &name) {
+                auto it = std::ranges::find(table, name, [&](int id) { return m_cards.at(id).card.name; });
+                if (it != table.end()) {
+                    add_action<game_action_type::pick_card>(card_pile_type::player_table, *it);
+                }
+            };
+            check_for("Dinamite");
+            check_for("Prigione");
             break;
         }
         case SDLK_ESCAPE:
@@ -209,33 +213,37 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::game_notif
 }
 
 void game_scene::handle_update(enums::enum_constant<game_update_type::move_card>, const move_card_update &args) {
-    auto [it, inserted] = m_cards.try_emplace(args.card_id);
+    auto [card_it, inserted] = m_cards.try_emplace(args.card_id);
     card_move_animation anim;
     if (inserted) {
-        it->second.pos = main_deck_position;
-        it->second.flip_amt = 1.f;
-        if (!it->second.texture_back) {
-            it->second.texture_back = make_backface_texture();
+        card_it->second.pos = main_deck_position;
+        card_it->second.flip_amt = 1.f;
+        if (!card_it->second.texture_back) {
+            card_it->second.texture_back = make_backface_texture();
         }
     } else {
-        switch(it->second.pile) {
+        switch(card_it->second.pile) {
         case card_pile_type::player_hand: {
-            auto pit = m_players.find(it->second.pile_value);
-            int p_idx = std::distance(m_players.begin(), pit);
-            auto &l = pit->second.hand;
-            l.erase(std::ranges::find(l, args.card_id));
-            for (size_t i=0; i<l.size(); ++i) {
-                anim.add_move_card(m_cards.at(l[i]), player_hand_card_position(p_idx, i));
+            auto player_it = m_players.find(card_it->second.player_id);
+            if (player_it != m_players.end()) {
+                int p_idx = std::distance(m_players.begin(), player_it);
+                auto &l = player_it->second.hand;
+                l.erase(std::ranges::find(l, args.card_id));
+                for (size_t i=0; i<l.size(); ++i) {
+                    anim.add_move_card(m_cards.at(l[i]), player_hand_card_position(p_idx, i));
+                }
             }
             break;
         }
         case card_pile_type::player_table: {
-            auto pit = m_players.find(it->second.pile_value);
-            int p_idx = std::distance(m_players.begin(), pit);
-            auto &l = pit->second.table;
-            l.erase(std::ranges::find(l, args.card_id));
-            for (size_t i=0; i<l.size(); ++i) {
-                anim.add_move_card(m_cards.at(l[i]), player_table_card_position(p_idx, i));
+            auto player_it = m_players.find(card_it->second.player_id);
+            if (player_it != m_players.end()) {
+                int p_idx = std::distance(m_players.begin(), player_it);
+                auto &l = player_it->second.table;
+                l.erase(std::ranges::find(l, args.card_id));
+                for (size_t i=0; i<l.size(); ++i) {
+                    anim.add_move_card(m_cards.at(l[i]), player_table_card_position(p_idx, i));
+                }
             }
             break;
         }
@@ -256,34 +264,38 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::move_card>
         }
         }
     }
-    switch(args.destination) {
+    switch(args.pile) {
     case card_pile_type::player_hand: {
-        auto pit = m_players.find(args.destination_value);
-        int p_idx = std::distance(m_players.begin(), pit);
-        auto &l = pit->second.hand;
-        l.push_back(args.card_id);
-        for (size_t i=0; i<l.size(); ++i) {
-            anim.add_move_card(m_cards.at(l[i]), player_hand_card_position(p_idx, i));
+        auto player_it = m_players.find(args.player_id);
+        if (player_it != m_players.end()) {
+            int p_idx = std::distance(m_players.begin(), player_it);
+            auto &l = player_it->second.hand;
+            l.push_back(args.card_id);
+            for (size_t i=0; i<l.size(); ++i) {
+                anim.add_move_card(m_cards.at(l[i]), player_hand_card_position(p_idx, i));
+            }
         }
         break;
     }
     case card_pile_type::player_table: {
-        auto pit = m_players.find(args.destination_value);
-        int p_idx = std::distance(m_players.begin(), pit);
-        auto &l = pit->second.table;
-        l.push_back(args.card_id);
-        for (size_t i=0; i<l.size(); ++i) {
-            anim.add_move_card(m_cards.at(l[i]), player_table_card_position(p_idx, i));
+        auto player_it = m_players.find(args.player_id);
+        if (player_it != m_players.end()) {
+            int p_idx = std::distance(m_players.begin(), player_it);
+            auto &l = player_it->second.table;
+            l.push_back(args.card_id);
+            for (size_t i=0; i<l.size(); ++i) {
+                anim.add_move_card(m_cards.at(l[i]), player_table_card_position(p_idx, i));
+            }
         }
         break;
     }
     case card_pile_type::main_deck:
         main_deck.push_back(args.card_id);
-        anim.add_move_card(it->second, main_deck_position);
+        anim.add_move_card(card_it->second, main_deck_position);
         break;
     case card_pile_type::discard_pile:
         discard_pile.push_back(args.card_id);
-        anim.add_move_card(it->second, discard_position);
+        anim.add_move_card(card_it->second, discard_position);
         break;
     case card_pile_type::temp_table: {
         temp_table.push_back(args.card_id);
@@ -293,8 +305,8 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::move_card>
         break;
     }
     }
-    it->second.pile = args.destination;
-    it->second.pile_value = args.destination_value;
+    card_it->second.pile = args.pile;
+    card_it->second.player_id = args.player_id;
     if (inserted) {
         pop_update();
     } else {
@@ -340,9 +352,9 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::hide_card>
 
 void game_scene::handle_update(enums::enum_constant<game_update_type::tap_card>, const tap_card_update &args) {
     auto &c_view = m_cards.at(args.card_id);
-    if (c_view.card.active != args.active) {
-        c_view.card.active = args.active;
-        m_animations.emplace_back(10, card_tap_animation{&c_view, !args.active});
+    if (c_view.card.inactive != args.inactive) {
+        c_view.card.inactive = args.inactive;
+        m_animations.emplace_back(10, card_tap_animation{&c_view, args.inactive});
     } else {
         pop_update();
     }

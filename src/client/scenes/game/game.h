@@ -21,7 +21,7 @@ namespace banggame {
     struct card_view_location {
         card_view card;
         card_pile_type pile = card_pile_type::main_deck;
-        int pile_value = 0;
+        int player_id = 0;
         
         sdl::texture texture_front;
         static inline sdl::texture texture_back;

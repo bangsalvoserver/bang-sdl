@@ -17,7 +17,6 @@ namespace banggame {
 
         std::vector<card> m_hand;
         std::vector<card> m_table;
-        std::vector<int> m_inactive_cards;
         character m_character;
         player_role m_role;
 
@@ -48,12 +47,11 @@ namespace banggame {
 
         void discard_weapon();
 
-        card &get_hand_card(int index) {
-            return m_hand.at(index);
-        }
+        card &get_hand_card(int card_id);
+        card &get_table_card(int card_id);
 
-        card &get_table_card(int index) {
-            return m_table.at(index);
+        bool is_hand_empty() const {
+            return m_hand.empty();
         }
         
         card get_card_removed(card *target);

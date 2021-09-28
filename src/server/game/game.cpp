@@ -2,6 +2,7 @@
 
 #include "card.h"
 #include "common/responses.h"
+#include "common/net_enums.h"
 
 #include <array>
 
@@ -50,7 +51,7 @@ namespace banggame {
         auto all_cards = read_cards(options.allowed_expansions);
 
         for (const auto &c : all_cards.cards) {
-            add_public_update<game_update_type::move_card>(c.id, card_pile_type::main_deck);
+            add_public_update<game_update_type::move_card>(c.id, 0, card_pile_type::main_deck);
         }
 
         shuffle_cards_and_ids(all_cards.cards, rng);
@@ -100,9 +101,11 @@ namespace banggame {
         return c;
     }
 
-    card game::draw_from_temp(int index) {
-        card c = std::move(m_temps.at(index));
-        m_temps.erase(m_temps.begin() + index);
+    card game::draw_from_temp(int card_id) {
+        auto it = std::ranges::find(m_temps, card_id, &card::id);
+        if (it == m_temps.end()) throw error_message("ID non trovato");
+        card c = std::move(*it);
+        m_temps.erase(it);
         return c;
     }
 
@@ -119,14 +122,13 @@ namespace banggame {
         }
     }
 
-    void game::resolve_check(int check_index) {
-        for (size_t i=0; i<m_temps.size(); ++i) {
-            if (i != check_index) {
-                add_to_discards(std::move(m_temps[i]));
-            }
+    void game::resolve_check(int card_id) {
+        card c = draw_from_temp(card_id);
+        for (auto &c : m_temps) {
+            add_to_discards(std::move(c));
         }
-        card &moved = add_to_discards(std::move(m_temps.at(check_index)));
         m_temps.clear();
+        card &moved = add_to_discards(std::move(c));
         m_pending_checks.front()(moved.suit, moved.value);
         m_pending_checks.pop_front();
     }
@@ -134,7 +136,7 @@ namespace banggame {
     void game::handle_action(enums::enum_constant<game_action_type::pick_card>, player *p, const pick_card_args &args) {
         if (!m_responses.empty() && p == top_response()->target) {
             if (auto *r = top_response().as<picking_response>()) {
-                r->on_pick(args.source, args.source_value);
+                r->on_pick(args.pile, args.card_id);
             }
         }
     }
