@@ -17,6 +17,8 @@ int main(int argc, char **argv) {
     sdl::img_initializer sdl_img_init(IMG_INIT_PNG);
     sdlnet::initializer sdl_net_init;
 
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+
     sdl::window window("Bang!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, window_width, window_height, 0);
     sdl::renderer renderer(window, -1, SDL_RENDERER_ACCELERATED);
 

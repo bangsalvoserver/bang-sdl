@@ -118,12 +118,12 @@ namespace banggame {
             return std::ranges::count_if(m_players, &player::alive);
         }
 
-        player &get_next_player(player *p) {
+        player *get_next_player(player *p) {
             auto it = m_players.begin() + (p - m_players.data());
             do {
                 if (++it == m_players.end()) it = m_players.begin();
             } while(!it->alive());
-            return *it;
+            return &*it;
         }
 
         player *get_player(int id) {
@@ -135,9 +135,16 @@ namespace banggame {
             }
         }
 
+        int calc_distance(player *from, player *to) {
+            int d1=0, d2=0;
+            for (player *counter = from; counter != to; counter = get_next_player(counter), ++d1);
+            for (player *counter = to; counter != from; counter = get_next_player(counter), ++d2);
+            return std::min(d1, d2) + to->get_distance() - from->get_range();
+        }
+
         void next_turn() {
             m_playing->end_of_turn();
-            m_playing = &get_next_player(m_playing);
+            m_playing = get_next_player(m_playing);
             m_playing->start_of_turn();
         }
 

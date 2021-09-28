@@ -98,6 +98,17 @@ void game_scene::render(sdl::renderer &renderer, int w, int h) {
     }
 }
 
+template<typename ... Ts>
+static play_card_target make_player_target(Ts && ... args) {
+    return play_card_target(enums::enum_constant<play_card_target_type::target_player>{},
+        std::vector{target_player_id{std::forward<Ts>(args)} ... });
+}
+
+template<play_card_target_type E, typename ... Ts>
+static play_card_target make_target(Ts && ... args) {
+    return play_card_target(enums::enum_constant<E>{}, std::forward<Ts>(args) ...);
+}
+
 void game_scene::handle_event(const SDL_Event &event) {
     switch (event.type) {
     case SDL_KEYDOWN:
@@ -122,10 +133,7 @@ void game_scene::handle_event(const SDL_Event &event) {
                 auto &c = m_cards.at(id);
                 switch (c.card.color) {
                 case card_color_type::blue: {
-                    add_action<game_action_type::play_card>(id, std::vector{
-                        play_card_target(enums::enum_constant<play_card_target_type::target_player>{},
-                        std::vector{target_player_id{m_player_own_id}})
-                    });
+                    add_action<game_action_type::play_card>(id, std::vector{make_player_target(m_player_own_id)});
                     break;
                 }
                 case card_color_type::green:

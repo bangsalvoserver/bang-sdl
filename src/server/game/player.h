@@ -29,7 +29,7 @@ namespace banggame {
         std::vector<predraw_check_t> m_predraw_checks;
         std::vector<predraw_check_t> m_pending_predraw_checks;
 
-        int m_range = 1;
+        int m_range_mod = 0;
         int m_weapon_range = 1;
         int m_distance_mod = 0;
 
@@ -78,8 +78,16 @@ namespace banggame {
             m_distance_mod += diff;
         }
 
+        int get_distance() const {
+            return m_distance_mod;
+        }
+
         void add_range(int diff) {
-            m_range += diff;
+            m_range_mod += diff;
+        }
+
+        int get_range() const {
+            return m_range_mod;
         }
 
         void add_infinite_bangs(int value) {
@@ -123,8 +131,7 @@ namespace banggame {
 
         void add_to_hand(card &&c);
 
-        player &get_next_player();
-
+        bool verify_card_targets(const card &c, const std::vector<play_card_target> &targets);
         void do_play_card(card &c, const std::vector<play_card_target> &targets);
 
         void play_card(const play_card_args &args);

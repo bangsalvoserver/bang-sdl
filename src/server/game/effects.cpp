@@ -23,7 +23,7 @@ namespace banggame {
             origin->get_game()->add_to_temps(origin->get_game()->draw_card());
 
             origin->get_game()->queue_response<response_type::generalstore>(origin, target);
-            target = &target->get_game()->get_next_player(target);
+            target = target->get_game()->get_next_player(target);
         }
     }
 
@@ -100,7 +100,7 @@ namespace banggame {
                 auto moved = target_player->get_card_removed(target_card);
                 auto *p = target_player;
                 do {
-                    p = &p->get_next_player();
+                    p = p->get_game()->get_next_player(p);
                 } while (p->has_card_equipped(moved.name));
                 p->equip_card(std::move(moved));
             }

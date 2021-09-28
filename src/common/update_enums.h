@@ -95,16 +95,16 @@ namespace banggame {
     DEFINE_SERIALIZABLE(target_player_id,
         (player_id, int)
     )
-    DEFINE_SERIALIZABLE(target_table_card_id,
+    DEFINE_SERIALIZABLE(target_card_id,
         (player_id, int)
         (card_index, int)
+        (from_hand, bool)
     )
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, play_card_target_type,
         (target_none)
         (target_player, std::vector<target_player_id>)
-        (target_hand_card, std::vector<target_player_id>)
-        (target_table_card, std::vector<target_table_card_id>)
+        (target_card, std::vector<target_card_id>)
     )
 
     using play_card_target = enums::enum_variant<play_card_target_type>;
