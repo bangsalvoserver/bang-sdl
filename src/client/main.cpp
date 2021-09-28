@@ -7,8 +7,8 @@
 
 #include "manager.h"
 
-constexpr int window_width = 640;
-constexpr int window_height = 480;
+constexpr int window_width = 800;
+constexpr int window_height = 600;
 constexpr int fps = 30;
 
 int main(int argc, char **argv) {

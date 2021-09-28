@@ -54,6 +54,7 @@ public:
     }
 
 private:
+    void handle_message(enums::enum_constant<server_message_type::error_message>, const error_message &args);
     void handle_message(enums::enum_constant<server_message_type::lobby_list>, const std::vector<lobby_data> &args);
     void handle_message(enums::enum_constant<server_message_type::lobby_entered>, const lobby_entered_args &args);
     void handle_message(enums::enum_constant<server_message_type::lobby_players>, const std::vector<lobby_player_data> &args);

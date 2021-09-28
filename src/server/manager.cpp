@@ -3,9 +3,22 @@
 #include <iostream>
 #include <stdexcept>
 
+#include "common/net_enums.h"
+
 using namespace banggame;
 
 void game_manager::parse_message(const sdlnet::ip_address &addr, const std::string &str) {
+    constexpr auto lut = []<client_message_type ... Es>(enums::enum_sequence<Es...>) {
+        return std::array{ +[](game_manager &mgr, const sdlnet::ip_address &addr, const Json::Value &value) {
+            constexpr client_message_type E = Es;
+            if constexpr (enums::has_type<E>) {
+                mgr.handle_message(enums::enum_constant<E>{}, addr, json::deserialize<enums::enum_type_t<E>>(value));
+            } else {
+                mgr.handle_message(enums::enum_constant<E>{}, addr);
+            }
+        } ... };
+    }(enums::make_enum_sequence<client_message_type>());
+
     std::stringstream ss(str);
 
     try {
@@ -13,22 +26,13 @@ void game_manager::parse_message(const sdlnet::ip_address &addr, const std::stri
         ss >> json_value;
 
         auto msg = enums::from_string<client_message_type>(json_value["type"].asString());
-        if (msg == enums::invalid_enum_v<client_message_type>) {
-            throw std::runtime_error("Tipo messaggio non valido");
+        if (msg != enums::invalid_enum_v<client_message_type>) {
+            lut[enums::indexof(msg)](*this, addr, json_value["value"]);
         }
-
-        constexpr auto lut = []<client_message_type ... Es>(enums::enum_sequence<Es...>) {
-            return std::array{ +[](game_manager &mgr, const sdlnet::ip_address &addr, const Json::Value &value) {
-                constexpr client_message_type E = Es;
-                if constexpr (enums::has_type<E>) {
-                    mgr.handle_message(enums::enum_constant<E>{}, addr, json::deserialize<enums::enum_type_t<E>>(value));
-                } else {
-                    mgr.handle_message(enums::enum_constant<E>{}, addr);
-                }
-            } ... };
-        }(enums::make_enum_sequence<client_message_type>());
-
-        lut[enums::indexof(msg)](*this, addr, json_value["value"]);
+    } catch (const error_message &e) {
+        send_message<server_message_type::error_message>(addr, e);
+    } catch (const Json::Exception &e) {
+        // ignore
     } catch (const std::exception &e) {
         std::cerr << addr.ip_string() << ": Errore (" << e.what() << ")\n";
     }
@@ -68,7 +72,7 @@ void game_manager::handle_message(enums::enum_constant<client_message_type::lobb
 void game_manager::handle_message(enums::enum_constant<client_message_type::lobby_make>, const sdlnet::ip_address &addr, const lobby_make_args &value) {
     auto it = find_lobby(addr);
     if (it != m_lobbies.end()) {
-        throw std::runtime_error("Giocatore gia' in una lobby");
+        throw error_message{"Giocatore gia' in una lobby"};
     }
 
     lobby new_lobby;
@@ -88,11 +92,11 @@ void game_manager::handle_message(enums::enum_constant<client_message_type::lobb
 void game_manager::handle_message(enums::enum_constant<client_message_type::lobby_join>, const sdlnet::ip_address &addr, const lobby_join_args &value) {
     auto it = std::ranges::find(m_lobbies, value.lobby_id, &lobby::id);
     if (it == m_lobbies.end()) {
-        throw std::runtime_error("Id Lobby non valido");
+        throw error_message{"Id Lobby non valido"};
     }
 
     if (it->state != lobby_state::waiting) {
-        throw std::runtime_error("Lobby non in attesa");
+        throw error_message{"Lobby non in attesa"};
     }
 
     if (it->users.size() < it->maxplayers) {
@@ -112,7 +116,7 @@ void game_manager::handle_message(enums::enum_constant<client_message_type::lobb
 void game_manager::handle_message(enums::enum_constant<client_message_type::lobby_players>, const sdlnet::ip_address &addr) {
     auto it = find_lobby(addr);
     if (it == m_lobbies.end()) {
-        throw std::runtime_error("Giocatore non in una lobby");
+        throw error_message("Giocatore non in una lobby");
     }
 
     std::vector<lobby_player_data> vec;
@@ -144,7 +148,7 @@ void game_manager::handle_message(enums::enum_constant<client_message_type::lobb
 void game_manager::handle_message(enums::enum_constant<client_message_type::lobby_chat>, const sdlnet::ip_address &addr, const lobby_chat_client_args &value) {
     auto it = find_lobby(addr);
     if (it == m_lobbies.end()) {
-        throw std::runtime_error("Giocatore non in una lobby");
+        throw error_message("Giocatore non in una lobby");
     }
 
     const auto &u = it->users.at(addr);
@@ -154,15 +158,15 @@ void game_manager::handle_message(enums::enum_constant<client_message_type::lobb
 void game_manager::handle_message(enums::enum_constant<client_message_type::game_start>, const sdlnet::ip_address &addr) {
     auto it = find_lobby(addr);
     if (it == m_lobbies.end()) {
-        throw std::runtime_error("Giocatore non in una lobby");
+        throw error_message("Giocatore non in una lobby");
     }
 
     if (addr != it->owner) {
-        throw std::runtime_error("Non proprietario della lobby");
+        throw error_message("Non proprietario della lobby");
     }
 
     if (it->state != lobby_state::waiting) {
-        throw std::runtime_error("Lobby non in attesa");
+        throw error_message("Lobby non in attesa");
     }
 
     it->state = lobby_state::playing;
@@ -176,16 +180,16 @@ void game_manager::handle_message(enums::enum_constant<client_message_type::game
 void game_manager::handle_message(enums::enum_constant<client_message_type::game_action>, const sdlnet::ip_address &addr, const game_action &value) {
     auto it = find_lobby(addr);
     if (it == m_lobbies.end()) {
-        throw std::runtime_error("Giocatore non in una lobby");
+        throw error_message("Giocatore non in una lobby");
     }
 
     if (it->state != lobby_state::playing) {
-        throw std::runtime_error("Lobby non in gioco");
+        throw error_message("Lobby non in gioco");
     }
 
     auto user_it = it->users.find(addr);
     if (user_it == it->users.end()) {
-        throw std::runtime_error("Giocatore non in questa lobby");
+        throw error_message("Giocatore non in questa lobby");
     }
 
     enums::visit([&]<game_action_type T>(enums::enum_constant<T> tag, auto && ... args) {

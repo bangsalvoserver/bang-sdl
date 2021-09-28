@@ -4,6 +4,7 @@
 
 #include "common/effects.h"
 #include "common/responses.h"
+#include "common/net_enums.h"
 
 namespace banggame {
     constexpr auto is_weapon = [](const card &c) {
@@ -209,12 +210,12 @@ namespace banggame {
                         do_play_card(removed, args.targets);
                         get_game()->add_to_discards(std::move(removed));
                     } else {
-                        throw std::runtime_error("Target non validi");
+                        throw error_message("Target non validi");
                     }
                 }
                 break;
             default:
-                throw std::runtime_error("Carta giocata non valida");
+                throw error_message("Carta giocata non valida");
             }
         } else {
             switch (card_it->color) {
@@ -224,7 +225,7 @@ namespace banggame {
                     do_play_card(removed, args.targets);
                     get_game()->add_to_discards(std::move(removed));
                 } else {
-                    throw std::runtime_error("Target non validi");
+                    throw error_message("Target non validi");
                 }
                 break;
             case card_color_type::blue:
@@ -237,7 +238,7 @@ namespace banggame {
                         target_player->equip_card(std::move(removed));
                     }
                 } else {
-                    throw std::runtime_error("Target non validi");
+                    throw error_message("Target non validi");
                 }
                 break;
             case card_color_type::green:
@@ -270,14 +271,14 @@ namespace banggame {
                             get_game()->add_to_discards(std::move(removed));
                         }
                     } else {
-                        throw std::runtime_error("Target non validi");
+                        throw error_message("Target non validi");
                     }
                 }
                 break;
             case card_color_type::blue:
                 resp->on_respond(&*card_it);
             default:
-                throw std::runtime_error("Carta giocata non valida");
+                throw error_message("Carta giocata non valida");
             }
         } else {
             card_it = std::ranges::find(m_table, args.card_id, &card::id);
@@ -290,7 +291,7 @@ namespace banggame {
                         get_game()->add_to_discards(std::move(removed));
                     }
                 } else {
-                    throw std::runtime_error("Target non validi");
+                    throw error_message("Target non validi");
                 }
             }
         }

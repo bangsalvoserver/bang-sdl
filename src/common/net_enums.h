@@ -3,6 +3,10 @@
 
 #include "update_enums.h"
 
+DEFINE_SERIALIZABLE(error_message,
+    (message, std::string)
+)
+
 DEFINE_ENUM(lobby_state,
     (waiting)
     (playing)
@@ -69,6 +73,7 @@ DEFINE_SERIALIZABLE(lobby_chat_args,
 )
 
 DEFINE_ENUM_TYPES(server_message_type,
+    (error_message, error_message)
     (lobby_list, std::vector<lobby_data>)
     (lobby_entered, lobby_entered_args)
     (lobby_players, std::vector<lobby_player_data>)

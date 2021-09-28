@@ -37,15 +37,15 @@ void game_manager::update_net() {
             ss >> json_value;
 
             auto msg = enums::from_string<server_message_type>(json_value["type"].asString());
-            if (msg == enums::invalid_enum_v<server_message_type>) {
-                throw std::runtime_error("Tipo messaggio non valido");
+            if (msg != enums::invalid_enum_v<server_message_type>) {
+                lut[enums::indexof(msg)](*this, json_value["value"]);
             }
-
-            lut[enums::indexof(msg)](*this, json_value["value"]);
         } catch (sdlnet::socket_disconnected) {
             disconnect();
-        } catch (const std::exception &e) {
-            std::cerr << "Errore (" << e.what() << ")\n";
+        } catch (Json::Exception) {
+            // ignore
+        } catch (const std::exception &error) {
+            std::cerr << "Errore (" << error.what() << ")\n";
         }
     }
     if (sock.isopen()) {
@@ -63,7 +63,7 @@ void game_manager::connect(const std::string &host) {
         sock.open(sdlnet::ip_address(host, banggame::server_port));
         sock_set.add(sock);
         switch_scene<scene_type::lobby_list>();
-    } catch (const sdlnet::sdlnet_error &e) {
+    } catch (const sdlnet::net_error &e) {
         if (auto *s = dynamic_cast<connect_scene *>(m_scene)) {
             s->show_error(e.what());
         }
@@ -85,6 +85,10 @@ void game_manager::render(sdl::renderer &renderer, int w, int h) {
 
 void game_manager::handle_event(const SDL_Event &event) {
     m_scene->handle_event(event);
+}
+
+void game_manager::handle_message(enums::enum_constant<server_message_type::error_message>, const error_message &args) {
+    std::cout << args.message << '\n';
 }
 
 void game_manager::handle_message(enums::enum_constant<server_message_type::lobby_list>, const std::vector<lobby_data> &args) {

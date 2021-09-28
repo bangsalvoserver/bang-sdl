@@ -11,10 +11,14 @@
 
 namespace sdl {
 
+    struct error : std::runtime_error {
+        using std::runtime_error::runtime_error;
+    };
+
     struct initializer {
         initalizer(uint32_t flags) {
             if (SDL_Init(flags) != 0) {
-                throw std::runtime_error(std::string("Could not init SDL: ") + SDL_GetError());
+                throw error(std::string("Could not init SDL: ") + SDL_GetError());
             }
             SDL_StartTextInput();
         }
@@ -28,7 +32,7 @@ namespace sdl {
     struct ttf_initializer {
         ttf_initializer() {
             if (TTF_Init() != 0) {
-                throw std::runtime_error(std::string("Could not init SDL_ttf: ") + TTF_GetError());
+                throw error(std::string("Could not init SDL_ttf: ") + TTF_GetError());
             }
         }
 
@@ -40,7 +44,7 @@ namespace sdl {
     struct img_initializer {
         img_initializer(int flags) {
             if ((IMG_Init(flags) & flags) != flags) {
-                throw std::runtime_error(std::string("Could not init SDL_image") + IMG_GetError());
+                throw error(std::string("Could not init SDL_image") + IMG_GetError());
             }
         }
 
@@ -55,7 +59,7 @@ namespace sdl {
             m_value = SDL_CreateWindow(title, x, y, w, h, flags);
             
             if (!m_value) {
-                throw std::runtime_error(std::string("Could not create window: ") + SDL_GetError());
+                throw error(std::string("Could not create window: ") + SDL_GetError());
             }
         }
 
@@ -88,7 +92,7 @@ namespace sdl {
         renderer(window &w, int index, uint32_t flags) {
             m_value = SDL_CreateRenderer(w.get(), index, flags);
             if (!m_value) {
-                throw std::runtime_error(std::string("Could not create renderer: ") + SDL_GetError());
+                throw error(std::string("Could not create renderer: ") + SDL_GetError());
             }
         }
 
@@ -152,7 +156,7 @@ namespace sdl {
             m_value = SDL_CreateRGBSurface(0, width, height, 32, rmask, gmask, bmask, amask);
             
             if (!m_value) {
-                throw std::runtime_error(std::string("Could not create surface: ") + SDL_GetError());
+                throw error(std::string("Could not create surface: ") + SDL_GetError());
             }
         }
 
@@ -161,7 +165,7 @@ namespace sdl {
         explicit surface(const resource &res) {
             m_value = IMG_Load_RW(SDL_RWFromConstMem(res.data, res.length), 0);
             if (!m_value) {
-                throw std::runtime_error(std::string("Could not load image: ") + IMG_GetError());
+                throw error(std::string("Could not load image: ") + IMG_GetError());
             }
         }
 
@@ -261,7 +265,7 @@ namespace sdl {
         font(const resource &res, int ptsize) {
             m_value = TTF_OpenFontRW(SDL_RWFromConstMem(res.data, res.length), 0, ptsize);
             if (!m_value) {
-                throw std::runtime_error(std::string("Could not create font: ") + TTF_GetError());
+                throw error(std::string("Could not create font: ") + TTF_GetError());
             }
         }
 
@@ -295,7 +299,7 @@ namespace sdl {
         }
         SDL_Surface *s = TTF_RenderText_Blended(font.get(), label.c_str(), text_color);
         if (!s) {
-            throw std::runtime_error(std::string("Could not render text: ") + TTF_GetError());
+            throw error(std::string("Could not render text: ") + TTF_GetError());
         }
         return s;
     }

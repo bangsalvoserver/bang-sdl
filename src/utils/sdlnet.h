@@ -9,8 +9,8 @@ namespace sdlnet {
 
     constexpr size_t buffer_size = 1024;
 
-    struct sdlnet_error : std::runtime_error {
-        sdlnet_error() : std::runtime_error(SDLNet_GetError()) {}
+    struct net_error : std::runtime_error {
+        net_error() : std::runtime_error(SDLNet_GetError()) {}
     };
 
     struct socket_disconnected : std::runtime_error {
@@ -20,7 +20,7 @@ namespace sdlnet {
     struct initializer {
         initializer() {
             if (SDLNet_Init()==-1) {
-                throw sdlnet_error();
+                throw net_error();
             }
         }
 
@@ -46,7 +46,7 @@ namespace sdlnet {
 
         ip_address(const std::string &host, uint16_t port) {
             if (SDLNet_ResolveHost(this, host.c_str(), port) == -1) {
-                throw sdlnet_error();
+                throw net_error();
             }
         }
 
@@ -94,7 +94,7 @@ namespace sdlnet {
         }
 
         tcp_socket(TCPsocket sock) : sock(sock) {
-            if (!sock) throw sdlnet_error();
+            if (!sock) throw net_error();
         }
 
         explicit tcp_socket(ip_address addr) {
@@ -115,7 +115,7 @@ namespace sdlnet {
             }
             sock = SDLNet_TCP_Open(&addr);
             if (!sock) {
-                throw sdlnet_error();
+                throw net_error();
             }
         }
 
@@ -192,20 +192,20 @@ namespace sdlnet {
 
         void add(const tcp_socket &sock) {
             if (SDLNet_TCP_AddSocket(set, sock.sock) == -1) {
-                throw sdlnet_error();
+                throw net_error();
             } 
         }
 
         void erase(const tcp_socket &sock) {
             if (SDLNet_TCP_DelSocket(set, sock.sock) == -1) {
-                throw sdlnet_error();
+                throw net_error();
             }
         }
 
         int check(uint32_t timeout) {
             int num = SDLNet_CheckSockets(set, timeout);
             if (num == -1) {
-                throw sdlnet_error();
+                throw net_error();
             }
             return num;
         }
