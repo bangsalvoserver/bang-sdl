@@ -17,14 +17,14 @@ game_scene::game_scene(class game_manager *parent)
 void game_scene::resize(int width, int height) {
     scene_base::resize(width, height);
     
-    main_deck_card.pos = SDL_Point{m_width / 2, m_height / 2};
+    main_deck.pos = SDL_Point{m_width / 2, m_height / 2};
 
-    discard_pile.pos = main_deck_card.pos;
+    discard_pile.pos = main_deck.pos;
     discard_pile.pos.x -= 80;
     
     temp_table.pos = SDL_Point{
-        (main_deck_card.pos.x + discard_pile.pos.x) / 2,
-        main_deck_card.pos.y + 100};
+        (main_deck.pos.x + discard_pile.pos.x) / 2,
+        main_deck.pos.y + 100};
 }
 
 void game_scene::render(sdl::renderer &renderer) {
@@ -40,14 +40,8 @@ void game_scene::render(sdl::renderer &renderer) {
     
     if (!m_player_own_id) return;
 
-    main_deck_card.render(renderer);
-
-    for (int id : main_deck) {
-        auto &c = get_card(id);
-        if (c.flip_amt > 0.f) {
-            c.render(renderer);
-            break;
-        }
+    for (int id : main_deck | std::views::reverse | std::views::take(2) | std::views::reverse) {
+        get_card(id).render(renderer);
     }
 
     for (auto &p : m_players) {
@@ -168,102 +162,111 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::game_notif
     case game_notify_type::deck_shuffled: {
         int top_discard = discard_pile.back();
         discard_pile.resize(discard_pile.size() - 1);
-        main_deck = std::move(discard_pile);
+        card_move_animation anim;
+        for (int id : discard_pile) {
+            auto &c = get_card(id);
+            c.known = false;
+            c.flip_amt = 0.f;
+            c.pile = &main_deck;
+            main_deck.push_back(id);
+            anim.add_move_card(c, &main_deck);
+        }
         discard_pile.clear();
         discard_pile.push_back(top_discard);
-        for (int c : main_deck) {
-            card_view &loc = get_card(c);
-            loc.known = false;
-            loc.pile = &main_deck;
-            loc.pos = main_deck_card.pos;
-            loc.flip_amt = 0.f;
-        }
         std::cout << "Deck shuffled\n";
+        
+        m_animations.emplace_back(30, std::move(anim));
         break;
     }
     default:
+        pop_update();
         break;
     }
+}
+
+void game_scene::handle_update(enums::enum_constant<game_update_type::add_cards>, const add_cards_update &args) {
+    if (!card_view::texture_back) {
+        card_view::texture_back = make_backface_texture();
+    }
+    for (int id : args.card_ids) {
+        auto &c = m_cards[id];
+        c.id = id;
+        c.pos = main_deck.pos;
+        c.pile = &main_deck;
+        main_deck.push_back(id);
+    }
+
     pop_update();
 }
 
 void game_scene::handle_update(enums::enum_constant<game_update_type::move_card>, const move_card_update &args) {
-    auto [card_it, inserted] = m_cards.try_emplace(args.card_id);
+    auto &c = get_card(args.card_id);
     card_move_animation anim;
-    if (inserted) {
-        card_it->second.pos = main_deck_card.pos;
-        card_it->second.pile = &main_deck;
-        if (!card_it->second.texture_back) {
-            card_it->second.texture_back = make_backface_texture();
-        }
-    } else if (auto *pile = card_it->second.pile) {
-        pile->erase_card(args.card_id);
-        if (pile->xoffset) {
-            for (int card_id : *pile) {
-                anim.add_move_card(get_card(card_id), pile->get_position(card_id));
-            }
+
+    c.pile->erase_card(c.id);
+    if (c.pile->xoffset) {
+        for (int id : *c.pile) {
+            anim.add_move_card(get_card(id), c.pile);
         }
     }
-    card_pile_view *pile = nullptr;
+    
     switch(args.pile) {
-    case card_pile_type::player_hand:   pile = &get_player(args.player_id).hand; break;
-    case card_pile_type::player_table:  pile = &get_player(args.player_id).table; break;
-    case card_pile_type::main_deck:     pile = &main_deck; break;
-    case card_pile_type::discard_pile:  pile = &discard_pile; break;
-    case card_pile_type::temp_table:    pile = &temp_table; break;
+    case card_pile_type::player_hand:   c.pile = &get_player(args.player_id).hand; break;
+    case card_pile_type::player_table:  c.pile = &get_player(args.player_id).table; break;
+    case card_pile_type::main_deck:     c.pile = &main_deck; break;
+    case card_pile_type::discard_pile:  c.pile = &discard_pile; break;
+    case card_pile_type::temp_table:    c.pile = &temp_table; break;
     }
-    if (card_it->second.pile = pile) {
-        pile->push_back(args.card_id);
-        if (pile->xoffset) {
-            for (int card_id : *pile) {
-                anim.add_move_card(get_card(card_id), pile->get_position(card_id));
-            }
-        } else {
-            anim.add_move_card(get_card(args.card_id), pile->get_position(args.card_id));
+    c.pile->push_back(c.id);
+    if (c.pile->xoffset) {
+        for (int id : *c.pile) {
+            anim.add_move_card(get_card(id), c.pile);
         }
-    }
-    if (inserted) {
-        pop_update();
     } else {
-        m_animations.emplace_back(20, std::move(anim));
+        anim.add_move_card(get_card(c.id), c.pile);
     }
+    m_animations.emplace_back(20, std::move(anim));
 }
 
 void game_scene::handle_update(enums::enum_constant<game_update_type::show_card>, const show_card_update &args) {
-    auto &c_view = get_card(args.card_id);
+    auto &c = get_card(args.card_id);
 
-    if (!c_view.known) {
-        c_view.known = true;
-        c_view.name = args.name;
-        c_view.image = args.image;
-        c_view.suit = args.suit;
-        c_view.value = args.value;
-        c_view.color = args.color;
-        c_view.targets = args.targets;
+    if (!c.known) {
+        c.known = true;
+        c.name = args.name;
+        c.image = args.image;
+        c.suit = args.suit;
+        c.value = args.value;
+        c.color = args.color;
+        c.targets = args.targets;
 
-        c_view.texture_front = make_card_texture(c_view);
+        c.texture_front = make_card_texture(c);
 
-        m_animations.emplace_back(10, card_flip_animation{&c_view, false});
+        if (c.pile == &main_deck) {
+            std::swap(*std::ranges::find(main_deck, c.id), main_deck.back());
+        }
+        m_animations.emplace_back(10, card_flip_animation{&c, false});
+
     } else {
         pop_update();
     }
 }
 
 void game_scene::handle_update(enums::enum_constant<game_update_type::hide_card>, const hide_card_update &args) {
-    auto &c_view = get_card(args.card_id);
-    if (c_view.known) {
-        c_view.known = false;
-        m_animations.emplace_back(10, card_flip_animation{&c_view, true});
+    auto &c = get_card(args.card_id);
+    if (c.known) {
+        c.known = false;
+        m_animations.emplace_back(10, card_flip_animation{&c, true});
     } else {
         pop_update();
     }
 }
 
 void game_scene::handle_update(enums::enum_constant<game_update_type::tap_card>, const tap_card_update &args) {
-    auto &c_view = get_card(args.card_id);
-    if (c_view.inactive != args.inactive) {
-        c_view.inactive = args.inactive;
-        m_animations.emplace_back(10, card_tap_animation{&c_view, args.inactive});
+    auto &c = get_card(args.card_id);
+    if (c.inactive != args.inactive) {
+        c.inactive = args.inactive;
+        m_animations.emplace_back(10, card_tap_animation{&c, args.inactive});
     } else {
         pop_update();
     }

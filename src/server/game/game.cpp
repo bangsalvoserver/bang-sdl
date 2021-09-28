@@ -74,10 +74,9 @@ namespace banggame {
         }
 
         m_deck = std::move(all_cards.cards);
+        auto ids_view = m_deck | std::views::transform(&card::id);
+        add_public_update<game_update_type::add_cards>(std::vector(ids_view.begin(), ids_view.end()));
         shuffle_cards_and_ids(m_deck, rng);
-        for (const auto &c : m_deck) {
-            add_public_update<game_update_type::move_card>(c.id, 0, card_pile_type::main_deck);
-        }
 
         for (auto &p : m_players) {
             for (int i=0; i<p.get_hp(); ++i) {

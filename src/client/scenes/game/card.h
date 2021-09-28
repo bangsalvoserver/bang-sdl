@@ -38,6 +38,7 @@ namespace banggame {
         bool known = false;
         bool inactive = false;
 
+        int id;
         std::string name;
         std::string image;
         card_suit_type suit;

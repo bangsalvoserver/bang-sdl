@@ -35,6 +35,7 @@ namespace banggame {
 
     private:
         void handle_update(enums::enum_constant<game_update_type::game_notify>,      game_notify_type args);
+        void handle_update(enums::enum_constant<game_update_type::add_cards>,        const add_cards_update &args);
         void handle_update(enums::enum_constant<game_update_type::move_card>,        const move_card_update &args);
         void handle_update(enums::enum_constant<game_update_type::show_card>,        const show_card_update &args);
         void handle_update(enums::enum_constant<game_update_type::hide_card>,        const hide_card_update &args);
@@ -58,7 +59,6 @@ namespace banggame {
         std::vector<lobby_chat_args> m_messages;
 
         card_pile_view main_deck{0};
-        card_view main_deck_card;
 
         card_pile_view discard_pile{0};
         card_pile_view temp_table;

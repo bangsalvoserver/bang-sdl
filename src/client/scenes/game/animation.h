@@ -4,20 +4,27 @@
 #include "card.h"
 
 namespace banggame {
-    struct card_move_animation {
-        std::map<card_view *, std::pair<SDL_Point, SDL_Point>> data;
 
-        void add_move_card(card_view &c, SDL_Point pt) {
-            auto [it, inserted] = data.try_emplace(&c, c.pos, pt);
+    struct card_animation_item {
+        SDL_Point start;
+        card_pile_view *pile;
+    };
+
+    struct card_move_animation {
+        std::map<card_view *, card_animation_item> data;
+
+        void add_move_card(card_view &c, card_pile_view *pile) {
+            auto [it, inserted] = data.try_emplace(&c, c.pos, pile);
             if (!inserted) {
-                it->second.second = pt;
+                it->second.pile = pile;
             }
         }
 
         void do_animation(float amt) {
             for (auto &[card, pos] : data) {
-                card->pos.x = std::lerp(pos.first.x, pos.second.x, amt);
-                card->pos.y = std::lerp(pos.first.y, pos.second.y, amt);
+                SDL_Point dest = pos.pile->get_position(card->id);
+                card->pos.x = std::lerp(pos.start.x, dest.x, amt);
+                card->pos.y = std::lerp(pos.start.y, dest.y, amt);
             }
         }
     };

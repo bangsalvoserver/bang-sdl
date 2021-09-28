@@ -13,6 +13,10 @@ namespace banggame {
         (deck_shuffled)
     )
 
+    DEFINE_SERIALIZABLE(add_cards_update,
+        (card_ids, std::vector<int>)
+    )
+
     DEFINE_SERIALIZABLE(move_card_update,
         (card_id, int)
         (player_id, int)
@@ -77,6 +81,7 @@ namespace banggame {
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, game_update_type,
         (game_notify, game_notify_type)
+        (add_cards, add_cards_update)
         (move_card, move_card_update)
         (show_card, show_card_update)
         (hide_card, hide_card_update)
