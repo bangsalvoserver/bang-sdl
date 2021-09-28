@@ -146,10 +146,17 @@ namespace banggame {
                 break;
             }
             case card_color_type::blue:
-                if (!has_card_equipped(card_it->name)) {
-                    card removed = std::move(*card_it);
-                    m_hand.erase(card_it);
-                    equip_card(std::move(removed));
+                if (args.targets.size() == 1
+                    && args.targets.front().enum_index() == play_card_target_type::target_player) {
+                    auto &targets = args.targets.front().get<play_card_target_type::target_player>();
+                    if (targets.size() == 1) {
+                        auto *target_player = get_game()->get_player(targets.front().player_id);
+                        if (!target_player->has_card_equipped(card_it->name)) {
+                            card removed = std::move(*card_it);
+                            m_hand.erase(card_it);
+                            target_player->equip_card(std::move(removed));
+                        }
+                    }
                 }
                 break;
             case card_color_type::green:

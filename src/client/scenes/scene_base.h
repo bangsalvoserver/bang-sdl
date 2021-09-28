@@ -10,6 +10,7 @@
 class scene_base {
 public:
     scene_base(class game_manager *parent) : parent(parent) {}
+    virtual ~scene_base() {}
 
     virtual SDL_Color bg_color() {
         return {0xff, 0xff, 0xff, 0xff};

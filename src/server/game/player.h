@@ -112,7 +112,7 @@ namespace banggame {
             int top_priority = std::ranges::max(m_pending_predraw_checks | std::views::transform(&predraw_check_t::priority));
             if (e.effects.empty()) return false;
             auto it = std::ranges::find(m_pending_predraw_checks, e.id, &predraw_check_t::card_id);
-            return it != m_pending_predraw_checks.end();
+            return it != m_pending_predraw_checks.end() && it->priority == top_priority;
         }
 
         void next_predraw_check(int card_id);

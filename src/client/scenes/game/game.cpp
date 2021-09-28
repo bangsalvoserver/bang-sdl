@@ -121,7 +121,13 @@ void game_scene::handle_event(const SDL_Event &event) {
             for (int id : m_players.at(m_player_own_id).hand) {
                 auto &c = m_cards.at(id);
                 switch (c.card.color) {
-                case card_color_type::blue:
+                case card_color_type::blue: {
+                    add_action<game_action_type::play_card>(id, std::vector{
+                        play_card_target(enums::enum_constant<play_card_target_type::target_player>{},
+                        std::vector{target_player_id{m_player_own_id}})
+                    });
+                    break;
+                }
                 case card_color_type::green:
                     add_action<game_action_type::play_card>(id);
                     break;
@@ -131,14 +137,14 @@ void game_scene::handle_event(const SDL_Event &event) {
             }
             break;
         case SDLK_r: {
-            int idx = 0;
-            for (int id : m_players.at(m_player_own_id).table) {
-                auto &c = m_cards.at(id);
-                if (c.card.name == "Dinamite" || c.card.name == "Prigione") {
-                    add_action<game_action_type::pick_card>(card_pile_type::player_table, idx);
-                    break;
-                }
-                ++idx;
+            auto find_card_named = [&](auto &&range, const std::string &name) {
+                return std::ranges::find(range, name, [&](int id) { return m_cards.at(id).card.name; });
+            };
+            auto &table = m_players.at(m_player_own_id).table;
+            if (auto it_dinamite = find_card_named(table, "Dinamite"); it_dinamite != table.end()) {
+                add_action<game_action_type::pick_card>(card_pile_type::player_table, it_dinamite - table.begin());
+            } else if (auto it_prigione = find_card_named(table, "Prigione"); it_prigione != table.end()) {
+                add_action<game_action_type::pick_card>(card_pile_type::player_table, it_prigione - table.begin());
             }
             break;
         }
@@ -179,8 +185,13 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::game_notif
         discard_pile.clear();
         discard_pile.push_back(top_discard);
         for (int c : main_deck) {
-            m_cards.at(c).card.known = false;
+            card_view_location &loc = m_cards.at(c);
+            loc.card.known = false;
+            loc.pile = card_pile_type::main_deck;
+            loc.pos = main_deck_position;
+            loc.flip_amt = 1.f;
         }
+        std::cout << "Deck shuffled\n";
         break;
     }
     default:
@@ -384,6 +395,8 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::response_h
 void game_scene::handle_update(enums::enum_constant<game_update_type::response_done>) {
     m_current_response.type = response_type::none;
     m_current_response.origin_id = 0;
+
+    std::cout << "Response done\n";
 
     pop_update();
 }

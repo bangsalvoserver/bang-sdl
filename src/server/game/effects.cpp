@@ -101,7 +101,7 @@ namespace banggame {
                 auto *p = target_player;
                 do {
                     p = &p->get_next_player();
-                } while (p->has_card_equipped(target_card->name));
+                } while (p->has_card_equipped(moved.name));
                 p->equip_card(std::move(moved));
             }
             target_player->next_predraw_check(card_id);
