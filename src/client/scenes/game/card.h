@@ -11,6 +11,29 @@
 
 namespace banggame {
 
+    struct card_pile_view : std::vector<int> {
+        SDL_Point pos;
+        int xoffset;
+
+        card_pile_view(int xoffset = 30) : xoffset(xoffset) {}
+
+        auto find(int card_id) const {
+            return std::ranges::find(*this, card_id);
+        }
+
+        SDL_Point get_position(int card_id) const {
+            return SDL_Point{(int)(pos.x + xoffset *
+                (std::ranges::distance(begin(), find(card_id)) - (size() - 1) * .5f)),
+                pos.y};
+        }
+
+        void erase_card(int card_id) {
+            if (auto it = find(card_id); it != end()) {
+                erase(it);
+            }
+        }
+    };
+
     struct card_view {
         bool known = false;
         bool inactive = false;
@@ -22,8 +45,7 @@ namespace banggame {
         card_color_type color;
         std::vector<card_target_data> targets;
 
-        card_pile_type pile = card_pile_type::main_deck;
-        int player_id = 0;
+        card_pile_view *pile = nullptr;
         
         sdl::texture texture_front;
         static inline sdl::texture texture_back;
@@ -46,8 +68,19 @@ namespace banggame {
 
         player_role role = player_role::unknown;
 
-        std::vector<int> hand;
-        std::vector<int> table;
+        card_pile_view hand;
+        card_pile_view table;
+
+        void set_position(SDL_Point pos, bool flipped = false) {
+            hand.pos = table.pos = pos;
+            if (flipped) {
+                hand.pos.y += 60;
+                table.pos.y -= 60;
+            } else {
+                hand.pos.y -= 60;
+                table.pos.y += 60;
+            }
+        }
     };
 
     sdl::texture make_card_texture(const card_view &card);

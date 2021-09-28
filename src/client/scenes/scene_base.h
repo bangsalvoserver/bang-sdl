@@ -16,11 +16,18 @@ public:
         return {0xff, 0xff, 0xff, 0xff};
     }
     
-    virtual void render(sdl::renderer &renderer, int w, int h) = 0;
+    virtual void resize(int width, int height) {
+        m_width = width;
+        m_height = height;
+    }
+    virtual void render(sdl::renderer &renderer) = 0;
     virtual void handle_event(const SDL_Event &event) = 0;
 
 protected:
     class game_manager *parent;
+
+    int m_width;
+    int m_height;
 };
 
 #endif

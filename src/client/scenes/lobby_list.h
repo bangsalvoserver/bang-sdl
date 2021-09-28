@@ -24,7 +24,7 @@ class lobby_list_scene : public scene_base {
 public:
     lobby_list_scene(class game_manager *parent);
 
-    void render(sdl::renderer &renderer, int w, int h) override;
+    void render(sdl::renderer &renderer) override;
     void handle_event(const SDL_Event &event) override;
 
     void set_lobby_list(const std::vector<lobby_data> &args);

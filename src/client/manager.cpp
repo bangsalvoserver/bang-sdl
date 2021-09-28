@@ -80,7 +80,8 @@ void game_manager::render(sdl::renderer &renderer, int w, int h) {
     renderer.set_draw_color(m_scene->bg_color());
     renderer.render_clear();
     
-    m_scene->render(renderer, w, h);
+    m_scene->resize(w, h);
+    m_scene->render(renderer);
 }
 
 void game_manager::handle_event(const SDL_Event &event) {

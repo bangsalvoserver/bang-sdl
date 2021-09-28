@@ -47,19 +47,19 @@ lobby_list_scene::lobby_list_scene(game_manager *parent)
     refresh();
 }
 
-void lobby_list_scene::render(sdl::renderer &renderer, int w, int h) {
+void lobby_list_scene::render(sdl::renderer &renderer) {
     auto label_rect = m_username_label.get_rect();
     label_rect.x = 100;
     label_rect.y = 50 + (25 - label_rect.h) / 2;
     m_username_label.set_rect(label_rect);
     m_username_label.render(renderer);
     
-    m_username_box.set_rect(SDL_Rect{100 + label_rect.w + 10, 50, w - 210 - label_rect.w, 25});
+    m_username_box.set_rect(SDL_Rect{100 + label_rect.w + 10, 50, m_width - 210 - label_rect.w, 25});
     m_username_box.render(renderer);
     
     int y = 100;
     for (auto &line : m_lobby_lines) {
-        line.render(renderer, SDL_Rect{100, y, w - 200, 25});
+        line.render(renderer, SDL_Rect{100, y, m_width - 200, 25});
         y += 40;
     }
 
@@ -69,7 +69,7 @@ void lobby_list_scene::render(sdl::renderer &renderer, int w, int h) {
     m_make_lobby_btn.set_rect(SDL_Rect{210, y, 100, 25});
     m_make_lobby_btn.render(renderer);
 
-    m_disconnect_btn.set_rect(SDL_Rect{20, h - 45, 100, 25});
+    m_disconnect_btn.set_rect(SDL_Rect{20, m_height - 45, 100, 25});
     m_disconnect_btn.render(renderer);
 }
 

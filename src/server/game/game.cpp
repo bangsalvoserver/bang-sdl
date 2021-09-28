@@ -37,30 +37,25 @@ namespace banggame {
     }
 
     void game::start_game(const game_options &options) {
-        for (int i=0; i<options.nplayers; ++i) {
-            m_players.emplace_back(this);
-        }
-
-        for (auto &p : m_players) {
-            add_private_update<game_update_type::player_own_id>(&p, p.id);
-        }
-        
         std::random_device rd;
         rng.seed(rd());
 
-        auto all_cards = read_cards(options.allowed_expansions);
-
-        for (const auto &c : all_cards.cards) {
-            add_public_update<game_update_type::move_card>(c.id, 0, card_pile_type::main_deck);
+        for (int i=0; i<options.nplayers; ++i) {
+            auto &p = m_players.emplace_back(this);
         }
 
-        shuffle_cards_and_ids(all_cards.cards, rng);
+        for (const auto &p : m_players) {
+            add_public_update<game_update_type::player_add>(p.id);
+        }
+        for (auto &p : m_players) {
+            add_private_update<game_update_type::player_own_id>(&p, p.id);
+        }
+
+        auto all_cards = read_cards(options.allowed_expansions);
+
         std::ranges::shuffle(all_cards.characters, rng);
-
-        m_deck = all_cards.cards;
-
         auto character_it = all_cards.characters.begin();
-
+        
         std::array roles{
             player_role::sheriff,
             player_role::outlaw,
@@ -71,12 +66,20 @@ namespace banggame {
             player_role::deputy,
             player_role::renegade
         };
-
-        std::ranges::shuffle(roles.begin(), roles.begin() + options.nplayers, rng);
         auto role_it = roles.begin();
 
+        std::ranges::shuffle(roles.begin(), roles.begin() + options.nplayers, rng);
         for (auto &p : m_players) {
             p.set_character_and_role(*character_it++, *role_it++);
+        }
+
+        m_deck = std::move(all_cards.cards);
+        shuffle_cards_and_ids(m_deck, rng);
+        for (const auto &c : m_deck) {
+            add_public_update<game_update_type::move_card>(c.id, 0, card_pile_type::main_deck);
+        }
+
+        for (auto &p : m_players) {
             for (int i=0; i<p.get_hp(); ++i) {
                 p.add_to_hand(draw_card());
             }

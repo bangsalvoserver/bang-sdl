@@ -80,6 +80,9 @@ namespace banggame {
         rect.y = pos.y;
         scale_rect(rect, 70);
 
+        rect.x -= rect.w / 2;
+        rect.y -= rect.h / 2;
+
         float wscale = std::abs(1.f - 2.f * flip_amt);
         rect.x += rect.w * (1.f - wscale) * 0.5f;
         rect.w *= wscale;

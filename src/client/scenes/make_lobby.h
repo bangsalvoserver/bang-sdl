@@ -7,7 +7,7 @@ class make_lobby_scene : public scene_base {
 public:
     make_lobby_scene(class game_manager *parent);
 
-    void render(sdl::renderer &renderer, int w, int h) override;
+    void render(sdl::renderer &renderer) override;
     void handle_event(const SDL_Event &event) override;
 
     void do_make_lobby();

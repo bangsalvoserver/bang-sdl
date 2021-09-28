@@ -13,14 +13,14 @@ connect_scene::connect_scene(game_manager *parent)
         20
     }) {}
 
-void connect_scene::render(sdl::renderer &renderer, int w, int h) {
+void connect_scene::render(sdl::renderer &renderer) {
     m_address_box.set_rect(SDL_Rect{115, 100, 300, 25});
     m_address_box.render(renderer);
 
     m_connect_btn.set_rect(SDL_Rect{425, 100, 100, 25});
     m_connect_btn.render(renderer);
 
-    m_error_text.set_point(SDL_Point{(w - m_error_text.get_rect().w) / 2, 150});
+    m_error_text.set_point(SDL_Point{(m_width - m_error_text.get_rect().w) / 2, 150});
     m_error_text.render(renderer);
 }
 

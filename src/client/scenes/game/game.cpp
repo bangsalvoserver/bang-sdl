@@ -2,6 +2,7 @@
 #include "../../manager.h"
 
 #include <iostream>
+#include <numbers>
 
 using namespace banggame;
 
@@ -10,25 +11,23 @@ void game_scene::add_action(Ts && ... args) {
     parent->add_message<client_message_type::game_action>(enums::enum_constant<T>{}, std::forward<Ts>(args) ...);
 }
 
-constexpr SDL_Point main_deck_position {380, 200};
-constexpr SDL_Point discard_position {300, 200};
-
-SDL_Point temp_table_card_position(int index) {
-    return {300 + index * 30, 300};
-}
-
-SDL_Point player_hand_card_position(int player_index, int index) {
-    return {10 + index * 30, 10 + player_index * 200};
-}
-
-SDL_Point player_table_card_position(int player_index, int index) {
-    return {10 + index * 30, 100 + player_index * 200};
-}
-
 game_scene::game_scene(class game_manager *parent)
     : scene_base(parent) {}
 
-void game_scene::render(sdl::renderer &renderer, int w, int h) {
+void game_scene::resize(int width, int height) {
+    scene_base::resize(width, height);
+    
+    main_deck_card.pos = SDL_Point{m_width / 2, m_height / 2};
+
+    discard_pile.pos = main_deck_card.pos;
+    discard_pile.pos.x -= 80;
+    
+    temp_table.pos = SDL_Point{
+        (main_deck_card.pos.x + discard_pile.pos.x) / 2,
+        main_deck_card.pos.y + 100};
+}
+
+void game_scene::render(sdl::renderer &renderer) {
     if (m_animations.empty()) {
         pop_update();
     } else {
@@ -38,14 +37,10 @@ void game_scene::render(sdl::renderer &renderer, int w, int h) {
             pop_update();
         }
     }
+    
+    if (!m_player_own_id) return;
 
-    if (card_view::texture_back) {
-        SDL_Rect rect = card_view::texture_back.get_rect();
-        rect.x = main_deck_position.x;
-        rect.y = main_deck_position.y;
-        scale_rect(rect, 70);
-        card_view::texture_back.render(renderer, rect);
-    }
+    main_deck_card.render(renderer);
 
     for (int id : main_deck) {
         auto &c = get_card(id);
@@ -55,14 +50,6 @@ void game_scene::render(sdl::renderer &renderer, int w, int h) {
         }
     }
 
-    for (int id : discard_pile | std::views::reverse | std::views::take(2) | std::views::reverse) {
-        get_card(id).render(renderer);
-    }
-    
-    for (int id : temp_table) {
-        get_card(id).render(renderer);
-    }
-    
     for (auto &p : m_players) {
         for (int id : p.second.table) {
             get_card(id).render(renderer);
@@ -70,6 +57,14 @@ void game_scene::render(sdl::renderer &renderer, int w, int h) {
         for (int id : p.second.hand) {
             get_card(id).render(renderer);
         }
+    }
+
+    for (int id : discard_pile | std::views::reverse | std::views::take(2) | std::views::reverse) {
+        get_card(id).render(renderer);
+    }
+
+    for (int id : temp_table) {
+        get_card(id).render(renderer);
     }
 }
 
@@ -179,8 +174,8 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::game_notif
         for (int c : main_deck) {
             card_view &loc = get_card(c);
             loc.known = false;
-            loc.pile = card_pile_type::main_deck;
-            loc.pos = main_deck_position;
+            loc.pile = &main_deck;
+            loc.pos = main_deck_card.pos;
             loc.flip_amt = 0.f;
         }
         std::cout << "Deck shuffled\n";
@@ -196,100 +191,41 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::move_card>
     auto [card_it, inserted] = m_cards.try_emplace(args.card_id);
     card_move_animation anim;
     if (inserted) {
-        card_it->second.pos = main_deck_position;
+        card_it->second.pos = main_deck_card.pos;
+        card_it->second.pile = &main_deck;
         if (!card_it->second.texture_back) {
             card_it->second.texture_back = make_backface_texture();
         }
-    } else {
-        switch(card_it->second.pile) {
-        case card_pile_type::player_hand: {
-            auto player_it = m_players.find(card_it->second.player_id);
-            if (player_it != m_players.end()) {
-                int p_idx = std::distance(m_players.begin(), player_it);
-                auto &l = player_it->second.hand;
-                l.erase(std::ranges::find(l, args.card_id));
-                for (size_t i=0; i<l.size(); ++i) {
-                    anim.add_move_card(get_card(l[i]), player_hand_card_position(p_idx, i));
-                }
+    } else if (auto *pile = card_it->second.pile) {
+        pile->erase_card(args.card_id);
+        if (pile->xoffset) {
+            for (int card_id : *pile) {
+                anim.add_move_card(get_card(card_id), pile->get_position(card_id));
             }
-            break;
-        }
-        case card_pile_type::player_table: {
-            auto player_it = m_players.find(card_it->second.player_id);
-            if (player_it != m_players.end()) {
-                int p_idx = std::distance(m_players.begin(), player_it);
-                auto &l = player_it->second.table;
-                l.erase(std::ranges::find(l, args.card_id));
-                for (size_t i=0; i<l.size(); ++i) {
-                    anim.add_move_card(get_card(l[i]), player_table_card_position(p_idx, i));
-                }
-            }
-            break;
-        }
-        case card_pile_type::main_deck: {
-            main_deck.erase(std::ranges::find(main_deck, args.card_id));
-            break;
-        }
-        case card_pile_type::discard_pile: {
-            main_deck.erase(std::ranges::find(discard_pile, args.card_id));
-            break;
-        }
-        case card_pile_type::temp_table: {
-            temp_table.erase(std::ranges::find(temp_table, args.card_id));
-            for (size_t i=0; i<temp_table.size(); ++i) {
-                anim.add_move_card(get_card(temp_table[i]), temp_table_card_position(i));
-            }
-            break;
-        }
         }
     }
+    card_pile_view *pile = nullptr;
     switch(args.pile) {
-    case card_pile_type::player_hand: {
-        auto player_it = m_players.find(args.player_id);
-        if (player_it != m_players.end()) {
-            int p_idx = std::distance(m_players.begin(), player_it);
-            auto &l = player_it->second.hand;
-            l.push_back(args.card_id);
-            for (size_t i=0; i<l.size(); ++i) {
-                anim.add_move_card(get_card(l[i]), player_hand_card_position(p_idx, i));
+    case card_pile_type::player_hand:   pile = &get_player(args.player_id).hand; break;
+    case card_pile_type::player_table:  pile = &get_player(args.player_id).table; break;
+    case card_pile_type::main_deck:     pile = &main_deck; break;
+    case card_pile_type::discard_pile:  pile = &discard_pile; break;
+    case card_pile_type::temp_table:    pile = &temp_table; break;
+    }
+    if (card_it->second.pile = pile) {
+        pile->push_back(args.card_id);
+        if (pile->xoffset) {
+            for (int card_id : *pile) {
+                anim.add_move_card(get_card(card_id), pile->get_position(card_id));
             }
+        } else {
+            anim.add_move_card(get_card(args.card_id), pile->get_position(args.card_id));
         }
-        break;
     }
-    case card_pile_type::player_table: {
-        auto player_it = m_players.find(args.player_id);
-        if (player_it != m_players.end()) {
-            int p_idx = std::distance(m_players.begin(), player_it);
-            auto &l = player_it->second.table;
-            l.push_back(args.card_id);
-            for (size_t i=0; i<l.size(); ++i) {
-                anim.add_move_card(get_card(l[i]), player_table_card_position(p_idx, i));
-            }
-        }
-        break;
-    }
-    case card_pile_type::main_deck:
-        main_deck.push_back(args.card_id);
-        anim.add_move_card(card_it->second, main_deck_position);
-        break;
-    case card_pile_type::discard_pile:
-        discard_pile.push_back(args.card_id);
-        anim.add_move_card(card_it->second, discard_position);
-        break;
-    case card_pile_type::temp_table: {
-        temp_table.push_back(args.card_id);
-        for (size_t i=0; i<temp_table.size(); ++i) {
-            anim.add_move_card(get_card(temp_table[i]), temp_table_card_position(i));
-        }
-        break;
-    }
-    }
-    card_it->second.pile = args.pile;
-    card_it->second.player_id = args.player_id;
     if (inserted) {
         pop_update();
     } else {
-        m_animations.emplace_back(30, std::move(anim));
+        m_animations.emplace_back(20, std::move(anim));
     }
 }
 
@@ -333,8 +269,32 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::tap_card>,
     }
 }
 
-void game_scene::handle_update(enums::enum_constant<game_update_type::player_own_id>, const player_own_id_update &args) {
-    m_player_own_id = args.player_id;
+void game_scene::handle_update(enums::enum_constant<game_update_type::player_own_id>, const player_id_update &args) {
+    auto own_player = m_players.find(m_player_own_id = args.player_id);
+
+    SDL_Point pos{m_width / 2, m_height - 120};
+    own_player->second.set_position(pos, true);
+
+    int xradius = (m_width - 150) - (m_width / 2);
+    int yradius = pos.y - (m_height / 2);
+
+    auto it = own_player;
+    double angle = std::numbers::pi * 1.5f;
+    for(;;) {
+        if (++it == m_players.end()) it = m_players.begin();
+        if (it == own_player) break;
+        angle -= std::numbers::pi * 2.f / m_players.size();
+        it->second.set_position(SDL_Point{
+            int(m_width / 2 + std::cos(angle) * xradius),
+            int(m_height / 2 - std::sin(angle) * yradius)
+        });
+    }
+
+    pop_update();
+}
+
+void game_scene::handle_update(enums::enum_constant<game_update_type::player_add>, const player_id_update &args) {
+    m_players.try_emplace(args.player_id);
 
     pop_update();
 }
@@ -350,7 +310,7 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::player_hp>
 }
 
 void game_scene::handle_update(enums::enum_constant<game_update_type::player_character>, const player_character_update &args) {
-    auto &p = m_players[args.player_id];
+    auto &p = get_player(args.player_id);
     p.name = args.name;
     p.image = args.image;
     p.character_id = args.card_id;

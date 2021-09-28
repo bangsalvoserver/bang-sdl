@@ -32,10 +32,10 @@ void lobby_scene::init(const lobby_entered_args &args) {
     parent->add_message<client_message_type::lobby_players>();
 }
 
-void lobby_scene::render(sdl::renderer &renderer, int w, int h) {
+void lobby_scene::render(sdl::renderer &renderer) {
     if (m_lobby_name_text) {
         SDL_Rect rect = m_lobby_name_text.get_rect();
-        rect.x = (w - rect.w) / 2;
+        rect.x = (m_width - rect.w) / 2;
         rect.y = 60;
         m_lobby_name_text.set_rect(rect);
         m_lobby_name_text.render(renderer);
@@ -52,7 +52,7 @@ void lobby_scene::render(sdl::renderer &renderer, int w, int h) {
         m_start_btn.render(renderer);
     }
 
-    m_leave_btn.set_rect(SDL_Rect{20, h - 45, 100, 25});
+    m_leave_btn.set_rect(SDL_Rect{20, m_height - 45, 100, 25});
     m_leave_btn.render(renderer);
 }
 

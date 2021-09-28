@@ -7,7 +7,7 @@ class connect_scene : public scene_base {
 public:
     connect_scene(class game_manager *parent);
     
-    void render(sdl::renderer &renderer, int w, int h) override;
+    void render(sdl::renderer &renderer) override;
     void handle_event(const SDL_Event &event) override;
 
     void show_error(const std::string &message);
