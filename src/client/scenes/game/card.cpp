@@ -4,9 +4,11 @@
 
 DECLARE_RESOURCE(cards_pak)
 DECLARE_RESOURCE(misc_pak)
+DECLARE_RESOURCE(characters_pak)
 
 static const unpacker card_resources(GET_RESOURCE(cards_pak));
 static const unpacker misc_resources(GET_RESOURCE(misc_pak));
+static const unpacker character_resources(GET_RESOURCE(characters_pak));
 
 namespace banggame {
     static const sdl::surface card_mask(misc_resources["mask"]);
@@ -39,11 +41,11 @@ namespace banggame {
         return ret;
     }
 
-    sdl::texture make_card_texture(const card_view &card) {
-        sdl::surface card_base_surf(card_resources[card.image]);
+    void card_view::make_texture_front() {
+        sdl::surface card_base_surf(card_resources[image]);
         SDL_Rect card_rect = card_base_surf.get_rect();
 
-        sdl::surface card_value_surf(misc_resources[enums::to_string(card.value)]);
+        sdl::surface card_value_surf(misc_resources[enums::to_string(value)]);
         SDL_Rect value_rect = card_value_surf.get_rect();
 
         value_rect.x = 15;
@@ -52,7 +54,7 @@ namespace banggame {
         SDL_BlitSurface(card_value_surf.get(), nullptr, card_base_surf.get(), &value_rect);
 
         std::string suit_string = "suit_";
-        suit_string.append(enums::to_string(card.suit));
+        suit_string.append(enums::to_string(suit));
         sdl::surface card_suit_surf(misc_resources[suit_string]);
         
         SDL_Rect suit_rect = card_suit_surf.get_rect();
@@ -61,31 +63,67 @@ namespace banggame {
         suit_rect.y = card_rect.h - suit_rect.h - 15;
 
         SDL_BlitSurface(card_suit_surf.get(), nullptr, card_base_surf.get(), &suit_rect);
-        
-        return apply_card_mask(card_base_surf);
+
+        texture_front = apply_card_mask(card_base_surf);
     }
 
-    sdl::texture make_backface_texture() {
-        return apply_card_mask(sdl::surface(misc_resources["back_card"]));
+    void card_view::make_texture_back() {
+        texture_back = apply_card_mask(sdl::surface(misc_resources["back_card"]));
     }
 
-    void card_view::render(sdl::renderer &renderer) {
-        sdl::texture *tex = nullptr;
-        if (flip_amt > 0.5f && texture_front) tex = &texture_front;
-        else if (texture_back) tex = &texture_back;
-        else return;
-        
-        SDL_Rect rect = tex->get_rect();
-        rect.x = pos.x;
-        rect.y = pos.y;
-        scale_rect(rect, 70);
+    void player_view::make_texture_character() {
+        m_character.texture_front = apply_card_mask(sdl::surface(character_resources[image]));
+        m_character.flip_amt = 1.f;
+    }
 
-        rect.x -= rect.w / 2;
-        rect.y -= rect.h / 2;
+    void player_view::make_texture_role() {
+        std::string role_string = "role_";
+        role_string.append(enums::to_string(role));
+        m_role.texture_front = apply_card_mask(sdl::surface(misc_resources[role_string]));
+        m_role.flip_amt = 1.f;
+    }
+
+    void player_view::make_textures_back() {
+        character_card::texture_back = apply_card_mask(sdl::surface(misc_resources["back_character"]));
+        role_card::texture_back = apply_card_mask(sdl::surface(misc_resources["back_role"]));
+    }
+    
+    void card_widget_base::render(sdl::renderer &renderer, sdl::texture &tex) {
+        SDL_Rect rect = tex.get_rect();
+        rect.h = card_width * rect.h / rect.w;
+        rect.w = card_width;
+
+        rect.x = pos.x - rect.w / 2;
+        rect.y = pos.y - rect.h / 2;
 
         float wscale = std::abs(1.f - 2.f * flip_amt);
         rect.x += rect.w * (1.f - wscale) * 0.5f;
         rect.w *= wscale;
-        SDL_RenderCopyEx(renderer.get(), tex->get_texture(renderer), nullptr, &rect, rotation, nullptr, SDL_FLIP_NONE);
+        SDL_RenderCopyEx(renderer.get(), tex.get_texture(renderer), nullptr, &rect, rotation, nullptr, SDL_FLIP_NONE);
+    }
+
+    void player_view::set_position(SDL_Point pos, bool flipped) {
+        hand.pos = table.pos = m_character.pos = m_role.pos = pos;
+        m_character.pos.x += 200;
+        set_hp_marker_position(hp);
+        m_role.pos.x += 280;
+        if (flipped) {
+            hand.pos.y += 60;
+            table.pos.y -= 60;
+        } else {
+            hand.pos.y -= 60;
+            table.pos.y += 60;
+        }
+    }
+
+    void player_view::set_hp_marker_position(float hp) {
+        m_hp_marker.pos = m_character.pos;
+        m_hp_marker.pos.y -= std::max(0.f, hp * 20.f);
+    }
+
+    void player_view::render(sdl::renderer &renderer) {
+        m_role.render(renderer);
+        m_hp_marker.render(renderer);
+        m_character.render(renderer);
     }
 }

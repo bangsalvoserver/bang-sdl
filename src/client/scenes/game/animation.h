@@ -54,7 +54,7 @@ namespace banggame {
         int hp_to;
 
         void do_animation(float amt) {
-
+            player->set_hp_marker_position(std::lerp(hp_from, hp_to, amt));
         }
     };
 

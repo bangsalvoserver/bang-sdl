@@ -49,11 +49,13 @@ void game_scene::render(sdl::renderer &renderer) {
         get_card(id).render(renderer);
     }
 
-    for (auto &p : m_players) {
-        for (int id : p.second.table) {
+    for (auto &p : m_players | std::views::values) {
+        p.render(renderer);
+
+        for (int id : p.table) {
             get_card(id).render(renderer);
         }
-        for (int id : p.second.hand) {
+        for (int id : p.hand) {
             get_card(id).render(renderer);
         }
     }
@@ -191,7 +193,7 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::game_notif
 
 void game_scene::handle_update(enums::enum_constant<game_update_type::add_cards>, const add_cards_update &args) {
     if (!card_view::texture_back) {
-        card_view::texture_back = make_backface_texture();
+        card_view::make_texture_back();
     }
     for (int id : args.card_ids) {
         auto &c = m_cards[id];
@@ -245,7 +247,7 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::show_card>
         c.color = args.color;
         c.targets = args.targets;
 
-        c.texture_front = make_card_texture(c);
+        c.make_texture_front();
 
         if (c.pile == &main_deck) {
             std::swap(*std::ranges::find(main_deck, c.id), main_deck.back());
@@ -315,6 +317,7 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::player_add
 void game_scene::handle_update(enums::enum_constant<game_update_type::player_hp>, const player_hp_update &args) {
     auto &p = get_player(args.player_id);
     if (p.hp == 0) {
+        p.set_hp_marker_position(args.hp);
         pop_update();
     } else {
         m_animations.emplace_back(20, player_hp_animation{&p, p.hp, args.hp});
@@ -323,18 +326,26 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::player_hp>
 }
 
 void game_scene::handle_update(enums::enum_constant<game_update_type::player_character>, const player_character_update &args) {
+    if (!character_card::texture_back) {
+        player_view::make_textures_back();
+    }
+
     auto &p = get_player(args.player_id);
     p.name = args.name;
     p.image = args.image;
     p.character_id = args.card_id;
     p.target = args.target;
 
+    p.make_texture_character();
+
     pop_update();
 }
 
 void game_scene::handle_update(enums::enum_constant<game_update_type::player_show_role>, const player_show_role_update &args) {
-    get_player(args.player_id).role = args.role;
-    
+    auto &p = get_player(args.player_id);
+    p.role = args.role;
+    p.make_texture_role();
+    // todo animazione ruolo
     pop_update();
 }
 
