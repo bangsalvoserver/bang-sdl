@@ -76,11 +76,18 @@ void game_manager::disconnect() {
     switch_scene<scene_type::connect>()->show_error("Disconnesso dal server");
 }
 
-void game_manager::render(sdl::renderer &renderer, int w, int h) {
+
+void game_manager::resize(int width, int height) {
+    m_width = width;
+    m_height = height;
+
+    m_scene->resize(m_width, m_height);
+}
+
+void game_manager::render(sdl::renderer &renderer) {
     renderer.set_draw_color(m_scene->bg_color());
     renderer.render_clear();
     
-    m_scene->resize(w, h);
     m_scene->render(renderer);
 }
 

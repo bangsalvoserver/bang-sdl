@@ -54,6 +54,8 @@ namespace banggame {
         template<game_action_type T, typename ... Ts>
         void add_action(Ts && ... args);
 
+        void move_player_views();
+
         std::list<game_update> m_pending_updates;
         std::list<animation> m_animations;
         std::vector<lobby_chat_args> m_messages;

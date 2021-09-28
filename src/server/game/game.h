@@ -37,9 +37,9 @@ namespace banggame {
         std::mt19937 rng;
 
         template<game_update_type E, typename ... Ts>
-        void add_public_update(Ts && ... args) {
+        void add_public_update(const Ts & ... args) {
             for (auto &p : m_players) {
-                add_private_update<E>(&p, std::forward<Ts>(args) ...);
+                add_private_update<E>(&p, args ...);
             }
         }
 

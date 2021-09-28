@@ -19,24 +19,30 @@ int main(int argc, char **argv) {
 
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
 
-    sdl::window window("Bang!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, window_width, window_height, 0);
+    sdl::window window("Bang!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, window_width, window_height, SDL_WINDOW_RESIZABLE);
     sdl::renderer renderer(window, -1, SDL_RENDERER_ACCELERATED);
 
     game_manager mgr;
+    mgr.resize(window_width, window_height);
 
     SDL_Event event;
     bool quit = false;
     while (!quit) {
-        mgr.render(renderer, window_width, window_height);
+        mgr.render(renderer);
         SDL_RenderPresent(renderer.get());
 
         mgr.update_net();
         
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
+            case SDL_WINDOWEVENT:
+                if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
+                    mgr.resize(event.window.data1, event.window.data2);
+                }
+                break;
             case SDL_QUIT:
                 quit = true;
-                [[fallthrough]];
+                break;
             default:
                 mgr.handle_event(event);
                 break;

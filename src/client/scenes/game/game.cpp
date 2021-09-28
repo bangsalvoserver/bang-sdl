@@ -25,6 +25,11 @@ void game_scene::resize(int width, int height) {
     temp_table.pos = SDL_Point{
         (main_deck.pos.x + discard_pile.pos.x) / 2,
         main_deck.pos.y + 100};
+
+    move_player_views();
+    for (auto &[id, card] : m_cards) {
+        card.pos = card.pile->get_position(card.id);
+    }
 }
 
 void game_scene::render(sdl::renderer &renderer) {
@@ -169,7 +174,7 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::game_notif
             c.flip_amt = 0.f;
             c.pile = &main_deck;
             main_deck.push_back(id);
-            anim.add_move_card(c, &main_deck);
+            anim.add_move_card(c);
         }
         discard_pile.clear();
         discard_pile.push_back(top_discard);
@@ -206,7 +211,7 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::move_card>
     c.pile->erase_card(c.id);
     if (c.pile->xoffset) {
         for (int id : *c.pile) {
-            anim.add_move_card(get_card(id), c.pile);
+            anim.add_move_card(get_card(id));
         }
     }
     
@@ -220,10 +225,10 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::move_card>
     c.pile->push_back(c.id);
     if (c.pile->xoffset) {
         for (int id : *c.pile) {
-            anim.add_move_card(get_card(id), c.pile);
+            anim.add_move_card(get_card(id));
         }
     } else {
-        anim.add_move_card(get_card(c.id), c.pile);
+        anim.add_move_card(c);
     }
     m_animations.emplace_back(20, std::move(anim));
 }
@@ -273,7 +278,14 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::tap_card>,
 }
 
 void game_scene::handle_update(enums::enum_constant<game_update_type::player_own_id>, const player_id_update &args) {
-    auto own_player = m_players.find(m_player_own_id = args.player_id);
+    m_player_own_id = args.player_id;
+    move_player_views();
+    pop_update();
+}
+
+void game_scene::move_player_views() {
+    auto own_player = m_players.find(m_player_own_id);
+    if (own_player == m_players.end()) return;
 
     SDL_Point pos{m_width / 2, m_height - 120};
     own_player->second.set_position(pos, true);
@@ -292,8 +304,6 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::player_own
             int(m_height / 2 - std::sin(angle) * yradius)
         });
     }
-
-    pop_update();
 }
 
 void game_scene::handle_update(enums::enum_constant<game_update_type::player_add>, const player_id_update &args) {

@@ -24,7 +24,9 @@ public:
     game_manager();
     ~game_manager();
 
-    void render(sdl::renderer &renderer, int w, int h);
+    void resize(int width, int height);
+
+    void render(sdl::renderer &renderer);
 
     void handle_event(const SDL_Event &event);
 
@@ -49,6 +51,7 @@ public:
             delete m_scene;
         }
         auto *scene = new enums::enum_type_t<E>(this);
+        scene->resize(m_width, m_height);
         m_scene = scene;
         return scene;
     }
@@ -71,6 +74,9 @@ private:
 
     sdlnet::tcp_socket sock;
     sdlnet::socket_set sock_set{1};
+
+    int m_width;
+    int m_height;
 };
 
 #endif

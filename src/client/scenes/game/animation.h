@@ -13,10 +13,10 @@ namespace banggame {
     struct card_move_animation {
         std::map<card_view *, card_animation_item> data;
 
-        void add_move_card(card_view &c, card_pile_view *pile) {
-            auto [it, inserted] = data.try_emplace(&c, c.pos, pile);
+        void add_move_card(card_view &c) {
+            auto [it, inserted] = data.try_emplace(&c, c.pos, c.pile);
             if (!inserted) {
-                it->second.pile = pile;
+                it->second.pile = c.pile;
             }
         }
 
