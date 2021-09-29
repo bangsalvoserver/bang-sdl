@@ -326,18 +326,53 @@ void game_scene::handle_auto_targets(bool is_response) {
 }
 
 void game_scene::add_card_targets(bool is_response, const std::vector<target_card_id> &targets) {
+    if (std::ranges::find(m_highlights, targets.front().card_id) != m_highlights.end()) return;
+
+    auto check_other_cards_done = [&]{
+        auto &l = m_play_card_args.targets.back().get<play_card_target_type::target_card>();
+        int num_alive = 0;
+        for (const auto &[id, p] : m_players) {
+            if (p.hp > 0) ++num_alive;
+        }
+        if (l.size() == num_alive - 1) {
+            handle_auto_targets(is_response);
+        }
+    };
+
     auto &c = get_card(m_play_card_args.card_id);
-    auto &cur_target = c.targets[m_play_card_args.targets.size()];
-    switch (cur_target.target) {
-    case target_type::selfhand:
-    case target_type::anycard:
-        m_highlights.push_back(targets.front().card_id);
-        m_play_card_args.targets.emplace_back(
-            enums::enum_constant<play_card_target_type::target_card>{}, targets);
-        handle_auto_targets(is_response);
-        break;
-    default:
-        break;
+    if (!m_play_card_args.targets.empty() && c.targets[m_play_card_args.targets.size()-1].target == target_type::othercards) {
+        if (targets.front().player_id != m_playing_id) {
+            auto &l = m_play_card_args.targets.back().get<play_card_target_type::target_card>();
+            if (std::ranges::find(l, targets.front().player_id, &target_card_id::player_id) == l.end()) {
+                m_highlights.push_back(targets.front().card_id);
+                l.push_back(targets.front());
+                check_other_cards_done();
+            }
+        }
+    } else {
+        auto &cur_target = c.targets[m_play_card_args.targets.size()];
+        switch (cur_target.target) {
+        case target_type::selfhand:
+            if (!targets.front().from_hand
+                || targets.front().player_id != m_playing_id) break;
+            [[fallthrough]];
+        case target_type::anycard:
+            m_highlights.push_back(targets.front().card_id);
+            m_play_card_args.targets.emplace_back(
+                enums::enum_constant<play_card_target_type::target_card>{}, targets);
+            handle_auto_targets(is_response);
+            break;
+        case target_type::othercards:
+            if (targets.front().player_id != m_playing_id) {
+                m_highlights.push_back(targets.front().card_id);
+                m_play_card_args.targets.emplace_back(
+                    enums::enum_constant<play_card_target_type::target_card>{}, targets);
+                check_other_cards_done();
+            }
+            break;
+        default:
+            break;
+        }
     }
 }
 

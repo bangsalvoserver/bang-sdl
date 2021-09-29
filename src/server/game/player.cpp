@@ -171,11 +171,16 @@ namespace banggame {
                     case target_type::selfhand:
                         return args.size() == 1 && args.front().player_id == id && args.front().card_id != c.id;
                     case target_type::othercards:
-                        if (args.size() != get_game()->m_players.size() - 1) return false;
-                        return std::ranges::all_of(get_game()->m_players, [&](int pid) {
-                            auto it = std::ranges::find(args, pid, &target_card_id::player_id);
-                            return (id == pid) != (it == args.end());
-                        }, &player::id);
+                        if (!std::ranges::all_of(get_game()->m_players | std::views::filter(&player::alive), [&](int player_id) {
+                            bool found = std::ranges::find(args, player_id, &target_card_id::player_id) != args.end();
+                            return (player_id == id) != found;
+                        }, &player::id)) return false;
+                        return std::ranges::all_of(args, [&](const target_card_id &arg) {
+                            if (arg.player_id == id) return false;
+                            if (arg.from_hand) return true;
+                            auto &l = get_game()->get_player(arg.player_id)->m_table;
+                            return std::ranges::find(l, arg.card_id, &card::id) != l.end();
+                        });
                     case target_type::anycard:
                         if (args.size() != 1) return false;
                         if (!in_range(args.front().player_id, e->maxdistance)) return false;
