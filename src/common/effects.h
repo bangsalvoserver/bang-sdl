@@ -10,6 +10,7 @@ namespace banggame {
     };
 
     struct effect_bangcard : card_effect {
+        virtual bool can_play(player *origin) override;
         virtual void on_play(player *origin, player *target) override;
     };
 
@@ -27,6 +28,8 @@ namespace banggame {
     
     struct effect_barrel : card_effect {};
 
+    struct effect_deathsave : card_effect {};
+
     struct effect_heal : card_effect {
         virtual void on_play(player *origin, player *target) override;
     };
@@ -40,6 +43,11 @@ namespace banggame {
     };
 
     struct effect_draw : card_effect {
+        virtual void on_play(player *origin, player *target) override;
+    };
+
+    struct effect_draw_discard : card_effect {
+        virtual bool can_play(player *origin) override;
         virtual void on_play(player *origin, player *target) override;
     };
 
@@ -107,35 +115,28 @@ namespace banggame {
         (weapon,        effect_weapon)
         (volcanic,      effect_volcanic)
         (draw,          effect_draw)
+        (draw_discard,  effect_draw_discard)
         (generalstore,  effect_generalstore)
+        (deathsave,     effect_deathsave)
         (changewws)
         (boots)
         (black_jack)
         (calamity_janet)
         (el_gringo)
-        (jesse_jones)
         (kit_carlson)
         (horsecharm,    effect_horsecharm)
-        (pedro_ramirez)
-        (sid_ketchum)
         (slab_the_killer, effect_slab_the_killer)
         (suzy_lafayette)
         (vulture_sam)
         (claus_the_saint)
         (johnny_kisch)
-        (uncle_will)
         (calumet)
         (bellestar)
         (bill_noface)
-        (chuck_wengam)
-        (doc_holyday)
         (elena_fuente)
         (greg_digger)
         (herb_hunter)
-        (jose_delgado)
         (molly_stark)
-        (pat_brennan)
-        (pixie_pete)
         (sean_mallory)
         (tequila_joe)
         (vera_custer)

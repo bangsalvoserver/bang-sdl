@@ -61,7 +61,7 @@ namespace banggame {
         (card_id, int)
         (name, std::string)
         (image, std::string)
-        (target, target_type)
+        (targets, std::vector<card_target_data>)
     )
 
     DEFINE_SERIALIZABLE(player_show_role_update,

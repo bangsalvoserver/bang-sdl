@@ -83,20 +83,29 @@ namespace banggame {
         static void make_texture_back();
     };
 
-    struct character_card : card_widget<character_card> {};
-    struct role_card : card_widget<role_card> {};
+    struct character_card : card_widget<character_card> {
+        int id;
+
+        std::string name;
+        std::string image;
+        
+        character_type type;
+        std::vector<card_target_data> targets;
+
+        void make_texture_front();
+        static void make_texture_back();
+    };
+
+    struct role_card : card_widget<role_card> {
+        player_role role = player_role::unknown;
+
+        void make_texture_front();
+        static void make_texture_back();
+    };
 
     struct player_view {
         static constexpr float one_hp_size = 20.f;
         int hp = 0;
-
-        std::string name;
-        std::string image;
-
-        int character_id = 0;
-        target_type target = target_type::none;
-
-        player_role role = player_role::unknown;
 
         card_pile_view hand;
         card_pile_view table;
@@ -110,10 +119,6 @@ namespace banggame {
         void set_hp_marker_position(float hp);
 
         void render(sdl::renderer &renderer);
-        
-        void make_texture_character();
-        void make_texture_role();
-        static void make_textures_back();
     };
 }
 

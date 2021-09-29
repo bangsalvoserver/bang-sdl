@@ -71,20 +71,23 @@ namespace banggame {
         texture_back = apply_card_mask(sdl::surface(misc_resources["back_card"]));
     }
 
-    void player_view::make_texture_character() {
-        m_character.texture_front = apply_card_mask(sdl::surface(character_resources[image]));
-        m_character.flip_amt = 1.f;
+    void character_card::make_texture_front() {
+        texture_front = apply_card_mask(sdl::surface(character_resources[image]));
+        flip_amt = 1.f;
     }
 
-    void player_view::make_texture_role() {
+    void character_card::make_texture_back() {
+        texture_back = apply_card_mask(sdl::surface(misc_resources["back_character"]));
+    }
+
+    void role_card::make_texture_front() {
         std::string role_string = "role_";
         role_string.append(enums::to_string(role));
-        m_role.texture_front = apply_card_mask(sdl::surface(misc_resources[role_string]));
+        texture_front = apply_card_mask(sdl::surface(misc_resources[role_string]));
     }
 
-    void player_view::make_textures_back() {
-        character_card::texture_back = apply_card_mask(sdl::surface(misc_resources["back_character"]));
-        role_card::texture_back = apply_card_mask(sdl::surface(misc_resources["back_role"]));
+    void role_card::make_texture_back() {
+        texture_back = apply_card_mask(sdl::surface(misc_resources["back_role"]));
     }
     
     void card_widget_base::render(sdl::renderer &renderer, sdl::texture &tex) {

@@ -210,6 +210,9 @@
             "color": "brown",
             "effects": [
                 {
+                    "class": "deathsave"
+                },
+                {
                     "target": "self",
                     "class": "beer"
                 }
@@ -533,6 +536,9 @@
             "expansion": "dodgecity",
             "color": "brown",
             "effects": [
+                {
+                    "class": "deathsave"
+                },
                 {
                     "target": "self",
                     "class": "beer"
@@ -1621,7 +1627,7 @@
             "effects": [
                 {
                     "cost": 3,
-                    "target": "hand_card",
+                    "target": "other_hand_card",
                     "class": "steal"
                 }
             ]
@@ -1652,462 +1658,799 @@
             "image": "01_bartcassidy",
             "hp": 4,
             "expansion": "base",
-            "effect": "boots"
+            "effects": [
+                {
+                    "class": "boots"
+                }
+            ]
         },
         {
             "name": "Black Jack",
             "image": "01_blackjack",
             "hp": 4,
             "expansion": "base",
-            "effect": "black_jack"
+            "type": "drawing_forced",
+            "effects": [
+                {
+                    "class": "black_jack"
+                }
+            ]
         },
         {
             "name": "Calamity Janet",
             "image": "01_calamityjanet",
             "hp": 4,
             "expansion": "base",
-            "effect": "calamity_janet"
+            "effects": [
+                {
+                    "class": "calamity_janet"
+                }
+            ]
         },
         {
             "name": "El Gringo",
             "image": "01_elgringo",
             "hp": 3,
             "expansion": "base",
-            "effect": "el_gringo"
+            "effects": [
+                {
+                    "class": "el_gringo"
+                }
+            ]
         },
         {
             "name": "Jesse Jones",
             "image": "01_jessejones",
             "hp": 4,
             "expansion": "base",
-            "effect": "jesse_jones"
+            "type": "drawing",
+            "effects": [
+                {
+                    "target": "other_hand_card",
+                    "class": "steal"
+                },
+                {
+                    "target": "self",
+                    "class": "draw"
+                }
+            ]
         },
         {
             "name": "Jourdonnais",
             "image": "01_jourdonnais",
             "hp": 4,
             "expansion": "base",
-            "effect": "barrel"
+            "effects": [
+                {
+                    "class": "barrel"
+                }
+            ]
         },
         {
             "name": "Kit Carlson",
             "image": "01_kitcarlson",
             "hp": 4,
             "expansion": "base",
-            "effect": "kit_carlson"
+            "type": "drawing",
+            "effects": [
+                {
+                    "target": "self",
+                    "class": "kit_carlson"
+                }
+            ]
         },
         {
             "name": "Lucky Duke",
             "image": "01_luckyduke",
             "hp": 4,
             "expansion": "base",
-            "effect": "horsecharm"
+            "effects": [
+                {
+                    "class": "horsecharm"
+                }
+            ]
         },
         {
             "name": "Paul Regret",
             "image": "01_paulregret",
             "hp": 3,
             "expansion": "base",
-            "effect": "mustang"
+            "effects": [
+                {
+                    "class": "mustang"
+                }
+            ]
         },
         {
             "name": "Pedro Ramirez",
             "image": "01_pedroramirez",
             "hp": 4,
             "expansion": "base",
-            "effect": "pedro_ramirez"
+            "type": "drawing",
+            "effects": [
+                {
+                    "target": "self",
+                    "class": "draw_discard"
+                }
+            ]
         },
         {
             "name": "Rose Doolan",
             "image": "01_rosedoolan",
             "hp": 4,
             "expansion": "base",
-            "effect": "scope"
+            "effects": [
+                {
+                    "class": "scope"
+                }
+            ]
         },
         {
             "name": "Sid Ketchum",
             "image": "01_sidketchum",
             "hp": 4,
             "expansion": "base",
-            "effect": "sid_ketchum"
+            "type": "active",
+            "effects": [
+                {
+                    "class": "deathsave"
+                },
+                {
+                    "target": "selfhand",
+                    "class": "destroy"
+                },
+                {
+                    "target": "selfhand",
+                    "class": "destroy"
+                },
+                {
+                    "target": "self",
+                    "class": "heal"
+                }
+            ]
         },
         {
             "name": "Slab the Killer",
             "image": "01_slab",
             "hp": 4,
             "expansion": "base",
-            "effect": "slab_the_killer"
+            "effects": [
+                {
+                    "class": "slab_the_killer"
+                }
+            ]
         },
         {
             "name": "Suzy Lafayette",
             "image": "01_suzylafayette",
             "hp": 4,
             "expansion": "base",
-            "effect": "suzy_lafayette"
+            "effects": [
+                {
+                    "class": "suzy_lafayette"
+                }
+            ]
         },
         {
             "name": "Vulture Sam",
             "image": "01_vulturesam",
             "hp": 4,
             "expansion": "base",
-            "effect": "vulture_sam"
+            "effects": [
+                {
+                    "class": "vulture_sam"
+                }
+            ]
         },
         {
             "name": "Willy the Kid",
             "image": "01_willythekid",
             "hp": 4,
             "expansion": "base",
-            "effect": "volcanic"
+            "effects": [
+                {
+                    "class": "volcanic"
+                }
+            ]
         },
         {
             "name": "Claus \"The Saint\"",
             "image": "02_clausthesaint",
             "hp": 3,
             "expansion": "thebullet",
-            "effect": "claus_the_saint"
+            "type": "drawing_forced",
+            "effects": [
+                {
+                    "class": "claus_the_saint"
+                }
+            ]
         },
         {
             "name": "Johnny Kisch",
             "image": "02_johnnykisch",
             "hp": 4,
             "expansion": "thebullet",
-            "effect": "johnny_kisch"
+            "effects": [
+                {
+                    "class": "johnny_kisch"
+                }
+            ]
         },
         {
             "name": "Uncle Will",
             "image": "02_unclewill",
             "hp": 4,
             "expansion": "thebullet",
-            "effect": "uncle_will"
+            "type": "active_once",
+            "effects": [
+                {
+                    "target": "selfhand",
+                    "class": "destroy"
+                },
+                {
+                    "class": "generalstore"
+                }
+            ]
         },
         {
             "name": "Apache Kid",
             "image": "03_apache_kid",
             "hp": 3,
             "expansion": "dodgecity",
-            "effect": "calumet"
+            "effects": [
+                {
+                    "class": "calumet"
+                }
+            ]
         },
         {
             "name": "Belle Star",
             "image": "03_belle_star",
             "hp": 4,
             "expansion": "dodgecity",
-            "effect": "bellestar"
+            "effects": [
+                {
+                    "class": "bellestar"
+                }
+            ]
         },
         {
             "name": "Bill Noface",
             "image": "03_bill_noface",
             "hp": 4,
             "expansion": "dodgecity",
-            "effect": "bill_noface"
+            "type": "drawing_forced",
+            "effects": [
+                {
+                    "class": "bill_noface"
+                }
+            ]
         },
         {
             "name": "Chuck Wengam",
             "image": "03_chuck_wengam",
             "hp": 4,
             "expansion": "dodgecity",
-            "effect": "chuck_wengam"
+            "type": "active",
+            "effects": [
+                {
+                    "target": "self",
+                    "class": "damage"
+                },
+                {
+                    "target": "self",
+                    "class": "draw"
+                },
+                {
+                    "target": "self",
+                    "class": "draw"
+                }
+            ]
         },
         {
             "name": "Doc Holyday",
             "image": "03_doc_holyday",
             "hp": 4,
             "expansion": "dodgecity",
-            "effect": "doc_holyday"
+            "type": "active_once",
+            "effects": [
+                {
+                    "target": "selfhand",
+                    "class": "destroy"
+                },
+                {
+                    "target": "selfhand",
+                    "class": "destroy"
+                },
+                {
+                    "target": "reachable",
+                    "class": "bang"
+                }
+            ]
         },
         {
             "name": "Elena Fuente",
             "image": "03_elena_fuente",
             "hp": 3,
             "expansion": "dodgecity",
-            "effect": "elena_fuente"
+            "effects": [
+                {
+                    "class": "elena_fuente"
+                }
+            ]
         },
         {
             "name": "Greg Digger",
             "image": "03_greg_digger",
             "hp": 4,
             "expansion": "dodgecity",
-            "effect": "greg_digger"
+            "effects": [
+                {
+                    "class": "greg_digger"
+                }
+            ]
         },
         {
             "name": "Herb Hunter",
             "image": "03_herb_hunter",
             "hp": 4,
             "expansion": "dodgecity",
-            "effect": "herb_hunter"
+            "effects": [
+                {
+                    "class": "herb_hunter"
+                }
+            ]
         },
         {
             "name": "Jos\u00e8 Delgado",
             "image": "03_jose_delgado",
             "hp": 4,
             "expansion": "dodgecity",
-            "effect": "jose_delgado"
+            "type": "active_twice",
+            "effects": [
+                {
+                    "target": "selfhand_blue",
+                    "class": "destroy"
+                },
+                {
+                    "target": "self",
+                    "class": "draw"
+                },
+                {
+                    "target": "self",
+                    "class": "draw"
+                }
+            ]
         },
         {
             "name": "Molly Stark",
             "image": "03_molly_stark",
             "hp": 4,
             "expansion": "dodgecity",
-            "effect": "molly_stark"
+            "effects": [
+                {
+                    "class": "molly_stark"
+                }
+            ]
         },
         {
             "name": "Pat Brennan",
             "image": "03_pat_brennan",
             "hp": 4,
             "expansion": "dodgecity",
-            "effect": "pat_brennan"
+            "type": "drawing",
+            "effects": [
+                {
+                    "target": "other_table_card",
+                    "class": "steal"
+                }
+            ]
         },
         {
             "name": "Pixie Pete",
             "image": "03_pixie_pete",
             "hp": 3,
             "expansion": "dodgecity",
-            "effect": "pixie_pete"
+            "type": "drawing_forced",
+            "effects": [
+                {
+                    "target": "self",
+                    "class": "draw"
+                },
+                {
+                    "target": "self",
+                    "class": "draw"
+                },
+                {
+                    "target": "self",
+                    "class": "draw"
+                }
+            ]
         },
         {
             "name": "Sean Mallory",
             "image": "03_sean_mallory",
             "hp": 3,
             "expansion": "dodgecity",
-            "effect": "sean_mallory"
+            "effects": [
+                {
+                    "class": "sean_mallory"
+                }
+            ]
         },
         {
             "name": "Tequila Joe",
             "image": "03_tequila_joe",
             "hp": 4,
             "expansion": "dodgecity",
-            "effect": "tequila_joe"
+            "effects": [
+                {
+                    "class": "tequila_joe"
+                }
+            ]
         },
         {
             "name": "Vera Custer",
             "image": "03_vera_custer",
             "hp": 3,
             "expansion": "dodgecity",
-            "effect": "vera_custer"
+            "effects": [
+                {
+                    "class": "vera_custer"
+                }
+            ]
         },
         {
             "name": "Black Flower",
             "image": "07_blackflower",
             "hp": 4,
             "expansion": "valleyofshadows",
-            "effect": "black_flower"
+            "effects": [
+                {
+                    "class": "black_flower"
+                }
+            ]
         },
         {
             "name": "Colorado Bill",
             "image": "07_coloradobill",
             "hp": 4,
             "expansion": "valleyofshadows",
-            "effect": "colorado_bill"
+            "effects": [
+                {
+                    "class": "colorado_bill"
+                }
+            ]
         },
         {
             "name": "Der Spot - Burst Ringer",
             "image": "07_derspot",
             "hp": 4,
             "expansion": "valleyofshadows",
-            "effect": "der_spot_burst_ringer"
+            "effects": [
+                {
+                    "class": "der_spot_burst_ringer"
+                }
+            ]
         },
         {
             "name": "Evelyn Shebang",
             "image": "07_evelynshebang",
             "hp": 4,
             "expansion": "valleyofshadows",
-            "effect": "evelyn_shebang"
+            "effects": [
+                {
+                    "class": "evelyn_shebang"
+                }
+            ]
         },
         {
             "name": "Henry Block",
             "image": "07_henryblock",
             "hp": 4,
             "expansion": "valleyofshadows",
-            "effect": "henry_block"
+            "effects": [
+                {
+                    "class": "henry_block"
+                }
+            ]
         },
         {
             "name": "Lemonade Jim",
             "image": "07_lemonadejim",
             "hp": 4,
             "expansion": "valleyofshadows",
-            "effect": "lemonade_jim"
+            "effects": [
+                {
+                    "class": "lemonade_jim"
+                }
+            ]
         },
         {
             "name": "Mick Defender",
             "image": "07_mickdefender",
             "hp": 4,
             "expansion": "valleyofshadows",
-            "effect": "mick_defender"
+            "effects": [
+                {
+                    "class": "mick_defender"
+                }
+            ]
         },
         {
             "name": "Tuco Franziskaner",
             "image": "07_tucofranziskaner",
             "hp": 5,
             "expansion": "valleyofshadows",
-            "effect": "tuco_franziskaner"
+            "effects": [
+                {
+                    "class": "tuco_franziskaner"
+                }
+            ]
         },
         {
             "name": "Big Spencer",
             "image": "06_bigspencer",
             "hp": 9,
             "expansion": "wildwestshow",
-            "effect": "big_spencer"
+            "effects": [
+                {
+                    "class": "big_spencer"
+                }
+            ]
         },
         {
             "name": "Flint Westwood",
             "image": "06_flintwestwood",
             "hp": 4,
             "expansion": "wildwestshow",
-            "effect": "flint_westwood"
+            "effects": [
+                {
+                    "class": "flint_westwood"
+                }
+            ]
         },
         {
             "name": "Gary Looter",
             "image": "06_garylooter",
             "hp": 5,
             "expansion": "wildwestshow",
-            "effect": "gary_looter"
+            "effects": [
+                {
+                    "class": "gary_looter"
+                }
+            ]
         },
         {
             "name": "Greygory Deck",
             "image": "06_greygorydeck",
             "hp": 4,
             "expansion": "wildwestshow",
-            "effect": "gregory_deck"
+            "effects": [
+                {
+                    "class": "gregory_deck"
+                }
+            ]
         },
         {
             "name": "John Pain",
             "image": "06_johnpain",
             "hp": 4,
             "expansion": "wildwestshow",
-            "effect": "john_pain"
+            "effects": [
+                {
+                    "class": "john_pain"
+                }
+            ]
         },
         {
             "name": "Lee Van Kliff",
             "image": "06_leevankliff",
             "hp": 4,
             "expansion": "wildwestshow",
-            "effect": "lee_van_kliff"
+            "effects": [
+                {
+                    "class": "lee_van_kliff"
+                }
+            ]
         },
         {
             "name": "Teren Kill",
             "image": "06_terenkill",
             "hp": 3,
             "expansion": "wildwestshow",
-            "effect": "teren_kill"
+            "effects": [
+                {
+                    "class": "teren_kill"
+                }
+            ]
         },
         {
             "name": "Youl Grinner",
             "image": "06_youlgrinner",
             "hp": 4,
             "expansion": "wildwestshow",
-            "effect": "youl_grinner"
+            "effects": [
+                {
+                    "class": "youl_grinner"
+                }
+            ]
         },
         {
             "name": "Al Preacher",
             "image": "17_alpreacher",
             "hp": 4,
             "expansion": "armedanddangerous",
-            "effect": "al_preacher"
+            "effects": [
+                {
+                    "class": "al_preacher"
+                }
+            ]
         },
         {
             "name": "Bass Greeves",
             "image": "17_bassgreeves",
             "hp": 4,
             "expansion": "armedanddangerous",
-            "effect": "bass_greeves"
+            "effects": [
+                {
+                    "class": "bass_greeves"
+                }
+            ]
         },
         {
             "name": "Bloody Mary",
             "image": "17_bloodymary",
             "hp": 4,
             "expansion": "armedanddangerous",
-            "effect": "bloody_mary"
+            "effects": [
+                {
+                    "class": "bloody_mary"
+                }
+            ]
         },
         {
             "name": "Frankie Canton",
             "image": "17_frankiecanton",
             "hp": 4,
             "expansion": "armedanddangerous",
-            "effect": "frankie_canton"
+            "effects": [
+                {
+                    "class": "frankie_canton"
+                }
+            ]
         },
         {
             "name": "Julie Cutter",
             "image": "17_juliecutter",
             "hp": 4,
             "expansion": "armedanddangerous",
-            "effect": "julie_cutter"
+            "effects": [
+                {
+                    "class": "julie_cutter"
+                }
+            ]
         },
         {
             "name": "Mexicali Kid",
             "image": "17_mexicalikid",
             "hp": 4,
             "expansion": "armedanddangerous",
-            "effect": "mexicali_kid"
+            "effects": [
+                {
+                    "class": "mexicali_kid"
+                }
+            ]
         },
         {
             "name": "Ms. Abigail",
             "image": "17_msabigail",
             "hp": 4,
             "expansion": "armedanddangerous",
-            "effect": "ms_abigail"
+            "effects": [
+                {
+                    "class": "ms_abigail"
+                }
+            ]
         },
         {
             "name": "Red Ringo",
             "image": "17_redringo",
             "hp": 5,
             "expansion": "armedanddangerous",
-            "effect": "red_ringo"
+            "effects": [
+                {
+                    "class": "red_ringo"
+                }
+            ]
         },
         {
             "name": "Don Bell",
             "image": "04_don_bell",
             "hp": 4,
             "expansion": "goldrush",
-            "effect": "don_bell"
+            "effects": [
+                {
+                    "class": "don_bell"
+                }
+            ]
         },
         {
             "name": "Dutch Will",
             "image": "04_dutch_will",
             "hp": 4,
             "expansion": "goldrush",
-            "effect": "dutch_will"
+            "effects": [
+                {
+                    "class": "dutch_will"
+                }
+            ]
         },
         {
             "name": "Jacky Murieta",
             "image": "04_jacky_murieta",
             "hp": 4,
             "expansion": "goldrush",
-            "effect": "jacky_murieta"
+            "effects": [
+                {
+                    "class": "jacky_murieta"
+                }
+            ]
         },
         {
             "name": "Josh McCloud",
             "image": "04_josh_mccloud",
             "hp": 4,
             "expansion": "goldrush",
-            "effect": "josh_mccloud"
+            "effects": [
+                {
+                    "class": "josh_mccloud"
+                }
+            ]
         },
         {
             "name": "Madame Yto",
             "image": "04_madame_yto",
             "hp": 4,
             "expansion": "goldrush",
-            "effect": "madame_yto"
+            "effects": [
+                {
+                    "class": "madame_yto"
+                }
+            ]
         },
         {
             "name": "Pretty Luzena",
             "image": "04_pretty_luzena",
             "hp": 4,
             "expansion": "goldrush",
-            "effect": "pretty_luzena"
+            "effects": [
+                {
+                    "class": "pretty_luzena"
+                }
+            ]
         },
         {
             "name": "Raddie Snake",
             "image": "04_raddie_snake",
             "hp": 4,
             "expansion": "goldrush",
-            "effect": "goldpan"
+            "effects": [
+                {
+                    "class": "goldpan"
+                }
+            ]
         },
         {
             "name": "Simeon Picos",
             "image": "04_simeon_picos",
             "hp": 4,
             "expansion": "goldrush",
-            "effect": "luckycharm"
+            "effects": [
+                {
+                    "class": "luckycharm"
+                }
+            ]
         }
     ],
     "roles": [

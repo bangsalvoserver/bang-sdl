@@ -111,6 +111,7 @@ namespace banggame {
         }
 
         card draw_card();
+        card draw_from_discards();
         card draw_from_temp(int card_id);
 
         void draw_check_then(player *p, draw_check_function &&fun);

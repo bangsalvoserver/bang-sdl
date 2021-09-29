@@ -328,7 +328,7 @@ void game_scene::handle_auto_targets(bool is_response) {
 void game_scene::add_card_targets(bool is_response, const std::vector<target_card_id> &targets) {
     if (std::ranges::find(m_highlights, targets.front().card_id) != m_highlights.end()) return;
 
-    auto check_other_cards_done = [&]{
+    auto check_othercards_done = [&]{
         auto &l = m_play_card_args.targets.back().get<play_card_target_type::target_card>();
         int num_alive = 0;
         for (const auto &[id, p] : m_players) {
@@ -346,32 +346,37 @@ void game_scene::add_card_targets(bool is_response, const std::vector<target_car
             if (std::ranges::find(l, targets.front().player_id, &target_card_id::player_id) == l.end()) {
                 m_highlights.push_back(targets.front().card_id);
                 l.push_back(targets.front());
-                check_other_cards_done();
+                check_othercards_done();
             }
         }
     } else {
         auto &cur_target = c.targets[m_play_card_args.targets.size()];
-        switch (cur_target.target) {
-        case target_type::selfhand:
-            if (!targets.front().from_hand
-                || targets.front().player_id != m_playing_id) break;
-            [[fallthrough]];
-        case target_type::anycard:
-            m_highlights.push_back(targets.front().card_id);
-            m_play_card_args.targets.emplace_back(
-                enums::enum_constant<play_card_target_type::target_card>{}, targets);
-            handle_auto_targets(is_response);
-            break;
-        case target_type::othercards:
+        auto verify_target = [&](target_type type) {
+            const auto &tgt = targets.front();
+            switch (type) {
+            case target_type::anycard: return true;
+            case target_type::table_card: return !tgt.from_hand;
+            case target_type::other_table_card: return !tgt.from_hand && tgt.player_id != m_playing_id;
+            case target_type::other_hand_card: return tgt.from_hand && tgt.player_id != m_playing_id;
+            case target_type::selfhand: return tgt.from_hand && tgt.player_id == m_playing_id;
+            case target_type::selfhand_blue: return tgt.from_hand && tgt.player_id == m_playing_id
+                && get_card(targets.front().card_id).color == card_color_type::blue;
+            default:
+                return false;
+            }
+        };
+        if (cur_target.target == target_type::othercards) {
             if (targets.front().player_id != m_playing_id) {
                 m_highlights.push_back(targets.front().card_id);
                 m_play_card_args.targets.emplace_back(
                     enums::enum_constant<play_card_target_type::target_card>{}, targets);
-                check_other_cards_done();
+                check_othercards_done();
             }
-            break;
-        default:
-            break;
+        } else if (verify_target(cur_target.target)) {
+            m_highlights.push_back(targets.front().card_id);
+            m_play_card_args.targets.emplace_back(
+                enums::enum_constant<play_card_target_type::target_card>{}, targets);
+            handle_auto_targets(is_response);
         }
     }
 }
@@ -591,24 +596,27 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::player_hp>
 
 void game_scene::handle_update(enums::enum_constant<game_update_type::player_character>, const player_character_update &args) {
     if (!character_card::texture_back) {
-        player_view::make_textures_back();
+        character_card::make_texture_back();
+    }
+    if (!role_card::texture_back) {
+        role_card::make_texture_back();
     }
 
     auto &p = get_player(args.player_id);
-    p.name = args.name;
-    p.image = args.image;
-    p.character_id = args.card_id;
-    p.target = args.target;
+    p.m_character.id = args.card_id;
+    p.m_character.name = args.name;
+    p.m_character.image = args.image;
+    p.m_character.targets = args.targets;
 
-    p.make_texture_character();
+    p.m_character.make_texture_front();
 
     pop_update();
 }
 
 void game_scene::handle_update(enums::enum_constant<game_update_type::player_show_role>, const player_show_role_update &args) {
     auto &p = get_player(args.player_id);
-    p.role = args.role;
-    p.make_texture_role();
+    p.m_role.role = args.role;
+    p.m_role.make_texture_front();
     if (args.player_id == m_player_own_id || args.role == player_role::sheriff) {
         p.m_role.flip_amt = 1.f;
         pop_update();

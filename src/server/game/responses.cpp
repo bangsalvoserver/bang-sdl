@@ -134,14 +134,11 @@ namespace banggame {
 
     bool response_death::on_respond(card *target_card) {
         if (!target_card->effects.empty()) {
-            if (target_card->effects.front().is<effect_beer>()) {
-                auto &moved = target->discard_card(target_card);
-                for (auto &e : moved.effects) {
-                    e->on_play(target);
-                }
-                if (target->get_hp() > 0) {
+            if (target_card->effects.front().is<effect_deathsave>()) {
+                if (target->get_hp() == 0) {
                     target->get_game()->pop_response();
                 }
+                return true;
             }
         }
         return false;

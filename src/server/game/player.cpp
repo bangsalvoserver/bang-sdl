@@ -167,10 +167,14 @@ namespace banggame {
                     }
                 },
                 [&](enums::enum_constant<play_card_target_type::target_card>, const std::vector<target_card_id> &args) {
-                    switch (e->target) {
-                    case target_type::selfhand:
-                        return args.size() == 1 && args.front().player_id == id && args.front().card_id != c.id;
-                    case target_type::othercards:
+                    if (std::ranges::find(args, c.id, &target_card_id::card_id) != args.end()) return false;
+                    if (std::ranges::any_of(args, [&](int player_id) {
+                        return !in_range(player_id, e->maxdistance);
+                    }, &target_card_id::player_id)) return false;
+                    if (std::ranges::any_of(args, [&](const target_card_id &arg) {
+                        return arg.from_hand && get_game()->get_player(arg.player_id)->is_hand_empty();
+                    })) return false;
+                    if (e->target == target_type::othercards) {
                         if (!std::ranges::all_of(get_game()->m_players | std::views::filter(&player::alive), [&](int player_id) {
                             bool found = std::ranges::find(args, player_id, &target_card_id::player_id) != args.end();
                             return (player_id == id) != found;
@@ -181,15 +185,20 @@ namespace banggame {
                             auto &l = get_game()->get_player(arg.player_id)->m_table;
                             return std::ranges::find(l, arg.card_id, &card::id) != l.end();
                         });
-                    case target_type::anycard:
-                        if (args.size() != 1) return false;
-                        if (!in_range(args.front().player_id, e->maxdistance)) return false;
-                        if (args.front().from_hand) {
-                            if (args.front().player_id == id && args.front().card_id == c.id) return false;
-                            if (get_game()->get_player(args.front().player_id)->is_hand_empty()) return false;
+                    } else if (args.size() == 1) {
+                        const auto &tgt = args.front();
+                        switch (e->target) {
+                        case target_type::anycard: return true;
+                        case target_type::table_card: return !tgt.from_hand;
+                        case target_type::other_table_card: return !tgt.from_hand && tgt.player_id != id;
+                        case target_type::other_hand_card: return tgt.from_hand && tgt.player_id != id;
+                        case target_type::selfhand: return tgt.from_hand && tgt.player_id == id;
+                        case target_type::selfhand_blue: return tgt.from_hand && tgt.player_id == id
+                            && get_hand_card(tgt.card_id).color == card_color_type::blue;
+                        default:
+                            return false;
                         }
-                        return true;
-                    default:
+                    } else {
                         return false;
                     }
                 }
@@ -253,9 +262,9 @@ namespace banggame {
             switch (card_it->color) {
             case card_color_type::brown:
                 if (verify_card_targets(*card_it, args.targets)) {
-                    if (card_it->effects.front().is<effect_bangcard>() && !can_play_bang()) {
-                        throw game_error("Un solo bang per turno");
-                    } else {
+                    if (std::ranges::all_of(card_it->effects, [this](effect_holder &e) {
+                        return e->can_play(this);
+                    })) {
                         card removed = std::move(*card_it);
                         m_hand.erase(card_it);
                         do_play_card(get_game()->add_to_discards(std::move(removed)), args.targets);
@@ -386,8 +395,21 @@ namespace banggame {
 
         m_max_hp = c.max_hp;
 
-        m_character.effect->on_equip(this, nullptr);
-        get_game()->add_public_update<game_update_type::player_character>(id, c.id, c.name, c.image, c.effect->target);
+        if (m_character.type == character_type::none) {
+            for (auto &e : m_character.effects) {
+                e->on_equip(this, nullptr);
+            }
+        }
+
+        player_character_update obj;
+        obj.player_id = id;
+        obj.card_id = c.id;
+        obj.name = c.name;
+        obj.image = c.image;
+        for (const auto &e : c.effects) {
+            obj.targets.emplace_back(e->target, e->maxdistance);
+        }
+        get_game()->add_public_update<game_update_type::player_character>(std::move(obj));
 
         if (role == player_role::sheriff) {
             ++m_max_hp;

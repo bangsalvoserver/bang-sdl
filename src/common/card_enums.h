@@ -40,6 +40,15 @@ namespace banggame {
         (green)
     )
 
+    DEFINE_ENUM_IN_NS(banggame, character_type,
+        (none)
+        (drawing)
+        (drawing_forced)
+        (active)
+        (active_once)
+        (active_twice)
+    )
+
     DEFINE_ENUM_IN_NS(banggame, player_role,
         (unknown)
         (sheriff)
@@ -50,17 +59,21 @@ namespace banggame {
     
     DEFINE_ENUM_IN_NS(banggame, target_type,
         (none)
+        (response)
         (self)
+        (anyone)
         (notself)
-        (everyone)
-        (others)
         (notsheriff)
         (reachable)
-        (response)
-        (selfhand)
-        (othercards)
-        (anyone)
+        (everyone)
+        (others)
         (anycard)
+        (table_card)
+        (other_table_card)
+        (other_hand_card)
+        (selfhand)
+        (selfhand_blue)
+        (othercards)
     )
 
     DEFINE_ENUM_IN_NS(banggame, card_pile_type,

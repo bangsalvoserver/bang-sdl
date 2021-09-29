@@ -14,7 +14,7 @@ DECLARE_RESOURCE(bang_cards_json)
 
 using namespace banggame;
 
-effect_holder static make_effect_from_string(const std::string &name) {
+effect_holder static make_effect_from_json(const Json::Value &json_effect) {
     constexpr auto lut = []<effect_type ... Es>(enums::enum_sequence<Es ...>) {
         return std::array {
             +[]() -> effect_holder {
@@ -27,15 +27,12 @@ effect_holder static make_effect_from_string(const std::string &name) {
         };
     }(enums::make_enum_sequence<effect_type>());
 
-    if (auto e = enums::from_string<effect_type>(name); e != enums::invalid_enum_v<effect_type>) {
-        return lut[enums::indexof(e)]();
-    } else {
-        throw std::runtime_error("Invalid effect class: " + name);
+    auto e = enums::from_string<effect_type>(json_effect["class"].asString());
+    if (e == enums::invalid_enum_v<effect_type>) {
+        throw std::runtime_error("Invalid effect class: " + json_effect["class"].asString());
     }
-}
 
-effect_holder static make_effect_from_json(const Json::Value &json_effect) {
-    auto effect = make_effect_from_string(json_effect["class"].asString());
+    auto effect = lut[enums::indexof(e)]();
     if (json_effect.isMember("maxdistance")) {
         effect->maxdistance = json_effect["maxdistance"].asInt();
     }
@@ -90,7 +87,12 @@ all_cards banggame::read_cards(card_expansion_type allowed_expansions) {
         if (bool(c.expansion & allowed_expansions)) {
             c.name = json_character["name"].asString();
             c.image = json_character["image"].asString();
-            c.effect = make_effect_from_string(json_character["effect"].asString());
+            if (json_character.isMember("type")) {
+                c.type = enums::from_string<character_type>(json_character["type"].asString());
+            }
+            for (const auto &json_effect : json_cards["effects"]) {
+                c.effects.push_back(make_effect_from_json(json_effect));
+            }
             c.max_hp = json_character["hp"].asInt();
             c.id = ++id;
             ret.characters.push_back(c);

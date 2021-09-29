@@ -103,6 +103,12 @@ namespace banggame {
         return c;
     }
 
+    card game::draw_from_discards() {
+        card c = std::move(m_discards.back());
+        m_discards.pop_back();
+        return c;
+    }
+
     card game::draw_from_temp(int card_id) {
         auto it = std::ranges::find(m_temps, card_id, &card::id);
         if (it == m_temps.end()) throw game_error("ID non trovato");

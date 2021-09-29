@@ -9,6 +9,10 @@ namespace banggame {
         target->get_game()->queue_response<response_type::bang>(origin, target);
     }
 
+    bool effect_bangcard::can_play(player *origin) {
+        return origin->can_play_bang();
+    }
+
     void effect_bangcard::on_play(player *origin, player *target) {
         origin->on_play_bang();
         target->get_game()->queue_response<response_type::bang>(origin, target)->get_data()->bang_strength = origin->get_bang_strength();
@@ -132,6 +136,14 @@ namespace banggame {
 
     void effect_draw::on_play(player *, player *target) {
         target->add_to_hand(target->get_game()->draw_card());
+    }
+
+    bool effect_draw_discard::can_play(player *origin) {
+        return ! origin->get_game()->m_discards.empty();
+    }
+
+    void effect_draw_discard::on_play(player *, player *target) {
+        target->add_to_hand(target->get_game()->draw_from_discards());
     }
 
     void effect_horsecharm::on_equip(player *target_player, card *target_card) {
