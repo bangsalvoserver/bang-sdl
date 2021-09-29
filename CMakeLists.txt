@@ -15,8 +15,9 @@ find_package(jsoncpp REQUIRED)
 set(bangclient_srcs
     src/client/main.cpp
     src/client/manager.cpp
-    src/client/scenes/game/game.cpp
     src/client/scenes/game/card.cpp
+    src/client/scenes/game/game.cpp
+    src/client/scenes/game/game_ui.cpp
     src/client/scenes/widgets/button.cpp
     src/client/scenes/widgets/textbox.cpp
     src/client/scenes/connect.cpp

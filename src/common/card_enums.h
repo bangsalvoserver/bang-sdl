@@ -59,6 +59,7 @@ namespace banggame {
         (response)
         (selfhand)
         (othercards)
+        (anyone)
         (anycard)
     )
 

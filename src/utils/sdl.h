@@ -303,6 +303,16 @@ namespace sdl {
         }
         return s;
     }
+
+    inline bool point_in_rect(const SDL_Point &pt, const SDL_Rect &rect) {
+        return pt.x >= rect.x && pt.x <= (rect.x + rect.w)
+            && pt.y >= rect.y && pt.y <= (rect.y + rect.h);
+    };
+
+    inline void scale_rect(SDL_Rect &rect, int new_width) {
+        rect.h = new_width * rect.h / rect.w;
+        rect.w = new_width;
+    }
 }
 
 #endif

@@ -29,14 +29,9 @@ void button::render(renderer &renderer) {
 }
 
 void button::handle_event(const SDL_Event &event) {
-    auto pt_in_button = [&](int x, int y) {
-        return x >= m_border_rect.x && x <= (m_border_rect.x + m_border_rect.w)
-            && y >= m_border_rect.y && y <= (m_border_rect.y + m_border_rect.h);
-    };
-
     switch (event.type) {
     case SDL_MOUSEMOTION:
-        if (pt_in_button(event.motion.x, event.motion.y)) {
+        if (point_in_rect(SDL_Point{event.motion.x, event.motion.y}, m_border_rect)) {
             if (m_state == state_up) {
                 m_state = state_hover;
             }
@@ -48,14 +43,14 @@ void button::handle_event(const SDL_Event &event) {
         break;
     case SDL_MOUSEBUTTONDOWN:
         if (event.button.button == SDL_BUTTON_LEFT
-            && pt_in_button(event.button.x, event.button.y)) {
+            && point_in_rect(SDL_Point{event.motion.x, event.motion.y}, m_border_rect)) {
             m_state = state_down;
         }
         break;
     case SDL_MOUSEBUTTONUP:
         if (event.button.button == SDL_BUTTON_LEFT
             && m_state == state_down) {
-            if (pt_in_button(event.button.x, event.button.y)) {
+            if (point_in_rect(SDL_Point{event.motion.x, event.motion.y}, m_border_rect)) {
                 if (m_onclick) m_onclick();
                 m_state = state_hover;
             } else {

@@ -37,11 +37,19 @@ namespace banggame {
     class card_widget_base {
     public:
         SDL_Point pos;
+
         float flip_amt = 0.f;
         float rotation = 0.f;
 
         static constexpr int card_width = 70;
 
+        const SDL_Rect &get_rect() const {
+            return m_rect;
+        }
+
+    private:
+        SDL_Rect m_rect;
+        
     protected:
         void render(sdl::renderer &renderer, sdl::texture &front);
     };
@@ -79,6 +87,7 @@ namespace banggame {
     struct role_card : card_widget<role_card> {};
 
     struct player_view {
+        static constexpr float one_hp_size = 20.f;
         int hp = 0;
 
         std::string name;

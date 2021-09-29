@@ -6,6 +6,7 @@
 #include "common/responses.h"
 
 #include "animation.h"
+#include "game_ui.h"
 
 #include <list>
 
@@ -32,6 +33,8 @@ namespace banggame {
         void handle_update(const game_update &update);
         
         void add_chat_message(const lobby_chat_args &args);
+        
+        void show_error(const std::string &message);
 
     private:
         void handle_update(enums::enum_constant<game_update_type::game_notify>,      game_notify_type args);
@@ -54,11 +57,29 @@ namespace banggame {
         template<game_action_type T, typename ... Ts>
         void add_action(Ts && ... args);
 
+        void add_pass_action();
+        void add_resolve_action();
+
         void move_player_views();
+
+        void handle_card_click(const SDL_Point &mouse_pt);
+
+        void on_click_main_deck();
+        void on_click_discard_pile();
+        void on_click_temp_table_card(int card_id);
+        void on_click_table_card(int player_id, int card_id);
+        void on_click_hand_card(int player_id, int card_id);
+        void on_click_player(int player_id);
+
+        void handle_auto_targets(bool is_response);
+        void add_card_targets(bool is_response, const std::vector<target_card_id> &targets);
+        void add_player_targets(bool is_response, const std::vector<target_player_id> &targets);
+        void clear_targets();
+
+        game_ui m_ui;
 
         std::list<game_update> m_pending_updates;
         std::list<animation> m_animations;
-        std::vector<lobby_chat_args> m_messages;
 
         card_pile_view main_deck{0};
 
@@ -84,7 +105,12 @@ namespace banggame {
 
         int m_playing_id;
 
+        play_card_args m_play_card_args;
+        std::vector<int> m_highlights;
+
         response_view m_current_response;
+
+        friend class game_ui;
     };
 
 }

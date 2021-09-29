@@ -136,6 +136,7 @@ namespace banggame {
         }
 
         int calc_distance(player *from, player *to) {
+            if (from == to) return 0;
             int d1=0, d2=0;
             for (player *counter = from; counter != to; counter = get_next_player(counter), ++d1);
             for (player *counter = to; counter != from; counter = get_next_player(counter), ++d2);
@@ -152,10 +153,7 @@ namespace banggame {
             }
         }
 
-        void player_death(player *p) {
-            p->discard_all();
-            add_public_update<game_update_type::player_show_role>(p->id, p->role());
-        }
+        void player_death(player *killer, player *target);
 
         void handle_action(enums::enum_constant<game_action_type::pick_card>, player *p, const pick_card_args &args);
         void handle_action(enums::enum_constant<game_action_type::play_card>, player *p, const play_card_args &args);

@@ -3,7 +3,7 @@
 
 #include "update_enums.h"
 
-DEFINE_SERIALIZABLE(error_message,
+DEFINE_SERIALIZABLE(game_error,
     (message, std::string)
 )
 
@@ -73,7 +73,7 @@ DEFINE_SERIALIZABLE(lobby_chat_args,
 )
 
 DEFINE_ENUM_TYPES(server_message_type,
-    (error_message, error_message)
+    (game_error, game_error)
     (lobby_list, std::vector<lobby_data>)
     (lobby_entered, lobby_entered_args)
     (lobby_players, std::vector<lobby_player_data>)

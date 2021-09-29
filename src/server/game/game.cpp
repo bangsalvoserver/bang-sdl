@@ -105,7 +105,7 @@ namespace banggame {
 
     card game::draw_from_temp(int card_id) {
         auto it = std::ranges::find(m_temps, card_id, &card::id);
-        if (it == m_temps.end()) throw error_message("ID non trovato");
+        if (it == m_temps.end()) throw game_error("ID non trovato");
         card c = std::move(*it);
         m_temps.erase(it);
         return c;
@@ -133,6 +133,27 @@ namespace banggame {
         card &moved = add_to_discards(std::move(c));
         m_pending_checks.front()(moved.suit, moved.value);
         m_pending_checks.pop_front();
+    }
+
+    void game::player_death(player *killer, player *target) {
+        target->discard_all();
+        add_public_update<game_update_type::player_show_role>(target->id, target->role());
+        if (m_playing == target) {
+            next_turn();
+        } else if (m_playing == killer) {
+            switch (target->role()) {
+            case player_role::outlaw:
+                killer->add_to_hand(target->get_game()->draw_card());
+                killer->add_to_hand(target->get_game()->draw_card());
+                killer->add_to_hand(target->get_game()->draw_card());
+                break;
+            case player_role::deputy:
+                if (killer->role() == player_role::sheriff) {
+                    killer->discard_all();
+                }
+                break;
+            }
+        }
     }
 
     void game::handle_action(enums::enum_constant<game_action_type::pick_card>, player *p, const pick_card_args &args) {
@@ -169,9 +190,7 @@ namespace banggame {
 
     void game::handle_action(enums::enum_constant<game_action_type::resolve>, player *p) {
         if (!m_responses.empty() && p == top_response()->target) {
-            if (auto *r = top_response().as<card_response>()) {
-                r->on_resolve();
-            }
+            top_response()->on_resolve();
         }
     }
 }

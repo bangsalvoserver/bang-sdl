@@ -26,14 +26,9 @@ void textbox::render(renderer &renderer) {
 }
 
 void textbox::handle_event(const SDL_Event &event) {
-    auto pt_in_button = [&](int x, int y) {
-        return x >= m_border_rect.x && x <= (m_border_rect.x + m_border_rect.w)
-            && y >= m_border_rect.y && y <= (m_border_rect.y + m_border_rect.h);
-    };
-
     switch (event.type) {
     case SDL_MOUSEBUTTONDOWN:
-        m_active = event.button.button == SDL_BUTTON_LEFT && pt_in_button(event.button.x, event.button.y);
+        m_active = event.button.button == SDL_BUTTON_LEFT && point_in_rect(SDL_Point{event.button.x, event.button.y}, m_border_rect);
         break;
     case SDL_KEYDOWN:
         if (m_active && event.key.keysym.sym == SDLK_BACKSPACE) {

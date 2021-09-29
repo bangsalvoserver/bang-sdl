@@ -69,7 +69,7 @@ namespace banggame {
         int get_hp() const { return m_hp; }
         bool alive() const { return m_hp > 0; }
 
-        void damage(int value);
+        void damage(player *source, int value);
         void heal(int value);
 
         void add_distance(int diff) {

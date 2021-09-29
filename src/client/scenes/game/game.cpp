@@ -11,8 +11,17 @@ void game_scene::add_action(Ts && ... args) {
     parent->add_message<client_message_type::game_action>(enums::enum_constant<T>{}, std::forward<Ts>(args) ...);
 }
 
+void game_scene::add_pass_action() {
+    add_action<game_action_type::pass_turn>();
+}
+
+void game_scene::add_resolve_action() {
+    add_action<game_action_type::resolve>();
+}
+
 game_scene::game_scene(class game_manager *parent)
-    : scene_base(parent) {}
+    : scene_base(parent)
+    , m_ui(this) {}
 
 void game_scene::resize(int width, int height) {
     scene_base::resize(width, height);
@@ -30,6 +39,8 @@ void game_scene::resize(int width, int height) {
     for (auto &[id, card] : m_cards) {
         card.pos = card.pile->get_position(card.id);
     }
+
+    m_ui.resize(width, height);
 }
 
 void game_scene::render(sdl::renderer &renderer) {
@@ -67,77 +78,290 @@ void game_scene::render(sdl::renderer &renderer) {
     for (int id : temp_table) {
         get_card(id).render(renderer);
     }
-}
 
-template<typename ... Ts>
-static play_card_target make_player_target(Ts && ... args) {
-    return play_card_target(enums::enum_constant<play_card_target_type::target_player>{},
-        std::vector{target_player_id{std::forward<Ts>(args)} ... });
-}
+    renderer.set_draw_color(SDL_Color{0xff, 0x0, 0x0, 0xff});
+    for (int id : m_highlights) {
+        renderer.draw_rect(get_card(id).get_rect());
+    }
 
-template<play_card_target_type E, typename ... Ts>
-static play_card_target make_target(Ts && ... args) {
-    return play_card_target(enums::enum_constant<E>{}, std::forward<Ts>(args) ...);
+    m_ui.render(renderer);
 }
 
 void game_scene::handle_event(const SDL_Event &event) {
-    switch (event.type) {
-    case SDL_KEYDOWN:
-        switch (event.key.keysym.sym) {
-        case SDLK_d:
-            add_action<game_action_type::pick_card>(card_pile_type::main_deck);
-            break;
-        case SDLK_p:
-            add_action<game_action_type::pass_turn>();
-            break;
-        case SDLK_a:
-            if (auto &hand = get_player(m_player_own_id).hand; !hand.empty()) {
-                add_action<game_action_type::pick_card>(card_pile_type::player_hand, hand.front());
+    m_ui.handle_event(event);
+
+    if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
+        handle_card_click(SDL_Point{event.button.x, event.button.y});
+    }
+}
+
+void game_scene::handle_card_click(const SDL_Point &mouse_pt) {
+    auto mouse_in_card = [&](int card_id) {
+        return sdl::point_in_rect(mouse_pt, get_card(card_id).get_rect());
+    };
+    auto find_clicked = [&](const card_pile_view &pile) {
+        auto it = std::ranges::find_if(pile | std::views::reverse, mouse_in_card);
+        return (it == pile.rend()) ? 0 : *it;
+    };
+
+    SDL_Rect main_deck_rect = card_view::texture_back.get_rect();
+    sdl::scale_rect(main_deck_rect, card_widget_base::card_width);
+    main_deck_rect.x = main_deck.pos.x - main_deck_rect.w / 2;
+    main_deck_rect.y = main_deck.pos.y - main_deck_rect.h / 2;
+
+    if (sdl::point_in_rect(mouse_pt, main_deck_rect)) {
+        on_click_main_deck();
+        return;
+    }
+    if (!discard_pile.empty() && mouse_in_card(discard_pile.back())) {
+        on_click_discard_pile();
+        return;
+    }
+    if (int card_id = find_clicked(temp_table)) {
+        on_click_temp_table_card(card_id);
+        return;
+    }
+    for (const auto &[player_id, p] : m_players) {
+        if (sdl::point_in_rect(mouse_pt, p.m_character.get_rect())) {
+            on_click_player(player_id);
+            return;
+        }
+        if (int card_id = find_clicked(p.table)) {
+            on_click_table_card(player_id, card_id);
+            return;
+        }
+        if (int card_id = find_clicked(p.hand)) {
+            on_click_hand_card(player_id, card_id);
+            return;
+        }
+    }
+}
+
+namespace detail {
+    template<response_type E>
+    struct is_picking_response : std::false_type {};
+
+    template<response_type E> requires enums::has_type<E>
+    struct is_picking_response<E> : std::is_base_of<picking_response, enums::enum_type_t<E>> {};
+}
+
+constexpr bool is_picking_response(response_type type) {
+    constexpr auto lut = []<response_type ... Es>(enums::enum_sequence<Es ...>) {
+        return std::array{ detail::is_picking_response<Es>::value ... };
+    }(enums::make_enum_sequence<response_type>());
+    return lut[enums::indexof(type)];
+};
+
+void game_scene::on_click_main_deck() {
+    if (m_current_response.target_id == m_player_own_id && is_picking_response(m_current_response.type)) {
+        add_action<game_action_type::pick_card>(card_pile_type::main_deck);
+    }
+}
+
+void game_scene::on_click_discard_pile() {
+    if (m_current_response.target_id == m_player_own_id && is_picking_response(m_current_response.type)) {
+        add_action<game_action_type::pick_card>(card_pile_type::discard_pile);
+    }
+}
+
+void game_scene::on_click_temp_table_card(int card_id) {
+    if (m_current_response.target_id == m_player_own_id && is_picking_response(m_current_response.type)) {
+        add_action<game_action_type::pick_card>(card_pile_type::temp_table, card_id);
+    }
+}
+
+void game_scene::on_click_table_card(int player_id, int card_id) {
+    if (card_id == m_play_card_args.card_id) {
+        clear_targets();
+    } else if (m_current_response.target_id == m_player_own_id && m_current_response.type != response_type::none) {
+        if (is_picking_response(m_current_response.type)) {
+            add_action<game_action_type::pick_card>(card_pile_type::player_table, card_id);
+        } else if (m_play_card_args.card_id == 0) {
+            if (!get_card(card_id).inactive) {
+                m_play_card_args.card_id = card_id;
+                m_highlights.push_back(card_id);
+                handle_auto_targets(true);
             }
-            break;
-        case SDLK_s:
-            if (!temp_table.empty()) {
-                add_action<game_action_type::pick_card>(card_pile_type::temp_table, temp_table.front());
+        } else {
+            add_card_targets(true, std::vector{target_card_id{player_id, card_id, true}});
+        }
+    } else if (m_playing_id == m_player_own_id) {
+        if (m_play_card_args.card_id == 0) {
+            if (player_id == m_player_own_id) {
+                auto &c = get_card(card_id);
+                if (c.color == card_color_type::green && !c.inactive) {
+                    m_play_card_args.card_id = card_id;
+                    m_highlights.push_back(card_id);
+                    handle_auto_targets(false);
+                }
             }
-            break;
-        case SDLK_g:
-            add_action<game_action_type::resolve>();
-            break;
-        case SDLK_e:
-            for (int id : get_player(m_player_own_id).hand) {
-                auto &c = get_card(id);
+        } else {
+            add_card_targets(false, std::vector{target_card_id{player_id, card_id, false}});
+        }
+    }
+}
+
+void game_scene::on_click_hand_card(int player_id, int card_id) {
+    if (card_id == m_play_card_args.card_id) {
+        clear_targets();
+    } else if (m_current_response.target_id == m_player_own_id && m_current_response.type != response_type::none) {
+        if (is_picking_response(m_current_response.type)) {
+            add_action<game_action_type::pick_card>(card_pile_type::player_hand, card_id);
+        } else if (m_play_card_args.card_id == 0) {
+            if (!get_card(card_id).inactive) {
+                m_play_card_args.card_id = card_id;
+                m_highlights.push_back(card_id);
+                handle_auto_targets(true);
+            }
+        } else {
+            add_card_targets(true, std::vector{target_card_id{player_id, card_id, true}});
+        }
+    } else if (m_playing_id == m_player_own_id) {
+        if (m_play_card_args.card_id == 0) {
+            if (player_id == m_player_own_id) {
+                auto &c = get_card(card_id);
                 switch (c.color) {
-                case card_color_type::blue: {
-                    add_action<game_action_type::play_card>(id, std::vector{make_player_target(m_player_own_id)});
+                case card_color_type::blue:
+                    if (!c.targets.empty() && (c.targets.front().target == target_type::none || c.targets.front().target == target_type::self)) {
+                        add_action<game_action_type::play_card>(card_id, std::vector{
+                            play_card_target{enums::enum_constant<play_card_target_type::target_player>{},
+                            std::vector{target_player_id{player_id}}}
+                        });
+                    } else {
+                        m_play_card_args.card_id = card_id;
+                        m_highlights.push_back(card_id);
+                        handle_auto_targets(false);
+                    }
                     break;
-                }
                 case card_color_type::green:
-                    add_action<game_action_type::play_card>(id);
+                    add_action<game_action_type::play_card>(card_id, std::vector{
+                        play_card_target{enums::enum_constant<play_card_target_type::target_player>{},
+                        std::vector{target_player_id{player_id}}}
+                    });
                     break;
-                default:
+                case card_color_type::brown:
+                    m_play_card_args.card_id = card_id;
+                    m_highlights.push_back(card_id);
+                    handle_auto_targets(false);
                     break;
                 }
             }
-            break;
-        case SDLK_r: {
-            auto &table = get_player(m_player_own_id).table;
-            auto check_for = [&](const std::string &name) {
-                auto it = std::ranges::find(table, name, [&](int id) { return get_card(id).name; });
-                if (it != table.end()) {
-                    add_action<game_action_type::pick_card>(card_pile_type::player_table, *it);
+        } else {
+            add_card_targets(false, std::vector{target_card_id{player_id, card_id, true}});
+        }
+    }
+}
+
+void game_scene::on_click_player(int player_id) {
+    if (m_play_card_args.card_id != 0) {
+        if (m_current_response.target_id == m_player_own_id && m_current_response.type != response_type::none) {
+            if (!is_picking_response(m_current_response.type)) {
+                add_player_targets(true, std::vector{target_player_id{player_id}});
+            }
+        } else if (m_playing_id == m_player_own_id) {
+            add_player_targets(false, std::vector{target_player_id{player_id}});
+        }
+    }
+}
+
+void game_scene::handle_auto_targets(bool is_response) {
+    auto do_handle_target = [&](target_type type) {
+        switch (type) {
+        case target_type::response:
+        case target_type::none:
+            m_play_card_args.targets.emplace_back(enums::enum_constant<play_card_target_type::target_none>{});
+            return true;
+        case target_type::self:
+            m_play_card_args.targets.emplace_back(enums::enum_constant<play_card_target_type::target_player>{},
+                std::vector{target_player_id{m_player_own_id}});
+            return true;
+        case target_type::everyone: {
+            std::vector<target_player_id> ids;
+            auto self = m_players.find(m_player_own_id);
+            for (auto it = self;;) {
+                if (it->second.hp > 0) {
+                    ids.emplace_back(it->first);
                 }
-            };
-            check_for("Dinamite");
-            check_for("Prigione");
-            break;
+                if (++it == m_players.end()) it = m_players.begin();
+                if (it == self) break;
+            }
+            m_play_card_args.targets.emplace_back(enums::enum_constant<play_card_target_type::target_player>{}, ids);
+            return true;
         }
-        case SDLK_ESCAPE:
-            parent->add_message<client_message_type::lobby_leave>();
-            parent->switch_scene<scene_type::lobby_list>();
-            break;
+        case target_type::others: {
+            std::vector<target_player_id> ids;
+            auto self = m_players.find(m_player_own_id);
+            for (auto it = self;;) {
+                if (++it == m_players.end()) it = m_players.begin();
+                if (it == self) break;
+                if (it->second.hp > 0) {
+                    ids.emplace_back(it->first);
+                }
+            }
+            m_play_card_args.targets.emplace_back(enums::enum_constant<play_card_target_type::target_player>{}, ids);
+            return true;
         }
+        default:
+            return false;
+        }
+    };
+
+    auto &c = get_card(m_play_card_args.card_id);
+    if (!c.targets.empty() && c.targets.front().target == target_type::response && !is_response) {
+        clear_targets();
+    } else {
+        auto target_it = c.targets.begin() + m_play_card_args.targets.size();
+        for (; target_it != c.targets.end(); ++target_it) {
+            if (!do_handle_target(target_it->target)) break;
+        }
+        if (target_it == c.targets.end()) {
+            if (is_response) {
+                add_action<game_action_type::respond_card>(m_play_card_args);
+            } else {
+                add_action<game_action_type::play_card>(m_play_card_args);
+            }
+            clear_targets();
+        }
+    }
+}
+
+void game_scene::add_card_targets(bool is_response, const std::vector<target_card_id> &targets) {
+    auto &c = get_card(m_play_card_args.card_id);
+    auto &cur_target = c.targets[m_play_card_args.targets.size()];
+    switch (cur_target.target) {
+    case target_type::selfhand:
+    case target_type::anycard:
+        m_highlights.push_back(targets.front().card_id);
+        m_play_card_args.targets.emplace_back(
+            enums::enum_constant<play_card_target_type::target_card>{}, targets);
+        handle_auto_targets(is_response);
+        break;
+    default:
         break;
     }
+}
+
+void game_scene::add_player_targets(bool is_response, const std::vector<target_player_id> &targets) {
+    auto &c = get_card(m_play_card_args.card_id);
+    auto &cur_target = c.targets[m_play_card_args.targets.size()];
+    switch (cur_target.target) {
+    case target_type::notself:
+    case target_type::notsheriff:
+    case target_type::reachable:
+    case target_type::anyone:
+        m_play_card_args.targets.emplace_back(
+            enums::enum_constant<play_card_target_type::target_player>{}, targets);
+        handle_auto_targets(is_response);
+        break;
+    default:
+        break;
+    }
+}
+
+void game_scene::clear_targets() {
+    m_play_card_args.card_id = 0;
+    m_play_card_args.targets.clear();
+    m_highlights.clear();
 }
 
 void game_scene::handle_update(const game_update &update) {
@@ -161,7 +385,11 @@ void game_scene::pop_update() {
 }
 
 void game_scene::add_chat_message(const lobby_chat_args &args) {
-    m_messages.push_back(args);
+    m_ui.add_message(message_line::chat, args.message);
+}
+
+void game_scene::show_error(const std::string &message) {
+    m_ui.add_message(message_line::error, message);
 }
 
 void game_scene::handle_update(enums::enum_constant<game_update_type::game_notify>, game_notify_type args) {
@@ -180,7 +408,8 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::game_notif
         }
         discard_pile.clear();
         discard_pile.push_back(top_discard);
-        std::cout << "Deck shuffled\n";
+
+        m_ui.add_message(message_line::game, "Deck shuffled");
         
         m_animations.emplace_back(30, std::move(anim));
         break;
@@ -292,7 +521,7 @@ void game_scene::move_player_views() {
     SDL_Point pos{m_width / 2, m_height - 120};
     own_player->second.set_position(pos, true);
 
-    int xradius = (m_width - 150) - (m_width / 2);
+    int xradius = (m_width - 200) - (m_width / 2);
     int yradius = pos.y - (m_height / 2);
 
     auto it = own_player;
@@ -345,12 +574,17 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::player_sho
     auto &p = get_player(args.player_id);
     p.role = args.role;
     p.make_texture_role();
-    // todo animazione ruolo
-    pop_update();
+    if (args.player_id == m_player_own_id || args.role == player_role::sheriff) {
+        p.m_role.flip_amt = 1.f;
+        pop_update();
+    } else {
+        m_animations.emplace_back(10, card_flip_animation{&p.m_role, false});
+    }
 }
 
 void game_scene::handle_update(enums::enum_constant<game_update_type::switch_turn>, const switch_turn_update &args) {
     m_playing_id = args.player_id;
+    clear_targets();
 
     pop_update();
 }
@@ -360,10 +594,10 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::response_h
     m_current_response.origin_id = args.origin_id;
     m_current_response.target_id = args.target_id;
 
-    using namespace enums::stream_operators;
-
     if (args.target_id == m_player_own_id) {
-        std::cout << "Do response: " << args.type << '\n';
+        std::string message_str = "Do response: ";
+        message_str.append(enums::to_string(args.type));
+        m_ui.add_message(message_line::game, message_str);
     }
 
     pop_update();
@@ -373,7 +607,7 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::response_d
     m_current_response.type = response_type::none;
     m_current_response.origin_id = 0;
 
-    std::cout << "Response done\n";
+    m_ui.add_message(message_line::game, "No more responses");
 
     pop_update();
 }

@@ -20,35 +20,73 @@ namespace banggame {
 
     void response_draw::on_pick(card_pile_type pile, int card_id) {
         if (pile == card_pile_type::main_deck) {
-            target->add_to_hand(target->get_game()->draw_card());
-            target->add_to_hand(target->get_game()->draw_card());
-            target->get_game()->pop_response();
+            auto t = target;
+            t->get_game()->pop_response();
+            t->add_to_hand(target->get_game()->draw_card());
+            t->add_to_hand(target->get_game()->draw_card());
         }
     }
 
     void response_check::on_pick(card_pile_type pile, int card_id) {
         if (pile == card_pile_type::temp_table) {
             auto t = target;
-            target->get_game()->pop_response();
+            t->get_game()->pop_response();
             t->get_game()->resolve_check(card_id);
         }
     }
 
     void response_generalstore::on_pick(card_pile_type pile, int card_id) {
         if (pile == card_pile_type::temp_table) {
-            target->add_to_hand(target->get_game()->draw_from_temp(card_id));
-            target->get_game()->pop_response();
+            auto t = target;
+            t->get_game()->pop_response();
+            t->add_to_hand(t->get_game()->draw_from_temp(card_id));
         }
     }
 
     void response_discard::on_pick(card_pile_type pile, int card_id) {
         if (pile == card_pile_type::player_hand) {
-            target->discard_card(&target->get_hand_card(card_id));
-            if (target->num_hand_cards() <= target->get_hp()) {
-                target->get_game()->next_turn();
+            auto t = target;
+            t->get_game()->pop_response();
+            t->discard_card(&t->get_hand_card(card_id));
+            if (t->num_hand_cards() <= t->get_hp()) {
+                t->get_game()->next_turn();
             }
-            target->get_game()->pop_response();
         }
+    }
+    
+    void response_duel::on_pick(card_pile_type pile, int card_id) {
+        if (pile == card_pile_type::player_hand) {
+            auto &target_card = target->get_hand_card(card_id);
+            if (!target_card.effects.empty() && target_card.effects.front().is<effect_bangcard>()) {
+                auto t = target;
+                t->get_game()->pop_response();
+                t->discard_card(&target_card);
+                t->get_game()->queue_response<response_type::duel>(target, origin);
+            }
+        }
+    }
+
+    void response_duel::on_resolve() {
+        auto t = target;
+        t->get_game()->pop_response();
+        t->damage(origin, 1);
+    }
+
+    void response_indians::on_pick(card_pile_type pile, int card_id) {
+        if (pile == card_pile_type::player_hand) {
+            auto &target_card = target->get_hand_card(card_id);
+            if (!target_card.effects.empty() && target_card.effects.front().is<effect_bangcard>()) {
+                auto t = target;
+                t->get_game()->pop_response();
+                t->discard_card(&target_card);
+            }
+        }
+    }
+
+    void response_indians::on_resolve() {
+        auto t = target;
+        t->get_game()->pop_response();
+        t->damage(origin, 1);
     }
 
     bool response_bang::on_respond(card *target_card) {
@@ -69,47 +107,20 @@ namespace banggame {
     }
 
     void response_bang::on_resolve() {
-        target->damage(1);
-        target->get_game()->pop_response();
-    }
-    
-    bool response_duel::on_respond(card *target_card) {
-        if (!target_card->effects.empty()) {
-            if (target_card->effects.front().is<effect_bangcard>()) {
-                target->get_game()->pop_response();
-                target->get_game()->queue_response<response_type::duel>(target, origin);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    void response_duel::on_resolve() {
-        target->damage(1);
-        target->get_game()->pop_response();
-    }
-
-    bool response_indians::on_respond(card *target_card) {
-        if (!target_card->effects.empty()) {
-            if (target_card->effects.front().is<effect_bangcard>()) {
-                target->get_game()->pop_response();
-                return true;
-            }
-        }
-        return false;
-    }
-
-    void response_indians::on_resolve() {
-        target->damage(1);
-        target->get_game()->pop_response();
+        auto t = target;
+        t->get_game()->pop_response();
+        t->damage(origin, 1);
     }
 
     bool response_death::on_respond(card *target_card) {
         if (!target_card->effects.empty()) {
             if (target_card->effects.front().is<effect_beer>()) {
-                if (target->get_game()->num_alive() > 2 && target->get_hp() == 0) {
+                auto &moved = target->discard_card(target_card);
+                for (auto &e : moved.effects) {
+                    e->on_play(target);
+                }
+                if (target->get_hp() > 0) {
                     target->get_game()->pop_response();
-                    return true;
                 }
             }
         }
@@ -117,8 +128,8 @@ namespace banggame {
     }
 
     void response_death::on_resolve() {
-        target->get_game()->player_death(target);
-        target->get_game()->pop_response();
-        target->get_game()->next_turn();
+        auto t = target;
+        t->get_game()->pop_response();
+        t->get_game()->player_death(origin, target);
     }
 }

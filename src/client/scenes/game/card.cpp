@@ -80,7 +80,6 @@ namespace banggame {
         std::string role_string = "role_";
         role_string.append(enums::to_string(role));
         m_role.texture_front = apply_card_mask(sdl::surface(misc_resources[role_string]));
-        m_role.flip_amt = 1.f;
     }
 
     void player_view::make_textures_back() {
@@ -89,13 +88,13 @@ namespace banggame {
     }
     
     void card_widget_base::render(sdl::renderer &renderer, sdl::texture &tex) {
-        SDL_Rect rect = tex.get_rect();
-        rect.h = card_width * rect.h / rect.w;
-        rect.w = card_width;
+        m_rect = tex.get_rect();
+        sdl::scale_rect(m_rect, card_width);
+        
+        m_rect.x = pos.x - m_rect.w / 2;
+        m_rect.y = pos.y - m_rect.h / 2;
 
-        rect.x = pos.x - rect.w / 2;
-        rect.y = pos.y - rect.h / 2;
-
+        SDL_Rect rect = m_rect;
         float wscale = std::abs(1.f - 2.f * flip_amt);
         rect.x += rect.w * (1.f - wscale) * 0.5f;
         rect.w *= wscale;
@@ -103,10 +102,11 @@ namespace banggame {
     }
 
     void player_view::set_position(SDL_Point pos, bool flipped) {
+        pos.x -= 80;
         hand.pos = table.pos = m_character.pos = m_role.pos = pos;
-        m_character.pos.x += 200;
+        m_character.pos.x += 150;
         set_hp_marker_position(hp);
-        m_role.pos.x += 280;
+        m_role.pos.x += 230;
         if (flipped) {
             hand.pos.y += 60;
             table.pos.y -= 60;
@@ -118,7 +118,7 @@ namespace banggame {
 
     void player_view::set_hp_marker_position(float hp) {
         m_hp_marker.pos = m_character.pos;
-        m_hp_marker.pos.y -= std::max(0.f, hp * 20.f);
+        m_hp_marker.pos.y -= std::max(0.f, hp * one_hp_size);
     }
 
     void player_view::render(sdl::renderer &renderer) {

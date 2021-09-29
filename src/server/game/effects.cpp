@@ -95,7 +95,7 @@ namespace banggame {
                 && enums::indexof(value) >= enums::indexof(card_value_type::value_2)
                 && enums::indexof(value) <= enums::indexof(card_value_type::value_9)) {
                 target_player->discard_card(target_card);
-                target_player->damage(3);
+                target_player->damage(nullptr, 3);
             } else {
                 auto moved = target_player->get_card_removed(target_card);
                 auto *p = target_player;

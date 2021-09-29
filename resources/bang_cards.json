@@ -721,7 +721,7 @@
                     "class": "destroy"
                 },
                 {
-                    "target": "any",
+                    "target": "anyone",
                     "class": "heal"
                 }
             ]
@@ -1010,7 +1010,7 @@
             "color": "blue",
             "effects": [
                 {
-                    "target": "any",
+                    "target": "anyone",
                     "class": "snake"
                 }
             ]
@@ -1043,7 +1043,7 @@
             "color": "blue",
             "effects": [
                 {
-                    "target": "any",
+                    "target": "anyone",
                     "class": "bounty"
                 }
             ]
@@ -1489,7 +1489,7 @@
             "color": "orange",
             "effects": [
                 {
-                    "target": "any",
+                    "target": "anyone",
                     "class": "bomb"
                 }
             ]
@@ -2302,7 +2302,7 @@
             "image": "04_bicchierino",
             "color": "brown",
             "gold_cost": 1,
-            "target": "any",
+            "target": "anyone",
             "effect": "heal"
         },
         {
@@ -2372,7 +2372,7 @@
             "color": "black",
             "gold_cost": 2,
             "type": "equip",
-            "equip_target": "any",
+            "equip_target": "notsheriff",
             "effect": "wanted"
         },
         {

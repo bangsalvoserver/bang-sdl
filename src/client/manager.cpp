@@ -95,8 +95,10 @@ void game_manager::handle_event(const SDL_Event &event) {
     m_scene->handle_event(event);
 }
 
-void game_manager::handle_message(enums::enum_constant<server_message_type::error_message>, const error_message &args) {
-    std::cout << args.message << '\n';
+void game_manager::handle_message(enums::enum_constant<server_message_type::game_error>, const game_error &args) {
+    if (auto *s = dynamic_cast<game_scene *>(m_scene)) {
+        s->show_error(args.message);
+    }
 }
 
 void game_manager::handle_message(enums::enum_constant<server_message_type::lobby_list>, const std::vector<lobby_data> &args) {

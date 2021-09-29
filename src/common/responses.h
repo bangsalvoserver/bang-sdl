@@ -9,6 +9,8 @@ namespace banggame {
 
         player *origin = nullptr;
         player *target = nullptr;
+
+        virtual void on_resolve() {};
     };
 
     using response_holder = vbase_holder<response_effect>;
@@ -37,22 +39,21 @@ namespace banggame {
         virtual void on_pick(card_pile_type pile, int card_id) override;
     };
 
+    struct response_duel : picking_response {
+        virtual void on_pick(card_pile_type pile, int card_id) override;
+        virtual void on_resolve() override;
+    };
+
+    struct response_indians : picking_response {
+        virtual void on_pick(card_pile_type pile, int card_id) override;
+        virtual void on_resolve() override;
+    };
+
     struct card_response : response_effect {
         virtual bool on_respond(card *target_card) = 0;
-        virtual void on_resolve() {};
     };
 
     struct response_bang : card_response {
-        virtual bool on_respond(card *target_card) override;
-        virtual void on_resolve() override;
-    };
-
-    struct response_duel : card_response {
-        virtual bool on_respond(card *target_card) override;
-        virtual void on_resolve() override;
-    };
-
-    struct response_indians : card_response {
         virtual bool on_respond(card *target_card) override;
         virtual void on_resolve() override;
     };
