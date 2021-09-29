@@ -248,9 +248,13 @@ namespace banggame {
             switch (card_it->color) {
             case card_color_type::brown:
                 if (verify_card_targets(*card_it, args.targets)) {
-                    card removed = std::move(*card_it);
-                    m_hand.erase(card_it);
-                    do_play_card(get_game()->add_to_discards(std::move(removed)), args.targets);
+                    if (card_it->effects.front().is<effect_bangcard>() && !can_play_bang()) {
+                        throw game_error("Un solo bang per turno");
+                    } else {
+                        card removed = std::move(*card_it);
+                        m_hand.erase(card_it);
+                        do_play_card(get_game()->add_to_discards(std::move(removed)), args.targets);
+                    }
                 } else {
                     throw game_error("Target non validi");
                 }
@@ -329,8 +333,10 @@ namespace banggame {
     void player::start_of_turn() {
         get_game()->add_public_update<game_update_type::switch_turn>(id);
 
-        m_pending_predraw_checks = m_predraw_checks;
+        m_bangs_played = 0;
+        m_bangs_per_turn = 1;
 
+        m_pending_predraw_checks = m_predraw_checks;
         if (m_pending_predraw_checks.empty()) {
             get_game()->queue_response<response_type::draw>(nullptr, this);
         } else {

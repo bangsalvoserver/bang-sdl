@@ -66,25 +66,27 @@ namespace banggame {
         }
 
         template<response_type E>
-        void add_response(player *origin, player *target) {
-            auto ret = response_holder::make<enums::enum_type_t<E>>();
+        auto *add_response(player *origin, player *target) {
+            auto &ret = m_responses.emplace_front(E, response_holder::make<enums::enum_type_t<E>>()).second;
             ret->origin = origin;
             ret->target = target;
-            m_responses.emplace_front(E, std::move(ret));
 
             add_response_update();
+
+            return ret.template as<enums::enum_type_t<E>>();
         }
 
         template<response_type E>
-        void queue_response(player *origin, player *target) {
-            auto ret = response_holder::make<enums::enum_type_t<E>>();
+        auto *queue_response(player *origin, player *target) {
+            auto &ret = m_responses.emplace_back(E, response_holder::make<enums::enum_type_t<E>>()).second;
             ret->origin = origin;
             ret->target = target;
-            m_responses.emplace_back(E, std::move(ret));
 
             if (m_responses.size() == 1) {
                 add_response_update();
             }
+
+            return ret.template as<enums::enum_type_t<E>>();
         }
 
         void pop_response() {

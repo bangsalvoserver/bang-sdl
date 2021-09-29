@@ -36,6 +36,9 @@ namespace banggame {
         int m_max_hp = 0;
 
         int m_infinite_bangs = 0;
+        int m_bangs_played = 0;
+        int m_bangs_per_turn = 1;
+        int m_bang_strength = 1;
 
         int m_num_checks = 1;
 
@@ -92,12 +95,28 @@ namespace banggame {
             m_infinite_bangs += value;
         }
 
+        void add_bang_strength(int value) {
+            m_bang_strength += value;
+        }
+
+        int get_bang_strength() const {
+            return m_bang_strength;
+        }
+
         void add_num_checks(int diff) {
             m_num_checks += diff;
         }
 
         int get_num_checks() const {
             return m_num_checks;
+        }
+
+        void on_play_bang() {
+            ++m_bangs_played;
+        }
+
+        bool can_play_bang() const {
+            return m_infinite_bangs > 0 || m_bangs_played < m_bangs_per_turn;
         }
         
         void discard_all();

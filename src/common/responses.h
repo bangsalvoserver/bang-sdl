@@ -3,12 +3,16 @@
 
 #include "card_effect.h"
 
+#include <any>
+
 namespace banggame {
     struct response_effect {
         virtual ~response_effect() {}
 
         player *origin = nullptr;
         player *target = nullptr;
+
+        std::byte data[64];
 
         virtual void on_resolve() {};
     };
@@ -53,9 +57,23 @@ namespace banggame {
         virtual bool on_respond(card *target_card) = 0;
     };
 
+    struct response_bang_data {
+        int barrels_used[5] = {};
+        int bang_strength = 1;
+    };
+
     struct response_bang : card_response {
+        response_bang() {
+            static_assert(sizeof(data) >= sizeof(response_bang_data));
+            new (data) response_bang_data;
+        }
+        response_bang_data *get_data() {
+            return reinterpret_cast<response_bang_data *>(data);
+        }
+
         virtual bool on_respond(card *target_card) override;
         virtual void on_resolve() override;
+        void handle_missed();
     };
 
     struct response_death : card_response {

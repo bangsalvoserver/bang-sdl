@@ -2,9 +2,14 @@
 #define __EFFECTS_H__
 
 #include "card_effect.h"
+#include "characters.h"
 
 namespace banggame {
     struct effect_bang : card_effect {
+        virtual void on_play(player *origin, player *target) override;
+    };
+
+    struct effect_bangcard : card_effect {
         virtual void on_play(player *origin, player *target) override;
     };
 
@@ -16,8 +21,6 @@ namespace banggame {
         virtual void on_play(player *origin, player *target) override;
     };
     
-    struct effect_bangcard : effect_bang {};
-
     struct effect_missed : card_effect {};
 
     struct effect_missedcard : effect_missed {};
@@ -115,7 +118,7 @@ namespace banggame {
         (horsecharm,    effect_horsecharm)
         (pedro_ramirez)
         (sid_ketchum)
-        (slab_the_killer)
+        (slab_the_killer, effect_slab_the_killer)
         (suzy_lafayette)
         (vulture_sam)
         (claus_the_saint)

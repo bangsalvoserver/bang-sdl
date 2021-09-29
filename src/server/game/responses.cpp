@@ -1,5 +1,6 @@
 #include "common/responses.h"
 #include "common/effects.h"
+#include "common/net_enums.h"
 
 #include "player.h"
 #include "game.h"
@@ -22,8 +23,8 @@ namespace banggame {
         if (pile == card_pile_type::main_deck) {
             auto t = target;
             t->get_game()->pop_response();
-            t->add_to_hand(target->get_game()->draw_card());
-            t->add_to_hand(target->get_game()->draw_card());
+            t->add_to_hand(t->get_game()->draw_card());
+            t->add_to_hand(t->get_game()->draw_card());
         }
     }
 
@@ -58,25 +59,27 @@ namespace banggame {
         if (pile == card_pile_type::player_hand) {
             auto &target_card = target->get_hand_card(card_id);
             if (!target_card.effects.empty() && target_card.effects.front().is<effect_bangcard>()) {
+                auto o = origin;
                 auto t = target;
                 t->get_game()->pop_response();
                 t->discard_card(&target_card);
-                t->get_game()->queue_response<response_type::duel>(target, origin);
+                t->get_game()->queue_response<response_type::duel>(t, o);
             }
         }
     }
 
     void response_duel::on_resolve() {
+        auto o = origin;
         auto t = target;
         t->get_game()->pop_response();
-        t->damage(origin, 1);
+        t->damage(o, 1);
     }
 
     void response_indians::on_pick(card_pile_type pile, int card_id) {
         if (pile == card_pile_type::player_hand) {
-            auto &target_card = target->get_hand_card(card_id);
+            auto t = target;
+            auto &target_card = t->get_hand_card(card_id);
             if (!target_card.effects.empty() && target_card.effects.front().is<effect_bangcard>()) {
-                auto t = target;
                 t->get_game()->pop_response();
                 t->discard_card(&target_card);
             }
@@ -84,22 +87,38 @@ namespace banggame {
     }
 
     void response_indians::on_resolve() {
+        auto o = origin;
         auto t = target;
         t->get_game()->pop_response();
-        t->damage(origin, 1);
+        t->damage(o, 1);
+    }
+    
+    void response_bang::handle_missed() {
+        if (0 == --get_data()->bang_strength) {
+            target->get_game()->pop_response();
+        }
     }
 
     bool response_bang::on_respond(card *target_card) {
         if (!target_card->effects.empty()) {
             if (target_card->effects.front().is<effect_barrel>()) {
-                target->get_game()->draw_check_then(target, [target = target](card_suit_type suit, card_value_type) {
+                auto &vec = get_data()->barrels_used;
+                if (std::ranges::find(vec, target_card->id) != std::ranges::end(vec)) {
+                    return false;
+                }
+                auto pos = std::ranges::find(vec, 0);
+                if (pos == std::ranges::end(vec)) {
+                    throw game_error("Risposto con troppi barili");
+                }
+                *pos = target_card->id;
+                target->get_game()->draw_check_then(target, [this](card_suit_type suit, card_value_type) {
                     if (suit == card_suit_type::hearts) {
-                        target->get_game()->pop_response();
+                        handle_missed();
                     }
                 });
                 return true;
             } else if (target_card->effects.front().is<effect_missed>()) {
-                target->get_game()->pop_response();
+                handle_missed();
                 return true;
             }
         }
@@ -107,9 +126,10 @@ namespace banggame {
     }
 
     void response_bang::on_resolve() {
+        auto o = origin;
         auto t = target;
         t->get_game()->pop_response();
-        t->damage(origin, 1);
+        t->damage(o, 1);
     }
 
     bool response_death::on_respond(card *target_card) {
@@ -128,8 +148,9 @@ namespace banggame {
     }
 
     void response_death::on_resolve() {
+        auto o = origin;
         auto t = target;
         t->get_game()->pop_response();
-        t->get_game()->player_death(origin, target);
+        t->get_game()->player_death(o, t);
     }
 }

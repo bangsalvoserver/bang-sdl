@@ -9,6 +9,11 @@ namespace banggame {
         target->get_game()->queue_response<response_type::bang>(origin, target);
     }
 
+    void effect_bangcard::on_play(player *origin, player *target) {
+        origin->on_play_bang();
+        target->get_game()->queue_response<response_type::bang>(origin, target)->get_data()->bang_strength = origin->get_bang_strength();
+    }
+
     void effect_indians::on_play(player *origin, player *target) {
         target->get_game()->queue_response<response_type::indians>(origin, target);
     }

@@ -63,6 +63,7 @@ namespace banggame {
         const T *operator ->() const noexcept { return get(); }
 
         template<std::derived_from<T> U> static vbase_holder make() {
+            static_assert(sizeof(U) == sizeof(T));
             return vbase_holder(type_tag<U>{});
         }
 
