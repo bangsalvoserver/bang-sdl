@@ -585,12 +585,7 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::player_add
 
 void game_scene::handle_update(enums::enum_constant<game_update_type::player_hp>, const player_hp_update &args) {
     auto &p = get_player(args.player_id);
-    if (p.hp == 0) {
-        p.set_hp_marker_position(args.hp);
-        pop_update();
-    } else {
-        m_animations.emplace_back(20, player_hp_animation{&p, p.hp, args.hp});
-    }
+    m_animations.emplace_back(20, player_hp_animation{&p, p.hp, args.hp});
     p.hp = args.hp;
 }
 
@@ -607,6 +602,9 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::player_cha
     p.m_character.name = args.name;
     p.m_character.image = args.image;
     p.m_character.targets = args.targets;
+
+    p.hp = args.max_hp;
+    p.set_hp_marker_position(args.max_hp);
 
     p.m_character.make_texture_front();
 

@@ -59,6 +59,7 @@ namespace banggame {
     DEFINE_SERIALIZABLE(player_character_update,
         (player_id, int)
         (card_id, int)
+        (max_hp, int)
         (name, std::string)
         (image, std::string)
         (targets, std::vector<card_target_data>)

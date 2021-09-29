@@ -25,7 +25,7 @@ namespace banggame {
     struct character {
         int id;
         card_expansion_type expansion;
-        character_type type;
+        character_type type = character_type::none;
         std::vector<effect_holder> effects;
         std::string name;
         std::string image;

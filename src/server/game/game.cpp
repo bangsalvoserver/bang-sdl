@@ -142,6 +142,7 @@ namespace banggame {
     }
 
     void game::player_death(player *killer, player *target) {
+        target->set_dead(true);
         target->discard_all();
         add_public_update<game_update_type::player_show_role>(target->id, target->role());
         if (m_playing == target) {

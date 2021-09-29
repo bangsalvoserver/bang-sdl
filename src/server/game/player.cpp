@@ -394,6 +394,10 @@ namespace banggame {
         m_role = role;
 
         m_max_hp = c.max_hp;
+        if (role == player_role::sheriff) {
+            ++m_max_hp;
+        }
+        m_hp = m_max_hp;
 
         if (m_character.type == character_type::none) {
             for (auto &e : m_character.effects) {
@@ -404,6 +408,7 @@ namespace banggame {
         player_character_update obj;
         obj.player_id = id;
         obj.card_id = c.id;
+        obj.max_hp = c.max_hp;
         obj.name = c.name;
         obj.image = c.image;
         for (const auto &e : c.effects) {
@@ -412,13 +417,9 @@ namespace banggame {
         get_game()->add_public_update<game_update_type::player_character>(std::move(obj));
 
         if (role == player_role::sheriff) {
-            ++m_max_hp;
             get_game()->add_public_update<game_update_type::player_show_role>(id, m_role);
         } else {
             get_game()->add_private_update<game_update_type::player_show_role>(this, id, m_role);
         }
-
-        m_hp = m_max_hp;
-        get_game()->add_public_update<game_update_type::player_hp>(id, m_hp);
     }
 }

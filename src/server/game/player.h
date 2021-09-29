@@ -34,6 +34,7 @@ namespace banggame {
 
         int m_hp = 0;
         int m_max_hp = 0;
+        bool m_dead = false;
 
         int m_infinite_bangs = 0;
         int m_bangs_played = 0;
@@ -70,10 +71,14 @@ namespace banggame {
         }
 
         int get_hp() const { return m_hp; }
-        bool alive() const { return m_hp > 0; }
+        bool alive() const { return !m_dead; }
 
         void damage(player *source, int value);
         void heal(int value);
+
+        void set_dead(bool dead) {
+            m_dead = dead;
+        }
 
         void add_distance(int diff) {
             m_distance_mod += diff;
