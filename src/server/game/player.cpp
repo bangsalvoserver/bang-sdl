@@ -7,6 +7,10 @@
 #include "common/net_enums.h"
 
 namespace banggame {
+    static auto invalid_action() {
+        return game_error{"Azione non valida"};
+    }
+
     constexpr auto is_weapon = [](const deck_card &c) {
         return c.effects.front().is<effect_weapon>();
     };
@@ -232,8 +236,10 @@ namespace banggame {
 
     void player::do_play_card(int card_id, const std::vector<play_card_target> &targets) {
         card *card_ptr = nullptr;
+        bool is_character = false;
         if (card_id == m_character.id) {
             card_ptr = &m_character;
+            is_character = true;
         } else if (auto it = std::ranges::find(m_hand, card_id, &deck_card::id); it != m_hand.end()) {
             deck_card removed = std::move(*it);
             m_hand.erase(it);
@@ -249,6 +255,11 @@ namespace banggame {
         } else {
             throw game_error("ID non trovato");
         }
+
+        auto check_immunity = [&](player *target) {
+            if (is_character) return false;
+            return target->immune_to(*static_cast<deck_card*>(card_ptr));
+        };
         
         auto effect_it = targets.begin();
         for (auto &e : card_ptr->effects) {
@@ -258,12 +269,16 @@ namespace banggame {
                 },
                 [&](enums::enum_constant<play_card_target_type::target_player>, const std::vector<target_player_id> &args) {
                     for (const auto &target : args) {
-                        e->on_play(this, m_game->get_player(target.player_id));
+                        auto *p = m_game->get_player(target.player_id);
+                        if (p != this && check_immunity(p)) continue;
+                        e->on_play(this, p);
                     }
                 },
                 [&](enums::enum_constant<play_card_target_type::target_card>, const std::vector<target_card_id> &args) {
                     for (const auto &target : args) {
-                        e->on_play(this, m_game->get_player(target.player_id), target.card_id);
+                        auto *p = m_game->get_player(target.player_id);
+                        if (p != this && check_immunity(p)) continue;
+                        e->on_play(this, p, target.card_id);
                     }
                 }
             }, *effect_it++);
@@ -272,23 +287,39 @@ namespace banggame {
 
     void player::play_card(const play_card_args &args) {
         if (args.card_id == m_character.id) {
-            if (m_character.type == character_type::active) {
-                if (m_character.usages == 0 || m_character_usages < m_character_usages) {
+            switch (m_character.type) {
+            case character_type::active:
+                if (m_has_drawn && (m_character.usages == 0 || m_character_usages < m_character.usages)) {
                     if (verify_card_targets(m_character, args.targets)) {
                         do_play_card(args.card_id, args.targets);
                         ++m_character_usages;
                     } else {
-                        throw game_error("Target non validi");
+                        throw invalid_action();
                     }
                 }
+                break;
+            case character_type::drawing:
+            case character_type::drawing_forced:
+                if (!m_has_drawn) {
+                    if (verify_card_targets(m_character, args.targets)) {
+                        do_play_card(args.card_id, args.targets);
+                        m_has_drawn = true;
+                    } else {
+                        throw invalid_action();
+                    }
+                }
+                break;
+            default:
+                break;
             }
         } else if (auto card_it = std::ranges::find(m_hand, args.card_id, &deck_card::id); card_it != m_hand.end()) {
+            if (!m_has_drawn) return;
             switch (card_it->color) {
             case card_color_type::brown:
                 if (verify_card_targets(*card_it, args.targets)) {
                     do_play_card(args.card_id, args.targets);
                 } else {
-                    throw game_error("Target non validi");
+                    throw invalid_action();
                 }
                 break;
             case card_color_type::blue:
@@ -300,10 +331,10 @@ namespace banggame {
                         m_hand.erase(card_it);
                         target->equip_card(std::move(removed));
                     } else {
-                        throw game_error("Carte duplicate");
+                        throw invalid_action();
                     }
                 } else {
-                    throw game_error("Target non validi");
+                    throw invalid_action();
                 }
                 break;
             case card_color_type::green:
@@ -314,23 +345,24 @@ namespace banggame {
                     equip_card(std::move(removed));
                     m_game->add_public_update<game_update_type::tap_card>(removed.id, true);
                 } else {
-                    throw game_error("Carte duplicate");
+                    throw invalid_action();
                 }
                 break;
             }
         } else if (auto card_it = std::ranges::find(m_table, args.card_id, &deck_card::id); card_it != m_table.end()) {
+            if (!m_has_drawn) return;
             switch (card_it->color) {
             case card_color_type::green:
                 if (!card_it->inactive) {
                     if (verify_card_targets(*card_it, args.targets)) {
                         do_play_card(args.card_id, args.targets);
                     } else {
-                        throw game_error("Target non validi");
+                        throw invalid_action();
                     }
                 }
                 break;
             default:
-                throw game_error("Carta giocata non valida");
+                throw invalid_action();
             }
         } else {
             throw game_error("ID carta non trovato");
@@ -345,7 +377,7 @@ namespace banggame {
             if (verify_card_targets(m_character, args.targets)) {
                 resp->on_respond(args);
             } else {
-                throw game_error("Target non validi");
+                throw invalid_action();
             }
         } else if (auto card_it = std::ranges::find(m_hand, args.card_id, &deck_card::id); card_it != m_hand.end()) {
             switch (card_it->color) {
@@ -353,11 +385,11 @@ namespace banggame {
                 if (verify_card_targets(*card_it, args.targets)) {
                     resp->on_respond(args);
                 } else {
-                    throw game_error("Target non validi");
+                    throw invalid_action();
                 }
                 break;
             default:
-                throw game_error("Carta giocata non valida");
+                throw invalid_action();
             }
         } else if (auto card_it = std::ranges::find(m_table, args.card_id, &deck_card::id); card_it != m_table.end()) {
             switch (card_it->color) {
@@ -374,10 +406,19 @@ namespace banggame {
                 resp->on_respond(args);
                 break;
             default:
-                throw game_error("Carta giocata non valida");
+                throw invalid_action();
             }
         } else {
             throw game_error("ID carta non trovato");
+        }
+    }
+
+    void player::draw_from_deck() {
+        if (m_character.type != character_type::drawing_forced) {
+            for (int i=0; i<m_num_drawn_cards; ++i) {
+                add_to_hand(m_game->draw_card());
+            }
+            m_has_drawn = true;
         }
     }
 
@@ -387,11 +428,10 @@ namespace banggame {
         m_bangs_played = 0;
         m_bangs_per_turn = 1;
         m_character_usages = 0;
+        m_has_drawn = false;
 
         m_pending_predraw_checks = m_predraw_checks;
-        if (m_pending_predraw_checks.empty()) {
-            m_game->queue_response<response_type::draw>(nullptr, this);
-        } else {
+        if (!m_pending_predraw_checks.empty()) {
             m_game->queue_response<response_type::predraw>(nullptr, this);
         }
     }
@@ -400,9 +440,7 @@ namespace banggame {
         if (alive()) {
             m_pending_predraw_checks.erase(std::ranges::find(m_pending_predraw_checks, card_id, &predraw_check_t::card_id));
 
-            if (m_pending_predraw_checks.empty()) {
-                m_game->queue_response<response_type::draw>(nullptr, this);
-            } else {
+            if (!m_pending_predraw_checks.empty()) {
                 m_game->queue_response<response_type::predraw>(nullptr, this);
             }
         }
@@ -449,6 +487,7 @@ namespace banggame {
         obj.max_hp = m_max_hp;
         obj.name = c.name;
         obj.image = c.image;
+        obj.type = c.type;
         for (const auto &e : c.effects) {
             obj.targets.emplace_back(e->target, e->maxdistance);
         }

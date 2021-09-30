@@ -48,6 +48,7 @@ Json::Value make_message(Ts && ... args) {
         return Json::nullValue;
     }
 }
+
 class game_manager {
 public:
     void parse_message(const sdlnet::ip_address &addr, const std::string &str);

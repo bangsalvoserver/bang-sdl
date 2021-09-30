@@ -19,15 +19,6 @@ namespace banggame {
         }
     }
 
-    void response_draw::on_pick(card_pile_type pile, int card_id) {
-        if (pile == card_pile_type::main_deck && target->m_character.type != character_type::drawing_forced) {
-            auto t = target;
-            t->m_game->pop_response();
-            t->add_to_hand(t->m_game->draw_card());
-            t->add_to_hand(t->m_game->draw_card());
-        }
-    }
-
     void response_check::on_pick(card_pile_type pile, int card_id) {
         if (pile == card_pile_type::temp_table) {
             auto t = target;

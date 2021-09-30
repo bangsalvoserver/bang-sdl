@@ -23,7 +23,6 @@ game_ui::game_ui(game_scene *parent)
     })
     , m_leave_btn("Esci", [parent] {
         parent->parent->add_message<client_message_type::lobby_leave>();
-        parent->parent->switch_scene<scene_type::lobby_list>();
     }) {}
 
 void game_ui::resize(int width, int height) {

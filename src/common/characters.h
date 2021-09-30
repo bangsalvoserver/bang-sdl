@@ -8,6 +8,24 @@ namespace banggame {
         virtual void on_equip(player *target, int card_id) override;
         virtual void on_unequip(player *target, int card_id) override;
     };
+
+    struct effect_black_jack : card_effect {
+        virtual void on_play(player *target) override;
+    };
+
+    struct effect_bill_noface : card_effect {
+        virtual void on_play(player *target) override;
+    };
+
+    struct effect_tequila_joe : card_effect {
+        virtual void on_equip(player *target, int card_id) override;
+        virtual void on_unequip(player *target, int card_id) override;
+    };
+
+    struct effect_sean_mallory : card_effect {
+        virtual void on_equip(player *target, int card_id) override;
+        virtual void on_unequip(player *target, int card_id) override;
+    };
 }
 
 #endif

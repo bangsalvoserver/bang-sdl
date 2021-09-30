@@ -56,6 +56,10 @@ namespace banggame {
         virtual void on_play(player *origin, player *target) override;
     };
 
+    struct effect_draw_rest : card_effect {
+        virtual void on_play(player *origin, player *target) override;
+    };
+
     struct effect_steal : card_effect {
         virtual void on_play(player *origin, player *target, int card_id) override;
     };
@@ -101,6 +105,16 @@ namespace banggame {
         virtual void on_unequip(player *target, int card_id) override;
     };
 
+    struct effect_pickaxe : card_effect {
+        virtual void on_equip(player *target, int card_id) override;
+        virtual void on_unequip(player *target, int card_id) override;
+    };
+
+    struct effect_calumet : card_effect {
+        virtual void on_equip(player *target, int card_id) override;
+        virtual void on_unequip(player *target, int card_id) override;
+    };
+
     DEFINE_ENUM_TYPES_IN_NS(banggame, effect_type,
         (bang,          effect_bang)
         (bangcard,      effect_bangcard)
@@ -121,31 +135,33 @@ namespace banggame {
         (volcanic,      effect_volcanic)
         (draw,          effect_draw)
         (draw_discard,  effect_draw_discard)
+        (draw_rest,     effect_draw_rest)
         (generalstore,  effect_generalstore)
         (deathsave,     effect_deathsave)
         (damage,        effect_damage)
-        (changewws)
+        (pickaxe,       effect_pickaxe)
+        (calumet,       effect_calumet)
         (boots)
-        (black_jack)
+        (black_jack,    effect_black_jack)
         (calamity_janet)
         (el_gringo)
-        (kit_carlson)
+        (kit_carlson) /*,   effect_kitcarlson) */
         (horsecharm,    effect_horsecharm)
         (slab_the_killer, effect_slab_the_killer)
         (suzy_lafayette)
         (vulture_sam)
-        (claus_the_saint)
+        (claus_the_saint) /*, effect_claus_the_saint) */
         (johnny_kisch)
-        (calumet)
         (bellestar)
-        (bill_noface)
+        (bill_noface,   effect_bill_noface)
         (elena_fuente)
         (greg_digger)
         (herb_hunter)
         (molly_stark)
-        (sean_mallory)
-        (tequila_joe)
+        (sean_mallory,  effect_sean_mallory)
+        (tequila_joe,   effect_tequila_joe)
         (vera_custer)
+        (changewws)
     )
 }
 

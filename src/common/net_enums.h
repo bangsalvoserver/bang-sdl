@@ -63,10 +63,6 @@ DEFINE_SERIALIZABLE(lobby_left_args,
     (user_id, int)
 )
 
-DEFINE_SERIALIZABLE(lobby_deleted_args,
-    (lobby_id, int)
-)
-
 DEFINE_SERIALIZABLE(lobby_chat_args,
     (user_id, int)
     (message, std::string)
@@ -79,7 +75,6 @@ DEFINE_ENUM_TYPES(server_message_type,
     (lobby_players, std::vector<lobby_player_data>)
     (lobby_joined, lobby_player_data)
     (lobby_left, lobby_left_args)
-    (lobby_deleted, lobby_deleted_args)
     (lobby_chat, lobby_chat_args)
     (game_started)
     (game_update, game_update)

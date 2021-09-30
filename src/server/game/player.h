@@ -36,12 +36,22 @@ namespace banggame {
         bool m_dead = false;
 
         int m_infinite_bangs = 0;
+        int m_calumets = 0;
+
         int m_bangs_played = 0;
         int m_bangs_per_turn = 1;
+
         int m_bang_strength = 1;
+        int m_beer_strength = 1;
+
         int m_character_usages = 0;
 
         int m_num_checks = 1;
+        int m_num_drawn_cards = 2;
+
+        std::vector<int> m_max_cards_mods;
+
+        bool m_has_drawn = false;
 
         explicit player(game *game) : m_game(game) {}
 
@@ -66,10 +76,18 @@ namespace banggame {
             return m_hand.size();
         }
 
+        int max_cards_end_of_turn() const {
+            return m_max_cards_mods.empty() ? m_hp : std::ranges::min(m_max_cards_mods);
+        }
+
         bool alive() const { return !m_dead; }
 
         void damage(player *source, int value);
         void heal(int value);
+
+        bool immune_to(const deck_card &c) {
+            return m_calumets > 0 && c.suit == card_suit_type::diamonds;
+        }
 
         bool can_play_bang() const {
             return m_infinite_bangs > 0 || m_bangs_played < m_bangs_per_turn;
@@ -104,6 +122,7 @@ namespace banggame {
         void play_card(const play_card_args &args);
         void respond_card(const play_card_args &args);
 
+        void draw_from_deck();
         void start_of_turn();
         void end_of_turn();
     };

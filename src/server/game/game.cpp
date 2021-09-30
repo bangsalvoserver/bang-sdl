@@ -205,14 +205,20 @@ namespace banggame {
         }
     }
 
+    void game::handle_action(enums::enum_constant<game_action_type::draw_from_deck>, player *p) {
+        if (m_responses.empty() && m_playing == p && !p->m_has_drawn) {
+            p->draw_from_deck();
+        }
+    }
+
     void game::handle_action(enums::enum_constant<game_action_type::pass_turn>, player *p) {
-        if (m_responses.empty() && m_playing == p) {
-            if (p->num_hand_cards() <= p->m_hp) {
-                next_turn();
-            } else {
-                for (int i=p->m_hp; i<p->num_hand_cards(); ++i) {
+        if (m_responses.empty() && m_playing == p && p->m_has_drawn) {
+            if (int n_discards = p->num_hand_cards() - p->max_cards_end_of_turn(); n_discards > 0) {
+                for (int i=0; i<n_discards; ++i) {
                     queue_response<response_type::discard>(nullptr, p);
                 }
+            } else {
+                next_turn();
             }
         }
     }

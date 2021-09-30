@@ -130,15 +130,16 @@ void game_manager::handle_message(enums::enum_constant<client_message_type::lobb
 void game_manager::client_disconnected(const sdlnet::ip_address &addr) {
     auto lobby_it = find_lobby(addr);
     if (lobby_it != m_lobbies.end()) {
-        if (lobby_it->users.size() == 1) {
+        auto player_it = lobby_it->users.find(addr);
+        broadcast_message<server_message_type::lobby_left>(*lobby_it, player_it->second.id);
+        lobby_it->users.erase(player_it);
+        if (lobby_it->users.empty()) {
             m_lobbies.erase(lobby_it);
         } else if (lobby_it->state == lobby_state::waiting && addr == lobby_it->owner) {
-            broadcast_message<server_message_type::lobby_deleted>(*lobby_it, lobby_it->id);
+            for (auto &u : lobby_it->users) {
+                broadcast_message<server_message_type::lobby_left>(*lobby_it, u.second.id);
+            }
             m_lobbies.erase(lobby_it);
-        } else {
-            auto player_it = lobby_it->users.find(addr);
-            broadcast_message<server_message_type::lobby_left>(*lobby_it, player_it->second.id);
-            lobby_it->users.erase(player_it);
         }
     }
 }

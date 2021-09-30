@@ -161,6 +161,7 @@ namespace banggame {
         void handle_action(enums::enum_constant<game_action_type::pick_card>, player *p, const pick_card_args &args);
         void handle_action(enums::enum_constant<game_action_type::play_card>, player *p, const play_card_args &args);
         void handle_action(enums::enum_constant<game_action_type::respond_card>, player *p, const play_card_args &args);
+        void handle_action(enums::enum_constant<game_action_type::draw_from_deck>, player *p);
         void handle_action(enums::enum_constant<game_action_type::pass_turn>, player *p);
         void handle_action(enums::enum_constant<game_action_type::resolve>, player *p);
     };

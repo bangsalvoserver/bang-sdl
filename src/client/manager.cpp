@@ -114,6 +114,7 @@ void game_manager::handle_message(enums::enum_constant<server_message_type::lobb
 }
 
 void game_manager::handle_message(enums::enum_constant<server_message_type::lobby_entered>, const lobby_entered_args &args) {
+    m_user_own_id = args.user_id;
     switch_scene<scene_type::lobby>()->init(args);
 }
 
@@ -124,13 +125,11 @@ void game_manager::handle_message(enums::enum_constant<server_message_type::lobb
 }
 
 void game_manager::handle_message(enums::enum_constant<server_message_type::lobby_left>, const lobby_left_args &args) {
-    if (auto *s = dynamic_cast<lobby_scene *>(m_scene)) {
+    if (args.user_id == m_user_own_id) {
+        switch_scene<scene_type::lobby_list>();
+    } else if (auto *s = dynamic_cast<lobby_scene *>(m_scene)) {
         s->remove_user(args);
     }
-}
-
-void game_manager::handle_message(enums::enum_constant<server_message_type::lobby_deleted>, const lobby_deleted_args &args) {
-    switch_scene<scene_type::lobby_list>();
 }
 
 void game_manager::handle_message(enums::enum_constant<server_message_type::lobby_chat>, const lobby_chat_args &args) {

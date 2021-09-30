@@ -43,6 +43,11 @@ namespace banggame {
 
         static constexpr int card_width = 70;
 
+        int id;
+        std::string name;
+        std::string image;
+        std::vector<card_target_data> targets;
+
         const SDL_Rect &get_rect() const {
             return m_rect;
         }
@@ -69,28 +74,18 @@ namespace banggame {
         bool known = false;
         bool inactive = false;
 
-        int id;
         card_pile_view *pile = nullptr;
 
-        std::string name;
-        std::string image;
         card_suit_type suit;
         card_value_type value;
         card_color_type color;
-        std::vector<card_target_data> targets;
 
         void make_texture_front();
         static void make_texture_back();
     };
 
     struct character_card : card_widget<character_card> {
-        int id;
-
-        std::string name;
-        std::string image;
-        
         character_type type;
-        std::vector<card_target_data> targets;
 
         void make_texture_front();
         static void make_texture_back();

@@ -50,7 +50,7 @@ namespace banggame {
 
     void effect_beer::on_play(player *origin, player *target) {
         if (target->m_game->num_alive() > 2) {
-            target->heal(1);
+            target->heal(target->m_beer_strength);
         }
     }
 
@@ -153,11 +153,33 @@ namespace banggame {
         target->add_to_hand(target->m_game->draw_from_discards());
     }
 
+    void effect_draw_rest::on_play(player *origin, player *target) {
+        for (int i=1; i<target->m_num_drawn_cards; ++i) {
+            target->add_to_hand(target->m_game->draw_card());
+        }
+    }
+
     void effect_horsecharm::on_equip(player *target, int card_id) {
         ++target->m_num_checks;
     }
 
     void effect_horsecharm::on_unequip(player *target, int card_id) {
         --target->m_num_checks;
+    }
+
+    void effect_pickaxe::on_equip(player *target, int card_id) {
+        ++target->m_num_drawn_cards;
+    }
+
+    void effect_pickaxe::on_unequip(player *target, int card_id) {
+        --target->m_num_drawn_cards;
+    }
+
+    void effect_calumet::on_equip(player *target, int card_id) {
+        ++target->m_calumets;
+    }
+
+    void effect_calumet::on_unequip(player *target, int card_id) {
+        --target->m_calumets;
     }
 }

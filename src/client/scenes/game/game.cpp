@@ -81,7 +81,7 @@ void game_scene::render(sdl::renderer &renderer) {
 
     renderer.set_draw_color(SDL_Color{0xff, 0x0, 0x0, 0xff});
     for (int id : m_highlights) {
-        renderer.draw_rect(get_card(id).get_rect());
+        renderer.draw_rect(get_card_widget(id).get_rect());
     }
 
     m_ui.render(renderer);
@@ -122,8 +122,12 @@ void game_scene::handle_card_click(const SDL_Point &mouse_pt) {
         return;
     }
     for (const auto &[player_id, p] : m_players) {
-        if (sdl::point_in_rect(mouse_pt, p.m_character.get_rect())) {
+        if (sdl::point_in_rect(mouse_pt, p.m_role.get_rect())) {
             on_click_player(player_id);
+            return;
+        }
+        if (sdl::point_in_rect(mouse_pt, p.m_character.get_rect())) {
+            on_click_character(player_id, p.m_character.id);
             return;
         }
         if (int card_id = find_clicked(p.table)) {
@@ -153,8 +157,8 @@ constexpr bool is_picking_response(response_type type) {
 };
 
 void game_scene::on_click_main_deck() {
-    if (m_current_response.target_id == m_player_own_id && is_picking_response(m_current_response.type)) {
-        add_action<game_action_type::pick_card>(card_pile_type::main_deck);
+    if (m_playing_id == m_player_own_id) {
+        add_action<game_action_type::draw_from_deck>();
     }
 }
 
@@ -222,7 +226,7 @@ void game_scene::on_click_hand_card(int player_id, int card_id) {
                 auto &c = get_card(card_id);
                 switch (c.color) {
                 case card_color_type::blue:
-                    if (!c.targets.empty() && (c.targets.front().target == target_type::none || c.targets.front().target == target_type::self)) {
+                    if (c.targets.front().target == target_type::none || c.targets.front().target == target_type::self) {
                         add_action<game_action_type::play_card>(card_id, std::vector{
                             play_card_target{enums::enum_constant<play_card_target_type::target_player>{},
                             std::vector{target_player_id{player_id}}}
@@ -246,6 +250,29 @@ void game_scene::on_click_hand_card(int player_id, int card_id) {
                     break;
                 }
             }
+        } else {
+            add_card_targets(false, std::vector{target_card_id{player_id, card_id, true}});
+        }
+    }
+}
+
+void game_scene::on_click_character(int player_id, int card_id) {
+    if (player_id != m_player_own_id) return;
+    if (card_id == m_play_card_args.card_id) {
+        clear_targets();
+    } else if (m_current_response.target_id == m_player_own_id && m_current_response.type != response_type::none) {
+        if (!is_picking_response(m_current_response.type) && m_play_card_args.card_id == 0) {
+            m_play_card_args.card_id = card_id;
+            m_highlights.push_back(card_id);
+            handle_auto_targets(true);
+        }
+    } else if (m_playing_id == m_player_own_id) {
+        if (m_play_card_args.card_id == 0) {
+            auto &c = get_player(player_id).m_character;
+            if (c.type == character_type::none) return;
+            m_play_card_args.card_id = card_id;
+            m_highlights.push_back(card_id);
+            handle_auto_targets(false);
         } else {
             add_card_targets(false, std::vector{target_card_id{player_id, card_id, true}});
         }
@@ -306,15 +333,15 @@ void game_scene::handle_auto_targets(bool is_response) {
         }
     };
 
-    auto &c = get_card(m_play_card_args.card_id);
-    if (!c.targets.empty() && c.targets.front().target == target_type::response && !is_response) {
+    auto &targets = get_card_widget(m_play_card_args.card_id).targets;
+    if (targets.front().target == target_type::response && !is_response) {
         clear_targets();
     } else {
-        auto target_it = c.targets.begin() + m_play_card_args.targets.size();
-        for (; target_it != c.targets.end(); ++target_it) {
+        auto target_it = targets.begin() + m_play_card_args.targets.size();
+        for (; target_it != targets.end(); ++target_it) {
             if (!do_handle_target(target_it->target)) break;
         }
-        if (target_it == c.targets.end()) {
+        if (target_it == targets.end()) {
             if (is_response) {
                 add_action<game_action_type::respond_card>(m_play_card_args);
             } else {
@@ -339,8 +366,8 @@ void game_scene::add_card_targets(bool is_response, const std::vector<target_car
         }
     };
 
-    auto &c = get_card(m_play_card_args.card_id);
-    if (!m_play_card_args.targets.empty() && c.targets[m_play_card_args.targets.size()-1].target == target_type::othercards) {
+    auto &card_targets = get_card_widget(m_play_card_args.card_id).targets;
+    if (!m_play_card_args.targets.empty() && card_targets[m_play_card_args.targets.size()-1].target == target_type::othercards) {
         if (targets.front().player_id != m_playing_id) {
             auto &l = m_play_card_args.targets.back().get<play_card_target_type::target_card>();
             if (std::ranges::find(l, targets.front().player_id, &target_card_id::player_id) == l.end()) {
@@ -350,7 +377,7 @@ void game_scene::add_card_targets(bool is_response, const std::vector<target_car
             }
         }
     } else {
-        auto &cur_target = c.targets[m_play_card_args.targets.size()];
+        auto &cur_target = card_targets[m_play_card_args.targets.size()];
         auto verify_target = [&](target_type type) {
             const auto &tgt = targets.front();
             switch (type) {
@@ -382,8 +409,8 @@ void game_scene::add_card_targets(bool is_response, const std::vector<target_car
 }
 
 void game_scene::add_player_targets(bool is_response, const std::vector<target_player_id> &targets) {
-    auto &c = get_card(m_play_card_args.card_id);
-    auto &cur_target = c.targets[m_play_card_args.targets.size()];
+    auto &card_targets = get_card_widget(m_play_card_args.card_id).targets;
+    auto &cur_target = card_targets[m_play_card_args.targets.size()];
     switch (cur_target.target) {
     case target_type::notself:
     case target_type::notsheriff:
@@ -600,6 +627,7 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::player_cha
     p.m_character.name = args.name;
     p.m_character.image = args.image;
     p.m_character.targets = args.targets;
+    p.m_character.type = args.type;
 
     p.hp = args.max_hp;
     p.set_hp_marker_position(args.max_hp);
@@ -628,6 +656,10 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::player_sho
 void game_scene::handle_update(enums::enum_constant<game_update_type::switch_turn>, const switch_turn_update &args) {
     m_playing_id = args.player_id;
     clear_targets();
+
+    if (m_playing_id == m_player_own_id) {
+        m_ui.add_message(message_line::game, "Your turn");
+    }
 
     pop_update();
 }

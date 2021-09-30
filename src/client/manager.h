@@ -63,7 +63,6 @@ private:
     void handle_message(enums::enum_constant<server_message_type::lobby_players>, const std::vector<lobby_player_data> &args);
     void handle_message(enums::enum_constant<server_message_type::lobby_joined>, const lobby_player_data &args);
     void handle_message(enums::enum_constant<server_message_type::lobby_left>, const lobby_left_args &args);
-    void handle_message(enums::enum_constant<server_message_type::lobby_deleted>,const lobby_deleted_args &args);
     void handle_message(enums::enum_constant<server_message_type::lobby_chat>, const lobby_chat_args &args);
     void handle_message(enums::enum_constant<server_message_type::game_started>);
     void handle_message(enums::enum_constant<server_message_type::game_update>, const banggame::game_update &args);
@@ -77,6 +76,8 @@ private:
 
     int m_width;
     int m_height;
+
+    int m_user_own_id = 0;
 };
 
 #endif

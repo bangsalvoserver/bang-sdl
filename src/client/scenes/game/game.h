@@ -70,6 +70,7 @@ namespace banggame {
         void on_click_temp_table_card(int card_id);
         void on_click_table_card(int player_id, int card_id);
         void on_click_hand_card(int player_id, int card_id);
+        void on_click_character(int player_id, int card_id);
         void on_click_player(int player_id);
 
         void handle_auto_targets(bool is_response);
@@ -92,8 +93,20 @@ namespace banggame {
 
         card_view &get_card(int id) {
             auto it = m_cards.find(id);
-            if (it == m_cards.end()) throw std::runtime_error("ID Carta non trovato");
+            if (it == m_cards.end()) throw std::runtime_error("ID carta non trovato");
             return it->second;
+        }
+
+        card_widget_base &get_card_widget(int id) {
+            if (auto it = m_cards.find(id); it != m_cards.end()) {
+                return it->second;
+            } else if (auto it = std::ranges::find(m_players, id, [](const decltype(m_players)::value_type &pair) {
+                return pair.second.m_character.id;
+            }); it != m_players.end()) {
+                return it->second.m_character;
+            } else {
+                throw std::runtime_error("ID carta non trovato");
+            }
         }
 
         player_view &get_player(int id) {

@@ -61,6 +61,7 @@ namespace banggame {
         (max_hp, int)
         (name, std::string)
         (image, std::string)
+        (type, character_type)
         (targets, std::vector<card_target_data>)
     )
 

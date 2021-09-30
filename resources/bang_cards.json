@@ -1711,7 +1711,7 @@
                 },
                 {
                     "target": "self",
-                    "class": "draw"
+                    "class": "draw_rest"
                 }
             ]
         },
@@ -1771,6 +1771,10 @@
                 {
                     "target": "self",
                     "class": "draw_discard"
+                },
+                {
+                    "target": "self",
+                    "class": "draw_rest"
                 }
             ]
         },
@@ -2053,19 +2057,9 @@
             "image": "03_pixie_pete",
             "hp": 3,
             "expansion": "dodgecity",
-            "type": "drawing_forced",
             "effects": [
                 {
-                    "target": "self",
-                    "class": "draw"
-                },
-                {
-                    "target": "self",
-                    "class": "draw"
-                },
-                {
-                    "target": "self",
-                    "class": "draw"
+                    "class": "pickaxe"
                 }
             ]
         },
