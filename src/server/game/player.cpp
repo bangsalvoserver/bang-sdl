@@ -8,13 +8,13 @@
 
 namespace banggame {
     constexpr auto is_weapon = [](const deck_card &c) {
-        return !c.effects.empty() && c.effects.front().is<effect_weapon>();
+        return c.effects.front().is<effect_weapon>();
     };
 
     void player::discard_weapon() {
         auto it = std::ranges::find_if(m_table, is_weapon);
         if (it != m_table.end()) {
-            auto &moved = get_game()->add_to_discards(std::move(*it));
+            auto &moved = m_game->add_to_discards(std::move(*it));
             for (auto &e : moved.effects) {
                 e->on_unequip(this, moved.id);
             }
@@ -27,24 +27,40 @@ namespace banggame {
             e->on_equip(this, target.id);
         }
         auto &moved = m_table.emplace_back(std::move(target));
-        get_game()->add_show_card(moved);
-        get_game()->add_public_update<game_update_type::move_card>(moved.id, id, card_pile_type::player_table);
+        m_game->add_show_card(moved);
+        m_game->add_public_update<game_update_type::move_card>(moved.id, id, card_pile_type::player_table);
     }
 
     bool player::has_card_equipped(const std::string &name) const {
         return std::ranges::find(m_table, name, &deck_card::name) != m_table.end();
     }
 
-    deck_card &player::get_hand_card(int card_id) {
-        auto it = std::ranges::find(m_hand, card_id, &deck_card::id);
-        if (it == m_hand.end()) throw game_error("ID non trovato");
-        return *it;
+    deck_card &player::find_hand_card(int card_id) {
+        if (auto it = std::ranges::find(m_hand, card_id, &deck_card::id); it != m_hand.end()) {
+            return *it;
+        } else {
+            throw game_error("ID non trovato");
+        }
     }
 
-    deck_card &player::get_table_card(int card_id) {
-        auto it = std::ranges::find(m_table, card_id, &deck_card::id);
-        if (it == m_table.end()) throw game_error("ID non trovato");
-        return *it;
+    deck_card &player::find_table_card(int card_id) {
+        if (auto it = std::ranges::find(m_table, card_id, &deck_card::id); it != m_table.end()) {
+            return *it;
+        } else {
+            throw game_error("ID non trovato");
+        }
+    }
+
+    card &player::find_any_card(int card_id) {
+        if (card_id == m_character.id) {
+            return m_character;
+        } else if (auto it = std::ranges::find(m_hand, card_id, &deck_card::id); it != m_hand.end()) {
+            return *it;
+        } else if (auto it = std::ranges::find(m_table, card_id, &deck_card::id); it != m_table.end()) {
+            return *it;
+        } else {
+            throw game_error("ID non trovato");
+        }
     }
 
     deck_card player::get_card_removed(int card_id) {
@@ -58,7 +74,7 @@ namespace banggame {
         } else {
             if (it->inactive) {
                 it->inactive = false;
-                get_game()->add_public_update<game_update_type::tap_card>(it->id, false);
+                m_game->add_public_update<game_update_type::tap_card>(it->id, false);
             }
             c = std::move(*it);
             for (auto &e : c.effects) {
@@ -70,60 +86,68 @@ namespace banggame {
     }
 
     deck_card &player::discard_card(int card_id) {
-        return get_game()->add_to_discards(get_card_removed(card_id));
+        return m_game->add_to_discards(get_card_removed(card_id));
     }
 
     void player::steal_card(player *target, int card_id) {
         auto &moved = m_hand.emplace_back(target->get_card_removed(card_id));
-        get_game()->add_show_card(moved, this);
-        get_game()->add_public_update<game_update_type::move_card>(card_id, id, card_pile_type::player_hand);
+        m_game->add_show_card(moved, this);
+        m_game->add_public_update<game_update_type::move_card>(card_id, id, card_pile_type::player_hand);
     }
 
     void player::damage(player *source, int value) {
         m_hp -= value;
-        get_game()->add_public_update<game_update_type::player_hp>(id, m_hp);
+        m_game->add_public_update<game_update_type::player_hp>(id, m_hp);
         if (m_hp <= 0) {
-            get_game()->add_response<response_type::death>(source, this);
+            m_game->add_response<response_type::death>(source, this);
         }
     }
 
     void player::heal(int value) {
         m_hp = std::min(m_hp + value, m_max_hp);
-        get_game()->add_public_update<game_update_type::player_hp>(id, m_hp);
+        m_game->add_public_update<game_update_type::player_hp>(id, m_hp);
     }
 
     void player::add_to_hand(deck_card &&target) {
         const auto &c = m_hand.emplace_back(std::move(target));
-        get_game()->add_show_card(c, this);
-        get_game()->add_public_update<game_update_type::move_card>(c.id, id, card_pile_type::player_hand);
+        m_game->add_show_card(c, this);
+        m_game->add_public_update<game_update_type::move_card>(c.id, id, card_pile_type::player_hand);
     }
 
-    bool player::verify_card_targets(const deck_card &c, const std::vector<play_card_target> &targets) {
+    bool player::verify_equip_target(const card &c, const std::vector<play_card_target> &targets) {
         auto in_range = [this](int player_id, int distance) {
-            return distance == 0 || get_game()->calc_distance(this, get_game()->get_player(player_id)) <= distance;
+            return distance == 0 || m_game->calc_distance(this, m_game->get_player(player_id)) <= distance;
         };
-        if (c.color == card_color_type::blue) {
-            if (c.effects.empty() || targets.size() != 1) return false;
-            if (targets.front().enum_index() != play_card_target_type::target_player) return false;
-            const auto &tgts = targets.front().get<play_card_target_type::target_player>();
-            if (tgts.size() != 1) return false;
-            switch (c.effects.front()->target) {
-            case target_type::none:
-            case target_type::self:
-                return tgts.front().player_id == id;
-            case target_type::notself:
-                return tgts.front().player_id != id && in_range(tgts.front().player_id, c.effects.front()->maxdistance);
-            case target_type::notsheriff:
-                return get_game()->get_player(tgts.front().player_id)->role() != player_role::sheriff
-                    && in_range(tgts.front().player_id, c.effects.front()->maxdistance);
-            case target_type::reachable:
-                return tgts.front().player_id != id && in_range(tgts.front().player_id, m_weapon_range);
-            case target_type::anyone:
-                return true;
-            default:
-                return false;
-            }
+        if (targets.size() != 1) return false;
+        if (targets.front().enum_index() != play_card_target_type::target_player) return false;
+        const auto &tgts = targets.front().get<play_card_target_type::target_player>();
+        if (tgts.size() != 1) return false;
+        switch (c.effects.front()->target) {
+        case target_type::none:
+        case target_type::self:
+            return tgts.front().player_id == id;
+        case target_type::notself:
+            return tgts.front().player_id != id && in_range(tgts.front().player_id, c.effects.front()->maxdistance);
+        case target_type::notsheriff:
+            return m_game->get_player(tgts.front().player_id)->m_role != player_role::sheriff
+                && in_range(tgts.front().player_id, c.effects.front()->maxdistance);
+        case target_type::reachable:
+            return tgts.front().player_id != id && in_range(tgts.front().player_id, m_weapon_range);
+        case target_type::anyone:
+            return true;
+        default:
+            return false;
         }
+    }
+
+    bool player::verify_card_targets(const card &c, const std::vector<play_card_target> &targets) {
+        if (!std::ranges::all_of(c.effects, [this](const effect_holder &e) {
+            return e->can_play(this);
+        })) return false;
+
+        auto in_range = [this](int player_id, int distance) {
+            return distance == 0 || m_game->calc_distance(this, m_game->get_player(player_id)) <= distance;
+        };
         if (c.effects.size() != targets.size()) return false;
         return std::ranges::all_of(c.effects, [&, it = targets.begin()] (const effect_holder &e) mutable {
             return enums::visit(util::overloaded{
@@ -141,7 +165,7 @@ namespace banggame {
                         std::vector<target_player_id> ids;
                         for (auto *p = this;;) {
                             ids.emplace_back(p->id);
-                            p = get_game()->get_next_player(p);
+                            p = m_game->get_next_player(p);
                             if (p == this) break;
                         }
                         return std::ranges::equal(args, ids, {}, &target_player_id::player_id, &target_player_id::player_id);
@@ -149,14 +173,14 @@ namespace banggame {
                     case target_type::others: {
                         std::vector<target_player_id> ids;
                         for (auto *p = this;;) {
-                            p = get_game()->get_next_player(p);
+                            p = m_game->get_next_player(p);
                             if (p == this) break;
                             ids.emplace_back(p->id);
                         }
                         return std::ranges::equal(args, ids, {}, &target_player_id::player_id, &target_player_id::player_id);
                     }
                     case target_type::notsheriff:
-                        return args.size() == 1 && get_game()->get_player(args.front().player_id)->role() != player_role::sheriff
+                        return args.size() == 1 && m_game->get_player(args.front().player_id)->m_role != player_role::sheriff
                             && in_range(args.front().player_id, c.effects.front()->maxdistance);
                     case target_type::reachable:
                         return args.size() == 1 && args.front().player_id != id && in_range(args.front().player_id, m_weapon_range);
@@ -172,17 +196,17 @@ namespace banggame {
                         return !in_range(player_id, e->maxdistance);
                     }, &target_card_id::player_id)) return false;
                     if (std::ranges::any_of(args, [&](const target_card_id &arg) {
-                        return arg.from_hand && get_game()->get_player(arg.player_id)->is_hand_empty();
+                        return arg.from_hand && m_game->get_player(arg.player_id)->is_hand_empty();
                     })) return false;
                     if (e->target == target_type::othercards) {
-                        if (!std::ranges::all_of(get_game()->m_players | std::views::filter(&player::alive), [&](int player_id) {
+                        if (!std::ranges::all_of(m_game->m_players | std::views::filter(&player::alive), [&](int player_id) {
                             bool found = std::ranges::find(args, player_id, &target_card_id::player_id) != args.end();
                             return (player_id == id) != found;
                         }, &player::id)) return false;
                         return std::ranges::all_of(args, [&](const target_card_id &arg) {
                             if (arg.player_id == id) return false;
                             if (arg.from_hand) return true;
-                            auto &l = get_game()->get_player(arg.player_id)->m_table;
+                            auto &l = m_game->get_player(arg.player_id)->m_table;
                             return std::ranges::find(l, arg.card_id, &deck_card::id) != l.end();
                         });
                     } else if (args.size() == 1) {
@@ -194,7 +218,7 @@ namespace banggame {
                         case target_type::other_hand_card: return tgt.from_hand && tgt.player_id != id;
                         case target_type::selfhand: return tgt.from_hand && tgt.player_id == id;
                         case target_type::selfhand_blue: return tgt.from_hand && tgt.player_id == id
-                            && get_hand_card(tgt.card_id).color == card_color_type::blue;
+                            && find_hand_card(tgt.card_id).color == card_color_type::blue;
                         default:
                             return false;
                         }
@@ -206,21 +230,40 @@ namespace banggame {
         });
     }
 
-    void player::do_play_card(deck_card &c, const std::vector<play_card_target> &targets) {
+    void player::do_play_card(int card_id, const std::vector<play_card_target> &targets) {
+        card *card_ptr = nullptr;
+        if (card_id == m_character.id) {
+            card_ptr = &m_character;
+        } else if (auto it = std::ranges::find(m_hand, card_id, &deck_card::id); it != m_hand.end()) {
+            deck_card removed = std::move(*it);
+            m_hand.erase(it);
+            card_ptr = &m_game->add_to_discards(std::move(removed));
+        } else if (auto it = std::ranges::find(m_table, card_id, &deck_card::id); it != m_table.end()) {
+            if (it->color == card_color_type::blue) {
+                card_ptr = &*it;
+            } else {
+                deck_card removed = std::move(*it);
+                m_table.erase(it);
+                card_ptr = &m_game->add_to_discards(std::move(removed));
+            }
+        } else {
+            throw game_error("ID non trovato");
+        }
+        
         auto effect_it = targets.begin();
-        for (auto &e : c.effects) {
+        for (auto &e : card_ptr->effects) {
             enums::visit(util::overloaded{
                 [&](enums::enum_constant<play_card_target_type::target_none>) {
                     e->on_play(this);
                 },
                 [&](enums::enum_constant<play_card_target_type::target_player>, const std::vector<target_player_id> &args) {
                     for (const auto &target : args) {
-                        e->on_play(this, get_game()->get_player(target.player_id));
+                        e->on_play(this, m_game->get_player(target.player_id));
                     }
                 },
                 [&](enums::enum_constant<play_card_target_type::target_card>, const std::vector<target_card_id> &args) {
                     for (const auto &target : args) {
-                        e->on_play(this, get_game()->get_player(target.player_id), target.card_id);
+                        e->on_play(this, m_game->get_player(target.player_id), target.card_id);
                     }
                 }
             }, *effect_it++);
@@ -228,43 +271,29 @@ namespace banggame {
     }
 
     void player::play_card(const play_card_args &args) {
-        auto card_it = std::ranges::find(m_hand, args.card_id, &deck_card::id);
-        if (card_it == m_hand.end()) {
-            card_it = std::ranges::find(m_table, args.card_id, &deck_card::id);
-            if (card_it == m_table.end()) return;
-            switch (card_it->color) {
-            case card_color_type::green:
-                if (!card_it->inactive) {
-                    if (verify_card_targets(*card_it, args.targets)) {
-                        deck_card removed = std::move(*card_it);
-                        m_table.erase(card_it);
-                        do_play_card(get_game()->add_to_discards(std::move(removed)), args.targets);
+        if (args.card_id == m_character.id) {
+            if (m_character.type == character_type::active) {
+                if (m_character.usages == 0 || m_character_usages < m_character_usages) {
+                    if (verify_card_targets(m_character, args.targets)) {
+                        do_play_card(args.card_id, args.targets);
+                        ++m_character_usages;
                     } else {
                         throw game_error("Target non validi");
                     }
                 }
-                break;
-            default:
-                throw game_error("Carta giocata non valida");
             }
-        } else {
+        } else if (auto card_it = std::ranges::find(m_hand, args.card_id, &deck_card::id); card_it != m_hand.end()) {
             switch (card_it->color) {
             case card_color_type::brown:
                 if (verify_card_targets(*card_it, args.targets)) {
-                    if (std::ranges::all_of(card_it->effects, [this](effect_holder &e) {
-                        return e->can_play(this);
-                    })) {
-                        deck_card removed = std::move(*card_it);
-                        m_hand.erase(card_it);
-                        do_play_card(get_game()->add_to_discards(std::move(removed)), args.targets);
-                    }
+                    do_play_card(args.card_id, args.targets);
                 } else {
                     throw game_error("Target non validi");
                 }
                 break;
             case card_color_type::blue:
-                if (verify_card_targets(*card_it, args.targets)) {
-                    auto *target = get_game()->get_player(
+                if (verify_equip_target(*card_it, args.targets)) {
+                    auto *target = m_game->get_player(
                         args.targets.front().get<play_card_target_type::target_player>().front().player_id);
                     if (!target->has_card_equipped(card_it->name)) {
                         deck_card removed = std::move(*card_it);
@@ -283,67 +312,87 @@ namespace banggame {
                     deck_card removed = std::move(*card_it);
                     m_hand.erase(card_it);
                     equip_card(std::move(removed));
-                    get_game()->add_public_update<game_update_type::tap_card>(removed.id, true);
+                    m_game->add_public_update<game_update_type::tap_card>(removed.id, true);
                 } else {
                     throw game_error("Carte duplicate");
                 }
                 break;
             }
-        }
-    }
-    
-    void player::respond_card(const play_card_args &args) {
-        auto *resp = get_game()->top_response().as<card_response>();
-        if (!resp) return;
-
-        auto card_it = std::ranges::find(m_hand, args.card_id, &deck_card::id);
-        if (card_it == m_hand.end()) {
-            card_it = std::ranges::find(m_table, args.card_id, &deck_card::id);
-            if (card_it == m_table.end()) return;
+        } else if (auto card_it = std::ranges::find(m_table, args.card_id, &deck_card::id); card_it != m_table.end()) {
             switch (card_it->color) {
             case card_color_type::green:
                 if (!card_it->inactive) {
                     if (verify_card_targets(*card_it, args.targets)) {
-                        if (resp->on_respond(&*card_it)) {
-                            deck_card removed = std::move(*card_it);
-                            m_table.erase(card_it);
-                            do_play_card(get_game()->add_to_discards(std::move(removed)), args.targets);
-                        }
+                        do_play_card(args.card_id, args.targets);
+                    } else {
+                        throw game_error("Target non validi");
+                    }
+                }
+                break;
+            default:
+                throw game_error("Carta giocata non valida");
+            }
+        } else {
+            throw game_error("ID carta non trovato");
+        }
+    }
+    
+    void player::respond_card(const play_card_args &args) {
+        auto *resp = m_game->top_response().as<card_response>();
+        if (!resp) return;
+
+        if (m_character.id == args.card_id) {
+            if (verify_card_targets(m_character, args.targets)) {
+                resp->on_respond(args);
+            } else {
+                throw game_error("Target non validi");
+            }
+        } else if (auto card_it = std::ranges::find(m_hand, args.card_id, &deck_card::id); card_it != m_hand.end()) {
+            switch (card_it->color) {
+            case card_color_type::brown:
+                if (verify_card_targets(*card_it, args.targets)) {
+                    resp->on_respond(args);
+                } else {
+                    throw game_error("Target non validi");
+                }
+                break;
+            default:
+                throw game_error("Carta giocata non valida");
+            }
+        } else if (auto card_it = std::ranges::find(m_table, args.card_id, &deck_card::id); card_it != m_table.end()) {
+            switch (card_it->color) {
+            case card_color_type::green:
+                if (!card_it->inactive) {
+                    if (verify_card_targets(*card_it, args.targets)) {
+                        resp->on_respond(args);
                     } else {
                         throw game_error("Target non validi");
                     }
                 }
                 break;
             case card_color_type::blue:
-                resp->on_respond(&*card_it);
+                resp->on_respond(args);
                 break;
             default:
                 throw game_error("Carta giocata non valida");
             }
-        } else if (card_it->color == card_color_type::brown) {
-            if (verify_card_targets(*card_it, args.targets)) {
-                if (resp->on_respond(&*card_it)) {
-                    deck_card removed = std::move(*card_it);
-                    m_hand.erase(card_it);
-                    do_play_card(get_game()->add_to_discards(std::move(removed)), args.targets);
-                }
-            } else {
-                throw game_error("Target non validi");
-            }
+        } else {
+            throw game_error("ID carta non trovato");
         }
     }
 
     void player::start_of_turn() {
-        get_game()->add_public_update<game_update_type::switch_turn>(id);
+        m_game->add_public_update<game_update_type::switch_turn>(id);
 
         m_bangs_played = 0;
         m_bangs_per_turn = 1;
+        m_character_usages = 0;
 
         m_pending_predraw_checks = m_predraw_checks;
         if (m_pending_predraw_checks.empty()) {
-            get_game()->queue_response<response_type::draw>(nullptr, this);
+            m_game->queue_response<response_type::draw>(nullptr, this);
         } else {
-            get_game()->queue_response<response_type::predraw>(nullptr, this);
+            m_game->queue_response<response_type::predraw>(nullptr, this);
         }
     }
 
@@ -352,9 +401,9 @@ namespace banggame {
             m_pending_predraw_checks.erase(std::ranges::find(m_pending_predraw_checks, card_id, &predraw_check_t::card_id));
 
             if (m_pending_predraw_checks.empty()) {
-                get_game()->queue_response<response_type::draw>(nullptr, this);
+                m_game->queue_response<response_type::draw>(nullptr, this);
             } else {
-                get_game()->queue_response<response_type::predraw>(nullptr, this);
+                m_game->queue_response<response_type::predraw>(nullptr, this);
             }
         }
     }
@@ -363,7 +412,7 @@ namespace banggame {
         for (auto &c : m_table) {
             if (c.inactive) {
                 c.inactive = false;
-                get_game()->add_public_update<game_update_type::tap_card>(c.id, false);
+                m_game->add_public_update<game_update_type::tap_card>(c.id, false);
             }
         }
         m_pending_predraw_checks.clear();
@@ -371,10 +420,10 @@ namespace banggame {
 
     void player::discard_all() {
         for (deck_card &c : m_table) {
-            get_game()->add_to_discards(std::move(c));
+            m_game->add_to_discards(std::move(c));
         }
         for (deck_card &c : m_hand) {
-            get_game()->add_to_discards(std::move(c));
+            m_game->add_to_discards(std::move(c));
         }
     }
 
@@ -390,7 +439,7 @@ namespace banggame {
 
         if (m_character.type == character_type::none) {
             for (auto &e : m_character.effects) {
-                e->on_equip(this, 0);
+                e->on_equip(this, m_character.id);
             }
         }
 
@@ -403,12 +452,12 @@ namespace banggame {
         for (const auto &e : c.effects) {
             obj.targets.emplace_back(e->target, e->maxdistance);
         }
-        get_game()->add_public_update<game_update_type::player_character>(std::move(obj));
+        m_game->add_public_update<game_update_type::player_character>(std::move(obj));
 
         if (role == player_role::sheriff) {
-            get_game()->add_public_update<game_update_type::player_show_role>(id, m_role);
+            m_game->add_public_update<game_update_type::player_show_role>(id, m_role);
         } else {
-            get_game()->add_private_update<game_update_type::player_show_role>(this, id, m_role);
+            m_game->add_private_update<game_update_type::player_show_role>(this, id, m_role);
         }
     }
 }

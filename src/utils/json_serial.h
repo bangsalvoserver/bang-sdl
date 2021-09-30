@@ -1,5 +1,5 @@
 #ifndef __JSON_SERIAL_H__
-#define __JSON_SERIAL_H_
+#define __JSON_SERIAL_H__
 
 #include "enum_variant.h"
 

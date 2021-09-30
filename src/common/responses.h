@@ -2,8 +2,7 @@
 #define __RESPONSES_H__
 
 #include "card_effect.h"
-
-#include <any>
+#include "game_action.h"
 
 namespace banggame {
     struct response_effect {
@@ -53,10 +52,8 @@ namespace banggame {
         virtual void on_resolve() override;
     };
 
-    struct card;
-
     struct card_response : response_effect {
-        virtual bool on_respond(card *target_card) = 0;
+        virtual void on_respond(const play_card_args &args) = 0;
     };
 
     struct response_bang_data {
@@ -73,13 +70,13 @@ namespace banggame {
             return reinterpret_cast<response_bang_data *>(data);
         }
 
-        virtual bool on_respond(card *target_card) override;
+        virtual void on_respond(const play_card_args &args) override;
         virtual void on_resolve() override;
         void handle_missed();
     };
 
     struct response_death : card_response {
-        virtual bool on_respond(card *target_card) override;
+        virtual void on_respond(const play_card_args &args) override;
         virtual void on_resolve() override;
     };
 

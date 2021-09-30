@@ -18,7 +18,7 @@ namespace banggame {
         virtual void on_equip(player *target, int card_id) { }
         virtual void on_unequip(player *target, int card_id) { }
 
-        virtual bool can_play(player *target) { return true; }
+        virtual bool can_play(player *target) const { return true; }
         virtual void on_play(player *origin) { }
         virtual void on_play(player *origin, player *target) { }
         virtual void on_play(player *origin, player *target, int card_id) { }

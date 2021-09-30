@@ -10,7 +10,7 @@
 #include "card.h"
 #include "player.h"
 
-#include "common/update_enums.h"
+#include "common/game_update.h"
 #include "common/responses.h"
 
 namespace banggame {
@@ -143,7 +143,7 @@ namespace banggame {
             int d1=0, d2=0;
             for (player *counter = from; counter != to; counter = get_next_player(counter), ++d1);
             for (player *counter = to; counter != from; counter = get_next_player(counter), ++d2);
-            return std::min(d1, d2) + to->get_distance() - from->get_range();
+            return std::min(d1, d2) + to->m_distance_mod - from->m_range_mod;
         }
 
         void next_turn() {

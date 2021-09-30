@@ -1,7 +1,7 @@
 #ifndef __NET_ENUMS_H__
 #define __NET_ENUMS_H__
 
-#include "update_enums.h"
+#include "game_update.h"
 
 DEFINE_SERIALIZABLE(game_error,
     (message, std::string)

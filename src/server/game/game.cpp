@@ -79,12 +79,12 @@ namespace banggame {
         shuffle_cards_and_ids(m_deck, rng);
 
         for (auto &p : m_players) {
-            for (int i=0; i<p.get_hp(); ++i) {
+            for (int i=0; i<p.m_hp; ++i) {
                 p.add_to_hand(draw_card());
             }
         }
 
-        m_playing = &*std::ranges::find(m_players, player_role::sheriff, &player::role);
+        m_playing = &*std::ranges::find(m_players, player_role::sheriff, &player::m_role);
         m_playing->start_of_turn();
     }
 
@@ -118,12 +118,12 @@ namespace banggame {
     }
 
     void game::draw_check_then(player *p, draw_check_function &&fun) {
-        if (p->get_num_checks() == 1) {
+        if (p->m_num_checks == 1) {
             auto &moved = add_to_discards(draw_card());
             fun(moved.suit, moved.value);
         } else {
             m_pending_checks.push_back(std::move(fun));
-            for (int i=0; i<p->get_num_checks(); ++i) {
+            for (int i=0; i<p->m_num_checks; ++i) {
                 add_to_temps(draw_card());
             }
             add_response<response_type::check>(nullptr, p);
@@ -142,13 +142,13 @@ namespace banggame {
     }
 
     void game::player_death(player *killer, player *target) {
-        target->set_dead(true);
+        target->m_dead = true;
         target->discard_all();
-        add_public_update<game_update_type::player_show_role>(target->id, target->role());
+        add_public_update<game_update_type::player_show_role>(target->id, target->m_role);
         bool game_over = false;
-        if (target->role() == player_role::sheriff) {
+        if (target->m_role == player_role::sheriff) {
             if (num_alive() == 1 && std::ranges::all_of(m_players | std::views::filter(&player::alive),
-            [](player_role role) { return role == player_role::renegade; }, &player::role)) {
+            [](player_role role) { return role == player_role::renegade; }, &player::m_role)) {
                 add_public_update<game_update_type::game_over>(player_role::renegade);
             } else {
                 add_public_update<game_update_type::game_over>(player_role::outlaw);
@@ -157,26 +157,26 @@ namespace banggame {
         } else if (std::ranges::all_of(m_players | std::views::filter(&player::alive),
         [](player_role role) {
             return role == player_role::sheriff || role == player_role::sheriff;
-        }, &player::role)) {
+        }, &player::m_role)) {
             add_public_update<game_update_type::game_over>(player_role::sheriff);
             game_over = true;
         }
         if (game_over) {
             for (const auto &p : m_players | std::views::filter(&player::alive)) {
-                add_public_update<game_update_type::player_show_role>(p.id, p.role());
+                add_public_update<game_update_type::player_show_role>(p.id, p.m_role);
             }
         } else {
             if (m_playing == target) {
                 next_turn();
             } else if (m_playing == killer) {
-                switch (target->role()) {
+                switch (target->m_role) {
                 case player_role::outlaw:
-                    killer->add_to_hand(target->get_game()->draw_card());
-                    killer->add_to_hand(target->get_game()->draw_card());
-                    killer->add_to_hand(target->get_game()->draw_card());
+                    killer->add_to_hand(target->m_game->draw_card());
+                    killer->add_to_hand(target->m_game->draw_card());
+                    killer->add_to_hand(target->m_game->draw_card());
                     break;
                 case player_role::deputy:
-                    if (killer->role() == player_role::sheriff) {
+                    if (killer->m_role == player_role::sheriff) {
                         killer->discard_all();
                     }
                     break;
@@ -207,10 +207,10 @@ namespace banggame {
 
     void game::handle_action(enums::enum_constant<game_action_type::pass_turn>, player *p) {
         if (m_responses.empty() && m_playing == p) {
-            if (p->num_hand_cards() <= p->get_hp()) {
+            if (p->num_hand_cards() <= p->m_hp) {
                 next_turn();
             } else {
-                for (int i=p->get_hp(); i<p->num_hand_cards(); ++i) {
+                for (int i=p->m_hp; i<p->num_hand_cards(); ++i) {
                     queue_response<response_type::discard>(nullptr, p);
                 }
             }

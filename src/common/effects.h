@@ -10,7 +10,7 @@ namespace banggame {
     };
 
     struct effect_bangcard : card_effect {
-        virtual bool can_play(player *target) override;
+        virtual bool can_play(player *target) const override;
         virtual void on_play(player *origin, player *target) override;
     };
 
@@ -35,7 +35,7 @@ namespace banggame {
     };
 
     struct effect_damage : card_effect {
-        virtual bool can_play(player *target) override;
+        virtual bool can_play(player *target) const override;
         virtual void on_play(player *origin, player *target) override;
     };
 
@@ -52,7 +52,7 @@ namespace banggame {
     };
 
     struct effect_draw_discard : card_effect {
-        virtual bool can_play(player *target) override;
+        virtual bool can_play(player *target) const override;
         virtual void on_play(player *origin, player *target) override;
     };
 

@@ -6,7 +6,7 @@
 
 #include "common/card_effect.h"
 #include "common/card_enums.h"
-#include "common/update_enums.h"
+#include "common/game_update.h"
 
 namespace banggame {
 
@@ -27,6 +27,7 @@ namespace banggame {
 
     struct character : card {
         character_type type = character_type::none;
+        int usages = 0;
         int max_hp;
     };
 

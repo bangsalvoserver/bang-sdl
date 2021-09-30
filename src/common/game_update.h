@@ -1,5 +1,5 @@
-#ifndef __UPDATE_ENUMS_H__
-#define __UPDATE_ENUMS_H__
+#ifndef __GAME_UPDATE_H__
+#define __GAME_UPDATE_H__
 
 #include "card_enums.h"
 #include "responses.h"
@@ -98,43 +98,6 @@ namespace banggame {
     )
 
     using game_update = enums::enum_variant<game_update_type>;
-
-    DEFINE_SERIALIZABLE(target_player_id,
-        (player_id, int)
-    )
-    DEFINE_SERIALIZABLE(target_card_id,
-        (player_id, int)
-        (card_id, int)
-        (from_hand, bool)
-    )
-
-    DEFINE_ENUM_TYPES_IN_NS(banggame, play_card_target_type,
-        (target_none)
-        (target_player, std::vector<target_player_id>)
-        (target_card, std::vector<target_card_id>)
-    )
-
-    using play_card_target = enums::enum_variant<play_card_target_type>;
-
-    DEFINE_SERIALIZABLE(pick_card_args,
-        (pile, card_pile_type)
-        (card_id, int)
-    )
-
-    DEFINE_SERIALIZABLE(play_card_args,
-        (card_id, int)
-        (targets, std::vector<play_card_target>)
-    )
-
-    DEFINE_ENUM_TYPES_IN_NS(banggame, game_action_type,
-        (pick_card, pick_card_args)
-        (play_card, play_card_args)
-        (respond_card, play_card_args)
-        (pass_turn)
-        (resolve)
-    )
-
-    using game_action = enums::enum_variant<game_action_type>;
 }
 
 #endif

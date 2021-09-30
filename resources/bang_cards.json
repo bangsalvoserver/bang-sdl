@@ -1881,7 +1881,8 @@
             "image": "02_unclewill",
             "hp": 4,
             "expansion": "thebullet",
-            "type": "active_once",
+            "type": "active",
+            "usages": 1,
             "effects": [
                 {
                     "target": "selfhand",
@@ -1952,7 +1953,7 @@
             "image": "03_doc_holyday",
             "hp": 4,
             "expansion": "dodgecity",
-            "type": "active_once",
+            "type": "active",
             "effects": [
                 {
                     "target": "selfhand",
@@ -2006,7 +2007,8 @@
             "image": "03_jose_delgado",
             "hp": 4,
             "expansion": "dodgecity",
-            "type": "active_twice",
+            "type": "active",
+            "usages": 2,
             "effects": [
                 {
                     "target": "selfhand_blue",

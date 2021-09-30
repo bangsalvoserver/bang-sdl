@@ -45,8 +45,6 @@ namespace banggame {
         (drawing)
         (drawing_forced)
         (active)
-        (active_once)
-        (active_twice)
     )
 
     DEFINE_ENUM_IN_NS(banggame, player_role,

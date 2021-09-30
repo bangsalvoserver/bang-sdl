@@ -14,7 +14,7 @@ DECLARE_RESOURCE(bang_cards_json)
 
 using namespace banggame;
 
-effect_holder static make_effect_from_json(const Json::Value &json_effect) {
+static std::vector<effect_holder> make_effects_from_json(const Json::Value &json_effects) {
     constexpr auto lut = []<effect_type ... Es>(enums::enum_sequence<Es ...>) {
         return std::array {
             +[]() -> effect_holder {
@@ -27,19 +27,27 @@ effect_holder static make_effect_from_json(const Json::Value &json_effect) {
         };
     }(enums::make_enum_sequence<effect_type>());
 
-    auto e = enums::from_string<effect_type>(json_effect["class"].asString());
-    if (e == enums::invalid_enum_v<effect_type>) {
-        throw std::runtime_error("Invalid effect class: " + json_effect["class"].asString());
+    std::vector<effect_holder> ret;
+    for (const auto &json_effect : json_effects) {
+        auto e = enums::from_string<effect_type>(json_effect["class"].asString());
+        if (e == enums::invalid_enum_v<effect_type>) {
+            throw std::runtime_error("Invalid effect class: " + json_effect["class"].asString());
+        }
+
+        auto effect = lut[enums::indexof(e)]();
+        if (json_effect.isMember("maxdistance")) {
+            effect->maxdistance = json_effect["maxdistance"].asInt();
+        }
+        if (json_effect.isMember("target")) {
+            effect->target = enums::from_string<target_type>(json_effect["target"].asString());
+        }
+        ret.push_back(effect);
     }
 
-    auto effect = lut[enums::indexof(e)]();
-    if (json_effect.isMember("maxdistance")) {
-        effect->maxdistance = json_effect["maxdistance"].asInt();
+    if (ret.empty()) {
+        throw std::runtime_error("Lista effetti vuota");
     }
-    if (json_effect.isMember("target")) {
-        effect->target = enums::from_string<target_type>(json_effect["target"].asString());
-    }
-    return effect;
+    return ret;
 }
 
 all_cards banggame::read_cards(card_expansion_type allowed_expansions) {
@@ -60,9 +68,7 @@ all_cards banggame::read_cards(card_expansion_type allowed_expansions) {
             c.name = json_card["name"].asString();
             c.image = json_card["image"].asString();
             c.color = enums::from_string<card_color_type>(json_card["color"].asString());
-            for (const auto &json_effect : json_card["effects"]) {
-                c.effects.push_back(make_effect_from_json(json_effect));
-            }
+            c.effects = make_effects_from_json(json_card["effects"]);
             for (const auto &json_sign : json_card["signs"]) {
                 std::string_view str = json_sign.asString();
                 c.suit = *std::ranges::find_if(enums::enum_values_v<card_suit_type>,
@@ -90,9 +96,10 @@ all_cards banggame::read_cards(card_expansion_type allowed_expansions) {
             if (json_character.isMember("type")) {
                 c.type = enums::from_string<character_type>(json_character["type"].asString());
             }
-            for (const auto &json_effect : json_character["effects"]) {
-                c.effects.push_back(make_effect_from_json(json_effect));
+            if (json_character.isMember("usages")) {
+                c.usages = json_character["usages"].asInt();
             }
+            c.effects = make_effects_from_json(json_character["effects"]);
             c.max_hp = json_character["hp"].asInt();
             c.id = ++id;
             ret.characters.push_back(c);
