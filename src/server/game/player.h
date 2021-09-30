@@ -16,7 +16,7 @@ namespace banggame {
 
         std::vector<deck_card> m_hand;
         std::vector<deck_card> m_table;
-        character m_character;
+        std::vector<character> m_characters;
         player_role m_role;
 
         struct predraw_check_t {

@@ -8,6 +8,7 @@
 
 #include <concepts>
 #include <vector>
+#include <list>
 
 namespace banggame {
 
@@ -105,7 +106,8 @@ namespace banggame {
         card_pile_view hand;
         card_pile_view table;
 
-        character_card m_character;
+        std::list<character_card> m_characters{1};
+        
         character_card m_hp_marker;
         role_card m_role;
 

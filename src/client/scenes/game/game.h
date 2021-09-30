@@ -100,13 +100,13 @@ namespace banggame {
         card_widget_base &get_card_widget(int id) {
             if (auto it = m_cards.find(id); it != m_cards.end()) {
                 return it->second;
-            } else if (auto it = std::ranges::find(m_players, id, [](const decltype(m_players)::value_type &pair) {
-                return pair.second.m_character.id;
-            }); it != m_players.end()) {
-                return it->second.m_character;
-            } else {
-                throw std::runtime_error("ID carta non trovato");
             }
+            for (auto &[player_id, p] : m_players) {
+                if (auto it = std::ranges::find(p.m_characters, id, &character_card::id); it != p.m_characters.end()) {
+                    return *it;
+                }
+            }
+            throw std::runtime_error("ID carta non trovato");
         }
 
         player_view &get_player(int id) {

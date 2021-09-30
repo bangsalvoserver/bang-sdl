@@ -60,7 +60,6 @@ all_cards banggame::read_cards(card_expansion_type allowed_expansions) {
     Json::Value json_cards;
     ss >> json_cards;
 
-    int id = 0;
     for (const auto &json_card : json_cards["cards"]) {
         deck_card c;
         c.expansion = enums::from_string<card_expansion_type>(json_card["expansion"].asString());
@@ -81,7 +80,6 @@ all_cards banggame::read_cards(card_expansion_type allowed_expansions) {
                         return str.starts_with(enums::get_data(e));
                     }
                 );
-                c.id = ++id;
                 ret.deck.push_back(c);
             }
         }
@@ -101,7 +99,6 @@ all_cards banggame::read_cards(card_expansion_type allowed_expansions) {
             }
             c.effects = make_effects_from_json(json_character["effects"]);
             c.max_hp = json_character["hp"].asInt();
-            c.id = ++id;
             ret.characters.push_back(c);
         }
     }

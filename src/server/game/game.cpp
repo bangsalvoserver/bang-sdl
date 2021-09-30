@@ -52,6 +52,12 @@ namespace banggame {
         }
 
         auto all_cards = read_cards(options.allowed_expansions);
+        for (auto &c : all_cards.deck) {
+            c.id = get_next_id();
+        }
+        for (auto &c : all_cards.characters) {
+            c.id = get_next_id();
+        }
 
         std::ranges::shuffle(all_cards.characters, rng);
         auto character_it = all_cards.characters.begin();

@@ -60,8 +60,8 @@ namespace banggame {
     }
 
     card &player::find_any_card(int card_id) {
-        if (card_id == m_character.id) {
-            return m_character;
+        if (auto it = std::ranges::find(m_characters, card_id, &character::id); it != m_characters.end()) {
+            return *it;
         } else if (auto it = std::ranges::find(m_hand, card_id, &deck_card::id); it != m_hand.end()) {
             return *it;
         } else if (auto it = std::ranges::find(m_table, card_id, &deck_card::id); it != m_table.end()) {
@@ -103,11 +103,11 @@ namespace banggame {
 
     void player::steal_card(player *target, int card_id) {
         auto &moved = m_hand.emplace_back(target->get_card_removed(card_id));
+        m_game->add_show_card(moved, this);
+        m_game->add_public_update<game_update_type::move_card>(card_id, id, card_pile_type::player_hand);
         if (target->m_hand.empty()) {
             m_game->handle_game_event<event_type::on_empty_hand>(target);
         }
-        m_game->add_show_card(moved, this);
-        m_game->add_public_update<game_update_type::move_card>(card_id, id, card_pile_type::player_hand);
     }
 
     void player::damage(player *source, int value) {
@@ -251,8 +251,8 @@ namespace banggame {
     void player::do_play_card(int card_id, const std::vector<play_card_target> &targets) {
         card *card_ptr = nullptr;
         bool is_character = false;
-        if (card_id == m_character.id) {
-            card_ptr = &m_character;
+        if (auto it = std::ranges::find(m_characters, card_id, &character::id); it != m_characters.end()) {
+            card_ptr = &*it;
             is_character = true;
         } else if (auto it = std::ranges::find(m_hand, card_id, &deck_card::id); it != m_hand.end()) {
             deck_card removed = std::move(*it);
@@ -311,11 +311,11 @@ namespace banggame {
     }
 
     void player::play_card(const play_card_args &args) {
-        if (args.card_id == m_character.id) {
-            switch (m_character.type) {
+        if (auto card_it = std::ranges::find(m_characters, args.card_id, &character::id); card_it != m_characters.end()) {
+            switch (card_it->type) {
             case character_type::active:
-                if (m_has_drawn && (m_character.usages == 0 || m_character_usages < m_character.usages)) {
-                    if (verify_card_targets(m_character, args.targets)) {
+                if (m_has_drawn && (card_it->usages == 0 || m_character_usages < card_it->usages)) {
+                    if (verify_card_targets(*card_it, args.targets)) {
                         do_play_card(args.card_id, args.targets);
                         ++m_character_usages;
                     } else {
@@ -326,7 +326,7 @@ namespace banggame {
             case character_type::drawing:
             case character_type::drawing_forced:
                 if (!m_has_drawn) {
-                    if (verify_card_targets(m_character, args.targets)) {
+                    if (verify_card_targets(*card_it, args.targets)) {
                         do_play_card(args.card_id, args.targets);
                         m_has_drawn = true;
                     } else {
@@ -406,8 +406,8 @@ namespace banggame {
         auto *resp = m_game->top_response().as<card_response>();
         if (!resp) return;
 
-        if (m_character.id == args.card_id) {
-            if (verify_card_targets(m_character, args.targets)) {
+        if (auto card_it = std::ranges::find(m_characters, args.card_id, &character::id); card_it != m_characters.end()) {
+            if (verify_card_targets(*card_it, args.targets)) {
                 resp->on_respond(args);
             } else {
                 throw invalid_action();
@@ -447,7 +447,7 @@ namespace banggame {
     }
 
     void player::draw_from_deck() {
-        if (m_character.type != character_type::drawing_forced) {
+        if (std::ranges::find(m_characters, character_type::drawing_forced, &character::type) == m_characters.end()) {
             for (int i=0; i<m_num_drawn_cards; ++i) {
                 add_to_hand(m_game->draw_card());
             }
@@ -490,9 +490,9 @@ namespace banggame {
     }
 
     void player::handle_death() {
-        if (m_character.type == character_type::none) {
-            for (auto &e : m_character.effects) {
-                e->on_unequip(this, m_character.id);
+        for (auto &c : m_characters) {
+            for (auto &e : c.effects) {
+                e->on_unequip(this, c.id);
             }
         }
 
@@ -510,7 +510,7 @@ namespace banggame {
     }
 
     void player::set_character_and_role(const character &c, player_role role) {
-        m_character = c;
+        m_characters.push_back(c);
         m_role = role;
 
         m_max_hp = c.max_hp;
@@ -519,9 +519,9 @@ namespace banggame {
         }
         m_hp = m_max_hp;
 
-        if (m_character.type == character_type::none) {
-            for (auto &e : m_character.effects) {
-                e->on_equip(this, m_character.id);
+        for (auto &c : m_characters) {
+            for (auto &e : c.effects) {
+                e->on_equip(this, c.id);
             }
         }
 

@@ -53,6 +53,12 @@ namespace banggame {
 
         player *m_playing = nullptr;
 
+        int m_id_counter = 0;
+        
+        int get_next_id() {
+            return ++m_id_counter;
+        }
+
         std::mt19937 rng;
 
         template<game_update_type E, typename ... Ts>

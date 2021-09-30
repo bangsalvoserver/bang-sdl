@@ -106,8 +106,14 @@ namespace banggame {
 
     void player_view::set_position(SDL_Point pos, bool flipped) {
         pos.x -= 80;
-        hand.pos = table.pos = m_character.pos = m_role.pos = pos;
-        m_character.pos.x += 150;
+        hand.pos = table.pos = m_role.pos = pos;
+        SDL_Point char_pos = pos;
+        char_pos.x += 150;
+        for (auto &c : m_characters) {
+            c.pos = char_pos;
+            char_pos.x += 30;
+            char_pos.y += 30;
+        }
         set_hp_marker_position(hp);
         m_role.pos.x += 230;
         if (flipped) {
@@ -120,13 +126,15 @@ namespace banggame {
     }
 
     void player_view::set_hp_marker_position(float hp) {
-        m_hp_marker.pos = m_character.pos;
+        m_hp_marker.pos = m_characters.front().pos;
         m_hp_marker.pos.y -= std::max(0.f, hp * one_hp_size);
     }
 
     void player_view::render(sdl::renderer &renderer) {
         m_role.render(renderer);
         m_hp_marker.render(renderer);
-        m_character.render(renderer);
+        for (auto &c : m_characters) {
+            c.render(renderer);
+        }
     }
 }

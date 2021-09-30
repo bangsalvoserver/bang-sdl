@@ -126,9 +126,11 @@ void game_scene::handle_card_click(const SDL_Point &mouse_pt) {
             on_click_player(player_id);
             return;
         }
-        if (sdl::point_in_rect(mouse_pt, p.m_character.get_rect())) {
-            on_click_character(player_id, p.m_character.id);
-            return;
+        for (auto &c : p.m_characters | std::views::reverse) {
+            if (sdl::point_in_rect(mouse_pt, c.get_rect())) {
+                on_click_character(player_id, c.id);
+                return;
+            }
         }
         if (int card_id = find_clicked(p.table)) {
             on_click_table_card(player_id, card_id);
@@ -159,8 +161,8 @@ constexpr bool is_picking_response(response_type type) {
 void game_scene::on_click_main_deck() {
     if (m_playing_id == m_player_own_id) {
         auto &p = get_player(m_playing_id);
-        if (p.m_character.type == character_type::drawing_forced) {
-            on_click_character(m_playing_id, p.m_character.id);
+        if (auto it = std::ranges::find(p.m_characters, character_type::drawing_forced, &character_card::type); it != p.m_characters.end()) {
+            on_click_character(m_playing_id, it->id);
         } else {
             add_action<game_action_type::draw_from_deck>();
         }
@@ -273,8 +275,8 @@ void game_scene::on_click_character(int player_id, int card_id) {
         }
     } else if (m_playing_id == m_player_own_id) {
         if (m_play_card_args.card_id == 0) {
-            auto &c = get_player(player_id).m_character;
-            if (c.type == character_type::none) return;
+            auto &p = get_player(player_id);
+            if (std::ranges::find(p.m_characters, character_type::none, &character_card::type) != p.m_characters.end()) return;
             m_play_card_args.card_id = card_id;
             m_highlights.push_back(card_id);
             handle_auto_targets(false);
@@ -628,16 +630,17 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::player_cha
     }
 
     auto &p = get_player(args.player_id);
-    p.m_character.id = args.card_id;
-    p.m_character.name = args.name;
-    p.m_character.image = args.image;
-    p.m_character.targets = args.targets;
-    p.m_character.type = args.type;
+    auto &c = p.m_characters.front();
+    c.id = args.card_id;
+    c.name = args.name;
+    c.image = args.image;
+    c.targets = args.targets;
+    c.type = args.type;
 
     p.hp = args.max_hp;
     p.set_hp_marker_position(args.max_hp);
 
-    p.m_character.make_texture_front();
+    c.make_texture_front();
 
     pop_update();
 }
