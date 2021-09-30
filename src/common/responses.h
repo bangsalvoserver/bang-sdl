@@ -2,25 +2,10 @@
 #define __RESPONSES_H__
 
 #include "card_effect.h"
+#include "characters.h"
 #include "game_action.h"
 
 namespace banggame {
-    struct response_effect {
-        virtual ~response_effect() {}
-
-        player *origin = nullptr;
-        player *target = nullptr;
-
-        std::byte data[64];
-
-        virtual void on_resolve() {};
-    };
-
-    using response_holder = vbase_holder<response_effect>;
-
-    struct picking_response : response_effect {
-        virtual void on_pick(card_pile_type pile, int card_id) = 0;
-    };
 
     struct response_predraw: picking_response {
         virtual void on_pick(card_pile_type pile, int card_id) override;
@@ -46,10 +31,6 @@ namespace banggame {
     struct response_indians : picking_response {
         virtual void on_pick(card_pile_type pile, int card_id) override;
         virtual void on_resolve() override;
-    };
-
-    struct card_response : response_effect {
-        virtual void on_respond(const play_card_args &args) = 0;
     };
 
     struct response_bang_data {
@@ -86,6 +67,7 @@ namespace banggame {
         (duel,          response_duel)
         (indians,       response_indians)
         (death,         response_death)
+        (kit_carlson,   response_kit_carlson)
     )
 
 }

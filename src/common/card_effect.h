@@ -4,6 +4,7 @@
 #include <concepts>
 
 #include "card_enums.h"
+#include "game_action.h"
 
 namespace banggame {
 
@@ -81,6 +82,27 @@ namespace banggame {
     };
 
     using effect_holder = vbase_holder<card_effect>;
+    
+    struct response_effect {
+        virtual ~response_effect() {}
+
+        player *origin = nullptr;
+        player *target = nullptr;
+
+        std::byte data[64];
+
+        virtual void on_resolve() {};
+    };
+
+    struct picking_response : response_effect {
+        virtual void on_pick(card_pile_type pile, int card_id) = 0;
+    };
+
+    struct card_response : response_effect {
+        virtual void on_respond(const play_card_args &args) = 0;
+    };
+
+    using response_holder = vbase_holder<response_effect>;
 }
 
 #endif

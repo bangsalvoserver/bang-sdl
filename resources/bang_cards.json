@@ -1734,7 +1734,6 @@
             "type": "drawing",
             "effects": [
                 {
-                    "target": "self",
                     "class": "kit_carlson"
                 }
             ]

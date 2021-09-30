@@ -50,4 +50,28 @@ namespace banggame {
     void effect_sean_mallory::on_unequip(player *target, int card_id) {
         target->m_max_cards_mods.erase(std::ranges::find(target->m_max_cards_mods, 10));
     }
+
+    void effect_kit_carlson::on_play(player *target) {
+        for (int i=0; i<=target->m_num_drawn_cards; ++i) {
+            target->m_game->add_to_temps(target->m_game->draw_card(), target);
+        }
+        target->m_game->queue_response<response_type::kit_carlson>(nullptr, target);
+    }
+
+    void response_kit_carlson::on_pick(card_pile_type pile, int card_id) {
+        if (pile == card_pile_type::temp_table) {
+            auto t = target;
+            t->m_game->pop_response();
+            t->add_to_hand(t->m_game->draw_from_temp(card_id));
+            if (t->m_game->m_temps.size() == 1) {
+                auto removed = std::move(t->m_game->m_temps.front());
+                t->m_game->add_private_update<game_update_type::hide_card>(target, removed.id);
+                t->m_game->add_public_update<game_update_type::move_card>(removed.id, 0, card_pile_type::main_deck);
+                t->m_game->m_temps.clear();
+                t->m_game->m_deck.push_back(std::move(removed));
+            } else {
+                t->m_game->queue_response<response_type::kit_carlson>(nullptr, target);
+            }
+        }
+    }
 }

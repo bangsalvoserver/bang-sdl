@@ -145,7 +145,7 @@ namespace banggame {
         (black_jack,    effect_black_jack)
         (calamity_janet)
         (el_gringo)
-        (kit_carlson) /*,   effect_kitcarlson) */
+        (kit_carlson,   effect_kit_carlson)
         (horsecharm,    effect_horsecharm)
         (slab_the_killer, effect_slab_the_killer)
         (suzy_lafayette)

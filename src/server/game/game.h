@@ -104,8 +104,8 @@ namespace banggame {
             return m_discards.emplace_back(std::move(c));
         }
 
-        deck_card &add_to_temps(deck_card &&c) {
-            add_show_card(c);
+        deck_card &add_to_temps(deck_card &&c, player *owner = nullptr) {
+            add_show_card(c, owner);
             add_public_update<game_update_type::move_card>(c.id, 0, card_pile_type::temp_table);
             return m_temps.emplace_back(std::move(c));
         }

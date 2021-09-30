@@ -26,6 +26,14 @@ namespace banggame {
         virtual void on_equip(player *target, int card_id) override;
         virtual void on_unequip(player *target, int card_id) override;
     };
+
+    struct effect_kit_carlson : card_effect {
+        virtual void on_play(player *target) override;
+    };
+
+    struct response_kit_carlson : picking_response {
+        virtual void on_pick(card_pile_type pile, int card_id) override;
+    };
 }
 
 #endif
