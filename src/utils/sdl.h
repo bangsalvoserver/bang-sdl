@@ -162,7 +162,7 @@ namespace sdl {
 
         surface(SDL_Surface *value) noexcept : m_value(value) {}
 
-        explicit surface(const resource &res) {
+        explicit surface(resource_view res) {
             m_value = IMG_Load_RW(SDL_RWFromConstMem(res.data, res.length), 0);
             if (!m_value) {
                 throw error(std::string("Could not load image: ") + IMG_GetError());
@@ -262,7 +262,7 @@ namespace sdl {
 
     class font {
     public:
-        font(const resource &res, int ptsize) {
+        font(resource_view res, int ptsize) {
             m_value = TTF_OpenFontRW(SDL_RWFromConstMem(res.data, res.length), 0, ptsize);
             if (!m_value) {
                 throw error(std::string("Could not create font: ") + TTF_GetError());

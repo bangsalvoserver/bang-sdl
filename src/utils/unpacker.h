@@ -19,7 +19,7 @@ T read_data(const char **pos) {
 
 class unpacker {
 public:
-    unpacker(const resource &data) {
+    unpacker(resource_view data) {
         struct packed_data {
             std::string name;
             int pos;
@@ -45,11 +45,11 @@ public:
         }
 
         for (const auto &item : items) {
-            m_data.emplace(item.name, resource{pos + item.pos, item.size});
+            m_data.emplace(item.name, resource_view{pos + item.pos, item.size});
         }
     }
 
-    const resource &operator[](std::string_view key) const {
+    const resource_view &operator[](std::string_view key) const {
         auto it = m_data.find(key);
         if (it == m_data.end()) {
             throw std::out_of_range("Impossibile trovare risorsa");
@@ -58,7 +58,7 @@ public:
     }
 
 private:
-    std::map<std::string, resource, std::less<>> m_data;
+    std::map<std::string, resource_view, std::less<>> m_data;
 };
 
 #endif

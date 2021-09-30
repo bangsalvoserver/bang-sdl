@@ -44,8 +44,14 @@ find_package(Boost REQUIRED)
 
 add_executable(bangclient ${bangclient_srcs})
 target_link_libraries(bangclient PkgConfig::SDL2 PkgConfig::SDL2_net PkgConfig::SDL2_ttf PkgConfig::SDL2_image jsoncpp_static)
-target_link_libraries(bangclient fonts card_images)
 target_link_options(bangclient PRIVATE -mconsole)
+
+option(no_link_resources "Non includere le risorse nell'eseguibile" OFF)
+if(no_link_resources)
+    target_compile_definitions(bangclient PRIVATE NO_LINK_RESOURCES)
+else()
+    target_link_libraries(bangclient fonts card_images)
+endif()
 
 add_executable(bangserver ${bangserver_srcs})
 target_link_libraries(bangserver PkgConfig::SDL2_net jsoncpp_static bang_cards)

@@ -11,7 +11,7 @@ namespace sdl {
 
     struct text_style {
         SDL_Color text_color;
-        resource text_font;
+        resource_view text_font;
         int text_ptsize;
     };
 
