@@ -94,6 +94,7 @@ namespace banggame {
             return m_infinite_bangs > 0 || m_bangs_played < m_bangs_per_turn;
         }
         
+        void handle_death();
         void discard_all();
 
         void add_predraw_check(int card_id, int priority) {

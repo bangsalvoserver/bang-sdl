@@ -138,6 +138,7 @@ namespace banggame {
     void response_death::on_resolve() {
         auto o = origin;
         auto t = target;
+        t->handle_death();
         t->m_game->pop_response();
         t->m_game->player_death(o, t);
     }

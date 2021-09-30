@@ -158,7 +158,12 @@ constexpr bool is_picking_response(response_type type) {
 
 void game_scene::on_click_main_deck() {
     if (m_playing_id == m_player_own_id) {
-        add_action<game_action_type::draw_from_deck>();
+        auto &p = get_player(m_playing_id);
+        if (p.m_character.type == character_type::drawing_forced) {
+            on_click_character(m_playing_id, p.m_character.id);
+        } else {
+            add_action<game_action_type::draw_from_deck>();
+        }
     }
 }
 

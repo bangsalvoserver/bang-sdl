@@ -69,16 +69,13 @@ namespace banggame {
         auto role_it = roles.begin();
 
 #ifdef TESTING_CHARACTER
-        const auto &character_test = std::ranges::find(all_cards.characters, TESTING_CHARACTER, &character::name);
-        for (auto &p : m_players) {
-            p.set_character_and_role(*character_test, *role_it++);
-        }
-#else
+        auto testing_char = std::ranges::find(all_cards.characters, TESTING_CHARACTER, &character::image);
+        std::swap(*character_it, *testing_char);
+#endif
         std::ranges::shuffle(roles.begin(), roles.begin() + options.nplayers, rng);
         for (auto &p : m_players) {
             p.set_character_and_role(*character_it++, *role_it++);
         }
-#endif
 
         m_deck = std::move(all_cards.deck);
         auto ids_view = m_deck | std::views::transform(&deck_card::id);
@@ -149,9 +146,7 @@ namespace banggame {
     }
 
     void game::player_death(player *killer, player *target) {
-        target->m_dead = true;
         handle_game_event<event_type::on_player_death>(killer, target);
-        target->discard_all();
         add_public_update<game_update_type::player_show_role>(target->id, target->m_role);
         bool game_over = false;
         if (target->m_role == player_role::sheriff) {

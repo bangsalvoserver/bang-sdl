@@ -489,6 +489,17 @@ namespace banggame {
         m_pending_predraw_checks.clear();
     }
 
+    void player::handle_death() {
+        if (m_character.type == character_type::none) {
+            for (auto &e : m_character.effects) {
+                e->on_unequip(this, m_character.id);
+            }
+        }
+
+        discard_all();
+        m_dead = true;
+    }
+
     void player::discard_all() {
         for (deck_card &c : m_table) {
             m_game->add_to_discards(std::move(c));

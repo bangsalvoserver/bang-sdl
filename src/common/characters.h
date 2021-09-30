@@ -35,6 +35,14 @@ namespace banggame {
         virtual void on_pick(card_pile_type pile, int card_id) override;
     };
 
+    struct effect_claus_the_saint : card_effect {
+        virtual void on_play(player *target) override;
+    };
+
+    struct response_claus_the_saint : picking_response {
+        virtual void on_pick(card_pile_type pile, int card_id) override;
+    };
+
     struct effect_el_gringo : card_effect {
         virtual void on_equip(player *target, int card_id) override;
         virtual void on_unequip(player *target, int card_id) override;

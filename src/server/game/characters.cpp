@@ -76,6 +76,36 @@ namespace banggame {
         }
     }
 
+    void effect_claus_the_saint::on_play(player *target) {
+        int ncards = target->m_game->num_alive() + target->m_num_drawn_cards - 1;
+        for (int i=0; i<ncards; ++i) {
+            target->m_game->add_to_temps(target->m_game->draw_card(), target);
+        }
+        target->m_game->queue_response<response_type::claus_the_saint>(nullptr, target);
+    }
+
+    void response_claus_the_saint::on_pick(card_pile_type pile, int card_id) {
+        if (pile == card_pile_type::temp_table) {
+            auto t = target;
+            int index = target->m_game->num_alive() + target->m_num_drawn_cards - target->m_game->m_temps.size();
+            auto p = t;
+            for(int i=0; i<index; ++i) {
+                p = t->m_game->get_next_player(p);
+            }
+            p->add_to_hand(t->m_game->draw_from_temp(card_id));
+            if (t->m_game->m_temps.size() == target->m_num_drawn_cards) {
+                t->m_game->pop_response();
+                for (auto &c : t->m_game->m_temps) {
+                    t->add_to_hand(std::move(c));
+                }
+                t->m_game->m_temps.clear();
+            } else {
+                t->m_game->pop_response_noupdate();
+                t->m_game->queue_response<response_type::claus_the_saint>(nullptr, target);
+            }
+        }
+    }
+
     void effect_el_gringo::on_equip(player *p, int card_id) {
         p->m_game->add_event<event_type::on_hit>(card_id, [p](player *origin, player *target) {
             if (p == target && !origin->m_hand.empty()) {

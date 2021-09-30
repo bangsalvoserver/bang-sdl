@@ -68,6 +68,7 @@ namespace banggame {
         (indians,       response_indians)
         (death,         response_death)
         (kit_carlson,   response_kit_carlson)
+        (claus_the_saint, response_claus_the_saint)
     )
 
 }

@@ -158,7 +158,7 @@ namespace banggame {
         (slab_the_killer, effect_slab_the_killer)
         (suzy_lafayette, effect_suzy_lafayette)
         (vulture_sam,   effect_vulture_sam)
-        (claus_the_saint)
+        (claus_the_saint, effect_claus_the_saint)
         (johnny_kisch,  effect_johnny_kisch)
         (bellestar)
         (bill_noface,   effect_bill_noface)
