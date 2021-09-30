@@ -8,9 +8,8 @@
 
 namespace banggame {
 
-    DEFINE_ENUM_IN_NS(banggame, game_notify_type,
-        (game_over)
-        (deck_shuffled)
+    DEFINE_SERIALIZABLE(game_over_update,
+        (winner_role, player_role)
     )
 
     DEFINE_SERIALIZABLE(add_cards_update,
@@ -81,9 +80,10 @@ namespace banggame {
     )
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, game_update_type,
-        (game_notify, game_notify_type)
+        (game_over, game_over_update)
         (add_cards, add_cards_update)
         (move_card, move_card_update)
+        (deck_shuffled)
         (show_card, show_card_update)
         (hide_card, hide_card_update)
         (tap_card, tap_card_update)

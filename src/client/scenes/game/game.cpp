@@ -432,32 +432,30 @@ void game_scene::show_error(const std::string &message) {
     m_ui.add_message(message_line::error, message);
 }
 
-void game_scene::handle_update(enums::enum_constant<game_update_type::game_notify>, game_notify_type args) {
-    switch (args) {
-    case game_notify_type::deck_shuffled: {
-        int top_discard = discard_pile.back();
-        discard_pile.resize(discard_pile.size() - 1);
-        card_move_animation anim;
-        for (int id : discard_pile) {
-            auto &c = get_card(id);
-            c.known = false;
-            c.flip_amt = 0.f;
-            c.pile = &main_deck;
-            main_deck.push_back(id);
-            anim.add_move_card(c);
-        }
-        discard_pile.clear();
-        discard_pile.push_back(top_discard);
+void game_scene::handle_update(enums::enum_constant<game_update_type::game_over>, const game_over_update &args) {
+    std::string msg = "Game Over. Winner: ";
+    msg += enums::to_string(args.winner_role);
+    m_ui.add_message(message_line::game, msg);
+}
 
-        m_ui.add_message(message_line::game, "Deck shuffled");
-        
-        m_animations.emplace_back(30, std::move(anim));
-        break;
+void game_scene::handle_update(enums::enum_constant<game_update_type::deck_shuffled>) {
+    int top_discard = discard_pile.back();
+    discard_pile.resize(discard_pile.size() - 1);
+    card_move_animation anim;
+    for (int id : discard_pile) {
+        auto &c = get_card(id);
+        c.known = false;
+        c.flip_amt = 0.f;
+        c.pile = &main_deck;
+        main_deck.push_back(id);
+        anim.add_move_card(c);
     }
-    default:
-        pop_update();
-        break;
-    }
+    discard_pile.clear();
+    discard_pile.push_back(top_discard);
+
+    m_ui.add_message(message_line::game, "Deck shuffled");
+    
+    m_animations.emplace_back(30, std::move(anim));
 }
 
 void game_scene::handle_update(enums::enum_constant<game_update_type::add_cards>, const add_cards_update &args) {
@@ -613,13 +611,17 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::player_cha
 
 void game_scene::handle_update(enums::enum_constant<game_update_type::player_show_role>, const player_show_role_update &args) {
     auto &p = get_player(args.player_id);
-    p.m_role.role = args.role;
-    p.m_role.make_texture_front();
-    if (args.player_id == m_player_own_id || args.role == player_role::sheriff) {
-        p.m_role.flip_amt = 1.f;
+    if (p.m_role.role == args.role) {
         pop_update();
     } else {
-        m_animations.emplace_back(10, card_flip_animation{&p.m_role, false});
+        p.m_role.role = args.role;
+        p.m_role.make_texture_front();
+        if (args.player_id == m_player_own_id || args.role == player_role::sheriff) {
+            p.m_role.flip_amt = 1.f;
+            pop_update();
+        } else {
+            m_animations.emplace_back(10, card_flip_animation{&p.m_role, false});
+        }
     }
 }
 

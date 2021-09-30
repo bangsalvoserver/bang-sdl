@@ -15,8 +15,8 @@ namespace banggame {
     private:
         game *m_game;
 
-        std::vector<card> m_hand;
-        std::vector<card> m_table;
+        std::vector<deck_card> m_hand;
+        std::vector<deck_card> m_table;
         character m_character;
         player_role m_role;
 
@@ -46,21 +46,21 @@ namespace banggame {
     public:
         explicit player(game *game) : m_game(game) {}
 
-        void equip_card(card &&target);
+        void equip_card(deck_card &&target);
         bool has_card_equipped(const std::string &name) const;
 
         void discard_weapon();
 
-        card &get_hand_card(int card_id);
-        card &get_table_card(int card_id);
+        deck_card &get_hand_card(int card_id);
+        deck_card &get_table_card(int card_id);
 
         bool is_hand_empty() const {
             return m_hand.empty();
         }
         
-        card get_card_removed(card *target);
-        card &discard_card(card *target);
-        void steal_card(player *target, card *target_card);
+        deck_card get_card_removed(int card_id);
+        deck_card &discard_card(int card_id);
+        void steal_card(player *target, int card_id);
 
         int num_hand_cards() const {
             return m_hand.size();
@@ -138,7 +138,7 @@ namespace banggame {
             m_predraw_checks.erase(std::ranges::find(m_predraw_checks, card_id, &predraw_check_t::card_id));
         }
 
-        bool is_top_predraw_check(const card &e) {
+        bool is_top_predraw_check(const deck_card &e) {
             int top_priority = std::ranges::max(m_pending_predraw_checks | std::views::transform(&predraw_check_t::priority));
             if (e.effects.empty()) return false;
             auto it = std::ranges::find(m_pending_predraw_checks, e.id, &predraw_check_t::card_id);
@@ -151,10 +151,10 @@ namespace banggame {
 
         player_role role() const { return m_role; }
 
-        void add_to_hand(card &&c);
+        void add_to_hand(deck_card &&c);
 
-        bool verify_card_targets(const card &c, const std::vector<play_card_target> &targets);
-        void do_play_card(card &c, const std::vector<play_card_target> &targets);
+        bool verify_card_targets(const deck_card &c, const std::vector<play_card_target> &targets);
+        void do_play_card(deck_card &c, const std::vector<play_card_target> &targets);
 
         void play_card(const play_card_args &args);
         void respond_card(const play_card_args &args);

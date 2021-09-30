@@ -27,9 +27,9 @@ namespace banggame {
         std::list<std::pair<response_type, response_holder>> m_responses;
         std::list<draw_check_function> m_pending_checks;
         
-        std::vector<card> m_deck;
-        std::vector<card> m_discards;
-        std::vector<card> m_temps;
+        std::vector<deck_card> m_deck;
+        std::vector<deck_card> m_discards;
+        std::vector<deck_card> m_temps;
         std::vector<player> m_players;
 
         player *m_playing = nullptr;
@@ -50,7 +50,7 @@ namespace banggame {
                 std::make_tuple(enums::enum_constant<E>{}, std::forward<Ts>(args) ...));
         }
 
-        void add_show_card(const card &c, player *owner = nullptr);
+        void add_show_card(const deck_card &c, player *owner = nullptr);
 
         void start_game(const game_options &options);
 
@@ -98,21 +98,21 @@ namespace banggame {
             }
         }
 
-        card &add_to_discards(card &&c) {
+        deck_card &add_to_discards(deck_card &&c) {
             add_show_card(c);
             add_public_update<game_update_type::move_card>(c.id, 0, card_pile_type::discard_pile);
             return m_discards.emplace_back(std::move(c));
         }
 
-        card &add_to_temps(card &&c) {
+        deck_card &add_to_temps(deck_card &&c) {
             add_show_card(c);
             add_public_update<game_update_type::move_card>(c.id, 0, card_pile_type::temp_table);
             return m_temps.emplace_back(std::move(c));
         }
 
-        card draw_card();
-        card draw_from_discards();
-        card draw_from_temp(int card_id);
+        deck_card draw_card();
+        deck_card draw_from_discards();
+        deck_card draw_from_temp(int card_id);
 
         void draw_check_then(player *p, draw_check_function &&fun);
         void resolve_check(int card_id);

@@ -8,7 +8,6 @@
 namespace banggame {
 
     struct player;
-    struct card;
 
     struct card_effect {
         virtual ~card_effect() {}
@@ -16,15 +15,15 @@ namespace banggame {
         target_type target = target_type::none;
         int maxdistance = 0;
 
-        virtual void on_equip(player *target_player, card *target_card) { }
-        virtual void on_unequip(player *target, card *target_card) { }
+        virtual void on_equip(player *target, int card_id) { }
+        virtual void on_unequip(player *target, int card_id) { }
 
-        virtual bool can_play(player *origin) { return true; }
+        virtual bool can_play(player *target) { return true; }
         virtual void on_play(player *origin) { }
         virtual void on_play(player *origin, player *target) { }
-        virtual void on_play(player *origin, player *target_player, card *target_card) { }
+        virtual void on_play(player *origin, player *target, int card_id) { }
 
-        virtual void on_predraw_check(player *target_player, card *target_card) { }
+        virtual void on_predraw_check(player *target, int card_id) { }
     };
 
     template<typename T>

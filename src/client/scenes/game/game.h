@@ -37,9 +37,10 @@ namespace banggame {
         void show_error(const std::string &message);
 
     private:
-        void handle_update(enums::enum_constant<game_update_type::game_notify>,      game_notify_type args);
+        void handle_update(enums::enum_constant<game_update_type::game_over>,        const game_over_update &args);
         void handle_update(enums::enum_constant<game_update_type::add_cards>,        const add_cards_update &args);
         void handle_update(enums::enum_constant<game_update_type::move_card>,        const move_card_update &args);
+        void handle_update(enums::enum_constant<game_update_type::deck_shuffled>);
         void handle_update(enums::enum_constant<game_update_type::show_card>,        const show_card_update &args);
         void handle_update(enums::enum_constant<game_update_type::hide_card>,        const hide_card_update &args);
         void handle_update(enums::enum_constant<game_update_type::tap_card>,         const tap_card_update &args);

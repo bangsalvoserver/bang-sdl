@@ -9,8 +9,8 @@ namespace banggame {
         target->get_game()->queue_response<response_type::bang>(origin, target);
     }
 
-    bool effect_bangcard::can_play(player *origin) {
-        return origin->can_play_bang();
+    bool effect_bangcard::can_play(player *target) {
+        return target->can_play_bang();
     }
 
     void effect_bangcard::on_play(player *origin, player *target) {
@@ -36,121 +36,128 @@ namespace banggame {
         }
     }
 
-    void effect_heal::on_play(player *, player *target) {
+    void effect_heal::on_play(player *origin, player *target) {
         target->heal(1);
     }
 
-    void effect_beer::on_play(player *, player *target) {
+    bool effect_damage::can_play(player *target) {
+        return target->get_hp() > 1;
+    }
+
+    void effect_damage::on_play(player *origin, player *target) {
+        target->damage(origin, 1);
+    }
+
+    void effect_beer::on_play(player *origin, player *target) {
         if (target->get_game()->num_alive() > 2) {
             target->heal(1);
         }
     }
 
-    void effect_destroy::on_play(player *, player *target_player, card *target_card) {
-        target_player->discard_card(target_card);
+    void effect_destroy::on_play(player *origin, player *target, int card_id) {
+        target->discard_card(card_id);
     }
 
-    void effect_steal::on_play(player *origin, player *target_player, card *target_card) {
-        origin->steal_card(target_player, target_card);
+    void effect_steal::on_play(player *origin, player *target, int card_id) {
+        origin->steal_card(target, card_id);
     }
 
-    void effect_mustang::on_equip(player *target_player, card *target_card) {
-        target_player->add_distance(1);
+    void effect_mustang::on_equip(player *target, int card_id) {
+        target->add_distance(1);
     }
 
-    void effect_mustang::on_unequip(player *target_player, card *target_card) {
-        target_player->add_distance(-1);
+    void effect_mustang::on_unequip(player *target, int card_id) {
+        target->add_distance(-1);
     }
 
-    void effect_scope::on_equip(player *target_player, card *target_card) {
-        target_player->add_range(1);
+    void effect_scope::on_equip(player *target, int card_id) {
+        target->add_range(1);
     }
 
-    void effect_scope::on_unequip(player *target_player, card *target_card) {
-        target_player->add_range(-1);
+    void effect_scope::on_unequip(player *target, int card_id) {
+        target->add_range(-1);
     }
 
-    void effect_jail::on_equip(player *target_player, card *target_card) {
-        target_player->add_predraw_check(target_card->id, 1);
+    void effect_jail::on_equip(player *target, int card_id) {
+        target->add_predraw_check(card_id, 1);
     }
 
-    void effect_jail::on_unequip(player *target_player, card *target_card) {
-        target_player->remove_predraw_check(target_card->id);
+    void effect_jail::on_unequip(player *target, int card_id) {
+        target->remove_predraw_check(card_id);
     }
 
-    void effect_jail::on_predraw_check(player *target_player, card *target_card) {
-        target_player->get_game()->draw_check_then(target_player, [=](card_suit_type suit, card_value_type) {
-            auto &moved = target_player->discard_card(target_card);
+    void effect_jail::on_predraw_check(player *target, int card_id) {
+        target->get_game()->draw_check_then(target, [=](card_suit_type suit, card_value_type) {
+            auto &moved = target->discard_card(card_id);
             if (suit == card_suit_type::hearts) {
-                target_player->next_predraw_check(moved.id);
+                target->next_predraw_check(card_id);
             } else {
-                target_player->get_game()->next_turn();
+                target->get_game()->next_turn();
             }
         });
     }
 
-    void effect_dynamite::on_equip(player *target_player, card *target_card) {
-        target_player->add_predraw_check(target_card->id, 2);
+    void effect_dynamite::on_equip(player *target, int card_id) {
+        target->add_predraw_check(card_id, 2);
     }
 
-    void effect_dynamite::on_unequip(player *target_player, card *target_card) {
-        target_player->remove_predraw_check(target_card->id);
+    void effect_dynamite::on_unequip(player *target, int card_id) {
+        target->remove_predraw_check(card_id);
     }
 
-    void effect_dynamite::on_predraw_check(player *target_player, card *target_card) {
-        target_player->get_game()->draw_check_then(target_player, [=](card_suit_type suit, card_value_type value) {
-            auto card_id = target_card->id;
+    void effect_dynamite::on_predraw_check(player *target, int card_id) {
+        target->get_game()->draw_check_then(target, [=](card_suit_type suit, card_value_type value) {
             if (suit == card_suit_type::spades
                 && enums::indexof(value) >= enums::indexof(card_value_type::value_2)
                 && enums::indexof(value) <= enums::indexof(card_value_type::value_9)) {
-                target_player->discard_card(target_card);
-                target_player->damage(nullptr, 3);
+                target->discard_card(card_id);
+                target->damage(nullptr, 3);
             } else {
-                auto moved = target_player->get_card_removed(target_card);
-                auto *p = target_player;
+                auto moved = target->get_card_removed(card_id);
+                auto *p = target;
                 do {
                     p = p->get_game()->get_next_player(p);
                 } while (p->has_card_equipped(moved.name));
                 p->equip_card(std::move(moved));
             }
-            target_player->next_predraw_check(card_id);
+            target->next_predraw_check(card_id);
         });
     }
 
-    void effect_weapon::on_equip(player *target_player, card *target_card) {
-        target_player->discard_weapon();
-        target_player->set_weapon_range(card_effect::maxdistance);
+    void effect_weapon::on_equip(player *target, int card_id) {
+        target->discard_weapon();
+        target->set_weapon_range(card_effect::maxdistance);
     }
 
-    void effect_weapon::on_unequip(player *target_player, card *target_card) {
-        target_player->set_weapon_range(1);
+    void effect_weapon::on_unequip(player *target, int card_id) {
+        target->set_weapon_range(1);
     }
 
-    void effect_volcanic::on_equip(player *target_player, card *target_card) {
-        target_player->add_infinite_bangs(1);
+    void effect_volcanic::on_equip(player *target, int card_id) {
+        target->add_infinite_bangs(1);
     }
 
-    void effect_volcanic::on_unequip(player *target_player, card *target_card) {
-        target_player->add_infinite_bangs(-1);
+    void effect_volcanic::on_unequip(player *target, int card_id) {
+        target->add_infinite_bangs(-1);
     }
 
-    void effect_draw::on_play(player *, player *target) {
+    void effect_draw::on_play(player *origin, player *target) {
         target->add_to_hand(target->get_game()->draw_card());
     }
 
-    bool effect_draw_discard::can_play(player *origin) {
-        return ! origin->get_game()->m_discards.empty();
+    bool effect_draw_discard::can_play(player *target) {
+        return ! target->get_game()->m_discards.empty();
     }
 
-    void effect_draw_discard::on_play(player *, player *target) {
+    void effect_draw_discard::on_play(player *origin, player *target) {
         target->add_to_hand(target->get_game()->draw_from_discards());
     }
 
-    void effect_horsecharm::on_equip(player *target_player, card *target_card) {
-        target_player->add_num_checks(1);
+    void effect_horsecharm::on_equip(player *target, int card_id) {
+        target->add_num_checks(1);
     }
 
-    void effect_horsecharm::on_unequip(player *target_player, card *target_card) {
-        target_player->add_num_checks(-1);
+    void effect_horsecharm::on_unequip(player *target, int card_id) {
+        target->add_num_checks(-1);
     }
 }

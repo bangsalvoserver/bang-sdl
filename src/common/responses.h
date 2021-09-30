@@ -53,6 +53,8 @@ namespace banggame {
         virtual void on_resolve() override;
     };
 
+    struct card;
+
     struct card_response : response_effect {
         virtual bool on_respond(card *target_card) = 0;
     };

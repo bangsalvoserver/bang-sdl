@@ -203,6 +203,9 @@ void game_manager::handle_message(enums::enum_constant<client_message_type::game
 void lobby::send_updates(game_manager &mgr) {
     while (!game.m_updates.empty()) {
         const auto &data = game.m_updates.front();
+        if (data.second.enum_index() == game_update_type::game_over) {
+            state = lobby_state::finished;
+        }
         const auto &addr = std::ranges::find(users, data.first, [](const auto &pair) { return pair.second.controlling; })->first;
         mgr.send_message<server_message_type::game_update>(addr, data.second);
         game.m_updates.pop_front();

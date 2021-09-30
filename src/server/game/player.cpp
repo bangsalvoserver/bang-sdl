@@ -7,7 +7,7 @@
 #include "common/net_enums.h"
 
 namespace banggame {
-    constexpr auto is_weapon = [](const card &c) {
+    constexpr auto is_weapon = [](const deck_card &c) {
         return !c.effects.empty() && c.effects.front().is<effect_weapon>();
     };
 
@@ -16,15 +16,15 @@ namespace banggame {
         if (it != m_table.end()) {
             auto &moved = get_game()->add_to_discards(std::move(*it));
             for (auto &e : moved.effects) {
-                e->on_unequip(this, &moved);
+                e->on_unequip(this, moved.id);
             }
             m_table.erase(it);
         }
     }
 
-    void player::equip_card(card &&target) {
+    void player::equip_card(deck_card &&target) {
         for (auto &e : target.effects) {
-            e->on_equip(this, &target);
+            e->on_equip(this, target.id);
         }
         auto &moved = m_table.emplace_back(std::move(target));
         get_game()->add_show_card(moved);
@@ -32,26 +32,26 @@ namespace banggame {
     }
 
     bool player::has_card_equipped(const std::string &name) const {
-        return std::ranges::find(m_table, name, &card::name) != m_table.end();
+        return std::ranges::find(m_table, name, &deck_card::name) != m_table.end();
     }
 
-    card &player::get_hand_card(int card_id) {
-        auto it = std::ranges::find(m_hand, card_id, &card::id);
+    deck_card &player::get_hand_card(int card_id) {
+        auto it = std::ranges::find(m_hand, card_id, &deck_card::id);
         if (it == m_hand.end()) throw game_error("ID non trovato");
         return *it;
     }
 
-    card &player::get_table_card(int card_id) {
-        auto it = std::ranges::find(m_table, card_id, &card::id);
+    deck_card &player::get_table_card(int card_id) {
+        auto it = std::ranges::find(m_table, card_id, &deck_card::id);
         if (it == m_table.end()) throw game_error("ID non trovato");
         return *it;
     }
 
-    card player::get_card_removed(card *target) {
-        auto it = std::ranges::find(m_table, target->id, &card::id);
-        card c;
+    deck_card player::get_card_removed(int card_id) {
+        auto it = std::ranges::find(m_table, card_id, &deck_card::id);
+        deck_card c;
         if (it == m_table.end()) {
-            it = std::ranges::find(m_hand, target->id, &card::id);
+            it = std::ranges::find(m_hand, card_id, &deck_card::id);
             if (it == m_hand.end()) throw game_error("ID non trovato");
             c = std::move(*it);
             m_hand.erase(it);
@@ -62,21 +62,21 @@ namespace banggame {
             }
             c = std::move(*it);
             for (auto &e : c.effects) {
-                e->on_unequip(this, &c);
+                e->on_unequip(this, card_id);
             }
             m_table.erase(it);
         }
         return c;
     }
 
-    card &player::discard_card(card *target) {
-        return get_game()->add_to_discards(get_card_removed(target));
+    deck_card &player::discard_card(int card_id) {
+        return get_game()->add_to_discards(get_card_removed(card_id));
     }
 
-    void player::steal_card(player *target, card *target_card) {
-        const card &c = m_hand.emplace_back(target->get_card_removed(target_card));
-        get_game()->add_show_card(c, this);
-        get_game()->add_public_update<game_update_type::move_card>(c.id, id, card_pile_type::player_hand);
+    void player::steal_card(player *target, int card_id) {
+        auto &moved = m_hand.emplace_back(target->get_card_removed(card_id));
+        get_game()->add_show_card(moved, this);
+        get_game()->add_public_update<game_update_type::move_card>(card_id, id, card_pile_type::player_hand);
     }
 
     void player::damage(player *source, int value) {
@@ -92,13 +92,13 @@ namespace banggame {
         get_game()->add_public_update<game_update_type::player_hp>(id, m_hp);
     }
 
-    void player::add_to_hand(card &&target) {
+    void player::add_to_hand(deck_card &&target) {
         const auto &c = m_hand.emplace_back(std::move(target));
         get_game()->add_show_card(c, this);
         get_game()->add_public_update<game_update_type::move_card>(c.id, id, card_pile_type::player_hand);
     }
 
-    bool player::verify_card_targets(const card &c, const std::vector<play_card_target> &targets) {
+    bool player::verify_card_targets(const deck_card &c, const std::vector<play_card_target> &targets) {
         auto in_range = [this](int player_id, int distance) {
             return distance == 0 || get_game()->calc_distance(this, get_game()->get_player(player_id)) <= distance;
         };
@@ -183,7 +183,7 @@ namespace banggame {
                             if (arg.player_id == id) return false;
                             if (arg.from_hand) return true;
                             auto &l = get_game()->get_player(arg.player_id)->m_table;
-                            return std::ranges::find(l, arg.card_id, &card::id) != l.end();
+                            return std::ranges::find(l, arg.card_id, &deck_card::id) != l.end();
                         });
                     } else if (args.size() == 1) {
                         const auto &tgt = args.front();
@@ -206,7 +206,7 @@ namespace banggame {
         });
     }
 
-    void player::do_play_card(card &c, const std::vector<play_card_target> &targets) {
+    void player::do_play_card(deck_card &c, const std::vector<play_card_target> &targets) {
         auto effect_it = targets.begin();
         for (auto &e : c.effects) {
             enums::visit(util::overloaded{
@@ -220,18 +220,7 @@ namespace banggame {
                 },
                 [&](enums::enum_constant<play_card_target_type::target_card>, const std::vector<target_card_id> &args) {
                     for (const auto &target : args) {
-                        auto *target_player = get_game()->get_player(target.player_id);
-                        card *target_card = nullptr;
-                        if (target.from_hand) {
-                            if (target_player == this) {
-                                target_card = &get_hand_card(target.card_id);
-                            } else {
-                                target_card = &target_player->m_hand[get_game()->rng() % target_player->m_hand.size()];
-                            }
-                        } else {
-                            target_card = &target_player->get_table_card(target.card_id);
-                        }
-                        e->on_play(this, target_player, target_card);
+                        e->on_play(this, get_game()->get_player(target.player_id), target.card_id);
                     }
                 }
             }, *effect_it++);
@@ -239,15 +228,15 @@ namespace banggame {
     }
 
     void player::play_card(const play_card_args &args) {
-        auto card_it = std::ranges::find(m_hand, args.card_id, &card::id);
+        auto card_it = std::ranges::find(m_hand, args.card_id, &deck_card::id);
         if (card_it == m_hand.end()) {
-            card_it = std::ranges::find(m_table, args.card_id, &card::id);
+            card_it = std::ranges::find(m_table, args.card_id, &deck_card::id);
             if (card_it == m_table.end()) return;
             switch (card_it->color) {
             case card_color_type::green:
                 if (!card_it->inactive) {
                     if (verify_card_targets(*card_it, args.targets)) {
-                        card removed = std::move(*card_it);
+                        deck_card removed = std::move(*card_it);
                         m_table.erase(card_it);
                         do_play_card(get_game()->add_to_discards(std::move(removed)), args.targets);
                     } else {
@@ -265,7 +254,7 @@ namespace banggame {
                     if (std::ranges::all_of(card_it->effects, [this](effect_holder &e) {
                         return e->can_play(this);
                     })) {
-                        card removed = std::move(*card_it);
+                        deck_card removed = std::move(*card_it);
                         m_hand.erase(card_it);
                         do_play_card(get_game()->add_to_discards(std::move(removed)), args.targets);
                     }
@@ -275,12 +264,12 @@ namespace banggame {
                 break;
             case card_color_type::blue:
                 if (verify_card_targets(*card_it, args.targets)) {
-                    auto *target_player = get_game()->get_player(
+                    auto *target = get_game()->get_player(
                         args.targets.front().get<play_card_target_type::target_player>().front().player_id);
-                    if (!target_player->has_card_equipped(card_it->name)) {
-                        card removed = std::move(*card_it);
+                    if (!target->has_card_equipped(card_it->name)) {
+                        deck_card removed = std::move(*card_it);
                         m_hand.erase(card_it);
-                        target_player->equip_card(std::move(removed));
+                        target->equip_card(std::move(removed));
                     } else {
                         throw game_error("Carte duplicate");
                     }
@@ -291,7 +280,7 @@ namespace banggame {
             case card_color_type::green:
                 if (!has_card_equipped(card_it->name)) {
                     card_it->inactive = true;
-                    card removed = std::move(*card_it);
+                    deck_card removed = std::move(*card_it);
                     m_hand.erase(card_it);
                     equip_card(std::move(removed));
                     get_game()->add_public_update<game_update_type::tap_card>(removed.id, true);
@@ -307,16 +296,16 @@ namespace banggame {
         auto *resp = get_game()->top_response().as<card_response>();
         if (!resp) return;
 
-        auto card_it = std::ranges::find(m_hand, args.card_id, &card::id);
+        auto card_it = std::ranges::find(m_hand, args.card_id, &deck_card::id);
         if (card_it == m_hand.end()) {
-            card_it = std::ranges::find(m_table, args.card_id, &card::id);
+            card_it = std::ranges::find(m_table, args.card_id, &deck_card::id);
             if (card_it == m_table.end()) return;
             switch (card_it->color) {
             case card_color_type::green:
                 if (!card_it->inactive) {
                     if (verify_card_targets(*card_it, args.targets)) {
                         if (resp->on_respond(&*card_it)) {
-                            card removed = std::move(*card_it);
+                            deck_card removed = std::move(*card_it);
                             m_table.erase(card_it);
                             do_play_card(get_game()->add_to_discards(std::move(removed)), args.targets);
                         }
@@ -334,7 +323,7 @@ namespace banggame {
         } else if (card_it->color == card_color_type::brown) {
             if (verify_card_targets(*card_it, args.targets)) {
                 if (resp->on_respond(&*card_it)) {
-                    card removed = std::move(*card_it);
+                    deck_card removed = std::move(*card_it);
                     m_hand.erase(card_it);
                     do_play_card(get_game()->add_to_discards(std::move(removed)), args.targets);
                 }
@@ -381,10 +370,10 @@ namespace banggame {
     }
 
     void player::discard_all() {
-        for (card &c : m_table) {
+        for (deck_card &c : m_table) {
             get_game()->add_to_discards(std::move(c));
         }
-        for (card &c : m_hand) {
+        for (deck_card &c : m_hand) {
             get_game()->add_to_discards(std::move(c));
         }
     }
@@ -401,14 +390,14 @@ namespace banggame {
 
         if (m_character.type == character_type::none) {
             for (auto &e : m_character.effects) {
-                e->on_equip(this, nullptr);
+                e->on_equip(this, 0);
             }
         }
 
         player_character_update obj;
         obj.player_id = id;
         obj.card_id = c.id;
-        obj.max_hp = c.max_hp;
+        obj.max_hp = m_max_hp;
         obj.name = c.name;
         obj.image = c.image;
         for (const auto &e : c.effects) {

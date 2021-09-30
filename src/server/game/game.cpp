@@ -8,7 +8,7 @@
 
 namespace banggame {
 
-    void game::add_show_card(const card &c, player *owner) {
+    void game::add_show_card(const deck_card &c, player *owner) {
         show_card_update obj;
         obj.card_id = c.id;
         obj.color = c.color;
@@ -73,8 +73,8 @@ namespace banggame {
             p.set_character_and_role(*character_it++, *role_it++);
         }
 
-        m_deck = std::move(all_cards.cards);
-        auto ids_view = m_deck | std::views::transform(&card::id);
+        m_deck = std::move(all_cards.deck);
+        auto ids_view = m_deck | std::views::transform(&deck_card::id);
         add_public_update<game_update_type::add_cards>(std::vector(ids_view.begin(), ids_view.end()));
         shuffle_cards_and_ids(m_deck, rng);
 
@@ -88,31 +88,31 @@ namespace banggame {
         m_playing->start_of_turn();
     }
 
-    card game::draw_card() {
+    deck_card game::draw_card() {
         if (m_deck.empty()) {
-            card top_discards = std::move(m_discards.back());
+            deck_card top_discards = std::move(m_discards.back());
             m_discards.resize(m_discards.size()-1);
             m_deck = std::move(m_discards);
             m_discards.clear();
             m_discards.emplace_back(std::move(top_discards));
             shuffle_cards_and_ids(m_deck, rng);
-            add_public_update<game_update_type::game_notify>(game_notify_type::deck_shuffled);
+            add_public_update<game_update_type::deck_shuffled>();
         }
-        card c = std::move(m_deck.back());
+        deck_card c = std::move(m_deck.back());
         m_deck.pop_back();
         return c;
     }
 
-    card game::draw_from_discards() {
-        card c = std::move(m_discards.back());
+    deck_card game::draw_from_discards() {
+        deck_card c = std::move(m_discards.back());
         m_discards.pop_back();
         return c;
     }
 
-    card game::draw_from_temp(int card_id) {
-        auto it = std::ranges::find(m_temps, card_id, &card::id);
+    deck_card game::draw_from_temp(int card_id) {
+        auto it = std::ranges::find(m_temps, card_id, &deck_card::id);
         if (it == m_temps.end()) throw game_error("ID non trovato");
-        card c = std::move(*it);
+        deck_card c = std::move(*it);
         m_temps.erase(it);
         return c;
     }
@@ -131,12 +131,12 @@ namespace banggame {
     }
 
     void game::resolve_check(int card_id) {
-        card c = draw_from_temp(card_id);
+        auto c = draw_from_temp(card_id);
         for (auto &c : m_temps) {
             add_to_discards(std::move(c));
         }
         m_temps.clear();
-        card &moved = add_to_discards(std::move(c));
+        auto &moved = add_to_discards(std::move(c));
         m_pending_checks.front()(moved.suit, moved.value);
         m_pending_checks.pop_front();
     }
@@ -145,20 +145,42 @@ namespace banggame {
         target->set_dead(true);
         target->discard_all();
         add_public_update<game_update_type::player_show_role>(target->id, target->role());
-        if (m_playing == target) {
-            next_turn();
-        } else if (m_playing == killer) {
-            switch (target->role()) {
-            case player_role::outlaw:
-                killer->add_to_hand(target->get_game()->draw_card());
-                killer->add_to_hand(target->get_game()->draw_card());
-                killer->add_to_hand(target->get_game()->draw_card());
-                break;
-            case player_role::deputy:
-                if (killer->role() == player_role::sheriff) {
-                    killer->discard_all();
+        bool game_over = false;
+        if (target->role() == player_role::sheriff) {
+            if (num_alive() == 1 && std::ranges::all_of(m_players | std::views::filter(&player::alive),
+            [](player_role role) { return role == player_role::renegade; }, &player::role)) {
+                add_public_update<game_update_type::game_over>(player_role::renegade);
+            } else {
+                add_public_update<game_update_type::game_over>(player_role::outlaw);
+            }
+            game_over = true;
+        } else if (std::ranges::all_of(m_players | std::views::filter(&player::alive),
+        [](player_role role) {
+            return role == player_role::sheriff || role == player_role::sheriff;
+        }, &player::role)) {
+            add_public_update<game_update_type::game_over>(player_role::sheriff);
+            game_over = true;
+        }
+        if (game_over) {
+            for (const auto &p : m_players | std::views::filter(&player::alive)) {
+                add_public_update<game_update_type::player_show_role>(p.id, p.role());
+            }
+        } else {
+            if (m_playing == target) {
+                next_turn();
+            } else if (m_playing == killer) {
+                switch (target->role()) {
+                case player_role::outlaw:
+                    killer->add_to_hand(target->get_game()->draw_card());
+                    killer->add_to_hand(target->get_game()->draw_card());
+                    killer->add_to_hand(target->get_game()->draw_card());
+                    break;
+                case player_role::deputy:
+                    if (killer->role() == player_role::sheriff) {
+                        killer->discard_all();
+                    }
+                    break;
                 }
-                break;
             }
         }
     }

@@ -8,12 +8,12 @@
 namespace banggame {
     void response_predraw::on_pick(card_pile_type pile, int card_id) {
         if (pile == card_pile_type::player_table) {
-            card &c = target->get_table_card(card_id);
+            auto &c = target->get_table_card(card_id);
             if (target->is_top_predraw_check(c)) {
                 auto t = target;
                 t->get_game()->pop_response();
                 for (auto &e : c.effects) {
-                    e->on_predraw_check(t, &c);
+                    e->on_predraw_check(t, card_id);
                 }
             }
         }
@@ -48,7 +48,7 @@ namespace banggame {
         if (pile == card_pile_type::player_hand) {
             auto t = target;
             t->get_game()->pop_response();
-            t->discard_card(&t->get_hand_card(card_id));
+            t->discard_card(card_id);
             if (t->num_hand_cards() <= t->get_hp()) {
                 t->get_game()->next_turn();
             }
@@ -62,7 +62,7 @@ namespace banggame {
                 auto o = origin;
                 auto t = target;
                 t->get_game()->pop_response();
-                t->discard_card(&target_card);
+                t->discard_card(card_id);
                 t->get_game()->queue_response<response_type::duel>(t, o);
             }
         }
@@ -81,7 +81,7 @@ namespace banggame {
             auto &target_card = t->get_hand_card(card_id);
             if (!target_card.effects.empty() && target_card.effects.front().is<effect_bangcard>()) {
                 t->get_game()->pop_response();
-                t->discard_card(&target_card);
+                t->discard_card(card_id);
             }
         }
     }
