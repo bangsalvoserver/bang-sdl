@@ -39,6 +39,8 @@ namespace banggame {
         virtual void on_play(player *origin, player *target) override;
     };
 
+    struct effect_changewws : card_effect {};
+
     struct effect_beer : card_effect {
         virtual void on_play(player *origin, player *target) override;
     };
@@ -100,6 +102,11 @@ namespace banggame {
         virtual void on_play(player *origin) override;
     };
 
+    struct effect_boots : card_effect {
+        virtual void on_equip(player *target, int card_id) override;
+        virtual void on_unequip(player *target, int card_id) override;
+    };
+
     struct effect_horsecharm : card_effect {
         virtual void on_equip(player *target, int card_id) override;
         virtual void on_unequip(player *target, int card_id) override;
@@ -139,29 +146,29 @@ namespace banggame {
         (generalstore,  effect_generalstore)
         (deathsave,     effect_deathsave)
         (damage,        effect_damage)
+        (changewws,     effect_changewws)
         (pickaxe,       effect_pickaxe)
         (calumet,       effect_calumet)
-        (boots)
+        (boots,         effect_boots)
         (black_jack,    effect_black_jack)
         (calamity_janet)
-        (el_gringo)
+        (el_gringo,     effect_el_gringo)
         (kit_carlson,   effect_kit_carlson)
         (horsecharm,    effect_horsecharm)
         (slab_the_killer, effect_slab_the_killer)
-        (suzy_lafayette)
-        (vulture_sam)
-        (claus_the_saint) /*, effect_claus_the_saint) */
-        (johnny_kisch)
+        (suzy_lafayette, effect_suzy_lafayette)
+        (vulture_sam,   effect_vulture_sam)
+        (claus_the_saint)
+        (johnny_kisch,  effect_johnny_kisch)
         (bellestar)
         (bill_noface,   effect_bill_noface)
         (elena_fuente)
-        (greg_digger)
-        (herb_hunter)
-        (molly_stark)
+        (greg_digger,   effect_greg_digger)
+        (herb_hunter,   effect_herb_hunter)
+        (molly_stark,   effect_molly_stark)
         (sean_mallory,  effect_sean_mallory)
         (tequila_joe,   effect_tequila_joe)
         (vera_custer)
-        (changewws)
     )
 }
 

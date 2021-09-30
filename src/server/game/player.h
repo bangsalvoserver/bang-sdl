@@ -62,6 +62,7 @@ namespace banggame {
 
         deck_card &find_hand_card(int card_id);
         deck_card &find_table_card(int card_id);
+        deck_card &random_hand_card();
         card &find_any_card(int card_id);
 
         bool is_hand_empty() const {

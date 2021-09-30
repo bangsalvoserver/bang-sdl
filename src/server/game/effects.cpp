@@ -159,6 +159,18 @@ namespace banggame {
         }
     }
 
+    void effect_boots::on_equip(player *p, int card_id) {
+        p->m_game->add_event<event_type::on_hit>(card_id, [p](player *origin, player *target){
+            if (p == target) {
+                target->add_to_hand(target->m_game->draw_card());
+            }
+        });
+    }
+
+    void effect_boots::on_unequip(player *target, int card_id) {
+        target->m_game->remove_event(card_id);
+    }
+
     void effect_horsecharm::on_equip(player *target, int card_id) {
         ++target->m_num_checks;
     }

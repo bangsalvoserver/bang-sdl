@@ -52,9 +52,12 @@ namespace banggame {
             if (target_card.effects.front().is<effect_bangcard>()) {
                 auto o = origin;
                 auto t = target;
-                t->m_game->pop_response();
+                t->m_game->pop_response_noupdate();
                 t->discard_card(card_id);
                 t->m_game->queue_response<response_type::duel>(t, o);
+                if (t != t->m_game->m_playing) {
+                    t->m_game->handle_game_event<event_type::on_play_off_turn>(t, card_id);
+                }
             }
         }
     }
@@ -73,6 +76,9 @@ namespace banggame {
             if (target_card.effects.front().is<effect_bangcard>()) {
                 t->m_game->pop_response();
                 t->discard_card(card_id);
+                if (t != t->m_game->m_playing) {
+                    t->m_game->handle_game_event<event_type::on_play_off_turn>(t, card_id);
+                }
             }
         }
     }

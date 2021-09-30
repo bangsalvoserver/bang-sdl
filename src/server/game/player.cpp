@@ -55,6 +55,10 @@ namespace banggame {
         }
     }
 
+    deck_card &player::random_hand_card() {
+        return m_hand[m_game->rng() % m_hand.size()];
+    }
+
     card &player::find_any_card(int card_id) {
         if (card_id == m_character.id) {
             return m_character;
@@ -90,11 +94,18 @@ namespace banggame {
     }
 
     deck_card &player::discard_card(int card_id) {
-        return m_game->add_to_discards(get_card_removed(card_id));
+        auto &moved = m_game->add_to_discards(get_card_removed(card_id));
+        if (m_hand.empty()) {
+            m_game->handle_game_event<event_type::on_empty_hand>(this);
+        }
+        return moved;
     }
 
     void player::steal_card(player *target, int card_id) {
         auto &moved = m_hand.emplace_back(target->get_card_removed(card_id));
+        if (target->m_hand.empty()) {
+            m_game->handle_game_event<event_type::on_empty_hand>(target);
+        }
         m_game->add_show_card(moved, this);
         m_game->add_public_update<game_update_type::move_card>(card_id, id, card_pile_type::player_hand);
     }
@@ -104,6 +115,9 @@ namespace banggame {
         m_game->add_public_update<game_update_type::player_hp>(id, m_hp);
         if (m_hp <= 0) {
             m_game->add_response<response_type::death>(source, this);
+        }
+        for (int i=0; i<value; ++i) {
+            m_game->handle_game_event<event_type::on_hit>(source, this);
         }
     }
 
@@ -244,6 +258,9 @@ namespace banggame {
             deck_card removed = std::move(*it);
             m_hand.erase(it);
             card_ptr = &m_game->add_to_discards(std::move(removed));
+            if (m_game->m_playing != this) {
+                m_game->handle_game_event<event_type::on_play_off_turn>(this, card_id);
+            }
         } else if (auto it = std::ranges::find(m_table, card_id, &deck_card::id); it != m_table.end()) {
             if (it->color == card_color_type::blue) {
                 card_ptr = &*it;
@@ -278,10 +295,18 @@ namespace banggame {
                     for (const auto &target : args) {
                         auto *p = m_game->get_player(target.player_id);
                         if (p != this && check_immunity(p)) continue;
-                        e->on_play(this, p, target.card_id);
+                        if (target.from_hand && p != this) {
+                            e->on_play(this, p, p->random_hand_card().id);
+                        } else {
+                            e->on_play(this, p, target.card_id);
+                        }
                     }
                 }
             }, *effect_it++);
+        }
+
+        if (m_hand.empty()) {
+            m_game->handle_game_event<event_type::on_empty_hand>(this);
         }
     }
 
@@ -330,6 +355,10 @@ namespace banggame {
                         deck_card removed = std::move(*card_it);
                         m_hand.erase(card_it);
                         target->equip_card(std::move(removed));
+                        m_game->handle_game_event<event_type::on_equip>(this, args.card_id);
+                        if (m_hand.empty()) {
+                            m_game->handle_game_event<event_type::on_empty_hand>(this);
+                        }
                     } else {
                         throw invalid_action();
                     }
@@ -343,7 +372,11 @@ namespace banggame {
                     deck_card removed = std::move(*card_it);
                     m_hand.erase(card_it);
                     equip_card(std::move(removed));
+                    m_game->handle_game_event<event_type::on_equip>(this, args.card_id);
                     m_game->add_public_update<game_update_type::tap_card>(removed.id, true);
+                    if (m_hand.empty()) {
+                        m_game->handle_game_event<event_type::on_empty_hand>(this);
+                    }
                 } else {
                     throw invalid_action();
                 }

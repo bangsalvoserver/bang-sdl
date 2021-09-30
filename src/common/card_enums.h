@@ -82,6 +82,18 @@ namespace banggame {
         (temp_table)
     )
 
+    struct player;
+
+    DEFINE_ENUM_TYPES_IN_NS(banggame, event_type,
+        (on_hit,            std::function<void(player *, player *)>)
+        (on_empty_hand,     std::function<void(player *)>)
+        (on_player_death,   std::function<void(player *, player *)>)
+        (on_equip,          std::function<void(player *, int)>)
+        (on_play_off_turn,  std::function<void(player *, int)>)
+    )
+
+    using event_function = enums::enum_variant<event_type>;
+
 }
 
 #endif

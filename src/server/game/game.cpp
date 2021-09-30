@@ -150,6 +150,7 @@ namespace banggame {
 
     void game::player_death(player *killer, player *target) {
         target->m_dead = true;
+        handle_game_event<event_type::on_player_death>(killer, target);
         target->discard_all();
         add_public_update<game_update_type::player_show_role>(target->id, target->m_role);
         bool game_over = false;
@@ -189,6 +190,20 @@ namespace banggame {
                     break;
                 }
             }
+        }
+    }
+
+    void game::pop_events() {
+        while (!m_pending_events.empty()) {
+            auto &current_event = m_pending_events.front();
+            for (auto &[card_id, e] : m_event_handlers) {
+                if (e.index() == current_event.index()) {
+                    enums::visit([&]<event_type T>(enums::enum_constant<T>, auto &fun) {
+                        std::apply(fun, std::get<enums::indexof(T)>(current_event));
+                    }, e);
+                }
+            }
+            m_pending_events.pop_front();
         }
     }
 

@@ -22,10 +22,29 @@ namespace banggame {
         card_expansion_type allowed_expansions = enums::flags_all<card_expansion_type>;
     };
 
+    namespace detail {
+        template<typename Function> struct function_unwrapper{};
+        template<typename Function> using function_unwrapper_t = typename function_unwrapper<Function>::type;
+        template<typename ... Args> struct function_unwrapper<std::function<void(Args ...)>> {
+            using type = std::tuple<Args...>;
+        };
+
+        template<typename ESeq> struct make_function_argument_tuple_variant{};
+        template<enums::reflected_enum auto ... Es> struct make_function_argument_tuple_variant<enums::enum_sequence<Es...>> {
+            using type = std::variant<function_unwrapper_t<enums::enum_type_t<Es>> ...>;
+        };
+
+        template<enums::reflected_enum E> using function_argument_tuple_variant = typename make_function_argument_tuple_variant<enums::make_enum_sequence<E>>::type;
+    };
+
+    using event_args = detail::function_argument_tuple_variant<event_type>;
+
     struct game {
         std::list<std::pair<player *, game_update>> m_updates;
         std::list<std::pair<response_type, response_holder>> m_responses;
         std::list<draw_check_function> m_pending_checks;
+        std::map<int, event_function> m_event_handlers;
+        std::list<event_args> m_pending_events;
         
         std::vector<deck_card> m_deck;
         std::vector<deck_card> m_discards;
@@ -92,11 +111,35 @@ namespace banggame {
         void pop_response() {
             m_responses.pop_front();
             if (m_responses.empty()) {
+                pop_events();
                 add_public_update<game_update_type::response_done>();
             } else {
                 add_response_update();
             }
         }
+
+        void pop_response_noupdate() {
+            m_responses.pop_front();
+        }
+
+        template<event_type E, typename Function>
+        void add_event(int card_id, Function &&fun) {
+            m_event_handlers.try_emplace(card_id, enums::enum_constant<E>{}, std::forward<Function>(fun));
+        }
+
+        void remove_event(int card_id) {
+            m_event_handlers.erase(card_id);
+        }
+
+        template<event_type E, typename ... Ts>
+        void handle_game_event(Ts && ... args) {
+            m_pending_events.emplace_back(std::in_place_index<enums::indexof(E)>, std::forward<Ts>(args) ...);
+            if (m_responses.empty()) {
+                pop_events();
+            }
+        }
+        
+        void pop_events();
 
         deck_card &add_to_discards(deck_card &&c) {
             add_show_card(c);
