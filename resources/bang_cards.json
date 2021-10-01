@@ -192,6 +192,9 @@
                 {
                     "target": "reachable",
                     "class": "bangcard"
+                },
+                {
+                    "class": "banglimit"
                 }
             ]
         },
@@ -523,6 +526,9 @@
                 {
                     "target": "reachable",
                     "class": "bangcard"
+                },
+                {
+                    "class": "banglimit"
                 }
             ]
         },
@@ -1157,11 +1163,14 @@
             "effects": [
                 {
                     "target": "reachable",
-                    "class": "fanning"
+                    "class": "bang"
                 },
                 {
                     "target": "fanning_target",
                     "class": "bang"
+                },
+                {
+                    "class": "banglimit"
                 }
             ]
         },
@@ -1226,6 +1235,9 @@
                 {
                     "target": "reachable",
                     "class": "bangcard"
+                },
+                {
+                    "class": "banglimit"
                 }
             ]
         },

@@ -29,9 +29,20 @@ namespace banggame {
 
     void response_generalstore::on_pick(card_pile_type pile, int card_id) {
         if (pile == card_pile_type::temp_table) {
+            auto o = origin;
             auto t = target;
-            t->m_game->pop_response();
-            t->add_to_hand(t->m_game->draw_from_temp(card_id));
+            auto next = t->m_game->get_next_player(t);
+            auto removed = t->m_game->draw_from_temp(card_id);
+            if (t->m_game->m_temps.size() == 1) {
+                t->m_game->pop_response();
+                t->add_to_hand(std::move(removed));
+                next->add_to_hand(std::move(t->m_game->m_temps.front()));
+                t->m_game->m_temps.clear();
+            } else {
+                t->m_game->pop_response_noupdate();
+                t->add_to_hand(std::move(removed));
+                t->m_game->queue_response<response_type::generalstore>(o, next);
+            }
         }
     }
 

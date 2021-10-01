@@ -9,13 +9,16 @@ namespace banggame {
         target->m_game->queue_response<response_type::bang>(origin, target);
     }
 
-    bool effect_bangcard::can_play(player *target) const {
+    void effect_bangcard::on_play(player *origin, player *target) {
+        target->m_game->queue_response<response_type::bang>(origin, target)->get_data()->bang_strength = origin->m_bang_strength;
+    }
+
+    bool effect_banglimit::can_play(player *target) const {
         return target->can_play_bang();
     }
 
-    void effect_bangcard::on_play(player *origin, player *target) {
+    void effect_banglimit::on_play(player *origin) {
         ++origin->m_bangs_played;
-        target->m_game->queue_response<response_type::bang>(origin, target)->get_data()->bang_strength = origin->m_bang_strength;
     }
 
     void effect_indians::on_play(player *origin, player *target) {
@@ -27,13 +30,10 @@ namespace banggame {
     }
 
     void effect_generalstore::on_play(player *origin) {
-        player *target = origin;
         for (int i=0; i<origin->m_game->num_alive(); ++i) {
             origin->m_game->add_to_temps(origin->m_game->draw_card());
-
-            origin->m_game->queue_response<response_type::generalstore>(origin, target);
-            target = target->m_game->get_next_player(target);
         }
+        origin->m_game->queue_response<response_type::generalstore>(origin, origin);
     }
 
     void effect_heal::on_play(player *origin, player *target) {

@@ -10,8 +10,12 @@ namespace banggame {
     };
 
     struct effect_bangcard : card_effect {
-        virtual bool can_play(player *target) const override;
         virtual void on_play(player *origin, player *target) override;
+    };
+
+    struct effect_banglimit : card_effect {
+        virtual bool can_play(player *target) const override;
+        virtual void on_play(player *origin) override;
     };
 
     struct effect_indians : card_effect {
@@ -125,6 +129,7 @@ namespace banggame {
     DEFINE_ENUM_TYPES_IN_NS(banggame, effect_type,
         (bang,          effect_bang)
         (bangcard,      effect_bangcard)
+        (banglimit,     effect_banglimit)
         (missed,        effect_missed)
         (missedcard,    effect_missedcard)
         (destroy,       effect_destroy)
