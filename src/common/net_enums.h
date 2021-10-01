@@ -7,6 +7,10 @@ DEFINE_SERIALIZABLE(game_error,
     (message, std::string)
 )
 
+struct invalid_action : game_error {
+    invalid_action() : game_error{"Azione non valida"} {}
+};
+
 DEFINE_ENUM(lobby_state,
     (waiting)
     (playing)

@@ -198,4 +198,22 @@ namespace banggame {
     void effect_molly_stark::on_unequip(player *target, int card_id) {
         target->m_game->remove_event(card_id);
     }
+
+    void effect_bellestar::on_equip(player *p, int card_id) {
+        p->m_game->add_event<event_type::on_turn_start>(card_id, [p](player *target) {
+            if (p == target) {
+                p->m_game->disable_table_cards(p->id);
+            }
+        });
+        p->m_game->add_event<event_type::on_turn_end>(card_id, [p](player *target) {
+            if (p == target) {
+                p->m_game->enable_table_cards(p->id);
+            }
+        });
+    }
+
+    void effect_bellestar::on_unequip(player *target, int card_id) {
+        target->m_game->enable_table_cards(target->id);
+        target->m_game->remove_event(card_id);
+    }
 }

@@ -58,7 +58,7 @@ namespace banggame {
         void equip_card(deck_card &&target);
         bool has_card_equipped(const std::string &name) const;
 
-        void discard_weapon();
+        void discard_weapon(int card_id);
 
         deck_card &find_hand_card(int card_id);
         deck_card &find_table_card(int card_id);
@@ -98,7 +98,10 @@ namespace banggame {
         void discard_all();
 
         void add_predraw_check(int card_id, int priority) {
-            m_predraw_checks.emplace_back(card_id, priority);
+            auto it = std::ranges::find(m_predraw_checks, card_id, &predraw_check_t::card_id);
+            if (it == m_predraw_checks.end()) {
+                m_predraw_checks.emplace_back(card_id, priority);
+            }
         }
 
         void remove_predraw_check(int card_id) {

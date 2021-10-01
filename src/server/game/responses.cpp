@@ -107,25 +107,43 @@ namespace banggame {
         }
     }
 
-    void response_bang::on_respond(const play_card_args &args) {
-        card &target_card = target->find_any_card(args.card_id);
-        if (target_card.effects.front().is<effect_barrel>()) {
-            auto &vec = get_data()->barrels_used;
-            if (std::ranges::find(vec, args.card_id) == std::ranges::end(vec)) {
-                auto pos = std::ranges::find(vec, 0);
-                if (pos == std::ranges::end(vec)) {
-                    throw game_error("Stack overflow barili");
-                }
-                *pos = args.card_id;
-                target->m_game->draw_check_then(target, [this](card_suit_type suit, card_value_type) {
-                    if (suit == card_suit_type::hearts) {
-                        handle_missed();
-                    }
-                });
+    void response_bang::handle_barrel(int card_id) {
+        auto &vec = get_data()->barrels_used;
+        if (std::ranges::find(vec, card_id) == std::ranges::end(vec)) {
+            auto pos = std::ranges::find(vec, 0);
+            if (pos == std::ranges::end(vec)) {
+                throw game_error("Stack overflow barili");
             }
-        } else if (target_card.effects.front().is<effect_missed>()) {
-            handle_missed();
-            target->do_play_card(args.card_id, args.targets);
+            *pos = card_id;
+            target->m_game->draw_check_then(target, [this](card_suit_type suit, card_value_type) {
+                if (suit == card_suit_type::hearts) {
+                    handle_missed();
+                }
+            });
+        }
+    }
+
+    void response_bang::on_respond(const play_card_args &args) {
+        if (auto card_it = std::ranges::find(target->m_hand, args.card_id, &deck_card::id); card_it != target->m_hand.end()) {
+            if (card_it->effects.front().is<effect_missed>()) {
+                handle_missed();
+                target->do_play_card(args.card_id, args.targets);
+            }
+        } else if (auto card_it = std::ranges::find(target->m_table, args.card_id, &deck_card::id); card_it != target->m_table.end()) {
+            if (!target->m_game->table_cards_disabled(target->id)) {
+                if (card_it->effects.front().is<effect_barrel>()) {
+                    handle_barrel(args.card_id);
+                } else if (card_it->effects.front().is<effect_missed>()) {
+                    handle_missed();
+                    target->do_play_card(args.card_id, args.targets);
+                }
+            } else {
+                throw invalid_action();
+            }
+        } else if (auto card_it = std::ranges::find(target->m_characters, args.card_id, &character::id); card_it != target->m_characters.end()) {
+            if (card_it->effects.front().is<effect_barrel>()) {
+                handle_barrel(args.card_id);
+            }
         }
     }
 

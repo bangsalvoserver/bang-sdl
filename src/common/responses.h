@@ -49,6 +49,7 @@ namespace banggame {
 
         virtual void on_respond(const play_card_args &args) override;
         virtual void on_resolve() override;
+        void handle_barrel(int card_id);
         void handle_missed();
     };
 

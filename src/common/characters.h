@@ -77,6 +77,11 @@ namespace banggame {
         virtual void on_equip(player *target, int card_id) override;
         virtual void on_unequip(player *target, int card_id) override;
     };
+
+    struct effect_bellestar : card_effect {
+        virtual void on_equip(player *target, int card_id) override;
+        virtual void on_unequip(player *target, int card_id) override;
+    };
 }
 
 #endif

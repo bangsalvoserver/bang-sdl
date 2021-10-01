@@ -125,7 +125,7 @@ namespace banggame {
     }
 
     void effect_weapon::on_equip(player *target, int card_id) {
-        target->discard_weapon();
+        target->discard_weapon(card_id);
         target->m_weapon_range = maxdistance;
     }
 

@@ -165,7 +165,7 @@ namespace banggame {
         (vulture_sam,   effect_vulture_sam)
         (claus_the_saint, effect_claus_the_saint)
         (johnny_kisch,  effect_johnny_kisch)
-        (bellestar)
+        (bellestar,     effect_bellestar)
         (bill_noface,   effect_bill_noface)
         (elena_fuente)
         (greg_digger,   effect_greg_digger)

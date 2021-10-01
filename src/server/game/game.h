@@ -43,13 +43,15 @@ namespace banggame {
         std::list<std::pair<player *, game_update>> m_updates;
         std::list<std::pair<response_type, response_holder>> m_responses;
         std::list<draw_check_function> m_pending_checks;
-        std::map<int, event_function> m_event_handlers;
+        std::multimap<int, event_function> m_event_handlers;
         std::list<event_args> m_pending_events;
         
         std::vector<deck_card> m_deck;
         std::vector<deck_card> m_discards;
         std::vector<deck_card> m_temps;
         std::vector<player> m_players;
+
+        std::vector<int> m_table_card_disablers;
 
         player *m_playing = nullptr;
 
@@ -130,7 +132,9 @@ namespace banggame {
 
         template<event_type E, typename Function>
         void add_event(int card_id, Function &&fun) {
-            m_event_handlers.try_emplace(card_id, enums::enum_constant<E>{}, std::forward<Function>(fun));
+            m_event_handlers.emplace(std::piecewise_construct,
+                std::make_tuple(card_id),
+                std::make_tuple(enums::enum_constant<E>{}, std::forward<Function>(fun)));
         }
 
         void remove_event(int card_id) {
@@ -166,6 +170,10 @@ namespace banggame {
         void draw_check_then(player *p, draw_check_function &&fun);
         void resolve_check(int card_id);
 
+        void disable_table_cards(int player_id);
+        void enable_table_cards(int player_id);
+        bool table_cards_disabled(int player_id);
+
         int num_alive() const {
             return std::ranges::count_if(m_players, &player::alive);
         }
@@ -196,9 +204,7 @@ namespace banggame {
         }
 
         void next_turn() {
-            if (m_playing->alive()) {
-                m_playing->end_of_turn();
-            }
+            m_playing->end_of_turn();
             if (num_alive() > 0) {
                 m_playing = get_next_player(m_playing);
                 m_playing->start_of_turn();

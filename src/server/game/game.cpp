@@ -208,6 +208,36 @@ namespace banggame {
         }
     }
 
+    void game::disable_table_cards(int player_id) {
+        auto it = std::ranges::find(m_table_card_disablers, player_id);
+        if (it == m_table_card_disablers.end()) {
+            m_table_card_disablers.push_back(player_id);
+            for (auto &p : m_players) {
+                if (!p.alive() || p.id == player_id) continue;
+                for (auto &c : p.m_table) {
+                    c.on_unequip(&p);
+                }
+            }
+        }
+    }
+
+    void game::enable_table_cards(int player_id) {
+        auto it = std::ranges::find(m_table_card_disablers, player_id);
+        if (it != m_table_card_disablers.end()) {
+            m_table_card_disablers.erase(it);
+            for (auto &p : m_players) {
+                if (!p.alive() || p.id == player_id) continue;
+                for (auto &c : p.m_table) {
+                    c.on_equip(&p);
+                }
+            }
+        }
+    }
+
+    bool game::table_cards_disabled(int player_id) {
+        return !m_table_card_disablers.empty() && std::ranges::find(m_table_card_disablers, player_id) == m_table_card_disablers.end();
+    }
+
     void game::handle_action(enums::enum_constant<game_action_type::pick_card>, player *p, const pick_card_args &args) {
         if (!m_responses.empty() && p == top_response()->target) {
             if (auto *r = top_response().as<picking_response>()) {

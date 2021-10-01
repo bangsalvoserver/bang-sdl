@@ -7,29 +7,18 @@
 #include "common/net_enums.h"
 
 namespace banggame {
-    static auto invalid_action() {
-        return game_error{"Azione non valida"};
-    }
-
-    constexpr auto is_weapon = [](const deck_card &c) {
-        return c.effects.front().is<effect_weapon>();
-    };
-
-    void player::discard_weapon() {
-        auto it = std::ranges::find_if(m_table, is_weapon);
+    void player::discard_weapon(int card_id) {
+        auto it = std::ranges::find_if(m_table, [card_id](const deck_card &c) {
+            return c.effects.front().is<effect_weapon>() && c.id != card_id;
+        });
         if (it != m_table.end()) {
-            auto &moved = m_game->add_to_discards(std::move(*it));
-            for (auto &e : moved.effects) {
-                e->on_unequip(this, moved.id);
-            }
+            m_game->add_to_discards(std::move(*it)).on_unequip(this);
             m_table.erase(it);
         }
     }
 
     void player::equip_card(deck_card &&target) {
-        for (auto &e : target.effects) {
-            e->on_equip(this, target.id);
-        }
+        target.on_equip(this);
         auto &moved = m_table.emplace_back(std::move(target));
         m_game->add_show_card(moved);
         m_game->add_public_update<game_update_type::move_card>(moved.id, id, card_pile_type::player_table);
@@ -85,9 +74,7 @@ namespace banggame {
                 m_game->add_public_update<game_update_type::tap_card>(it->id, false);
             }
             c = std::move(*it);
-            for (auto &e : c.effects) {
-                e->on_unequip(this, card_id);
-            }
+            c.on_unequip(this);
             m_table.erase(it);
         }
         return c;
@@ -262,12 +249,16 @@ namespace banggame {
                 m_game->handle_game_event<event_type::on_play_off_turn>(this, card_id);
             }
         } else if (auto it = std::ranges::find(m_table, card_id, &deck_card::id); it != m_table.end()) {
-            if (it->color == card_color_type::blue) {
-                card_ptr = &*it;
+            if (!m_game->table_cards_disabled(id)) {
+                if (it->color == card_color_type::blue) {
+                    card_ptr = &*it;
+                } else {
+                    deck_card removed = std::move(*it);
+                    m_table.erase(it);
+                    card_ptr = &m_game->add_to_discards(std::move(removed));
+                }
             } else {
-                deck_card removed = std::move(*it);
-                m_table.erase(it);
-                card_ptr = &m_game->add_to_discards(std::move(removed));
+                throw invalid_action();
             }
         } else {
             throw game_error("ID non trovato");
@@ -464,6 +455,7 @@ namespace banggame {
         m_has_drawn = false;
 
         m_pending_predraw_checks = m_predraw_checks;
+        m_game->handle_game_event<event_type::on_turn_start>(this);
         if (!m_pending_predraw_checks.empty()) {
             m_game->queue_response<response_type::predraw>(nullptr, this);
         }
@@ -487,13 +479,12 @@ namespace banggame {
             }
         }
         m_pending_predraw_checks.clear();
+        m_game->handle_game_event<event_type::on_turn_end>(this);
     }
 
     void player::handle_death() {
         for (auto &c : m_characters) {
-            for (auto &e : c.effects) {
-                e->on_unequip(this, c.id);
-            }
+            c.on_unequip(this);
         }
 
         discard_all();
@@ -520,9 +511,7 @@ namespace banggame {
         m_hp = m_max_hp;
 
         for (auto &c : m_characters) {
-            for (auto &e : c.effects) {
-                e->on_equip(this, c.id);
-            }
+            c.on_equip(this);
         }
 
         player_character_update obj;

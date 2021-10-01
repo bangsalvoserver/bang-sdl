@@ -16,6 +16,18 @@ namespace banggame {
         std::vector<effect_holder> effects;
         std::string name;
         std::string image;
+
+        void on_equip(player *target) {
+            for (auto &e : effects) {
+                e->on_equip(target, id);
+            }
+        }
+
+        void on_unequip(player *target) {
+            for (auto &e : effects) {
+                e->on_unequip(target, id);
+            }
+        }
     };
 
     struct deck_card : card {
