@@ -81,11 +81,7 @@ namespace banggame {
     }
 
     deck_card &player::discard_card(int card_id) {
-        auto &moved = m_game->add_to_discards(get_card_removed(card_id));
-        if (m_hand.empty()) {
-            m_game->queue_event<event_type::on_empty_hand>(this);
-        }
-        return moved;
+        return m_game->add_to_discards(get_card_removed(card_id));
     }
 
     deck_card &player::discard_hand_card_response(int card_id) {
@@ -95,9 +91,6 @@ namespace banggame {
         if (m_game->m_playing != this) {
             m_game->queue_event<event_type::on_play_off_turn>(this, card_id);
         }
-        if (m_hand.empty()) {
-            m_game->queue_event<event_type::on_empty_hand>(this);
-        }
         return moved;
     }
 
@@ -105,9 +98,6 @@ namespace banggame {
         auto &moved = m_hand.emplace_back(target->get_card_removed(card_id));
         m_game->add_show_card(moved, this);
         m_game->add_public_update<game_update_type::move_card>(card_id, id, card_pile_type::player_hand);
-        if (target->m_hand.empty()) {
-            m_game->queue_event<event_type::on_empty_hand>(target);
-        }
     }
 
     void player::damage(player *source, int value) {
@@ -307,9 +297,8 @@ namespace banggame {
             }, *effect_it++);
         }
 
-        if (m_hand.empty()) {
-            m_game->queue_event<event_type::on_empty_hand>(this);
-        }
+        m_game->queue_event<event_type::on_effect_end>(this);
+        m_virtual.reset();
     }
 
     void player::play_card(const play_card_args &args) {
@@ -342,7 +331,6 @@ namespace banggame {
         } else if (m_virtual && args.card_id == m_virtual->second.id) {
             if (verify_card_targets(m_virtual->second, args.targets)) {
                 do_play_card(args.card_id, args.targets);
-                m_virtual.reset();
             } else {
                 throw invalid_action();
             }
@@ -365,9 +353,7 @@ namespace banggame {
                         m_hand.erase(card_it);
                         target->equip_card(std::move(removed));
                         m_game->queue_event<event_type::on_equip>(this, args.card_id);
-                        if (m_hand.empty()) {
-                            m_game->queue_event<event_type::on_empty_hand>(this);
-                        }
+                        m_game->queue_event<event_type::on_effect_end>(this);
                     } else {
                         throw invalid_action();
                     }
@@ -382,10 +368,8 @@ namespace banggame {
                     m_hand.erase(card_it);
                     equip_card(std::move(removed));
                     m_game->queue_event<event_type::on_equip>(this, args.card_id);
+                    m_game->queue_event<event_type::on_effect_end>(this);
                     m_game->add_public_update<game_update_type::tap_card>(removed.id, true);
-                    if (m_hand.empty()) {
-                        m_game->queue_event<event_type::on_empty_hand>(this);
-                    }
                 } else {
                     throw invalid_action();
                 }

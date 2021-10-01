@@ -120,9 +120,9 @@ namespace banggame {
     }
 
     void effect_suzy_lafayette::on_equip(player *p, int card_id) {
-        p->m_game->add_event<event_type::on_empty_hand>(card_id, [p](player *target) {
-            if (p == target && p->m_hand.empty()) {
-                target->add_to_hand(target->m_game->draw_card());
+        p->m_game->add_event<event_type::on_effect_end>(card_id, [p](player *origin) {
+            if (p->m_hand.empty()) {
+                p->add_to_hand(p->m_game->draw_card());
             }
         });
     }

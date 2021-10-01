@@ -86,10 +86,10 @@ namespace banggame {
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, event_type,
         (on_hit,            std::function<void(player *origin, player *target)>)
-        (on_empty_hand,     std::function<void(player *origin)>)
         (on_player_death,   std::function<void(player *origin, player *target)>)
         (on_equip,          std::function<void(player *origin, int card_id)>)
         (on_play_off_turn,  std::function<void(player *origin, int card_id)>)
+        (on_effect_end,     std::function<void(player *origin)>)
         (on_turn_start,     std::function<void(player *origin)>)
         (on_turn_end,       std::function<void(player *origin)>)
     )
