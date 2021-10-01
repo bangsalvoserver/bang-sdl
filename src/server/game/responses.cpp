@@ -60,15 +60,13 @@ namespace banggame {
     void response_duel::on_pick(card_pile_type pile, int card_id) {
         if (pile == card_pile_type::player_hand) {
             auto &target_card = target->find_hand_card(card_id);
-            if (target_card.effects.front().is<effect_bangcard>()) {
+            if (target_card.effects.front().is<effect_bangcard>()
+                || target->has_character<effect_calamity_janet>() && target_card.effects.front().is<effect_missedcard>()) {
                 auto o = origin;
                 auto t = target;
                 t->m_game->pop_response_noupdate();
-                t->discard_card(card_id);
                 t->m_game->queue_response<response_type::duel>(t, o);
-                if (t != t->m_game->m_playing) {
-                    t->m_game->handle_game_event<event_type::on_play_off_turn>(t, card_id);
-                }
+                t->discard_hand_card_response(card_id);
             }
         }
     }
@@ -84,12 +82,10 @@ namespace banggame {
         if (pile == card_pile_type::player_hand) {
             auto t = target;
             auto &target_card = t->find_hand_card(card_id);
-            if (target_card.effects.front().is<effect_bangcard>()) {
+            if (target_card.effects.front().is<effect_bangcard>()
+                || target->has_character<effect_calamity_janet>() && target_card.effects.front().is<effect_missedcard>()) {
                 t->m_game->pop_response();
-                t->discard_card(card_id);
-                if (t != t->m_game->m_playing) {
-                    t->m_game->handle_game_event<event_type::on_play_off_turn>(t, card_id);
-                }
+                t->discard_hand_card_response(card_id);
             }
         }
     }
@@ -124,25 +120,35 @@ namespace banggame {
     }
 
     void response_bang::on_respond(const play_card_args &args) {
-        if (auto card_it = std::ranges::find(target->m_hand, args.card_id, &deck_card::id); card_it != target->m_hand.end()) {
+        auto t = target;
+        if (auto card_it = std::ranges::find(t->m_hand, args.card_id, &deck_card::id); card_it != t->m_hand.end()) {
             if (card_it->effects.front().is<effect_missed>()) {
                 handle_missed();
-                target->do_play_card(args.card_id, args.targets);
+                t->do_play_card(args.card_id, args.targets);
             }
-        } else if (auto card_it = std::ranges::find(target->m_table, args.card_id, &deck_card::id); card_it != target->m_table.end()) {
-            if (!target->m_game->table_cards_disabled(target->id)) {
+        } else if (auto card_it = std::ranges::find(t->m_table, args.card_id, &deck_card::id); card_it != t->m_table.end()) {
+            if (!t->m_game->table_cards_disabled(t->id)) {
                 if (card_it->effects.front().is<effect_barrel>()) {
                     handle_barrel(args.card_id);
                 } else if (card_it->effects.front().is<effect_missed>()) {
                     handle_missed();
-                    target->do_play_card(args.card_id, args.targets);
+                    t->do_play_card(args.card_id, args.targets);
                 }
             } else {
                 throw invalid_action();
             }
-        } else if (auto card_it = std::ranges::find(target->m_characters, args.card_id, &character::id); card_it != target->m_characters.end()) {
+        } else if (auto card_it = std::ranges::find(t->m_characters, args.card_id, &character::id); card_it != t->m_characters.end()) {
             if (card_it->effects.front().is<effect_barrel>()) {
                 handle_barrel(args.card_id);
+            } else if (card_it->effects.front().is<effect_calamity_janet>()) {
+                auto &c = t->find_hand_card(args.targets.front().get<play_card_target_type::target_card>().front().card_id);
+                if (c.effects.front().is<effect_bangcard>()) {
+                    handle_missed();
+                    t->discard_hand_card_response(c.id);
+                }
+            } else if (card_it->effects.front().is<effect_elena_fuente>()) {
+                handle_missed();
+                t->discard_hand_card_response(args.targets.front().get<play_card_target_type::target_card>().front().card_id);
             }
         }
     }

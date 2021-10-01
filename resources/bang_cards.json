@@ -1693,8 +1693,10 @@
             "image": "01_calamityjanet",
             "hp": 4,
             "expansion": "base",
+            "type": "active",
             "effects": [
                 {
+                    "target": "selfhand",
                     "class": "calamity_janet"
                 }
             ]
@@ -1989,8 +1991,10 @@
             "image": "03_elena_fuente",
             "hp": 3,
             "expansion": "dodgecity",
+            "type": "active",
             "effects": [
                 {
+                    "target": "selfhand",
                     "class": "elena_fuente"
                 }
             ]

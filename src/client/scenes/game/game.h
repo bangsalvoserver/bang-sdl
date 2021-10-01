@@ -9,6 +9,7 @@
 #include "game_ui.h"
 
 #include <list>
+#include <optional>
 
 namespace banggame {
 
@@ -41,6 +42,7 @@ namespace banggame {
         void handle_update(enums::enum_constant<game_update_type::add_cards>,        const add_cards_update &args);
         void handle_update(enums::enum_constant<game_update_type::move_card>,        const move_card_update &args);
         void handle_update(enums::enum_constant<game_update_type::deck_shuffled>);
+        void handle_update(enums::enum_constant<game_update_type::virtual_card>,     const virtual_card_update &args);
         void handle_update(enums::enum_constant<game_update_type::show_card>,        const show_card_update &args);
         void handle_update(enums::enum_constant<game_update_type::hide_card>,        const hide_card_update &args);
         void handle_update(enums::enum_constant<game_update_type::tap_card>,         const tap_card_update &args);
@@ -90,6 +92,10 @@ namespace banggame {
 
         std::map<int, card_view> m_cards;
         std::map<int, player_view> m_players;
+
+        std::optional<card_view> m_virtual;
+
+        decltype(card_view::targets) &get_current_card_targets();
 
         card_view &get_card(int id) {
             auto it = m_cards.find(id);

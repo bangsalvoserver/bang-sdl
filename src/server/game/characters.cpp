@@ -1,4 +1,5 @@
 #include "common/characters.h"
+#include "common/effects.h"
 
 #include "player.h"
 #include "game.h"
@@ -215,5 +216,15 @@ namespace banggame {
     void effect_bellestar::on_unequip(player *target, int card_id) {
         target->m_game->enable_table_cards(target->id);
         target->m_game->remove_event(card_id);
+    }
+
+    void effect_calamity_janet::on_play(player *origin, player *target, int card_id) {
+        deck_card copy = target->find_hand_card(card_id);
+        if (copy.effects.front().is<effect_missedcard>()) {
+            copy.effects.clear();
+            copy.effects.emplace_back(effect_holder::make<effect_bangcard>())->target = target_type::reachable;
+            copy.effects.emplace_back(effect_holder::make<effect_banglimit>());
+            target->play_virtual_card(std::move(copy));
+        }
     }
 }

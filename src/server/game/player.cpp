@@ -83,7 +83,20 @@ namespace banggame {
     deck_card &player::discard_card(int card_id) {
         auto &moved = m_game->add_to_discards(get_card_removed(card_id));
         if (m_hand.empty()) {
-            m_game->handle_game_event<event_type::on_empty_hand>(this);
+            m_game->queue_event<event_type::on_empty_hand>(this);
+        }
+        return moved;
+    }
+
+    deck_card &player::discard_hand_card_response(int card_id) {
+        auto it = std::ranges::find(m_hand, card_id, &card::id);
+        auto &moved = m_game->add_to_discards(std::move(*it));
+        m_hand.erase(it);
+        if (m_game->m_playing != this) {
+            m_game->queue_event<event_type::on_play_off_turn>(this, card_id);
+        }
+        if (m_hand.empty()) {
+            m_game->queue_event<event_type::on_empty_hand>(this);
         }
         return moved;
     }
@@ -93,7 +106,7 @@ namespace banggame {
         m_game->add_show_card(moved, this);
         m_game->add_public_update<game_update_type::move_card>(card_id, id, card_pile_type::player_hand);
         if (target->m_hand.empty()) {
-            m_game->handle_game_event<event_type::on_empty_hand>(target);
+            m_game->queue_event<event_type::on_empty_hand>(target);
         }
     }
 
@@ -104,7 +117,7 @@ namespace banggame {
             m_game->add_response<response_type::death>(source, this);
         }
         for (int i=0; i<value; ++i) {
-            m_game->handle_game_event<event_type::on_hit>(source, this);
+            m_game->queue_event<event_type::on_hit>(source, this);
         }
     }
 
@@ -242,12 +255,7 @@ namespace banggame {
             card_ptr = &*it;
             is_character = true;
         } else if (auto it = std::ranges::find(m_hand, card_id, &deck_card::id); it != m_hand.end()) {
-            deck_card removed = std::move(*it);
-            m_hand.erase(it);
-            card_ptr = &m_game->add_to_discards(std::move(removed));
-            if (m_game->m_playing != this) {
-                m_game->handle_game_event<event_type::on_play_off_turn>(this, card_id);
-            }
+            card_ptr = &discard_hand_card_response(card_id);
         } else if (auto it = std::ranges::find(m_table, card_id, &deck_card::id); it != m_table.end()) {
             if (!m_game->table_cards_disabled(id)) {
                 if (it->color == card_color_type::blue) {
@@ -260,6 +268,9 @@ namespace banggame {
             } else {
                 throw invalid_action();
             }
+        } else if (m_virtual && card_id == m_virtual->second.id) {
+            discard_hand_card_response(m_virtual->first);
+            card_ptr = &m_virtual->second;
         } else {
             throw game_error("ID non trovato");
         }
@@ -297,7 +308,7 @@ namespace banggame {
         }
 
         if (m_hand.empty()) {
-            m_game->handle_game_event<event_type::on_empty_hand>(this);
+            m_game->queue_event<event_type::on_empty_hand>(this);
         }
     }
 
@@ -328,6 +339,13 @@ namespace banggame {
             default:
                 break;
             }
+        } else if (m_virtual && args.card_id == m_virtual->second.id) {
+            if (verify_card_targets(m_virtual->second, args.targets)) {
+                do_play_card(args.card_id, args.targets);
+                m_virtual.reset();
+            } else {
+                throw invalid_action();
+            }
         } else if (auto card_it = std::ranges::find(m_hand, args.card_id, &deck_card::id); card_it != m_hand.end()) {
             if (!m_has_drawn) return;
             switch (card_it->color) {
@@ -346,9 +364,9 @@ namespace banggame {
                         deck_card removed = std::move(*card_it);
                         m_hand.erase(card_it);
                         target->equip_card(std::move(removed));
-                        m_game->handle_game_event<event_type::on_equip>(this, args.card_id);
+                        m_game->queue_event<event_type::on_equip>(this, args.card_id);
                         if (m_hand.empty()) {
-                            m_game->handle_game_event<event_type::on_empty_hand>(this);
+                            m_game->queue_event<event_type::on_empty_hand>(this);
                         }
                     } else {
                         throw invalid_action();
@@ -363,10 +381,10 @@ namespace banggame {
                     deck_card removed = std::move(*card_it);
                     m_hand.erase(card_it);
                     equip_card(std::move(removed));
-                    m_game->handle_game_event<event_type::on_equip>(this, args.card_id);
+                    m_game->queue_event<event_type::on_equip>(this, args.card_id);
                     m_game->add_public_update<game_update_type::tap_card>(removed.id, true);
                     if (m_hand.empty()) {
-                        m_game->handle_game_event<event_type::on_empty_hand>(this);
+                        m_game->queue_event<event_type::on_empty_hand>(this);
                     }
                 } else {
                     throw invalid_action();
@@ -446,6 +464,21 @@ namespace banggame {
         }
     }
 
+    void player::play_virtual_card(deck_card &&c) {
+        virtual_card_update obj;
+        obj.card_id = c.id;
+        obj.virtual_id = c.id = m_game->get_next_id();
+        obj.color = c.color;
+        obj.suit = c.suit;
+        obj.value = c.value;
+        for (const auto &value : c.effects) {
+            obj.targets.emplace_back(value->target, value->maxdistance);
+        }
+        m_virtual = std::make_pair(obj.card_id, std::move(c));
+
+        m_game->add_private_update<game_update_type::virtual_card>(this, obj);
+    }
+
     void player::start_of_turn() {
         m_game->add_public_update<game_update_type::switch_turn>(id);
 
@@ -455,7 +488,7 @@ namespace banggame {
         m_has_drawn = false;
 
         m_pending_predraw_checks = m_predraw_checks;
-        m_game->handle_game_event<event_type::on_turn_start>(this);
+        m_game->queue_event<event_type::on_turn_start>(this);
         if (!m_pending_predraw_checks.empty()) {
             m_game->queue_response<response_type::predraw>(nullptr, this);
         }
@@ -479,7 +512,7 @@ namespace banggame {
             }
         }
         m_pending_predraw_checks.clear();
-        m_game->handle_game_event<event_type::on_turn_end>(this);
+        m_game->queue_event<event_type::on_turn_end>(this);
     }
 
     void player::handle_death() {

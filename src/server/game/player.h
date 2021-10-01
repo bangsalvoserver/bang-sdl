@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <algorithm>
+#include <optional>
 
 #include "card.h"
 
@@ -17,6 +18,8 @@ namespace banggame {
         std::vector<deck_card> m_hand;
         std::vector<deck_card> m_table;
         std::vector<character> m_characters;
+
+        std::optional<std::pair<int, deck_card>> m_virtual;
         player_role m_role;
 
         struct predraw_check_t {
@@ -71,6 +74,7 @@ namespace banggame {
         
         deck_card get_card_removed(int card_id);
         deck_card &discard_card(int card_id);
+        deck_card &discard_hand_card_response(int card_id);
         void steal_card(player *target, int card_id);
 
         int num_hand_cards() const {
@@ -79,6 +83,14 @@ namespace banggame {
 
         int max_cards_end_of_turn() const {
             return m_max_cards_mods.empty() ? m_hp : std::ranges::min(m_max_cards_mods);
+        }
+
+        template<std::derived_from<card_effect> T>
+        bool has_character() {
+            for (const auto &c : m_characters) {
+                if (c.effects.front().is<T>()) return true;
+            }
+            return false;
         }
 
         bool alive() const { return !m_dead; }
@@ -130,6 +142,8 @@ namespace banggame {
         void draw_from_deck();
         void start_of_turn();
         void end_of_turn();
+
+        void play_virtual_card(deck_card &&vcard);
     };
 
 }

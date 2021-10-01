@@ -27,6 +27,15 @@ namespace banggame {
         (maxdistance, int)
     )
 
+    DEFINE_SERIALIZABLE(virtual_card_update,
+        (card_id, int)
+        (virtual_id, int)
+        (suit, card_suit_type)
+        (value, card_value_type)
+        (color, card_color_type)
+        (targets, std::vector<card_target_data>)
+    )
+
     DEFINE_SERIALIZABLE(show_card_update,
         (card_id, int)
         (name, std::string)
@@ -85,6 +94,7 @@ namespace banggame {
         (add_cards, add_cards_update)
         (move_card, move_card_update)
         (deck_shuffled)
+        (virtual_card, virtual_card_update)
         (show_card, show_card_update)
         (hide_card, hide_card_update)
         (tap_card, tap_card_update)

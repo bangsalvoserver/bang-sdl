@@ -140,16 +140,25 @@ namespace banggame {
         void remove_event(int card_id) {
             m_event_handlers.erase(card_id);
         }
+        
+        void handle_event(event_args &event);
 
         template<event_type E, typename ... Ts>
-        void handle_game_event(Ts && ... args) {
-            m_pending_events.emplace_back(std::in_place_index<enums::indexof(E)>, std::forward<Ts>(args) ...);
+        void queue_event(Ts && ... args) {
+            event_args event{std::in_place_index<enums::indexof(E)>, std::forward<Ts>(args) ...};
             if (m_responses.empty()) {
-                pop_events();
+                handle_event(event);
+            } else {
+                m_pending_events.emplace_back(std::move(event));
             }
         }
-        
-        void pop_events();
+
+        void pop_events() {
+            while (!m_pending_events.empty()) {
+                handle_event(m_pending_events.front());
+                m_pending_events.pop_front();
+            }
+        }
 
         deck_card &add_to_discards(deck_card &&c) {
             add_show_card(c);
