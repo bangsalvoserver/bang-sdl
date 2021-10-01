@@ -6,7 +6,7 @@
 namespace banggame {
 
     struct card_animation_item {
-        SDL_Point start;
+        sdl::point start;
         card_pile_view *pile;
     };
 
@@ -22,7 +22,7 @@ namespace banggame {
 
         void do_animation(float amt) {
             for (auto &[card, pos] : data) {
-                SDL_Point dest = pos.pile->get_position(card->id);
+                sdl::point dest = pos.pile->get_position(card->id);
                 card->pos.x = std::lerp(pos.start.x, dest.x, amt);
                 card->pos.y = std::lerp(pos.start.y, dest.y, amt);
             }

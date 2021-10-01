@@ -7,8 +7,8 @@ class lobby_line {
 public:
     lobby_line(class lobby_list_scene *parent, const lobby_data &args);
 
-    void render(sdl::renderer &renderer, const SDL_Rect &rect);
-    void handle_event(const SDL_Event &event);
+    void render(sdl::renderer &renderer, const sdl::rect &rect);
+    void handle_event(const sdl::event &event);
 
 private:
     class lobby_list_scene *parent;
@@ -25,7 +25,7 @@ public:
     lobby_list_scene(class game_manager *parent);
 
     void render(sdl::renderer &renderer) override;
-    void handle_event(const SDL_Event &event) override;
+    void handle_event(const sdl::event &event) override;
 
     void set_lobby_list(const std::vector<lobby_data> &args);
 

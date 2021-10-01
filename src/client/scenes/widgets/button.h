@@ -9,10 +9,10 @@
 namespace sdl {
 
     struct button_style : text_style {
-        SDL_Color up_color;
-        SDL_Color hover_color;
-        SDL_Color down_color;
-        SDL_Color border_color;
+        color up_color;
+        color hover_color;
+        color down_color;
+        color border_color;
     };
 
     static const button_style default_button_style {
@@ -32,8 +32,8 @@ namespace sdl {
         button_style m_style;
         stattext m_text;
 
-        SDL_Rect m_border_rect;
-        SDL_Point m_text_pos;
+        sdl::rect m_border_rect;
+        point m_text_pos;
 
         button_callback_fun m_onclick;
 
@@ -47,13 +47,13 @@ namespace sdl {
         button(const std::string &label, button_callback_fun &&onclick = nullptr, const button_style &style = default_button_style);
         
         void render(renderer &renderer);
-        void handle_event(const SDL_Event &event);
+        void handle_event(const event &event);
 
         void set_onclick(button_callback_fun &&onclick) {
             m_onclick = std::move(onclick);
         }
 
-        void set_rect(const SDL_Rect &rect) {
+        void set_rect(const sdl::rect &rect) {
             m_border_rect = rect;
             
             auto text_rect = m_text.get_rect();
@@ -61,7 +61,7 @@ namespace sdl {
             m_text_pos.y = rect.y + (rect.h - text_rect.h) / 2;
         }
 
-        const SDL_Rect &get_rect() const noexcept {
+        const sdl::rect &get_rect() const noexcept {
             return m_border_rect;
         }
     };

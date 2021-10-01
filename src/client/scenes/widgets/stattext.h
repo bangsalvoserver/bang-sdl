@@ -10,7 +10,7 @@ DECLARE_RESOURCE(arial_ttf)
 namespace sdl {
 
     struct text_style {
-        SDL_Color text_color;
+        color text_color;
         resource_view text_font;
         int text_ptsize;
     };
@@ -28,7 +28,7 @@ namespace sdl {
 
         texture m_tex;
 
-        SDL_Rect m_rect;
+        rect m_rect;
 
     public:
         stattext(const text_style &style = default_text_style)
@@ -52,15 +52,15 @@ namespace sdl {
             }
         }
 
-        void set_rect(const SDL_Rect &rect) {
+        void set_rect(const rect &rect) {
             m_rect = rect;
         }
 
-        const SDL_Rect &get_rect() const noexcept {
+        const rect &get_rect() const noexcept {
             return m_rect;
         }
 
-        void set_point(const SDL_Point &pt) {
+        void set_point(const point &pt) {
             m_rect.x = pt.x;
             m_rect.y = pt.y;
         }

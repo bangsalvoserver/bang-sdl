@@ -9,8 +9,8 @@
 namespace sdl {
 
     struct textbox_style : text_style {
-        SDL_Color background_color;
-        SDL_Color border_color;
+        color background_color;
+        color border_color;
         int margin;
     };
 
@@ -30,7 +30,7 @@ namespace sdl {
         std::string m_value;
         stattext m_tex;
 
-        SDL_Rect m_border_rect;
+        sdl::rect m_border_rect;
 
         bool m_active = false;
 
@@ -42,13 +42,13 @@ namespace sdl {
         textbox(const textbox_style &style = default_textbox_style);
 
         void render(renderer &renderer);
-        void handle_event(const SDL_Event &event);
+        void handle_event(const event &event);
 
-        const SDL_Rect &get_rect() const noexcept {
+        const sdl::rect &get_rect() const noexcept {
             return m_border_rect;
         }
 
-        void set_rect(const SDL_Rect &rect) noexcept {
+        void set_rect(const sdl::rect &rect) noexcept {
             m_border_rect = rect;
         }
 

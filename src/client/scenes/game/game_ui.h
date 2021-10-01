@@ -19,7 +19,7 @@ namespace banggame {
 
         message_line(message_type type, const std::string &message);
 
-        void render(sdl::renderer &renderer, const SDL_Point &pt);
+        void render(sdl::renderer &renderer, const sdl::point &pt);
 
     private:
         sdl::stattext m_text;
@@ -31,7 +31,7 @@ namespace banggame {
 
         void resize(int width, int height);
         void render(sdl::renderer &renderer);
-        void handle_event(const SDL_Event &event);
+        void handle_event(const sdl::event &event);
 
         void add_message(message_line::message_type type, const std::string &message);
 

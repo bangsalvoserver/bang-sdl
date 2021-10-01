@@ -13,21 +13,21 @@ lobby_line::lobby_line(lobby_list_scene *parent, const lobby_data &args)
         parent->do_join(args.lobby_id);
     }) {}
 
-void lobby_line::render(sdl::renderer &renderer, const SDL_Rect &rect) {
-    m_name_text.set_point(SDL_Point{rect.x, rect.y});
+void lobby_line::render(sdl::renderer &renderer, const sdl::rect &rect) {
+    m_name_text.set_point(sdl::point{rect.x, rect.y});
     m_name_text.render(renderer);
 
-    m_players_text.set_point(SDL_Point{rect.x + rect.w - 250, rect.y});
+    m_players_text.set_point(sdl::point{rect.x + rect.w - 250, rect.y});
     m_players_text.render(renderer);
 
-    m_state_text.set_point(SDL_Point{rect.x + rect.w - 200, rect.y});
+    m_state_text.set_point(sdl::point{rect.x + rect.w - 200, rect.y});
     m_state_text.render(renderer);
 
-    m_join_btn.set_rect(SDL_Rect{rect.x + rect.w - 100, rect.y, 100, rect.h});
+    m_join_btn.set_rect(sdl::rect{rect.x + rect.w - 100, rect.y, 100, rect.h});
     m_join_btn.render(renderer);
 }
 
-void lobby_line::handle_event(const SDL_Event &event) {
+void lobby_line::handle_event(const sdl::event &event) {
     m_join_btn.handle_event(event);
 }
 
@@ -54,26 +54,26 @@ void lobby_list_scene::render(sdl::renderer &renderer) {
     m_username_label.set_rect(label_rect);
     m_username_label.render(renderer);
     
-    m_username_box.set_rect(SDL_Rect{100 + label_rect.w + 10, 50, m_width - 210 - label_rect.w, 25});
+    m_username_box.set_rect(sdl::rect{100 + label_rect.w + 10, 50, m_width - 210 - label_rect.w, 25});
     m_username_box.render(renderer);
     
     int y = 100;
     for (auto &line : m_lobby_lines) {
-        line.render(renderer, SDL_Rect{100, y, m_width - 200, 25});
+        line.render(renderer, sdl::rect{100, y, m_width - 200, 25});
         y += 40;
     }
 
-    m_refresh_btn.set_rect(SDL_Rect{100, y, 100, 25});
+    m_refresh_btn.set_rect(sdl::rect{100, y, 100, 25});
     m_refresh_btn.render(renderer);
 
-    m_make_lobby_btn.set_rect(SDL_Rect{210, y, 100, 25});
+    m_make_lobby_btn.set_rect(sdl::rect{210, y, 100, 25});
     m_make_lobby_btn.render(renderer);
 
-    m_disconnect_btn.set_rect(SDL_Rect{20, m_height - 45, 100, 25});
+    m_disconnect_btn.set_rect(sdl::rect{20, m_height - 45, 100, 25});
     m_disconnect_btn.render(renderer);
 }
 
-void lobby_list_scene::handle_event(const SDL_Event &event) {
+void lobby_list_scene::handle_event(const sdl::event &event) {
     m_username_box.handle_event(event);
 
     for (auto &line : m_lobby_lines) {

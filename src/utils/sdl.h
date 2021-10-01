@@ -11,6 +11,11 @@
 
 namespace sdl {
 
+    using rect = SDL_Rect;
+    using point = SDL_Point;
+    using color = SDL_Color;
+    using event = SDL_Event;
+
     struct error : std::runtime_error {
         using std::runtime_error::runtime_error;
     };
@@ -116,7 +121,7 @@ namespace sdl {
 
         SDL_Renderer *get() const { return m_value; }
 
-        void set_draw_color(const SDL_Color &color) {
+        void set_draw_color(const color &color) {
             SDL_SetRenderDrawColor(m_value, color.r, color.g, color.b, color.a);
         }
 
@@ -124,11 +129,11 @@ namespace sdl {
             SDL_RenderClear(m_value);
         }
 
-        void draw_rect(const SDL_Rect &rect) {
+        void draw_rect(const rect &rect) {
             SDL_RenderDrawRect(m_value, &rect);
         }
 
-        void fill_rect(const SDL_Rect &rect) {
+        void fill_rect(const rect &rect) {
             SDL_RenderFillRect(m_value, &rect);
         }
 
@@ -187,8 +192,8 @@ namespace sdl {
             }
         }
 
-        SDL_Rect get_rect() const {
-            SDL_Rect get_rect;
+        rect get_rect() const {
+            rect get_rect;
             SDL_GetClipRect(m_value, &get_rect);
             return get_rect;
         }
@@ -229,7 +234,7 @@ namespace sdl {
             }
         }
 
-        SDL_Rect get_rect() const {
+        rect get_rect() const {
             return m_surface.get_rect();
         }
 
@@ -240,12 +245,12 @@ namespace sdl {
             return m_texture;
         }
 
-        void render(sdl::renderer &renderer, const SDL_Rect &rect) {
+        void render(sdl::renderer &renderer, const rect &rect) {
             SDL_RenderCopy(renderer.get(), get_texture(renderer), nullptr, &rect);
         }
 
-        void render(sdl::renderer &renderer, const SDL_Point &pt) {
-            SDL_Rect rect = get_rect();
+        void render(sdl::renderer &renderer, const point &pt) {
+            rect rect = get_rect();
             rect.x = pt.x;
             rect.y = pt.y;
             render(renderer, rect);
@@ -293,7 +298,7 @@ namespace sdl {
         TTF_Font *m_value = nullptr;
     };
 
-    inline surface make_text_surface(const std::string &label, const sdl::font &font, SDL_Color text_color = {0x0, 0x0, 0x0, 0xff}) {
+    inline surface make_text_surface(const std::string &label, const sdl::font &font, color text_color = {0x0, 0x0, 0x0, 0xff}) {
         if (label.empty()) {
             return surface();
         }
@@ -304,12 +309,12 @@ namespace sdl {
         return s;
     }
 
-    inline bool point_in_rect(const SDL_Point &pt, const SDL_Rect &rect) {
+    inline bool point_in_rect(const point &pt, const rect &rect) {
         return pt.x >= rect.x && pt.x <= (rect.x + rect.w)
             && pt.y >= rect.y && pt.y <= (rect.y + rect.h);
     };
 
-    inline void scale_rect(SDL_Rect &rect, int new_width) {
+    inline void scale_rect(rect &rect, int new_width) {
         rect.h = new_width * rect.h / rect.w;
         rect.w = new_width;
     }

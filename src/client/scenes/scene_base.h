@@ -12,7 +12,7 @@ public:
     scene_base(class game_manager *parent) : parent(parent) {}
     virtual ~scene_base() {}
 
-    virtual SDL_Color bg_color() {
+    virtual sdl::color bg_color() {
         return {0xff, 0xff, 0xff, 0xff};
     }
     
@@ -21,7 +21,7 @@ public:
         m_height = height;
     }
     virtual void render(sdl::renderer &renderer) = 0;
-    virtual void handle_event(const SDL_Event &event) = 0;
+    virtual void handle_event(const sdl::event &event) = 0;
 
 protected:
     class game_manager *parent;

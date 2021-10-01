@@ -15,8 +15,8 @@ namespace banggame {
     
     static sdl::surface apply_card_mask(const sdl::surface &source) {
         sdl::surface ret(card_mask.get()->w, card_mask.get()->h);
-        SDL_Rect src_rect = source.get_rect();
-        SDL_Rect dst_rect = ret.get_rect();
+        sdl::rect src_rect = source.get_rect();
+        sdl::rect dst_rect = ret.get_rect();
         SDL_BlitSurface(source.get(), &src_rect, ret.get(), &dst_rect);
 
         SDL_LockSurface(card_mask.get());
@@ -43,10 +43,10 @@ namespace banggame {
 
     void card_view::make_texture_front() {
         sdl::surface card_base_surf(card_resources[image]);
-        SDL_Rect card_rect = card_base_surf.get_rect();
+        sdl::rect card_rect = card_base_surf.get_rect();
 
         sdl::surface card_value_surf(misc_resources[enums::to_string(value)]);
-        SDL_Rect value_rect = card_value_surf.get_rect();
+        sdl::rect value_rect = card_value_surf.get_rect();
 
         value_rect.x = 15;
         value_rect.y = card_rect.h - value_rect.h - 15;
@@ -57,7 +57,7 @@ namespace banggame {
         suit_string.append(enums::to_string(suit));
         sdl::surface card_suit_surf(misc_resources[suit_string]);
         
-        SDL_Rect suit_rect = card_suit_surf.get_rect();
+        sdl::rect suit_rect = card_suit_surf.get_rect();
 
         suit_rect.x = value_rect.x + value_rect.w;
         suit_rect.y = card_rect.h - suit_rect.h - 15;
@@ -97,17 +97,17 @@ namespace banggame {
         m_rect.x = pos.x - m_rect.w / 2;
         m_rect.y = pos.y - m_rect.h / 2;
 
-        SDL_Rect rect = m_rect;
+        sdl::rect rect = m_rect;
         float wscale = std::abs(1.f - 2.f * flip_amt);
         rect.x += rect.w * (1.f - wscale) * 0.5f;
         rect.w *= wscale;
         SDL_RenderCopyEx(renderer.get(), tex.get_texture(renderer), nullptr, &rect, rotation, nullptr, SDL_FLIP_NONE);
     }
 
-    void player_view::set_position(SDL_Point pos, bool flipped) {
+    void player_view::set_position(sdl::point pos, bool flipped) {
         pos.x -= 80;
         hand.pos = table.pos = m_role.pos = pos;
-        SDL_Point char_pos = pos;
+        sdl::point char_pos = pos;
         char_pos.x += 150;
         for (auto &c : m_characters) {
             c.pos = char_pos;

@@ -91,7 +91,7 @@ void game_manager::render(sdl::renderer &renderer) {
     m_scene->render(renderer);
 }
 
-void game_manager::handle_event(const SDL_Event &event) {
+void game_manager::handle_event(const sdl::event &event) {
     m_scene->handle_event(event);
 }
 

@@ -14,7 +14,7 @@ void textbox::render(renderer &renderer) {
     int linex = m_border_rect.x + m_style.margin;
 
     if (m_tex) {
-        m_tex.set_point(SDL_Point{m_border_rect.x + m_style.margin, m_border_rect.y + m_style.margin});
+        m_tex.set_point(point{m_border_rect.x + m_style.margin, m_border_rect.y + m_style.margin});
         m_tex.render(renderer);
 
         linex = m_tex.get_rect().x + m_tex.get_rect().w;
@@ -25,10 +25,10 @@ void textbox::render(renderer &renderer) {
     }
 }
 
-void textbox::handle_event(const SDL_Event &event) {
+void textbox::handle_event(const event &event) {
     switch (event.type) {
     case SDL_MOUSEBUTTONDOWN:
-        m_active = event.button.button == SDL_BUTTON_LEFT && point_in_rect(SDL_Point{event.button.x, event.button.y}, m_border_rect);
+        m_active = event.button.button == SDL_BUTTON_LEFT && point_in_rect(point{event.button.x, event.button.y}, m_border_rect);
         break;
     case SDL_KEYDOWN:
         if (m_active && event.key.keysym.sym == SDLK_BACKSPACE) {

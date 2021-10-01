@@ -26,12 +26,12 @@ game_scene::game_scene(class game_manager *parent)
 void game_scene::resize(int width, int height) {
     scene_base::resize(width, height);
     
-    main_deck.pos = SDL_Point{m_width / 2, m_height / 2};
+    main_deck.pos = sdl::point{m_width / 2, m_height / 2};
 
     discard_pile.pos = main_deck.pos;
     discard_pile.pos.x -= 80;
     
-    temp_table.pos = SDL_Point{
+    temp_table.pos = sdl::point{
         (main_deck.pos.x + discard_pile.pos.x) / 2,
         main_deck.pos.y + 100};
 
@@ -79,7 +79,7 @@ void game_scene::render(sdl::renderer &renderer) {
         get_card(id).render(renderer);
     }
 
-    renderer.set_draw_color(SDL_Color{0xff, 0x0, 0x0, 0xff});
+    renderer.set_draw_color(sdl::color{0xff, 0x0, 0x0, 0xff});
     for (int id : m_highlights) {
         renderer.draw_rect(get_card_widget(id).get_rect());
     }
@@ -87,15 +87,15 @@ void game_scene::render(sdl::renderer &renderer) {
     m_ui.render(renderer);
 }
 
-void game_scene::handle_event(const SDL_Event &event) {
+void game_scene::handle_event(const sdl::event &event) {
     m_ui.handle_event(event);
 
     if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
-        handle_card_click(SDL_Point{event.button.x, event.button.y});
+        handle_card_click(sdl::point{event.button.x, event.button.y});
     }
 }
 
-void game_scene::handle_card_click(const SDL_Point &mouse_pt) {
+void game_scene::handle_card_click(const sdl::point &mouse_pt) {
     auto mouse_in_card = [&](int card_id) {
         return sdl::point_in_rect(mouse_pt, get_card(card_id).get_rect());
     };
@@ -104,7 +104,7 @@ void game_scene::handle_card_click(const SDL_Point &mouse_pt) {
         return (it == pile.rend()) ? 0 : *it;
     };
 
-    SDL_Rect main_deck_rect = card_view::texture_back.get_rect();
+    sdl::rect main_deck_rect = card_view::texture_back.get_rect();
     sdl::scale_rect(main_deck_rect, card_widget_base::card_width);
     main_deck_rect.x = main_deck.pos.x - main_deck_rect.w / 2;
     main_deck_rect.y = main_deck.pos.y - main_deck_rect.h / 2;
@@ -590,7 +590,7 @@ void game_scene::move_player_views() {
     auto own_player = m_players.find(m_player_own_id);
     if (own_player == m_players.end()) return;
 
-    SDL_Point pos{m_width / 2, m_height - 120};
+    sdl::point pos{m_width / 2, m_height - 120};
     own_player->second.set_position(pos, true);
 
     int xradius = (m_width - 200) - (m_width / 2);
@@ -602,7 +602,7 @@ void game_scene::move_player_views() {
         if (++it == m_players.end()) it = m_players.begin();
         if (it == own_player) break;
         angle -= std::numbers::pi * 2.f / m_players.size();
-        it->second.set_position(SDL_Point{
+        it->second.set_position(sdl::point{
             int(m_width / 2 + std::cos(angle) * xradius),
             int(m_height / 2 - std::sin(angle) * yradius)
         });

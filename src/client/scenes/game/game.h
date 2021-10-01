@@ -22,13 +22,13 @@ namespace banggame {
     public:
         game_scene(class game_manager *parent);
 
-        SDL_Color bg_color() override {
+        sdl::color bg_color() override {
             return {0x07, 0x63, 0x25, 0xff};
         }
         
         void resize(int width, int height) override;
         void render(sdl::renderer &renderer) override;
-        void handle_event(const SDL_Event &event) override;
+        void handle_event(const sdl::event &event) override;
 
         void handle_update(const game_update &update);
         
@@ -63,7 +63,7 @@ namespace banggame {
 
         void move_player_views();
 
-        void handle_card_click(const SDL_Point &mouse_pt);
+        void handle_card_click(const sdl::point &mouse_pt);
 
         void on_click_main_deck();
         void on_click_discard_pile();

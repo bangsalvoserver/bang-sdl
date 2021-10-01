@@ -7,7 +7,7 @@ lobby_player_item::lobby_player_item(const lobby_player_data &args)
     , m_user_id(args.user_id) {}
 
 void lobby_player_item::render(sdl::renderer &renderer, int x, int y) {
-    m_name_text.set_point(SDL_Point{x, y});
+    m_name_text.set_point(sdl::point{x, y});
     m_name_text.render(renderer);
 }
 
@@ -34,7 +34,7 @@ void lobby_scene::init(const lobby_entered_args &args) {
 
 void lobby_scene::render(sdl::renderer &renderer) {
     if (m_lobby_name_text) {
-        SDL_Rect rect = m_lobby_name_text.get_rect();
+        sdl::rect rect = m_lobby_name_text.get_rect();
         rect.x = (m_width - rect.w) / 2;
         rect.y = 60;
         m_lobby_name_text.set_rect(rect);
@@ -48,15 +48,15 @@ void lobby_scene::render(sdl::renderer &renderer) {
     }
 
     if (m_owner_id && m_owner_id == m_user_id) {
-        m_start_btn.set_rect(SDL_Rect{100, y, 100, 25});
+        m_start_btn.set_rect(sdl::rect{100, y, 100, 25});
         m_start_btn.render(renderer);
     }
 
-    m_leave_btn.set_rect(SDL_Rect{20, m_height - 45, 100, 25});
+    m_leave_btn.set_rect(sdl::rect{20, m_height - 45, 100, 25});
     m_leave_btn.render(renderer);
 }
 
-void lobby_scene::handle_event(const SDL_Event &event) {
+void lobby_scene::handle_event(const sdl::event &event) {
     m_leave_btn.handle_event(event);
 
     if (m_owner_id && m_owner_id == m_user_id) {

@@ -28,7 +28,7 @@ public:
 
     void render(sdl::renderer &renderer);
 
-    void handle_event(const SDL_Event &event);
+    void handle_event(const sdl::event &event);
 
     template<client_message_type E, typename ... Ts>
     void add_message(Ts && ... args) {

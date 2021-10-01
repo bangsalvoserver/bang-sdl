@@ -13,7 +13,7 @@
 namespace banggame {
 
     struct card_pile_view : std::vector<int> {
-        SDL_Point pos;
+        sdl::point pos;
         int xoffset;
 
         card_pile_view(int xoffset = 30) : xoffset(xoffset) {}
@@ -22,8 +22,8 @@ namespace banggame {
             return std::ranges::find(*this, card_id);
         }
 
-        SDL_Point get_position(int card_id) const {
-            return SDL_Point{(int)(pos.x + xoffset *
+        sdl::point get_position(int card_id) const {
+            return sdl::point{(int)(pos.x + xoffset *
                 (std::ranges::distance(begin(), find(card_id)) - (size() - 1) * .5f)),
                 pos.y};
         }
@@ -37,7 +37,7 @@ namespace banggame {
 
     class card_widget_base {
     public:
-        SDL_Point pos;
+        sdl::point pos;
 
         float flip_amt = 0.f;
         float rotation = 0.f;
@@ -49,12 +49,12 @@ namespace banggame {
         std::string image;
         std::vector<card_target_data> targets;
 
-        const SDL_Rect &get_rect() const {
+        const sdl::rect &get_rect() const {
             return m_rect;
         }
 
     private:
-        SDL_Rect m_rect;
+        sdl::rect m_rect;
         
     protected:
         void render(sdl::renderer &renderer, sdl::texture &front);
@@ -111,7 +111,7 @@ namespace banggame {
         character_card m_hp_marker;
         role_card m_role;
 
-        void set_position(SDL_Point pos, bool flipped = false);
+        void set_position(sdl::point pos, bool flipped = false);
 
         void set_hp_marker_position(float hp);
 

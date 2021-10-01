@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
     game_manager mgr;
     mgr.resize(window_width, window_height);
 
-    SDL_Event event;
+    sdl::event event;
     bool quit = false;
     while (!quit) {
         mgr.render(renderer);
