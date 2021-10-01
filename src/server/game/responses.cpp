@@ -84,8 +84,8 @@ namespace banggame {
             auto &target_card = t->find_hand_card(card_id);
             if (target_card.effects.front().is<effect_bangcard>()
                 || target->has_character<effect_calamity_janet>() && target_card.effects.front().is<effect_missedcard>()) {
-                t->m_game->pop_response();
                 t->discard_hand_card_response(card_id);
+                t->m_game->pop_response();
             }
         }
     }
