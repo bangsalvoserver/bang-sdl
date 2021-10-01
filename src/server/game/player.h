@@ -128,6 +128,7 @@ namespace banggame {
 
         void next_predraw_check(int card_id);
 
+        void send_character_update(const character &c, int index);
         void set_character_and_role(const character &c, player_role role);
 
         void add_to_hand(deck_card &&c);
@@ -140,6 +141,8 @@ namespace banggame {
         void respond_card(const play_card_args &args);
 
         void draw_from_deck();
+
+        void preturn_effects();
         void start_of_turn();
         void end_of_turn();
 

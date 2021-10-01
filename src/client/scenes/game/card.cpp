@@ -111,8 +111,8 @@ namespace banggame {
         char_pos.x += 150;
         for (auto &c : m_characters) {
             c.pos = char_pos;
-            char_pos.x += 30;
-            char_pos.y += 30;
+            char_pos.x += 20;
+            char_pos.y += 20;
         }
         set_hp_marker_position(hp);
         m_role.pos.x += 230;

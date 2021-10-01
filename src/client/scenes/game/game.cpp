@@ -264,17 +264,18 @@ void game_scene::on_click_hand_card(int player_id, int card_id) {
 }
 
 void game_scene::on_click_character(int player_id, int card_id) {
-    if (player_id != m_player_own_id) return;
     if (card_id == m_play_card_args.card_id) {
         clear_targets();
     } else if (m_current_response.target_id == m_player_own_id && m_current_response.type != response_type::none) {
-        if (!is_picking_response(m_current_response.type) && m_play_card_args.card_id == 0) {
+        if (is_picking_response(m_current_response.type)) {
+            add_action<game_action_type::pick_card>(card_pile_type::player_character, card_id);
+        } else if (m_play_card_args.card_id == 0 && player_id == m_player_own_id) {
             m_play_card_args.card_id = card_id;
             m_highlights.push_back(card_id);
             handle_auto_targets(true);
         }
     } else if (m_playing_id == m_player_own_id) {
-        if (m_play_card_args.card_id == 0) {
+        if (m_play_card_args.card_id == 0 && player_id == m_player_own_id) {
             auto &p = get_player(player_id);
             if (std::ranges::find(p.m_characters, character_type::none, &character_card::type) != p.m_characters.end()) return;
             m_play_card_args.card_id = card_id;
@@ -651,15 +652,21 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::player_cha
     }
 
     auto &p = get_player(args.player_id);
-    auto &c = p.m_characters.front();
+    while (args.index >= p.m_characters.size()) {
+        auto &last = p.m_characters.back();
+        p.m_characters.emplace_back().pos = sdl::point(last.pos.x + 20, last.pos.y + 20);
+    }
+    auto &c = *std::next(p.m_characters.begin(), args.index);
     c.id = args.card_id;
     c.name = args.name;
     c.image = args.image;
     c.targets = args.targets;
     c.type = args.type;
 
-    p.hp = args.max_hp;
-    p.set_hp_marker_position(args.max_hp);
+    if (args.index == 0) {
+        p.hp = args.max_hp;
+        p.set_hp_marker_position(args.max_hp);
+    }
 
     c.make_texture_front();
 

@@ -173,7 +173,7 @@ namespace banggame {
         (molly_stark,   effect_molly_stark)
         (sean_mallory,  effect_sean_mallory)
         (tequila_joe,   effect_tequila_joe)
-        (vera_custer)
+        (vera_custer,   effect_vera_custer)
     )
 }
 

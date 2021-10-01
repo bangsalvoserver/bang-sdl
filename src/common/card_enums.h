@@ -42,6 +42,7 @@ namespace banggame {
 
     DEFINE_ENUM_IN_NS(banggame, character_type,
         (none)
+        (preturn)
         (drawing)
         (drawing_forced)
         (active)
@@ -77,6 +78,7 @@ namespace banggame {
     DEFINE_ENUM_IN_NS(banggame, card_pile_type,
         (player_hand)
         (player_table)
+        (player_character)
         (main_deck)
         (discard_pile)
         (temp_table)

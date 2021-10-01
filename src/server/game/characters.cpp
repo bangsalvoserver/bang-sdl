@@ -227,4 +227,29 @@ namespace banggame {
             target->play_virtual_card(std::move(copy));
         }
     }
+
+    void effect_vera_custer::on_play(player *origin) {
+        origin->m_game->queue_response<response_type::vera_custer>(nullptr, origin);
+    }
+
+    void response_vera_custer::on_pick(card_pile_type pile, int card_id) {
+        if (pile == card_pile_type::player_character) {
+            auto t = target;
+            if (card_id != t->m_characters.front().id) {
+                t->m_game->pop_response();
+                auto &c = t->m_game->find_character(card_id);
+                if (c.name != t->m_characters.back().name) {
+                    auto character_copy = c;
+                    character_copy.id = t->m_game->get_next_id();
+
+                    if (t->m_characters.size() == 2) {
+                        t->m_characters.back().on_unequip(t);
+                        t->m_characters.pop_back();
+                    }
+                    t->send_character_update(character_copy, 1);
+                    t->m_characters.emplace_back(std::move(character_copy)).on_equip(t);
+                }
+            }
+        }
+    }
 }

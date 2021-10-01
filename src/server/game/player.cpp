@@ -463,6 +463,16 @@ namespace banggame {
         m_game->add_private_update<game_update_type::virtual_card>(this, obj);
     }
 
+    void player::preturn_effects() {
+        for (auto &c : m_characters) {
+            if (c.type == character_type::preturn) {
+                for (auto &e : c.effects) {
+                    e->on_play(this);
+                }
+            }
+        }
+    }
+
     void player::start_of_turn() {
         m_game->add_public_update<game_update_type::switch_turn>(id);
 
@@ -470,6 +480,8 @@ namespace banggame {
         m_bangs_per_turn = 1;
         m_character_usages = 0;
         m_has_drawn = false;
+
+        preturn_effects();
 
         m_pending_predraw_checks = m_predraw_checks;
         m_game->queue_event<event_type::on_turn_start>(this);
@@ -517,6 +529,22 @@ namespace banggame {
         }
     }
 
+    void player::send_character_update(const character &c, int index) {
+        player_character_update obj;
+        obj.player_id = id;
+        obj.card_id = c.id;
+        obj.index = index;
+        obj.max_hp = m_max_hp;
+        obj.name = c.name;
+        obj.image = c.image;
+        obj.type = c.type;
+        for (const auto &e : c.effects) {
+            obj.targets.emplace_back(e->target, e->maxdistance);
+        }
+        
+        m_game->add_public_update<game_update_type::player_character>(std::move(obj));
+    }
+
     void player::set_character_and_role(const character &c, player_role role) {
         m_characters.push_back(c);
         m_role = role;
@@ -527,21 +555,8 @@ namespace banggame {
         }
         m_hp = m_max_hp;
 
-        for (auto &c : m_characters) {
-            c.on_equip(this);
-        }
-
-        player_character_update obj;
-        obj.player_id = id;
-        obj.card_id = c.id;
-        obj.max_hp = m_max_hp;
-        obj.name = c.name;
-        obj.image = c.image;
-        obj.type = c.type;
-        for (const auto &e : c.effects) {
-            obj.targets.emplace_back(e->target, e->maxdistance);
-        }
-        m_game->add_public_update<game_update_type::player_character>(std::move(obj));
+        m_characters.front().on_equip(this);
+        send_character_update(c, 0);
 
         if (role == player_role::sheriff) {
             m_game->add_public_update<game_update_type::player_show_role>(id, m_role);

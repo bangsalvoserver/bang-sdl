@@ -70,6 +70,7 @@ namespace banggame {
         (death,         response_death)
         (kit_carlson,   response_kit_carlson)
         (claus_the_saint, response_claus_the_saint)
+        (vera_custer,   response_vera_custer)
     )
 
 }

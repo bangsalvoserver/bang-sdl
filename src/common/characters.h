@@ -88,6 +88,14 @@ namespace banggame {
     };
 
     struct effect_elena_fuente : card_effect {};
+
+    struct effect_vera_custer : card_effect {
+        virtual void on_play(player *origin) override;
+    };
+
+    struct response_vera_custer : picking_response {
+        virtual void on_pick(card_pile_type pile, int card_id) override;
+    };
 }
 
 #endif

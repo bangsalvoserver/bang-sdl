@@ -64,9 +64,9 @@ namespace banggame {
         
         std::array roles{
             player_role::sheriff,
-            player_role::outlaw,
-            player_role::outlaw,
             player_role::renegade,
+            player_role::outlaw,
+            player_role::outlaw,
             player_role::deputy,
             player_role::outlaw,
             player_role::deputy,
@@ -95,6 +95,12 @@ namespace banggame {
         }
 
         m_playing = &*std::ranges::find(m_players, player_role::sheriff, &player::m_role);
+
+        for (auto &p : m_players) {
+            if (p.id != m_playing->id) {
+                p.preturn_effects();
+            }
+        }
         m_playing->start_of_turn();
     }
 
@@ -232,6 +238,15 @@ namespace banggame {
 
     bool game::table_cards_disabled(int player_id) {
         return !m_table_card_disablers.empty() && std::ranges::find(m_table_card_disablers, player_id) == m_table_card_disablers.end();
+    }
+
+    character &game::find_character(int card_id) {
+        for (auto &p : m_players | std::views::filter(&player::alive)) {
+            if (auto it = std::ranges::find(p.m_characters, card_id, &character::id); it != p.m_characters.end()) {
+                return *it;
+            }
+        }
+        throw game_error("ID carta non trovato");
     }
 
     void game::handle_action(enums::enum_constant<game_action_type::pick_card>, player *p, const pick_card_args &args) {
