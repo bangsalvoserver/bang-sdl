@@ -43,6 +43,7 @@ namespace banggame {
         (suit, card_suit_type)
         (value, card_value_type)
         (color, card_color_type)
+        (short_pause, bool)
         (targets, std::vector<card_target_data>)
     )
 

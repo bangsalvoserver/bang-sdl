@@ -21,7 +21,7 @@ namespace banggame {
                 if (removed.suit == card_suit_type::hearts || removed.suit == card_suit_type::diamonds) {
                     ++ncards;
                 }
-                target->m_game->add_show_card(removed);
+                target->m_game->add_show_card(removed, nullptr, true);
                 target->add_to_hand(std::move(removed));
             } else {
                 target->add_to_hand(target->m_game->draw_card());

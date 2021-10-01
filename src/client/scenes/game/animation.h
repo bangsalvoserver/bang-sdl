@@ -58,12 +58,16 @@ namespace banggame {
         }
     };
 
+    struct pause_animation {
+        void do_animation(float amt) {}
+    };
+
     class animation {
     private:
         int duration;
         int elapsed = 0;
 
-        std::variant<card_move_animation, card_flip_animation, card_tap_animation, player_hp_animation> m_anim;
+        std::variant<card_move_animation, card_flip_animation, card_tap_animation, player_hp_animation, pause_animation> m_anim;
 
     public:
         animation(int duration, decltype(m_anim) &&anim)

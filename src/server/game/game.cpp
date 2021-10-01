@@ -8,7 +8,7 @@
 
 namespace banggame {
 
-    void game::add_show_card(const deck_card &c, player *owner) {
+    void game::add_show_card(const deck_card &c, player *owner, bool short_pause) {
         show_card_update obj;
         obj.card_id = c.id;
         obj.color = c.color;
@@ -16,6 +16,7 @@ namespace banggame {
         obj.name = c.name;
         obj.suit = c.suit;
         obj.value = c.value;
+        obj.short_pause = short_pause;
         for (const auto &value : c.effects) {
             obj.targets.emplace_back(value->target, value->maxdistance);
         }

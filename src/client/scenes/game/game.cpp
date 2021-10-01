@@ -577,6 +577,10 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::show_card>
         }
         m_animations.emplace_back(10, card_flip_animation{&c, false});
 
+        if (args.short_pause) {
+            m_animations.emplace_back(10, pause_animation{});
+        }
+
     } else {
         pop_update();
     }

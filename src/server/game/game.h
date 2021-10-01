@@ -77,7 +77,7 @@ namespace banggame {
                 std::make_tuple(enums::enum_constant<E>{}, std::forward<Ts>(args) ...));
         }
 
-        void add_show_card(const deck_card &c, player *owner = nullptr);
+        void add_show_card(const deck_card &c, player *owner = nullptr, bool short_pause = false);
 
         void start_game(const game_options &options);
 
