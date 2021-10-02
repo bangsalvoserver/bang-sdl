@@ -89,9 +89,12 @@ namespace banggame {
         add_public_update<game_update_type::add_cards>(std::vector(ids_view.begin(), ids_view.end()));
         shuffle_cards_and_ids(m_deck, rng);
 
-        for (auto &p : m_players) {
-            for (int i=0; i<p.m_hp; ++i) {
-                p.add_to_hand(draw_card());
+        int max_hp = std::ranges::max(m_players | std::views::transform(&player::m_hp));
+        for (int i=0; i<max_hp; ++i) {
+            for (auto &p : m_players) {
+                if (p.m_hand.size() < p.m_hp) {
+                    p.add_to_hand(draw_card());
+                }
             }
         }
 
