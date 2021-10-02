@@ -9,8 +9,9 @@
             "image": "01_barile",
             "expansion": "base",
             "color": "blue",
-            "effects": [
+            "responses": [
                 {
+                    "target": "selfcard",
                     "class": "barrel"
                 }
             ]
@@ -213,11 +214,17 @@
             "color": "brown",
             "effects": [
                 {
-                    "class": "deathsave"
-                },
+                    "target": "self",
+                    "class": "beer"
+                }
+            ],
+            "responses": [
                 {
                     "target": "self",
                     "class": "beer"
+                },
+                {
+                    "class": "deathsave"
                 }
             ]
         },
@@ -344,9 +351,8 @@
             "image": "01_mancato",
             "expansion": "base",
             "color": "brown",
-            "effects": [
+            "responses": [
                 {
-                    "target": "response",
                     "class": "missedcard"
                 }
             ]
@@ -419,8 +425,9 @@
             "image": "03_barile",
             "expansion": "dodgecity",
             "color": "blue",
-            "effects": [
+            "responses": [
                 {
+                    "target": "selfcard",
                     "class": "barrel"
                 }
             ]
@@ -543,11 +550,17 @@
             "color": "brown",
             "effects": [
                 {
-                    "class": "deathsave"
-                },
+                    "target": "self",
+                    "class": "beer"
+                }
+            ],
+            "responses": [
                 {
                     "target": "self",
                     "class": "beer"
+                },
+                {
+                    "class": "deathsave"
                 }
             ]
         },
@@ -603,9 +616,8 @@
             "image": "03_mancato",
             "expansion": "dodgecity",
             "color": "brown",
-            "effects": [
+            "responses": [
                 {
-                    "target": "response",
                     "class": "missedcard"
                 }
             ]
@@ -689,9 +701,8 @@
             "image": "03_schivata",
             "expansion": "dodgecity",
             "color": "brown",
-            "effects": [
+            "responses": [
                 {
-                    "target": "response",
                     "class": "missed"
                 },
                 {
@@ -769,9 +780,8 @@
             "image": "03_bibbia",
             "expansion": "dodgecity",
             "color": "green",
-            "effects": [
+            "responses": [
                 {
-                    "target": "response",
                     "class": "missed"
                 },
                 {
@@ -818,9 +828,8 @@
             "image": "03_cappello",
             "expansion": "dodgecity",
             "color": "green",
-            "effects": [
+            "responses": [
                 {
-                    "target": "response",
                     "class": "missed"
                 }
             ]
@@ -914,9 +923,8 @@
             "image": "03_placca_di_ferro",
             "expansion": "dodgecity",
             "color": "green",
-            "effects": [
+            "responses": [
                 {
-                    "target": "response",
                     "class": "missed"
                 }
             ]
@@ -971,9 +979,8 @@
             "image": "03_sombrero",
             "expansion": "dodgecity",
             "color": "green",
-            "effects": [
+            "responses": [
                 {
-                    "target": "response",
                     "class": "missed"
                 }
             ]
@@ -1083,9 +1090,8 @@
             "image": "07_fuga",
             "expansion": "valleyofshadows",
             "color": "brown",
-            "effects": [
+            "responses": [
                 {
-                    "target": "response",
                     "class": "flight"
                 }
             ]
@@ -1126,9 +1132,8 @@
             "image": "07_ritornodifiamma",
             "expansion": "valleyofshadows",
             "color": "brown",
-            "effects": [
+            "responses": [
                 {
-                    "target": "response",
                     "class": "missed"
                 },
                 {
@@ -1145,9 +1150,8 @@
             "image": "07_salvo",
             "expansion": "valleyofshadows",
             "color": "brown",
-            "effects": [
+            "responses": [
                 {
-                    "target": "response",
                     "class": "saved"
                 }
             ]
@@ -1371,9 +1375,8 @@
             "image": "17_giulatesta",
             "expansion": "armedanddangerous",
             "color": "brown",
-            "effects": [
+            "responses": [
                 {
-                    "target": "response",
                     "class": "missed"
                 },
                 {
@@ -1390,9 +1393,8 @@
             "image": "17_mancato",
             "expansion": "armedanddangerous",
             "color": "brown",
-            "effects": [
+            "responses": [
                 {
-                    "target": "response",
                     "class": "missedcard"
                 }
             ]
@@ -1554,10 +1556,9 @@
             "image": "17_cassa",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "effects": [
+            "responses": [
                 {
                     "cost": 2,
-                    "target": "response",
                     "class": "missed"
                 }
             ]
@@ -1696,8 +1697,27 @@
             "type": "active",
             "effects": [
                 {
-                    "target": "selfhand",
                     "class": "calamity_janet"
+                },
+                {
+                    "target": "selfhand_missedcard",
+                    "class": "destroy"
+                },
+                {
+                    "target": "reachable",
+                    "class": "bangcard"
+                },
+                {
+                    "class": "banglimit"
+                }
+            ],
+            "responses": [
+                {
+                    "target": "selfhand_bangcard",
+                    "class": "destroy"
+                },
+                {
+                    "class": "missed"
                 }
             ]
         },
@@ -1734,8 +1754,9 @@
             "image": "01_jourdonnais",
             "hp": 4,
             "expansion": "base",
-            "effects": [
+            "responses": [
                 {
+                    "target": "selfcard",
                     "class": "barrel"
                 }
             ]
@@ -1810,8 +1831,19 @@
             "type": "active",
             "effects": [
                 {
-                    "class": "deathsave"
+                    "target": "selfhand",
+                    "class": "destroy"
                 },
+                {
+                    "target": "selfhand",
+                    "class": "destroy"
+                },
+                {
+                    "target": "self",
+                    "class": "heal"
+                }
+            ],
+            "responses": [
                 {
                     "target": "selfhand",
                     "class": "destroy"
@@ -1823,6 +1855,9 @@
                 {
                     "target": "self",
                     "class": "heal"
+                },
+                {
+                    "class": "deathsave"
                 }
             ]
         },
@@ -1992,10 +2027,13 @@
             "hp": 3,
             "expansion": "dodgecity",
             "type": "active",
-            "effects": [
+            "responses": [
                 {
                     "target": "selfhand",
-                    "class": "elena_fuente"
+                    "class": "destroy"
+                },
+                {
+                    "class": "missed"
                 }
             ]
         },

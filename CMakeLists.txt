@@ -34,7 +34,7 @@ set(bangserver_srcs
     src/server/game/characters.cpp
     src/server/game/game.cpp
     src/server/game/player.cpp
-    src/server/game/responses.cpp
+    src/server/game/requests.cpp
 )
 
 include_directories(bangclient src)

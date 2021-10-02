@@ -58,7 +58,6 @@ namespace banggame {
     
     DEFINE_ENUM_IN_NS(banggame, target_type,
         (none)
-        (response)
         (self)
         (anyone)
         (notself)
@@ -66,12 +65,15 @@ namespace banggame {
         (reachable)
         (everyone)
         (others)
+        (selfcard)
         (anycard)
         (table_card)
         (other_table_card)
         (other_hand_card)
         (selfhand)
         (selfhand_blue)
+        (selfhand_bangcard)
+        (selfhand_missedcard)
         (othercards)
     )
 

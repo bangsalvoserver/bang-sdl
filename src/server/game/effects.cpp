@@ -1,16 +1,43 @@
 #include "common/effects.h"
-#include "common/responses.h"
+#include "common/requests.h"
 
 #include "player.h"
 #include "game.h"
 
 namespace banggame {
     void effect_bang::on_play(player *origin, player *target) {
-        target->m_game->queue_response<response_type::bang>(origin, target);
+        target->m_game->queue_request<request_type::bang>(origin, target);
     }
 
     void effect_bangcard::on_play(player *origin, player *target) {
-        target->m_game->queue_response<response_type::bang>(origin, target)->get_data()->bang_strength = origin->m_bang_strength;
+        target->m_game->queue_request<request_type::bang>(origin, target).bang_strength = origin->m_bang_strength;
+    }
+
+    bool effect_missed::can_respond(player *origin) const {
+        return origin->m_game->m_requests.front().enum_index() == request_type::bang;
+    }
+
+    void effect_missed::on_play(player *origin) {
+        auto &req = origin->m_game->m_requests.front().get<request_type::bang>();
+        if (0 == --req.bang_strength) {
+            origin->m_game->pop_request();
+        }
+    }
+
+    bool effect_barrel::can_respond(player *origin) const {
+        return origin->m_game->m_requests.front().enum_index() == request_type::bang;
+    }
+
+    void effect_barrel::on_play(player *origin, player *target, int card_id) {
+        auto &req = target->m_game->m_requests.front().get<request_type::bang>();
+        if (std::ranges::find(req.barrels_used, card_id) == std::ranges::end(req.barrels_used)) {
+            req.barrels_used.push_back(card_id);
+            target->m_game->draw_check_then(target, [target](card_suit_type suit, card_value_type) {
+                if (suit == card_suit_type::hearts) {
+                    effect_missed().on_play(target);
+                }
+            });
+        }
     }
 
     bool effect_banglimit::can_play(player *target) const {
@@ -22,18 +49,18 @@ namespace banggame {
     }
 
     void effect_indians::on_play(player *origin, player *target) {
-        target->m_game->queue_response<response_type::indians>(origin, target);
+        target->m_game->queue_request<request_type::indians>(origin, target);
     }
 
     void effect_duel::on_play(player *origin, player *target) {
-        target->m_game->queue_response<response_type::duel>(origin, target);
+        target->m_game->queue_request<request_type::duel>(origin, target);
     }
 
     void effect_generalstore::on_play(player *origin) {
         for (int i=0; i<origin->m_game->num_alive(); ++i) {
             origin->m_game->add_to_temps(origin->m_game->draw_card());
         }
-        origin->m_game->queue_response<response_type::generalstore>(origin, origin);
+        origin->m_game->queue_request<request_type::generalstore>(origin, origin);
     }
 
     void effect_heal::on_play(player *origin, player *target) {
@@ -51,6 +78,16 @@ namespace banggame {
     void effect_beer::on_play(player *origin, player *target) {
         if (target->m_game->num_alive() > 2) {
             target->heal(target->m_beer_strength);
+        }
+    }
+
+    bool effect_deathsave::can_respond(player *origin) const {
+        return origin->m_game->m_requests.front().enum_index() == request_type::death;
+    }
+
+    void effect_deathsave::on_play(player *origin) {
+        if (origin->m_hp > 0) {
+            origin->m_game->pop_request();
         }
     }
 

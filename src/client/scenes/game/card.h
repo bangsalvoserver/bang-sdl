@@ -48,6 +48,7 @@ namespace banggame {
         std::string name;
         std::string image;
         std::vector<card_target_data> targets;
+        std::vector<card_target_data> response_targets;
 
         const sdl::rect &get_rect() const {
             return m_rect;

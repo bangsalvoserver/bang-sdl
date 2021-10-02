@@ -44,9 +44,6 @@ static std::vector<effect_holder> make_effects_from_json(const Json::Value &json
         ret.push_back(effect);
     }
 
-    if (ret.empty()) {
-        throw std::runtime_error("Lista effetti vuota");
-    }
     return ret;
 }
 
@@ -68,6 +65,7 @@ all_cards banggame::read_cards(card_expansion_type allowed_expansions) {
             c.image = json_card["image"].asString();
             c.color = enums::from_string<card_color_type>(json_card["color"].asString());
             c.effects = make_effects_from_json(json_card["effects"]);
+            c.responses = make_effects_from_json(json_card["responses"]);
             for (const auto &json_sign : json_card["signs"]) {
                 std::string_view str = json_sign.asString();
                 c.suit = *std::ranges::find_if(enums::enum_values_v<card_suit_type>,
@@ -98,6 +96,7 @@ all_cards banggame::read_cards(card_expansion_type allowed_expansions) {
                 c.usages = json_character["usages"].asInt();
             }
             c.effects = make_effects_from_json(json_character["effects"]);
+            c.responses = make_effects_from_json(json_character["responses"]);
             c.max_hp = json_character["hp"].asInt();
             ret.characters.push_back(c);
         }

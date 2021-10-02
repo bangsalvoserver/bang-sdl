@@ -31,16 +31,16 @@ namespace banggame {
         virtual void on_play(player *target) override;
     };
 
-    struct response_kit_carlson : picking_response {
-        virtual void on_pick(card_pile_type pile, int card_id) override;
+    struct request_kit_carlson : request_base {
+        void on_pick(card_pile_type pile, int card_id);
     };
 
     struct effect_claus_the_saint : card_effect {
         virtual void on_play(player *target) override;
     };
 
-    struct response_claus_the_saint : picking_response {
-        virtual void on_pick(card_pile_type pile, int card_id) override;
+    struct request_claus_the_saint : request_base {
+        void on_pick(card_pile_type pile, int card_id);
     };
 
     struct effect_el_gringo : card_effect {
@@ -83,18 +83,14 @@ namespace banggame {
         virtual void on_unequip(player *target, int card_id) override;
     };
 
-    struct effect_calamity_janet : card_effect {
-        virtual void on_play(player *origin, player *target, int card_id) override;
-    };
-
-    struct effect_elena_fuente : card_effect {};
+    struct effect_calamity_janet : card_effect {};
 
     struct effect_vera_custer : card_effect {
         virtual void on_play(player *origin) override;
     };
 
-    struct response_vera_custer : picking_response {
-        virtual void on_pick(card_pile_type pile, int card_id) override;
+    struct request_vera_custer : request_base {
+        void on_pick(card_pile_type pile, int card_id);
     };
 }
 

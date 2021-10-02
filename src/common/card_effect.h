@@ -20,6 +20,8 @@ namespace banggame {
         virtual void on_unequip(player *target, int card_id) { }
 
         virtual bool can_play(player *target) const { return true; }
+        virtual bool can_respond(player *target) const { return false; }
+        
         virtual void on_play(player *origin) { }
         virtual void on_play(player *origin, player *target) { }
         virtual void on_play(player *origin, player *target, int card_id) { }
@@ -82,27 +84,11 @@ namespace banggame {
     };
 
     using effect_holder = vbase_holder<card_effect>;
-    
-    struct response_effect {
-        virtual ~response_effect() {}
 
-        player *origin = nullptr;
-        player *target = nullptr;
-
-        std::byte data[64];
-
-        virtual void on_resolve() {};
+    struct request_base {
+        player *origin;
+        player *target;
     };
-
-    struct picking_response : response_effect {
-        virtual void on_pick(card_pile_type pile, int card_id) = 0;
-    };
-
-    struct card_response : response_effect {
-        virtual void on_respond(const play_card_args &args) = 0;
-    };
-
-    using response_holder = vbase_holder<response_effect>;
 }
 
 #endif

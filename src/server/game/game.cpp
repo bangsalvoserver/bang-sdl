@@ -1,7 +1,7 @@
 #include "game.h"
 
 #include "card.h"
-#include "common/responses.h"
+#include "common/requests.h"
 #include "common/net_enums.h"
 
 #include <array>
@@ -19,6 +19,9 @@ namespace banggame {
         obj.short_pause = short_pause;
         for (const auto &value : c.effects) {
             obj.targets.emplace_back(value->target, value->maxdistance);
+        }
+        for (const auto &value : c.responses) {
+            obj.response_targets.emplace_back(value->target, value->maxdistance);
         }
 
         if (!owner) {
@@ -131,7 +134,7 @@ namespace banggame {
 
     deck_card game::draw_from_temp(int card_id) {
         auto it = std::ranges::find(m_temps, card_id, &deck_card::id);
-        if (it == m_temps.end()) throw game_error("ID non trovato");
+        if (it == m_temps.end()) throw game_error("server.draw_from_temp: ID non trovato");
         deck_card c = std::move(*it);
         m_temps.erase(it);
         return c;
@@ -146,7 +149,7 @@ namespace banggame {
             for (int i=0; i<p->m_num_checks; ++i) {
                 add_to_temps(draw_card());
             }
-            add_response<response_type::check>(nullptr, p);
+            add_request<request_type::check>(nullptr, p);
         }
     }
 
@@ -250,40 +253,42 @@ namespace banggame {
                 return *it;
             }
         }
-        throw game_error("ID carta non trovato");
+        throw game_error("server.find_character: ID non trovato");
     }
 
     void game::handle_action(enums::enum_constant<game_action_type::pick_card>, player *p, const pick_card_args &args) {
-        if (!m_responses.empty() && p == top_response()->target) {
-            if (auto *r = top_response().as<picking_response>()) {
-                r->on_pick(args.pile, args.card_id);
-            }
+        if (!m_requests.empty() && p == top_request().target()) {
+            enums::visit([&]<request_type E>(enums::enum_constant<E>, auto &req) {
+                if constexpr (picking_request<E>) {
+                    req.on_pick(args.pile, args.card_id);
+                }
+            }, top_request());
         }
     }
 
     void game::handle_action(enums::enum_constant<game_action_type::play_card>, player *p, const play_card_args &args) {
-        if (m_responses.empty() && m_playing == p) {
+        if (m_requests.empty() && m_playing == p) {
             p->play_card(args);
         }
     }
 
     void game::handle_action(enums::enum_constant<game_action_type::respond_card>, player *p, const play_card_args &args) {
-        if (!m_responses.empty() && p == top_response()->target) {
+        if (!m_requests.empty() && p == top_request().target()) {
             p->respond_card(args);
         }
     }
 
     void game::handle_action(enums::enum_constant<game_action_type::draw_from_deck>, player *p) {
-        if (m_responses.empty() && m_playing == p && !p->m_has_drawn) {
+        if (m_requests.empty() && m_playing == p && !p->m_has_drawn) {
             p->draw_from_deck();
         }
     }
 
     void game::handle_action(enums::enum_constant<game_action_type::pass_turn>, player *p) {
-        if (m_responses.empty() && m_playing == p && p->m_has_drawn) {
+        if (m_requests.empty() && m_playing == p && p->m_has_drawn) {
             if (int n_discards = p->num_hand_cards() - p->max_cards_end_of_turn(); n_discards > 0) {
                 for (int i=0; i<n_discards; ++i) {
-                    queue_response<response_type::discard>(nullptr, p);
+                    queue_request<request_type::discard>(nullptr, p);
                 }
             } else {
                 next_turn();
@@ -292,8 +297,14 @@ namespace banggame {
     }
 
     void game::handle_action(enums::enum_constant<game_action_type::resolve>, player *p) {
-        if (!m_responses.empty() && p == top_response()->target) {
-            top_response()->on_resolve();
+        if (!m_requests.empty() && p == top_request().target()) {
+            enums::visit([]<request_type E>(enums::enum_constant<E>, auto &req) {
+                if constexpr (resolvable_request<E>) {
+                    auto req_copy = std::move(req);
+                    req_copy.target->m_game->pop_request();
+                    req_copy.on_resolve();
+                }
+            }, top_request());
         }
     }
 }

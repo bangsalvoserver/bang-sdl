@@ -86,12 +86,14 @@ namespace banggame {
         }
 
         template<std::derived_from<card_effect> T>
-        bool has_character() {
+        bool has_character() const {
             for (const auto &c : m_characters) {
                 if (c.effects.front().is<T>()) return true;
             }
             return false;
         }
+
+        bool is_bang_card(const card &c) const;
 
         bool alive() const { return !m_dead; }
 
@@ -134,8 +136,8 @@ namespace banggame {
         void add_to_hand(deck_card &&c);
 
         bool verify_equip_target(const card &c, const std::vector<play_card_target> &targets);
-        bool verify_card_targets(const card &c, const std::vector<play_card_target> &targets);
-        void do_play_card(int card_id, const std::vector<play_card_target> &targets);
+        bool verify_card_targets(const card &c, bool is_response, const std::vector<play_card_target> &targets);
+        void do_play_card(int card_id, bool is_response, const std::vector<play_card_target> &targets);
 
         void play_card(const play_card_args &args);
         void respond_card(const play_card_args &args);

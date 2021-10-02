@@ -26,13 +26,17 @@ namespace banggame {
         virtual void on_play(player *origin, player *target) override;
     };
     
-    struct effect_missed : card_effect {};
+    struct effect_missed : card_effect {
+        virtual bool can_respond(player *origin) const override;
+        virtual void on_play(player *origin) override;
+    };
 
     struct effect_missedcard : effect_missed {};
     
-    struct effect_barrel : card_effect {};
-
-    struct effect_deathsave : card_effect {};
+    struct effect_barrel : card_effect {
+        virtual bool can_respond(player *origin) const override;
+        virtual void on_play(player *origin, player *target, int card_id) override;
+    };
 
     struct effect_heal : card_effect {
         virtual void on_play(player *origin, player *target) override;
@@ -47,6 +51,11 @@ namespace banggame {
 
     struct effect_beer : card_effect {
         virtual void on_play(player *origin, player *target) override;
+    };
+
+    struct effect_deathsave : card_effect {
+        virtual bool can_respond(player *origin) const override;
+        virtual void on_play(player *origin) override;
     };
 
     struct effect_destroy : card_effect {
@@ -167,7 +176,6 @@ namespace banggame {
         (johnny_kisch,  effect_johnny_kisch)
         (bellestar,     effect_bellestar)
         (bill_noface,   effect_bill_noface)
-        (elena_fuente,  effect_elena_fuente)
         (greg_digger,   effect_greg_digger)
         (herb_hunter,   effect_herb_hunter)
         (molly_stark,   effect_molly_stark)

@@ -3,7 +3,7 @@
 
 #include "../scene_base.h"
 
-#include "common/responses.h"
+#include "common/requests.h"
 
 #include "animation.h"
 #include "game_ui.h"
@@ -13,8 +13,8 @@
 
 namespace banggame {
 
-    struct response_view {
-        response_type type = response_type::none;
+    struct request_view {
+        request_type type = request_type::none;
         int origin_id;
         int target_id;
     };
@@ -52,8 +52,8 @@ namespace banggame {
         void handle_update(enums::enum_constant<game_update_type::player_character>, const player_character_update &args);
         void handle_update(enums::enum_constant<game_update_type::player_show_role>, const player_show_role_update &args);
         void handle_update(enums::enum_constant<game_update_type::switch_turn>,      const switch_turn_update &args);
-        void handle_update(enums::enum_constant<game_update_type::response_handle>,  const response_handle_update &args);
-        void handle_update(enums::enum_constant<game_update_type::response_done>);
+        void handle_update(enums::enum_constant<game_update_type::request_handle>,  const request_handle_update &args);
+        void handle_update(enums::enum_constant<game_update_type::request_done>);
         
         void pop_update();
 
@@ -95,11 +95,11 @@ namespace banggame {
 
         std::optional<card_view> m_virtual;
 
-        decltype(card_view::targets) &get_current_card_targets();
+        decltype(card_view::targets) &get_current_card_targets(bool is_response);
 
         card_view &get_card(int id) {
             auto it = m_cards.find(id);
-            if (it == m_cards.end()) throw std::runtime_error("ID carta non trovato");
+            if (it == m_cards.end()) throw std::runtime_error("client.get_card: ID non trovato");
             return it->second;
         }
 
@@ -112,12 +112,12 @@ namespace banggame {
                     return *it;
                 }
             }
-            throw std::runtime_error("ID carta non trovato");
+            throw std::runtime_error("client.get_card_widget: ID non trovato");
         }
 
         player_view &get_player(int id) {
             auto it = m_players.find(id);
-            if (it == m_players.end()) throw std::runtime_error("ID Giocatore non trovato");
+            if (it == m_players.end()) throw std::runtime_error("client.get_player: ID non trovato");
             return it->second;
         }
 
@@ -128,7 +128,7 @@ namespace banggame {
         play_card_args m_play_card_args;
         std::vector<int> m_highlights;
 
-        response_view m_current_response;
+        request_view m_current_request;
 
         friend class game_ui;
     };

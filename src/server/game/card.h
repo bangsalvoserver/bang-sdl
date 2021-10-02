@@ -14,6 +14,7 @@ namespace banggame {
         int id;
         card_expansion_type expansion;
         std::vector<effect_holder> effects;
+        std::vector<effect_holder> responses;
         std::string name;
         std::string image;
 

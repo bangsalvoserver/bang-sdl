@@ -56,23 +56,23 @@ namespace banggame {
         for (int i=0; i<=target->m_num_drawn_cards; ++i) {
             target->m_game->add_to_temps(target->m_game->draw_card(), target);
         }
-        target->m_game->queue_response<response_type::kit_carlson>(nullptr, target);
+        target->m_game->queue_request<request_type::kit_carlson>(nullptr, target);
     }
 
-    void response_kit_carlson::on_pick(card_pile_type pile, int card_id) {
+    void request_kit_carlson::on_pick(card_pile_type pile, int card_id) {
         if (pile == card_pile_type::temp_table) {
             auto t = target;
             t->add_to_hand(t->m_game->draw_from_temp(card_id));
             if (t->m_game->m_temps.size() == 1) {
-                t->m_game->pop_response();
+                t->m_game->pop_request();
                 auto removed = std::move(t->m_game->m_temps.front());
                 t->m_game->add_private_update<game_update_type::hide_card>(target, removed.id);
                 t->m_game->add_public_update<game_update_type::move_card>(removed.id, 0, card_pile_type::main_deck);
                 t->m_game->m_temps.clear();
                 t->m_game->m_deck.push_back(std::move(removed));
             } else {
-                t->m_game->pop_response_noupdate();
-                t->m_game->queue_response<response_type::kit_carlson>(nullptr, target);
+                t->m_game->pop_request_noupdate();
+                t->m_game->queue_request<request_type::kit_carlson>(nullptr, target);
             }
         }
     }
@@ -82,10 +82,10 @@ namespace banggame {
         for (int i=0; i<ncards; ++i) {
             target->m_game->add_to_temps(target->m_game->draw_card(), target);
         }
-        target->m_game->queue_response<response_type::claus_the_saint>(nullptr, target);
+        target->m_game->queue_request<request_type::claus_the_saint>(nullptr, target);
     }
 
-    void response_claus_the_saint::on_pick(card_pile_type pile, int card_id) {
+    void request_claus_the_saint::on_pick(card_pile_type pile, int card_id) {
         if (pile == card_pile_type::temp_table) {
             auto t = target;
             int index = target->m_game->num_alive() + target->m_num_drawn_cards - target->m_game->m_temps.size();
@@ -95,14 +95,14 @@ namespace banggame {
             }
             p->add_to_hand(t->m_game->draw_from_temp(card_id));
             if (t->m_game->m_temps.size() == target->m_num_drawn_cards) {
-                t->m_game->pop_response();
+                t->m_game->pop_request();
                 for (auto &c : t->m_game->m_temps) {
                     t->add_to_hand(std::move(c));
                 }
                 t->m_game->m_temps.clear();
             } else {
-                t->m_game->pop_response_noupdate();
-                t->m_game->queue_response<response_type::claus_the_saint>(nullptr, target);
+                t->m_game->pop_request_noupdate();
+                t->m_game->queue_request<request_type::claus_the_saint>(nullptr, target);
             }
         }
     }
@@ -218,25 +218,15 @@ namespace banggame {
         target->m_game->remove_event(card_id);
     }
 
-    void effect_calamity_janet::on_play(player *origin, player *target, int card_id) {
-        deck_card copy = target->find_hand_card(card_id);
-        if (copy.effects.front().is<effect_missedcard>()) {
-            copy.effects.clear();
-            copy.effects.emplace_back(effect_holder::make<effect_bangcard>())->target = target_type::reachable;
-            copy.effects.emplace_back(effect_holder::make<effect_banglimit>());
-            target->play_virtual_card(std::move(copy));
-        }
-    }
-
     void effect_vera_custer::on_play(player *origin) {
-        origin->m_game->queue_response<response_type::vera_custer>(nullptr, origin);
+        origin->m_game->queue_request<request_type::vera_custer>(nullptr, origin);
     }
 
-    void response_vera_custer::on_pick(card_pile_type pile, int card_id) {
+    void request_vera_custer::on_pick(card_pile_type pile, int card_id) {
         if (pile == card_pile_type::player_character) {
             auto t = target;
             if (card_id != t->m_characters.front().id) {
-                t->m_game->pop_response();
+                t->m_game->pop_request();
                 auto &c = t->m_game->find_character(card_id);
                 if (c.name != t->m_characters.back().name) {
                     auto character_copy = c;

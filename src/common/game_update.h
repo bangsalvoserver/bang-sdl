@@ -2,7 +2,7 @@
 #define __GAME_UPDATE_H__
 
 #include "card_enums.h"
-#include "responses.h"
+#include "requests.h"
 
 #include "utils/json_serial.h"
 
@@ -45,6 +45,7 @@ namespace banggame {
         (color, card_color_type)
         (short_pause, bool)
         (targets, std::vector<card_target_data>)
+        (response_targets, std::vector<card_target_data>)
     )
 
     DEFINE_SERIALIZABLE(hide_card_update,
@@ -74,6 +75,7 @@ namespace banggame {
         (image, std::string)
         (type, character_type)
         (targets, std::vector<card_target_data>)
+        (response_targets, std::vector<card_target_data>)
     )
 
     DEFINE_SERIALIZABLE(player_show_role_update,
@@ -85,8 +87,8 @@ namespace banggame {
         (player_id, int)
     )
 
-    DEFINE_SERIALIZABLE(response_handle_update,
-        (type, response_type)
+    DEFINE_SERIALIZABLE(request_handle_update,
+        (type, request_type)
         (origin_id, int)
         (target_id, int)
     )
@@ -106,8 +108,8 @@ namespace banggame {
         (player_character, player_character_update)
         (player_show_role, player_show_role_update)
         (switch_turn, switch_turn_update)
-        (response_handle, response_handle_update)
-        (response_done)
+        (request_handle, request_handle_update)
+        (request_done)
     )
 
     using game_update = enums::enum_variant<game_update_type>;

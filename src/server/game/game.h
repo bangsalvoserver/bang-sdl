@@ -11,7 +11,7 @@
 #include "player.h"
 
 #include "common/game_update.h"
-#include "common/responses.h"
+#include "common/requests.h"
 
 namespace banggame {
 
@@ -41,7 +41,7 @@ namespace banggame {
 
     struct game {
         std::list<std::pair<player *, game_update>> m_updates;
-        std::list<std::pair<response_type, response_holder>> m_responses;
+        std::list<request_holder> m_requests;
         std::list<draw_check_function> m_pending_checks;
         std::multimap<int, event_function> m_event_handlers;
         std::list<event_args> m_pending_events;
@@ -81,53 +81,49 @@ namespace banggame {
 
         void start_game(const game_options &options);
 
-        response_holder &top_response() {
-            return m_responses.front().second;
+        request_holder &top_request() {
+            return m_requests.front();
         }
 
-        void add_response_update() {
-            const auto &resp = m_responses.front();
-            add_public_update<game_update_type::response_handle>(resp.first,
-                resp.second->origin ? resp.second->origin->id : 0,
-                resp.second->target ? resp.second->target->id : 0);
+        void send_request_update() {
+            const auto &req = m_requests.front();
+            add_public_update<game_update_type::request_handle>(req.enum_index(),
+                req.origin() ? req.origin()->id : 0,
+                req.target() ? req.target()->id : 0);
         }
 
-        template<response_type E>
-        auto *add_response(player *origin, player *target) {
-            auto &ret = m_responses.emplace_front(E, response_holder::make<enums::enum_type_t<E>>()).second;
-            ret->origin = origin;
-            ret->target = target;
+        template<request_type E>
+        auto &add_request(player *origin, player *target) {
+            auto &ret = m_requests.emplace_front(enums::enum_constant<E>{}, origin, target);
 
-            add_response_update();
+            send_request_update();
 
-            return ret.template as<enums::enum_type_t<E>>();
+            return ret.template get<E>();
         }
 
-        template<response_type E>
-        auto *queue_response(player *origin, player *target) {
-            auto &ret = m_responses.emplace_back(E, response_holder::make<enums::enum_type_t<E>>()).second;
-            ret->origin = origin;
-            ret->target = target;
+        template<request_type E>
+        auto &queue_request(player *origin, player *target) {
+            auto &ret = m_requests.emplace_front(enums::enum_constant<E>{}, origin, target);
 
-            if (m_responses.size() == 1) {
-                add_response_update();
+            if (m_requests.size() == 1) {
+                send_request_update();
             }
 
-            return ret.template as<enums::enum_type_t<E>>();
+            return ret.template get<E>();
         }
 
-        void pop_response() {
-            m_responses.pop_front();
-            if (m_responses.empty()) {
+        void pop_request() {
+            m_requests.pop_front();
+            if (m_requests.empty()) {
                 pop_events();
-                add_public_update<game_update_type::response_done>();
+                add_public_update<game_update_type::request_done>();
             } else {
-                add_response_update();
+                send_request_update();
             }
         }
 
-        void pop_response_noupdate() {
-            m_responses.pop_front();
+        void pop_request_noupdate() {
+            m_requests.pop_front();
         }
 
         template<event_type E, typename Function>
@@ -146,7 +142,7 @@ namespace banggame {
         template<event_type E, typename ... Ts>
         void queue_event(Ts && ... args) {
             event_args event{std::in_place_index<enums::indexof(E)>, std::forward<Ts>(args) ...};
-            if (m_responses.empty()) {
+            if (m_requests.empty()) {
                 handle_event(event);
             } else {
                 m_pending_events.emplace_back(std::move(event));
