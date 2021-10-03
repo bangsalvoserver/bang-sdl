@@ -62,7 +62,10 @@ namespace banggame {
         }
 
         sdl::point get_position(int card_id) const {
-            float xoffset = std::min((float)width / size(), (float)(card_widget_base::card_width + card_distance));
+            if (size() == 1) {
+                return pos;
+            }
+            float xoffset = std::min((float)width / (size() - 1), (float)(card_widget_base::card_width + card_distance));
             return sdl::point{(int)(pos.x + xoffset *
                 (std::ranges::distance(begin(), find(card_id)) - (size() - 1) * .5f)),
                 pos.y};
@@ -109,6 +112,8 @@ namespace banggame {
 
         card_pile_view hand;
         card_pile_view table;
+
+        sdl::rect m_bounding_rect;
 
         std::list<character_card> m_characters{1};
         

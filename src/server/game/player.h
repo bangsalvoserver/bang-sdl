@@ -47,8 +47,6 @@ namespace banggame {
         int m_bang_strength = 1;
         int m_beer_strength = 1;
 
-        int m_character_usages = 0;
-
         int m_num_checks = 1;
         int m_num_drawn_cards = 2;
 

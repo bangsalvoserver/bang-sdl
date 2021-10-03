@@ -325,10 +325,10 @@ namespace banggame {
         if (auto card_it = std::ranges::find(m_characters, args.card_id, &character::id); card_it != m_characters.end()) {
             switch (card_it->type) {
             case character_type::active:
-                if (m_has_drawn && (card_it->usages == 0 || m_character_usages < card_it->usages)) {
+                if (m_has_drawn && (card_it->max_usages == 0 || card_it->usages < card_it->max_usages)) {
                     if (verify_card_targets(*card_it, false, args.targets)) {
                         do_play_card(args.card_id, false, args.targets);
-                        ++m_character_usages;
+                        ++card_it->usages;
                     } else {
                         throw invalid_action();
                     }
@@ -443,25 +443,27 @@ namespace banggame {
                 throw invalid_action();
             }
         } else if (auto card_it = std::ranges::find(m_table, args.card_id, &deck_card::id); card_it != m_table.end()) {
-            switch (card_it->color) {
-            case card_color_type::green:
-                if (!card_it->inactive) {
+            if (!m_game->table_cards_disabled(id)) {
+                switch (card_it->color) {
+                case card_color_type::green:
+                    if (!card_it->inactive) {
+                        if (verify_card_targets(*card_it, true, args.targets) && can_respond(*card_it)) {
+                            do_play_card(args.card_id, true, args.targets);
+                        } else {
+                            throw invalid_action();
+                        }
+                    }
+                    break;
+                case card_color_type::blue:
                     if (verify_card_targets(*card_it, true, args.targets) && can_respond(*card_it)) {
                         do_play_card(args.card_id, true, args.targets);
                     } else {
                         throw invalid_action();
                     }
-                }
-                break;
-            case card_color_type::blue:
-                if (verify_card_targets(*card_it, true, args.targets) && can_respond(*card_it)) {
-                    do_play_card(args.card_id, true, args.targets);
-                } else {
+                    break;
+                default:
                     throw invalid_action();
                 }
-                break;
-            default:
-                throw invalid_action();
             }
         } else {
             throw game_error("server.respond_card: ID non trovato");
@@ -505,11 +507,6 @@ namespace banggame {
     void player::start_of_turn() {
         m_game->add_public_update<game_update_type::switch_turn>(id);
 
-        m_bangs_played = 0;
-        m_bangs_per_turn = 1;
-        m_character_usages = 0;
-        m_has_drawn = false;
-
         preturn_effects();
 
         m_pending_predraw_checks = m_predraw_checks;
@@ -530,6 +527,13 @@ namespace banggame {
     }
 
     void player::end_of_turn() {
+        m_bangs_played = 0;
+        m_bangs_per_turn = 1;
+        m_has_drawn = false;
+        for (auto &c : m_characters) {
+            c.usages = 0;
+        }
+
         for (auto &c : m_table) {
             if (c.inactive) {
                 c.inactive = false;

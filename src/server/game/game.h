@@ -103,7 +103,7 @@ namespace banggame {
 
         template<request_type E>
         auto &queue_request(player *origin, player *target) {
-            auto &ret = m_requests.emplace_front(enums::enum_constant<E>{}, origin, target);
+            auto &ret = m_requests.emplace_back(enums::enum_constant<E>{}, origin, target);
 
             if (m_requests.size() == 1) {
                 send_request_update();

@@ -42,6 +42,7 @@ namespace banggame {
     struct character : card {
         character_type type = character_type::none;
         int usages = 0;
+        int max_usages = 0;
         int max_hp;
     };
 

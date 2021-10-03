@@ -105,7 +105,7 @@ const all_cards_t banggame::all_cards = []() {
                 c.type = enums::from_string<character_type>(json_character["type"].asString());
             }
             if (json_character.isMember("usages")) {
-                c.usages = json_character["usages"].asInt();
+                c.max_usages = json_character["usages"].asInt();
             }
             c.effects = make_effects_from_json<effect_type, card_effect>(json_character["effects"]);
             c.responses = make_effects_from_json<effect_type, card_effect>(json_character["responses"]);

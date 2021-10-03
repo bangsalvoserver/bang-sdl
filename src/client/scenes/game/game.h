@@ -68,7 +68,6 @@ namespace banggame {
         void handle_card_click(const sdl::point &mouse_pt);
 
         void on_click_main_deck();
-        void on_click_discard_pile();
         void on_click_temp_table_card(int card_id);
         void on_click_table_card(int player_id, int card_id);
         void on_click_hand_card(int player_id, int card_id);

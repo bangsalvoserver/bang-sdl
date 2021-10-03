@@ -105,17 +105,23 @@ namespace banggame {
     }
 
     void player_view::set_position(sdl::point pos, bool flipped) {
-        pos.x -= 80;
-        hand.pos = table.pos = m_role.pos = pos;
-        sdl::point char_pos = pos;
-        char_pos.x += 150;
+        m_bounding_rect.w = table.width + card_widget_base::card_width * 3 + 40;
+        m_bounding_rect.h = 250;
+        m_bounding_rect.x = pos.x - m_bounding_rect.w / 2;
+        m_bounding_rect.y = pos.y - m_bounding_rect.h / 2;
+        hand.pos = table.pos = sdl::point{
+            m_bounding_rect.x + (table.width + card_widget_base::card_width) / 2 + 10,
+            m_bounding_rect.y + m_bounding_rect.h / 2};
+        sdl::point char_pos = sdl::point{
+            m_bounding_rect.x + m_bounding_rect.w - card_widget_base::card_width - card_widget_base::card_width / 2 - 20,
+            m_bounding_rect.y + m_bounding_rect.h - card_widget_base::card_width - 10};
+        m_role.pos = sdl::point(char_pos.x + card_widget_base::card_width + 10, char_pos.y);
         for (auto &c : m_characters) {
             c.pos = char_pos;
             char_pos.x += 20;
             char_pos.y += 20;
         }
         set_hp_marker_position(hp);
-        m_role.pos.x += 230;
         if (flipped) {
             hand.pos.y += 60;
             table.pos.y -= 60;
@@ -131,6 +137,8 @@ namespace banggame {
     }
 
     void player_view::render(sdl::renderer &renderer) {
+        renderer.set_draw_color(sdl::color{0x0, 0x0, 0x0, 0xff});
+        renderer.draw_rect(m_bounding_rect);
         m_role.render(renderer);
         m_hp_marker.render(renderer);
         for (auto &c : m_characters) {

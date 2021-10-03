@@ -110,16 +110,12 @@ void game_scene::handle_card_click(const sdl::point &mouse_pt) {
     main_deck_rect.x = main_deck.pos.x - main_deck_rect.w / 2;
     main_deck_rect.y = main_deck.pos.y - main_deck_rect.h / 2;
 
-    if (sdl::point_in_rect(mouse_pt, main_deck_rect)) {
-        on_click_main_deck();
-        return;
-    }
-    if (!discard_pile.empty() && mouse_in_card(discard_pile.back())) {
-        on_click_discard_pile();
-        return;
-    }
     if (int card_id = find_clicked(temp_table)) {
         on_click_temp_table_card(card_id);
+        return;
+    }
+    if (sdl::point_in_rect(mouse_pt, main_deck_rect)) {
+        on_click_main_deck();
         return;
     }
     for (const auto &[player_id, p] : m_players) {
@@ -159,12 +155,6 @@ void game_scene::on_click_main_deck() {
         } else {
             add_action<game_action_type::draw_from_deck>();
         }
-    }
-}
-
-void game_scene::on_click_discard_pile() {
-    if (m_current_request.target_id == m_player_own_id && is_picking_request(m_current_request.type)) {
-        add_action<game_action_type::pick_card>(card_pile_type::discard_pile);
     }
 }
 
@@ -287,8 +277,6 @@ void game_scene::on_click_character(int player_id, int card_id) {
             m_play_card_args.card_id = card_id;
             m_highlights.push_back(card_id);
             handle_auto_targets(false);
-        } else {
-            add_card_target(false, target_card_id{player_id, card_id, true});
         }
     }
 }
