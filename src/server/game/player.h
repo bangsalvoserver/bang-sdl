@@ -83,16 +83,6 @@ namespace banggame {
             return m_max_cards_mods.empty() ? m_hp : std::ranges::min(m_max_cards_mods);
         }
 
-        template<std::derived_from<card_effect> T>
-        bool has_character() const {
-            for (const auto &c : m_characters) {
-                if (c.effects.front().is<T>()) return true;
-            }
-            return false;
-        }
-
-        bool is_bang_card(const card &c) const;
-
         bool alive() const { return !m_dead; }
 
         void damage(player *source, int value);
@@ -106,7 +96,6 @@ namespace banggame {
             return m_infinite_bangs > 0 || m_bangs_played < m_bangs_per_turn;
         }
         
-        void handle_death();
         void discard_all();
 
         void add_predraw_check(int card_id, int priority) {
@@ -142,7 +131,6 @@ namespace banggame {
 
         void draw_from_deck();
 
-        void preturn_effects();
         void start_of_turn();
         void end_of_turn();
 

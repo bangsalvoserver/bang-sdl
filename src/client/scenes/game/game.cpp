@@ -273,10 +273,12 @@ void game_scene::on_click_character(int player_id, int card_id) {
     } else if (m_playing_id == m_player_own_id) {
         if (m_play_card_args.card_id == 0 && player_id == m_player_own_id) {
             auto &p = get_player(player_id);
-            if (std::ranges::find(p.m_characters, character_type::none, &character_card::type) != p.m_characters.end()) return;
-            m_play_card_args.card_id = card_id;
-            m_highlights.push_back(card_id);
-            handle_auto_targets(false);
+            auto c = std::ranges::find(p.m_characters, card_id, &character_card::id);
+            if (c->type != character_type::none) {
+                m_play_card_args.card_id = card_id;
+                m_highlights.push_back(card_id);
+                handle_auto_targets(false);
+            }
         }
     }
 }
@@ -666,24 +668,28 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::player_cha
     }
 
     auto &p = get_player(args.player_id);
-    while (args.index >= p.m_characters.size()) {
-        auto &last = p.m_characters.back();
-        p.m_characters.emplace_back().pos = sdl::point(last.pos.x + 20, last.pos.y + 20);
-    }
-    auto &c = *std::next(p.m_characters.begin(), args.index);
-    c.id = args.card_id;
-    c.name = args.name;
-    c.image = args.image;
-    c.targets = args.targets;
-    c.response_targets = args.response_targets;
-    c.type = args.type;
+    if (args.card_id) {
+        while (args.index >= p.m_characters.size()) {
+            auto &last = p.m_characters.back();
+            p.m_characters.emplace_back().pos = sdl::point(last.pos.x + 20, last.pos.y + 20);
+        }
+        auto &c = *std::next(p.m_characters.begin(), args.index);
+        c.id = args.card_id;
+        c.name = args.name;
+        c.image = args.image;
+        c.targets = args.targets;
+        c.response_targets = args.response_targets;
+        c.type = args.type;
 
-    if (args.index == 0) {
-        p.hp = args.max_hp;
-        p.set_hp_marker_position(args.max_hp);
-    }
+        c.make_texture_front();
 
-    c.make_texture_front();
+        if (args.index == 0) {
+            p.hp = args.max_hp;
+            p.set_hp_marker_position(args.max_hp);
+        }
+    } else if (args.index < p.m_characters.size()) {
+        p.m_characters.erase(std::next(p.m_characters.begin(), args.index));
+    }
 
     pop_update();
 }

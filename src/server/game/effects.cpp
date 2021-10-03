@@ -14,7 +14,7 @@ namespace banggame {
     }
 
     bool effect_missed::can_respond(player *origin) const {
-        return origin->m_game->m_requests.front().enum_index() == request_type::bang;
+        return origin->m_game->m_requests.front().is(request_type::bang);
     }
 
     void effect_missed::on_play(player *origin) {
@@ -25,7 +25,7 @@ namespace banggame {
     }
 
     bool effect_barrel::can_respond(player *origin) const {
-        return origin->m_game->m_requests.front().enum_index() == request_type::bang;
+        return origin->m_game->m_requests.front().is(request_type::bang);
     }
 
     void effect_barrel::on_play(player *origin, player *target, int card_id) {
@@ -116,7 +116,7 @@ namespace banggame {
     }
 
     bool effect_deathsave::can_respond(player *origin) const {
-        return origin->m_game->m_requests.front().enum_index() == request_type::death;
+        return origin->m_game->m_requests.front().is(request_type::death);
     }
 
     void effect_deathsave::on_play(player *origin) {

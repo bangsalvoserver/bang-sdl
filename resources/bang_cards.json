@@ -2179,8 +2179,7 @@
             "image": "03_vera_custer",
             "hp": 3,
             "expansion": "dodgecity",
-            "type": "preturn",
-            "effects": [
+            "equip": [
                 {
                     "class": "vera_custer"
                 }

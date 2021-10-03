@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 
-#include "common/card_effect.h"
+#include "common/effect_holder.h"
 #include "common/card_enums.h"
 #include "common/game_update.h"
 
@@ -21,13 +21,13 @@ namespace banggame {
 
         void on_equip(player *target) {
             for (auto &e : equips) {
-                e->on_equip(target, id);
+                e.on_equip(target, id);
             }
         }
 
         void on_unequip(player *target) {
             for (auto &e : equips) {
-                e->on_unequip(target, id);
+                e.on_unequip(target, id);
             }
         }
     };

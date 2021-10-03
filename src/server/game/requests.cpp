@@ -12,7 +12,7 @@ namespace banggame {
             if (target->is_top_predraw_check(c)) {
                 target->m_game->pop_request();
                 for (auto &e : c.equips) {
-                    e->on_predraw_check(target, card_id);
+                    e.on_predraw_check(target, card_id);
                 }
             }
         }
@@ -57,7 +57,6 @@ namespace banggame {
     }
 
     void request_death::on_resolve() {
-        target->handle_death();
         target->m_game->player_death(origin, target);
     }
 }

@@ -20,13 +20,13 @@ namespace banggame {
         obj.value = c.value;
         obj.short_pause = short_pause;
         for (const auto &value : c.effects) {
-            obj.targets.emplace_back(value->target, value->maxdistance);
+            obj.targets.emplace_back(value.target(), value.maxdistance());
         }
         for (const auto &value : c.responses) {
-            obj.response_targets.emplace_back(value->target, value->maxdistance);
+            obj.response_targets.emplace_back(value.target(), value.maxdistance());
         }
         for (const auto &value : c.equips) {
-            obj.equip_targets.emplace_back(value->target, value->maxdistance);
+            obj.equip_targets.emplace_back(value.target(), value.maxdistance());
         }
 
         if (!owner) {
@@ -110,12 +110,6 @@ namespace banggame {
         }
 
         m_playing = &*std::ranges::find(m_players, player_role::sheriff, &player::m_role);
-
-        for (auto &p : m_players) {
-            if (p.id != m_playing->id) {
-                p.preturn_effects();
-            }
-        }
         m_playing->start_of_turn();
     }
 
@@ -173,6 +167,13 @@ namespace banggame {
     }
 
     void game::player_death(player *killer, player *target) {
+        for (auto &c : target->m_characters) {
+            c.on_unequip(target);
+        }
+
+        target->discard_all();
+        target->m_dead = true;
+        
         queue_event<event_type::on_player_death>(killer, target);
         add_public_update<game_update_type::player_show_role>(target->id, target->m_role);
         bool game_over = false;
@@ -297,7 +298,7 @@ namespace banggame {
         if (m_requests.empty() && m_playing == p && p->m_has_drawn) {
             if (int n_discards = p->num_hand_cards() - p->max_cards_end_of_turn(); n_discards > 0) {
                 for (int i=0; i<n_discards; ++i) {
-                    queue_request<request_type::discard>(nullptr, p);
+                    queue_request<request_type::discard>(p, p);
                 }
             } else {
                 next_turn();

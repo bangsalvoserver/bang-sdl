@@ -15,40 +15,30 @@ DECLARE_RESOURCE(bang_cards_json)
 using namespace banggame;
 using namespace enums::flag_operators;
 
-template<typename T, enums::reflected_enum auto Value>
-T make_effect_holder() {
-    if constexpr (enums::has_type<Value>) {
-        return T::template make<enums::enum_type_t<Value>>();
-    } else {
-        return T();
-    }
-}
-
-template<enums::reflected_enum E, typename T>
+template<typename Holder>
 static auto make_effects_from_json(const Json::Value &json_effects) {
-    using holder = vbase_holder<T>;
-
-    constexpr auto lut = []<E ... Es>(enums::enum_sequence<Es ...>) {
+    using enum_type = typename Holder::enum_type;
+    constexpr auto lut = []<enum_type ... Es>(enums::enum_sequence<Es ...>) {
         return std::array {
-            make_effect_holder<holder, Es> ...
+            +[] { return Holder(enums::enum_constant<Es>{}); } ...
         };
-    }(enums::make_enum_sequence<E>());
+    }(enums::make_enum_sequence<enum_type>());
 
-    std::vector<holder> ret;
+    std::vector<Holder> ret;
     for (const auto &json_effect : json_effects) {
-        auto e = enums::from_string<E>(json_effect["class"].asString());
-        if (e == enums::invalid_enum_v<E>) {
+        auto e = enums::from_string<enum_type>(json_effect["class"].asString());
+        if (e == enums::invalid_enum_v<enum_type>) {
             throw std::runtime_error("Invalid effect class: " + json_effect["class"].asString());
         }
 
         auto effect = lut[enums::indexof(e)]();
         if (json_effect.isMember("maxdistance")) {
-            effect->maxdistance = json_effect["maxdistance"].asInt();
+            effect.set_maxdistance(json_effect["maxdistance"].asInt());
         }
         if (json_effect.isMember("target")) {
-            effect->target = json::deserialize<target_type>(json_effect["target"].asString());
-            if (effect->target != enums::flags_none<target_type>
-                && !bool(effect->target & (target_type::card | target_type::player))) {
+            effect.set_target(json::deserialize<target_type>(json_effect["target"].asString()));
+            if (effect.target() != enums::flags_none<target_type>
+                && !bool(effect.target() & (target_type::card | target_type::player))) {
                 throw std::runtime_error("Invalid target: " + json_effect["target"].asString());
             }
         }
@@ -75,9 +65,9 @@ const all_cards_t banggame::all_cards = []() {
             c.name = json_card["name"].asString();
             c.image = json_card["image"].asString();
             c.color = enums::from_string<card_color_type>(json_card["color"].asString());
-            c.effects = make_effects_from_json<effect_type, card_effect>(json_card["effects"]);
-            c.responses = make_effects_from_json<effect_type, card_effect>(json_card["responses"]);
-            c.equips = make_effects_from_json<equip_type, equip_effect>(json_card["equip"]);
+            c.effects = make_effects_from_json<effect_holder>(json_card["effects"]);
+            c.responses = make_effects_from_json<effect_holder>(json_card["responses"]);
+            c.equips = make_effects_from_json<equip_holder>(json_card["equip"]);
             for (const auto &json_sign : json_card["signs"]) {
                 std::string_view str = json_sign.asString();
                 c.suit = *std::ranges::find_if(enums::enum_values_v<card_suit_type>,
@@ -107,9 +97,9 @@ const all_cards_t banggame::all_cards = []() {
             if (json_character.isMember("usages")) {
                 c.max_usages = json_character["usages"].asInt();
             }
-            c.effects = make_effects_from_json<effect_type, card_effect>(json_character["effects"]);
-            c.responses = make_effects_from_json<effect_type, card_effect>(json_character["responses"]);
-            c.equips = make_effects_from_json<equip_type, equip_effect>(json_character["equip"]);
+            c.effects = make_effects_from_json<effect_holder>(json_character["effects"]);
+            c.responses = make_effects_from_json<effect_holder>(json_character["responses"]);
+            c.equips = make_effects_from_json<equip_holder>(json_character["equip"]);
             c.max_hp = json_character["hp"].asInt();
             ret.characters.push_back(c);
         }

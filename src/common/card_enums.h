@@ -42,7 +42,6 @@ namespace banggame {
 
     DEFINE_ENUM_IN_NS(banggame, character_type,
         (none)
-        (preturn)
         (drawing)
         (drawing_forced)
         (active)

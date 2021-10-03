@@ -1,7 +1,7 @@
 #ifndef __REQUESTS_H__
 #define __REQUESTS_H__
 
-#include "card_effect.h"
+#include "effect_holder.h"
 #include "characters.h"
 #include "game_action.h"
 

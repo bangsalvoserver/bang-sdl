@@ -19,6 +19,7 @@ namespace enums {
     template<reflected_enum Enum> using enum_variant_base = typename detail::enum_variant<make_enum_sequence<Enum>>::type;
 
     template<reflected_enum Enum> struct enum_variant : enum_variant_base<Enum> {
+        using enum_type = Enum;
         using base = enum_variant_base<Enum>;
         using base::base;
 
@@ -28,6 +29,10 @@ namespace enums {
         
         Enum enum_index() const {
             return enum_values_v<Enum>[base::index()];
+        }
+
+        bool is(Enum index) const {
+            return enum_index() == index;
         }
 
         template<Enum Value> const auto &get() const {

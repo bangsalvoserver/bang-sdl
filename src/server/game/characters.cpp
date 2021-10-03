@@ -56,7 +56,7 @@ namespace banggame {
         for (int i=0; i<=target->m_num_drawn_cards; ++i) {
             target->m_game->add_to_temps(target->m_game->draw_card(), target);
         }
-        target->m_game->queue_request<request_type::kit_carlson>(nullptr, target);
+        target->m_game->queue_request<request_type::kit_carlson>(target, target);
     }
 
     void request_kit_carlson::on_pick(card_pile_type pile, int card_id) {
@@ -71,7 +71,7 @@ namespace banggame {
                 target->m_game->m_deck.push_back(std::move(removed));
             } else {
                 target->m_game->pop_request_noupdate();
-                target->m_game->queue_request<request_type::kit_carlson>(nullptr, target);
+                target->m_game->queue_request<request_type::kit_carlson>(target, target);
             }
         }
     }
@@ -81,7 +81,7 @@ namespace banggame {
         for (int i=0; i<ncards; ++i) {
             target->m_game->add_to_temps(target->m_game->draw_card(), target);
         }
-        target->m_game->queue_request<request_type::claus_the_saint>(nullptr, target);
+        target->m_game->queue_request<request_type::claus_the_saint>(target, target);
     }
 
     void request_claus_the_saint::on_pick(card_pile_type pile, int card_id) {
@@ -216,26 +216,57 @@ namespace banggame {
         target->m_game->remove_event(card_id);
     }
 
-    void effect_vera_custer::on_play(player *origin) {
-        origin->m_game->queue_request<request_type::vera_custer>(nullptr, origin);
+    static void vera_custer_copy_character(player *target, const character &c) {
+        if (c.name != target->m_characters.back().name) {
+            auto copy = c;
+            copy.id = target->m_game->get_next_id();
+            copy.usages = 0;
+
+            if (target->m_characters.size() == 2) {
+                target->m_characters.back().on_unequip(target);
+                target->m_characters.pop_back();
+            }
+            target->send_character_update(copy, 1);
+            target->m_characters.emplace_back(std::move(copy)).on_equip(target);
+        }
+    }
+
+    void effect_vera_custer::on_equip(player *p, int card_id) {
+        p->m_game->add_event<event_type::on_turn_start>(card_id, [p](player *target) {
+            if (p == target) {
+                ++p->m_characters.front().usages;
+                if (p->m_game->num_alive() == 2 && p->m_game->get_next_player(p)->m_characters.size() == 1) {
+                    vera_custer_copy_character(p, p->m_game->get_next_player(p)->m_characters.front());
+                } else if (p->m_game->num_alive() > 2) {
+                    p->m_game->queue_request<request_type::vera_custer>(p, p);
+                }
+            }
+        });
+        p->m_game->add_event<event_type::on_turn_end>(card_id, [p](player *target) {
+            if (p == target && p->m_characters.front().usages == 0) {
+                if (p->m_characters.size() > 1) {
+                    p->m_characters.back().on_unequip(p);
+                    p->m_characters.pop_back();
+                    p->m_game->add_public_update<game_update_type::player_character>(p->id, 0, 1);
+                }
+            }
+        });
+    }
+
+    void effect_vera_custer::on_unequip(player *target, int card_id) {
+        target->m_game->remove_event(card_id);
+
+        if (target->m_characters.size() > 1) {
+            target->m_characters.pop_back();
+            target->m_game->add_public_update<game_update_type::player_character>(target->id, 0, 1);
+        }
     }
 
     void request_vera_custer::on_pick(card_pile_type pile, int card_id) {
         if (pile == card_pile_type::player_character) {
             if (card_id != target->m_characters.front().id) {
                 target->m_game->pop_request();
-                auto &c = target->m_game->find_character(card_id);
-                if (c.name != target->m_characters.back().name) {
-                    auto character_copy = c;
-                    character_copy.id = target->m_game->get_next_id();
-
-                    if (target->m_characters.size() == 2) {
-                        target->m_characters.back().on_unequip(target);
-                        target->m_characters.pop_back();
-                    }
-                    target->send_character_update(character_copy, 1);
-                    target->m_characters.emplace_back(std::move(character_copy)).on_equip(target);
-                }
+                vera_custer_copy_character(target, target->m_game->find_character(card_id));
             }
         }
     }
