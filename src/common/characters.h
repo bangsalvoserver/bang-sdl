@@ -4,7 +4,7 @@
 #include "card_effect.h"
 
 namespace banggame {
-    struct effect_slab_the_killer : card_effect {
+    struct effect_slab_the_killer : equip_effect {
         virtual void on_equip(player *target, int card_id) override;
         virtual void on_unequip(player *target, int card_id) override;
     };
@@ -17,12 +17,12 @@ namespace banggame {
         virtual void on_play(player *target) override;
     };
 
-    struct effect_tequila_joe : card_effect {
+    struct effect_tequila_joe : equip_effect {
         virtual void on_equip(player *target, int card_id) override;
         virtual void on_unequip(player *target, int card_id) override;
     };
 
-    struct effect_sean_mallory : card_effect {
+    struct effect_sean_mallory : equip_effect {
         virtual void on_equip(player *target, int card_id) override;
         virtual void on_unequip(player *target, int card_id) override;
     };
@@ -43,47 +43,45 @@ namespace banggame {
         void on_pick(card_pile_type pile, int card_id);
     };
 
-    struct effect_el_gringo : card_effect {
+    struct effect_el_gringo : equip_effect {
         virtual void on_equip(player *target, int card_id) override;
         virtual void on_unequip(player *target, int card_id) override;
     };
 
-    struct effect_suzy_lafayette : card_effect {
+    struct effect_suzy_lafayette : equip_effect {
         virtual void on_equip(player *target, int card_id) override;
         virtual void on_unequip(player *target, int card_id) override;
     };
 
-    struct effect_vulture_sam : card_effect {
+    struct effect_vulture_sam : equip_effect {
         virtual void on_equip(player *target, int card_id) override;
         virtual void on_unequip(player *target, int card_id) override;
     };
 
-    struct effect_greg_digger : card_effect {
+    struct effect_greg_digger : equip_effect {
         virtual void on_equip(player *target, int card_id) override;
         virtual void on_unequip(player *target, int card_id) override;
     };
 
-    struct effect_herb_hunter : card_effect {
+    struct effect_herb_hunter : equip_effect {
         virtual void on_equip(player *target, int card_id) override;
         virtual void on_unequip(player *target, int card_id) override;
     };
 
-    struct effect_johnny_kisch : card_effect {
+    struct effect_johnny_kisch : equip_effect {
         virtual void on_equip(player *target, int card_id) override;
         virtual void on_unequip(player *target, int card_id) override;
     };
 
-    struct effect_molly_stark : card_effect {
+    struct effect_molly_stark : equip_effect {
         virtual void on_equip(player *target, int card_id) override;
         virtual void on_unequip(player *target, int card_id) override;
     };
 
-    struct effect_bellestar : card_effect {
+    struct effect_bellestar : equip_effect {
         virtual void on_equip(player *target, int card_id) override;
         virtual void on_unequip(player *target, int card_id) override;
     };
-
-    struct effect_calamity_janet : card_effect {};
 
     struct effect_vera_custer : card_effect {
         virtual void on_play(player *origin) override;

@@ -46,6 +46,7 @@ namespace banggame {
         (short_pause, bool)
         (targets, std::vector<card_target_data>)
         (response_targets, std::vector<card_target_data>)
+        (equip_targets, std::vector<card_target_data>)
     )
 
     DEFINE_SERIALIZABLE(hide_card_update,

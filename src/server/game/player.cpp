@@ -7,9 +7,11 @@
 #include "common/net_enums.h"
 
 namespace banggame {
+    using namespace enums::flag_operators;
+    
     void player::discard_weapon(int card_id) {
         auto it = std::ranges::find_if(m_table, [card_id](const deck_card &c) {
-            return !c.effects.empty() && c.effects.front().is<effect_weapon>() && c.id != card_id;
+            return !c.equips.empty() && c.equips.front().is<effect_weapon>() && c.id != card_id;
         });
         if (it != m_table.end()) {
             m_game->add_to_discards(std::move(*it)).on_unequip(this);
@@ -22,11 +24,6 @@ namespace banggame {
         auto &moved = m_table.emplace_back(std::move(target));
         m_game->add_show_card(moved);
         m_game->add_public_update<game_update_type::move_card>(moved.id, id, card_pile_type::player_table);
-    }
-
-    bool player::is_bang_card(const card &c) const {
-        return (!c.effects.empty() && c.effects.front().is<effect_bangcard>())
-            || (has_character<effect_calamity_janet>() && !c.responses.empty() && c.responses.front().is<effect_missedcard>());
     }
 
     bool player::has_card_equipped(const std::string &name) const {
@@ -128,30 +125,28 @@ namespace banggame {
     }
 
     bool player::verify_equip_target(const card &c, const std::vector<play_card_target> &targets) {
-        auto in_range = [this](int player_id, int distance) {
-            return distance == 0 || m_game->calc_distance(this, m_game->get_player(player_id)) <= distance;
-        };
         if (targets.size() != 1) return false;
         if (targets.front().enum_index() != play_card_target_type::target_player) return false;
         const auto &tgts = targets.front().get<play_card_target_type::target_player>();
-        if (c.effects.empty()) return tgts.front().player_id == id;
+        if (c.equips.empty()) return true;
         if (tgts.size() != 1) return false;
-        switch (c.effects.front()->target) {
-        case target_type::none:
-        case target_type::self:
-            return tgts.front().player_id == id;
-        case target_type::notself:
-            return tgts.front().player_id != id && in_range(tgts.front().player_id, c.effects.front()->maxdistance);
-        case target_type::notsheriff:
-            return m_game->get_player(tgts.front().player_id)->m_role != player_role::sheriff
-                && in_range(tgts.front().player_id, c.effects.front()->maxdistance);
-        case target_type::reachable:
-            return tgts.front().player_id != id && in_range(tgts.front().player_id, m_weapon_range);
-        case target_type::anyone:
-            return true;
-        default:
-            return false;
-        }
+        player *target = m_game->get_player(tgts.front().player_id);
+        auto in_range = [&](int distance) {
+            return distance == 0 || m_game->calc_distance(this, target) <= distance;
+        };
+        return std::ranges::all_of(enums::enum_values_v<target_type>
+            | std::views::filter([type = c.equips.front()->target](target_type value) {
+                return bool(type & value);
+            }), [&](target_type value) {
+                switch (value) {
+                case target_type::player: return true;
+                case target_type::self: return target->id == id;
+                case target_type::notself: return target->id != id;
+                case target_type::notsheriff: return target->m_role != player_role::sheriff;
+                case target_type::reachable: return in_range(m_weapon_range);
+                default: return false;
+                }
+            }) && in_range(c.equips.front()->maxdistance);
     }
 
     bool player::verify_card_targets(const card &c, bool is_response, const std::vector<play_card_target> &targets) {
@@ -160,62 +155,62 @@ namespace banggame {
             return e->can_play(this);
         })) return false;
 
-        auto in_range = [this](int player_id, int distance) {
-            return distance == 0 || m_game->calc_distance(this, m_game->get_player(player_id)) <= distance;
-        };
         if (effects.size() != targets.size()) return false;
+        auto in_range = [&](player *target, int distance) {
+            return distance == 0 || m_game->calc_distance(this, target) <= distance;
+        };
         return std::ranges::all_of(effects, [&, it = targets.begin()] (const effect_holder &e) mutable {
             return enums::visit(util::overloaded{
                 [&](enums::enum_constant<play_card_target_type::target_none>) {
-                    return e->target == target_type::none;
+                    return e->target == enums::flags_none<target_type>;
                 },
                 [&](enums::enum_constant<play_card_target_type::target_player>, const std::vector<target_player_id> &args) {
-                    switch (e->target) {
-                    case target_type::self:
-                        return args.size() == 1 && args.front().player_id == id;
-                    case target_type::notself:
-                        return args.size() == 1 && args.front().player_id != id
-                            && in_range(args.front().player_id, e->maxdistance);
-                    case target_type::everyone: {
+                    if (!bool(e->target & target_type::player)) return false;
+                    if (bool(e->target & target_type::everyone)) {
                         std::vector<target_player_id> ids;
-                        for (auto *p = this;;) {
-                            ids.emplace_back(p->id);
-                            p = m_game->get_next_player(p);
-                            if (p == this) break;
+                        if (bool(e->target & target_type::notself)) {
+                            for (auto *p = this;;) {
+                                p = m_game->get_next_player(p);
+                                if (p == this) break;
+                                ids.emplace_back(p->id);
+                            }
+                        } else {
+                            for (auto *p = this;;) {
+                                ids.emplace_back(p->id);
+                                p = m_game->get_next_player(p);
+                                if (p == this) break;
+                            }
                         }
                         return std::ranges::equal(args, ids, {}, &target_player_id::player_id, &target_player_id::player_id);
-                    }
-                    case target_type::others: {
-                        std::vector<target_player_id> ids;
-                        for (auto *p = this;;) {
-                            p = m_game->get_next_player(p);
-                            if (p == this) break;
-                            ids.emplace_back(p->id);
-                        }
-                        return std::ranges::equal(args, ids, {}, &target_player_id::player_id, &target_player_id::player_id);
-                    }
-                    case target_type::notsheriff:
-                        return args.size() == 1 && m_game->get_player(args.front().player_id)->m_role != player_role::sheriff
-                            && in_range(args.front().player_id, effects.front()->maxdistance);
-                    case target_type::reachable:
-                        return args.size() == 1 && args.front().player_id != id && in_range(args.front().player_id, m_weapon_range);
-                    case target_type::anyone:
-                        return args.size() == 1;
-                    default:
+                    } else if (args.size() != 1) {
                         return false;
+                    } else {
+                        player *target = m_game->get_player(args.front().player_id);
+                        return std::ranges::all_of(enums::enum_values_v<target_type>
+                            | std::views::filter([type = e->target](target_type value) {
+                                return bool(type & value);
+                            }), [&](target_type value) {
+                                switch (value) {
+                                case target_type::player: return true;
+                                case target_type::self: return target->id == id;
+                                case target_type::notself: return target->id != id;
+                                case target_type::notsheriff: return target->m_role != player_role::sheriff;
+                                case target_type::reachable: return in_range(target, m_weapon_range);
+                                default: return false;
+                                }
+                            }) && in_range(target, e->maxdistance);
                     }
                 },
                 [&](enums::enum_constant<play_card_target_type::target_card>, const std::vector<target_card_id> &args) {
-                    if (std::ranges::any_of(args, [&](int player_id) {
-                        return !in_range(player_id, e->maxdistance);
-                    }, &target_card_id::player_id)) return false;
-                    if (std::ranges::any_of(args, [&](const target_card_id &arg) {
-                        return arg.from_hand && m_game->get_player(arg.player_id)->is_hand_empty();
-                    })) return false;
-                    if (e->target == target_type::othercards) {
+                    if (!bool(e->target & target_type::card)) return false;
+                    if (bool(e->target & target_type::everyone)) {
                         if (!std::ranges::all_of(m_game->m_players | std::views::filter(&player::alive), [&](int player_id) {
                             bool found = std::ranges::find(args, player_id, &target_card_id::player_id) != args.end();
-                            return (player_id == id) != found;
+                            if (bool(e->target & target_type::notself)) {
+                                return (player_id == id) != found;
+                            } else {
+                                return found;
+                            }
                         }, &player::id)) return false;
                         return std::ranges::all_of(args, [&](const target_card_id &arg) {
                             if (arg.player_id == id) return false;
@@ -223,35 +218,38 @@ namespace banggame {
                             auto &l = m_game->get_player(arg.player_id)->m_table;
                             return std::ranges::find(l, arg.card_id, &deck_card::id) != l.end();
                         });
-                    } else if (args.size() == 1) {
-                        const auto &tgt = args.front();
-                        if (tgt.card_id == c.id) return e->target == target_type::selfcard;
-                        else switch (e->target) {
-                        case target_type::anycard: return true;
-                        case target_type::table_card: return !tgt.from_hand;
-                        case target_type::other_table_card: return !tgt.from_hand && tgt.player_id != id;
-                        case target_type::other_hand_card: return tgt.from_hand && tgt.player_id != id;
-                        case target_type::selfhand: return tgt.from_hand && tgt.player_id == id;
-                        case target_type::selfhand_blue: {
-                            if (!tgt.from_hand || tgt.player_id != id) return false;
-                            auto &target_card = find_hand_card(tgt.card_id);
-                            return target_card.color == card_color_type::blue;
-                        }
-                        case target_type::selfhand_bangcard: {
-                            if (!tgt.from_hand || tgt.player_id != id) return false;
-                            auto &target_card = find_hand_card(tgt.card_id);
-                            return !target_card.effects.empty() && target_card.effects.front().is<effect_bangcard>();
-                        }
-                        case target_type::selfhand_missedcard: {
-                            if (!tgt.from_hand || tgt.player_id != id) return false;
-                            auto &target_card = find_hand_card(tgt.card_id);
-                            return !target_card.responses.empty() && target_card.responses.front().is<effect_missedcard>();
-                        }
-                        default:
-                            return false;
-                        }
                     } else {
-                        return false;
+                        player *target = m_game->get_player(args.front().player_id);
+                        return std::ranges::all_of(enums::enum_values_v<target_type>
+                            | std::views::filter([type = e->target](target_type value) {
+                                return bool(type & value);
+                            }), [&](target_type value) {
+                                switch (value) {
+                                case target_type::card: return true;
+                                case target_type::self: return target->id == id;
+                                case target_type::notself: return target->id != id;
+                                case target_type::notsheriff: return target->m_role != player_role::sheriff;
+                                case target_type::reachable: return in_range(target, m_weapon_range);
+                                case target_type::table: return !args.front().from_hand;
+                                case target_type::hand: return args.front().from_hand;
+                                case target_type::blue: return target->find_hand_card(args.front().card_id).color == card_color_type::blue;
+                                case target_type::clubs: return target->find_hand_card(args.front().card_id).suit == card_suit_type::clubs;
+                                case target_type::bang: {
+                                    auto &c = target->find_hand_card(args.front().card_id);
+                                    return !c.effects.empty() && c.effects.front().is<effect_bangcard>();
+                                }
+                                case target_type::missed: {
+                                    auto &c = target->find_hand_card(args.front().card_id);
+                                    return !c.responses.empty() && c.responses.front().is<effect_missedcard>();
+                                }
+                                case target_type::bangormissed: {
+                                    auto &c = target->find_hand_card(args.front().card_id);
+                                    if (!c.effects.empty()) return c.effects.front().is<effect_bangcard>();
+                                    else if (!c.responses.empty()) return c.responses.front().is<effect_missedcard>();
+                                }
+                                default: return false;
+                                }
+                            }) && in_range(target, e->maxdistance);
                     }
                 }
             }, *it++);
@@ -286,6 +284,7 @@ namespace banggame {
         }
 
         auto check_immunity = [&](player *target) {
+            if (m_virtual) return target->immune_to(m_virtual->second);
             if (is_character) return false;
             return target->immune_to(*static_cast<deck_card*>(card_ptr));
         };

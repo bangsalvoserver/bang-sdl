@@ -10,14 +10,13 @@ namespace banggame {
 
     struct player;
 
-    struct card_effect {
-        virtual ~card_effect() {}
-
-        target_type target = target_type::none;
+    struct card_effect_target {
+        target_type target = enums::flags_none<target_type>;
         int maxdistance = 0;
+    };
 
-        virtual void on_equip(player *target, int card_id) { }
-        virtual void on_unequip(player *target, int card_id) { }
+    struct card_effect : card_effect_target {
+        virtual ~card_effect() {}
 
         virtual bool can_play(player *target) const { return true; }
         virtual bool can_respond(player *target) const { return false; }
@@ -25,6 +24,13 @@ namespace banggame {
         virtual void on_play(player *origin) { }
         virtual void on_play(player *origin, player *target) { }
         virtual void on_play(player *origin, player *target, int card_id) { }
+    };
+
+    struct equip_effect : card_effect_target {
+        virtual ~equip_effect() {}
+
+        virtual void on_equip(player *target, int card_id) = 0;
+        virtual void on_unequip(player *target, int card_id) = 0;
 
         virtual void on_predraw_check(player *target, int card_id) { }
     };
@@ -84,6 +90,7 @@ namespace banggame {
     };
 
     using effect_holder = vbase_holder<card_effect>;
+    using equip_holder = vbase_holder<equip_effect>;
 
     struct request_base {
         player *origin;

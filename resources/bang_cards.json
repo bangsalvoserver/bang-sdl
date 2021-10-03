@@ -11,7 +11,7 @@
             "color": "blue",
             "responses": [
                 {
-                    "target": "selfcard",
+                    "target": "self card",
                     "class": "barrel"
                 }
             ]
@@ -24,7 +24,7 @@
             "image": "01_dinamite",
             "expansion": "base",
             "color": "blue",
-            "effects": [
+            "equip": [
                 {
                     "class": "dynamite"
                 }
@@ -38,7 +38,7 @@
             "image": "01_mirino",
             "expansion": "base",
             "color": "blue",
-            "effects": [
+            "equip": [
                 {
                     "class": "scope"
                 }
@@ -53,7 +53,7 @@
             "image": "01_mustang",
             "expansion": "base",
             "color": "blue",
-            "effects": [
+            "equip": [
                 {
                     "class": "mustang"
                 }
@@ -69,9 +69,9 @@
             "image": "01_prigione",
             "expansion": "base",
             "color": "blue",
-            "effects": [
+            "equip": [
                 {
-                    "target": "notsheriff",
+                    "target": "player notsheriff",
                     "class": "jail"
                 }
             ]
@@ -84,7 +84,7 @@
             "image": "01_remington",
             "expansion": "base",
             "color": "blue",
-            "effects": [
+            "equip": [
                 {
                     "class": "weapon",
                     "maxdistance": 3
@@ -99,7 +99,7 @@
             "image": "01_carabine",
             "expansion": "base",
             "color": "blue",
-            "effects": [
+            "equip": [
                 {
                     "class": "weapon",
                     "maxdistance": 4
@@ -116,7 +116,7 @@
             "image": "01_schofield",
             "expansion": "base",
             "color": "blue",
-            "effects": [
+            "equip": [
                 {
                     "class": "weapon",
                     "maxdistance": 2
@@ -132,7 +132,7 @@
             "image": "01_volcanic",
             "expansion": "base",
             "color": "blue",
-            "effects": [
+            "equip": [
                 {
                     "class": "weapon",
                     "maxdistance": 1
@@ -150,7 +150,7 @@
             "image": "01_winchester",
             "expansion": "base",
             "color": "blue",
-            "effects": [
+            "equip": [
                 {
                     "class": "weapon",
                     "maxdistance": 5
@@ -191,11 +191,16 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "reachable",
+                    "target": "player reachable",
                     "class": "bangcard"
                 },
                 {
                     "class": "banglimit"
+                }
+            ],
+            "responses": [
+                {
+                    "class": "bangresponse"
                 }
             ]
         },
@@ -214,13 +219,13 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "self",
+                    "target": "player self",
                     "class": "beer"
                 }
             ],
             "responses": [
                 {
-                    "target": "self",
+                    "target": "player self",
                     "class": "beer"
                 },
                 {
@@ -241,7 +246,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "anycard",
+                    "target": "card",
                     "class": "destroy"
                 }
             ]
@@ -257,11 +262,11 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "self",
+                    "target": "player self",
                     "class": "draw"
                 },
                 {
-                    "target": "self",
+                    "target": "player self",
                     "class": "draw"
                 },
                 {
@@ -281,7 +286,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "notself",
+                    "target": "player notself",
                     "class": "duel"
                 }
             ]
@@ -311,7 +316,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "others",
+                    "target": "player everyone notself",
                     "class": "bang"
                 }
             ]
@@ -327,7 +332,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "others",
+                    "target": "player everyone notself",
                     "class": "indians"
                 }
             ]
@@ -370,7 +375,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "anycard",
+                    "target": "card",
                     "maxdistance": 1,
                     "class": "steal"
                 }
@@ -386,7 +391,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "everyone",
+                    "target": "player everyone",
                     "class": "heal"
                 }
             ]
@@ -401,15 +406,15 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "self",
+                    "target": "player self",
                     "class": "draw"
                 },
                 {
-                    "target": "self",
+                    "target": "player self",
                     "class": "draw"
                 },
                 {
-                    "target": "self",
+                    "target": "player self",
                     "class": "draw"
                 },
                 {
@@ -427,7 +432,7 @@
             "color": "blue",
             "responses": [
                 {
-                    "target": "selfcard",
+                    "target": "self card",
                     "class": "barrel"
                 }
             ]
@@ -440,7 +445,7 @@
             "image": "03_binocolo",
             "expansion": "dodgecity",
             "color": "blue",
-            "effects": [
+            "equip": [
                 {
                     "class": "scope"
                 }
@@ -454,7 +459,7 @@
             "image": "03_dinamite",
             "expansion": "dodgecity",
             "color": "blue",
-            "effects": [
+            "equip": [
                 {
                     "class": "dynamite"
                 }
@@ -468,7 +473,7 @@
             "image": "03_mustang",
             "expansion": "dodgecity",
             "color": "blue",
-            "effects": [
+            "equip": [
                 {
                     "class": "mustang"
                 }
@@ -482,7 +487,7 @@
             "image": "03_remington",
             "expansion": "dodgecity",
             "color": "blue",
-            "effects": [
+            "equip": [
                 {
                     "class": "weapon",
                     "maxdistance": 3
@@ -497,7 +502,7 @@
             "image": "03_rev_carabine",
             "expansion": "dodgecity",
             "color": "blue",
-            "effects": [
+            "equip": [
                 {
                     "class": "weapon",
                     "maxdistance": 4
@@ -512,7 +517,7 @@
             "image": "03_riparo",
             "expansion": "dodgecity",
             "color": "blue",
-            "effects": [
+            "equip": [
                 {
                     "class": "mustang"
                 }
@@ -531,11 +536,16 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "reachable",
+                    "target": "player reachable",
                     "class": "bangcard"
                 },
                 {
                     "class": "banglimit"
+                }
+            ],
+            "responses": [
+                {
+                    "class": "bangresponse"
                 }
             ]
         },
@@ -550,13 +560,13 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "self",
+                    "target": "player self",
                     "class": "beer"
                 }
             ],
             "responses": [
                 {
-                    "target": "self",
+                    "target": "player self",
                     "class": "beer"
                 },
                 {
@@ -574,7 +584,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "anycard",
+                    "target": "card",
                     "class": "destroy"
                 }
             ]
@@ -603,7 +613,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "others",
+                    "target": "player everyone notself",
                     "class": "indians"
                 }
             ]
@@ -632,7 +642,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "anycard",
+                    "target": "card",
                     "maxdistance": 1,
                     "class": "steal"
                 }
@@ -648,7 +658,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "notself",
+                    "target": "player notself",
                     "maxdistance": 1,
                     "class": "bang"
                 }
@@ -664,11 +674,11 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "selfhand",
+                    "target": "self hand card",
                     "class": "destroy"
                 },
                 {
-                    "target": "anycard",
+                    "target": "card",
                     "class": "steal"
                 }
             ]
@@ -683,11 +693,11 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "selfhand",
+                    "target": "self hand card",
                     "class": "destroy"
                 },
                 {
-                    "target": "othercards",
+                    "target": "everyone notself card",
                     "class": "destroy"
                 }
             ]
@@ -706,7 +716,7 @@
                     "class": "missed"
                 },
                 {
-                    "target": "self",
+                    "target": "player self",
                     "class": "draw"
                 }
             ]
@@ -721,11 +731,11 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "selfhand",
+                    "target": "self hand card",
                     "class": "destroy"
                 },
                 {
-                    "target": "notself",
+                    "target": "player notself",
                     "class": "bang"
                 }
             ]
@@ -740,11 +750,11 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "selfhand",
+                    "target": "self hand card",
                     "class": "destroy"
                 },
                 {
-                    "target": "anyone",
+                    "target": "player",
                     "class": "heal"
                 }
             ]
@@ -759,15 +769,15 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "selfhand",
+                    "target": "self hand card",
                     "class": "destroy"
                 },
                 {
-                    "target": "self",
+                    "target": "player self",
                     "class": "heal"
                 },
                 {
-                    "target": "self",
+                    "target": "player self",
                     "class": "heal"
                 }
             ]
@@ -785,7 +795,7 @@
                     "class": "missed"
                 },
                 {
-                    "target": "self",
+                    "target": "player self",
                     "class": "draw"
                 }
             ]
@@ -800,7 +810,7 @@
             "color": "green",
             "effects": [
                 {
-                    "target": "self",
+                    "target": "player self",
                     "class": "heal"
                 }
             ]
@@ -815,7 +825,7 @@
             "color": "green",
             "effects": [
                 {
-                    "target": "anycard",
+                    "target": "card",
                     "class": "destroy"
                 }
             ]
@@ -844,7 +854,7 @@
             "color": "green",
             "effects": [
                 {
-                    "target": "anycard",
+                    "target": "card",
                     "class": "steal"
                 }
             ]
@@ -859,12 +869,12 @@
             "color": "green",
             "effects": [
                 {
-                    "target": "notself",
+                    "target": "player notself",
                     "maxdistance": 1,
                     "class": "bang"
                 },
                 {
-                    "target": "self",
+                    "target": "player self",
                     "class": "draw"
                 }
             ]
@@ -879,7 +889,7 @@
             "color": "green",
             "effects": [
                 {
-                    "target": "notself",
+                    "target": "player notself",
                     "class": "bang"
                 }
             ]
@@ -894,7 +904,7 @@
             "color": "green",
             "effects": [
                 {
-                    "target": "others",
+                    "target": "player everyone notself",
                     "class": "bang"
                 }
             ]
@@ -909,7 +919,7 @@
             "color": "green",
             "effects": [
                 {
-                    "target": "reachable",
+                    "target": "player reachable",
                     "class": "bang"
                 }
             ]
@@ -939,15 +949,15 @@
             "color": "green",
             "effects": [
                 {
-                    "target": "self",
+                    "target": "player self",
                     "class": "draw"
                 },
                 {
-                    "target": "self",
+                    "target": "player self",
                     "class": "draw"
                 },
                 {
-                    "target": "self",
+                    "target": "player self",
                     "class": "draw"
                 },
                 {
@@ -965,7 +975,7 @@
             "color": "green",
             "effects": [
                 {
-                    "target": "notself",
+                    "target": "player notself",
                     "maxdistance": 1,
                     "class": "bang"
                 }
@@ -994,7 +1004,7 @@
             "image": "07_fantasma",
             "expansion": "valleyofshadows",
             "color": "blue",
-            "effects": [
+            "equip": [
                 {
                     "target": "dead",
                     "class": "ghost"
@@ -1009,13 +1019,23 @@
             "image": "07_lemat",
             "expansion": "valleyofshadows",
             "color": "blue",
-            "effects": [
+            "equip": [
                 {
                     "class": "weapon",
                     "maxdistance": 1
+                }
+            ],
+            "effects": [
+                {
+                    "target": "self hand card",
+                    "class": "virtual_destroy"
                 },
                 {
-                    "class": "lemat"
+                    "target": "player reachable",
+                    "class": "bangcard"
+                },
+                {
+                    "class": "banglimit"
                 }
             ]
         },
@@ -1027,9 +1047,9 @@
             "image": "07_serpenteasonagli",
             "expansion": "valleyofshadows",
             "color": "blue",
-            "effects": [
+            "equip": [
                 {
-                    "target": "anyone",
+                    "target": "player",
                     "class": "snake"
                 }
             ]
@@ -1042,7 +1062,7 @@
             "image": "07_shotgun",
             "expansion": "valleyofshadows",
             "color": "blue",
-            "effects": [
+            "equip": [
                 {
                     "class": "weapon",
                     "maxdistance": 1
@@ -1060,9 +1080,9 @@
             "image": "07_taglia",
             "expansion": "valleyofshadows",
             "color": "blue",
-            "effects": [
+            "equip": [
                 {
-                    "target": "anyone",
+                    "target": "player",
                     "class": "bounty"
                 }
             ]
@@ -1077,7 +1097,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "everyone",
+                    "target": "player everyone",
                     "class": "bandidos"
                 }
             ]
@@ -1106,7 +1126,15 @@
             "color": "brown",
             "effects": [
                 {
-                    "class": "aim"
+                    "target": "self hand bang card",
+                    "class": "virtual_destroy"
+                },
+                {
+                    "target": "player reachable",
+                    "class": "bangcard"
+                },
+                {
+                    "target": "banglimit"
                 }
             ]
         },
@@ -1166,11 +1194,11 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "reachable",
+                    "target": "player reachable",
                     "class": "bang"
                 },
                 {
-                    "target": "fanning_target",
+                    "target": "player fanning_target",
                     "class": "bang"
                 },
                 {
@@ -1188,7 +1216,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "notself",
+                    "target": "player notself",
                     "maxdistance": 2,
                     "class": "bang"
                 }
@@ -1204,7 +1232,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "everyone",
+                    "target": "player everyone",
                     "class": "tornado"
                 }
             ]
@@ -1219,7 +1247,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "self",
+                    "target": "player self",
                     "class": "heal"
                 }
             ]
@@ -1237,11 +1265,16 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "reachable",
+                    "target": "player reachable",
                     "class": "bangcard"
                 },
                 {
                     "class": "banglimit"
+                }
+            ],
+            "responses": [
+                {
+                    "target": "bangresponse"
                 }
             ]
         },
@@ -1255,17 +1288,17 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "self",
+                    "target": "player self",
                     "class": "draw"
                 },
                 {
-                    "target": "self",
+                    "target": "player self",
                     "class": "draw"
                 },
                 {
                     "cost": 2,
                     "repeatable": true,
-                    "target": "self",
+                    "target": "player self",
                     "class": "draw"
                 }
             ]
@@ -1280,7 +1313,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "anycard",
+                    "target": "card",
                     "class": "destroy"
                 }
             ]
@@ -1295,13 +1328,13 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "self",
+                    "target": "player self",
                     "class": "heal"
                 },
                 {
                     "cost": 3,
                     "repeatable": true,
-                    "target": "self",
+                    "target": "player self",
                     "class": "heal"
                 }
             ]
@@ -1316,13 +1349,13 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "reachable",
+                    "target": "player reachable",
                     "class": "bang"
                 },
                 {
                     "cost": 1,
                     "repeatable": true,
-                    "target": "reachable_new",
+                    "target": "player reachable new",
                     "class": "bang"
                 }
             ]
@@ -1337,7 +1370,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "reachable",
+                    "target": "player reachable",
                     "class": "bang"
                 },
                 {
@@ -1356,13 +1389,13 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "notself",
+                    "target": "player notself",
                     "class": "indians"
                 },
                 {
                     "cost": 1,
                     "repeatable": true,
-                    "target": "notself_new",
+                    "target": "player notself new",
                     "class": "indians"
                 }
             ]
@@ -1437,7 +1470,7 @@
             "color": "brown",
             "class": [
                 {
-                    "target": "anycard",
+                    "target": "card",
                     "class": "destroy"
                 },
                 {
@@ -1457,7 +1490,7 @@
             "effects": [
                 {
                     "cost": 2,
-                    "target": "self",
+                    "target": "player self",
                     "class": "draw"
                 },
                 {
@@ -1488,11 +1521,13 @@
             "image": "17_bigfifty",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "effects": [
+            "equip": [
                 {
                     "class": "weapon",
                     "maxdistance": 6
-                },
+                }
+            ],
+            "effects": [
                 {
                     "cost": 1,
                     "class": "bigfifty"
@@ -1507,9 +1542,9 @@
             "image": "17_bomba",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "effects": [
+            "equip": [
                 {
-                    "target": "anyone",
+                    "target": "player",
                     "class": "bomb"
                 }
             ]
@@ -1522,11 +1557,13 @@
             "image": "17_buntlinespecial",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "effects": [
+            "equip": [
                 {
                     "class": "weapon",
                     "maxdistance": 2
-                },
+                }
+             ],
+             "effects": [
                 {
                     "cost": 1,
                     "class": "buntlinespecial"
@@ -1571,7 +1608,7 @@
             "image": "17_cespuglio",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "effects": [
+            "responses": [
                 {
                     "cost": 1,
                     "class": "bush"
@@ -1586,11 +1623,13 @@
             "image": "17_doppiacanna",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "effects": [
+            "equip": [
                 {
                     "class": "weapon",
                     "maxdistance": 1
-                },
+                }
+            ],
+            "effects": [
                 {
                     "cost": 1,
                     "class": "doublebarrel"
@@ -1640,7 +1679,7 @@
             "effects": [
                 {
                     "cost": 3,
-                    "target": "other_hand_card",
+                    "target": "notself hand card",
                     "class": "steal"
                 }
             ]
@@ -1671,7 +1710,7 @@
             "image": "01_bartcassidy",
             "hp": 4,
             "expansion": "base",
-            "effects": [
+            "equip": [
                 {
                     "class": "boots"
                 }
@@ -1697,14 +1736,11 @@
             "type": "active",
             "effects": [
                 {
-                    "class": "calamity_janet"
+                    "target": "self hand bangormissed card",
+                    "class": "virtual_destroy"
                 },
                 {
-                    "target": "selfhand_missedcard",
-                    "class": "destroy"
-                },
-                {
-                    "target": "reachable",
+                    "target": "player reachable",
                     "class": "bangcard"
                 },
                 {
@@ -1713,11 +1749,11 @@
             ],
             "responses": [
                 {
-                    "target": "selfhand_bangcard",
-                    "class": "destroy"
+                    "target": "self hand bangormissed card",
+                    "class": "virtual_destroy"
                 },
                 {
-                    "class": "missed"
+                    "class": "bangmissed"
                 }
             ]
         },
@@ -1726,7 +1762,7 @@
             "image": "01_elgringo",
             "hp": 3,
             "expansion": "base",
-            "effects": [
+            "equip": [
                 {
                     "class": "el_gringo"
                 }
@@ -1740,11 +1776,11 @@
             "type": "drawing",
             "effects": [
                 {
-                    "target": "other_hand_card",
+                    "target": "notself hand card",
                     "class": "steal"
                 },
                 {
-                    "target": "self",
+                    "target": "player self",
                     "class": "draw_rest"
                 }
             ]
@@ -1756,7 +1792,7 @@
             "expansion": "base",
             "responses": [
                 {
-                    "target": "selfcard",
+                    "target": "self card",
                     "class": "barrel"
                 }
             ]
@@ -1778,7 +1814,7 @@
             "image": "01_luckyduke",
             "hp": 4,
             "expansion": "base",
-            "effects": [
+            "equip": [
                 {
                     "class": "horsecharm"
                 }
@@ -1789,7 +1825,7 @@
             "image": "01_paulregret",
             "hp": 3,
             "expansion": "base",
-            "effects": [
+            "equip": [
                 {
                     "class": "mustang"
                 }
@@ -1803,11 +1839,11 @@
             "type": "drawing",
             "effects": [
                 {
-                    "target": "self",
+                    "target": "player self",
                     "class": "draw_discard"
                 },
                 {
-                    "target": "self",
+                    "target": "player self",
                     "class": "draw_rest"
                 }
             ]
@@ -1817,7 +1853,7 @@
             "image": "01_rosedoolan",
             "hp": 4,
             "expansion": "base",
-            "effects": [
+            "equip": [
                 {
                     "class": "scope"
                 }
@@ -1831,29 +1867,29 @@
             "type": "active",
             "effects": [
                 {
-                    "target": "selfhand",
+                    "target": "self hand card",
                     "class": "destroy"
                 },
                 {
-                    "target": "selfhand",
+                    "target": "self hand card",
                     "class": "destroy"
                 },
                 {
-                    "target": "self",
+                    "target": "player self",
                     "class": "heal"
                 }
             ],
             "responses": [
                 {
-                    "target": "selfhand",
+                    "target": "self hand card",
                     "class": "destroy"
                 },
                 {
-                    "target": "selfhand",
+                    "target": "self hand card",
                     "class": "destroy"
                 },
                 {
-                    "target": "self",
+                    "target": "player self",
                     "class": "heal"
                 },
                 {
@@ -1866,7 +1902,7 @@
             "image": "01_slab",
             "hp": 4,
             "expansion": "base",
-            "effects": [
+            "equip": [
                 {
                     "class": "slab_the_killer"
                 }
@@ -1877,7 +1913,7 @@
             "image": "01_suzylafayette",
             "hp": 4,
             "expansion": "base",
-            "effects": [
+            "equip": [
                 {
                     "class": "suzy_lafayette"
                 }
@@ -1888,7 +1924,7 @@
             "image": "01_vulturesam",
             "hp": 4,
             "expansion": "base",
-            "effects": [
+            "equip": [
                 {
                     "class": "vulture_sam"
                 }
@@ -1899,7 +1935,7 @@
             "image": "01_willythekid",
             "hp": 4,
             "expansion": "base",
-            "effects": [
+            "equip": [
                 {
                     "class": "volcanic"
                 }
@@ -1922,7 +1958,7 @@
             "image": "02_johnnykisch",
             "hp": 4,
             "expansion": "thebullet",
-            "effects": [
+            "equip": [
                 {
                     "class": "johnny_kisch"
                 }
@@ -1937,7 +1973,7 @@
             "usages": 1,
             "effects": [
                 {
-                    "target": "selfhand",
+                    "target": "self hand card",
                     "class": "destroy"
                 },
                 {
@@ -1950,7 +1986,7 @@
             "image": "03_apache_kid",
             "hp": 3,
             "expansion": "dodgecity",
-            "effects": [
+            "equip": [
                 {
                     "class": "calumet"
                 }
@@ -1961,7 +1997,7 @@
             "image": "03_belle_star",
             "hp": 4,
             "expansion": "dodgecity",
-            "effects": [
+            "equip": [
                 {
                     "class": "bellestar"
                 }
@@ -1987,15 +2023,15 @@
             "type": "active",
             "effects": [
                 {
-                    "target": "self",
+                    "target": "player self",
                     "class": "damage"
                 },
                 {
-                    "target": "self",
+                    "target": "player self",
                     "class": "draw"
                 },
                 {
-                    "target": "self",
+                    "target": "player self",
                     "class": "draw"
                 }
             ]
@@ -2008,15 +2044,15 @@
             "type": "active",
             "effects": [
                 {
-                    "target": "selfhand",
+                    "target": "self hand card",
                     "class": "destroy"
                 },
                 {
-                    "target": "selfhand",
+                    "target": "self hand card",
                     "class": "destroy"
                 },
                 {
-                    "target": "reachable",
+                    "target": "player reachable",
                     "class": "bang"
                 }
             ]
@@ -2029,7 +2065,7 @@
             "type": "active",
             "responses": [
                 {
-                    "target": "selfhand",
+                    "target": "self hand card",
                     "class": "destroy"
                 },
                 {
@@ -2042,7 +2078,7 @@
             "image": "03_greg_digger",
             "hp": 4,
             "expansion": "dodgecity",
-            "effects": [
+            "equip": [
                 {
                     "class": "greg_digger"
                 }
@@ -2053,7 +2089,7 @@
             "image": "03_herb_hunter",
             "hp": 4,
             "expansion": "dodgecity",
-            "effects": [
+            "equip": [
                 {
                     "class": "herb_hunter"
                 }
@@ -2068,15 +2104,15 @@
             "usages": 2,
             "effects": [
                 {
-                    "target": "selfhand_blue",
+                    "target": "self hand blue card",
                     "class": "destroy"
                 },
                 {
-                    "target": "self",
+                    "target": "player self",
                     "class": "draw"
                 },
                 {
-                    "target": "self",
+                    "target": "player self",
                     "class": "draw"
                 }
             ]
@@ -2086,7 +2122,7 @@
             "image": "03_molly_stark",
             "hp": 4,
             "expansion": "dodgecity",
-            "effects": [
+            "equip": [
                 {
                     "class": "molly_stark"
                 }
@@ -2100,7 +2136,7 @@
             "type": "drawing",
             "effects": [
                 {
-                    "target": "other_table_card",
+                    "target": "notself table card",
                     "class": "steal"
                 }
             ]
@@ -2110,7 +2146,7 @@
             "image": "03_pixie_pete",
             "hp": 3,
             "expansion": "dodgecity",
-            "effects": [
+            "equip": [
                 {
                     "class": "pickaxe"
                 }
@@ -2121,7 +2157,7 @@
             "image": "03_sean_mallory",
             "hp": 3,
             "expansion": "dodgecity",
-            "effects": [
+            "equip": [
                 {
                     "class": "sean_mallory"
                 }
@@ -2132,7 +2168,7 @@
             "image": "03_tequila_joe",
             "hp": 4,
             "expansion": "dodgecity",
-            "effects": [
+            "equip": [
                 {
                     "class": "tequila_joe"
                 }
@@ -2155,9 +2191,16 @@
             "image": "07_blackflower",
             "hp": 4,
             "expansion": "valleyofshadows",
+            "type": "active",
+            "usages": 1,
             "effects": [
                 {
-                    "class": "black_flower"
+                    "target": "self hand clubs card",
+                    "class": "virtual_destroy"
+                },
+                {
+                    "target": "player rechable",
+                    "class": "bang"
                 }
             ]
         },
@@ -2177,9 +2220,16 @@
             "image": "07_derspot",
             "hp": 4,
             "expansion": "valleyofshadows",
+            "type": "active",
+            "usages": 1,
             "effects": [
                 {
-                    "class": "der_spot_burst_ringer"
+                    "target": "self hand bang card",
+                    "class": "destroy"
+                },
+                {
+                    "target": "player everyone notself",
+                    "class": "bang"
                 }
             ]
         },
@@ -2695,7 +2745,7 @@
             "image": "04_bicchierino",
             "color": "brown",
             "gold_cost": 1,
-            "target": "anyone",
+            "target": "player",
             "effect": "heal"
         },
         {

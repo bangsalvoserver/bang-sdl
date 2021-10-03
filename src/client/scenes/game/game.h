@@ -76,7 +76,7 @@ namespace banggame {
         void on_click_player(int player_id);
 
         void handle_auto_targets(bool is_response);
-        void add_card_targets(bool is_response, const std::vector<target_card_id> &targets);
+        void add_card_target(bool is_response, const target_card_id &target);
         void add_player_targets(bool is_response, const std::vector<target_player_id> &targets);
         void clear_targets();
 
@@ -95,7 +95,7 @@ namespace banggame {
 
         std::optional<card_view> m_virtual;
 
-        decltype(card_view::targets) &get_current_card_targets(bool is_response);
+        std::vector<card_target_data> &get_current_card_targets(bool is_response);
 
         card_view &get_card(int id) {
             auto it = m_cards.find(id);

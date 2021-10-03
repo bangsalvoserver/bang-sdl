@@ -15,17 +15,18 @@ namespace banggame {
         card_expansion_type expansion;
         std::vector<effect_holder> effects;
         std::vector<effect_holder> responses;
+        std::vector<equip_holder> equips;
         std::string name;
         std::string image;
 
         void on_equip(player *target) {
-            for (auto &e : effects) {
+            for (auto &e : equips) {
                 e->on_equip(target, id);
             }
         }
 
         void on_unequip(player *target) {
-            for (auto &e : effects) {
+            for (auto &e : equips) {
                 e->on_unequip(target, id);
             }
         }
@@ -44,12 +45,12 @@ namespace banggame {
         int max_hp;
     };
 
-    struct all_cards {
+    struct all_cards_t {
         std::vector<deck_card> deck;
         std::vector<character> characters;
     };
-    
-    all_cards read_cards(card_expansion_type allowed_expansions = enums::flags_all<card_expansion_type>);
+
+    extern const all_cards_t all_cards;
 
     template<typename Gen>
     void shuffle_cards_and_ids(std::vector<deck_card> &cards, Gen &&gen) {

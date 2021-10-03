@@ -12,29 +12,6 @@
 
 namespace banggame {
 
-    struct card_pile_view : std::vector<int> {
-        sdl::point pos;
-        int xoffset;
-
-        card_pile_view(int xoffset = 30) : xoffset(xoffset) {}
-
-        auto find(int card_id) const {
-            return std::ranges::find(*this, card_id);
-        }
-
-        sdl::point get_position(int card_id) const {
-            return sdl::point{(int)(pos.x + xoffset *
-                (std::ranges::distance(begin(), find(card_id)) - (size() - 1) * .5f)),
-                pos.y};
-        }
-
-        void erase_card(int card_id) {
-            if (auto it = find(card_id); it != end()) {
-                erase(it);
-            }
-        }
-    };
-
     class card_widget_base {
     public:
         sdl::point pos;
@@ -49,6 +26,7 @@ namespace banggame {
         std::string image;
         std::vector<card_target_data> targets;
         std::vector<card_target_data> response_targets;
+        std::vector<card_target_data> equip_targets;
 
         const sdl::rect &get_rect() const {
             return m_rect;
@@ -69,6 +47,31 @@ namespace banggame {
         void render(sdl::renderer &renderer) {
             if (flip_amt > 0.5f && texture_front) card_widget_base::render(renderer, texture_front);
             else if (texture_back) card_widget_base::render(renderer, texture_back);
+        }
+    };
+
+    struct card_pile_view : std::vector<int> {
+        static constexpr int card_distance = 10;
+        sdl::point pos;
+        int width;
+
+        card_pile_view(int width = 200) : width(width) {}
+
+        auto find(int card_id) const {
+            return std::ranges::find(*this, card_id);
+        }
+
+        sdl::point get_position(int card_id) const {
+            float xoffset = std::min((float)width / size(), (float)(card_widget_base::card_width + card_distance));
+            return sdl::point{(int)(pos.x + xoffset *
+                (std::ranges::distance(begin(), find(card_id)) - (size() - 1) * .5f)),
+                pos.y};
+        }
+
+        void erase_card(int card_id) {
+            if (auto it = find(card_id); it != end()) {
+                erase(it);
+            }
         }
     };
 

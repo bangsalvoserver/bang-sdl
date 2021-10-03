@@ -61,18 +61,17 @@ namespace banggame {
 
     void request_kit_carlson::on_pick(card_pile_type pile, int card_id) {
         if (pile == card_pile_type::temp_table) {
-            auto t = target;
-            t->add_to_hand(t->m_game->draw_from_temp(card_id));
-            if (t->m_game->m_temps.size() == 1) {
-                t->m_game->pop_request();
-                auto removed = std::move(t->m_game->m_temps.front());
-                t->m_game->add_private_update<game_update_type::hide_card>(target, removed.id);
-                t->m_game->add_public_update<game_update_type::move_card>(removed.id, 0, card_pile_type::main_deck);
-                t->m_game->m_temps.clear();
-                t->m_game->m_deck.push_back(std::move(removed));
+            target->add_to_hand(target->m_game->draw_from_temp(card_id));
+            if (target->m_game->m_temps.size() == 1) {
+                target->m_game->pop_request();
+                auto removed = std::move(target->m_game->m_temps.front());
+                target->m_game->add_private_update<game_update_type::hide_card>(target, removed.id);
+                target->m_game->add_public_update<game_update_type::move_card>(removed.id, 0, card_pile_type::main_deck);
+                target->m_game->m_temps.clear();
+                target->m_game->m_deck.push_back(std::move(removed));
             } else {
-                t->m_game->pop_request_noupdate();
-                t->m_game->queue_request<request_type::kit_carlson>(nullptr, target);
+                target->m_game->pop_request_noupdate();
+                target->m_game->queue_request<request_type::kit_carlson>(nullptr, target);
             }
         }
     }
@@ -87,22 +86,21 @@ namespace banggame {
 
     void request_claus_the_saint::on_pick(card_pile_type pile, int card_id) {
         if (pile == card_pile_type::temp_table) {
-            auto t = target;
             int index = target->m_game->num_alive() + target->m_num_drawn_cards - target->m_game->m_temps.size();
-            auto p = t;
+            auto p = target;
             for(int i=0; i<index; ++i) {
-                p = t->m_game->get_next_player(p);
+                p = target->m_game->get_next_player(p);
             }
-            p->add_to_hand(t->m_game->draw_from_temp(card_id));
-            if (t->m_game->m_temps.size() == target->m_num_drawn_cards) {
-                t->m_game->pop_request();
-                for (auto &c : t->m_game->m_temps) {
-                    t->add_to_hand(std::move(c));
+            p->add_to_hand(target->m_game->draw_from_temp(card_id));
+            if (target->m_game->m_temps.size() == target->m_num_drawn_cards) {
+                target->m_game->pop_request();
+                for (auto &c : target->m_game->m_temps) {
+                    target->add_to_hand(std::move(c));
                 }
-                t->m_game->m_temps.clear();
+                target->m_game->m_temps.clear();
             } else {
-                t->m_game->pop_request_noupdate();
-                t->m_game->queue_request<request_type::claus_the_saint>(nullptr, target);
+                target->m_game->pop_request_noupdate();
+                target->m_game->queue_request<request_type::claus_the_saint>(nullptr, target);
             }
         }
     }
@@ -224,20 +222,19 @@ namespace banggame {
 
     void request_vera_custer::on_pick(card_pile_type pile, int card_id) {
         if (pile == card_pile_type::player_character) {
-            auto t = target;
-            if (card_id != t->m_characters.front().id) {
-                t->m_game->pop_request();
-                auto &c = t->m_game->find_character(card_id);
-                if (c.name != t->m_characters.back().name) {
+            if (card_id != target->m_characters.front().id) {
+                target->m_game->pop_request();
+                auto &c = target->m_game->find_character(card_id);
+                if (c.name != target->m_characters.back().name) {
                     auto character_copy = c;
-                    character_copy.id = t->m_game->get_next_id();
+                    character_copy.id = target->m_game->get_next_id();
 
-                    if (t->m_characters.size() == 2) {
-                        t->m_characters.back().on_unequip(t);
-                        t->m_characters.pop_back();
+                    if (target->m_characters.size() == 2) {
+                        target->m_characters.back().on_unequip(target);
+                        target->m_characters.pop_back();
                     }
-                    t->send_character_update(character_copy, 1);
-                    t->m_characters.emplace_back(std::move(character_copy)).on_equip(t);
+                    target->send_character_update(character_copy, 1);
+                    target->m_characters.emplace_back(std::move(character_copy)).on_equip(target);
                 }
             }
         }

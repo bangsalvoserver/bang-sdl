@@ -56,6 +56,40 @@ namespace banggame {
         target->m_game->queue_request<request_type::duel>(origin, target);
     }
 
+    bool effect_bangresponse::can_respond(player *origin) const {
+        auto index = origin->m_game->m_requests.front().enum_index();
+        return index == request_type::duel || index == request_type::indians;
+    }
+
+    void effect_bangresponse::on_play(player *target) {
+        switch (target->m_game->m_requests.front().enum_index()) {
+        case request_type::duel: {
+            player *origin = target->m_game->top_request().origin();
+            target->m_game->pop_request_noupdate();
+            target->m_game->queue_request<request_type::duel>(target, origin);
+            break;
+        }
+        case request_type::indians:
+            target->m_game->pop_request();
+        }
+    }
+
+    bool effect_bangmissed::can_respond(player *origin) const {
+        return effect_missed().can_respond(origin) || effect_bangresponse().can_respond(origin);
+    }
+
+    void effect_bangmissed::on_play(player *target) {
+        switch (target->m_game->m_requests.front().enum_index()) {
+        case request_type::bang:
+            effect_missed().on_play(target);
+            break;
+        case request_type::duel:
+        case request_type::indians:
+            effect_bangresponse().on_play(target);
+            break;
+        }
+    }
+
     void effect_generalstore::on_play(player *origin) {
         for (int i=0; i<origin->m_game->num_alive(); ++i) {
             origin->m_game->add_to_temps(origin->m_game->draw_card());
@@ -93,6 +127,10 @@ namespace banggame {
 
     void effect_destroy::on_play(player *origin, player *target, int card_id) {
         target->discard_card(card_id);
+    }
+
+    void effect_virtual_destroy::on_play(player *origin, player *target, int card_id) {
+        target->m_virtual = std::make_pair(card_id, target->discard_card(card_id));
     }
 
     void effect_steal::on_play(player *origin, player *target, int card_id) {

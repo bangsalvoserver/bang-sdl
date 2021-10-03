@@ -8,6 +8,8 @@
 
 namespace banggame {
 
+    using namespace enums::flag_operators;
+
     void game::add_show_card(const deck_card &c, player *owner, bool short_pause) {
         show_card_update obj;
         obj.card_id = c.id;
@@ -22,6 +24,9 @@ namespace banggame {
         }
         for (const auto &value : c.responses) {
             obj.response_targets.emplace_back(value->target, value->maxdistance);
+        }
+        for (const auto &value : c.equips) {
+            obj.equip_targets.emplace_back(value->target, value->maxdistance);
         }
 
         if (!owner) {
@@ -55,16 +60,15 @@ namespace banggame {
             add_private_update<game_update_type::player_own_id>(&p, p.id);
         }
 
-        auto all_cards = read_cards(options.allowed_expansions);
-        for (auto &c : all_cards.deck) {
-            c.id = get_next_id();
-        }
-        for (auto &c : all_cards.characters) {
-            c.id = get_next_id();
+        std::vector<character> characters;
+        for (const auto &c : all_cards.characters) {
+            if (bool(c.expansion & options.allowed_expansions)) {
+                characters.emplace_back(c).id = get_next_id();
+            }
         }
 
-        std::ranges::shuffle(all_cards.characters, rng);
-        auto character_it = all_cards.characters.begin();
+        std::ranges::shuffle(characters, rng);
+        auto character_it = characters.begin();
         
         std::array roles{
             player_role::sheriff,
@@ -79,7 +83,7 @@ namespace banggame {
         auto role_it = roles.begin();
 
 #ifdef TESTING_CHARACTER
-        auto testing_char = std::ranges::find(all_cards.characters, TESTING_CHARACTER, &character::image);
+        auto testing_char = std::ranges::find(characters, TESTING_CHARACTER, &character::image);
         std::swap(*character_it, *testing_char);
 #endif
         std::ranges::shuffle(roles.begin(), roles.begin() + options.nplayers, rng);
@@ -87,7 +91,11 @@ namespace banggame {
             p.set_character_and_role(*character_it++, *role_it++);
         }
 
-        m_deck = std::move(all_cards.deck);
+        for (const auto &c : all_cards.deck) {
+            if (bool(c.expansion & options.allowed_expansions)) {
+                m_deck.emplace_back(c).id = get_next_id();
+            }
+        }
         auto ids_view = m_deck | std::views::transform(&deck_card::id);
         add_public_update<game_update_type::add_cards>(std::vector(ids_view.begin(), ids_view.end()));
         shuffle_cards_and_ids(m_deck, rng);
@@ -260,7 +268,8 @@ namespace banggame {
         if (!m_requests.empty() && p == top_request().target()) {
             enums::visit([&]<request_type E>(enums::enum_constant<E>, auto &req) {
                 if constexpr (picking_request<E>) {
-                    req.on_pick(args.pile, args.card_id);
+                    auto req_copy = req;
+                    req_copy.on_pick(args.pile, args.card_id);
                 }
             }, top_request());
         }

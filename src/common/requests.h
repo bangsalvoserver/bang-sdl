@@ -23,21 +23,13 @@ namespace banggame {
         void on_pick(card_pile_type pile, int card_id);
     };
 
-    struct request_duel : request_base {
-        void on_pick(card_pile_type pile, int card_id);
+    struct request_damaging : request_base {
         void on_resolve();
     };
 
-    struct request_indians : request_base {
-        void on_pick(card_pile_type pile, int card_id);
-        void on_resolve();
-    };
-
-    struct request_bang : request_base {
+    struct request_bang : request_damaging {
         std::vector<int> barrels_used;
         int bang_strength = 1;
-
-        void on_resolve();
     };
 
     struct request_death : request_base {
@@ -51,8 +43,8 @@ namespace banggame {
         (generalstore,  request_generalstore)
         (discard,       request_discard)
         (bang,          request_bang)
-        (duel,          request_duel)
-        (indians,       request_indians)
+        (duel,          request_damaging)
+        (indians,       request_damaging)
         (death,         request_death)
         (kit_carlson,   request_kit_carlson)
         (claus_the_saint, request_claus_the_saint)
