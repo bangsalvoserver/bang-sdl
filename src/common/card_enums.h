@@ -32,6 +32,7 @@ namespace banggame {
         (base)
         (thebullet)
         (dodgecity)
+        (valleyofshadows)
     )
 
     DEFINE_ENUM_IN_NS(banggame, card_color_type,
@@ -70,6 +71,8 @@ namespace banggame {
         (bang)
         (missed)
         (bangormissed)
+        (attacker)
+        (fanning_target)
     )
 
     DEFINE_ENUM_IN_NS(banggame, card_pile_type,
@@ -80,20 +83,6 @@ namespace banggame {
         (discard_pile)
         (temp_table)
     )
-
-    struct player;
-
-    DEFINE_ENUM_TYPES_IN_NS(banggame, event_type,
-        (on_hit,            std::function<void(player *origin, player *target)>)
-        (on_player_death,   std::function<void(player *origin, player *target)>)
-        (on_equip,          std::function<void(player *origin, int card_id)>)
-        (on_play_hand_card, std::function<void(player *origin, int card_id)>)
-        (on_effect_end,     std::function<void(player *origin)>)
-        (on_turn_start,     std::function<void(player *origin)>)
-        (on_turn_end,       std::function<void(player *origin)>)
-    )
-
-    using event_function = enums::enum_variant<event_type>;
 
 }
 

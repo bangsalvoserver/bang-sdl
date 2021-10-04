@@ -12,6 +12,10 @@ namespace banggame {
         int maxdistance = 0;
     };
 
+    struct event_based_effect : card_effect {
+        void on_unequip(player *target, int card_id);
+    };
+
     struct request_base {
         player *origin;
         player *target;
@@ -22,6 +26,10 @@ namespace banggame {
     };
 
     struct effect_bangcard : card_effect {
+        void on_play(player *origin, player *target);
+    };
+
+    struct effect_aimbang : card_effect {
         void on_play(player *origin, player *target);
     };
 
@@ -129,6 +137,12 @@ namespace banggame {
         void on_predraw_check(player *target, int card_id);
     };
 
+    struct effect_snake : card_effect {
+        void on_equip(player *target, int card_id);
+        void on_unequip(player *target, int card_id);
+        void on_predraw_check(player *target, int card_id);
+    };
+
     struct effect_weapon : card_effect {
         void on_equip(player *target, int card_id);
         void on_unequip(player *target, int card_id);
@@ -143,9 +157,8 @@ namespace banggame {
         void on_play(player *origin);
     };
 
-    struct effect_boots : card_effect {
+    struct effect_boots : event_based_effect {
         void on_equip(player *target, int card_id);
-        void on_unequip(player *target, int card_id);
     };
 
     struct effect_horsecharm : card_effect {
@@ -161,6 +174,26 @@ namespace banggame {
     struct effect_calumet : card_effect {
         void on_equip(player *target, int card_id);
         void on_unequip(player *target, int card_id);
+    };
+
+    struct effect_shotgun : event_based_effect {
+        void on_equip(player *target, int card_id);
+    };
+
+    struct effect_bounty : event_based_effect {
+        void on_equip(player *target, int card_id);
+    };
+
+    struct effect_bandidos : card_effect {
+        void on_play(player *origin, player *target);
+    };
+
+    struct effect_tornado : card_effect {
+        void on_play(player *origin, player *target);
+    };
+
+    struct effect_poker : card_effect {
+        void on_play(player *origin);
     };
 }
 

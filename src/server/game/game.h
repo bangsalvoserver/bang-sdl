@@ -22,6 +22,23 @@ namespace banggame {
         card_expansion_type allowed_expansions = enums::flags_all<card_expansion_type>;
     };
 
+    DEFINE_ENUM_TYPES_IN_NS(banggame, event_type,
+        (on_discard_card,   std::function<void(player *origin, player *target, int card_id)>)
+        (do_discard_card,   std::function<void(player *origin, player *target, int card_id)>)
+        (do_steal_card,     std::function<void(player *origin, player *target, int card_id)>)
+        (on_hit,            std::function<void(player *origin, player *target, bool is_bang)>)
+        (apply_bang_modifiers, std::function<void(player *origin, request_bang &req)>)
+        (on_player_death,   std::function<void(player *origin, player *target)>)
+        (on_equip,          std::function<void(player *origin, int card_id)>)
+        (on_play_hand_card, std::function<void(player *origin, int card_id)>)
+        (on_effect_end,     std::function<void(player *origin)>)
+        (on_turn_start,     std::function<void(player *origin)>)
+        (on_turn_end,       std::function<void(player *origin)>)
+        (on_draw_from_deck, std::function<void(player *origin)>)
+    )
+
+    using event_function = enums::enum_variant<event_type>;
+
     namespace detail {
         template<typename Function> struct function_unwrapper{};
         template<typename Function> using function_unwrapper_t = typename function_unwrapper<Function>::type;
@@ -86,7 +103,7 @@ namespace banggame {
         }
 
         void send_request_update() {
-            const auto &req = m_requests.front();
+            const auto &req = top_request();
             add_public_update<game_update_type::request_handle>(req.enum_index(),
                 req.origin() ? req.origin()->id : 0,
                 req.target() ? req.target()->id : 0);
@@ -133,7 +150,7 @@ namespace banggame {
                 std::make_tuple(enums::enum_constant<E>{}, std::forward<Function>(fun)));
         }
 
-        void remove_event(int card_id) {
+        void remove_events(int card_id) {
             m_event_handlers.erase(card_id);
         }
         

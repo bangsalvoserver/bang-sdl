@@ -92,14 +92,14 @@ namespace banggame {
         m_game->add_public_update<game_update_type::move_card>(card_id, id, card_pile_type::player_hand);
     }
 
-    void player::damage(player *source, int value) {
+    void player::damage(player *source, int value, bool is_bang) {
         m_hp -= value;
         m_game->add_public_update<game_update_type::player_hp>(id, m_hp);
         if (m_hp <= 0) {
             m_game->add_request<request_type::death>(source, this);
         }
         for (int i=0; i<value; ++i) {
-            m_game->queue_event<event_type::on_hit>(source, this);
+            m_game->queue_event<event_type::on_hit>(source, this, is_bang);
         }
     }
 
@@ -133,7 +133,7 @@ namespace banggame {
                 case target_type::self: return target->id == id;
                 case target_type::notself: return target->id != id;
                 case target_type::notsheriff: return target->m_role != player_role::sheriff;
-                case target_type::reachable: return in_range(m_weapon_range);
+                case target_type::reachable: return target->id != id && in_range(m_weapon_range);
                 default: return false;
                 }
             }) && in_range(c.equips.front().maxdistance());
@@ -185,7 +185,10 @@ namespace banggame {
                                 case target_type::self: return target->id == id;
                                 case target_type::notself: return target->id != id;
                                 case target_type::notsheriff: return target->m_role != player_role::sheriff;
-                                case target_type::reachable: return in_range(target, m_weapon_range);
+                                case target_type::reachable: return target->id != id && in_range(target, m_weapon_range);
+                                case target_type::attacker: return !m_game->m_requests.empty() && m_game->top_request().origin() == target;
+                                case target_type::fanning_target:
+                                    return m_game->calc_distance(m_game->get_player((it - 2)->get<play_card_target_type::target_player>().front().player_id), target) == 1;
                                 default: return false;
                                 }
                             }) && in_range(target, e.maxdistance());
@@ -219,7 +222,10 @@ namespace banggame {
                                 case target_type::self: return target->id == id;
                                 case target_type::notself: return target->id != id;
                                 case target_type::notsheriff: return target->m_role != player_role::sheriff;
-                                case target_type::reachable: return in_range(target, m_weapon_range);
+                                case target_type::reachable: return target->id != id && in_range(target, m_weapon_range);
+                                case target_type::attacker: return !m_game->m_requests.empty() && m_game->top_request().origin() == target;
+                                case target_type::fanning_target:
+                                    return m_game->calc_distance(m_game->get_player((it - 2)->get<play_card_target_type::target_player>().front().player_id), target) == 1;
                                 case target_type::table: return !args.front().from_hand;
                                 case target_type::hand: return args.front().from_hand;
                                 case target_type::blue: return target->find_hand_card(args.front().card_id).color == card_color_type::blue;
@@ -481,6 +487,7 @@ namespace banggame {
             for (int i=0; i<m_num_drawn_cards; ++i) {
                 add_to_hand(m_game->draw_card());
             }
+            m_game->queue_event<event_type::on_draw_from_deck>(this);
             m_has_drawn = true;
             m_game->add_private_update<game_update_type::status_clear>(this);
         }

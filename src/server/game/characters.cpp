@@ -5,12 +5,12 @@
 #include "game.h"
 
 namespace banggame {
-    void effect_slab_the_killer::on_equip(player *target, int card_id) {
-        ++target->m_bang_strength;
-    }
-
-    void effect_slab_the_killer::on_unequip(player *target, int card_id) {
-        --target->m_bang_strength;
+    void effect_slab_the_killer::on_equip(player *p, int card_id) {
+        p->m_game->add_event<event_type::apply_bang_modifiers>(card_id, [p](player *target, request_bang &req) {
+            if (p == target) {
+                ++req.bang_strength;
+            }
+        });
     }
 
     void effect_black_jack::on_play(player *target) {
@@ -109,15 +109,11 @@ namespace banggame {
     }
 
     void effect_el_gringo::on_equip(player *p, int card_id) {
-        p->m_game->add_event<event_type::on_hit>(card_id, [p](player *origin, player *target) {
+        p->m_game->add_event<event_type::on_hit>(card_id, [p](player *origin, player *target, bool is_bang) {
             if (origin && p == target && !origin->m_hand.empty() && p->m_game->m_playing != p) {
                 target->steal_card(origin, origin->random_hand_card().id);
             }
         });
-    }
-
-    void effect_el_gringo::on_unequip(player *target, int card_id) {
-        target->m_game->remove_event(card_id);
     }
 
     void effect_suzy_lafayette::on_equip(player *p, int card_id) {
@@ -126,10 +122,6 @@ namespace banggame {
                 p->add_to_hand(p->m_game->draw_card());
             }
         });
-    }
-
-    void effect_suzy_lafayette::on_unequip(player *target, int card_id) {
-        target->m_game->remove_event(card_id);
     }
 
     void effect_vulture_sam::on_equip(player *p, int card_id) {
@@ -145,18 +137,10 @@ namespace banggame {
         });
     }
 
-    void effect_vulture_sam::on_unequip(player *target, int card_id) {
-        target->m_game->remove_event(card_id);
-    }
-
     void effect_greg_digger::on_equip(player *p, int card_id) {
         p->m_game->add_event<event_type::on_player_death>(card_id, [p](player *origin, player *target) {
             p->heal(2);
         });
-    }
-
-    void effect_greg_digger::on_unequip(player *target, int card_id) {
-        target->m_game->remove_event(card_id);
     }
 
     void effect_herb_hunter::on_equip(player *p, int card_id) {
@@ -164,10 +148,6 @@ namespace banggame {
             p->add_to_hand(p->m_game->draw_card());
             p->add_to_hand(p->m_game->draw_card());
         });
-    }
-
-    void effect_herb_hunter::on_unequip(player *target, int card_id) {
-        target->m_game->remove_event(card_id);
     }
 
     void effect_johnny_kisch::on_equip(player *p, int card_id) {
@@ -185,20 +165,12 @@ namespace banggame {
         });
     }
 
-    void effect_johnny_kisch::on_unequip(player *target, int card_id) {
-        target->m_game->remove_event(card_id);
-    }
-
     void effect_molly_stark::on_equip(player *p, int card_id) {
         p->m_game->add_event<event_type::on_play_hand_card>(card_id, [p](player *target, int player_card) {
             if (p == target && p->m_game->m_playing != p) {
                 p->add_to_hand(p->m_game->draw_card());
             }
         });
-    }
-
-    void effect_molly_stark::on_unequip(player *target, int card_id) {
-        target->m_game->remove_event(card_id);
     }
 
     void effect_bellestar::on_equip(player *p, int card_id) {
@@ -216,7 +188,7 @@ namespace banggame {
 
     void effect_bellestar::on_unequip(player *target, int card_id) {
         target->m_game->enable_table_cards(target->id);
-        target->m_game->remove_event(card_id);
+        target->m_game->remove_events(card_id);
     }
 
     static void vera_custer_copy_character(player *target, const character &c) {
@@ -257,7 +229,7 @@ namespace banggame {
     }
 
     void effect_vera_custer::on_unequip(player *target, int card_id) {
-        target->m_game->remove_event(card_id);
+        target->m_game->remove_events(card_id);
 
         if (target->m_characters.size() > 1) {
             target->m_characters.pop_back();
@@ -272,5 +244,36 @@ namespace banggame {
                 vera_custer_copy_character(target, target->m_game->find_character(card_id));
             }
         }
+    }
+
+    void effect_tuco_franziskaner::on_equip(player *p, int card_id) {
+        p->m_game->add_event<event_type::on_draw_from_deck>(card_id, [p](player *origin) {
+            if (p == origin && std::ranges::none_of(p->m_table, [](const deck_card &c) {
+                return c.color == card_color_type::blue;
+            })) {
+                p->add_to_hand(p->m_game->draw_card());
+                p->add_to_hand(p->m_game->draw_card());
+            }
+        });
+    }
+
+    void effect_colorado_bill::on_equip(player *p, int card_id) {
+        p->m_game->add_event<event_type::apply_bang_modifiers>(card_id, [p](player *origin, request_bang &req) {
+            if (p == origin) {
+                origin->m_game->draw_check_then(origin, [&](card_suit_type suit, card_value_type) {
+                    if (suit == card_suit_type::spades) {
+                        req.unavoidable = true;
+                    }
+                });
+            }
+        });
+    }
+
+    void effect_henry_block::on_equip(player *p, int card_id) {
+        p->m_game->add_event<event_type::on_discard_card>(card_id, [p](player *origin, player *target, int card_id) {
+            if (p == target && p != origin) {
+                p->m_game->queue_request<request_type::bang>(target, origin);
+            }
+        });
     }
 }

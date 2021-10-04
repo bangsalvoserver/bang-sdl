@@ -996,6 +996,7 @@
             ]
         },
         {
+            "disabled": true,
             "name": "Fantasma",
             "signs": [
                 "9P",
@@ -1103,6 +1104,7 @@
             ]
         },
         {
+            "disabled": true,
             "name": "Fuga",
             "signs": [
                 "3C"
@@ -1131,10 +1133,10 @@
                 },
                 {
                     "target": "player reachable",
-                    "class": "bangcard"
+                    "class": "aimbang"
                 },
                 {
-                    "target": "banglimit"
+                    "class": "banglimit"
                 }
             ]
         },
@@ -1165,12 +1167,13 @@
                     "class": "missed"
                 },
                 {
-                    "target": "attacker",
+                    "target": "player attacker",
                     "class": "bang"
                 }
             ]
         },
         {
+            "disabled": true,
             "name": "Salvo!",
             "signs": [
                 "5C"
@@ -1198,7 +1201,7 @@
                     "class": "bang"
                 },
                 {
-                    "target": "player fanning_target",
+                    "target": "player notself fanning_target",
                     "class": "bang"
                 },
                 {
@@ -2208,7 +2211,7 @@
             "image": "07_coloradobill",
             "hp": 4,
             "expansion": "valleyofshadows",
-            "effects": [
+            "equip": [
                 {
                     "class": "colorado_bill"
                 }
@@ -2233,6 +2236,7 @@
             ]
         },
         {
+            "disabled": true,
             "name": "Evelyn Shebang",
             "image": "07_evelynshebang",
             "hp": 4,
@@ -2248,13 +2252,14 @@
             "image": "07_henryblock",
             "hp": 4,
             "expansion": "valleyofshadows",
-            "effects": [
+            "equip": [
                 {
                     "class": "henry_block"
                 }
             ]
         },
         {
+            "disabled": true,
             "name": "Lemonade Jim",
             "image": "07_lemonadejim",
             "hp": 4,
@@ -2266,6 +2271,7 @@
             ]
         },
         {
+            "disabled": true,
             "name": "Mick Defender",
             "image": "07_mickdefender",
             "hp": 4,
@@ -2281,7 +2287,7 @@
             "image": "07_tucofranziskaner",
             "hp": 5,
             "expansion": "valleyofshadows",
-            "effects": [
+            "equip": [
                 {
                     "class": "tuco_franziskaner"
                 }
@@ -2696,7 +2702,7 @@
         {
             "name": "Bavaglio",
             "image": "06_bavaglio",
-            "disabled": 1
+            "disabled": true
         },
         {
             "name": "Camposanto",
@@ -2709,7 +2715,7 @@
         {
             "name": "Dorothy Rage",
             "image": "06_dorothyrage",
-            "disabled": 1
+            "disabled": true
         },
         {
             "name": "Helena Zontero",

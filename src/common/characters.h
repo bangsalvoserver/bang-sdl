@@ -5,9 +5,8 @@
 
 namespace banggame {
 
-    struct effect_slab_the_killer : card_effect {
+    struct effect_slab_the_killer : event_based_effect {
         void on_equip(player *target, int card_id);
-        void on_unequip(player *target, int card_id);
     };
 
     struct effect_black_jack : card_effect {
@@ -44,39 +43,32 @@ namespace banggame {
         void on_pick(card_pile_type pile, int card_id);
     };
 
-    struct effect_el_gringo : card_effect {
+    struct effect_el_gringo : event_based_effect {
         void on_equip(player *target, int card_id);
-        void on_unequip(player *target, int card_id);
     };
 
-    struct effect_suzy_lafayette : card_effect {
+    struct effect_suzy_lafayette : event_based_effect {
         void on_equip(player *target, int card_id);
-        void on_unequip(player *target, int card_id);
     };
 
-    struct effect_vulture_sam : card_effect {
+    struct effect_vulture_sam : event_based_effect {
         void on_equip(player *target, int card_id);
-        void on_unequip(player *target, int card_id);
     };
 
-    struct effect_greg_digger : card_effect {
+    struct effect_greg_digger : event_based_effect {
         void on_equip(player *target, int card_id);
-        void on_unequip(player *target, int card_id);
     };
 
-    struct effect_herb_hunter : card_effect {
+    struct effect_herb_hunter : event_based_effect {
         void on_equip(player *target, int card_id);
-        void on_unequip(player *target, int card_id);
     };
 
-    struct effect_johnny_kisch : card_effect {
+    struct effect_johnny_kisch : event_based_effect {
         void on_equip(player *target, int card_id);
-        void on_unequip(player *target, int card_id);
     };
 
-    struct effect_molly_stark : card_effect {
+    struct effect_molly_stark : event_based_effect {
         void on_equip(player *target, int card_id);
-        void on_unequip(player *target, int card_id);
     };
 
     struct effect_bellestar : card_effect {
@@ -91,6 +83,18 @@ namespace banggame {
 
     struct request_vera_custer : request_base {
         void on_pick(card_pile_type pile, int card_id);
+    };
+
+    struct effect_tuco_franziskaner : event_based_effect {
+        void on_equip(player *target, int card_id);
+    };
+
+    struct effect_colorado_bill : event_based_effect {
+        void on_equip(player *target, int card_id);
+    };
+
+    struct effect_henry_block : event_based_effect {
+        void on_equip(player *target, int card_id);
     };
 }
 

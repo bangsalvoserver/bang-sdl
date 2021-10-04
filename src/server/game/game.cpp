@@ -46,6 +46,13 @@ namespace banggame {
     }
 
     void game::start_game(const game_options &options) {
+        add_event<event_type::do_discard_card>(0, [this](player *origin, player *target, int card_id) {
+            target->discard_card(card_id);
+        });
+        add_event<event_type::do_steal_card>(0, [this](player *origin, player *target, int card_id) {
+            origin->steal_card(target, card_id);
+        });
+        
         std::random_device rd;
         rng.seed(rd());
 
@@ -328,7 +335,7 @@ namespace banggame {
         if (m_requests.empty() && m_playing == p && p->m_has_drawn) {
             if (int n_discards = p->num_hand_cards() - p->max_cards_end_of_turn(); n_discards > 0) {
                 for (int i=0; i<n_discards; ++i) {
-                    queue_request<request_type::discard>(p, p);
+                    queue_request<request_type::discard_pass>(p, p);
                 }
             } else {
                 next_turn();

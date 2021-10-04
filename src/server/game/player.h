@@ -44,7 +44,6 @@ namespace banggame {
         int m_bangs_played = 0;
         int m_bangs_per_turn = 1;
 
-        int m_bang_strength = 1;
         int m_beer_strength = 1;
 
         int m_num_checks = 1;
@@ -84,7 +83,7 @@ namespace banggame {
 
         bool alive() const { return !m_dead; }
 
-        void damage(player *source, int value);
+        void damage(player *source, int value, bool is_bang = false);
         void heal(int value);
 
         bool immune_to(const deck_card &c) {

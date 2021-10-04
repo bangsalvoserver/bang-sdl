@@ -5,31 +5,51 @@
 #include "game.h"
 
 namespace banggame {
+    void event_based_effect::on_unequip(player *target, int card_id) {
+        target->m_game->remove_events(card_id);
+    }
+
     void effect_bang::on_play(player *origin, player *target) {
         target->m_game->queue_request<request_type::bang>(origin, target);
     }
 
+    static auto &make_bangcard_request(player *origin, player *target) {
+        auto &req = target->m_game->queue_request<request_type::bang>(origin, target);
+        req.is_bang_card = true;
+        event_args args{std::in_place_index<enums::indexof(event_type::apply_bang_modifiers)>, origin, req};
+        target->m_game->handle_event(args);
+        return req;
+    }
+
     void effect_bangcard::on_play(player *origin, player *target) {
-        target->m_game->queue_request<request_type::bang>(origin, target).bang_strength = origin->m_bang_strength;
+        make_bangcard_request(origin, target);
+    }
+
+    void effect_aimbang::on_play(player *origin, player *target) {
+        make_bangcard_request(origin, target).bang_damage = 2;
     }
 
     bool effect_missed::can_respond(player *origin) const {
-        return origin->m_game->m_requests.front().is(request_type::bang);
+        if (origin->m_game->top_request().is(request_type::bang)) {
+            auto &req = origin->m_game->top_request().get<request_type::bang>();
+            return !req.unavoidable;
+        }
+        return false;
     }
 
     void effect_missed::on_play(player *origin) {
-        auto &req = origin->m_game->m_requests.front().get<request_type::bang>();
+        auto &req = origin->m_game->top_request().get<request_type::bang>();
         if (0 == --req.bang_strength) {
             origin->m_game->pop_request();
         }
     }
 
     bool effect_barrel::can_respond(player *origin) const {
-        return origin->m_game->m_requests.front().is(request_type::bang);
+        return effect_missed().can_respond(origin);
     }
 
     void effect_barrel::on_play(player *origin, player *target, int card_id) {
-        auto &req = target->m_game->m_requests.front().get<request_type::bang>();
+        auto &req = target->m_game->top_request().get<request_type::bang>();
         if (std::ranges::find(req.barrels_used, card_id) == std::ranges::end(req.barrels_used)) {
             req.barrels_used.push_back(card_id);
             target->m_game->draw_check_then(target, [target](card_suit_type suit, card_value_type) {
@@ -57,12 +77,12 @@ namespace banggame {
     }
 
     bool effect_bangresponse::can_respond(player *origin) const {
-        auto index = origin->m_game->m_requests.front().enum_index();
+        auto index = origin->m_game->top_request().enum_index();
         return index == request_type::duel || index == request_type::indians;
     }
 
     void effect_bangresponse::on_play(player *target) {
-        switch (target->m_game->m_requests.front().enum_index()) {
+        switch (target->m_game->top_request().enum_index()) {
         case request_type::duel: {
             player *origin = target->m_game->top_request().origin();
             target->m_game->pop_request_noupdate();
@@ -79,7 +99,7 @@ namespace banggame {
     }
 
     void effect_bangmissed::on_play(player *target) {
-        switch (target->m_game->m_requests.front().enum_index()) {
+        switch (target->m_game->top_request().enum_index()) {
         case request_type::bang:
             effect_missed().on_play(target);
             break;
@@ -116,7 +136,7 @@ namespace banggame {
     }
 
     bool effect_deathsave::can_respond(player *origin) const {
-        return origin->m_game->m_requests.front().is(request_type::death);
+        return origin->m_game->top_request().is(request_type::death);
     }
 
     void effect_deathsave::on_play(player *origin) {
@@ -126,7 +146,8 @@ namespace banggame {
     }
 
     void effect_destroy::on_play(player *origin, player *target, int card_id) {
-        target->discard_card(card_id);
+        target->m_game->queue_event<event_type::on_discard_card>(origin, target, card_id);
+        target->m_game->queue_event<event_type::do_discard_card>(origin, target, card_id);
     }
 
     void effect_virtual_destroy::on_play(player *origin, player *target, int card_id) {
@@ -134,7 +155,8 @@ namespace banggame {
     }
 
     void effect_steal::on_play(player *origin, player *target, int card_id) {
-        origin->steal_card(target, card_id);
+        target->m_game->queue_event<event_type::on_discard_card>(origin, target, card_id);
+        target->m_game->queue_event<event_type::do_steal_card>(origin, target, card_id);
     }
 
     void effect_mustang::on_equip(player *target, int card_id) {
@@ -199,6 +221,23 @@ namespace banggame {
         });
     }
 
+    void effect_snake::on_equip(player *target, int card_id) {
+        target->add_predraw_check(card_id, 0);
+    }
+
+    void effect_snake::on_unequip(player *target, int card_id) {
+        target->remove_predraw_check(card_id);
+    }
+
+    void effect_snake::on_predraw_check(player *target, int card_id) {
+        target->m_game->draw_check_then(target, [=](card_suit_type suit, card_value_type value) {
+            if (suit == card_suit_type::spades) {
+                target->damage(nullptr, 1);
+            }
+            target->next_predraw_check(card_id);
+        });
+    }
+
     void effect_weapon::on_equip(player *target, int card_id) {
         target->discard_weapon(card_id);
         target->m_weapon_range = maxdistance;
@@ -235,15 +274,11 @@ namespace banggame {
     }
 
     void effect_boots::on_equip(player *p, int card_id) {
-        p->m_game->add_event<event_type::on_hit>(card_id, [p](player *origin, player *target){
+        p->m_game->add_event<event_type::on_hit>(card_id, [p](player *origin, player *target, bool is_bang){
             if (p == target) {
                 target->add_to_hand(target->m_game->draw_card());
             }
         });
-    }
-
-    void effect_boots::on_unequip(player *target, int card_id) {
-        target->m_game->remove_event(card_id);
     }
 
     void effect_horsecharm::on_equip(player *target, int card_id) {
@@ -268,5 +303,43 @@ namespace banggame {
 
     void effect_calumet::on_unequip(player *target, int card_id) {
         --target->m_calumets;
+    }
+
+    void effect_shotgun::on_equip(player *p, int card_id) {
+        p->m_game->add_event<event_type::on_hit>(card_id, [p](player *origin, player *target, bool is_bang) {
+            if (origin == p && target != p && !target->m_hand.empty() && is_bang) {
+                target->m_game->queue_request<request_type::discard>(origin, target);
+            }
+        });
+    }
+
+    void effect_bounty::on_equip(player *p, int card_id) {
+        p->m_game->add_event<event_type::on_hit>(card_id, [p](player *origin, player *target, bool is_bang) {
+            if (origin && target == p && is_bang) {
+                origin->add_to_hand(origin->m_game->draw_card());
+            }
+        });
+    }
+
+    void effect_bandidos::on_play(player *origin, player *target) {
+        target->m_game->queue_request<request_type::bandidos>(origin, target);
+    }
+
+    void effect_tornado::on_play(player *origin, player *target) {
+        if (target->num_hand_cards() == 0) {
+            target->add_to_hand(target->m_game->draw_card());
+            target->add_to_hand(target->m_game->draw_card());
+        } else {
+            target->m_game->queue_request<request_type::tornado>(origin, target);
+        }
+    }
+
+    void effect_poker::on_play(player *origin) {
+        auto next = origin;
+        do {
+            next = origin->m_game->get_next_player(next);
+            if (next == origin) return;
+        } while (next->m_hand.empty());
+        origin->m_game->queue_request<request_type::poker>(origin, next);
     }
 }

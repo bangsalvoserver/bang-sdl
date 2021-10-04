@@ -62,6 +62,7 @@ const all_cards_t banggame::all_cards = []() {
         deck_card c;
         c.expansion = enums::from_string<card_expansion_type>(json_card["expansion"].asString());
         if (c.expansion != enums::invalid_enum_v<card_expansion_type>) {
+            if (json_card.isMember("disabled") && json_card["disabled"].asBool()) continue;
             c.name = json_card["name"].asString();
             c.image = json_card["image"].asString();
             c.color = enums::from_string<card_color_type>(json_card["color"].asString());
@@ -89,6 +90,7 @@ const all_cards_t banggame::all_cards = []() {
         character c;
         c.expansion = enums::from_string<card_expansion_type>(json_character["expansion"].asString());
         if (c.expansion != enums::invalid_enum_v<card_expansion_type>) {
+            if (json_character.isMember("disabled") && json_character["disabled"].asBool()) continue;
             c.name = json_character["name"].asString();
             c.image = json_character["image"].asString();
             if (json_character.isMember("type")) {

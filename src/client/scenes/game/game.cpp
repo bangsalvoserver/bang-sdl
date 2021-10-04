@@ -325,6 +325,10 @@ void game_scene::handle_auto_targets(bool is_response) {
             m_play_card_args.targets.emplace_back(enums::enum_constant<play_card_target_type::target_card>{},
                 std::vector{target_card_id{m_player_own_id, m_play_card_args.card_id, false}});
             return true;
+        case target_type::attacker | target_type::player:
+            m_play_card_args.targets.emplace_back(enums::enum_constant<play_card_target_type::target_player>{},
+                std::vector{target_player_id{m_current_request.origin_id}});
+            return true;
         case target_type::everyone | target_type::player: {
             std::vector<target_player_id> ids;
             auto self = m_players.find(m_player_own_id);
