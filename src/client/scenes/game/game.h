@@ -66,6 +66,7 @@ namespace banggame {
         void move_player_views();
 
         void handle_card_click(const sdl::point &mouse_pt);
+        void find_overlay(const sdl::point &mouse_pt);
 
         void on_click_main_deck();
         void on_click_temp_table_card(int card_id);
@@ -93,6 +94,8 @@ namespace banggame {
         std::map<int, player_view> m_players;
 
         std::optional<card_view> m_virtual;
+
+        int m_overlay = 0;
 
         std::vector<card_target_data> &get_current_card_targets(bool is_response);
 

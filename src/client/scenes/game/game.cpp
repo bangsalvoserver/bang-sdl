@@ -85,14 +85,53 @@ void game_scene::render(sdl::renderer &renderer) {
         renderer.draw_rect(get_card_widget(id).get_rect());
     }
 
+    if (m_overlay) {
+        sdl::texture *tex = nullptr;
+        sdl::rect card_rect;
+        if (auto it = m_cards.find(m_overlay); it != m_cards.end()) {
+            tex = &it->second.texture_front;
+            card_rect = it->second.get_rect();
+        } else {
+            for (auto &[player_id, p] : m_players) {
+                if (auto it = std::ranges::find(p.m_characters, m_overlay, &character_card::id); it != p.m_characters.end()) {
+                    tex = &it->texture_front;
+                    card_rect = it->get_rect();
+                    break;
+                }
+            }
+        }
+        if (tex) {
+            sdl::rect rect = tex->get_rect();
+            rect.x = std::clamp(card_rect.x + (card_rect.w - rect.w) / 2, 0, m_width - rect.w);
+            rect.y = std::clamp(card_rect.y + (card_rect.h - rect.h) / 2, 0, m_height -  rect.h);
+            tex->render(renderer, rect);
+        }
+    }
+
     m_ui.render(renderer);
 }
 
 void game_scene::handle_event(const sdl::event &event) {
     m_ui.handle_event(event);
 
-    if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
-        handle_card_click(sdl::point{event.button.x, event.button.y});
+    switch (event.type) {
+    case SDL_MOUSEBUTTONDOWN: {
+        sdl::point mouse_pt{event.button.x, event.button.y};
+        switch (event.button.button) {
+        case SDL_BUTTON_LEFT:
+            handle_card_click(mouse_pt);
+            break;
+        case SDL_BUTTON_RIGHT:
+            find_overlay(mouse_pt);
+            break;
+        }
+        break;
+    }
+    case SDL_MOUSEBUTTONUP:
+        if (event.button.button == SDL_BUTTON_RIGHT) {
+            m_overlay = 0;
+        }
+        break;
     }
 }
 
@@ -135,6 +174,47 @@ void game_scene::handle_card_click(const sdl::point &mouse_pt) {
         }
         if (int card_id = find_clicked(p.hand)) {
             on_click_hand_card(player_id, card_id);
+            return;
+        }
+    }
+}
+
+void game_scene::find_overlay(const sdl::point &mouse_pt) {
+    auto mouse_in_card = [&](int card_id) {
+        return sdl::point_in_rect(mouse_pt, get_card(card_id).get_rect());
+    };
+    auto find_clicked = [&](const card_pile_view &pile) {
+        auto it = std::ranges::find_if(pile | std::views::reverse, mouse_in_card);
+        return (it == pile.rend()) ? 0 : *it;
+    };
+
+    sdl::rect main_deck_rect = card_view::texture_back.get_rect();
+    sdl::scale_rect(main_deck_rect, card_widget_base::card_width);
+    main_deck_rect.x = main_deck.pos.x - main_deck_rect.w / 2;
+    main_deck_rect.y = main_deck.pos.y - main_deck_rect.h / 2;
+
+    if (m_overlay = find_clicked(temp_table)) {
+        return;
+    }
+    for (const auto &[player_id, p] : m_players) {
+        if (sdl::point_in_rect(mouse_pt, p.m_role.get_rect())) {
+            m_overlay = player_id;
+            return;
+        }
+        for (auto &c : p.m_characters | std::views::reverse) {
+            if (sdl::point_in_rect(mouse_pt, c.get_rect())) {
+                m_overlay = c.id;
+                return;
+            }
+        }
+        if (!discard_pile.empty() && mouse_in_card(discard_pile.back())) {
+            m_overlay = discard_pile.back();
+            return;
+        }
+        if (m_overlay = find_clicked(p.table)) {
+            return;
+        }
+        if (m_overlay = find_clicked(p.hand)) {
             return;
         }
     }
