@@ -122,7 +122,7 @@ namespace banggame {
         if (tgts.size() != 1) return false;
         player *target = m_game->get_player(tgts.front().player_id);
         auto in_range = [&](int distance) {
-            return distance == 0 || m_game->calc_distance(this, target) <= distance;
+            return m_game->calc_distance(this, target) <= distance;
         };
         return std::ranges::all_of(enums::enum_values_v<target_type>
             | std::views::filter([type = c.equips.front().target()](target_type value) {
@@ -133,10 +133,11 @@ namespace banggame {
                 case target_type::self: return target->id == id;
                 case target_type::notself: return target->id != id;
                 case target_type::notsheriff: return target->m_role != player_role::sheriff;
-                case target_type::reachable: return target->id != id && in_range(m_weapon_range);
+                case target_type::reachable: return in_range(m_weapon_range);
+                case target_type::maxdistance: return in_range(c.equips.front().maxdistance());
                 default: return false;
                 }
-            }) && in_range(c.equips.front().maxdistance());
+            });
     }
 
     bool player::verify_card_targets(const card &c, bool is_response, const std::vector<play_card_target> &targets) {
@@ -147,7 +148,7 @@ namespace banggame {
 
         if (effects.size() != targets.size()) return false;
         auto in_range = [&](player *target, int distance) {
-            return distance == 0 || m_game->calc_distance(this, target) <= distance;
+            return m_game->calc_distance(this, target) <= distance;
         };
         return std::ranges::all_of(effects, [&, it = targets.begin()] (const effect_holder &e) mutable {
             return enums::visit(util::overloaded{
@@ -185,13 +186,14 @@ namespace banggame {
                                 case target_type::self: return target->id == id;
                                 case target_type::notself: return target->id != id;
                                 case target_type::notsheriff: return target->m_role != player_role::sheriff;
-                                case target_type::reachable: return target->id != id && in_range(target, m_weapon_range);
+                                case target_type::reachable: return in_range(target, m_weapon_range);
+                                case target_type::maxdistance: return in_range(target, e.maxdistance());
                                 case target_type::attacker: return !m_game->m_requests.empty() && m_game->top_request().origin() == target;
                                 case target_type::fanning_target:
                                     return m_game->calc_distance(m_game->get_player((it - 2)->get<play_card_target_type::target_player>().front().player_id), target) == 1;
                                 default: return false;
                                 }
-                            }) && in_range(target, e.maxdistance());
+                            });
                     }
                 },
                 [&](enums::enum_constant<play_card_target_type::target_card>, const std::vector<target_card_id> &args) {
@@ -222,7 +224,8 @@ namespace banggame {
                                 case target_type::self: return target->id == id;
                                 case target_type::notself: return target->id != id;
                                 case target_type::notsheriff: return target->m_role != player_role::sheriff;
-                                case target_type::reachable: return target->id != id && in_range(target, m_weapon_range);
+                                case target_type::reachable: return in_range(target, m_weapon_range);
+                                case target_type::maxdistance: return in_range(target, e.maxdistance());
                                 case target_type::attacker: return !m_game->m_requests.empty() && m_game->top_request().origin() == target;
                                 case target_type::fanning_target:
                                     return m_game->calc_distance(m_game->get_player((it - 2)->get<play_card_target_type::target_player>().front().player_id), target) == 1;
@@ -245,7 +248,7 @@ namespace banggame {
                                 }
                                 default: return false;
                                 }
-                            }) && in_range(target, e.maxdistance());
+                            });
                     }
                 }
             }, *it++);

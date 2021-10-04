@@ -191,7 +191,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player reachable",
+                    "target": "player reachable notself",
                     "class": "bangcard"
                 },
                 {
@@ -375,7 +375,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "card",
+                    "target": "card maxdistance",
                     "maxdistance": 1,
                     "class": "steal"
                 }
@@ -536,7 +536,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player reachable",
+                    "target": "player reachable notself",
                     "class": "bangcard"
                 },
                 {
@@ -642,7 +642,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "card",
+                    "target": "card maxdistance",
                     "maxdistance": 1,
                     "class": "steal"
                 }
@@ -658,7 +658,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player notself",
+                    "target": "player notself maxdistance",
                     "maxdistance": 1,
                     "class": "bang"
                 }
@@ -869,7 +869,7 @@
             "color": "green",
             "effects": [
                 {
-                    "target": "player notself",
+                    "target": "player notself maxdistance",
                     "maxdistance": 1,
                     "class": "bang"
                 },
@@ -919,7 +919,7 @@
             "color": "green",
             "effects": [
                 {
-                    "target": "player reachable",
+                    "target": "player reachable notself",
                     "class": "bang"
                 }
             ]
@@ -975,7 +975,7 @@
             "color": "green",
             "effects": [
                 {
-                    "target": "player notself",
+                    "target": "player notself maxdistance",
                     "maxdistance": 1,
                     "class": "bang"
                 }
@@ -1032,7 +1032,7 @@
                     "class": "virtual_destroy"
                 },
                 {
-                    "target": "player reachable",
+                    "target": "player reachable notself",
                     "class": "bangcard"
                 },
                 {
@@ -1132,7 +1132,7 @@
                     "class": "virtual_destroy"
                 },
                 {
-                    "target": "player reachable",
+                    "target": "player reachable notself",
                     "class": "aimbang"
                 },
                 {
@@ -1197,7 +1197,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player reachable",
+                    "target": "player reachable notself",
                     "class": "bang"
                 },
                 {
@@ -1219,7 +1219,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player notself",
+                    "target": "player notself maxdistance",
                     "maxdistance": 2,
                     "class": "bang"
                 }
@@ -1268,7 +1268,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player reachable",
+                    "target": "player reachable notself",
                     "class": "bangcard"
                 },
                 {
@@ -1352,13 +1352,13 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player reachable",
+                    "target": "player reachable notself",
                     "class": "bang"
                 },
                 {
                     "cost": 1,
                     "repeatable": true,
-                    "target": "player reachable new",
+                    "target": "player reachable notself new",
                     "class": "bang"
                 }
             ]
@@ -1373,7 +1373,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player reachable",
+                    "target": "player reachable notself",
                     "class": "bang"
                 },
                 {
@@ -1743,7 +1743,7 @@
                     "class": "virtual_destroy"
                 },
                 {
-                    "target": "player reachable",
+                    "target": "player reachable notself",
                     "class": "bangcard"
                 },
                 {
@@ -2055,7 +2055,7 @@
                     "class": "destroy"
                 },
                 {
-                    "target": "player reachable",
+                    "target": "player reachable notself",
                     "class": "bang"
                 }
             ]

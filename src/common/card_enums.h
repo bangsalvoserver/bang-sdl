@@ -62,6 +62,7 @@ namespace banggame {
         (self)
         (notself)
         (notsheriff)
+        (maxdistance)
         (reachable)
         (everyone)
         (table)

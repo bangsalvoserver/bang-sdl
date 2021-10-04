@@ -490,14 +490,17 @@ void game_scene::add_card_target(bool is_response, const target_card_id &target)
         m_play_card_args.targets.emplace_back(enums::enum_constant<play_card_target_type::target_card>{});
     }
 
-    if (std::ranges::all_of(enums::enum_values_v<target_type>
+    if (!bool(cur_target() & target_type::card)) {
+        m_play_card_args.targets.pop_back();
+    } else if (std::ranges::all_of(enums::enum_values_v<target_type>
         | std::views::filter([&](target_type value) {
             return bool(cur_target() & value);
         }), [&](target_type value) {
             switch (value) {
             case target_type::card:
             case target_type::everyone:
-            case target_type::reachable: return true;
+            case target_type::reachable:
+            case target_type::maxdistance: return true;
             case target_type::self: return target.player_id == m_player_own_id;
             case target_type::notself: return target.player_id != m_player_own_id;
             case target_type::notsheriff: return get_player(target.player_id).m_role.role != player_role::sheriff;
