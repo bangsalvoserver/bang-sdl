@@ -6,7 +6,6 @@
 
 #include "utils/sdl.h"
 
-#include <concepts>
 #include <vector>
 #include <list>
 

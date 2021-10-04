@@ -44,6 +44,12 @@ void game_ui::render(sdl::renderer &renderer) {
     m_pass_btn.render(renderer);
     m_resolve_btn.render(renderer);
     m_leave_btn.render(renderer);
+
+    sdl::rect status_rect = m_status_text.get_rect();
+    status_rect.x = (m_width - status_rect.w) / 2;
+    status_rect.y = (m_height - status_rect.h) - 10;
+    m_status_text.set_rect(status_rect);
+    m_status_text.render(renderer);
 }
 
 void game_ui::handle_event(const sdl::event &event) {

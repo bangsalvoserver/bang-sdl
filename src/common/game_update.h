@@ -110,7 +110,7 @@ namespace banggame {
         (player_show_role, player_show_role_update)
         (switch_turn, switch_turn_update)
         (request_handle, request_handle_update)
-        (request_done)
+        (status_clear)
     )
 
     using game_update = enums::enum_variant<game_update_type>;

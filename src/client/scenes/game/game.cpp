@@ -715,7 +715,7 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::switch_tur
     clear_targets();
 
     if (m_playing_id == m_player_own_id) {
-        m_ui.add_message(message_line::game, "Your turn");
+        m_ui.set_status("Your turn");
     }
 
     pop_update();
@@ -729,19 +729,17 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::request_ha
     if (args.target_id == m_player_own_id) {
         std::string message_str = "Respond to: ";
         message_str.append(enums::to_string(args.type));
-        m_ui.add_message(message_line::game, message_str);
+        m_ui.set_status(message_str);
     }
 
     pop_update();
 }
 
-void game_scene::handle_update(enums::enum_constant<game_update_type::request_done>) {
+void game_scene::handle_update(enums::enum_constant<game_update_type::status_clear>) {
     m_current_request.type = request_type::none;
     m_current_request.origin_id = 0;
 
-    if (m_playing_id == m_player_own_id) {
-        m_ui.add_message(message_line::game, "Response done");
-    }
+    m_ui.clear_status();
 
     pop_update();
 }

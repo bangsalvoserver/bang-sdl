@@ -1,7 +1,6 @@
 #ifndef __CARD_EFFECT_H__
 #define __CARD_EFFECT_H__
 
-#include <concepts>
 #include <stdexcept>
 
 #include "effects.h"

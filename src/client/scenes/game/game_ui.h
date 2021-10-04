@@ -34,6 +34,12 @@ namespace banggame {
         void handle_event(const sdl::event &event);
 
         void add_message(message_line::message_type type, const std::string &message);
+        void set_status(const std::string &message) {
+            m_status_text.redraw(message);
+        }
+        void clear_status() {
+            m_status_text = sdl::stattext();
+        }
 
         static constexpr int max_messages = 20;
 
@@ -44,6 +50,8 @@ namespace banggame {
         int m_height;
 
         std::list<message_line> m_messages;
+
+        sdl::stattext m_status_text;
 
         sdl::button m_pass_btn;
         sdl::button m_resolve_btn;

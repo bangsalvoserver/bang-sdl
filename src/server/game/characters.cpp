@@ -107,7 +107,7 @@ namespace banggame {
 
     void effect_el_gringo::on_equip(player *p, int card_id) {
         p->m_game->add_event<event_type::on_hit>(card_id, [p](player *origin, player *target) {
-            if (p == target && !origin->m_hand.empty()) {
+            if (origin && p == target && !origin->m_hand.empty() && p->m_game->m_playing != p) {
                 target->steal_card(origin, origin->random_hand_card().id);
             }
         });

@@ -338,8 +338,9 @@ namespace banggame {
             case character_type::drawing_forced:
                 if (!m_has_drawn) {
                     if (verify_card_targets(*card_it, false, args.targets)) {
-                        do_play_card(args.card_id, false, args.targets);
                         m_has_drawn = true;
+                        m_game->add_private_update<game_update_type::status_clear>(this);
+                        do_play_card(args.card_id, false, args.targets);
                     } else {
                         throw invalid_action();
                     }
@@ -476,6 +477,7 @@ namespace banggame {
                 add_to_hand(m_game->draw_card());
             }
             m_has_drawn = true;
+            m_game->add_private_update<game_update_type::status_clear>(this);
         }
     }
 

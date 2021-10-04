@@ -116,7 +116,7 @@ namespace banggame {
             m_requests.pop_front();
             if (m_requests.empty()) {
                 pop_events();
-                add_public_update<game_update_type::request_done>();
+                add_public_update<game_update_type::status_clear>();
             } else {
                 send_request_update();
             }
