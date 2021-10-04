@@ -58,7 +58,7 @@ namespace banggame {
     }
 
     void request_death::on_resolve() {
-        target->m_game->player_death(origin, target);
+        target->m_game->player_death(target);
         target->m_game->pop_request();
     }
 }

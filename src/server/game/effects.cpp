@@ -110,7 +110,7 @@ namespace banggame {
     }
 
     void effect_beer::on_play(player *origin, player *target) {
-        if (target->m_game->num_alive() > 2) {
+        if (target->m_game->m_players.size() <= 2 || target->m_game->num_alive() > 2) {
             target->heal(target->m_beer_strength);
         }
     }

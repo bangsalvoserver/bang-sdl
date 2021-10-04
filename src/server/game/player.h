@@ -105,7 +105,10 @@ namespace banggame {
         }
 
         void remove_predraw_check(int card_id) {
-            m_predraw_checks.erase(std::ranges::find(m_predraw_checks, card_id, &predraw_check_t::card_id));
+            auto it = std::ranges::find(m_predraw_checks, card_id, &predraw_check_t::card_id);
+            if (it != m_predraw_checks.end()) {
+                m_predraw_checks.erase(it);
+            }
         }
 
         bool is_top_predraw_check(const deck_card &e) {

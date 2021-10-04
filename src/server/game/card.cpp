@@ -36,7 +36,7 @@ static auto make_effects_from_json(const Json::Value &json_effects) {
             effect.set_maxdistance(json_effect["maxdistance"].asInt());
         }
         if (json_effect.isMember("target")) {
-            effect.set_target(json::deserialize<target_type>(json_effect["target"].asString()));
+            effect.set_target(enums::flags_from_string<target_type>(json_effect["target"].asString()));
             if (effect.target() != enums::flags_none<target_type>
                 && !bool(effect.target() & (target_type::card | target_type::player))) {
                 throw std::runtime_error("Invalid target: " + json_effect["target"].asString());

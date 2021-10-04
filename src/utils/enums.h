@@ -3,9 +3,11 @@
 
 #include <boost/preprocessor.hpp>
 #include <algorithm>
+#include <numeric>
 #include <string>
 
 #include "type_list.h"
+#include "svstream.h"
 
 namespace enums {
     namespace detail {
@@ -120,7 +122,7 @@ namespace enums {
 
     template<reflected_enum T> constexpr T invalid_enum_v = invalid_enum<T>::value;
 
-    template<reflected_enum T> constexpr T from_string(std::string_view str) {
+    template<has_names T> constexpr T from_string(std::string_view str) {
         if (auto it = std::ranges::find(enum_names<T>::value, str); it != enum_names<T>::value.end()) {
             return enum_values_v<T>[it - enum_names<T>::value.begin()];
         } else {
@@ -178,6 +180,31 @@ namespace enums {
         using namespace flag_operators;
         return (values | ...);
     }(make_enum_sequence<T>());
+
+    template<has_names T> requires flags_enum<T>
+    constexpr T flags_from_string(std::string_view str) {
+        util::isviewstream ss(str);
+        return std::transform_reduce(
+            std::istream_iterator<std::string>(ss),
+            std::istream_iterator<std::string>(),
+            flags_none<T>,
+            [](T lhs, T rhs) { return lhs | rhs; },
+            from_string<T>);
+    }
+
+    template<has_names T> requires flags_enum<T>
+    constexpr std::string flags_to_string(T value) {
+        std::string ret;
+        for (T v : enum_values_v<T>) {
+            if (bool(value & v)) {
+                if (!ret.empty()) {
+                    ret += ' ';
+                }
+                ret.append(to_string(v));
+            }
+        }
+        return ret;
+    }
 
     inline namespace stream_operators {
         template<typename Stream, has_names T>

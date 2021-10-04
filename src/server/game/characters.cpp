@@ -49,7 +49,10 @@ namespace banggame {
     }
 
     void effect_sean_mallory::on_unequip(player *target, int card_id) {
-        target->m_max_cards_mods.erase(std::ranges::find(target->m_max_cards_mods, 10));
+        auto it = std::ranges::find(target->m_max_cards_mods, 10);
+        if (it != target->m_max_cards_mods.end()) {
+            target->m_max_cards_mods.erase(it);
+        }
     }
 
     void effect_kit_carlson::on_play(player *target) {

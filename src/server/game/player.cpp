@@ -576,7 +576,7 @@ namespace banggame {
         m_characters.front().on_equip(this);
         send_character_update(c, 0);
 
-        if (role == player_role::sheriff) {
+        if (role == player_role::sheriff || m_game->m_players.size() <= 3) {
             m_game->add_public_update<game_update_type::player_show_role>(id, m_role);
         } else {
             m_game->add_private_update<game_update_type::player_show_role>(this, id, m_role);

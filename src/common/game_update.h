@@ -4,8 +4,6 @@
 #include "card_enums.h"
 #include "requests.h"
 
-#include "utils/json_serial.h"
-
 namespace banggame {
 
     DEFINE_SERIALIZABLE(game_over_update,

@@ -218,7 +218,7 @@ namespace banggame {
             }
         }
 
-        void player_death(player *killer, player *target);
+        void player_death(player *target);
 
         void handle_action(enums::enum_constant<game_action_type::pick_card>, player *p, const pick_card_args &args);
         void handle_action(enums::enum_constant<game_action_type::play_card>, player *p, const play_card_args &args);

@@ -4,7 +4,6 @@
 #include "enum_variant.h"
 
 #include <json/json.h>
-#include <numeric>
 #include <vector>
 #include <string>
 #include <map>
@@ -40,17 +39,7 @@ namespace json {
     template<enums::has_names T> requires enums::flags_enum<T>
     struct serializer<T> {
         Json::Value operator()(const T &value) const {
-            using namespace enums::flag_operators;
-            std::string ret;
-            for (T v : enums::enum_values_v<T>) {
-                if (bool(value & v)) {
-                    if (!ret.empty()) {
-                        ret += ' ';
-                    }
-                    ret.append(enums::to_string(v));
-                }
-            }
-            return ret;
+            return enums::flags_to_string(value);
         }
     };
 
@@ -124,16 +113,7 @@ namespace json {
     template<enums::has_names T> requires enums::flags_enum<T>
     struct deserializer<T> {
         T operator()(const Json::Value &value) const {
-            std::stringstream ss(value.asString());
-            return std::transform_reduce(
-                std::istream_iterator<std::string>(ss),
-                std::istream_iterator<std::string>(),
-                enums::flags_none<T>,
-                [](T lhs, T rhs) {
-                    using namespace enums::flag_operators;
-                    return lhs | rhs;
-                },
-                enums::from_string<T>);
+            return enums::flags_from_string<T>(value.asString());
         }
     };
 
