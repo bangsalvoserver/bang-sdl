@@ -52,11 +52,11 @@ namespace banggame {
     )
 
     template<request_type E> concept picking_request = requires (enums::enum_type_t<E> &req, card_pile_type pile, int card_id) {
-        { req.on_pick(pile, card_id) };
+        req.on_pick(pile, card_id);
     };
 
     template<request_type E> concept resolvable_request = requires (enums::enum_type_t<E> &req) {
-        { req.on_resolve() };
+        req.on_resolve();
     };
 
     struct request_holder : enums::enum_variant<request_type> {

@@ -69,7 +69,7 @@ namespace banggame {
         void on_play(player *origin, player *target);
     };
 
-    struct effect_changewws : card_effect {
+    struct effect_empty : card_effect {
         void on_play(player *origin) {}
     };
 

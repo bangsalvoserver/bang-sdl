@@ -1,7 +1,7 @@
-#ifndef __CARD_EFFECT_H__
-#define __CARD_EFFECT_H__
+#ifndef __EFFECT_HOLDER_H__
+#define __EFFECT_HOLDER_H__
 
-#include <stdexcept>
+#include <concepts>
 
 #include "effects.h"
 #include "characters.h"
@@ -30,7 +30,7 @@ namespace banggame {
         (generalstore,  effect_generalstore)
         (deathsave,     effect_deathsave)
         (damage,        effect_damage)
-        (changewws,     effect_changewws)
+        (changewws,     effect_empty)
         (black_jack,    effect_black_jack)
         (kit_carlson,   effect_kit_carlson)
         (claus_the_saint, effect_claus_the_saint)
@@ -62,28 +62,50 @@ namespace banggame {
         (vera_custer,   effect_vera_custer)
     )
 
+    namespace detail {
+        template<typename T> concept is_effect = std::is_base_of_v<card_effect, T>;
+
+        template<typename Variant> struct all_is_effect{};
+        template<typename ... Ts> struct all_is_effect<std::variant<Ts...>>
+            : std::bool_constant<(is_effect<Ts> && ...)> {};
+
+        template<typename T> concept equippable = requires(T obj, player *p, int card_id) {
+            obj.on_equip(p, card_id);
+            obj.on_unequip(p, card_id);
+        };
+
+        template<typename Variant> struct all_equippable{};
+        template<typename ... Ts> struct all_equippable<std::variant<Ts...>>
+            : std::bool_constant<(equippable<Ts> && ...)> {};
+        
+    }
+
     template<enums::reflected_enum E>
     struct effect_base : enums::enum_variant<E> {
         using enums::enum_variant<E>::enum_variant;
 
+        static_assert(detail::all_is_effect<enums::enum_variant_base<E>>::value);
+
         target_type target() const {
-            return enums::visit([](auto tag, const auto &value) {
+            return enums::visit([](auto tag, const card_effect &value) {
                 return value.target;
             }, *this);
         }
+
         void set_target(target_type type) {
-            enums::visit([=](auto tag, auto &value) {
+            enums::visit([=](auto tag, card_effect &value) {
                 value.target = type;
             }, *this);
         }
 
         int maxdistance() const {
-            return enums::visit([](auto tag, const auto &value) {
+            return enums::visit([](auto tag, const card_effect &value) {
                 return value.maxdistance;
             }, *this);
         };
+
         void set_maxdistance(int maxdistance) {
-            enums::visit([=](auto tag, auto &value) {
+            enums::visit([=](auto tag, card_effect &value) {
                 value.maxdistance = maxdistance;
             }, *this);
         }
@@ -92,79 +114,23 @@ namespace banggame {
     struct effect_holder : effect_base<effect_type> {
         using effect_base<effect_type>::effect_base;
 
-        bool can_play(player *target) const {
-            return enums::visit([=](auto tag, const auto &value) {
-                if constexpr (requires { value.can_play(target); }) {
-                    return value.can_play(target);
-                }
-                return true;
-            }, *this);
-        }
+        bool can_play(player *target) const;
+        bool can_respond(player *target) const;
 
-        bool can_respond(player *target) const {
-            return enums::visit([=](auto tag, const auto &value) {
-                if constexpr (requires { value.can_respond(target); }) {
-                    return value.can_respond(target);
-                }
-                return false;
-            }, *this);
-        }
-
-        void on_play(player *origin) {
-            enums::visit([=](auto tag, auto &value) {
-                if constexpr (requires { value.on_play(origin); }) {
-                    value.on_play(origin);
-                } else {
-                    throw std::runtime_error("on_play(origin)");
-                }
-            }, *this);
-        }
-
-        void on_play(player *origin, player *target) {
-            enums::visit([=](auto tag, auto &value) {
-                if constexpr (requires { value.on_play(origin, target); }) {
-                    value.on_play(origin, target);
-                } else {
-                    throw std::runtime_error("on_play(origin, target)");
-                }
-            }, *this);
-        }
-
-        void on_play(player *origin, player *target, int card_id) {
-            enums::visit([=](auto tag, auto &value) {
-                if constexpr (requires { value.on_play(origin, target, card_id); }) {
-                    value.on_play(origin, target, card_id);
-                } else {
-                    throw std::runtime_error("on_play(origin, target, card_id)");
-                }
-            }, *this);
-        }
+        void on_play(player *origin);
+        void on_play(player *origin, player *target);
+        void on_play(player *origin, player *target, int card_id);
     };
 
     struct equip_holder : effect_base<equip_type> {
         using effect_base<equip_type>::effect_base;
 
-        void on_equip(player *target, int card_id) {
-            enums::visit([=](auto tag, auto &value) {
-                value.on_equip(target, card_id);
-            }, *this);
-        }
+        static_assert(detail::all_equippable<enums::enum_variant_base<equip_type>>::value);
 
-        void on_unequip(player *target, int card_id) {
-            enums::visit([=](auto tag, auto &value) {
-                value.on_unequip(target, card_id);
-            }, *this);
-        }
+        void on_equip(player *target, int card_id);
+        void on_unequip(player *target, int card_id);
 
-        void on_predraw_check(player *target, int card_id) {
-            enums::visit([=](auto tag, auto &value) {
-                if constexpr (requires { value.on_predraw_check(target, card_id); }) {
-                    value.on_predraw_check(target, card_id);
-                } else {
-                    throw std::runtime_error("on_predraw_check(target, card_id)");
-                }
-            }, *this);
-        }
+        void on_predraw_check(player *target, int card_id);
     };
 }
 
