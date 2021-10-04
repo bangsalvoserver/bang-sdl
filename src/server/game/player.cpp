@@ -397,6 +397,13 @@ namespace banggame {
         } else if (auto card_it = std::ranges::find(m_table, args.card_id, &deck_card::id); card_it != m_table.end()) {
             if (!m_has_drawn) return;
             switch (card_it->color) {
+            case card_color_type::blue:
+                if (verify_card_targets(*card_it, false, args.targets)) {
+                    do_play_card(args.card_id, false, args.targets);
+                } else {
+                    throw invalid_action();
+                }
+                break;
             case card_color_type::green:
                 if (!card_it->inactive) {
                     if (verify_card_targets(*card_it, false, args.targets)) {
