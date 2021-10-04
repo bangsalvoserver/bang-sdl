@@ -329,7 +329,7 @@ void game_scene::handle_auto_targets(bool is_response) {
             std::vector<target_player_id> ids;
             auto self = m_players.find(m_player_own_id);
             for (auto it = self;;) {
-                if (it->second.hp > 0) {
+                if (!it->second.dead) {
                     ids.emplace_back(it->first);
                 }
                 if (++it == m_players.end()) it = m_players.begin();
@@ -344,7 +344,7 @@ void game_scene::handle_auto_targets(bool is_response) {
             for (auto it = self;;) {
                 if (++it == m_players.end()) it = m_players.begin();
                 if (it == self) break;
-                if (it->second.hp > 0) {
+                if (!it->second.dead) {
                     ids.emplace_back(it->first);
                 }
             }
@@ -392,7 +392,7 @@ void game_scene::add_card_target(bool is_response, const target_card_id &target)
         if (bool(cur_target() & target_type::everyone)) {
             ret = 0;
             for (const auto &p : m_players | std::views::values) {
-                if (p.hp > 0) ++ret;
+                if (!p.dead) ++ret;
             }
             if (bool(cur_target() & target_type::notself)) {
                 --ret;
@@ -655,7 +655,12 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::player_add
 
 void game_scene::handle_update(enums::enum_constant<game_update_type::player_hp>, const player_hp_update &args) {
     auto &p = get_player(args.player_id);
-    m_animations.emplace_back(20, player_hp_animation{&p, p.hp, args.hp});
+    if (p.hp != args.hp && !args.dead) {
+        m_animations.emplace_back(20, player_hp_animation{&p, p.hp, args.hp});
+    } else {
+        pop_update();
+    }
+    p.dead = args.dead;
     p.hp = args.hp;
 }
 
@@ -701,7 +706,7 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::player_sho
     } else {
         p.m_role.role = args.role;
         p.m_role.make_texture_front();
-        if (args.player_id == m_player_own_id || args.role == player_role::sheriff) {
+        if (args.instant) {
             p.m_role.flip_amt = 1.f;
             pop_update();
         } else {

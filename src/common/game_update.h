@@ -63,6 +63,7 @@ namespace banggame {
     DEFINE_SERIALIZABLE(player_hp_update,
         (player_id, int)
         (hp, int)
+        (dead, bool)
     )
 
     DEFINE_SERIALIZABLE(player_character_update,
@@ -80,6 +81,7 @@ namespace banggame {
     DEFINE_SERIALIZABLE(player_show_role_update,
         (player_id, int)
         (role, player_role)
+        (instant, bool)
     )
 
     DEFINE_SERIALIZABLE(switch_turn_update,

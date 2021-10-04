@@ -188,6 +188,7 @@ namespace banggame {
         target->m_dead = true;
         
         queue_event<event_type::on_player_death>(killer, target);
+        add_public_update<game_update_type::player_hp>(target->id, 0, true);
         add_public_update<game_update_type::player_show_role>(target->id, target->m_role);
         bool game_over = false;
         if (m_players.size() > 3) {

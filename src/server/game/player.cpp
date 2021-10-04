@@ -129,7 +129,7 @@ namespace banggame {
                 return bool(type & value);
             }), [&](target_type value) {
                 switch (value) {
-                case target_type::player: return true;
+                case target_type::player: return target->alive();
                 case target_type::self: return target->id == id;
                 case target_type::notself: return target->id != id;
                 case target_type::notsheriff: return target->m_role != player_role::sheriff;
@@ -181,7 +181,7 @@ namespace banggame {
                                 return bool(type & value);
                             }), [&](target_type value) {
                                 switch (value) {
-                                case target_type::player: return true;
+                                case target_type::player: return target->alive();
                                 case target_type::self: return target->id == id;
                                 case target_type::notself: return target->id != id;
                                 case target_type::notsheriff: return target->m_role != player_role::sheriff;
@@ -215,7 +215,7 @@ namespace banggame {
                                 return bool(type & value);
                             }), [&](target_type value) {
                                 switch (value) {
-                                case target_type::card: return true;
+                                case target_type::card: return target->alive();
                                 case target_type::self: return target->id == id;
                                 case target_type::notself: return target->id != id;
                                 case target_type::notsheriff: return target->m_role != player_role::sheriff;
@@ -577,9 +577,9 @@ namespace banggame {
         send_character_update(c, 0);
 
         if (role == player_role::sheriff || m_game->m_players.size() <= 3) {
-            m_game->add_public_update<game_update_type::player_show_role>(id, m_role);
+            m_game->add_public_update<game_update_type::player_show_role>(id, m_role, true);
         } else {
-            m_game->add_private_update<game_update_type::player_show_role>(this, id, m_role);
+            m_game->add_private_update<game_update_type::player_show_role>(this, id, m_role, true);
         }
     }
 }

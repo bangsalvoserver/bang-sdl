@@ -108,6 +108,7 @@ namespace banggame {
     struct player_view {
         static constexpr float one_hp_size = 20.f;
         int hp = 0;
+        bool dead = false;
 
         card_pile_view hand;
         card_pile_view table;
