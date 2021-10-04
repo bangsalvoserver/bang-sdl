@@ -72,7 +72,6 @@ namespace banggame {
         
         deck_card get_card_removed(int card_id);
         deck_card &discard_card(int card_id);
-        deck_card &discard_hand_card_response(int card_id);
         void steal_card(player *target, int card_id);
 
         int num_hand_cards() const {

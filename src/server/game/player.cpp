@@ -86,16 +86,6 @@ namespace banggame {
         return m_game->add_to_discards(get_card_removed(card_id));
     }
 
-    deck_card &player::discard_hand_card_response(int card_id) {
-        auto it = std::ranges::find(m_hand, card_id, &card::id);
-        auto &moved = m_game->add_to_discards(std::move(*it));
-        m_hand.erase(it);
-        if (m_game->m_playing != this) {
-            m_game->queue_event<event_type::on_play_off_turn>(this, card_id);
-        }
-        return moved;
-    }
-
     void player::steal_card(player *target, int card_id) {
         auto &moved = m_hand.emplace_back(target->get_card_removed(card_id));
         m_game->add_show_card(moved, this);
@@ -263,7 +253,9 @@ namespace banggame {
             card_ptr = &*it;
             is_character = true;
         } else if (auto it = std::ranges::find(m_hand, card_id, &deck_card::id); it != m_hand.end()) {
-            card_ptr = &discard_hand_card_response(card_id);
+            card_ptr = &m_game->add_to_discards(std::move(*it));
+            m_hand.erase(it);
+            m_game->queue_event<event_type::on_play_hand_card>(this, card_id);
         } else if (auto it = std::ranges::find(m_table, card_id, &deck_card::id); it != m_table.end()) {
             if (!m_game->table_cards_disabled(id)) {
                 if (it->color == card_color_type::blue) {
@@ -277,8 +269,14 @@ namespace banggame {
                 throw invalid_action();
             }
         } else if (m_virtual && card_id == m_virtual->second.id) {
-            discard_hand_card_response(m_virtual->first);
-            card_ptr = &m_virtual->second;
+            auto it = std::ranges::find(m_hand, m_virtual->first, &card::id);
+            if (it == m_hand.end()) {
+                card_ptr = &m_virtual->second;
+            } else {
+                card_ptr = &m_game->add_to_discards(std::move(*it));
+                m_hand.erase(it);
+            }
+            m_game->queue_event<event_type::on_play_hand_card>(this, m_virtual->first);
         } else {
             throw game_error("server.do_play_card: ID non trovato");
         }

@@ -187,8 +187,8 @@ namespace banggame {
     }
 
     void effect_molly_stark::on_equip(player *p, int card_id) {
-        p->m_game->add_event<event_type::on_play_off_turn>(card_id, [p](player *target, int player_card) {
-            if (p == target) {
+        p->m_game->add_event<event_type::on_play_hand_card>(card_id, [p](player *target, int player_card) {
+            if (p == target && p->m_game->m_playing != p) {
                 p->add_to_hand(p->m_game->draw_card());
             }
         });
