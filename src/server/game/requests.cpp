@@ -86,10 +86,10 @@ namespace banggame {
 
     void request_tornado::on_pick(card_pile_type pile, int card_id) {
         if (pile == card_pile_type::player_hand) {
-            target->m_game->pop_request();
             target->discard_card(card_id);
             target->add_to_hand(target->m_game->draw_card());
             target->add_to_hand(target->m_game->draw_card());
+            target->m_game->pop_request();
         }
     }
 

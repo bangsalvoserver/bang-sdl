@@ -147,7 +147,9 @@ namespace banggame {
 
     void effect_destroy::on_play(player *origin, player *target, int card_id) {
         target->m_game->queue_event<event_type::on_discard_card>(origin, target, card_id);
-        target->m_game->queue_event<event_type::do_discard_card>(origin, target, card_id);
+        target->m_game->queue_event<event_type::delayed_action>([=]{
+            target->discard_card(card_id);
+        });
     }
 
     void effect_virtual_destroy::on_play(player *origin, player *target, int card_id) {
@@ -156,7 +158,9 @@ namespace banggame {
 
     void effect_steal::on_play(player *origin, player *target, int card_id) {
         target->m_game->queue_event<event_type::on_discard_card>(origin, target, card_id);
-        target->m_game->queue_event<event_type::do_steal_card>(origin, target, card_id);
+        target->m_game->queue_event<event_type::delayed_action>([=]{
+            origin->steal_card(target, card_id);
+        });
     }
 
     void effect_mustang::on_equip(player *target, int card_id) {
@@ -327,8 +331,10 @@ namespace banggame {
 
     void effect_tornado::on_play(player *origin, player *target) {
         if (target->num_hand_cards() == 0) {
-            target->add_to_hand(target->m_game->draw_card());
-            target->add_to_hand(target->m_game->draw_card());
+            target->m_game->queue_event<event_type::delayed_action>([=]{
+                target->add_to_hand(target->m_game->draw_card());
+                target->add_to_hand(target->m_game->draw_card());
+            });
         } else {
             target->m_game->queue_request<request_type::tornado>(origin, target);
         }

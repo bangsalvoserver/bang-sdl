@@ -23,9 +23,8 @@ namespace banggame {
     };
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, event_type,
+        (delayed_action,    std::function<void(std::function<void()>)>)
         (on_discard_card,   std::function<void(player *origin, player *target, int card_id)>)
-        (do_discard_card,   std::function<void(player *origin, player *target, int card_id)>)
-        (do_steal_card,     std::function<void(player *origin, player *target, int card_id)>)
         (on_hit,            std::function<void(player *origin, player *target, bool is_bang)>)
         (apply_bang_modifiers, std::function<void(player *origin, request_bang &req)>)
         (on_player_death,   std::function<void(player *origin, player *target)>)

@@ -46,12 +46,7 @@ namespace banggame {
     }
 
     void game::start_game(const game_options &options) {
-        add_event<event_type::do_discard_card>(0, [this](player *origin, player *target, int card_id) {
-            target->discard_card(card_id);
-        });
-        add_event<event_type::do_steal_card>(0, [this](player *origin, player *target, int card_id) {
-            origin->steal_card(target, card_id);
-        });
+        add_event<event_type::delayed_action>(0, [](std::function<void()> fun) { fun(); });
         
         std::random_device rd;
         rng.seed(rd());
