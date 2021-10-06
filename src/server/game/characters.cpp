@@ -14,7 +14,8 @@ namespace banggame {
     }
 
     void effect_black_jack::on_play(player *target) {
-        int ncards = target->m_num_drawn_cards;
+        target->m_num_drawn_cards = target->m_num_cards_to_draw;
+        int ncards = target->m_num_cards_to_draw;
         for (int i=0; i<ncards; ++i) {
             if (i==1) {
                 auto removed = target->m_game->draw_card();
@@ -30,7 +31,8 @@ namespace banggame {
     }
 
     void effect_bill_noface::on_play(player *target) {
-        int ncards = target->m_num_drawn_cards - 1 + target->m_max_hp - target->m_hp;
+        target->m_num_drawn_cards = target->m_num_cards_to_draw;
+        int ncards = target->m_num_cards_to_draw - 1 + target->m_max_hp - target->m_hp;
         for (int i=0; i<ncards; ++i) {
             target->add_to_hand(target->m_game->draw_card());
         }
@@ -56,7 +58,7 @@ namespace banggame {
     }
 
     void effect_kit_carlson::on_play(player *target) {
-        for (int i=0; i<=target->m_num_drawn_cards; ++i) {
+        for (int i=0; i<=target->m_num_cards_to_draw; ++i) {
             target->m_game->add_to_temps(target->m_game->draw_card(), target);
         }
         target->m_game->queue_request<request_type::kit_carlson>(target, target);
@@ -80,7 +82,8 @@ namespace banggame {
     }
 
     void effect_claus_the_saint::on_play(player *target) {
-        int ncards = target->m_game->num_alive() + target->m_num_drawn_cards - 1;
+        target->m_num_drawn_cards = target->m_num_cards_to_draw;
+        int ncards = target->m_game->num_alive() + target->m_num_cards_to_draw - 1;
         for (int i=0; i<ncards; ++i) {
             target->m_game->add_to_temps(target->m_game->draw_card(), target);
         }
@@ -89,13 +92,13 @@ namespace banggame {
 
     void request_claus_the_saint::on_pick(card_pile_type pile, int card_id) {
         if (pile == card_pile_type::temp_table) {
-            int index = target->m_game->num_alive() + target->m_num_drawn_cards - target->m_game->m_temps.size();
+            int index = target->m_game->num_alive() + target->m_num_cards_to_draw - target->m_game->m_temps.size();
             auto p = target;
             for(int i=0; i<index; ++i) {
                 p = target->m_game->get_next_player(p);
             }
             p->add_to_hand(target->m_game->draw_from_temp(card_id));
-            if (target->m_game->m_temps.size() == target->m_num_drawn_cards) {
+            if (target->m_game->m_temps.size() == target->m_num_cards_to_draw) {
                 target->m_game->pop_request();
                 for (auto &c : target->m_game->m_temps) {
                     target->add_to_hand(std::move(c));

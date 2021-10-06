@@ -125,11 +125,11 @@ namespace banggame {
     }
 
     void effect_pickaxe::on_equip(player *target, int card_id) {
-        ++target->m_num_drawn_cards;
+        ++target->m_num_cards_to_draw;
     }
 
     void effect_pickaxe::on_unequip(player *target, int card_id) {
-        --target->m_num_drawn_cards;
+        --target->m_num_cards_to_draw;
     }
 
     void effect_calumet::on_equip(player *target, int card_id) {

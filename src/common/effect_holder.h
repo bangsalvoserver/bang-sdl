@@ -29,6 +29,8 @@ namespace banggame {
         (draw,          effect_draw)
         (draw_discard,  effect_draw_discard)
         (draw_rest,     effect_draw_rest)
+        (draw_skip,     effect_draw_skip)
+        (draw_done,     effect_draw_done)
         (generalstore,  effect_generalstore)
         (deathsave,     effect_deathsave)
         (bandidos,      effect_bandidos)

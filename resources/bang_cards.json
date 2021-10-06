@@ -1357,7 +1357,7 @@
                 {
                     "cost": 1,
                     "repeatable": true,
-                    "target": "player reachable notself new",
+                    "target": "player reachable notself new_target",
                     "class": "bang"
                 }
             ]
@@ -1397,7 +1397,7 @@
                 {
                     "cost": 1,
                     "repeatable": true,
-                    "target": "player notself new",
+                    "target": "player notself new_target",
                     "class": "indians"
                 }
             ]
@@ -1782,7 +1782,9 @@
                     "class": "steal"
                 },
                 {
-                    "target": "player self",
+                    "class": "draw_skip"
+                },
+                {
                     "class": "draw_rest"
                 }
             ]
@@ -1845,7 +1847,9 @@
                     "class": "draw_discard"
                 },
                 {
-                    "target": "player self",
+                    "class": "draw_skip"
+                },
+                {
                     "class": "draw_rest"
                 }
             ]
@@ -2140,6 +2144,9 @@
                 {
                     "target": "notself table card",
                     "class": "steal"
+                },
+                {
+                    "class": "draw_done"
                 }
             ]
         },
@@ -2235,14 +2242,18 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Evelyn Shebang",
             "image": "07_evelynshebang",
             "hp": 4,
             "expansion": "valleyofshadows",
+            "type": "drawing",
             "effects": [
                 {
-                    "class": "evelyn_shebang"
+                    "class": "draw_skip"
+                },
+                {
+                    "target": "player notself reachable new_target",
+                    "class": "bang"
                 }
             ]
         },

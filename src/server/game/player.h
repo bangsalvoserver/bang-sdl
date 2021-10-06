@@ -50,11 +50,11 @@ namespace banggame {
         int m_beer_strength = 1;
 
         int m_num_checks = 1;
-        int m_num_drawn_cards = 2;
+        
+        int m_num_cards_to_draw = 2;
+        int m_num_drawn_cards = 0;
 
         std::vector<int> m_max_cards_mods;
-
-        bool m_has_drawn = false;
 
         explicit player(game *game) : m_game(game) {}
 

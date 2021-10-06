@@ -186,10 +186,22 @@ namespace banggame {
         target->add_to_hand(target->m_game->draw_from_discards());
     }
 
-    void effect_draw_rest::on_play(player *origin, player *target) {
-        for (int i=1; i<target->m_num_drawn_cards; ++i) {
+    void effect_draw_rest::on_play(player *target) {
+        for (; target->m_num_drawn_cards<target->m_num_cards_to_draw; ++target->m_num_drawn_cards) {
             target->add_to_hand(target->m_game->draw_card());
         }
+    }
+
+    void effect_draw_done::on_play(player *target) {
+        target->m_num_drawn_cards = target->m_num_drawn_cards;
+    }
+
+    bool effect_draw_skip::can_play(player *target) const {
+        return target->m_num_drawn_cards < target->m_num_cards_to_draw;
+    }
+
+    void effect_draw_skip::on_play(player *target) {
+        ++target->m_num_drawn_cards;
     }
 
     void effect_bandidos::on_play(player *origin, player *target) {

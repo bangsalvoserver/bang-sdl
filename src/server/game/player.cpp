@@ -341,7 +341,7 @@ namespace banggame {
         if (auto card_it = std::ranges::find(m_characters, args.card_id, &character::id); card_it != m_characters.end()) {
             switch (card_it->type) {
             case character_type::active:
-                if (m_has_drawn && (card_it->max_usages == 0 || card_it->usages < card_it->max_usages)) {
+                if (m_num_drawn_cards == m_num_cards_to_draw && (card_it->max_usages == 0 || card_it->usages < card_it->max_usages)) {
                     if (verify_card_targets(*card_it, false, args.targets)) {
                         do_play_card(args.card_id, false, args.targets);
                         ++card_it->usages;
@@ -352,9 +352,8 @@ namespace banggame {
                 break;
             case character_type::drawing:
             case character_type::drawing_forced:
-                if (!m_has_drawn) {
+                if (m_num_drawn_cards != m_num_cards_to_draw && (card_it->max_usages == 0) || card_it->usages < card_it->max_usages) {
                     if (verify_card_targets(*card_it, false, args.targets)) {
-                        m_has_drawn = true;
                         m_game->add_private_update<game_update_type::status_clear>(this);
                         do_play_card(args.card_id, false, args.targets);
                     } else {
@@ -372,7 +371,7 @@ namespace banggame {
                 throw invalid_action();
             }
         } else if (auto card_it = std::ranges::find(m_hand, args.card_id, &deck_card::id); card_it != m_hand.end()) {
-            if (!m_has_drawn) return;
+            if (m_num_drawn_cards != m_num_cards_to_draw) return;
             switch (card_it->color) {
             case card_color_type::brown:
                 if (verify_card_targets(*card_it, false, args.targets)) {
@@ -413,7 +412,7 @@ namespace banggame {
                 break;
             }
         } else if (auto card_it = std::ranges::find(m_table, args.card_id, &deck_card::id); card_it != m_table.end()) {
-            if (!m_has_drawn) return;
+            if (m_num_drawn_cards != m_num_cards_to_draw) return;
             switch (card_it->color) {
             case card_color_type::blue:
                 if (verify_card_targets(*card_it, false, args.targets)) {
@@ -496,11 +495,10 @@ namespace banggame {
 
     void player::draw_from_deck() {
         if (std::ranges::find(m_characters, character_type::drawing_forced, &character::type) == m_characters.end()) {
-            for (int i=0; i<m_num_drawn_cards; ++i) {
+            for (; m_num_drawn_cards<m_num_cards_to_draw; ++m_num_drawn_cards) {
                 add_to_hand(m_game->draw_card());
             }
             m_game->queue_event<event_type::on_draw_from_deck>(this);
-            m_has_drawn = true;
             m_game->add_private_update<game_update_type::status_clear>(this);
         }
     }
@@ -523,7 +521,7 @@ namespace banggame {
     void player::start_of_turn() {
         m_bangs_played = 0;
         m_bangs_per_turn = 1;
-        m_has_drawn = false;
+        m_num_drawn_cards = 0;
         for (auto &c : m_characters) {
             c.usages = 0;
         }
