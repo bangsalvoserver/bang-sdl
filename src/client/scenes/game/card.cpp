@@ -141,6 +141,11 @@ namespace banggame {
         renderer.draw_rect(m_bounding_rect);
         m_role.render(renderer);
         m_hp_marker.render(renderer);
+        if (hp > 5) {
+            auto rect = m_hp_marker.get_rect();
+            rect.y += one_hp_size * 5;
+            m_hp_marker.texture_back.render(renderer, rect);
+        }
         for (auto &c : m_characters) {
             c.render(renderer);
         }

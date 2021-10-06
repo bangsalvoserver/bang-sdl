@@ -141,10 +141,18 @@ namespace banggame {
     }
 
     void effect_ghost::on_equip(player *target, int card_id) {
+        for (auto &c : target->m_characters) {
+            c.on_equip(target);
+        }
+
         target->m_ghost = true;
         target->m_game->add_public_update<game_update_type::player_hp>(target->id, 0, false);
         target->m_game->add_event<event_type::post_discard_card>(card_id, [=](player *e_target, int e_card_id) {
             if (card_id == e_card_id && target == e_target) {
+                for (auto &c : target->m_characters) {
+                    c.on_unequip(target);
+                }
+                
                 target->m_ghost = false;
                 target->m_game->add_public_update<game_update_type::player_hp>(target->id, 0, true);
                 

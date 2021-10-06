@@ -242,6 +242,10 @@ namespace banggame {
     }
 
     void game::player_death(player *target) {
+        for (auto &c : target->m_characters) {
+            c.on_unequip(target);
+        }
+        
         target->m_dead = true;
         target->m_hp = 0;
         
