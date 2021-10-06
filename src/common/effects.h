@@ -52,7 +52,9 @@ namespace banggame {
         void on_play(player *origin);
     };
 
-    struct effect_missedcard : effect_missed {};
+    struct effect_missedcard : effect_missed {
+        bool can_respond(player *origin) const;
+    };
 
     struct effect_bangmissed : card_effect {
         bool can_respond(player *origin) const;

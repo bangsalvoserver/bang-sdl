@@ -36,6 +36,7 @@ namespace banggame {
 
         int m_hp = 0;
         int m_max_hp = 0;
+        int m_initial_cards = 0;
         bool m_dead = false;
 
         int m_infinite_bangs = 0;
@@ -44,6 +45,7 @@ namespace banggame {
 
         int m_bangs_played = 0;
         int m_bangs_per_turn = 1;
+        bool m_cant_play_missedcard = false;
 
         int m_beer_strength = 1;
 
@@ -76,6 +78,10 @@ namespace banggame {
 
         int num_hand_cards() const {
             return m_hand.size();
+        }
+
+        int get_initial_cards() const {
+            return m_initial_cards == 0 ? m_max_hp : m_initial_cards;
         }
 
         int max_cards_end_of_turn() const {

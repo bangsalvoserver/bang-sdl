@@ -40,6 +40,7 @@ namespace banggame {
         (kit_carlson,   effect_kit_carlson)
         (claus_the_saint, effect_claus_the_saint)
         (bill_noface,   effect_bill_noface)
+        (teren_kill,    effect_teren_kill)
     )
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, equip_type,
@@ -72,6 +73,9 @@ namespace banggame {
         (tuco_franziskaner, effect_tuco_franziskaner)
         (colorado_bill, effect_colorado_bill)
         (henry_block,   effect_henry_block)
+        (big_spencer,   effect_big_spencer)
+        (gary_looter,   effect_gary_looter)
+        (john_pain,     effect_john_pain)
     )
 
     namespace detail {

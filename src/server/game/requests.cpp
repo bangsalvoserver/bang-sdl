@@ -53,6 +53,7 @@ namespace banggame {
         if (pile == card_pile_type::player_hand) {
             target->m_game->pop_request();
             target->discard_card(card_id);
+            target->m_game->instant_event<event_type::on_discard_pass>(target, card_id);
             if (target->num_hand_cards() <= target->m_hp) {
                 target->m_game->next_turn();
             }

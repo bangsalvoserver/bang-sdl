@@ -97,6 +97,24 @@ namespace banggame {
     struct effect_henry_block : event_based_effect {
         void on_equip(player *target, int card_id);
     };
+
+    struct effect_big_spencer : card_effect {
+        void on_equip(player *target, int card_id);
+        void on_unequip(player *target, int card_id);
+    };
+
+    struct effect_gary_looter : event_based_effect {
+        void on_equip(player *target, int card_id);
+    };
+
+    struct effect_john_pain : event_based_effect {
+        void on_equip(player *target, int card_id);
+    };
+
+    struct effect_teren_kill : card_effect {
+        bool can_respond(player *origin) const;
+        void on_play(player *origin);
+    };
 }
 
 #endif

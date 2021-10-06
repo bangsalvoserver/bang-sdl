@@ -109,10 +109,10 @@ namespace banggame {
         add_public_update<game_update_type::add_cards>(std::vector(ids_view.begin(), ids_view.end()));
         shuffle_cards_and_ids(m_deck, rng);
 
-        int max_hp = std::ranges::max(m_players | std::views::transform(&player::m_hp));
-        for (int i=0; i<max_hp; ++i) {
+        int max_initial_cards = std::ranges::max(m_players | std::views::transform(&player::get_initial_cards));
+        for (int i=0; i<max_initial_cards; ++i) {
             for (auto &p : m_players) {
-                if (p.m_hand.size() < p.m_hp) {
+                if (p.m_hand.size() < p.get_initial_cards()) {
                     p.add_to_hand(draw_card());
                 }
             }
@@ -158,7 +158,10 @@ namespace banggame {
     void game::draw_check_then(player *p, draw_check_function &&fun) {
         if (p->m_num_checks == 1) {
             auto &moved = add_to_discards(draw_card());
-            fun(moved.suit, moved.value);
+            auto suit = moved.suit;
+            auto value = moved.value;
+            queue_event<event_type::on_draw_check>(moved.id);
+            fun(suit, value);
         } else {
             m_pending_checks.push_back(std::move(fun));
             for (int i=0; i<p->m_num_checks; ++i) {
@@ -172,10 +175,14 @@ namespace banggame {
         auto c = draw_from_temp(card_id);
         for (auto &c : m_temps) {
             add_to_discards(std::move(c));
+            queue_event<event_type::on_draw_check>(c.id);
         }
         m_temps.clear();
         auto &moved = add_to_discards(std::move(c));
-        m_pending_checks.front()(moved.suit, moved.value);
+        auto suit = moved.suit;
+        auto value = moved.value;
+        queue_event<event_type::on_draw_check>(moved.id);
+        m_pending_checks.front()(suit, value);
         m_pending_checks.pop_front();
     }
 

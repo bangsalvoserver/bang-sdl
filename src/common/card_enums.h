@@ -33,6 +33,7 @@ namespace banggame {
         (thebullet)
         (dodgecity)
         (valleyofshadows)
+        (wildwestshow)
     )
 
     DEFINE_ENUM_IN_NS(banggame, card_color_type,

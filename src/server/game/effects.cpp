@@ -40,6 +40,10 @@ namespace banggame {
         }
     }
 
+    bool effect_missedcard::can_respond(player *origin) const {
+        return !origin->m_cant_play_missedcard && effect_missed().can_respond(origin);
+    }
+
     bool effect_barrel::can_respond(player *origin) const {
         return effect_missed().can_respond(origin);
     }
@@ -132,7 +136,11 @@ namespace banggame {
     }
 
     bool effect_deathsave::can_respond(player *origin) const {
-        return origin->m_game->top_request().is(request_type::death);
+        if (origin->m_game->top_request().is(request_type::death)) {
+            auto &req = origin->m_game->top_request().get<request_type::death>();
+            return req.draw_attempts.empty();
+        }
+        return false;
     }
 
     void effect_deathsave::on_play(player *origin) {

@@ -126,27 +126,37 @@ namespace banggame {
 
     void effect_vulture_sam::on_equip(player *p, int card_id) {
         p->m_game->add_event<event_type::on_player_death>(card_id, [p](player *origin, player *target) {
-            for (auto &c : target->m_table) {
-                p->add_to_hand(std::move(c));
+            if (p != target) {
+                for (auto &c : target->m_table) {
+                    if (c.inactive) {
+                        c.inactive = false;
+                        p->m_game->add_public_update<game_update_type::tap_card>(c.id, false);
+                    }
+                    p->add_to_hand(std::move(c));
+                }
+                target->m_table.clear();
+                for (auto &c : target->m_hand) {
+                    p->add_to_hand(std::move(c));
+                }
+                target->m_hand.clear();
             }
-            target->m_table.clear();
-            for (auto &c : target->m_hand) {
-                p->add_to_hand(std::move(c));
-            }
-            target->m_hand.clear();
         });
     }
 
     void effect_greg_digger::on_equip(player *p, int card_id) {
         p->m_game->add_event<event_type::on_player_death>(card_id, [p](player *origin, player *target) {
-            p->heal(2);
+            if (p != target) {
+                p->heal(2);
+            }
         });
     }
 
     void effect_herb_hunter::on_equip(player *p, int card_id) {
         p->m_game->add_event<event_type::on_player_death>(card_id, [p](player *origin, player *target) {
-            p->add_to_hand(p->m_game->draw_card());
-            p->add_to_hand(p->m_game->draw_card());
+            if (p != target) {
+                p->add_to_hand(p->m_game->draw_card());
+                p->add_to_hand(p->m_game->draw_card());
+            }
         });
     }
 
@@ -280,5 +290,58 @@ namespace banggame {
                 p->m_game->queue_request<request_type::bang>(target, origin);
             }
         });
+    }
+
+    void effect_big_spencer::on_equip(player *p, int card_id) {
+        p->m_cant_play_missedcard = true;
+        p->m_initial_cards = 5;
+    }
+
+    void effect_big_spencer::on_unequip(player *p, int card_id) {
+        p->m_cant_play_missedcard = false;
+        p->m_initial_cards = 0;
+    }
+
+    void effect_gary_looter::on_equip(player *p, int card_id) {
+        p->m_game->add_event<event_type::on_discard_pass>(card_id, [p](player *origin, int card_id) {
+            if (p != origin) {
+                auto it = std::ranges::find(p->m_game->m_discards | std::views::reverse, card_id, &card::id);
+                if (it != p->m_game->m_discards.rend()) {
+                    p->add_to_hand(std::move(*it));
+                    p->m_game->m_discards.erase(it.base());
+                }
+            }
+        });
+    }
+
+    void effect_john_pain::on_equip(player *p, int card_id) {
+        p->m_game->add_event<event_type::on_draw_check>(card_id, [p](int card_id) {
+            if (p->m_hand.size() < 6) {
+                auto it = std::ranges::find(p->m_game->m_discards | std::views::reverse, card_id, &card::id);
+                if (it != p->m_game->m_discards.rend()) {
+                    p->add_to_hand(std::move(*it));
+                    p->m_game->m_discards.erase(it.base());
+                }
+            }
+        });
+    }
+
+    bool effect_teren_kill::can_respond(player *origin) const {
+        return origin->m_game->top_request().is(request_type::death);
+    }
+
+    void effect_teren_kill::on_play(player *origin) {
+        auto &req = origin->m_game->top_request().get<request_type::death>();
+        if (std::ranges::find(req.draw_attempts, origin->id) == req.draw_attempts.end()) {
+            req.draw_attempts.push_back(origin->id);
+            origin->m_game->draw_check_then(origin, [origin](card_suit_type suit, card_value_type) {
+                if (suit != card_suit_type::spades) {
+                    origin->m_game->pop_request();
+                    origin->m_hp = 1;
+                    origin->m_game->add_public_update<game_update_type::player_hp>(origin->id, 1);
+                    origin->add_to_hand(origin->m_game->draw_card());
+                }
+            });
+        }
     }
 }

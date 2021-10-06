@@ -2297,13 +2297,14 @@
             "image": "06_bigspencer",
             "hp": 9,
             "expansion": "wildwestshow",
-            "effects": [
+            "equip": [
                 {
                     "class": "big_spencer"
                 }
             ]
         },
         {
+            "disabled": true,
             "name": "Flint Westwood",
             "image": "06_flintwestwood",
             "hp": 4,
@@ -2319,13 +2320,14 @@
             "image": "06_garylooter",
             "hp": 5,
             "expansion": "wildwestshow",
-            "effects": [
+            "equip": [
                 {
                     "class": "gary_looter"
                 }
             ]
         },
         {
+            "disabled": true,
             "name": "Greygory Deck",
             "image": "06_greygorydeck",
             "hp": 4,
@@ -2341,13 +2343,14 @@
             "image": "06_johnpain",
             "hp": 4,
             "expansion": "wildwestshow",
-            "effects": [
+            "equip": [
                 {
                     "class": "john_pain"
                 }
             ]
         },
         {
+            "disabled": true,
             "name": "Lee Van Kliff",
             "image": "06_leevankliff",
             "hp": 4,
@@ -2363,13 +2366,14 @@
             "image": "06_terenkill",
             "hp": 3,
             "expansion": "wildwestshow",
-            "effects": [
+            "responses": [
                 {
                     "class": "teren_kill"
                 }
             ]
         },
         {
+            "disabled": true,
             "name": "Youl Grinner",
             "image": "06_youlgrinner",
             "hp": 4,
@@ -2701,7 +2705,6 @@
         {
             "name": "Bavaglio",
             "image": "06_bavaglio",
-            "disabled": true
         },
         {
             "name": "Camposanto",
@@ -2714,7 +2717,6 @@
         {
             "name": "Dorothy Rage",
             "image": "06_dorothyrage",
-            "disabled": true
         },
         {
             "name": "Helena Zontero",
