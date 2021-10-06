@@ -344,4 +344,23 @@ namespace banggame {
             });
         }
     }
+
+    void effect_youl_grinner::on_equip(player *target, int card_id) {
+        target->m_game->add_event<event_type::on_turn_start>(card_id, [target](player *origin) {
+            if (target == origin) {
+                for (auto &p : target->m_game->m_players) {
+                    if (p.alive() && p.id != target->id && p.m_hand.size() > target->m_hand.size()) {
+                        target->m_game->queue_request<request_type::youl_grinner>(target, &p);
+                    }
+                }
+            }
+        });
+    }
+
+    void request_youl_grinner::on_pick(card_pile_type pile, int card_id) {
+        if (pile == card_pile_type::player_hand) {
+            target->m_game->pop_request();
+            origin->steal_card(target, card_id);
+        }
+    }
 }

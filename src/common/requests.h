@@ -78,6 +78,7 @@ namespace banggame {
         (kit_carlson,   request_kit_carlson)
         (claus_the_saint, request_claus_the_saint)
         (vera_custer,   request_vera_custer)
+        (youl_grinner,  request_youl_grinner)
     )
 
     template<request_type E> concept picking_request = requires (enums::enum_type_t<E> &req, card_pile_type pile, int card_id) {

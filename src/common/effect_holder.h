@@ -76,6 +76,7 @@ namespace banggame {
         (big_spencer,   effect_big_spencer)
         (gary_looter,   effect_gary_looter)
         (john_pain,     effect_john_pain)
+        (youl_grinner,  effect_youl_grinner)
     )
 
     namespace detail {

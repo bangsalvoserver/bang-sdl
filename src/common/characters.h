@@ -115,6 +115,14 @@ namespace banggame {
         bool can_respond(player *origin) const;
         void on_play(player *origin);
     };
+
+    struct effect_youl_grinner : event_based_effect {
+        void on_equip(player *target, int card_id);
+    };
+
+    struct request_youl_grinner : request_base {
+        void on_pick(card_pile_type pile, int card_id);
+    };
 }
 
 #endif
