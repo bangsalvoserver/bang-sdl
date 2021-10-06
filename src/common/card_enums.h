@@ -59,6 +59,7 @@ namespace banggame {
     DEFINE_ENUM_FLAGS_IN_NS(banggame, target_type,
         (card)
         (player)
+        (dead)
         (self)
         (notself)
         (notsheriff)

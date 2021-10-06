@@ -2,6 +2,7 @@
 #define __CHARACTERS_H__
 
 #include "effects.h"
+#include "equips.h"
 
 namespace banggame {
 

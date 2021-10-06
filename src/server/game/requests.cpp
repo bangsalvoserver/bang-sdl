@@ -96,7 +96,10 @@ namespace banggame {
     void request_poker::on_pick(card_pile_type pile, int card_id) {
         if (origin != target) {
             if (pile == card_pile_type::player_hand) {
-                target->m_game->add_to_temps(target->get_card_removed(card_id));
+                auto it = std::ranges::find(target->m_hand, card_id, &card::id);
+                target->m_game->add_to_temps(std::move(*it));
+                target->m_hand.erase(it);
+                
                 auto next = target;
                 do {
                     next = target->m_game->get_next_player(next);
@@ -110,9 +113,11 @@ namespace banggame {
                             target->m_game->add_to_discards(std::move(c));
                         }
                         target->m_game->m_temps.clear();
-                    } else if (target->m_game->m_temps.size() == 1) {
+                    } else if (target->m_game->m_temps.size() <= 2) {
                         target->m_game->pop_request();
-                        next->add_to_hand(std::move(target->m_game->m_temps.front()));
+                        for (auto &c : target->m_game->m_temps) {
+                            next->add_to_hand(std::move(c));
+                        }
                         target->m_game->m_temps.clear();
                     } else {
                         target->m_game->pop_request_noupdate();

@@ -530,7 +530,7 @@ void game_scene::add_card_target(bool is_response, const target_card_id &target)
 void game_scene::add_player_targets(bool is_response, const std::vector<target_player_id> &targets) {
     auto &card_targets = get_current_card_targets(is_response);
     auto &cur_target = card_targets[m_play_card_args.targets.size()];
-    if (bool(cur_target.target & target_type::player)) {
+    if (bool(cur_target.target & (target_type::player | target_type::dead))) {
         m_play_card_args.targets.emplace_back(
             enums::enum_constant<play_card_target_type::target_player>{}, targets);
         handle_auto_targets(is_response);
@@ -822,6 +822,8 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::request_ha
         std::string message_str = "Respond to: ";
         message_str.append(enums::to_string(args.type));
         m_ui.set_status(message_str);
+    } else {
+        m_ui.clear_status();
     }
 
     pop_update();

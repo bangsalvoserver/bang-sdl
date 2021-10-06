@@ -50,68 +50,77 @@ namespace banggame {
         return m_hand[m_game->rng() % m_hand.size()];
     }
 
-    card &player::find_any_card(int card_id) {
-        if (auto it = std::ranges::find(m_characters, card_id, &character::id); it != m_characters.end()) {
-            return *it;
-        } else if (auto it = std::ranges::find(m_hand, card_id, &deck_card::id); it != m_hand.end()) {
-            return *it;
-        } else if (auto it = std::ranges::find(m_table, card_id, &deck_card::id); it != m_table.end()) {
-            return *it;
-        } else {
-            throw game_error("server.find_any_card: ID non trovato");
-        }
-    }
-
-    deck_card player::get_card_removed(int card_id) {
-        auto it = std::ranges::find(m_table, card_id, &deck_card::id);
-        deck_card c;
-        if (it == m_table.end()) {
-            it = std::ranges::find(m_hand, card_id, &deck_card::id);
-            if (it == m_hand.end()) throw game_error("server.get_card_removed: ID non trovato");
-            c = std::move(*it);
-            m_hand.erase(it);
-        } else {
+    deck_card &player::discard_card(int card_id) {
+        if (auto it = std::ranges::find(m_table, card_id, &card::id); it != m_table.end()) {
             if (it->inactive) {
                 it->inactive = false;
                 m_game->add_public_update<game_update_type::tap_card>(it->id, false);
             }
-            c = std::move(*it);
-            c.on_unequip(this);
+            auto &moved = m_game->add_to_discards(std::move(*it));
             m_table.erase(it);
+            m_game->queue_event<event_type::post_discard_card>(this, card_id);
+            moved.on_unequip(this);
+            return moved;
+        } else if (auto it = std::ranges::find(m_hand, card_id, &card::id); it != m_hand.end()) {
+            auto &moved = m_game->add_to_discards(std::move(*it));
+            m_hand.erase(it);
+            m_game->queue_event<event_type::post_discard_card>(this, card_id);
+            return moved;
+        } else {
+            throw game_error("server.discard_card: ID non trovato");
         }
-        return c;
     }
 
-    deck_card &player::discard_card(int card_id) {
-        return m_game->add_to_discards(get_card_removed(card_id));
-    }
-
-    void player::steal_card(player *target, int card_id) {
-        auto &moved = m_hand.emplace_back(target->get_card_removed(card_id));
-        m_game->add_show_card(moved, this);
-        m_game->add_public_update<game_update_type::move_card>(card_id, id, card_pile_type::player_hand);
+    deck_card &player::steal_card(player *target, int card_id) {
+        if (auto it = std::ranges::find(target->m_table, card_id, &card::id); it != target->m_table.end()) {
+            if (it->inactive) {
+                it->inactive = false;
+                m_game->add_public_update<game_update_type::tap_card>(it->id, false);
+            }
+            auto &moved = add_to_hand(std::move(*it));
+            target->m_table.erase(it);
+            m_game->queue_event<event_type::post_discard_card>(this, card_id);
+            moved.on_unequip(this);
+            return moved;
+        } else if (auto it = std::ranges::find(target->m_hand, card_id, &card::id); it != target->m_hand.end()) {
+            auto &moved = add_to_hand(std::move(*it));
+            target->m_hand.erase(it);
+            m_game->queue_event<event_type::post_discard_card>(this, card_id);
+            return moved;
+        } else {
+            throw game_error("server.steal_card: ID non trovato");
+        }
     }
 
     void player::damage(player *source, int value, bool is_bang) {
-        m_hp -= value;
-        m_game->add_public_update<game_update_type::player_hp>(id, m_hp);
-        if (m_hp <= 0) {
-            m_game->add_request<request_type::death>(source, this);
-        }
-        for (int i=0; i<value; ++i) {
-            m_game->queue_event<event_type::on_hit>(source, this, is_bang);
+        if (!m_ghost) {
+            m_hp -= value;
+            m_game->add_public_update<game_update_type::player_hp>(id, m_hp);
+            if (m_hp <= 0) {
+                m_game->add_request<request_type::death>(source, this);
+            }
+            for (int i=0; i<value; ++i) {
+                m_game->queue_event<event_type::on_hit>(source, this, is_bang);
+            }
         }
     }
 
     void player::heal(int value) {
-        m_hp = std::min(m_hp + value, m_max_hp);
-        m_game->add_public_update<game_update_type::player_hp>(id, m_hp);
+        if (!m_ghost) {
+            m_hp = std::min(m_hp + value, m_max_hp);
+            m_game->add_public_update<game_update_type::player_hp>(id, m_hp);
+        }
     }
 
-    void player::add_to_hand(deck_card &&target) {
-        const auto &c = m_hand.emplace_back(std::move(target));
-        m_game->add_show_card(c, this);
-        m_game->add_public_update<game_update_type::move_card>(c.id, id, card_pile_type::player_hand);
+    deck_card &player::add_to_hand(deck_card &&target) {
+        auto &moved = m_hand.emplace_back(std::move(target));
+        m_game->add_show_card(moved, this);
+        m_game->add_public_update<game_update_type::move_card>(moved.id, id, card_pile_type::player_hand);
+        return moved;
+    }
+
+    static bool player_in_range(player *origin, player *target, int distance) {
+        return origin->m_game->calc_distance(origin, target) <= distance;
     }
 
     bool player::verify_equip_target(const card &c, const std::vector<play_card_target> &targets) {
@@ -121,20 +130,18 @@ namespace banggame {
         if (c.equips.empty()) return true;
         if (tgts.size() != 1) return false;
         player *target = m_game->get_player(tgts.front().player_id);
-        auto in_range = [&](int distance) {
-            return m_game->calc_distance(this, target) <= distance;
-        };
         return std::ranges::all_of(enums::enum_values_v<target_type>
             | std::views::filter([type = c.equips.front().target()](target_type value) {
                 return bool(type & value);
             }), [&](target_type value) {
                 switch (value) {
                 case target_type::player: return target->alive();
+                case target_type::dead: return !target->alive();
                 case target_type::self: return target->id == id;
                 case target_type::notself: return target->id != id;
                 case target_type::notsheriff: return target->m_role != player_role::sheriff;
-                case target_type::reachable: return in_range(m_weapon_range);
-                case target_type::maxdistance: return in_range(c.equips.front().maxdistance());
+                case target_type::reachable: return player_in_range(this, target, m_weapon_range + m_range_mod);
+                case target_type::maxdistance: return player_in_range(this, target, c.equips.front().maxdistance() + m_range_mod);
                 default: return false;
                 }
             });
@@ -147,16 +154,13 @@ namespace banggame {
         })) return false;
 
         if (effects.size() != targets.size()) return false;
-        auto in_range = [&](player *target, int distance) {
-            return m_game->calc_distance(this, target) <= distance;
-        };
         return std::ranges::all_of(effects, [&, it = targets.begin()] (const effect_holder &e) mutable {
             return enums::visit(util::overloaded{
                 [&](enums::enum_constant<play_card_target_type::target_none>) {
                     return e.target() == enums::flags_none<target_type>;
                 },
                 [&](enums::enum_constant<play_card_target_type::target_player>, const std::vector<target_player_id> &args) {
-                    if (!bool(e.target() & target_type::player)) return false;
+                    if (!bool(e.target() & (target_type::player | target_type::dead))) return false;
                     if (bool(e.target() & target_type::everyone)) {
                         std::vector<target_player_id> ids;
                         if (bool(e.target() & target_type::notself)) {
@@ -183,14 +187,17 @@ namespace banggame {
                             }), [&](target_type value) {
                                 switch (value) {
                                 case target_type::player: return target->alive();
+                                case target_type::dead: return !target->alive();
                                 case target_type::self: return target->id == id;
                                 case target_type::notself: return target->id != id;
                                 case target_type::notsheriff: return target->m_role != player_role::sheriff;
-                                case target_type::reachable: return in_range(target, m_weapon_range);
-                                case target_type::maxdistance: return in_range(target, e.maxdistance());
+                                case target_type::reachable: return player_in_range(this, target, m_weapon_range + m_range_mod);
+                                case target_type::maxdistance: return player_in_range(this, target, e.maxdistance() + m_range_mod);
                                 case target_type::attacker: return !m_game->m_requests.empty() && m_game->top_request().origin() == target;
-                                case target_type::fanning_target:
-                                    return m_game->calc_distance(m_game->get_player((it - 2)->get<play_card_target_type::target_player>().front().player_id), target) == 1;
+                                case target_type::fanning_target: {
+                                    player *prev_target = m_game->get_player((it - 2)->get<play_card_target_type::target_player>().front().player_id);
+                                    return player_in_range(prev_target, target, 1);
+                                }
                                 default: return false;
                                 }
                             });
@@ -224,11 +231,13 @@ namespace banggame {
                                 case target_type::self: return target->id == id;
                                 case target_type::notself: return target->id != id;
                                 case target_type::notsheriff: return target->m_role != player_role::sheriff;
-                                case target_type::reachable: return in_range(target, m_weapon_range);
-                                case target_type::maxdistance: return in_range(target, e.maxdistance());
+                                case target_type::reachable: return player_in_range(this, target, m_weapon_range + m_range_mod);
+                                case target_type::maxdistance: return player_in_range(this, target, e.maxdistance() + m_range_mod);
                                 case target_type::attacker: return !m_game->m_requests.empty() && m_game->top_request().origin() == target;
-                                case target_type::fanning_target:
-                                    return m_game->calc_distance(m_game->get_player((it - 2)->get<play_card_target_type::target_player>().front().player_id), target) == 1;
+                                case target_type::fanning_target: {
+                                    player *prev_target = m_game->get_player((it - 2)->get<play_card_target_type::target_player>().front().player_id);
+                                    return player_in_range(prev_target, target, 1);
+                                }
                                 case target_type::table: return !args.front().from_hand;
                                 case target_type::hand: return args.front().from_hand;
                                 case target_type::blue: return target->find_hand_card(args.front().card_id).color == card_color_type::blue;
@@ -556,9 +565,11 @@ namespace banggame {
         for (deck_card &c : m_table) {
             m_game->add_to_discards(std::move(c));
         }
+        m_table.clear();
         for (deck_card &c : m_hand) {
             m_game->add_to_discards(std::move(c));
         }
+        m_hand.clear();
     }
 
     void player::send_character_update(const character &c, int index) {

@@ -4,6 +4,7 @@
 #include <concepts>
 
 #include "effects.h"
+#include "equips.h"
 #include "characters.h"
 
 namespace banggame {
@@ -51,6 +52,7 @@ namespace banggame {
         (pickaxe,       effect_pickaxe)
         (calumet,       effect_calumet)
         (boots,         effect_boots)
+        (ghost,         effect_ghost)
         (snake,         effect_snake)
         (shotgun,       effect_shotgun)
         (bounty,        effect_bounty)

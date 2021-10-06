@@ -179,59 +179,41 @@ namespace banggame {
         m_pending_checks.pop_front();
     }
 
-    void game::player_death(player *target) {
+    void game::check_game_over(player *target, bool discarded_ghost) {
         player *killer = m_playing;
 
-        for (auto &c : target->m_characters) {
-            c.on_unequip(target);
-        }
-
-        target->discard_all();
-        target->m_dead = true;
-        
-        queue_event<event_type::on_player_death>(killer, target);
-        add_public_update<game_update_type::player_hp>(target->id, 0, true);
-        add_public_update<game_update_type::player_show_role>(target->id, target->m_role);
-        bool game_over = false;
-        if (m_players.size() > 3) {
-            if (target->m_role == player_role::sheriff) {
-                if (num_alive() == 1 && std::ranges::all_of(m_players | std::views::filter(&player::alive),
-                [](player_role role) { return role == player_role::renegade; }, &player::m_role)) {
-                    add_public_update<game_update_type::game_over>(player_role::renegade);
-                } else {
-                    add_public_update<game_update_type::game_over>(player_role::outlaw);
-                }
-                game_over = true;
-            } else if (std::ranges::all_of(m_players | std::views::filter(&player::alive),
-            [](player_role role) {
-                return role == player_role::sheriff || role == player_role::sheriff;
+        auto winner_role = [&]{
+            auto alive_players_view = m_players | std::views::filter(&player::alive);
+            int num_alive = std::ranges::distance(alive_players_view);
+            if (std::ranges::distance(alive_players_view) == 1 || std::ranges::all_of(alive_players_view, [](player_role role) {
+                return role == player_role::sheriff || role == player_role::deputy;
             }, &player::m_role)) {
-                add_public_update<game_update_type::game_over>(player_role::sheriff);
-                game_over = true;
+                return alive_players_view.front().m_role;
+            } else if (m_players.size() > 3) {
+                if (target->m_role == player_role::sheriff) {
+                    return player_role::outlaw;
+                }
+            } else if (!discarded_ghost) {
+                if (target->m_role == player_role::outlaw && killer->m_role == player_role::deputy) {
+                    return player_role::deputy;
+                } else if (target->m_role == player_role::renegade && killer->m_role == player_role::outlaw) {
+                    return player_role::outlaw;
+                } else if (target->m_role == player_role::deputy && killer->m_role == player_role::renegade) {
+                    return player_role::renegade;
+                }
             }
-        } else {
-            if (target->m_role == player_role::outlaw && killer->m_role == player_role::deputy) {
-                add_public_update<game_update_type::game_over>(player_role::deputy);
-                game_over = true;
-            } else if (target->m_role == player_role::renegade && killer->m_role == player_role::outlaw) {
-                add_public_update<game_update_type::game_over>(player_role::outlaw);
-                game_over = true;
-            } else if (target->m_role == player_role::deputy && killer->m_role == player_role::renegade) {
-                add_public_update<game_update_type::game_over>(player_role::renegade);
-                game_over = true;
-            } else if (num_alive() == 1) {
-                add_public_update<game_update_type::game_over>(std::ranges::find_if(m_players, &player::alive)->m_role);
-                game_over = true;
-            }
-        }
-        if (game_over) {
-            for (const auto &p : m_players | std::views::filter(&player::alive)) {
+            return player_role::unknown;
+        }();
+
+        if (winner_role != player_role::unknown) {
+            for (const auto &p : m_players) {
                 add_public_update<game_update_type::player_show_role>(p.id, p.m_role);
             }
-        } else {
-            if (m_playing == target) {
-                next_turn();
-            } else if (m_playing == killer) {
+            add_public_update<game_update_type::game_over>(winner_role);
+        } else if (killer == target) {
+            next_turn();
+        } else if (!discarded_ghost) {
+            if (m_players.size() > 3) {
                 switch (target->m_role) {
                 case player_role::outlaw:
                     killer->add_to_hand(target->m_game->draw_card());
@@ -244,8 +226,25 @@ namespace banggame {
                     }
                     break;
                 }
+            } else {
+                killer->add_to_hand(target->m_game->draw_card());
+                killer->add_to_hand(target->m_game->draw_card());
+                killer->add_to_hand(target->m_game->draw_card());
             }
         }
+    }
+
+    void game::player_death(player *target) {
+        target->m_dead = true;
+        target->m_hp = 0;
+        
+        instant_event<event_type::on_player_death>(m_playing, target);
+        target->discard_all();
+
+        add_public_update<game_update_type::player_hp>(target->id, 0, true);
+        add_public_update<game_update_type::player_show_role>(target->id, target->m_role);
+
+        check_game_over(target);
     }
 
     void game::handle_event(event_args &event) {

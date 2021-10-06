@@ -30,6 +30,7 @@ namespace banggame {
         (on_player_death,   std::function<void(player *origin, player *target)>)
         (on_equip,          std::function<void(player *origin, int card_id)>)
         (on_play_hand_card, std::function<void(player *origin, int card_id)>)
+        (post_discard_card, std::function<void(player *target, int card_id)>)
         (on_effect_end,     std::function<void(player *origin)>)
         (on_turn_start,     std::function<void(player *origin)>)
         (on_turn_end,       std::function<void(player *origin)>)
@@ -156,6 +157,12 @@ namespace banggame {
         void handle_event(event_args &event);
 
         template<event_type E, typename ... Ts>
+        void instant_event(Ts && ... args) {
+            event_args event{std::in_place_index<enums::indexof(E)>, std::forward<Ts>(args) ...};
+            handle_event(event);
+        }
+
+        template<event_type E, typename ... Ts>
         void queue_event(Ts && ... args) {
             event_args event{std::in_place_index<enums::indexof(E)>, std::forward<Ts>(args) ...};
             if (m_requests.empty()) {
@@ -223,7 +230,7 @@ namespace banggame {
             int d1=0, d2=0;
             for (player *counter = from; counter != to; counter = get_next_player(counter), ++d1);
             for (player *counter = to; counter != from; counter = get_next_player(counter), ++d2);
-            return std::min(d1, d2) + to->m_distance_mod - from->m_range_mod;
+            return std::min(d1, d2) + to->m_distance_mod;
         }
 
         void next_turn() {
@@ -234,6 +241,7 @@ namespace banggame {
             }
         }
 
+        void check_game_over(player *target, bool discarded_ghost = false);
         void player_death(player *target);
 
         void handle_action(enums::enum_constant<game_action_type::pick_card>, player *p, const pick_card_args &args);

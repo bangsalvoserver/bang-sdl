@@ -40,6 +40,7 @@ namespace banggame {
 
         int m_infinite_bangs = 0;
         int m_calumets = 0;
+        bool m_ghost = false;
 
         int m_bangs_played = 0;
         int m_bangs_per_turn = 1;
@@ -63,15 +64,15 @@ namespace banggame {
         deck_card &find_hand_card(int card_id);
         deck_card &find_table_card(int card_id);
         deck_card &random_hand_card();
-        card &find_any_card(int card_id);
 
         bool is_hand_empty() const {
             return m_hand.empty();
         }
         
-        deck_card get_card_removed(int card_id);
+        deck_card &add_to_hand(deck_card &&c);
+        
         deck_card &discard_card(int card_id);
-        void steal_card(player *target, int card_id);
+        deck_card &steal_card(player *target, int card_id);
 
         int num_hand_cards() const {
             return m_hand.size();
@@ -81,7 +82,7 @@ namespace banggame {
             return m_max_cards_mods.empty() ? m_hp : std::ranges::min(m_max_cards_mods);
         }
 
-        bool alive() const { return !m_dead; }
+        bool alive() const { return !m_dead || m_ghost; }
 
         void damage(player *source, int value, bool is_bang = false);
         void heal(int value);
@@ -120,8 +121,6 @@ namespace banggame {
 
         void send_character_update(const character &c, int index);
         void set_character_and_role(const character &c, player_role role);
-
-        void add_to_hand(deck_card &&c);
 
         bool verify_equip_target(const card &c, const std::vector<play_card_target> &targets);
         bool verify_card_targets(const card &c, bool is_response, const std::vector<play_card_target> &targets);

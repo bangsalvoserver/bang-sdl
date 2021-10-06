@@ -38,7 +38,7 @@ static auto make_effects_from_json(const Json::Value &json_effects) {
         if (json_effect.isMember("target")) {
             effect.set_target(enums::flags_from_string<target_type>(json_effect["target"].asString()));
             if (effect.target() != enums::flags_none<target_type>
-                && !bool(effect.target() & (target_type::card | target_type::player))) {
+                && !bool(effect.target() & (target_type::card | target_type::player | target_type::dead))) {
                 throw std::runtime_error("Invalid target: " + json_effect["target"].asString());
             }
         }

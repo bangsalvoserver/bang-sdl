@@ -32,6 +32,7 @@ set(bangserver_srcs
     src/server/game/card.cpp
     src/server/game/effect_holder.cpp
     src/server/game/effects.cpp
+    src/server/game/equips.cpp
     src/server/game/characters.cpp
     src/server/game/game.cpp
     src/server/game/player.cpp
