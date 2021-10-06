@@ -6,6 +6,7 @@
 namespace banggame {
 
     DEFINE_ENUM_DATA_IN_NS(banggame, card_suit_type,
+        (none,      "-")
         (hearts,    "C")
         (diamonds,  "Q")
         (clubs,     "F")
@@ -13,6 +14,7 @@ namespace banggame {
     )
 
     DEFINE_ENUM_DATA_IN_NS(banggame, card_value_type,
+        (none,      "-")
         (value_A,   "A")
         (value_2,   "2")
         (value_3,   "3")

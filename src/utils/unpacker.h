@@ -52,7 +52,9 @@ public:
     const resource_view &operator[](std::string_view key) const {
         auto it = m_data.find(key);
         if (it == m_data.end()) {
-            throw std::out_of_range("Impossibile trovare risorsa");
+            std::string str_err = "Impossibile trovare risorsa: ";
+            str_err += key;
+            throw std::out_of_range(str_err);
         }
         return it->second;
     }

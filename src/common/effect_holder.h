@@ -20,6 +20,7 @@ namespace banggame {
         (barrel,        effect_barrel)
         (destroy,       effect_destroy)
         (virtual_destroy, effect_virtual_destroy)
+        (virtual_copy,  effect_virtual_copy)
         (steal,         effect_steal)
         (duel,          effect_duel)
         (beer,          effect_beer)
@@ -41,6 +42,7 @@ namespace banggame {
         (claus_the_saint, effect_claus_the_saint)
         (bill_noface,   effect_bill_noface)
         (teren_kill,    effect_teren_kill)
+        (flint_westwood, effect_flint_westwood)
     )
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, equip_type,

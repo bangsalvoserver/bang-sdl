@@ -123,6 +123,10 @@ namespace banggame {
     struct request_youl_grinner : request_base {
         void on_pick(card_pile_type pile, int card_id);
     };
+
+    struct effect_flint_westwood : card_effect {
+        void on_play(player *origin, player *target);
+    };
 }
 
 #endif

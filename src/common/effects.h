@@ -96,6 +96,10 @@ namespace banggame {
         void on_play(player *origin, player *target, int card_id);
     };
 
+    struct effect_virtual_copy : card_effect {
+        void on_play(player *origin, player *target, int card_id);
+    };
+
     struct effect_draw : card_effect {
         void on_play(player *origin, player *target);
     };

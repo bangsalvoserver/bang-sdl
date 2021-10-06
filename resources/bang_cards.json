@@ -2226,7 +2226,7 @@
             "effects": [
                 {
                     "target": "self hand bang card",
-                    "class": "destroy"
+                    "class": "virtual_destroy"
                 },
                 {
                     "target": "player everyone notself",
@@ -2304,13 +2304,19 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Flint Westwood",
             "image": "06_flintwestwood",
             "hp": 4,
             "expansion": "wildwestshow",
+            "type": "active",
+            "usages": 1,
             "effects": [
                 {
+                    "target": "self hand card",
+                    "class": "virtual_copy"
+                },
+                {
+                    "target": "player notself",
                     "class": "flint_westwood"
                 }
             ]

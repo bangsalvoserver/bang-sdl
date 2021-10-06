@@ -160,6 +160,13 @@ namespace banggame {
         target->m_virtual = std::make_pair(card_id, target->discard_card(card_id));
     }
 
+    void effect_virtual_copy::on_play(player *origin, player *target, int card_id) {
+        auto copy = target->find_hand_card(card_id);
+        copy.suit = card_suit_type::none;
+        copy.value = card_value_type::none;
+        target->m_virtual = std::make_pair(card_id, std::move(copy));
+    }
+
     void effect_steal::on_play(player *origin, player *target, int card_id) {
         target->m_game->queue_event<event_type::on_discard_card>(origin, target, card_id);
         target->m_game->queue_event<event_type::delayed_action>([=]{

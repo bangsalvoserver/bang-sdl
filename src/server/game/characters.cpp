@@ -363,4 +363,12 @@ namespace banggame {
             origin->steal_card(target, card_id);
         }
     }
+
+    void effect_flint_westwood::on_play(player *origin, player *target) {
+        int num_cards = 2;
+        for (int i=0; !target->m_hand.empty() && i<2; ++i) {
+            origin->steal_card(target, target->random_hand_card().id);
+        }
+        target->steal_card(origin, origin->m_virtual->first);
+    }
 }
