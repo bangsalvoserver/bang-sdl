@@ -151,8 +151,8 @@ namespace banggame {
     }
 
     void effect_johnny_kisch::on_equip(player *p, int card_id) {
-        p->m_game->add_event<event_type::on_equip>(card_id, [p](player *target, int equipped_card) {
-            if (p == target) {
+        p->m_game->add_event<event_type::on_equip>(card_id, [p](player *origin, player *target, int equipped_card) {
+            if (p == origin) {
                 const auto &name = p->find_table_card(equipped_card).name;
                 for (auto &other : p->m_game->m_players) {
                     if (other.id == p->id) continue;
@@ -182,6 +182,11 @@ namespace banggame {
         p->m_game->add_event<event_type::on_turn_end>(card_id, [p](player *target) {
             if (p == target) {
                 p->m_game->enable_table_cards(p->id);
+            }
+        });
+        p->m_game->add_event<event_type::on_equip>(card_id, [p](player *origin, player *target, int card_id) {
+            if (origin == p && target != p) {
+                target->find_table_card(card_id).on_unequip(target);
             }
         });
     }

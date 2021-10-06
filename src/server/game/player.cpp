@@ -389,7 +389,7 @@ namespace banggame {
                         deck_card removed = std::move(*card_it);
                         m_hand.erase(card_it);
                         target->equip_card(std::move(removed));
-                        m_game->queue_event<event_type::on_equip>(this, args.card_id);
+                        m_game->queue_event<event_type::on_equip>(this, target, args.card_id);
                         m_game->queue_event<event_type::on_effect_end>(this);
                     } else {
                         throw invalid_action();
@@ -404,7 +404,7 @@ namespace banggame {
                     deck_card removed = std::move(*card_it);
                     m_hand.erase(card_it);
                     equip_card(std::move(removed));
-                    m_game->queue_event<event_type::on_equip>(this, args.card_id);
+                    m_game->queue_event<event_type::on_equip>(this, this, args.card_id);
                     m_game->queue_event<event_type::on_effect_end>(this);
                     m_game->add_public_update<game_update_type::tap_card>(removed.id, true);
                 } else {
