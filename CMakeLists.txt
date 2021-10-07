@@ -29,12 +29,13 @@ set(bangclient_srcs
 set(bangserver_srcs
     src/server/main.cpp
     src/server/manager.cpp
-    src/server/game/card.cpp
     src/server/game/effect_holder.cpp
     src/server/game/effects.cpp
     src/server/game/equips.cpp
     src/server/game/characters.cpp
     src/server/game/game.cpp
+    src/server/game/make_all_cards.cpp
+    src/server/game/make_equip.cpp
     src/server/game/player.cpp
     src/server/game/requests.cpp
 )
