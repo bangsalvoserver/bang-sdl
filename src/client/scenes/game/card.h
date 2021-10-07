@@ -125,6 +125,8 @@ namespace banggame {
         void set_hp_marker_position(float hp);
 
         void render(sdl::renderer &renderer);
+        void render_turn_indicator(sdl::renderer &renderer);
+        void render_request_indicator(sdl::renderer &renderer);
     };
 }
 

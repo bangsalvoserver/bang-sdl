@@ -150,4 +150,16 @@ namespace banggame {
             c.render(renderer);
         }
     }
+
+    void player_view::render_turn_indicator(sdl::renderer &renderer) {
+        constexpr int border = 5;
+        renderer.set_draw_color(sdl::color{0xff, 0x0, 0x0, 0xff});
+        renderer.draw_rect(sdl::rect{m_bounding_rect.x - border, m_bounding_rect.y - border, m_bounding_rect.w + border * 2, m_bounding_rect.h + border * 2});
+    }
+
+    void player_view::render_request_indicator(sdl::renderer &renderer) {
+        constexpr int border = 10;
+        renderer.set_draw_color(sdl::color{0x0, 0x0, 0xff, 0xff});
+        renderer.draw_rect(sdl::rect{m_bounding_rect.x - border, m_bounding_rect.y - border, m_bounding_rect.w + border * 2, m_bounding_rect.h + border * 2});
+    }
 }

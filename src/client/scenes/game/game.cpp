@@ -61,7 +61,14 @@ void game_scene::render(sdl::renderer &renderer) {
         get_card(id).render(renderer);
     }
 
-    for (auto &p : m_players | std::views::values) {
+    for (auto &[player_id, p] : m_players) {
+        if (player_id == m_playing_id) {
+            p.render_turn_indicator(renderer);
+        }
+        if (m_current_request.type != request_type::none && m_current_request.target_id == player_id) {
+            p.render_request_indicator(renderer);
+        }
+
         p.render(renderer);
 
         for (int id : p.table) {
