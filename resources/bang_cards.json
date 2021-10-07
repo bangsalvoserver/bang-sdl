@@ -2207,7 +2207,7 @@
                     "class": "virtual_destroy"
                 },
                 {
-                    "target": "player rechable",
+                    "target": "player reachable notself",
                     "class": "bang"
                 }
             ]
