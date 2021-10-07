@@ -147,6 +147,11 @@ namespace banggame {
             });
     }
 
+    static bool is_new_target(const std::multimap<int, int> &targets, int card_id, int player_id) {
+        auto [lower, upper] = targets.equal_range(card_id);
+        return std::ranges::find(lower, upper, player_id, [](const auto &pair) { return pair.second; }) == upper;
+    }
+
     bool player::verify_card_targets(const card &c, bool is_response, const std::vector<play_card_target> &targets) {
         auto &effects = is_response ? c.responses : c.effects;
         if (!std::ranges::all_of(effects, [this](const effect_holder &e) {
@@ -194,6 +199,7 @@ namespace banggame {
                                 case target_type::reachable: return player_in_range(this, target, m_weapon_range + m_range_mod);
                                 case target_type::maxdistance: return player_in_range(this, target, e.maxdistance() + m_range_mod);
                                 case target_type::attacker: return !m_game->m_requests.empty() && m_game->top_request().origin() == target;
+                                case target_type::new_target: return is_new_target(m_current_card_targets, c.id, target->id);
                                 case target_type::fanning_target: {
                                     player *prev_target = m_game->get_player((it - 2)->get<play_card_target_type::target_player>().front().player_id);
                                     return player_in_range(prev_target, target, 1);
@@ -234,6 +240,7 @@ namespace banggame {
                                 case target_type::reachable: return player_in_range(this, target, m_weapon_range + m_range_mod);
                                 case target_type::maxdistance: return player_in_range(this, target, e.maxdistance() + m_range_mod);
                                 case target_type::attacker: return !m_game->m_requests.empty() && m_game->top_request().origin() == target;
+                                case target_type::new_target: return is_new_target(m_current_card_targets, c.id, target->id);
                                 case target_type::fanning_target: {
                                     player *prev_target = m_game->get_player((it - 2)->get<play_card_target_type::target_player>().front().player_id);
                                     return player_in_range(prev_target, target, 1);
@@ -316,6 +323,7 @@ namespace banggame {
                     for (const auto &target : args) {
                         auto *p = m_game->get_player(target.player_id);
                         if (p != this && check_immunity(p)) continue;
+                        m_current_card_targets.emplace(card_id, target.player_id);
                         e.on_play(this, p);
                     }
                 },
@@ -323,6 +331,7 @@ namespace banggame {
                     for (const auto &target : args) {
                         auto *p = m_game->get_player(target.player_id);
                         if (p != this && check_immunity(p)) continue;
+                        m_current_card_targets.emplace(card_id, target.player_id);
                         if (target.from_hand && p != this) {
                             e.on_play(this, p, p->random_hand_card().id);
                         } else {
@@ -525,6 +534,8 @@ namespace banggame {
         for (auto &c : m_characters) {
             c.usages = 0;
         }
+
+        m_current_card_targets.clear();
         
         m_game->add_public_update<game_update_type::switch_turn>(id);
 
@@ -555,6 +566,7 @@ namespace banggame {
                 m_game->add_public_update<game_update_type::tap_card>(c.id, false);
             }
         }
+        m_current_card_targets.clear();
         m_pending_predraw_checks.clear();
         m_game->queue_event<event_type::on_turn_end>(this);
     }

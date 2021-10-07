@@ -500,7 +500,8 @@ void game_scene::add_card_target(bool is_response, const target_card_id &target)
             case target_type::card:
             case target_type::everyone:
             case target_type::reachable:
-            case target_type::maxdistance: return true;
+            case target_type::maxdistance:
+            case target_type::new_target: return true;
             case target_type::self: return target.player_id == m_player_own_id;
             case target_type::notself: return target.player_id != m_player_own_id;
             case target_type::notsheriff: return get_player(target.player_id).m_role.role != player_role::sheriff;

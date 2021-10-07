@@ -78,6 +78,7 @@ namespace banggame {
         (bangormissed)
         (attacker)
         (fanning_target)
+        (new_target)
     )
 
     DEFINE_ENUM_IN_NS(banggame, card_pile_type,

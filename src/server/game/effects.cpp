@@ -193,7 +193,7 @@ namespace banggame {
     }
 
     void effect_draw_done::on_play(player *target) {
-        target->m_num_drawn_cards = target->m_num_drawn_cards;
+        target->m_num_drawn_cards = target->m_num_cards_to_draw;
     }
 
     bool effect_draw_skip::can_play(player *target) const {

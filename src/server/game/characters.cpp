@@ -14,8 +14,7 @@ namespace banggame {
     }
 
     void effect_black_jack::on_play(player *target) {
-        target->m_num_drawn_cards = target->m_num_cards_to_draw;
-        int ncards = target->m_num_cards_to_draw;
+        int ncards = target->m_num_drawn_cards = target->m_num_cards_to_draw;
         for (int i=0; i<ncards; ++i) {
             if (i==1) {
                 auto removed = target->m_game->draw_card();
@@ -74,6 +73,7 @@ namespace banggame {
                 target->m_game->add_public_update<game_update_type::move_card>(removed.id, 0, card_pile_type::main_deck);
                 target->m_game->m_temps.clear();
                 target->m_game->m_deck.push_back(std::move(removed));
+                target->m_num_drawn_cards = target->m_num_cards_to_draw;
             } else {
                 target->m_game->pop_request_noupdate();
                 target->m_game->queue_request<request_type::kit_carlson>(target, target);
@@ -92,6 +92,7 @@ namespace banggame {
 
     void request_claus_the_saint::on_pick(card_pile_type pile, int card_id) {
         if (pile == card_pile_type::temp_table) {
+            target->m_num_drawn_cards = target->m_num_cards_to_draw;
             int index = target->m_game->num_alive() + target->m_num_cards_to_draw - target->m_game->m_temps.size();
             auto p = target;
             for(int i=0; i<index; ++i) {

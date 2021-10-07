@@ -63,12 +63,15 @@ namespace banggame {
             } else {
                 auto it = std::ranges::find(target->m_table, card_id, &card::id);
                 it->on_unequip(target);
+                auto moved = std::move(*it);
+                target->m_table.erase(it);
+
                 auto *p = target;
                 do {
                     p = p->m_game->get_next_player(p);
-                } while (p->has_card_equipped(it->name));
-                p->equip_card(std::move(*it));
-                target->m_table.erase(it);
+                } while (p->has_card_equipped(moved.name));
+                
+                p->equip_card(std::move(moved));
             }
             target->next_predraw_check(card_id);
         });

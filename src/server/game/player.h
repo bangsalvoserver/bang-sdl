@@ -55,6 +55,7 @@ namespace banggame {
         int m_num_drawn_cards = 0;
 
         std::vector<int> m_max_cards_mods;
+        std::multimap<int, int> m_current_card_targets;
 
         explicit player(game *game) : m_game(game) {}
 

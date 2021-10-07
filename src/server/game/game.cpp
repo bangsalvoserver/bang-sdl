@@ -95,7 +95,7 @@ namespace banggame {
         auto testing_char = std::ranges::find(characters, TESTING_CHARACTER, &character::image);
         std::swap(*character_it, *testing_char);
 #endif
-        std::ranges::shuffle(roles.begin(), roles.begin() + options.nplayers, rng);
+        std::ranges::shuffle(role_it, role_it + options.nplayers, rng);
         for (auto &p : m_players) {
             p.set_character_and_role(*character_it++, *role_it++);
         }
