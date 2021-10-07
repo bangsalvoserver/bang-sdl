@@ -31,7 +31,6 @@ namespace banggame {
 
         void resize(int width, int height);
         void render(sdl::renderer &renderer);
-        void handle_event(const sdl::event &event);
 
         void add_message(message_line::message_type type, const std::string &message);
         void set_status(const std::string &message) {

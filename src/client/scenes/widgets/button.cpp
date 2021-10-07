@@ -6,7 +6,7 @@ button::button(const std::string &label, button_callback_fun &&onclick, const bu
     : m_style(style)
     , m_text(label, style)
     , m_onclick(std::move(onclick)) {}
-    
+
 void button::render(renderer &renderer) {
     switch (m_state) {
     case state_up: renderer.set_draw_color(m_style.up_color); break;
@@ -28,7 +28,7 @@ void button::render(renderer &renderer) {
     m_text.render(renderer);
 }
 
-void button::handle_event(const event &event) {
+bool button::handle_event(const event &event) {
     switch (event.type) {
     case SDL_MOUSEMOTION:
         if (point_in_rect(point{event.motion.x, event.motion.y}, m_border_rect)) {
@@ -45,18 +45,23 @@ void button::handle_event(const event &event) {
         if (event.button.button == SDL_BUTTON_LEFT
             && point_in_rect(point{event.motion.x, event.motion.y}, m_border_rect)) {
             m_state = state_down;
+            return true;
         }
         break;
     case SDL_MOUSEBUTTONUP:
         if (event.button.button == SDL_BUTTON_LEFT
             && m_state == state_down) {
             if (point_in_rect(point{event.motion.x, event.motion.y}, m_border_rect)) {
-                if (m_onclick) m_onclick();
                 m_state = state_hover;
+                if (m_onclick) {
+                    m_onclick();
+                    return true;
+                }
             } else {
                 m_state = state_up;
             }
         }
         break;
     };
+    return false;
 }

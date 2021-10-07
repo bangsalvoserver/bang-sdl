@@ -56,14 +56,6 @@ void lobby_scene::render(sdl::renderer &renderer) {
     m_leave_btn.render(renderer);
 }
 
-void lobby_scene::handle_event(const sdl::event &event) {
-    m_leave_btn.handle_event(event);
-
-    if (m_owner_id && m_owner_id == m_user_id) {
-        m_start_btn.handle_event(event);
-    }
-}
-
 void lobby_scene::set_player_list(const std::vector<lobby_player_data> &args) {
     m_player_list.clear();
     for (const auto &arg : args) {

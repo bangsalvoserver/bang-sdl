@@ -13,7 +13,8 @@ make_lobby_scene::make_lobby_scene(game_manager *parent)
     , m_username_label("Nome utente:")
     , m_lobbyname_label("Nome lobby:")
 {
-
+    m_username_box.set_value(parent->get_config().user_name);
+    m_lobbyname_box.set_value(parent->get_config().lobby_name);
 }
 
 void make_lobby_scene::render(sdl::renderer &renderer) {
@@ -42,14 +43,10 @@ void make_lobby_scene::render(sdl::renderer &renderer) {
     m_undo_btn.render(renderer);
 }
 
-void make_lobby_scene::handle_event(const sdl::event &event) {
-    m_username_box.handle_event(event);
-    m_lobbyname_box.handle_event(event);
-    m_ok_btn.handle_event(event);
-    m_undo_btn.handle_event(event);
-}
-
 void make_lobby_scene::do_make_lobby() {
+    parent->get_config().user_name = m_username_box.get_value();
+    parent->get_config().lobby_name = m_lobbyname_box.get_value();
+    
     parent->add_message<client_message_type::lobby_make>(
         m_lobbyname_box.get_value(),
         m_username_box.get_value(),

@@ -11,6 +11,8 @@
 #include "scenes/lobby.h"
 #include "scenes/game/game.h"
 
+#include "config.h"
+
 DEFINE_ENUM_TYPES(scene_type,
     (connect, connect_scene)
     (lobby_list, lobby_list_scene)
@@ -21,7 +23,7 @@ DEFINE_ENUM_TYPES(scene_type,
 
 class game_manager {
 public:
-    game_manager();
+    game_manager(const std::string &config_filename);
     ~game_manager();
 
     void resize(int width, int height);
@@ -56,6 +58,10 @@ public:
         return scene;
     }
 
+    config &get_config() {
+        return m_config;
+    }
+
 private:
     void handle_message(enums::enum_constant<server_message_type::game_error>, const game_error &args);
     void handle_message(enums::enum_constant<server_message_type::lobby_list>, const std::vector<lobby_data> &args);
@@ -78,6 +84,8 @@ private:
     int m_height;
 
     int m_user_own_id = 0;
+
+    config m_config;
 };
 
 #endif

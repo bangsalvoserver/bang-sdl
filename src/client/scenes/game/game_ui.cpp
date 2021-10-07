@@ -52,12 +52,6 @@ void game_ui::render(sdl::renderer &renderer) {
     m_status_text.render(renderer);
 }
 
-void game_ui::handle_event(const sdl::event &event) {
-    m_pass_btn.handle_event(event);
-    m_resolve_btn.handle_event(event);
-    m_leave_btn.handle_event(event);
-}
-
 void game_ui::add_message(message_line::message_type type, const std::string &message) {
     m_messages.emplace_back(type, message);
     if (m_messages.size() > max_messages) {

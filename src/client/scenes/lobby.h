@@ -24,7 +24,6 @@ public:
     void init(const lobby_entered_args &args);
 
     void render(sdl::renderer &renderer) override;
-    void handle_event(const sdl::event &event) override;
 
     void set_player_list(const std::vector<lobby_player_data> &args);
     void add_user(const lobby_player_data &args);

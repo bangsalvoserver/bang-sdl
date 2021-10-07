@@ -112,8 +112,6 @@ void game_scene::render(sdl::renderer &renderer) {
 }
 
 void game_scene::handle_event(const sdl::event &event) {
-    m_ui.handle_event(event);
-
     switch (event.type) {
     case SDL_MOUSEBUTTONDOWN: {
         sdl::point mouse_pt{event.button.x, event.button.y};

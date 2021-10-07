@@ -6,6 +6,8 @@
 #include "utils/sdl.h"
 #include "stattext.h"
 
+#include "event_handler.h"
+
 namespace sdl {
 
     struct button_style : text_style {
@@ -27,7 +29,7 @@ namespace sdl {
 
     using button_callback_fun = std::function<void()>;
 
-    class button {
+    class button : private event_handler {
     private:
         button_style m_style;
         stattext m_text;
@@ -42,12 +44,14 @@ namespace sdl {
             state_hover,
             state_down
         } m_state = state_up;
-
+    
+    protected:
+        bool handle_event(const event &event) override;
+        
     public:
         button(const std::string &label, button_callback_fun &&onclick = nullptr, const button_style &style = default_button_style);
         
         void render(renderer &renderer);
-        void handle_event(const event &event);
 
         void set_onclick(button_callback_fun &&onclick) {
             m_onclick = std::move(onclick);

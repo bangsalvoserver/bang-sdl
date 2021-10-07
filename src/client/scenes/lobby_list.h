@@ -3,12 +3,13 @@
 
 #include "scene_base.h"
 
+#include <list>
+
 class lobby_line {
 public:
     lobby_line(class lobby_list_scene *parent, const lobby_data &args);
 
     void render(sdl::renderer &renderer, const sdl::rect &rect);
-    void handle_event(const sdl::event &event);
 
 private:
     class lobby_list_scene *parent;
@@ -25,7 +26,6 @@ public:
     lobby_list_scene(class game_manager *parent);
 
     void render(sdl::renderer &renderer) override;
-    void handle_event(const sdl::event &event) override;
 
     void set_lobby_list(const std::vector<lobby_data> &args);
 
@@ -33,7 +33,7 @@ public:
     void do_join(int lobby_id);
 
 private:
-    std::vector<lobby_line> m_lobby_lines;
+    std::list<lobby_line> m_lobby_lines;
 
     sdl::button m_disconnect_btn;
     sdl::button m_refresh_btn;

@@ -25,7 +25,7 @@ void textbox::render(renderer &renderer) {
     }
 }
 
-void textbox::handle_event(const event &event) {
+bool textbox::handle_event(const event &event) {
     switch (event.type) {
     case SDL_MOUSEBUTTONDOWN:
         m_active = event.button.button == SDL_BUTTON_LEFT && point_in_rect(point{event.button.x, event.button.y}, m_border_rect);
@@ -45,4 +45,5 @@ void textbox::handle_event(const event &event) {
         }
         break;
     }
+    return false;
 }

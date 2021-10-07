@@ -7,7 +7,7 @@
 
 using namespace banggame;
 
-game_manager::game_manager() {
+game_manager::game_manager(const std::string &config_filename) : m_config(config_filename) {
     switch_scene<scene_type::connect>();
 }
 
@@ -15,6 +15,7 @@ game_manager::~game_manager() {
     if (m_scene) {
         delete m_scene;
     }
+    m_config.save();
 }
 
 void game_manager::update_net() {
@@ -61,6 +62,12 @@ void game_manager::update_net() {
 void game_manager::connect(const std::string &host) {
     try {
         sock.open(sdlnet::ip_address(host, banggame::server_port));
+        if (!host.empty()) {
+            auto it = std::ranges::find(m_config.recent_servers, host);
+            if (it == m_config.recent_servers.end()) {
+                m_config.recent_servers.push_back(host);
+            }
+        }
         sock_set.add(sock);
         switch_scene<scene_type::lobby_list>();
     } catch (const sdlnet::net_error &e) {
@@ -92,7 +99,9 @@ void game_manager::render(sdl::renderer &renderer) {
 }
 
 void game_manager::handle_event(const sdl::event &event) {
-    m_scene->handle_event(event);
+    if (!sdl::event_handler::handle_events(event)) {
+        m_scene->handle_event(event);
+    }
 }
 
 void game_manager::handle_message(enums::enum_constant<server_message_type::game_error>, const game_error &args) {

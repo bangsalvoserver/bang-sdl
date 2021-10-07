@@ -8,7 +8,6 @@ public:
     make_lobby_scene(class game_manager *parent);
 
     void render(sdl::renderer &renderer) override;
-    void handle_event(const sdl::event &event) override;
 
     void do_make_lobby();
 

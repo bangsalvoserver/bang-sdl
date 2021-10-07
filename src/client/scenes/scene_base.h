@@ -20,8 +20,10 @@ public:
         m_width = width;
         m_height = height;
     }
+
     virtual void render(sdl::renderer &renderer) = 0;
-    virtual void handle_event(const sdl::event &event) = 0;
+    
+    virtual void handle_event(const sdl::event &event) {}
 
 protected:
     class game_manager *parent;

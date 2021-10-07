@@ -193,9 +193,11 @@ namespace sdl {
         }
 
         rect get_rect() const {
-            rect get_rect;
-            SDL_GetClipRect(m_value, &get_rect);
-            return get_rect;
+            rect rect;
+            if (m_value) {
+                SDL_GetClipRect(m_value, &rect);
+            }
+            return rect;
         }
 
         SDL_Surface *get() const noexcept { return m_value; }

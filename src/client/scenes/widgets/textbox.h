@@ -6,6 +6,8 @@
 
 #include <string>
 
+#include "event_handler.h"
+
 namespace sdl {
 
     struct textbox_style : text_style {
@@ -23,7 +25,7 @@ namespace sdl {
         4
     };
 
-    class textbox {
+    class textbox : private event_handler {
     private:
         textbox_style m_style;
 
@@ -38,11 +40,13 @@ namespace sdl {
             m_tex.redraw(m_value);
         }
 
+    protected:
+        bool handle_event(const event &event);
+
     public:
         textbox(const textbox_style &style = default_textbox_style);
 
         void render(renderer &renderer);
-        void handle_event(const event &event);
 
         const sdl::rect &get_rect() const noexcept {
             return m_border_rect;

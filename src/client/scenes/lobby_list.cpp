@@ -27,10 +27,6 @@ void lobby_line::render(sdl::renderer &renderer, const sdl::rect &rect) {
     m_join_btn.render(renderer);
 }
 
-void lobby_line::handle_event(const sdl::event &event) {
-    m_join_btn.handle_event(event);
-}
-
 lobby_list_scene::lobby_list_scene(game_manager *parent)
     : scene_base(parent)
     , m_disconnect_btn("Disconnetti", [parent] {
@@ -44,6 +40,7 @@ lobby_list_scene::lobby_list_scene(game_manager *parent)
     })
     , m_username_label("Nome utente:")
 {
+    m_username_box.set_value(parent->get_config().user_name);
     refresh();
 }
 
@@ -73,23 +70,12 @@ void lobby_list_scene::render(sdl::renderer &renderer) {
     m_disconnect_btn.render(renderer);
 }
 
-void lobby_list_scene::handle_event(const sdl::event &event) {
-    m_username_box.handle_event(event);
-
-    for (auto &line : m_lobby_lines) {
-        line.handle_event(event);
-    }
-
-    m_refresh_btn.handle_event(event);
-    m_make_lobby_btn.handle_event(event);
-    m_disconnect_btn.handle_event(event);
-}
-
 void lobby_list_scene::refresh() {
     parent->add_message<client_message_type::lobby_list>();
 }
 
 void lobby_list_scene::do_join(int lobby_id) {
+    parent->get_config().user_name = m_username_box.get_value();
     parent->add_message<client_message_type::lobby_join>(lobby_id, m_username_box.get_value());
 }
 
