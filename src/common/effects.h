@@ -2,6 +2,7 @@
 #define __EFFECTS_H__
 
 #include "common/card_enums.h"
+#include "game_action.h"
 
 namespace banggame {
 

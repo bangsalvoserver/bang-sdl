@@ -204,8 +204,6 @@ namespace banggame {
         void enable_table_cards(int player_id);
         bool table_cards_disabled(int player_id);
 
-        character &find_character(int card_id);
-
         int num_alive() const {
             return std::ranges::count_if(m_players, &player::alive);
         }

@@ -30,6 +30,10 @@ namespace banggame {
         return std::ranges::find(m_table, name, &deck_card::name) != m_table.end();
     }
 
+    deck_card &player::random_hand_card() {
+        return m_hand[m_game->rng() % m_hand.size()];
+    }
+
     deck_card &player::find_hand_card(int card_id) {
         if (auto it = std::ranges::find(m_hand, card_id, &deck_card::id); it != m_hand.end()) {
             return *it;
@@ -46,8 +50,12 @@ namespace banggame {
         }
     }
 
-    deck_card &player::random_hand_card() {
-        return m_hand[m_game->rng() % m_hand.size()];
+    character &player::find_character(int card_id) {
+        if (auto it = std::ranges::find(m_characters, card_id, &character::id); it != m_characters.end()) {
+            return *it;
+        } else {
+            throw game_error("server.find_character: ID non trovato");
+        }
     }
 
     deck_card &player::discard_card(int card_id) {

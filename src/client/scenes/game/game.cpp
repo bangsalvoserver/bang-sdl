@@ -238,7 +238,7 @@ void game_scene::on_click_main_deck() {
 
 void game_scene::on_click_temp_table_card(int card_id) {
     if (m_current_request.target_id == m_player_own_id && is_picking_request(m_current_request.type)) {
-        add_action<game_action_type::pick_card>(card_pile_type::temp_table, card_id);
+        add_action<game_action_type::pick_card>(card_pile_type::temp_table, 0, card_id);
     }
 }
 
@@ -247,7 +247,7 @@ void game_scene::on_click_table_card(int player_id, int card_id) {
         clear_targets();
     } else if (m_current_request.target_id == m_player_own_id && m_current_request.type != request_type::none) {
         if (is_picking_request(m_current_request.type)) {
-            add_action<game_action_type::pick_card>(card_pile_type::player_table, card_id);
+            add_action<game_action_type::pick_card>(card_pile_type::player_table, player_id, card_id);
         } else if (m_play_card_args.card_id == 0) {
             if (!get_card(card_id).inactive) {
                 m_play_card_args.card_id = card_id;
@@ -289,7 +289,7 @@ void game_scene::on_click_hand_card(int player_id, int card_id) {
         clear_targets();
     } else if (m_current_request.target_id == m_player_own_id && m_current_request.type != request_type::none) {
         if (is_picking_request(m_current_request.type)) {
-            add_action<game_action_type::pick_card>(card_pile_type::player_hand, card_id);
+            add_action<game_action_type::pick_card>(card_pile_type::player_hand, player_id, card_id);
         } else if (m_play_card_args.card_id == 0) {
             if (!get_card(card_id).inactive) {
                 m_play_card_args.card_id = card_id;
@@ -342,7 +342,7 @@ void game_scene::on_click_character(int player_id, int card_id) {
         clear_targets();
     } else if (m_current_request.target_id == m_player_own_id && m_current_request.type != request_type::none) {
         if (is_picking_request(m_current_request.type)) {
-            add_action<game_action_type::pick_card>(card_pile_type::player_character, card_id);
+            add_action<game_action_type::pick_card>(card_pile_type::player_character, player_id, card_id);
         } else if (m_play_card_args.card_id == 0 && player_id == m_player_own_id) {
             m_play_card_args.card_id = card_id;
             m_highlights.push_back(card_id);

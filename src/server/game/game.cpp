@@ -298,21 +298,12 @@ namespace banggame {
         return !m_table_card_disablers.empty() && std::ranges::find(m_table_card_disablers, player_id) == m_table_card_disablers.end();
     }
 
-    character &game::find_character(int card_id) {
-        for (auto &p : m_players | std::views::filter(&player::alive)) {
-            if (auto it = std::ranges::find(p.m_characters, card_id, &character::id); it != p.m_characters.end()) {
-                return *it;
-            }
-        }
-        throw game_error("server.find_character: ID non trovato");
-    }
-
     void game::handle_action(enums::enum_constant<game_action_type::pick_card>, player *p, const pick_card_args &args) {
         if (!m_requests.empty() && p == top_request().target()) {
             enums::visit([&]<request_type E>(enums::enum_constant<E>, auto &req) {
                 if constexpr (picking_request<E>) {
                     auto req_copy = req;
-                    req_copy.on_pick(args.pile, args.card_id);
+                    req_copy.on_pick(args);
                 }
             }, top_request());
         }

@@ -33,7 +33,7 @@ namespace banggame {
     };
 
     struct request_kit_carlson : request_base {
-        void on_pick(card_pile_type pile, int card_id);
+        void on_pick(const pick_card_args &args);
     };
 
     struct effect_claus_the_saint : card_effect {
@@ -41,7 +41,7 @@ namespace banggame {
     };
 
     struct request_claus_the_saint : request_base {
-        void on_pick(card_pile_type pile, int card_id);
+        void on_pick(const pick_card_args &args);
     };
 
     struct effect_el_gringo : event_based_effect {
@@ -83,7 +83,7 @@ namespace banggame {
     };
 
     struct request_vera_custer : request_base {
-        void on_pick(card_pile_type pile, int card_id);
+        void on_pick(const pick_card_args &args);
     };
 
     struct effect_tuco_franziskaner : event_based_effect {
@@ -121,7 +121,7 @@ namespace banggame {
     };
 
     struct request_youl_grinner : request_base {
-        void on_pick(card_pile_type pile, int card_id);
+        void on_pick(const pick_card_args &args);
     };
 
     struct effect_flint_westwood : card_effect {

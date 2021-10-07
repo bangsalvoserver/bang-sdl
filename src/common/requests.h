@@ -3,28 +3,27 @@
 
 #include "effect_holder.h"
 #include "characters.h"
-#include "game_action.h"
 
 namespace banggame {
 
     struct request_predraw : request_base {
-        void on_pick(card_pile_type pile, int card_id);
+        void on_pick(const pick_card_args &args);
     };
 
     struct request_check : request_base {
-        void on_pick(card_pile_type pile, int card_id);
+        void on_pick(const pick_card_args &args);
     };
 
     struct request_generalstore : request_base {
-        void on_pick(card_pile_type pile, int card_id);
+        void on_pick(const pick_card_args &args);
     };
 
     struct request_discard : request_base {
-        void on_pick(card_pile_type pile, int card_id);
+        void on_pick(const pick_card_args &args);
     };
 
     struct request_discard_pass : request_base {
-        void on_pick(card_pile_type pile, int card_id);
+        void on_pick(const pick_card_args &args);
     };
 
     struct request_damaging : request_base {
@@ -49,16 +48,16 @@ namespace banggame {
 
     struct request_bandidos : request_damaging {
         int num_cards = 2;
-        void on_pick(card_pile_type pile, int card_id);
+        void on_pick(const pick_card_args &args);
     };
 
     struct request_tornado : request_base {
-        void on_pick(card_pile_type pile, int card_id);
+        void on_pick(const pick_card_args &args);
     };
 
     struct request_poker : request_base {
         int num_cards = 2;
-        void on_pick(card_pile_type pile, int card_id);
+        void on_pick(const pick_card_args &args);
     };
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, request_type,
@@ -81,8 +80,8 @@ namespace banggame {
         (youl_grinner,  request_youl_grinner)
     )
 
-    template<request_type E> concept picking_request = requires (enums::enum_type_t<E> &req, card_pile_type pile, int card_id) {
-        req.on_pick(pile, card_id);
+    template<request_type E> concept picking_request = requires (enums::enum_type_t<E> &req, const pick_card_args &args) {
+        req.on_pick(args);
     };
 
     template<request_type E> concept resolvable_request = requires (enums::enum_type_t<E> &req) {

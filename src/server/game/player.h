@@ -64,9 +64,11 @@ namespace banggame {
 
         void discard_weapon(int card_id);
 
+        deck_card &random_hand_card();
         deck_card &find_hand_card(int card_id);
         deck_card &find_table_card(int card_id);
-        deck_card &random_hand_card();
+
+        character &find_character(int card_id);
 
         bool is_hand_empty() const {
             return m_hand.empty();

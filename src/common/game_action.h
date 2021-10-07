@@ -24,6 +24,7 @@ namespace banggame {
 
     DEFINE_SERIALIZABLE(pick_card_args,
         (pile, card_pile_type)
+        (player_id, int)
         (card_id, int)
     )
 

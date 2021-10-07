@@ -63,9 +63,9 @@ namespace banggame {
         target->m_game->queue_request<request_type::kit_carlson>(target, target);
     }
 
-    void request_kit_carlson::on_pick(card_pile_type pile, int card_id) {
-        if (pile == card_pile_type::temp_table) {
-            target->add_to_hand(target->m_game->draw_from_temp(card_id));
+    void request_kit_carlson::on_pick(const pick_card_args &args) {
+        if (args.pile == card_pile_type::temp_table) {
+            target->add_to_hand(target->m_game->draw_from_temp(args.card_id));
             if (target->m_game->m_temps.size() == 1) {
                 target->m_game->pop_request();
                 auto removed = std::move(target->m_game->m_temps.front());
@@ -90,15 +90,15 @@ namespace banggame {
         target->m_game->queue_request<request_type::claus_the_saint>(target, target);
     }
 
-    void request_claus_the_saint::on_pick(card_pile_type pile, int card_id) {
-        if (pile == card_pile_type::temp_table) {
+    void request_claus_the_saint::on_pick(const pick_card_args &args) {
+        if (args.pile == card_pile_type::temp_table) {
             target->m_num_drawn_cards = target->m_num_cards_to_draw;
             int index = target->m_game->num_alive() + target->m_num_cards_to_draw - target->m_game->m_temps.size();
             auto p = target;
             for(int i=0; i<index; ++i) {
                 p = target->m_game->get_next_player(p);
             }
-            p->add_to_hand(target->m_game->draw_from_temp(card_id));
+            p->add_to_hand(target->m_game->draw_from_temp(args.card_id));
             if (target->m_game->m_temps.size() == target->m_num_cards_to_draw) {
                 target->m_game->pop_request();
                 for (auto &c : target->m_game->m_temps) {
@@ -256,11 +256,11 @@ namespace banggame {
         }
     }
 
-    void request_vera_custer::on_pick(card_pile_type pile, int card_id) {
-        if (pile == card_pile_type::player_character) {
-            if (card_id != target->m_characters.front().id) {
+    void request_vera_custer::on_pick(const pick_card_args &args) {
+        if (args.pile == card_pile_type::player_character) {
+            if (args.card_id != target->m_characters.front().id) {
                 target->m_game->pop_request();
-                vera_custer_copy_character(target, target->m_game->find_character(card_id));
+                vera_custer_copy_character(target, target->m_game->get_player(args.player_id)->find_character(args.card_id));
             }
         }
     }
@@ -361,10 +361,10 @@ namespace banggame {
         });
     }
 
-    void request_youl_grinner::on_pick(card_pile_type pile, int card_id) {
-        if (pile == card_pile_type::player_hand) {
+    void request_youl_grinner::on_pick(const pick_card_args &args) {
+        if (args.pile == card_pile_type::player_hand && args.player_id == target->id) {
             target->m_game->pop_request();
-            origin->steal_card(target, card_id);
+            origin->steal_card(target, args.card_id);
         }
     }
 
