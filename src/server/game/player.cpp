@@ -282,34 +282,36 @@ namespace banggame {
     void player::do_play_card(int card_id, bool is_response, const std::vector<play_card_target> &targets) {
         card *card_ptr = nullptr;
         bool is_character = false;
+        bool is_virtual = false;
         if (auto it = std::ranges::find(m_characters, card_id, &character::id); it != m_characters.end()) {
             card_ptr = &*it;
             is_character = true;
         } else if (auto it = std::ranges::find(m_hand, card_id, &deck_card::id); it != m_hand.end()) {
-            card_ptr = &m_game->add_to_discards(std::move(*it));
+            auto &moved = m_game->add_to_discards(std::move(*it));
+            card_ptr = m_last_played_card = &moved;
             m_hand.erase(it);
             m_game->queue_event<event_type::on_play_hand_card>(this, card_id);
         } else if (auto it = std::ranges::find(m_table, card_id, &deck_card::id); it != m_table.end()) {
             if (!m_game->table_cards_disabled(id)) {
                 if (it->color == card_color_type::blue) {
-                    card_ptr = &*it;
+                    card_ptr = m_last_played_card = &*it;
                 } else {
-                    deck_card removed = std::move(*it);
+                    auto &moved = m_game->add_to_discards(std::move(*it));
+                    card_ptr = m_last_played_card = &moved;
                     m_table.erase(it);
-                    card_ptr = &m_game->add_to_discards(std::move(removed));
                 }
             } else {
                 throw invalid_action();
             }
-        } else if (m_virtual && card_id == m_virtual->second.id) {
-            auto it = std::ranges::find(m_hand, m_virtual->first, &card::id);
-            if (it == m_hand.end()) {
-                card_ptr = &m_virtual->second;
-            } else {
-                card_ptr = &m_game->add_to_discards(std::move(*it));
+        } else if (m_virtual && card_id == m_virtual->first) {
+            card_ptr = &m_virtual->second;
+            is_virtual = true;
+            m_last_played_card = nullptr;
+            if (auto it = std::ranges::find(m_hand, m_virtual->second.id, &card::id); it != m_hand.end()) {
+                m_game->add_to_discards(std::move(*it));
                 m_hand.erase(it);
+                m_game->queue_event<event_type::on_play_hand_card>(this, m_virtual->second.id);
             }
-            m_game->queue_event<event_type::on_play_hand_card>(this, m_virtual->first);
         } else {
             throw game_error("server.do_play_card: ID non trovato");
         }
@@ -351,7 +353,9 @@ namespace banggame {
         }
 
         m_game->queue_event<event_type::on_effect_end>(this);
-        m_virtual.reset();
+        if (is_virtual) {
+            m_virtual.reset();
+        }
     }
 
     void player::play_card(const play_card_args &args) {
@@ -381,7 +385,7 @@ namespace banggame {
             default:
                 break;
             }
-        } else if (m_virtual && args.card_id == m_virtual->second.id) {
+        } else if (m_virtual && args.card_id == m_virtual->first) {
             if (verify_card_targets(m_virtual->second, false, args.targets)) {
                 do_play_card(args.card_id, false, args.targets);
             } else {
@@ -520,17 +524,17 @@ namespace banggame {
         }
     }
 
-    void player::play_virtual_card(deck_card &&c) {
+    void player::play_virtual_card(deck_card c) {
         virtual_card_update obj;
+        obj.virtual_id = m_game->get_next_id();
         obj.card_id = c.id;
-        obj.virtual_id = c.id = m_game->get_next_id();
         obj.color = c.color;
         obj.suit = c.suit;
         obj.value = c.value;
         for (const auto &value : c.effects) {
             obj.targets.emplace_back(value.target(), value.maxdistance());
         }
-        m_virtual = std::make_pair(obj.card_id, std::move(c));
+        m_virtual = std::make_pair(obj.virtual_id, std::move(c));
 
         m_game->add_private_update<game_update_type::virtual_card>(this, obj);
     }

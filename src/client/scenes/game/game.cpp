@@ -659,6 +659,7 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::virtual_ca
 
     m_highlights.push_back(args.card_id);
     m_play_card_args.card_id = args.virtual_id;
+    handle_auto_targets(false);
 }
 
 void game_scene::handle_update(enums::enum_constant<game_update_type::show_card>, const show_card_update &args) {

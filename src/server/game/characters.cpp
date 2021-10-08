@@ -375,4 +375,19 @@ namespace banggame {
         }
         target->steal_card(origin, origin->m_virtual->first);
     }
+
+    bool effect_lee_van_kliff::can_play(player *origin) const {
+        return origin->m_last_played_card && origin->m_last_played_card->color == card_color_type::brown;
+    }
+
+    void effect_lee_van_kliff::on_play(player *origin, player *target, int card_id) {
+        auto copy = *origin->m_last_played_card;
+        copy.id = card_id;
+        copy.suit = card_suit_type::none;
+        copy.value = card_value_type::none;
+        std::erase_if(copy.effects, [](const effect_holder &e) {
+            return e.is(effect_type::banglimit);
+        });
+        origin->play_virtual_card(std::move(copy));
+    }
 }

@@ -45,6 +45,7 @@ namespace banggame {
         (bill_noface,   effect_bill_noface)
         (teren_kill,    effect_teren_kill)
         (flint_westwood, effect_flint_westwood)
+        (lee_van_kliff, effect_lee_van_kliff)
     )
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, equip_type,
