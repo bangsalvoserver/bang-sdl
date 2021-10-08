@@ -82,6 +82,8 @@ namespace banggame {
         (gary_looter,   effect_gary_looter)
         (john_pain,     effect_john_pain)
         (youl_grinner,  effect_youl_grinner)
+        (don_bell,      effect_don_bell)
+        (madam_yto,     effect_madam_yto)
     )
 
     namespace detail {

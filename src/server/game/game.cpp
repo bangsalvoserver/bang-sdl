@@ -220,7 +220,7 @@ namespace banggame {
             }
             add_public_update<game_update_type::game_over>(winner_role);
         } else if (killer == target) {
-            next_turn();
+            target->end_of_turn();
         } else if (!discarded_ghost) {
             if (m_players.size() > 3) {
                 switch (target->m_role) {
@@ -336,7 +336,7 @@ namespace banggame {
                     queue_request<request_type::discard_pass>(p, p);
                 }
             } else {
-                next_turn();
+                p->end_of_turn();
             }
         }
     }

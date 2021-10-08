@@ -2514,13 +2514,14 @@
             "image": "04_don_bell",
             "hp": 4,
             "expansion": "goldrush",
-            "effects": [
+            "equip": [
                 {
                     "class": "don_bell"
                 }
             ]
         },
         {
+            "disabled": true,
             "name": "Dutch Will",
             "image": "04_dutch_will",
             "hp": 4,
@@ -2532,6 +2533,7 @@
             ]
         },
         {
+            "disabled": true,
             "name": "Jacky Murieta",
             "image": "04_jacky_murieta",
             "hp": 4,
@@ -2543,6 +2545,7 @@
             ]
         },
         {
+            "disabled": true,
             "name": "Josh McCloud",
             "image": "04_josh_mccloud",
             "hp": 4,
@@ -2558,13 +2561,14 @@
             "image": "04_madame_yto",
             "hp": 4,
             "expansion": "goldrush",
-            "effects": [
+            "equip": [
                 {
-                    "class": "madame_yto"
+                    "class": "madam_yto"
                 }
             ]
         },
         {
+            "disabled": true,
             "name": "Pretty Luzena",
             "image": "04_pretty_luzena",
             "hp": 4,
@@ -2576,6 +2580,7 @@
             ]
         },
         {
+            "disabled": true,
             "name": "Raddie Snake",
             "image": "04_raddie_snake",
             "hp": 4,
@@ -2587,6 +2592,7 @@
             ]
         },
         {
+            "disabled": true,
             "name": "Simeon Picos",
             "image": "04_simeon_picos",
             "hp": 4,

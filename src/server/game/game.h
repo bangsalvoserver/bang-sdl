@@ -37,6 +37,7 @@ namespace banggame {
         (on_turn_start,     std::function<void(player *origin)>)
         (on_turn_end,       std::function<void(player *origin)>)
         (on_draw_from_deck, std::function<void(player *origin)>)
+        (on_play_beer,      std::function<void(player *origin)>)
     )
 
     using event_function = enums::enum_variant<event_type>;
@@ -231,14 +232,6 @@ namespace banggame {
             for (player *counter = from; counter != to; counter = get_next_player(counter), ++d1);
             for (player *counter = to; counter != from; counter = get_next_player(counter), ++d2);
             return std::min(d1, d2) + to->m_distance_mod;
-        }
-
-        void next_turn() {
-            m_playing->end_of_turn();
-            if (num_alive() > 0) {
-                m_playing = get_next_player(m_playing);
-                m_playing->start_of_turn();
-            }
         }
 
         void check_game_over(player *target, bool discarded_ghost = false);

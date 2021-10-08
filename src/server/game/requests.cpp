@@ -55,7 +55,7 @@ namespace banggame {
             target->discard_card(args.card_id);
             target->m_game->instant_event<event_type::on_discard_pass>(target, args.card_id);
             if (target->num_hand_cards() <= target->m_hp) {
-                target->m_game->next_turn();
+                target->end_of_turn();
             }
         }
     }

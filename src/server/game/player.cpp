@@ -540,6 +540,7 @@ namespace banggame {
     }
 
     void player::start_of_turn() {
+        m_game->m_playing = this;
         m_bangs_played = 0;
         m_bangs_per_turn = 1;
         m_num_drawn_cards = 0;
@@ -580,7 +581,13 @@ namespace banggame {
         }
         m_current_card_targets.clear();
         m_pending_predraw_checks.clear();
+        m_game->m_playing = m_game->get_next_player(this);
         m_game->queue_event<event_type::on_turn_end>(this);
+        m_game->queue_event<event_type::delayed_action>([this]{
+            if (m_game->num_alive() > 0) {
+                m_game->m_playing->start_of_turn();
+            }
+        });
     }
 
     void player::discard_all() {

@@ -390,4 +390,28 @@ namespace banggame {
         });
         origin->play_virtual_card(std::move(copy));
     }
+
+    void effect_don_bell::on_equip(player *p, int card_id) {
+        p->m_game->add_event<event_type::on_turn_end>(card_id, [=](player *target) {
+            if (p == target) {
+                int &usages = p->find_character(card_id).max_usages;
+                if (usages == 0) {
+                    ++usages;
+                    p->m_game->draw_check_then(p, [=](card_suit_type suit, card_value_type) {
+                        if (suit == card_suit_type::diamonds || suit == card_suit_type::hearts) {
+                            p->m_game->m_playing = p;
+                        }
+                    });
+                } else {
+                    usages = 0;
+                }
+            }
+        });
+    }
+
+    void effect_madam_yto::on_equip(player *p, int card_id) {
+        p->m_game->add_event<event_type::on_play_beer>(card_id, [p](player *target) {
+            p->add_to_hand(p->m_game->draw_card());
+        });
+    }
 }

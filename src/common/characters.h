@@ -132,6 +132,14 @@ namespace banggame {
         bool can_play(player *origin) const;
         void on_play(player *origin, player *target, int card_id);
     };
+
+    struct effect_don_bell : event_based_effect {
+        void on_equip(player *origin, int card_id);
+    };
+
+    struct effect_madam_yto : event_based_effect {
+        void on_equip(player *origin, int card_id);
+    };
 }
 
 #endif
