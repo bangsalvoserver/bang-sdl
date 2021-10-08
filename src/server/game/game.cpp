@@ -127,17 +127,19 @@ namespace banggame {
     }
 
     deck_card game::draw_card() {
-        if (m_deck.empty()) {
-            deck_card top_discards = std::move(m_discards.back());
-            m_discards.resize(m_discards.size()-1);
-            m_deck = std::move(m_discards);
-            m_discards.clear();
-            m_discards.emplace_back(std::move(top_discards));
-            shuffle_cards_and_ids(m_deck, rng);
-            add_public_update<game_update_type::deck_shuffled>();
-        }
         deck_card c = std::move(m_deck.back());
         m_deck.pop_back();
+        if (m_deck.empty()) {
+            queue_event<event_type::delayed_action>([this]{
+                deck_card top_discards = std::move(m_discards.back());
+                m_discards.resize(m_discards.size()-1);
+                m_deck = std::move(m_discards);
+                m_discards.clear();
+                m_discards.emplace_back(std::move(top_discards));
+                shuffle_cards_and_ids(m_deck, rng);
+                add_public_update<game_update_type::deck_shuffled>();
+            });
+        }
         return c;
     }
 
