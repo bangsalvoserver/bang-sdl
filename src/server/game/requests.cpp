@@ -115,11 +115,11 @@ namespace banggame {
                         }
                         target->m_game->m_temps.clear();
                     } else if (target->m_game->m_temps.size() <= 2) {
-                        target->m_game->pop_request();
                         for (auto &c : target->m_game->m_temps) {
                             next->add_to_hand(std::move(c));
                         }
                         target->m_game->m_temps.clear();
+                        target->m_game->pop_request();
                     } else {
                         target->m_game->pop_request_noupdate();
                         target->m_game->queue_request<request_type::poker>(origin, next);
