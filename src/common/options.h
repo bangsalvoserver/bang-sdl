@@ -6,7 +6,7 @@
 namespace banggame {
     constexpr uint16_t server_port = 27015;
     constexpr int server_max_clients = 100;
-    constexpr uint32_t socket_set_timeout = 1000;
+    constexpr int fps = 60;
 }
 
 #endif

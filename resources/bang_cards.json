@@ -1298,6 +1298,11 @@
                     "class": "draw"
                 },
                 {
+                    "class": "changewws"
+                }
+            ],
+            "cube_effects": [
+                {
                     "cost": 2,
                     "repeatable": true,
                     "target": "player self",
@@ -1332,7 +1337,9 @@
                 {
                     "target": "player self",
                     "class": "heal"
-                },
+                }
+            ],
+            "cube_effects": [
                 {
                     "cost": 3,
                     "repeatable": true,
@@ -1353,7 +1360,9 @@
                 {
                     "target": "player reachable notself",
                     "class": "bang"
-                },
+                }
+            ],
+            "cube_effects": [
                 {
                     "cost": 1,
                     "repeatable": true,
@@ -1374,7 +1383,9 @@
                 {
                     "target": "player reachable notself",
                     "class": "bang"
-                },
+                }
+            ],
+            "cube_effects": [
                 {
                     "cost": 2,
                     "class": "flintlock"
@@ -1393,7 +1404,9 @@
                 {
                     "target": "player notself",
                     "class": "indians"
-                },
+                }
+            ],
+            "cube_effects": [
                 {
                     "cost": 1,
                     "repeatable": true,
@@ -1413,7 +1426,9 @@
             "responses": [
                 {
                     "class": "missed"
-                },
+                }
+            ],
+            "cube_responses": [
                 {
                     "cost": 2,
                     "class": "duck"
@@ -1474,7 +1489,9 @@
                 {
                     "target": "card",
                     "class": "destroy"
-                },
+                }
+            ],
+            "cube_effects": [
                 {
                     "cost": 2,
                     "class": "squaw"
@@ -1489,7 +1506,7 @@
             "image": "17_assonellamanica",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "effects": [
+            "cube_effects": [
                 {
                     "cost": 2,
                     "target": "player self",
@@ -1508,7 +1525,7 @@
             "image": "17_bandoliera",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "effects": [
+            "cube_effects": [
                 {
                     "cost": 1,
                     "class": "bandolier"
@@ -1529,7 +1546,7 @@
                     "maxdistance": 6
                 }
             ],
-            "effects": [
+            "cube_effects": [
                 {
                     "cost": 1,
                     "class": "bigfifty"
@@ -1565,7 +1582,7 @@
                     "maxdistance": 2
                 }
              ],
-             "effects": [
+             "cube_effects": [
                 {
                     "cost": 1,
                     "class": "buntlinespecial"
@@ -1580,7 +1597,7 @@
             "image": "17_campanile",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "effects": [
+            "cube_effects": [
                 {
                     "cost": 1,
                     "class": "belltower"
@@ -1595,7 +1612,7 @@
             "image": "17_cassa",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "responses": [
+            "cube_responses": [
                 {
                     "cost": 2,
                     "class": "missed"
@@ -1603,6 +1620,7 @@
             ]
         },
         {
+            "disabled": true,
             "name": "Cespuglio",
             "signs": [
                 "4F"
@@ -1610,7 +1628,7 @@
             "image": "17_cespuglio",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "responses": [
+            "cube_responses": [
                 {
                     "cost": 1,
                     "class": "bush"
@@ -1631,7 +1649,7 @@
                     "maxdistance": 1
                 }
             ],
-            "effects": [
+            "cube_effects": [
                 {
                     "cost": 1,
                     "class": "doublebarrel"
@@ -1646,10 +1664,10 @@
             "image": "17_frusta",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "class": [
+            "cube_effects": [
                 {
                     "cost": 3,
-                    "target": "table_card",
+                    "target": "table card",
                     "class": "destroy"
                 }
             ]
@@ -1662,10 +1680,10 @@
             "image": "17_fustodibirra",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "class": [
+            "cube_effects": [
                 {
                     "cost": 3,
-                    "target": "self",
+                    "target": "player self",
                     "class": "heal"
                 }
             ]
@@ -1678,7 +1696,7 @@
             "image": "17_grimaldello",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "effects": [
+            "cube_effects": [
                 {
                     "cost": 3,
                     "target": "notself hand card",
@@ -1694,11 +1712,13 @@
             "image": "17_thunderer",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "class": [
+            "equip": [
                 {
                     "class": "weapon",
                     "maxdistance": 3
-                },
+                }
+            ],
+            "cube_effects": [
                 {
                     "cost": 1,
                     "class": "thunderer"
@@ -2367,13 +2387,14 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Lee Van Kliff",
             "image": "06_leevankliff",
             "hp": 4,
             "expansion": "wildwestshow",
+            "type": "active",
             "effects": [
                 {
+                    "target": "self hand bang card",
                     "class": "lee_van_kliff"
                 }
             ]

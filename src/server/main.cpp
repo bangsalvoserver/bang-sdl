@@ -17,7 +17,7 @@ int main(int argc, char **argv) {
 
     bool quit = false;
     while(!quit) {
-        if (set.check(banggame::socket_set_timeout)) {
+        if (set.check(0)) {
             for (auto it = clients.begin(); it != clients.end();) {
                 try {
                     if (set.ready(it->second)) {
@@ -38,22 +38,23 @@ int main(int argc, char **argv) {
                 std::cout << peer.addr.ip_string() << " Connected\n";
                 clients.emplace(peer.addr, std::move(peer));
             }
-            while (mgr.pending_messages()) {
-                auto msg = mgr.pop_message();
-                auto it = clients.find(msg.addr);
-                if (it != clients.end()) {
-                    Json::Value json_msg = Json::objectValue;
-                    json_msg["type"] = std::string(enums::to_string(msg.type));
-                    if (!msg.value.isNull()) {
-                        json_msg["value"] = msg.value;
-                    }
-
-                    std::stringstream ss;
-                    ss << json_msg;
-                    it->second.send_string(ss.str());
+        }
+        while (mgr.pending_messages()) {
+            auto msg = mgr.pop_message();
+            auto it = clients.find(msg.addr);
+            if (it != clients.end()) {
+                Json::Value json_msg = Json::objectValue;
+                json_msg["type"] = std::string(enums::to_string(msg.type));
+                if (!msg.value.isNull()) {
+                    json_msg["value"] = msg.value;
                 }
+
+                std::stringstream ss;
+                ss << json_msg;
+                it->second.send_string(ss.str());
             }
         }
+        SDL_Delay(1000 / banggame::fps);
     }
 
     return 0;

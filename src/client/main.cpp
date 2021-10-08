@@ -9,7 +9,6 @@
 
 constexpr int window_width = 800;
 constexpr int window_height = 600;
-constexpr int fps = 30;
 
 int main(int argc, char **argv) {
     sdl::initializer sdl_init;
@@ -48,7 +47,7 @@ int main(int argc, char **argv) {
                 break;
             }
         }
-        SDL_Delay(1000 / fps);
+        SDL_Delay(1000 / banggame::fps);
     }
 
     return 0;
