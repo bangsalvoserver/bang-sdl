@@ -368,7 +368,7 @@ namespace banggame {
         }
     }
 
-    void effect_flint_westwood::on_play(player *origin, player *target) {
+    void effect_flint_westwood::on_play(player *origin, player *target, int card_id) {
         int num_cards = 2;
         for (int i=0; !target->m_hand.empty() && i<2; ++i) {
             origin->steal_card(target, target->random_hand_card().id);
@@ -377,11 +377,15 @@ namespace banggame {
     }
 
     bool effect_lee_van_kliff::can_play(player *origin) const {
-        return origin->m_last_played_card && origin->m_last_played_card->color == card_color_type::brown;
+        if (origin->m_last_played_card) {
+            auto card_it = std::ranges::find(origin->m_game->m_discards | std::views::reverse, origin->m_last_played_card, &deck_card::id);
+            return card_it != origin->m_game->m_discards.rend() && card_it->color == card_color_type::brown;
+        }
+        return false;
     }
 
     void effect_lee_van_kliff::on_play(player *origin, player *target, int card_id) {
-        auto copy = *origin->m_last_played_card;
+        auto copy = *std::ranges::find(origin->m_game->m_discards | std::views::reverse, origin->m_last_played_card, &deck_card::id);
         copy.id = card_id;
         copy.suit = card_suit_type::none;
         copy.value = card_value_type::none;

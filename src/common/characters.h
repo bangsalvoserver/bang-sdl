@@ -125,7 +125,7 @@ namespace banggame {
     };
 
     struct effect_flint_westwood : card_effect {
-        void on_play(player *origin, player *target);
+        void on_play(player *origin, player *target, int card_id);
     };
 
     struct effect_lee_van_kliff : card_effect {

@@ -288,16 +288,18 @@ namespace banggame {
             is_character = true;
         } else if (auto it = std::ranges::find(m_hand, card_id, &deck_card::id); it != m_hand.end()) {
             auto &moved = m_game->add_to_discards(std::move(*it));
-            card_ptr = m_last_played_card = &moved;
+            card_ptr = &moved;
+            m_last_played_card = card_id;
             m_hand.erase(it);
             m_game->queue_event<event_type::on_play_hand_card>(this, card_id);
         } else if (auto it = std::ranges::find(m_table, card_id, &deck_card::id); it != m_table.end()) {
             if (!m_game->table_cards_disabled(id)) {
+                m_last_played_card = card_id;
                 if (it->color == card_color_type::blue) {
-                    card_ptr = m_last_played_card = &*it;
+                    card_ptr = &*it;
                 } else {
                     auto &moved = m_game->add_to_discards(std::move(*it));
-                    card_ptr = m_last_played_card = &moved;
+                    card_ptr = &moved;
                     m_table.erase(it);
                 }
             } else {
@@ -306,7 +308,7 @@ namespace banggame {
         } else if (m_virtual && card_id == m_virtual->first) {
             card_ptr = &m_virtual->second;
             is_virtual = true;
-            m_last_played_card = nullptr;
+            m_last_played_card = 0;
             if (auto it = std::ranges::find(m_hand, m_virtual->second.id, &card::id); it != m_hand.end()) {
                 m_game->add_to_discards(std::move(*it));
                 m_hand.erase(it);
@@ -592,6 +594,10 @@ namespace banggame {
 
     void player::discard_all() {
         for (deck_card &c : m_table) {
+            if (c.inactive) {
+                c.inactive = false;
+                m_game->add_public_update<game_update_type::tap_card>(c.id, false);
+            }
             m_game->add_to_discards(std::move(c));
         }
         m_table.clear();

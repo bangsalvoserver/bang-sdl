@@ -30,10 +30,10 @@ namespace banggame {
             auto next = target->m_game->get_next_player(target);
             auto removed = target->m_game->draw_from_temp(args.card_id);
             if (target->m_game->m_temps.size() == 1) {
-                target->m_game->pop_request();
                 target->add_to_hand(std::move(removed));
                 next->add_to_hand(std::move(target->m_game->m_temps.front()));
                 target->m_game->m_temps.clear();
+                target->m_game->pop_request();
             } else {
                 target->m_game->pop_request_noupdate();
                 target->add_to_hand(std::move(removed));

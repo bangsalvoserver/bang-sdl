@@ -54,7 +54,7 @@ namespace banggame {
         int m_num_cards_to_draw = 2;
         int m_num_drawn_cards = 0;
 
-        deck_card *m_last_played_card = nullptr;
+        int m_last_played_card = 0;
 
         std::vector<int> m_max_cards_mods;
         std::multimap<int, int> m_current_card_targets;

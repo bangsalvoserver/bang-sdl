@@ -2347,7 +2347,7 @@
                     "class": "virtual_copy"
                 },
                 {
-                    "target": "player notself",
+                    "target": "notself hand card",
                     "class": "flint_westwood"
                 }
             ]
