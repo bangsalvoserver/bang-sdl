@@ -21,6 +21,7 @@ namespace banggame {
         (destroy,       effect_destroy)
         (virtual_destroy, effect_virtual_destroy)
         (virtual_copy,  effect_virtual_copy)
+        (virtual_clear, effect_virtual_clear)
         (steal,         effect_steal)
         (duel,          effect_duel)
         (beer,          effect_beer)

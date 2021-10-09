@@ -319,7 +319,9 @@ namespace banggame {
         }
 
         auto check_immunity = [&](player *target) {
-            if (m_virtual) return target->immune_to(m_virtual->second);
+            if (m_virtual) {
+                return target->immune_to(m_virtual->second);
+            }
             if (is_character) return false;
             return target->immune_to(*static_cast<deck_card*>(card_ptr));
         };
