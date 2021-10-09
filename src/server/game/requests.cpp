@@ -51,10 +51,10 @@ namespace banggame {
 
     void request_discard_pass::on_pick(const pick_card_args &args) {
         if (args.pile == card_pile_type::player_hand && args.player_id == target->id) {
-            target->m_game->pop_request();
             target->discard_card(args.card_id);
             target->m_game->instant_event<event_type::on_discard_pass>(target, args.card_id);
-            if (target->num_hand_cards() <= target->m_hp) {
+            if (target->num_hand_cards() <= target->max_cards_end_of_turn()) {
+                target->m_game->pop_request();
                 target->end_of_turn();
             }
         }

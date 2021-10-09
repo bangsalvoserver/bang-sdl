@@ -331,10 +331,8 @@ namespace banggame {
 
     void game::handle_action(enums::enum_constant<game_action_type::pass_turn>, player *p) {
         if (m_requests.empty() && m_playing == p && p->m_num_drawn_cards == p->m_num_cards_to_draw) {
-            if (int n_discards = p->num_hand_cards() - p->max_cards_end_of_turn(); n_discards > 0) {
-                for (int i=0; i<n_discards; ++i) {
-                    queue_request<request_type::discard_pass>(p, p);
-                }
+            if (p->num_hand_cards() > p->max_cards_end_of_turn()) {
+                queue_request<request_type::discard_pass>(p, p);
             } else {
                 p->end_of_turn();
             }
