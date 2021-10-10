@@ -36,17 +36,17 @@ struct lobby : util::id_counter<lobby> {
 
 struct server_message {
     sdlnet::ip_address addr;
-    server_message_type type;
     Json::Value value;
 };
 
 template<server_message_type E, typename ... Ts>
 Json::Value make_message(Ts && ... args) {
+    Json::Value ret = Json::objectValue;
+    ret["type"] = std::string(enums::to_string(E));
     if constexpr (enums::has_type<E>) {
-        return json::serialize(enums::enum_type_t<E>{std::forward<Ts>(args) ... });
-    } else {
-        return Json::nullValue;
+        ret["value"] = json::serialize(enums::enum_type_t<E>{std::forward<Ts>(args) ... });
     }
+    return ret;
 }
 
 class game_manager {
@@ -59,14 +59,14 @@ public:
 
     template<server_message_type E, typename ... Ts>
     void send_message(const sdlnet::ip_address &addr, Ts && ... args) {
-        m_out_queue.emplace_back(addr, E, make_message<E>(std::forward<Ts>(args) ... ));
+        m_out_queue.emplace_back(addr, make_message<E>(std::forward<Ts>(args) ... ));
     }
 
     template<server_message_type E, typename ... Ts>
     void broadcast_message(const lobby &lobby, Ts && ... args) {
         auto msg = make_message<E>(std::forward<Ts>(args) ... );
         for (const auto &ip : lobby.users | std::views::keys) {
-            m_out_queue.emplace_back(ip, E, msg);
+            m_out_queue.emplace_back(ip, msg);
         }
     }
 

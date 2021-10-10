@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "common/options.h"
+#include "common/message_header.h"
 
 using namespace banggame;
 
@@ -32,14 +33,24 @@ void game_manager::update_net() {
 
     while (sock.isopen() && sock_set.check(0)) {
         try {
-            std::stringstream ss(sock.recv_string());
+            message_header header;
+            recv_message_header(sock, header);
+            std::string str(header.length, '\0');
+            sock.recv(str.data(), header.length);
+            switch (header.type) {
+            case message_header::json: {
+                util::isviewstream ss(str);
+                Json::Value json_value;
+                ss >> json_value;
 
-            Json::Value json_value;
-            ss >> json_value;
-
-            auto msg = enums::from_string<server_message_type>(json_value["type"].asString());
-            if (msg != enums::invalid_enum_v<server_message_type>) {
-                lut[enums::indexof(msg)](*this, json_value["value"]);
+                auto msg = enums::from_string<server_message_type>(json_value["type"].asString());
+                if (msg != enums::invalid_enum_v<server_message_type>) {
+                    lut[enums::indexof(msg)](*this, json_value["value"]);
+                }
+                break;
+            }
+            default:
+                break;
             }
         } catch (sdlnet::socket_disconnected) {
             disconnect();
@@ -53,7 +64,11 @@ void game_manager::update_net() {
         while (!m_out_queue.empty()) {
             std::stringstream ss;
             ss << m_out_queue.front();
-            sock.send_string(ss.str());
+            std::string str = ss.str();
+
+            send_message_header(sock, message_header{message_header::json, (uint32_t)str.size()});
+            sock.send(str.data(), str.size());
+            
             m_out_queue.pop_front();
         }
     }

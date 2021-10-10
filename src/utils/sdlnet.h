@@ -141,21 +141,6 @@ namespace sdlnet {
             }
             return nbytes;
         }
-
-        void send_string(const std::string &str) const {
-            std::byte str_len[sizeof(uint32_t)];
-            SDLNet_Write32(str.size(), &str_len);
-            send(&str_len, sizeof(str_len));
-            send(str.data(), str.size());
-        }
-
-        std::string recv_string() const {
-            std::byte buf[sizeof(uint32_t)];
-            recv(&buf, sizeof(buf));
-            std::string ret(SDLNet_Read32(&buf), '\0');
-            recv(ret.data(), ret.size());
-            return ret;
-        }
     };
 
     struct tcp_peer_socket : tcp_socket {

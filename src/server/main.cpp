@@ -3,6 +3,7 @@
 #include <map>
 
 #include "manager.h"
+#include "common/message_header.h"
 
 int main(int argc, char **argv) {
     sdlnet::initializer init;
@@ -21,8 +22,17 @@ int main(int argc, char **argv) {
             for (auto it = clients.begin(); it != clients.end();) {
                 try {
                     if (set.ready(it->second)) {
-                        std::string str = it->second.recv_string();
-                        mgr.parse_message(it->first, str);
+                        message_header header;
+                        recv_message_header(it->second, header);
+                        std::string str(header.length, '\0');
+                        it->second.recv(str.data(), header.length);
+                        switch (header.type) {
+                        case message_header::json:
+                            mgr.parse_message(it->first, str);
+                            break;
+                        default:
+                            break;
+                        }
                     }
                     ++it;
                 } catch (sdlnet::socket_disconnected) {
@@ -41,17 +51,15 @@ int main(int argc, char **argv) {
         }
         while (mgr.pending_messages()) {
             auto msg = mgr.pop_message();
+            
             auto it = clients.find(msg.addr);
             if (it != clients.end()) {
-                Json::Value json_msg = Json::objectValue;
-                json_msg["type"] = std::string(enums::to_string(msg.type));
-                if (!msg.value.isNull()) {
-                    json_msg["value"] = msg.value;
-                }
-
                 std::stringstream ss;
-                ss << json_msg;
-                it->second.send_string(ss.str());
+                ss << msg.value;
+                std::string str = ss.str();
+
+                send_message_header(it->second, message_header{message_header::json, (uint32_t)str.size()});
+                it->second.send(str.data(), str.size());
             }
         }
         SDL_Delay(1000 / banggame::fps);
