@@ -1,29 +1,9 @@
 #ifndef __GAME_UI_H__
 #define __GAME_UI_H__
 
-#include "utils/sdl.h"
-#include "../widgets/button.h"
-#include "../widgets/textbox.h"
-
-#include <list>
+#include "../widgets/chat_ui.h"
 
 namespace banggame {
-
-    class message_line {
-    public:
-        enum message_type {
-            chat,
-            game,
-            error
-        };
-
-        message_line(message_type type, const std::string &message);
-
-        void render(sdl::renderer &renderer, const sdl::point &pt);
-
-    private:
-        sdl::stattext m_text;
-    };
 
     class game_ui {
     public:
@@ -32,7 +12,9 @@ namespace banggame {
         void resize(int width, int height);
         void render(sdl::renderer &renderer);
 
-        void add_message(message_line::message_type type, const std::string &message);
+        void add_message(const std::string &message);
+        void show_error(const std::string &message);
+
         void set_status(const std::string &message) {
             m_status_text.redraw(message);
         }
@@ -40,17 +22,15 @@ namespace banggame {
             m_status_text = sdl::stattext();
         }
 
-        static constexpr int max_messages = 20;
-
     private:
         class game_scene *parent;
 
-        int m_width;
-        int m_height;
-
-        std::list<message_line> m_messages;
+        chat_ui m_chat;
 
         sdl::stattext m_status_text;
+
+        sdl::stattext m_error_text;
+        int m_error_timeout;
 
         sdl::button m_pass_btn;
         sdl::button m_resolve_btn;

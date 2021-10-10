@@ -51,17 +51,6 @@ namespace banggame {
         std::random_device rd;
         rng.seed(rd());
 
-        for (int i=0; i<options.nplayers; ++i) {
-            auto &p = m_players.emplace_back(this);
-        }
-
-        for (const auto &p : m_players) {
-            add_public_update<game_update_type::player_add>(p.id);
-        }
-        for (auto &p : m_players) {
-            add_private_update<game_update_type::player_own_id>(&p, p.id);
-        }
-
         std::vector<character> characters;
         for (const auto &c : all_cards.characters) {
             if (bool(c.expansion & options.allowed_expansions)) {

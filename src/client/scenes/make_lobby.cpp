@@ -24,7 +24,7 @@ void make_lobby_scene::render(sdl::renderer &renderer) {
     m_username_label.set_rect(label_rect);
     m_username_label.render(renderer);
     
-    m_username_box.set_rect(sdl::rect{100 + label_rect.w + 10, 50, m_width - 210 - label_rect.w, 25});
+    m_username_box.set_rect(sdl::rect{100 + label_rect.w + 10, 50, parent->width() - 210 - label_rect.w, 25});
     m_username_box.render(renderer);
 
     label_rect = m_lobbyname_label.get_rect();
@@ -33,13 +33,13 @@ void make_lobby_scene::render(sdl::renderer &renderer) {
     m_lobbyname_label.set_rect(label_rect);
     m_lobbyname_label.render(renderer);
 
-    m_lobbyname_box.set_rect(sdl::rect{100 + label_rect.w + 10, 100, m_width - 210 - label_rect.w, 25});
+    m_lobbyname_box.set_rect(sdl::rect{100 + label_rect.w + 10, 100, parent->width() - 210 - label_rect.w, 25});
     m_lobbyname_box.render(renderer);
 
     m_ok_btn.set_rect(sdl::rect{100, 150, 100, 25});
     m_ok_btn.render(renderer);
 
-    m_undo_btn.set_rect(sdl::rect{20, m_height - 45, 100, 25});
+    m_undo_btn.set_rect(sdl::rect{20, parent->height() - 45, 100, 25});
     m_undo_btn.render(renderer);
 }
 

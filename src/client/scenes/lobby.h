@@ -3,6 +3,8 @@
 
 #include "scene_base.h"
 
+#include "widgets/chat_ui.h"
+
 class lobby_player_item {
 public:
     explicit lobby_player_item(const lobby_player_data &args);
@@ -28,16 +30,17 @@ public:
     void set_player_list(const std::vector<lobby_player_data> &args);
     void add_user(const lobby_player_data &args);
     void remove_user(const lobby_left_args &args);
-    void add_chat_message(const lobby_chat_args &args);
+    void add_chat_message(const std::string &message);
 
 private:
     std::vector<lobby_player_item> m_player_list;
-    std::vector<lobby_chat_args> m_messages;
 
     sdl::stattext m_lobby_name_text;
     
     sdl::button m_leave_btn;
     sdl::button m_start_btn;
+
+    chat_ui m_chat;
 
     int m_owner_id = 0;
     int m_user_id = 0;

@@ -117,6 +117,9 @@ void game_manager::handle_message(enums::enum_constant<server_message_type::lobb
 }
 
 void game_manager::handle_message(enums::enum_constant<server_message_type::lobby_players>, const std::vector<lobby_player_data> &args) {
+    for (const auto &obj : args) {
+        m_user_names.emplace(obj.user_id, obj.name);
+    }
     if (auto *s = dynamic_cast<lobby_scene *>(m_scene)) {
         s->set_player_list(args);
     }
@@ -128,12 +131,14 @@ void game_manager::handle_message(enums::enum_constant<server_message_type::lobb
 }
 
 void game_manager::handle_message(enums::enum_constant<server_message_type::lobby_joined>, const lobby_player_data &args) {
+    m_user_names.emplace(args.user_id, args.name);
     if (auto *s = dynamic_cast<lobby_scene *>(m_scene)) {
         s->add_user(args);
     }
 }
 
 void game_manager::handle_message(enums::enum_constant<server_message_type::lobby_left>, const lobby_left_args &args) {
+    m_user_names.erase(args.user_id);
     if (args.user_id == m_user_own_id) {
         switch_scene<scene_type::lobby_list>();
     } else if (auto *s = dynamic_cast<lobby_scene *>(m_scene)) {
@@ -142,10 +147,14 @@ void game_manager::handle_message(enums::enum_constant<server_message_type::lobb
 }
 
 void game_manager::handle_message(enums::enum_constant<server_message_type::lobby_chat>, const lobby_chat_args &args) {
+    std::string msg = get_user_name(args.user_id);
+    msg += ": ";
+    msg += args.message;
+
     if (auto *s = dynamic_cast<lobby_scene *>(m_scene)) {
-        s->add_chat_message(args);
+        s->add_chat_message(msg);
     } else if (auto *s = dynamic_cast<banggame::game_scene *>(m_scene)) {
-        s->add_chat_message(args);
+        s->add_chat_message(msg);
     }
 }
 

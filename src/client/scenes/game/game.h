@@ -33,7 +33,7 @@ namespace banggame {
 
         void handle_update(const game_update &update);
         
-        void add_chat_message(const lobby_chat_args &args);
+        void add_chat_message(const std::string &message);
         
         void show_error(const std::string &message);
 
@@ -46,8 +46,7 @@ namespace banggame {
         void handle_update(enums::enum_constant<game_update_type::show_card>,        const show_card_update &args);
         void handle_update(enums::enum_constant<game_update_type::hide_card>,        const hide_card_update &args);
         void handle_update(enums::enum_constant<game_update_type::tap_card>,         const tap_card_update &args);
-        void handle_update(enums::enum_constant<game_update_type::player_add>,       const player_id_update &args);
-        void handle_update(enums::enum_constant<game_update_type::player_own_id>,    const player_id_update &args);
+        void handle_update(enums::enum_constant<game_update_type::player_add>,       const player_user_update &args);
         void handle_update(enums::enum_constant<game_update_type::player_hp>,        const player_hp_update &args);
         void handle_update(enums::enum_constant<game_update_type::player_character>, const player_character_update &args);
         void handle_update(enums::enum_constant<game_update_type::player_show_role>, const player_show_role_update &args);

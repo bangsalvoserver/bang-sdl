@@ -5,6 +5,7 @@
 #include "common/game_update.h"
 
 #include "utils/sdl.h"
+#include "../widgets/stattext.h"
 
 #include <vector>
 #include <list>
@@ -119,6 +120,8 @@ namespace banggame {
         
         character_card m_hp_marker;
         role_card m_role;
+
+        sdl::stattext m_username_text;
 
         void set_position(sdl::point pos, bool flipped = false);
 

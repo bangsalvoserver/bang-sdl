@@ -2,6 +2,7 @@
 #define __CLIENT_MANAGER_H__
 
 #include <list>
+#include <map>
 
 #include "common/net_enums.h"
 
@@ -62,6 +63,20 @@ public:
         return m_config;
     }
 
+    int width() const noexcept { return m_width; }
+    int height() const noexcept { return m_height; }
+
+    int get_user_own_id() const noexcept { return m_user_own_id; }
+
+    std::string get_user_name(int id) const {
+        auto it = m_user_names.find(id);
+        if (it != m_user_names.end()) {
+            return it->second;
+        } else {
+            return "(Disconnected)";
+        }
+    }
+
 private:
     void handle_message(enums::enum_constant<server_message_type::game_error>, const game_error &args);
     void handle_message(enums::enum_constant<server_message_type::lobby_list>, const std::vector<lobby_data> &args);
@@ -79,6 +94,8 @@ private:
 
     sdlnet::tcp_socket sock;
     sdlnet::socket_set sock_set{1};
+
+    std::map<int, std::string> m_user_names;
 
     int m_width;
     int m_height;

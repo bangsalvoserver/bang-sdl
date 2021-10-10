@@ -56,8 +56,9 @@ namespace banggame {
         (inactive, bool)
     )
 
-    DEFINE_SERIALIZABLE(player_id_update,
+    DEFINE_SERIALIZABLE(player_user_update,
         (player_id, int)
+        (user_id, int)
     )
 
     DEFINE_SERIALIZABLE(player_hp_update,
@@ -103,8 +104,7 @@ namespace banggame {
         (show_card, show_card_update)
         (hide_card, hide_card_update)
         (tap_card, tap_card_update)
-        (player_add, player_id_update)
-        (player_own_id, player_id_update)
+        (player_add, player_user_update)
         (player_hp, player_hp_update)
         (player_character, player_character_update)
         (player_show_role, player_show_role_update)

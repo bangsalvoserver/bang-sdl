@@ -16,10 +16,7 @@ public:
         return {0xff, 0xff, 0xff, 0xff};
     }
     
-    virtual void resize(int width, int height) {
-        m_width = width;
-        m_height = height;
-    }
+    virtual void resize(int width, int height) {}
 
     virtual void render(sdl::renderer &renderer) = 0;
     
@@ -27,9 +24,6 @@ public:
 
 protected:
     class game_manager *parent;
-
-    int m_width;
-    int m_height;
 };
 
 #endif

@@ -36,7 +36,7 @@ connect_scene::connect_scene(game_manager *parent)
 }
 
 void connect_scene::render(sdl::renderer &renderer) {
-    sdl::rect rect{100, 50, m_width - 200, 25};
+    sdl::rect rect{100, 50, parent->width() - 200, 25};
     for (auto &line : m_recents) {
         line.set_rect(rect);
         line.render(renderer);
@@ -50,7 +50,7 @@ void connect_scene::render(sdl::renderer &renderer) {
     m_connect_btn.set_rect(sdl::rect{rect.x + rect.w - 100, rect.y, 100, rect.h});
     m_connect_btn.render(renderer);
 
-    m_error_text.set_point(sdl::point{(m_width - m_error_text.get_rect().w) / 2, rect.y + 50});
+    m_error_text.set_point(sdl::point{(parent->width() - m_error_text.get_rect().w) / 2, rect.y + 50});
     m_error_text.render(renderer);
 }
 

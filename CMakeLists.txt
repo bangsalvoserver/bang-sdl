@@ -19,6 +19,7 @@ set(bangclient_srcs
     src/client/scenes/game/game.cpp
     src/client/scenes/game/game_ui.cpp
     src/client/scenes/widgets/button.cpp
+    src/client/scenes/widgets/chat_ui.cpp
     src/client/scenes/widgets/textbox.cpp
     src/client/scenes/connect.cpp
     src/client/scenes/lobby_list.cpp

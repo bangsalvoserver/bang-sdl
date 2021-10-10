@@ -218,11 +218,16 @@ void lobby::start_game() {
     opts.nplayers = users.size();
     opts.allowed_expansions = allowed_expansions;
     
-    game.start_game(opts);
+    for (int i = 0; i < opts.nplayers; ++i) {
+        game.m_players.emplace_back(&game);
+    }
 
     auto it = users.begin();
     for (auto &p : game.m_players) {
         it->second.controlling = &p;
+        game.add_public_update<game_update_type::player_add>(p.id, it->second.id);
         ++it;
     }
+
+    game.start_game(opts);
 }

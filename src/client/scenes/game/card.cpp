@@ -129,6 +129,11 @@ namespace banggame {
             hand.pos.y -= 60;
             table.pos.y += 60;
         }
+
+        sdl::rect username_rect = m_username_text.get_rect();
+        username_rect.x = m_role.pos.x - (username_rect.w) / 2;
+        username_rect.y = m_bounding_rect.y + 20;
+        m_username_text.set_rect(username_rect);
     }
 
     void player_view::set_hp_marker_position(float hp) {
@@ -149,6 +154,8 @@ namespace banggame {
         for (auto &c : m_characters) {
             c.render(renderer);
         }
+
+        m_username_text.render(renderer);
     }
 
     void player_view::render_turn_indicator(sdl::renderer &renderer) {

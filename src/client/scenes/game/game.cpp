@@ -27,7 +27,7 @@ game_scene::game_scene(class game_manager *parent)
 void game_scene::resize(int width, int height) {
     scene_base::resize(width, height);
     
-    main_deck.pos = sdl::point{m_width / 2, m_height / 2};
+    main_deck.pos = sdl::point{parent->width() / 2, parent->height() / 2};
 
     discard_pile.pos = main_deck.pos;
     discard_pile.pos.x -= 80;
@@ -109,8 +109,8 @@ void game_scene::render(sdl::renderer &renderer) {
         }
         if (tex) {
             sdl::rect rect = tex->get_rect();
-            rect.x = std::clamp(card_rect.x + (card_rect.w - rect.w) / 2, 0, m_width - rect.w);
-            rect.y = std::clamp(card_rect.y + (card_rect.h - rect.h) / 2, 0, m_height -  rect.h);
+            rect.x = std::clamp(card_rect.x + (card_rect.w - rect.w) / 2, 0, parent->width() - rect.w);
+            rect.y = std::clamp(card_rect.y + (card_rect.h - rect.h) / 2, 0, parent->height() -  rect.h);
             tex->render(renderer, rect);
         }
     }
@@ -571,18 +571,18 @@ void game_scene::pop_update() {
     }
 }
 
-void game_scene::add_chat_message(const lobby_chat_args &args) {
-    m_ui.add_message(message_line::chat, args.message);
+void game_scene::add_chat_message(const std::string &message) {
+    m_ui.add_message(message);
 }
 
 void game_scene::show_error(const std::string &message) {
-    m_ui.add_message(message_line::error, message);
+    m_ui.show_error(message);
 }
 
 void game_scene::handle_update(enums::enum_constant<game_update_type::game_over>, const game_over_update &args) {
     std::string msg = "Game Over. Winner: ";
     msg += enums::to_string(args.winner_role);
-    m_ui.add_message(message_line::game, msg);
+    m_ui.add_message(msg);
 }
 
 void game_scene::handle_update(enums::enum_constant<game_update_type::deck_shuffled>) {
@@ -600,7 +600,7 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::deck_shuff
     discard_pile.clear();
     discard_pile.push_back(top_discard);
 
-    m_ui.add_message(message_line::game, "Deck shuffled");
+    m_ui.add_message("Deck shuffled");
     
     m_animations.emplace_back(30, std::move(anim));
 }
@@ -712,21 +712,15 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::tap_card>,
     }
 }
 
-void game_scene::handle_update(enums::enum_constant<game_update_type::player_own_id>, const player_id_update &args) {
-    m_player_own_id = args.player_id;
-    move_player_views();
-    pop_update();
-}
-
 void game_scene::move_player_views() {
     auto own_player = m_players.find(m_player_own_id);
     if (own_player == m_players.end()) return;
 
-    sdl::point pos{m_width / 2, m_height - 120};
+    sdl::point pos{parent->width() / 2, parent->height() - 120};
     own_player->second.set_position(pos, true);
 
-    int xradius = (m_width - 200) - (m_width / 2);
-    int yradius = pos.y - (m_height / 2);
+    int xradius = (parent->width() - 200) - (parent->width() / 2);
+    int yradius = pos.y - (parent->height() / 2);
 
     auto it = own_player;
     double angle = std::numbers::pi * 1.5f;
@@ -735,15 +729,21 @@ void game_scene::move_player_views() {
         if (it == own_player) break;
         angle -= std::numbers::pi * 2.f / m_players.size();
         it->second.set_position(sdl::point{
-            int(m_width / 2 + std::cos(angle) * xradius),
-            int(m_height / 2 - std::sin(angle) * yradius)
+            int(parent->width() / 2 + std::cos(angle) * xradius),
+            int(parent->height() / 2 - std::sin(angle) * yradius)
         });
     }
 }
 
-void game_scene::handle_update(enums::enum_constant<game_update_type::player_add>, const player_id_update &args) {
-    m_players.try_emplace(args.player_id);
+void game_scene::handle_update(enums::enum_constant<game_update_type::player_add>, const player_user_update &args) {
+    if (args.user_id == parent->get_user_own_id()) {
+        m_player_own_id = args.player_id;
+    }
+    auto &p = m_players.try_emplace(args.player_id).first->second;
 
+    p.m_username_text.redraw(parent->get_user_name(args.user_id));
+
+    move_player_views();
     pop_update();
 }
 

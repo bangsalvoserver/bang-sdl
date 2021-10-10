@@ -19,9 +19,7 @@ lobby_scene::lobby_scene(game_manager *parent)
     , m_start_btn("Avvia", [parent]{
         parent->add_message<client_message_type::game_start>();
     })
-{
-
-}
+    , m_chat(parent) {}
 
 void lobby_scene::init(const lobby_entered_args &args) {
     m_lobby_name_text.redraw(args.lobby_name);
@@ -35,7 +33,7 @@ void lobby_scene::init(const lobby_entered_args &args) {
 void lobby_scene::render(sdl::renderer &renderer) {
     if (m_lobby_name_text) {
         sdl::rect rect = m_lobby_name_text.get_rect();
-        rect.x = (m_width - rect.w) / 2;
+        rect.x = (parent->width() - rect.w) / 2;
         rect.y = 60;
         m_lobby_name_text.set_rect(rect);
         m_lobby_name_text.render(renderer);
@@ -52,8 +50,11 @@ void lobby_scene::render(sdl::renderer &renderer) {
         m_start_btn.render(renderer);
     }
 
-    m_leave_btn.set_rect(sdl::rect{20, m_height - 45, 100, 25});
+    m_leave_btn.set_rect(sdl::rect{20, 20, 100, 25});
     m_leave_btn.render(renderer);
+
+    m_chat.resize(parent->width(), parent->height());
+    m_chat.render(renderer);
 }
 
 void lobby_scene::set_player_list(const std::vector<lobby_player_data> &args) {
@@ -78,6 +79,6 @@ void lobby_scene::remove_user(const lobby_left_args &args) {
     }
 }
 
-void lobby_scene::add_chat_message(const lobby_chat_args &args) {
-    m_messages.push_back(args);
+void lobby_scene::add_chat_message(const std::string &message) {
+    m_chat.add_message(message);
 }
