@@ -140,6 +140,10 @@ namespace banggame {
     struct effect_madam_yto : event_based_effect {
         void on_equip(player *origin, int card_id);
     };
+
+    struct effect_greygory_deck : card_effect {
+        void on_play(player *origin, player *target, int card_id);
+    };
 }
 
 #endif

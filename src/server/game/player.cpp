@@ -628,8 +628,7 @@ namespace banggame {
         m_game->add_public_update<game_update_type::player_character>(std::move(obj));
     }
 
-    void player::set_character_and_role(const character &c, player_role role) {
-        m_characters.push_back(c);
+    void player::set_character_and_role(character &&c, player_role role) {
         m_role = role;
 
         m_max_hp = c.max_hp;
@@ -638,8 +637,9 @@ namespace banggame {
         }
         m_hp = m_max_hp;
 
-        m_characters.front().on_equip(this);
-        send_character_update(c, 0);
+        auto &moved = m_characters.emplace_back(std::move(c));
+        moved.on_equip(this);
+        send_character_update(moved, 0);
 
         if (role == player_role::sheriff || m_game->m_players.size() <= 3) {
             m_game->add_public_update<game_update_type::player_show_role>(id, m_role, true);

@@ -71,6 +71,8 @@ namespace banggame {
         std::vector<deck_card> m_temps;
         std::vector<player> m_players;
 
+        std::vector<character> m_base_characters;
+
         std::vector<int> m_table_card_disablers;
 
         player *m_playing = nullptr;

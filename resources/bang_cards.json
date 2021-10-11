@@ -2385,14 +2385,15 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Greygory Deck",
             "image": "06_greygorydeck",
             "hp": 4,
             "expansion": "wildwestshow",
+            "type": "drawing",
             "effects": [
                 {
-                    "class": "gregory_deck"
+                    "target": "self card",
+                    "class": "greygory_deck"
                 }
             ]
         },

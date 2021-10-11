@@ -96,8 +96,10 @@ void game_scene::render(sdl::renderer &renderer) {
         sdl::texture *tex = nullptr;
         sdl::rect card_rect;
         if (auto it = m_cards.find(m_overlay); it != m_cards.end()) {
-            tex = &it->second.texture_front;
-            card_rect = it->second.get_rect();
+            if (it->second.known) {
+                tex = &it->second.texture_front;
+                card_rect = it->second.get_rect();
+            }
         } else {
             for (auto &[player_id, p] : m_players) {
                 if (auto it = std::ranges::find(p.m_characters, m_overlay, &character_card::id); it != p.m_characters.end()) {
@@ -163,15 +165,15 @@ void game_scene::handle_card_click(const sdl::point &mouse_pt) {
         return;
     }
     for (const auto &[player_id, p] : m_players) {
-        if (sdl::point_in_rect(mouse_pt, p.m_role.get_rect())) {
-            on_click_player(player_id);
-            return;
-        }
         for (auto &c : p.m_characters | std::views::reverse) {
             if (sdl::point_in_rect(mouse_pt, c.get_rect())) {
                 on_click_character(player_id, c.id);
                 return;
             }
+        }
+        if (sdl::point_in_rect(mouse_pt, p.m_role.get_rect())) {
+            on_click_player(player_id);
+            return;
         }
         if (int card_id = find_clicked(p.table)) {
             on_click_table_card(player_id, card_id);
@@ -202,10 +204,6 @@ void game_scene::find_overlay(const sdl::point &mouse_pt) {
         return;
     }
     for (const auto &[player_id, p] : m_players) {
-        if (sdl::point_in_rect(mouse_pt, p.m_role.get_rect())) {
-            m_overlay = player_id;
-            return;
-        }
         for (auto &c : p.m_characters | std::views::reverse) {
             if (sdl::point_in_rect(mouse_pt, c.get_rect())) {
                 m_overlay = c.id;

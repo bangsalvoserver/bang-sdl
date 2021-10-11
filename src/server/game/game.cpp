@@ -86,7 +86,13 @@ namespace banggame {
 #endif
         std::ranges::shuffle(role_it, role_it + options.nplayers, rng);
         for (auto &p : m_players) {
-            p.set_character_and_role(*character_it++, *role_it++);
+            p.set_character_and_role(std::move(*character_it++), *role_it++);
+        }
+
+        for (; character_it != characters.end(); ++character_it) {
+            if (character_it->expansion == card_expansion_type::base) {
+                m_base_characters.push_back(std::move(*character_it));
+            }
         }
 
         for (const auto &c : all_cards.deck) {
