@@ -118,6 +118,8 @@ namespace banggame {
         } else {
             m_playing = &*std::ranges::find(m_players, player_role::deputy, &player::m_role);
         }
+
+        queue_event<event_type::on_game_start>();
         m_playing->start_of_turn();
     }
 

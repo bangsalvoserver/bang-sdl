@@ -86,6 +86,7 @@ namespace banggame {
         (youl_grinner,  effect_youl_grinner)
         (don_bell,      effect_don_bell)
         (madam_yto,     effect_madam_yto)
+        (greygory_deck, effect_greygory_deck)
     )
 
     namespace detail {

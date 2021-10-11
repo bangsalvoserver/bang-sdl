@@ -141,8 +141,9 @@ namespace banggame {
         void on_equip(player *origin, int card_id);
     };
 
-    struct effect_greygory_deck : card_effect {
+    struct effect_greygory_deck : event_based_effect {
         void on_play(player *origin, player *target, int card_id);
+        void on_equip(player *target, int card_id);
     };
 }
 

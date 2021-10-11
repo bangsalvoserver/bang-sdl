@@ -2395,6 +2395,11 @@
                     "target": "self card",
                     "class": "greygory_deck"
                 }
+            ],
+            "equip": [
+                {
+                    "class": "greygory_deck"
+                }
             ]
         },
         {

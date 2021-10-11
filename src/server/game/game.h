@@ -38,6 +38,7 @@ namespace banggame {
         (on_turn_end,       std::function<void(player *origin)>)
         (on_draw_from_deck, std::function<void(player *origin)>)
         (on_play_beer,      std::function<void(player *origin)>)
+        (on_game_start,     std::function<void()>)
     )
 
     using event_function = enums::enum_variant<event_type>;

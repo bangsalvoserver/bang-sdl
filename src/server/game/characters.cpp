@@ -419,21 +419,31 @@ namespace banggame {
         });
     }
 
+    static void greygory_deck_set_characters(player *target) {
+        std::ranges::shuffle(target->m_game->m_base_characters, target->m_game->rng);
+        for (int i=0; i<2; ++i) {
+            auto &c = target->m_characters.emplace_back(target->m_game->m_base_characters[i]);
+            c.on_equip(target);
+            target->send_character_update(c, i+1);
+        }
+    }
+
     void effect_greygory_deck::on_play(player *origin, player *target, int card_id) {
         int &usages = target->find_character(card_id).usages;
         if (usages == 0) {
             ++usages;
 
-            std::ranges::shuffle(target->m_game->m_base_characters, target->m_game->rng);
             for (int i=1; i<target->m_characters.size(); ++i) {
                 target->m_characters[i].on_unequip(target);
             }
             target->m_characters.resize(1);
-            for (int i=0; i<2; ++i) {
-                auto &c = target->m_characters.emplace_back(target->m_game->m_base_characters[i]);
-                c.on_equip(target);
-                target->send_character_update(c, i+1);
-            }
+            greygory_deck_set_characters(target);
         }
+    }
+
+    void effect_greygory_deck::on_equip(player *p, int card_id) {
+        p->m_game->add_event<event_type::on_game_start>(card_id, [p] {
+            greygory_deck_set_characters(p);
+        });
     }
 }
