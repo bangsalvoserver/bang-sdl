@@ -54,12 +54,19 @@ int main(int argc, char **argv) {
             
             auto it = clients.find(msg.addr);
             if (it != clients.end()) {
-                std::stringstream ss;
-                ss << msg.value;
-                std::string str = ss.str();
+                try {
+                    std::stringstream ss;
+                    ss << msg.value;
+                    std::string str = ss.str();
 
-                send_message_header(it->second, message_header{message_header::json, (uint32_t)str.size()});
-                it->second.send(str.data(), str.size());
+                    send_message_header(it->second, message_header{message_header::json, (uint32_t)str.size()});
+                    it->second.send(str.data(), str.size());
+                } catch (sdlnet::socket_disconnected) {
+                    mgr.client_disconnected(it->first);
+                    std::cout << it->first.ip_string() << " Disconnected\n";
+                    set.erase(it->second);
+                    clients.erase(it);
+                }
             }
         }
         SDL_Delay(1000 / banggame::fps);
