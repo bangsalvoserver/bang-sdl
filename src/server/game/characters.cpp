@@ -21,7 +21,7 @@ namespace banggame {
                 if (removed.suit == card_suit_type::hearts || removed.suit == card_suit_type::diamonds) {
                     ++ncards;
                 }
-                target->m_game->add_show_card(removed, nullptr, true);
+                target->m_game->send_card_update(removed, nullptr, true);
                 target->add_to_hand(std::move(removed));
             } else {
                 target->add_to_hand(target->m_game->draw_card());
@@ -222,7 +222,7 @@ namespace banggame {
                 target->m_characters.back().on_unequip(target);
                 target->m_characters.pop_back();
             }
-            target->send_character_update(copy, 1);
+            target->m_game->send_character_update(copy, target->id, 1);
             target->m_characters.emplace_back(std::move(copy)).on_equip(target);
         }
     }
@@ -243,7 +243,7 @@ namespace banggame {
                 if (p->m_characters.size() > 1) {
                     p->m_characters.back().on_unequip(p);
                     p->m_characters.pop_back();
-                    p->m_game->add_public_update<game_update_type::player_character>(p->id, 0, 1);
+                    p->m_game->add_public_update<game_update_type::player_remove_character>(p->id, 1);
                 }
             }
         });
@@ -254,7 +254,7 @@ namespace banggame {
 
         if (target->m_characters.size() > 1) {
             target->m_characters.pop_back();
-            target->m_game->add_public_update<game_update_type::player_character>(target->id, 0, 1);
+            target->m_game->add_public_update<game_update_type::player_remove_character>(target->id, 1);
         }
     }
 
@@ -426,7 +426,7 @@ namespace banggame {
         for (int i=0; i<2; ++i) {
             auto &c = target->m_characters.emplace_back(target->m_game->m_base_characters[i]);
             c.on_equip(target);
-            target->send_character_update(c, i+1);
+            target->m_game->send_character_update(c, target->id, i+1);
         }
     }
 

@@ -22,7 +22,7 @@ namespace banggame {
     void player::equip_card(deck_card &&target) {
         target.on_equip(this);
         auto &moved = m_table.emplace_back(std::move(target));
-        m_game->add_show_card(moved);
+        m_game->send_card_update(moved);
         m_game->add_public_update<game_update_type::move_card>(moved.id, id, card_pile_type::player_table);
     }
 
@@ -120,7 +120,7 @@ namespace banggame {
 
     deck_card &player::add_to_hand(deck_card &&target) {
         auto &moved = m_hand.emplace_back(std::move(target));
-        m_game->add_show_card(moved, this);
+        m_game->send_card_update(moved, this);
         m_game->add_public_update<game_update_type::move_card>(moved.id, id, card_pile_type::player_hand);
         return moved;
     }
@@ -605,26 +605,6 @@ namespace banggame {
         m_hand.clear();
     }
 
-    void player::send_character_update(const character &c, int index) {
-        player_character_update obj;
-        obj.player_id = id;
-        obj.card_id = c.id;
-        obj.index = index;
-        obj.max_hp = m_max_hp;
-        obj.name = c.name;
-        obj.image = c.image;
-        obj.type = c.type;
-        obj.playable_offturn = c.playable_offturn;
-        for (const auto &e : c.effects) {
-            obj.targets.emplace_back(e.target(), e.maxdistance());
-        }
-        for (const auto &e : c.responses) {
-            obj.response_targets.emplace_back(e.target(), e.maxdistance());
-        }
-        
-        m_game->add_public_update<game_update_type::player_character>(std::move(obj));
-    }
-
     void player::set_character_and_role(character &&c, player_role role) {
         m_role = role;
 
@@ -636,7 +616,7 @@ namespace banggame {
 
         auto &moved = m_characters.emplace_back(std::move(c));
         moved.on_equip(this);
-        send_character_update(moved, 0);
+        m_game->send_character_update(moved, id, 0);
 
         if (role == player_role::sheriff || m_game->m_players.size() <= 3) {
             m_game->add_public_update<game_update_type::player_show_role>(id, m_role, true);

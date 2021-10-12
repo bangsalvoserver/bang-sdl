@@ -10,25 +10,32 @@ namespace banggame {
 
     using namespace enums::flag_operators;
 
-    void game::add_show_card(const deck_card &c, player *owner, bool short_pause) {
-        show_card_update obj;
-        obj.card_id = c.id;
-        obj.color = c.color;
-        obj.image = c.image;
-        obj.name = c.name;
-        obj.suit = c.suit;
-        obj.value = c.value;
-        obj.short_pause = short_pause;
-        obj.playable_offturn = c.playable_offturn;
+    static card_info make_card_info(const card &c) {
+        card_info info;
+        info.expansion = c.expansion;
+        info.id = c.id;
+        info.name = c.name;
+        info.image = c.image;
+        info.playable_offturn = c.playable_offturn;
         for (const auto &value : c.effects) {
-            obj.targets.emplace_back(value.target(), value.maxdistance());
+            info.targets.emplace_back(value.target(), value.maxdistance());
         }
         for (const auto &value : c.responses) {
-            obj.response_targets.emplace_back(value.target(), value.maxdistance());
+            info.response_targets.emplace_back(value.target(), value.maxdistance());
         }
         for (const auto &value : c.equips) {
-            obj.equip_targets.emplace_back(value.target(), value.maxdistance());
+            info.equip_targets.emplace_back(value.target(), value.maxdistance());
         }
+        return info;
+    }
+
+    void game::send_card_update(const deck_card &c, player *owner, bool short_pause) {
+        show_card_update obj;
+        obj.info = make_card_info(c);
+        obj.suit = c.suit;
+        obj.value = c.value;
+        obj.color = c.color;
+        obj.short_pause = short_pause;
 
         if (!owner) {
             add_public_update<game_update_type::show_card>(obj);
@@ -44,6 +51,17 @@ namespace banggame {
                 }
             }
         }
+    }
+
+    void game::send_character_update(const character &c, int player_id, int index) {
+        player_character_update obj;
+        obj.info = make_card_info(c);
+        obj.type = c.type;
+        obj.max_hp = c.max_hp;
+        obj.player_id = player_id;
+        obj.index = index;
+        
+        add_public_update<game_update_type::player_add_character>(std::move(obj));
     }
 
     void game::start_game(const game_options &options) {

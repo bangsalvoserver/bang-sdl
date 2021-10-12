@@ -677,19 +677,14 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::virtual_ca
 }
 
 void game_scene::handle_update(enums::enum_constant<game_update_type::show_card>, const show_card_update &args) {
-    auto &c = get_card(args.card_id);
+    auto &c = get_card(args.info.id);
 
     if (!c.known) {
+        static_cast<card_info &>(c) = args.info;
         c.known = true;
-        c.name = args.name;
-        c.image = args.image;
         c.suit = args.suit;
         c.value = args.value;
         c.color = args.color;
-        c.targets = args.targets;
-        c.response_targets = args.response_targets;
-        c.equip_targets = args.equip_targets;
-        c.playable_offturn = args.playable_offturn;
 
         c.make_texture_front();
 
@@ -773,7 +768,7 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::player_hp>
     p.hp = args.hp;
 }
 
-void game_scene::handle_update(enums::enum_constant<game_update_type::player_character>, const player_character_update &args) {
+void game_scene::handle_update(enums::enum_constant<game_update_type::player_add_character>, const player_character_update &args) {
     if (!character_card::texture_back) {
         character_card::make_texture_back();
     }
@@ -782,27 +777,26 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::player_cha
     }
 
     auto &p = get_player(args.player_id);
-    if (args.card_id) {
-        while (args.index >= p.m_characters.size()) {
-            auto &last = p.m_characters.back();
-            p.m_characters.emplace_back().pos = sdl::point(last.pos.x + 20, last.pos.y + 20);
-        }
-        auto &c = *std::next(p.m_characters.begin(), args.index);
-        c.id = args.card_id;
-        c.name = args.name;
-        c.image = args.image;
-        c.type = args.type;
-        c.targets = args.targets;
-        c.response_targets = args.response_targets;
-        c.playable_offturn = args.playable_offturn;
+    while (args.index >= p.m_characters.size()) {
+        auto &last = p.m_characters.back();
+        p.m_characters.emplace_back().pos = sdl::point(last.pos.x + 20, last.pos.y + 20);
+    }
+    auto &c = *std::next(p.m_characters.begin(), args.index);
+    static_cast<card_info &>(c) = args.info;
+    c.type = args.type;
 
-        c.make_texture_front();
+    c.make_texture_front();
 
-        if (args.index == 0) {
-            p.hp = args.max_hp;
-            p.set_hp_marker_position(args.max_hp);
-        }
-    } else if (args.index < p.m_characters.size()) {
+    if (args.index == 0) {
+        p.set_hp_marker_position(p.hp = args.max_hp);
+    }
+
+    pop_update();
+}
+
+void game_scene::handle_update(enums::enum_constant<game_update_type::player_remove_character>, const player_remove_character_update &args) {
+    auto &p = get_player(args.player_id);
+    if (args.index < p.m_characters.size()) {
         p.m_characters.erase(std::next(p.m_characters.begin(), args.index));
     }
 

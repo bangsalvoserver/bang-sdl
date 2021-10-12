@@ -35,18 +35,36 @@ namespace banggame {
         (targets, std::vector<card_target_data>)
     )
 
-    DEFINE_SERIALIZABLE(show_card_update,
-        (card_id, int)
+    DEFINE_SERIALIZABLE(card_info,
+        (id, int)
+        (expansion, card_expansion_type)
         (name, std::string)
         (image, std::string)
-        (suit, card_suit_type)
-        (value, card_value_type)
-        (color, card_color_type)
-        (short_pause, bool)
         (targets, std::vector<card_target_data>)
         (response_targets, std::vector<card_target_data>)
         (equip_targets, std::vector<card_target_data>)
         (playable_offturn, bool)
+    )
+
+    DEFINE_SERIALIZABLE(show_card_update,
+        (info, card_info)
+        (suit, card_suit_type)
+        (value, card_value_type)
+        (color, card_color_type)
+        (short_pause, bool)
+    )
+
+    DEFINE_SERIALIZABLE(player_character_update,
+        (info, card_info)
+        (type, character_type)
+        (max_hp, int)
+        (player_id, int)
+        (index, int)
+    )
+
+    DEFINE_SERIALIZABLE(player_remove_character_update,
+        (player_id, int)
+        (index, int)
     )
 
     DEFINE_SERIALIZABLE(hide_card_update,
@@ -67,19 +85,6 @@ namespace banggame {
         (player_id, int)
         (hp, int)
         (dead, bool)
-    )
-
-    DEFINE_SERIALIZABLE(player_character_update,
-        (player_id, int)
-        (card_id, int)
-        (index, int)
-        (max_hp, int)
-        (name, std::string)
-        (image, std::string)
-        (type, character_type)
-        (targets, std::vector<card_target_data>)
-        (response_targets, std::vector<card_target_data>)
-        (playable_offturn, bool)
     )
 
     DEFINE_SERIALIZABLE(player_show_role_update,
@@ -114,7 +119,8 @@ namespace banggame {
         (tap_card, tap_card_update)
         (player_add, player_user_update)
         (player_hp, player_hp_update)
-        (player_character, player_character_update)
+        (player_add_character, player_character_update)
+        (player_remove_character, player_remove_character_update)
         (player_show_role, player_show_role_update)
         (switch_turn, switch_turn_update)
         (request_handle, request_handle_update)

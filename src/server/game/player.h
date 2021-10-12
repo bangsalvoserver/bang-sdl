@@ -130,7 +130,6 @@ namespace banggame {
 
         void next_predraw_check(int card_id);
 
-        void send_character_update(const character &c, int index);
         void set_character_and_role(character &&c, player_role role);
 
         bool verify_equip_target(const card &c, const std::vector<play_card_target> &targets);

@@ -12,7 +12,7 @@
 
 namespace banggame {
 
-    class card_widget_base {
+    class card_widget_base : public card_info {
     public:
         sdl::point pos;
 
@@ -20,14 +20,6 @@ namespace banggame {
         float rotation = 0.f;
 
         static constexpr int card_width = 70;
-
-        int id;
-        std::string name;
-        std::string image;
-        std::vector<card_target_data> targets;
-        std::vector<card_target_data> response_targets;
-        std::vector<card_target_data> equip_targets;
-        bool playable_offturn;
 
         const sdl::rect &get_rect() const {
             return m_rect;
