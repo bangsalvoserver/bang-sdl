@@ -113,9 +113,11 @@ namespace banggame {
     }
 
     void effect_el_gringo::on_equip(player *p, int card_id) {
-        p->m_game->add_event<event_type::on_hit>(card_id, [p](player *origin, player *target, bool is_bang) {
+        p->m_game->add_event<event_type::on_hit>(card_id, [p](player *origin, player *target, int damage, bool is_bang) {
             if (origin && p == target && !origin->m_hand.empty() && p->m_game->m_playing != p) {
-                target->steal_card(origin, origin->random_hand_card().id);
+                while(damage--) {
+                    target->steal_card(origin, origin->random_hand_card().id);
+                }
             }
         });
     }

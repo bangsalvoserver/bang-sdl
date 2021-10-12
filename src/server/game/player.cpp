@@ -107,9 +107,7 @@ namespace banggame {
             if (m_hp <= 0) {
                 m_game->add_request<request_type::death>(source, this);
             }
-            for (int i=0; i<value; ++i) {
-                m_game->queue_event<event_type::on_hit>(source, this, is_bang);
-            }
+            m_game->queue_event<event_type::on_hit>(source, this, value, is_bang);
         }
     }
 

@@ -28,7 +28,7 @@ namespace banggame {
         (on_discard_pass,   std::function<void(player *origin, int card_id)>)
         (on_draw_check,     std::function<void(int card_id)>)
         (on_discard_card,   std::function<void(player *origin, player *target, int card_id)>)
-        (on_hit,            std::function<void(player *origin, player *target, bool is_bang)>)
+        (on_hit,            std::function<void(player *origin, player *target, int damage, bool is_bang)>)
         (apply_bang_modifiers, std::function<void(player *origin, request_bang &req)>)
         (on_player_death,   std::function<void(player *origin, player *target)>)
         (on_equip,          std::function<void(player *origin, player *target, int card_id)>)

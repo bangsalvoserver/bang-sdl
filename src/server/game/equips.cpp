@@ -112,9 +112,11 @@ namespace banggame {
     }
 
     void effect_boots::on_equip(player *p, int card_id) {
-        p->m_game->add_event<event_type::on_hit>(card_id, [p](player *origin, player *target, bool is_bang){
+        p->m_game->add_event<event_type::on_hit>(card_id, [p](player *origin, player *target, int damage, bool is_bang){
             if (p == target) {
-                target->add_to_hand(target->m_game->draw_card());
+                while (damage--) {
+                    target->add_to_hand(target->m_game->draw_card());
+                }
             }
         });
     }
@@ -168,7 +170,7 @@ namespace banggame {
     }
 
     void effect_shotgun::on_equip(player *p, int card_id) {
-        p->m_game->add_event<event_type::on_hit>(card_id, [p](player *origin, player *target, bool is_bang) {
+        p->m_game->add_event<event_type::on_hit>(card_id, [p](player *origin, player *target, int damage, bool is_bang) {
             if (origin == p && target != p && !target->m_hand.empty() && is_bang) {
                 target->m_game->queue_request<request_type::discard>(origin, target);
             }
@@ -176,7 +178,7 @@ namespace banggame {
     }
 
     void effect_bounty::on_equip(player *p, int card_id) {
-        p->m_game->add_event<event_type::on_hit>(card_id, [p](player *origin, player *target, bool is_bang) {
+        p->m_game->add_event<event_type::on_hit>(card_id, [p](player *origin, player *target, int damage, bool is_bang) {
             if (origin && target == p && is_bang) {
                 origin->add_to_hand(origin->m_game->draw_card());
             }
