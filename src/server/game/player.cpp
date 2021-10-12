@@ -34,19 +34,13 @@ namespace banggame {
         return m_hand[m_game->rng() % m_hand.size()];
     }
 
-    deck_card &player::find_hand_card(int card_id) {
+    deck_card &player::find_card(int card_id) {
         if (auto it = std::ranges::find(m_hand, card_id, &deck_card::id); it != m_hand.end()) {
             return *it;
-        } else {
-            throw game_error("server.find_hand_card: ID non trovato");
-        }
-    }
-
-    deck_card &player::find_table_card(int card_id) {
-        if (auto it = std::ranges::find(m_table, card_id, &deck_card::id); it != m_table.end()) {
+        } else if (auto it = std::ranges::find(m_table, card_id, &deck_card::id); it != m_table.end()) {
             return *it;
         } else {
-            throw game_error("server.find_table_card: ID non trovato");
+            throw game_error("server.find_card: ID non trovato");
         }
     }
 
@@ -253,18 +247,18 @@ namespace banggame {
                                 }
                                 case target_type::table: return !args.front().from_hand;
                                 case target_type::hand: return args.front().from_hand;
-                                case target_type::blue: return target->find_hand_card(args.front().card_id).color == card_color_type::blue;
-                                case target_type::clubs: return target->find_hand_card(args.front().card_id).suit == card_suit_type::clubs;
+                                case target_type::blue: return target->find_card(args.front().card_id).color == card_color_type::blue;
+                                case target_type::clubs: return target->find_card(args.front().card_id).suit == card_suit_type::clubs;
                                 case target_type::bang: {
-                                    auto &c = target->find_hand_card(args.front().card_id);
+                                    auto &c = target->find_card(args.front().card_id);
                                     return !c.effects.empty() && c.effects.front().is(effect_type::bangcard);
                                 }
                                 case target_type::missed: {
-                                    auto &c = target->find_hand_card(args.front().card_id);
+                                    auto &c = target->find_card(args.front().card_id);
                                     return !c.responses.empty() && c.responses.front().is(effect_type::missedcard);
                                 }
                                 case target_type::bangormissed: {
-                                    auto &c = target->find_hand_card(args.front().card_id);
+                                    auto &c = target->find_card(args.front().card_id);
                                     if (!c.effects.empty()) return c.effects.front().is(effect_type::bangcard);
                                     else if (!c.responses.empty()) return c.responses.front().is(effect_type::missedcard);
                                 }

@@ -163,7 +163,7 @@ namespace banggame {
     }
 
     void effect_virtual_copy::on_play(player *origin, player *target, int card_id) {
-        auto copy = target->find_hand_card(card_id);
+        auto copy = target->find_card(card_id);
         copy.suit = card_suit_type::none;
         copy.value = card_value_type::none;
         target->m_virtual = std::make_pair(card_id, std::move(copy));
