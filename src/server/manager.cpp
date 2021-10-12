@@ -43,6 +43,7 @@ void game_manager::tick() {
         if (l.state == lobby_state::playing) {
             l.game.tick();
         }
+        l.send_updates(*this);
     }
 }
 
@@ -185,7 +186,6 @@ void game_manager::handle_message(enums::enum_constant<client_message_type::game
     broadcast_message<server_message_type::game_started>(*it);
 
     it->start_game();
-    it->send_updates(*this);
 }
 
 void game_manager::handle_message(enums::enum_constant<client_message_type::game_action>, const sdlnet::ip_address &addr, const game_action &value) {
@@ -206,7 +206,6 @@ void game_manager::handle_message(enums::enum_constant<client_message_type::game
     enums::visit([&]<game_action_type T>(enums::enum_constant<T> tag, auto && ... args) {
         it->game.handle_action(tag, user_it->second.controlling, std::forward<decltype(args)>(args) ...);
     }, value);
-    it->send_updates(*this);
 }
 
 void lobby::send_updates(game_manager &mgr) {

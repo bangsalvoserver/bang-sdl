@@ -231,7 +231,9 @@ constexpr bool is_picking_request(request_type type) {
 };
 
 void game_scene::on_click_main_deck() {
-    if (m_playing_id == m_player_own_id) {
+    if (m_current_request.target_id == m_player_own_id && is_picking_request(m_current_request.type)) {
+        add_action<game_action_type::pick_card>(card_pile_type::main_deck);
+    } else if (m_playing_id == m_player_own_id) {
         auto &p = get_player(m_playing_id);
         if (auto it = std::ranges::find(p.m_characters, character_type::drawing_forced, &character_card::type); it != p.m_characters.end()) {
             on_click_character(m_playing_id, it->id);

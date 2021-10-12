@@ -328,7 +328,7 @@ namespace banggame {
     }
 
     void game::handle_action(enums::enum_constant<game_action_type::play_card>, player *p, const play_card_args &args) {
-        if (m_requests.empty() && m_playing == p) {
+        if (m_requests.empty() && m_playing == p && m_timer.is(timer_type::none)) {
             p->play_card(args);
         }
     }
@@ -338,13 +338,13 @@ namespace banggame {
     }
 
     void game::handle_action(enums::enum_constant<game_action_type::draw_from_deck>, player *p) {
-        if (m_requests.empty() && m_playing == p && p->m_num_drawn_cards != p->m_num_cards_to_draw) {
+        if (m_requests.empty() && m_playing == p && p->m_num_drawn_cards != p->m_num_cards_to_draw && m_timer.is(timer_type::none)) {
             p->draw_from_deck();
         }
     }
 
     void game::handle_action(enums::enum_constant<game_action_type::pass_turn>, player *p) {
-        if (m_requests.empty() && m_playing == p && p->m_num_drawn_cards == p->m_num_cards_to_draw) {
+        if (m_requests.empty() && m_playing == p && p->m_num_drawn_cards == p->m_num_cards_to_draw && m_timer.is(timer_type::none)) {
             if (p->num_hand_cards() > p->max_cards_end_of_turn()) {
                 queue_request<request_type::discard_pass>(p, p);
             } else {
@@ -354,7 +354,7 @@ namespace banggame {
     }
 
     void game::handle_action(enums::enum_constant<game_action_type::resolve>, player *p) {
-        if (!m_requests.empty() && p == top_request().target()) {
+        if (!m_requests.empty() && p == top_request().target() && m_timer.is(timer_type::none)) {
             enums::visit([]<request_type E>(enums::enum_constant<E>, auto &req) {
                 if constexpr (resolvable_request<E>) {
                     auto req_copy = req;

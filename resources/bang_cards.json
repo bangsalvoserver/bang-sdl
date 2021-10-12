@@ -1178,7 +1178,6 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Salvo!",
             "signs": [
                 "5C"
@@ -1186,6 +1185,7 @@
             "image": "07_salvo",
             "expansion": "valleyofshadows",
             "color": "brown",
+            "offturn": true,
             "responses": [
                 {
                     "class": "saved"

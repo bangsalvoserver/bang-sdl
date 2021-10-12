@@ -39,6 +39,7 @@ namespace banggame {
         (poker,         effect_poker)
         (tornado,       effect_tornado)
         (damage,        effect_damage)
+        (saved,         effect_saved)
         (changewws,     effect_empty)
         (black_jack,    effect_black_jack)
         (kit_carlson,   effect_kit_carlson)

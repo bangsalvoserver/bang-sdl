@@ -233,4 +233,21 @@ namespace banggame {
         } while (next->m_hand.empty());
         origin->m_game->queue_request<request_type::poker>(origin, next);
     }
+
+    bool effect_saved::can_respond(player *origin) const {
+        if (origin->m_game->m_timer.is(timer_type::damaging)) {
+            auto &t = origin->m_game->m_timer.get<timer_type::damaging>();
+            return t.target != origin;
+        }
+        return false;
+    }
+
+    void effect_saved::on_play(player *origin) {
+        auto &timer = origin->m_game->m_timer.get<timer_type::damaging>();
+        origin->m_game->queue_request<request_type::saved>(nullptr, origin).saved = timer.target;
+        if (0 == --timer.damage) {
+            origin->m_game->m_timer.duration = 0;
+            origin->m_game->m_timer.emplace<timer_type::none>();
+        }
+    }
 }

@@ -134,6 +134,11 @@ namespace banggame {
     struct effect_generalstore : card_effect {
         void on_play(player *origin);
     };
+
+    struct effect_saved : card_effect {
+        bool can_respond(player *origin) const;
+        void on_play(player *origin);
+    };
 }
 
 #endif

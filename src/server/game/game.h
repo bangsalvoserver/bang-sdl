@@ -148,7 +148,7 @@ namespace banggame {
         template<timer_type E, typename ... Ts>
         void start_timer(Ts && ... args) {
             m_timer.emplace<E>(std::forward<Ts>(args) ... );
-            m_timer.duration = 500;
+            m_timer.duration = 100;
         }
 
         void tick() {

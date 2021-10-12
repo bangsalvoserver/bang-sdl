@@ -96,12 +96,7 @@ namespace banggame {
 
     void player::damage(player *source, int value, bool is_bang) {
         if (!m_ghost) {
-            m_hp -= value;
-            m_game->add_public_update<game_update_type::player_hp>(id, m_hp);
-            if (m_hp <= 0) {
-                m_game->add_request<request_type::death>(source, this);
-            }
-            m_game->queue_event<event_type::on_hit>(source, this, value, is_bang);
+            m_game->start_timer<timer_type::damaging>(source, this, value, is_bang);
         }
     }
 
