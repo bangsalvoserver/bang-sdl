@@ -38,6 +38,14 @@ void game_manager::parse_message(const sdlnet::ip_address &addr, const std::stri
     }
 }
 
+void game_manager::tick() {
+    for (auto &l : m_lobbies) {
+        if (l.state == lobby_state::playing) {
+            l.game.tick();
+        }
+    }
+}
+
 int game_manager::pending_messages() {
     return m_out_queue.size();
 }

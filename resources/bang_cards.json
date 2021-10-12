@@ -2307,13 +2307,18 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Lemonade Jim",
             "image": "07_lemonadejim",
             "hp": 4,
             "expansion": "valleyofshadows",
-            "effects": [
+            "offturn": true,
+            "responses": [
                 {
+                    "target": "self hand card",
+                    "class": "destroy"
+                },
+                {
+                    "target": "player self",
                     "class": "lemonade_jim"
                 }
             ]
@@ -2324,9 +2329,12 @@
             "image": "07_mickdefender",
             "hp": 4,
             "expansion": "valleyofshadows",
-            "effects": [
+            "responses": [
                 {
-                    "class": "mick_defender"
+                    "target": "self hand missed card"
+                },
+                {
+                    "class": "flight"
                 }
             ]
         },

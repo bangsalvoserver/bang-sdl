@@ -18,6 +18,7 @@ namespace banggame {
         std::vector<equip_holder> equips;
         std::string name;
         std::string image;
+        bool playable_offturn = false;
 
         void on_equip(player *target) {
             for (auto &e : equips) {

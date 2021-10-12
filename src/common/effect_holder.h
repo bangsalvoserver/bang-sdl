@@ -48,6 +48,7 @@ namespace banggame {
         (flint_westwood, effect_flint_westwood)
         (lee_van_kliff, effect_lee_van_kliff)
         (greygory_deck, effect_greygory_deck)
+        (lemonade_jim,  effect_lemonade_jim)
     )
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, equip_type,

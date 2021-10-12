@@ -28,10 +28,15 @@ namespace banggame {
         (card_id, int)
     )
 
+    DEFINE_ENUM_FLAGS_IN_NS(banggame, play_card_flags,
+        (equipping)
+        (offturn)
+    )
+
     DEFINE_SERIALIZABLE(play_card_args,
         (card_id, int)
         (targets, std::vector<play_card_target>)
-        (equipping, bool)
+        (flags, play_card_flags)
     )
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, game_action_type,

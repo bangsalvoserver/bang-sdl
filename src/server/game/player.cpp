@@ -464,8 +464,6 @@ namespace banggame {
     }
     
     void player::respond_card(const play_card_args &args) {
-        if (m_game->m_requests.empty()) return;
-        
         auto can_respond = [&](const card &c) {
             return std::ranges::any_of(c.responses, [&](const effect_holder &e) {
                 return e.can_respond(this);
@@ -618,6 +616,7 @@ namespace banggame {
         obj.name = c.name;
         obj.image = c.image;
         obj.type = c.type;
+        obj.playable_offturn = c.playable_offturn;
         for (const auto &e : c.effects) {
             obj.targets.emplace_back(e.target(), e.maxdistance());
         }

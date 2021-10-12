@@ -70,6 +70,8 @@ public:
         }
     }
 
+    void tick();
+
 private:
     std::list<lobby>::iterator find_lobby(const sdlnet::ip_address &addr);
 

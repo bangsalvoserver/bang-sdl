@@ -27,6 +27,7 @@ namespace banggame {
         std::vector<card_target_data> targets;
         std::vector<card_target_data> response_targets;
         std::vector<card_target_data> equip_targets;
+        bool playable_offturn;
 
         const sdl::rect &get_rect() const {
             return m_rect;

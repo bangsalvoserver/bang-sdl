@@ -248,24 +248,31 @@ void game_scene::on_click_temp_table_card(int card_id) {
 }
 
 void game_scene::on_click_table_card(int player_id, int card_id) {
+    auto &c = get_card(card_id);
     if (!m_highlights.empty() && card_id == m_highlights.front()) {
         clear_targets();
     } else if (m_current_request.target_id == m_player_own_id && m_current_request.type != request_type::none) {
         if (is_picking_request(m_current_request.type)) {
             add_action<game_action_type::pick_card>(card_pile_type::player_table, player_id, card_id);
         } else if (m_play_card_args.card_id == 0) {
-            if (!get_card(card_id).inactive) {
+            if (!c.inactive) {
                 m_play_card_args.card_id = card_id;
                 m_highlights.push_back(card_id);
                 handle_auto_targets(true);
             }
         } else {
-            add_card_target(true, target_card_id{player_id, card_id, true});
+            add_card_target(true, target_card_id{player_id, card_id, false});
         }
+    } else if (m_play_card_args.card_id == 0 && c.playable_offturn && !c.inactive) {
+        m_play_card_args.card_id = card_id;
+        m_play_card_args.flags |= play_card_flags::offturn;
+        m_highlights.push_back(card_id);
+        handle_auto_targets(true);
+    } else if (bool(m_play_card_args.flags & play_card_flags::offturn)) {
+        add_card_target(true, target_card_id{player_id, card_id, false});
     } else if (m_playing_id == m_player_own_id) {
         if (m_play_card_args.card_id == 0) {
             if (player_id == m_player_own_id) {
-                auto &c = get_card(card_id);
                 switch (c.color) {
                 case card_color_type::green:
                     if (!c.inactive) {
@@ -290,24 +297,29 @@ void game_scene::on_click_table_card(int player_id, int card_id) {
 }
 
 void game_scene::on_click_hand_card(int player_id, int card_id) {
+    auto &c = get_card(card_id);
     if (!m_highlights.empty() && card_id == m_highlights.front()) {
         clear_targets();
     } else if (m_current_request.target_id == m_player_own_id && m_current_request.type != request_type::none) {
         if (is_picking_request(m_current_request.type)) {
             add_action<game_action_type::pick_card>(card_pile_type::player_hand, player_id, card_id);
         } else if (m_play_card_args.card_id == 0) {
-            if (!get_card(card_id).inactive) {
-                m_play_card_args.card_id = card_id;
-                m_highlights.push_back(card_id);
-                handle_auto_targets(true);
-            }
+            m_play_card_args.card_id = card_id;
+            m_highlights.push_back(card_id);
+            handle_auto_targets(true);
         } else {
             add_card_target(true, target_card_id{player_id, card_id, true});
         }
+    } else if (m_play_card_args.card_id == 0 && c.playable_offturn) {
+        m_play_card_args.card_id = card_id;
+        m_play_card_args.flags |= play_card_flags::offturn;
+        m_highlights.push_back(card_id);
+        handle_auto_targets(true);
+    } else if (bool(m_play_card_args.flags & play_card_flags::offturn)) {
+        add_card_target(true, target_card_id{player_id, card_id, true});
     } else if (m_playing_id == m_player_own_id) {
         if (m_play_card_args.card_id == 0) {
             if (player_id == m_player_own_id) {
-                auto &c = get_card(card_id);
                 switch (c.color) {
                 case card_color_type::blue:
                     if (c.equip_targets.empty()
@@ -319,7 +331,7 @@ void game_scene::on_click_hand_card(int player_id, int card_id) {
                         });
                     } else {
                         m_play_card_args.card_id = card_id;
-                        m_play_card_args.equipping = true;
+                        m_play_card_args.flags |= play_card_flags::equipping;
                         m_highlights.push_back(card_id);
                     }
                     break;
@@ -343,6 +355,7 @@ void game_scene::on_click_hand_card(int player_id, int card_id) {
 }
 
 void game_scene::on_click_character(int player_id, int card_id) {
+    auto &c = *std::ranges::find(get_player(player_id).m_characters, card_id, &character_card::id);
     if (card_id == m_play_card_args.card_id) {
         clear_targets();
     } else if (m_current_request.target_id == m_player_own_id && m_current_request.type != request_type::none) {
@@ -353,11 +366,14 @@ void game_scene::on_click_character(int player_id, int card_id) {
             m_highlights.push_back(card_id);
             handle_auto_targets(true);
         }
+    } else if (c.playable_offturn && m_play_card_args.card_id == 0 && player_id == m_player_own_id) {
+        m_play_card_args.card_id = card_id;
+        m_play_card_args.flags |= play_card_flags::offturn;
+        m_highlights.push_back(card_id);
+        handle_auto_targets(true);
     } else if (m_playing_id == m_player_own_id) {
         if (m_play_card_args.card_id == 0 && player_id == m_player_own_id) {
-            auto &p = get_player(player_id);
-            auto c = std::ranges::find(p.m_characters, card_id, &character_card::id);
-            if (c->type != character_type::none) {
+            if (c.type != character_type::none) {
                 m_play_card_args.card_id = card_id;
                 m_highlights.push_back(card_id);
                 handle_auto_targets(false);
@@ -385,7 +401,7 @@ std::vector<card_target_data> &game_scene::get_current_card_targets(bool is_resp
         auto &c = get_card_widget(m_play_card_args.card_id);
         if (is_response) {
             return c.response_targets;
-        } else if (m_play_card_args.equipping) {
+        } else if (bool(m_play_card_args.flags & play_card_flags::equipping)) {
             return c.equip_targets;
         } else {
             return c.targets;
@@ -544,7 +560,7 @@ void game_scene::add_player_targets(bool is_response, const std::vector<target_p
 void game_scene::clear_targets() {
     m_play_card_args.targets.clear();
     m_play_card_args.card_id = 0;
-    m_play_card_args.equipping = false;
+    m_play_card_args.flags = enums::flags_none<play_card_flags>;
     m_highlights.clear();
     m_virtual.reset();
 }
@@ -673,6 +689,7 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::show_card>
         c.targets = args.targets;
         c.response_targets = args.response_targets;
         c.equip_targets = args.equip_targets;
+        c.playable_offturn = args.playable_offturn;
 
         c.make_texture_front();
 
@@ -774,9 +791,10 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::player_cha
         c.id = args.card_id;
         c.name = args.name;
         c.image = args.image;
+        c.type = args.type;
         c.targets = args.targets;
         c.response_targets = args.response_targets;
-        c.type = args.type;
+        c.playable_offturn = args.playable_offturn;
 
         c.make_texture_front();
 
@@ -832,6 +850,13 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::request_ha
     }
 
     pop_update();
+}
+
+void game_scene::handle_update(enums::enum_constant<game_update_type::timer_start>, const timer_start_update &args) {
+    // TODO mostra timer in ui
+    std::string timer_str = "Timer iniziato: ";
+    timer_str.append(enums::to_string(args.type));
+    m_ui.add_message(timer_str);
 }
 
 void game_scene::handle_update(enums::enum_constant<game_update_type::status_clear>) {

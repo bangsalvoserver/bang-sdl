@@ -19,6 +19,7 @@ namespace banggame {
         obj.suit = c.suit;
         obj.value = c.value;
         obj.short_pause = short_pause;
+        obj.playable_offturn = c.playable_offturn;
         for (const auto &value : c.effects) {
             obj.targets.emplace_back(value.target(), value.maxdistance());
         }
@@ -315,9 +316,7 @@ namespace banggame {
     }
 
     void game::handle_action(enums::enum_constant<game_action_type::respond_card>, player *p, const play_card_args &args) {
-        if (!m_requests.empty() && p == top_request().target()) {
-            p->respond_card(args);
-        }
+        p->respond_card(args);
     }
 
     void game::handle_action(enums::enum_constant<game_action_type::draw_from_deck>, player *p) {

@@ -14,8 +14,25 @@
 DECLARE_RESOURCE(bang_cards_json)
 
 namespace banggame {
+    
+    static void make_all_effects(card &out, const Json::Value &json_card) {
+        out.name = json_card["name"].asString();
+        out.image = json_card["image"].asString();
+        if (json_card.isMember("effects")) {
+            out.effects = make_effects_from_json<effect_holder>(json_card["effects"]);
+        }
+        if (json_card.isMember("responses")) {
+            out.responses = make_effects_from_json<effect_holder>(json_card["responses"]);
+        }
+        if (json_card.isMember("equip")) {
+            out.equips = make_effects_from_json<equip_holder>(json_card["equip"]);
+        }
+        if (json_card.isMember("offturn")) {
+            out.playable_offturn = json_card["offturn"].asBool();
+        }
+    }
 
-    const all_cards_t all_cards = []() {
+    const all_cards_t all_cards = [] {
         using namespace enums::flag_operators;
 
         all_cards_t ret;
@@ -30,12 +47,8 @@ namespace banggame {
             c.expansion = enums::from_string<card_expansion_type>(json_card["expansion"].asString());
             if (c.expansion != enums::invalid_enum_v<card_expansion_type>) {
                 if (json_card.isMember("disabled") && json_card["disabled"].asBool()) continue;
-                c.name = json_card["name"].asString();
-                c.image = json_card["image"].asString();
+                make_all_effects(c, json_card);
                 c.color = enums::from_string<card_color_type>(json_card["color"].asString());
-                c.effects = make_effects_from_json<effect_holder>(json_card["effects"]);
-                c.responses = make_effects_from_json<effect_holder>(json_card["responses"]);
-                c.equips = make_effects_from_json<equip_holder>(json_card["equip"]);
                 for (const auto &json_sign : json_card["signs"]) {
                     std::string_view str = json_sign.asString();
                     c.suit = *std::ranges::find_if(enums::enum_values_v<card_suit_type>,
@@ -58,17 +71,13 @@ namespace banggame {
             c.expansion = enums::from_string<card_expansion_type>(json_character["expansion"].asString());
             if (c.expansion != enums::invalid_enum_v<card_expansion_type>) {
                 if (json_character.isMember("disabled") && json_character["disabled"].asBool()) continue;
-                c.name = json_character["name"].asString();
-                c.image = json_character["image"].asString();
+                make_all_effects(c, json_character);
                 if (json_character.isMember("type")) {
                     c.type = enums::from_string<character_type>(json_character["type"].asString());
                 }
                 if (json_character.isMember("usages")) {
                     c.max_usages = json_character["usages"].asInt();
                 }
-                c.effects = make_effects_from_json<effect_holder>(json_character["effects"]);
-                c.responses = make_effects_from_json<effect_holder>(json_character["responses"]);
-                c.equips = make_effects_from_json<equip_holder>(json_character["equip"]);
                 c.max_hp = json_character["hp"].asInt();
                 ret.characters.push_back(c);
             }

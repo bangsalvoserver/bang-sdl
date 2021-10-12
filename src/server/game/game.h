@@ -12,6 +12,7 @@
 
 #include "common/game_update.h"
 #include "common/requests.h"
+#include "common/timer.h"
 
 namespace banggame {
 
@@ -79,6 +80,8 @@ namespace banggame {
         player *m_playing = nullptr;
 
         int m_id_counter = 0;
+
+        game_timer m_timer;
         
         int get_next_id() {
             return ++m_id_counter;
@@ -108,6 +111,12 @@ namespace banggame {
             return m_requests.front();
         }
 
+        bool top_request_is(request_type type, player *target) {
+            if (m_requests.empty()) return false;
+            const auto &req = top_request();
+            return req.is(type) && req.target() == target;
+        }
+
         void send_request_update() {
             const auto &req = top_request();
             add_public_update<game_update_type::request_handle>(req.enum_index(),
@@ -133,6 +142,21 @@ namespace banggame {
             }
 
             return ret.template get<E>();
+        }
+
+        template<timer_type E, typename ... Ts>
+        void start_timer(Ts && ... args) {
+            m_timer.emplace<E>(std::forward<Ts>(args) ... );
+            m_timer.duration = 500;
+        }
+
+        void stop_timer() {
+            m_timer.emplace<timer_type::none>();
+            m_timer.duration = 0;
+        }
+
+        void tick() {
+            m_timer.tick();
         }
 
         void pop_request() {

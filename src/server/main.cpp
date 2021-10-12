@@ -49,6 +49,7 @@ int main(int argc, char **argv) {
                 clients.emplace(peer.addr, std::move(peer));
             }
         }
+        mgr.tick();
         while (mgr.pending_messages()) {
             auto msg = mgr.pop_message();
             

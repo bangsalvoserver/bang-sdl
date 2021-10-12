@@ -26,7 +26,7 @@ namespace banggame {
     }
 
     bool effect_missed::can_respond(player *origin) const {
-        if (origin->m_game->top_request().is(request_type::bang)) {
+        if (origin->m_game->top_request_is(request_type::bang, origin)) {
             auto &req = origin->m_game->top_request().get<request_type::bang>();
             return !req.unavoidable;
         }
@@ -77,8 +77,8 @@ namespace banggame {
     }
 
     bool effect_bangresponse::can_respond(player *origin) const {
-        auto index = origin->m_game->top_request().enum_index();
-        return index == request_type::duel || index == request_type::indians;
+        return origin->m_game->top_request_is(request_type::duel, origin)
+            || origin->m_game->top_request_is(request_type::indians, origin);
     }
 
     void effect_bangresponse::on_play(player *target) {
@@ -131,13 +131,14 @@ namespace banggame {
 
     void effect_beer::on_play(player *origin, player *target) {
         target->m_game->queue_event<event_type::on_play_beer>(target);
+        target->m_game->start_timer<timer_type::beer>(origin);
         if (target->m_game->m_players.size() <= 2 || target->m_game->num_alive() > 2) {
             target->heal(target->m_beer_strength);
         }
     }
 
     bool effect_deathsave::can_respond(player *origin) const {
-        if (origin->m_game->top_request().is(request_type::death)) {
+        if (origin->m_game->top_request_is(request_type::death, origin)) {
             auto &req = origin->m_game->top_request().get<request_type::death>();
             return req.draw_attempts.empty();
         }

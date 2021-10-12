@@ -3,6 +3,7 @@
 
 #include "card_enums.h"
 #include "requests.h"
+#include "timer.h"
 
 namespace banggame {
 
@@ -45,6 +46,7 @@ namespace banggame {
         (targets, std::vector<card_target_data>)
         (response_targets, std::vector<card_target_data>)
         (equip_targets, std::vector<card_target_data>)
+        (playable_offturn, bool)
     )
 
     DEFINE_SERIALIZABLE(hide_card_update,
@@ -77,6 +79,7 @@ namespace banggame {
         (type, character_type)
         (targets, std::vector<card_target_data>)
         (response_targets, std::vector<card_target_data>)
+        (playable_offturn, bool)
     )
 
     DEFINE_SERIALIZABLE(player_show_role_update,
@@ -95,6 +98,11 @@ namespace banggame {
         (target_id, int)
     )
 
+    DEFINE_SERIALIZABLE(timer_start_update,
+        (type, timer_type)
+        (duration, int)
+    )
+
     DEFINE_ENUM_TYPES_IN_NS(banggame, game_update_type,
         (game_over, game_over_update)
         (add_cards, add_cards_update)
@@ -110,6 +118,7 @@ namespace banggame {
         (player_show_role, player_show_role_update)
         (switch_turn, switch_turn_update)
         (request_handle, request_handle_update)
+        (timer_start, timer_start_update)
         (status_clear)
     )
 

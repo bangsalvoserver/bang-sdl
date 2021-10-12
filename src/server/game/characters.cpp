@@ -331,7 +331,7 @@ namespace banggame {
     }
 
     bool effect_teren_kill::can_respond(player *origin) const {
-        return origin->m_game->top_request().is(request_type::death);
+        return origin->m_game->top_request_is(request_type::death, origin);
     }
 
     void effect_teren_kill::on_play(player *origin) {
@@ -445,5 +445,17 @@ namespace banggame {
         p->m_game->add_event<event_type::on_game_start>(card_id, [p] {
             greygory_deck_set_characters(p);
         });
+    }
+
+    bool effect_lemonade_jim::can_respond(player *target) const {
+        if (target->m_game->m_timer.is(timer_type::beer)) {
+            return target->m_game->m_timer.get<timer_type::beer>().origin != target;
+        }
+        return false;
+    }
+
+    void effect_lemonade_jim::on_play(player *origin, player *target) {
+        target->heal(1);
+        target->m_game->stop_timer();
     }
 }

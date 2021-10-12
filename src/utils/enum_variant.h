@@ -26,6 +26,11 @@ namespace enums {
         template<Enum Value, typename ... Ts>
         enum_variant(enum_constant<Value>, Ts && ... args)
             : base(std::in_place_index<indexof(Value)>, std::forward<Ts>(args) ...) {}
+
+        template<Enum Value, typename ... Ts>
+        auto &emplace(Ts && ... args) {
+            return base::template emplace<indexof(Value)>(std::forward<Ts>(args) ...);
+        }
         
         Enum enum_index() const {
             return enum_values_v<Enum>[base::index()];
