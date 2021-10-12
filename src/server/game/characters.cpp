@@ -451,13 +451,14 @@ namespace banggame {
 
     bool effect_lemonade_jim::can_respond(player *target) const {
         if (target->m_game->m_timer.is(timer_type::beer)) {
-            return target->m_game->m_timer.get<timer_type::beer>().origin != target;
+            const auto &vec = target->m_game->m_timer.get<timer_type::beer>().players;
+            return std::ranges::find(vec, target->id) == vec.end();
         }
         return false;
     }
 
     void effect_lemonade_jim::on_play(player *origin, player *target) {
         target->heal(1);
-        target->m_game->stop_timer();
+        target->m_game->m_timer.get<timer_type::beer>().players.push_back(target->id);
     }
 }

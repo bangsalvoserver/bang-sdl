@@ -8,7 +8,7 @@ namespace banggame {
     struct player;
     
     struct timer_beer_args {
-        player *origin;
+        std::vector<int> players;
     };
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, timer_type,
@@ -23,6 +23,11 @@ namespace banggame {
 
         void tick() {
             if (duration && --duration == 0) {
+                enums::visit([](auto tag, auto & ... obj) {
+                    if constexpr (sizeof...(obj) > 0 && (requires { obj.on_finished(); } && ...)) {
+                        (obj.on_finished(), ...);
+                    }
+                }, *this);
                 emplace<timer_type::none>();
             }
         }

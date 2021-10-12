@@ -151,11 +151,6 @@ namespace banggame {
             m_timer.duration = 500;
         }
 
-        void stop_timer() {
-            m_timer.emplace<timer_type::none>();
-            m_timer.duration = 0;
-        }
-
         void tick() {
             m_timer.tick();
         }

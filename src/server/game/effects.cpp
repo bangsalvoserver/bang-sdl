@@ -131,7 +131,7 @@ namespace banggame {
 
     void effect_beer::on_play(player *origin, player *target) {
         target->m_game->queue_event<event_type::on_play_beer>(target);
-        target->m_game->start_timer<timer_type::beer>(origin);
+        target->m_game->start_timer<timer_type::beer>(std::vector{target->id});
         if (target->m_game->m_players.size() <= 2 || target->m_game->num_alive() > 2) {
             target->heal(target->m_beer_strength);
         }
