@@ -3,6 +3,7 @@
 
 #include "effect_holder.h"
 #include "characters.h"
+#include "timer.h"
 
 namespace banggame {
 
@@ -85,6 +86,8 @@ namespace banggame {
         (claus_the_saint, request_claus_the_saint)
         (vera_custer,   request_vera_custer)
         (youl_grinner,  request_youl_grinner)
+        (beer,          timer_beer)
+        (damaging,      timer_damaging)
     )
 
     template<request_type E> concept picking_request = requires (enums::enum_type_t<E> &req, const pick_card_args &args) {
@@ -94,6 +97,8 @@ namespace banggame {
     template<request_type E> concept resolvable_request = requires (enums::enum_type_t<E> &req) {
         req.on_resolve();
     };
+
+    template<request_type E> concept timer_request = std::derived_from<enums::enum_type_t<E>, timer_base>;
 
     struct request_holder : enums::enum_variant<request_type> {
         template<request_type E> request_holder(enums::enum_constant<E> tag, player *origin, player *target)

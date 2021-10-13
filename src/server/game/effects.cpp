@@ -131,7 +131,7 @@ namespace banggame {
 
     void effect_beer::on_play(player *origin, player *target) {
         target->m_game->queue_event<event_type::on_play_beer>(target);
-        target->m_game->start_timer<timer_type::beer>(std::vector{target->id});
+        target->m_game->start_timer<request_type::beer>(origin, target).players.push_back(target->id);
         if (target->m_game->m_players.size() <= 2 || target->m_game->num_alive() > 2) {
             target->heal(target->m_beer_strength);
         }
@@ -235,23 +235,22 @@ namespace banggame {
     }
 
     bool effect_saved::can_respond(player *origin) const {
-        if (origin->m_game->m_timer.is(timer_type::damaging)) {
-            auto &t = origin->m_game->m_timer.get<timer_type::damaging>();
+        if (origin->m_game->top_request_is(request_type::damaging)) {
+            auto &t = origin->m_game->top_request().get<request_type::damaging>();
             return t.target != origin;
         }
         return false;
     }
 
     void effect_saved::on_play(player *origin) {
-        auto &timer = origin->m_game->m_timer.get<timer_type::damaging>();
+        auto &timer = origin->m_game->top_request().get<request_type::damaging>();
         origin->m_game->queue_event<event_type::delayed_action>([origin, target = timer.target]{
             if (target->alive()) {
-                target->m_game->queue_request<request_type::saved>(nullptr, origin).saved = target;
+                origin->m_game->queue_request<request_type::saved>(nullptr, origin).saved = target;
             }
         });
         if (0 == --timer.damage) {
-            origin->m_game->m_timer.duration = 0;
-            origin->m_game->m_timer.emplace<timer_type::none>();
+            origin->m_game->pop_request();
         }
     }
 }

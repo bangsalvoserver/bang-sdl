@@ -80,8 +80,6 @@ namespace banggame {
         player *m_playing = nullptr;
 
         int m_id_counter = 0;
-
-        game_timer m_timer;
         
         int get_next_id() {
             return ++m_id_counter;
@@ -112,10 +110,10 @@ namespace banggame {
             return m_requests.front();
         }
 
-        bool top_request_is(request_type type, player *target) {
+        bool top_request_is(request_type type, player *target = nullptr) {
             if (m_requests.empty()) return false;
             const auto &req = top_request();
-            return req.is(type) && req.target() == target;
+            return req.is(type) && (!target || req.target() == target);
         }
 
         void send_request_update() {
@@ -145,16 +143,6 @@ namespace banggame {
             return ret.template get<E>();
         }
 
-        template<timer_type E, typename ... Ts>
-        void start_timer(Ts && ... args) {
-            m_timer.emplace<E>(std::forward<Ts>(args) ... );
-            m_timer.duration = 100;
-        }
-
-        void tick() {
-            m_timer.tick();
-        }
-
         void pop_request() {
             m_requests.pop_front();
             if (m_requests.empty()) {
@@ -168,6 +156,15 @@ namespace banggame {
         void pop_request_noupdate() {
             m_requests.pop_front();
         }
+
+        template<request_type E> requires timer_request<E>
+        auto &start_timer(player *origin, player *target) {
+            auto &obj = queue_request<E>(origin, target);
+            obj.duration = 100;
+            return obj;
+        }
+
+        void tick();
 
         template<event_type E, typename Function>
         void add_event(int card_id, Function &&fun) {

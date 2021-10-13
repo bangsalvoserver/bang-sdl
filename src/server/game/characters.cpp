@@ -451,8 +451,8 @@ namespace banggame {
     }
 
     bool effect_lemonade_jim::can_respond(player *target) const {
-        if (target->m_game->m_timer.is(timer_type::beer)) {
-            const auto &vec = target->m_game->m_timer.get<timer_type::beer>().players;
+        if (target->m_game->top_request_is(request_type::beer)) {
+            const auto &vec = target->m_game->top_request().get<request_type::beer>().players;
             return std::ranges::find(vec, target->id) == vec.end();
         }
         return false;
@@ -460,6 +460,6 @@ namespace banggame {
 
     void effect_lemonade_jim::on_play(player *origin, player *target) {
         target->heal(1);
-        target->m_game->m_timer.get<timer_type::beer>().players.push_back(target->id);
+        target->m_game->top_request().get<request_type::beer>().players.push_back(target->id);
     }
 }

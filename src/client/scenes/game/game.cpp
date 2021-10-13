@@ -230,6 +230,13 @@ constexpr bool is_picking_request(request_type type) {
     return lut[enums::indexof(type)];
 };
 
+constexpr bool is_timer_request(request_type type) {
+    constexpr auto lut = []<request_type ... Es>(enums::enum_sequence<Es ...>) {
+        return std::array{ timer_request<Es> ... };
+    }(enums::make_enum_sequence<request_type>());
+    return lut[enums::indexof(type)];
+}
+
 void game_scene::on_click_main_deck() {
     if (m_current_request.target_id == m_player_own_id && is_picking_request(m_current_request.type)) {
         add_action<game_action_type::pick_card>(card_pile_type::main_deck);
@@ -837,7 +844,11 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::request_ha
     m_current_request.origin_id = args.origin_id;
     m_current_request.target_id = args.target_id;
 
-    if (args.target_id == m_player_own_id) {
+    if (is_timer_request(args.type)) {
+        std::string message_str = "Timer started: ";
+        message_str.append(enums::to_string(args.type));
+        m_ui.set_status(message_str);
+    } else if (args.target_id == m_player_own_id) {
         std::string message_str = "Respond to: ";
         message_str.append(enums::to_string(args.type));
         m_ui.set_status(message_str);
@@ -846,13 +857,6 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::request_ha
     }
 
     pop_update();
-}
-
-void game_scene::handle_update(enums::enum_constant<game_update_type::timer_start>, const timer_start_update &args) {
-    // TODO mostra timer in ui
-    std::string timer_str = "Timer iniziato: ";
-    timer_str.append(enums::to_string(args.type));
-    m_ui.add_message(timer_str);
 }
 
 void game_scene::handle_update(enums::enum_constant<game_update_type::status_clear>) {

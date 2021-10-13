@@ -142,6 +142,22 @@ namespace banggame {
         m_playing->start_of_turn();
     }
 
+    void game::tick() {
+        if (!m_requests.empty()) {
+            enums::visit([&]<request_type E>(enums::enum_constant<E>, auto &obj) {
+                if constexpr (timer_request<E>) {
+                    if (obj.duration && --obj.duration == 0) {
+                        auto copy = std::move(obj);
+                        pop_request();
+                        if constexpr (requires { obj.on_finished(); }) {
+                            copy.on_finished();
+                        }
+                    }
+                }
+            }, top_request());
+        }
+    }
+
     deck_card game::draw_card() {
         deck_card c = std::move(m_deck.back());
         m_deck.pop_back();
@@ -328,7 +344,7 @@ namespace banggame {
     }
 
     void game::handle_action(enums::enum_constant<game_action_type::play_card>, player *p, const play_card_args &args) {
-        if (m_requests.empty() && m_playing == p && m_timer.is(timer_type::none)) {
+        if (m_requests.empty() && m_playing == p) {
             p->play_card(args);
         }
     }
@@ -338,13 +354,13 @@ namespace banggame {
     }
 
     void game::handle_action(enums::enum_constant<game_action_type::draw_from_deck>, player *p) {
-        if (m_requests.empty() && m_playing == p && p->m_num_drawn_cards != p->m_num_cards_to_draw && m_timer.is(timer_type::none)) {
+        if (m_requests.empty() && m_playing == p && p->m_num_drawn_cards != p->m_num_cards_to_draw) {
             p->draw_from_deck();
         }
     }
 
     void game::handle_action(enums::enum_constant<game_action_type::pass_turn>, player *p) {
-        if (m_requests.empty() && m_playing == p && p->m_num_drawn_cards == p->m_num_cards_to_draw && m_timer.is(timer_type::none)) {
+        if (m_requests.empty() && m_playing == p && p->m_num_drawn_cards == p->m_num_cards_to_draw) {
             if (p->num_hand_cards() > p->max_cards_end_of_turn()) {
                 queue_request<request_type::discard_pass>(p, p);
             } else {
@@ -354,7 +370,7 @@ namespace banggame {
     }
 
     void game::handle_action(enums::enum_constant<game_action_type::resolve>, player *p) {
-        if (!m_requests.empty() && p == top_request().target() && m_timer.is(timer_type::none)) {
+        if (!m_requests.empty() && p == top_request().target()) {
             enums::visit([]<request_type E>(enums::enum_constant<E>, auto &req) {
                 if constexpr (resolvable_request<E>) {
                     auto req_copy = req;

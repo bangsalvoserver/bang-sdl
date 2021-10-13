@@ -96,7 +96,9 @@ namespace banggame {
 
     void player::damage(player *source, int value, bool is_bang) {
         if (!m_ghost) {
-            m_game->start_timer<timer_type::damaging>(source, this, value, is_bang);
+            auto &obj = m_game->start_timer<request_type::damaging>(source, this);
+            obj.damage = value;
+            obj.is_bang = is_bang;
         }
     }
 
