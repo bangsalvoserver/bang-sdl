@@ -244,9 +244,11 @@ namespace banggame {
 
     void effect_saved::on_play(player *origin) {
         auto &timer = origin->m_game->m_timer.get<timer_type::damaging>();
-        if (timer.target->m_hp - timer.damage + 1 > 0) {
-            origin->m_game->queue_request<request_type::saved>(nullptr, origin).saved = timer.target;
-        }
+        origin->m_game->queue_event<event_type::delayed_action>([origin, target = timer.target]{
+            if (target->alive()) {
+                target->m_game->queue_request<request_type::saved>(nullptr, origin).saved = target;
+            }
+        });
         if (0 == --timer.damage) {
             origin->m_game->m_timer.duration = 0;
             origin->m_game->m_timer.emplace<timer_type::none>();

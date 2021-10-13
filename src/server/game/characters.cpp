@@ -118,6 +118,7 @@ namespace banggame {
                 while(damage--) {
                     target->steal_card(origin, origin->random_hand_card().id);
                 }
+                target->m_game->queue_event<event_type::on_effect_end>(p);
             }
         });
     }
