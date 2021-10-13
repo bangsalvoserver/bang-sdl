@@ -14,4 +14,9 @@ namespace banggame {
             target->m_game->queue_event<event_type::on_hit>(origin, target, damage, is_bang);
         }
     }
+
+    void timer_flightable::on_resolve() {
+        target->m_game->pop_request();
+        on_finished();
+    }
 }

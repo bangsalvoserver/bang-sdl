@@ -96,7 +96,7 @@ namespace banggame {
 
     void player::damage(player *source, int value, bool is_bang) {
         if (!m_ghost) {
-            auto &obj = m_game->start_timer<request_type::damaging>(source, this);
+            auto &obj = m_game->queue_request<request_type::damaging>(source, this);
             obj.damage = value;
             obj.is_bang = is_bang;
         }
@@ -272,11 +272,15 @@ namespace banggame {
         card *card_ptr = nullptr;
         bool is_character = false;
         bool is_virtual = false;
+        bool flightable = false;
         if (auto it = std::ranges::find(m_characters, card_id, &character::id); it != m_characters.end()) {
             card_ptr = &*it;
             is_character = true;
         } else if (auto it = std::ranges::find(m_hand, card_id, &deck_card::id); it != m_hand.end()) {
             auto &moved = m_game->add_to_discards(std::move(*it));
+            flightable = moved.color == card_color_type::brown && !std::ranges::any_of(moved.effects, [](const effect_holder &e) {
+                return e.is(effect_type::bangcard);
+            });
             card_ptr = &moved;
             m_last_played_card = card_id;
             m_hand.erase(it);
@@ -327,7 +331,13 @@ namespace banggame {
                         auto *p = m_game->get_player(target.player_id);
                         if (p != this && check_immunity(p)) continue;
                         m_current_card_targets.emplace(card_id, target.player_id);
-                        e.on_play(this, p);
+                        if (flightable && p != this) {
+                            m_game->queue_request<request_type::flightable>(this, p).on_finished = [=, this] () mutable {
+                                e.on_play(this, p);
+                            };
+                        } else {
+                            e.on_play(this, p);
+                        }
                     }
                 },
                 [&](enums::enum_constant<play_card_target_type::target_card>, const std::vector<target_card_id> &args) {
@@ -335,10 +345,16 @@ namespace banggame {
                         auto *p = m_game->get_player(target.player_id);
                         if (p != this && check_immunity(p)) continue;
                         m_current_card_targets.emplace(card_id, target.player_id);
+                        int target_card_id = target.card_id;
                         if (target.from_hand && p != this) {
-                            e.on_play(this, p, p->random_hand_card().id);
+                            target_card_id = p->random_hand_card().id;
+                        }
+                        if (flightable && p != this) {
+                            m_game->queue_request<request_type::flightable>(this, p).on_finished = [=, this] () mutable {
+                                e.on_play(this, p, target_card_id);
+                            };
                         } else {
-                            e.on_play(this, p, target.card_id);
+                            e.on_play(this, p, target_card_id);
                         }
                     }
                 }

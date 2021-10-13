@@ -1106,7 +1106,6 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Fuga",
             "signs": [
                 "3C"
@@ -2329,14 +2328,14 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Mick Defender",
             "image": "07_mickdefender",
             "hp": 4,
             "expansion": "valleyofshadows",
             "responses": [
                 {
-                    "target": "self hand missed card"
+                    "target": "self hand missed card",
+                    "class": "destroy"
                 },
                 {
                     "class": "flight"

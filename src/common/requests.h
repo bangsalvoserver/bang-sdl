@@ -88,6 +88,7 @@ namespace banggame {
         (youl_grinner,  request_youl_grinner)
         (beer,          timer_beer)
         (damaging,      timer_damaging)
+        (flightable,    timer_flightable)
     )
 
     template<request_type E> concept picking_request = requires (enums::enum_type_t<E> &req, const pick_card_args &args) {

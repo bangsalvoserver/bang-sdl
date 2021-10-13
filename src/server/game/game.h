@@ -157,13 +157,6 @@ namespace banggame {
             m_requests.pop_front();
         }
 
-        template<request_type E> requires timer_request<E>
-        auto &start_timer(player *origin, player *target) {
-            auto &obj = queue_request<E>(origin, target);
-            obj.duration = 100;
-            return obj;
-        }
-
         void tick();
 
         template<event_type E, typename Function>

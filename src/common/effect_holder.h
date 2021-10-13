@@ -40,6 +40,7 @@ namespace banggame {
         (tornado,       effect_tornado)
         (damage,        effect_damage)
         (saved,         effect_saved)
+        (flight,        effect_flight)
         (changewws,     effect_empty)
         (black_jack,    effect_black_jack)
         (kit_carlson,   effect_kit_carlson)

@@ -8,7 +8,7 @@ namespace banggame {
     struct player;
 
     struct timer_base : request_base {
-        int duration = 0;
+        int duration = 100;
     };
 
     struct timer_beer : timer_base {
@@ -20,6 +20,16 @@ namespace banggame {
         bool is_bang;
 
         void on_finished();
+    };
+
+    struct timer_flightable : timer_base {
+        timer_flightable() {
+            duration = 150;
+        }
+
+        std::function<void()> on_finished;
+
+        void on_resolve();
     };
 
 }

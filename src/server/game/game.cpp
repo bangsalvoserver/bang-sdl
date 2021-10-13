@@ -373,7 +373,7 @@ namespace banggame {
         if (!m_requests.empty() && p == top_request().target()) {
             enums::visit([]<request_type E>(enums::enum_constant<E>, auto &req) {
                 if constexpr (resolvable_request<E>) {
-                    auto req_copy = req;
+                    auto req_copy = std::move(req);
                     req_copy.on_resolve();
                 }
             }, top_request());

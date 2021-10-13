@@ -139,6 +139,11 @@ namespace banggame {
         bool can_respond(player *origin) const;
         void on_play(player *origin);
     };
+
+    struct effect_flight : card_effect {
+        bool can_respond(player *origin) const;
+        void on_play(player *origin);
+    };
 }
 
 #endif

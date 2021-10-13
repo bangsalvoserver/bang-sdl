@@ -243,13 +243,22 @@ namespace banggame {
 
     void effect_saved::on_play(player *origin) {
         auto &timer = origin->m_game->top_request().get<request_type::damaging>();
-        origin->m_game->queue_event<event_type::delayed_action>([origin, target = timer.target]{
+        auto fun = [origin, target = timer.target]{
             if (target->alive()) {
                 origin->m_game->queue_request<request_type::saved>(nullptr, origin).saved = target;
             }
-        });
+        };
         if (0 == --timer.damage) {
             origin->m_game->pop_request();
         }
+        origin->m_game->queue_event<event_type::delayed_action>(std::move(fun));
+    }
+
+    bool effect_flight::can_respond(player *origin) const {
+        return origin->m_game->top_request_is(request_type::flightable, origin);
+    }
+
+    void effect_flight::on_play(player *origin) {
+        origin->m_game->pop_request();
     }
 }
