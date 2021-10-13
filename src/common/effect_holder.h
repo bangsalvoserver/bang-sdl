@@ -35,7 +35,7 @@ namespace banggame {
         (generalstore,  effect_generalstore)
         (deathsave,     effect_deathsave)
         (bandidos,      effect_bandidos)
-        (aimbang,       effect_aimbang)
+        (aim,           effect_aim)
         (poker,         effect_poker)
         (tornado,       effect_tornado)
         (damage,        effect_damage)

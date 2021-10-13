@@ -45,6 +45,7 @@ namespace banggame {
 
         int m_bangs_played = 0;
         int m_bangs_per_turn = 1;
+        int m_bang_damage = 1;
         bool m_cant_play_missedcard = false;
 
         int m_beer_strength = 1;

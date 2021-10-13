@@ -365,6 +365,10 @@ namespace banggame {
         if (is_virtual) {
             m_virtual.reset();
         }
+
+        if (m_bang_damage > 1 && std::ranges::find(effects, effect_type::aim, &effect_holder::enum_index) == effects.end()) {
+            m_bang_damage = 1;
+        }
     }
 
     void player::play_card(const play_card_args &args) {

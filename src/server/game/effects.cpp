@@ -10,19 +10,15 @@ namespace banggame {
         target->m_game->queue_request<request_type::bang>(origin, target);
     }
 
-    static auto &make_bangcard_request(player *origin, player *target) {
+    void effect_bangcard::on_play(player *origin, player *target) {
         auto &req = target->m_game->queue_request<request_type::bang>(origin, target);
         req.is_bang_card = true;
+        req.bang_damage = origin->m_bang_damage;
         target->m_game->instant_event<event_type::apply_bang_modifiers>(origin, req);
-        return req;
     }
 
-    void effect_bangcard::on_play(player *origin, player *target) {
-        make_bangcard_request(origin, target);
-    }
-
-    void effect_aimbang::on_play(player *origin, player *target) {
-        make_bangcard_request(origin, target).bang_damage = 2;
+    void effect_aim::on_play(player *origin) {
+        ++origin->m_bang_damage;
     }
 
     bool effect_missed::can_respond(player *origin) const {

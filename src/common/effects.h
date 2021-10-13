@@ -26,8 +26,8 @@ namespace banggame {
         void on_play(player *origin, player *target);
     };
 
-    struct effect_aimbang : card_effect {
-        void on_play(player *origin, player *target);
+    struct effect_aim : card_effect {
+        void on_play(player *origin);
     };
 
     struct effect_banglimit : card_effect {

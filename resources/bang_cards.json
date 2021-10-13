@@ -1129,18 +1129,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "self hand bang card",
-                    "class": "virtual_destroy"
-                },
-                {
-                    "target": "player reachable notself",
-                    "class": "aimbang"
-                },
-                {
-                    "class": "banglimit"
-                },
-                {
-                    "class": "virtual_clear"
+                    "class": "aim"
                 }
             ]
         },
