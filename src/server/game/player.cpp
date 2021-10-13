@@ -572,15 +572,17 @@ namespace banggame {
     }
 
     void player::next_predraw_check(int card_id) {
-        if (alive()) {
-            m_pending_predraw_checks.erase(std::ranges::find(m_pending_predraw_checks, card_id, &predraw_check_t::card_id));
+        m_game->queue_event<event_type::delayed_action>([this, card_id]{
+            if (alive()) {
+                m_pending_predraw_checks.erase(std::ranges::find(m_pending_predraw_checks, card_id, &predraw_check_t::card_id));
 
-            if (m_pending_predraw_checks.empty()) {
-                m_game->queue_event<event_type::on_turn_start>(this);
-            } else {
-                m_game->queue_request<request_type::predraw>(this, this);
+                if (m_pending_predraw_checks.empty()) {
+                    m_game->queue_event<event_type::on_turn_start>(this);
+                } else {
+                    m_game->queue_request<request_type::predraw>(this, this);
+                }
             }
-        }
+        });
     }
 
     void player::end_of_turn() {
