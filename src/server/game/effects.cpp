@@ -7,7 +7,7 @@
 namespace banggame {
 
     void effect_bang::on_play(player *origin, player *target) {
-        target->m_game->queue_request<request_type::bang>(origin, target);
+        target->m_game->queue_request<request_type::bang>(origin, target, flightable);
     }
 
     void effect_bangcard::on_play(player *origin, player *target) {
@@ -65,11 +65,11 @@ namespace banggame {
     }
 
     void effect_indians::on_play(player *origin, player *target) {
-        target->m_game->queue_request<request_type::indians>(origin, target);
+        target->m_game->queue_request<request_type::indians>(origin, target, flightable);
     }
 
     void effect_duel::on_play(player *origin, player *target) {
-        target->m_game->queue_request<request_type::duel>(origin, target);
+        target->m_game->queue_request<request_type::duel>(origin, target, flightable);
     }
 
     bool effect_bangresponse::can_respond(player *origin) const {
@@ -147,10 +147,27 @@ namespace banggame {
     }
 
     void effect_destroy::on_play(player *origin, player *target, int card_id) {
-        target->m_game->queue_event<event_type::on_discard_card>(origin, target, card_id);
-        target->m_game->queue_event<event_type::delayed_action>([=]{
-            target->discard_card(card_id);
-        });
+        if (flightable) {
+            auto &req = target->m_game->queue_request<request_type::destroy>(origin, target, true);
+            req.card_id = card_id;
+        } else {
+            target->m_game->queue_event<event_type::on_discard_card>(origin, target, card_id);
+            target->m_game->queue_event<event_type::delayed_action>([=]{
+                target->discard_card(card_id);
+            });
+        }
+    }
+
+    void effect_steal::on_play(player *origin, player *target, int card_id) {
+        if (flightable) {
+            auto &req = target->m_game->queue_request<request_type::steal>(origin, target, true);
+            req.card_id = card_id;
+        } else {
+            target->m_game->queue_event<event_type::on_discard_card>(origin, target, card_id);
+            target->m_game->queue_event<event_type::delayed_action>([=]{
+                origin->steal_card(target, card_id);
+            });
+        }
     }
 
     void effect_virtual_destroy::on_play(player *origin, player *target, int card_id) {
@@ -166,13 +183,6 @@ namespace banggame {
 
     void effect_virtual_clear::on_play(player *origin) {
         origin->m_virtual.reset();
-    }
-
-    void effect_steal::on_play(player *origin, player *target, int card_id) {
-        target->m_game->queue_event<event_type::on_discard_card>(origin, target, card_id);
-        target->m_game->queue_event<event_type::delayed_action>([=]{
-            origin->steal_card(target, card_id);
-        });
     }
 
     void effect_draw::on_play(player *origin, player *target) {
@@ -206,7 +216,7 @@ namespace banggame {
     }
 
     void effect_bandidos::on_play(player *origin, player *target) {
-        target->m_game->queue_request<request_type::bandidos>(origin, target);
+        target->m_game->queue_request<request_type::bandidos>(origin, target, flightable);
     }
 
     void effect_tornado::on_play(player *origin, player *target) {
@@ -226,7 +236,7 @@ namespace banggame {
             next = origin->m_game->get_next_player(next);
             if (next == origin) return;
         } while (next->m_hand.empty());
-        origin->m_game->queue_request<request_type::poker>(origin, next);
+        origin->m_game->queue_request<request_type::poker>(origin, next, flightable);
     }
 
     bool effect_saved::can_respond(player *origin) const {
@@ -251,7 +261,7 @@ namespace banggame {
     }
 
     bool effect_flight::can_respond(player *origin) const {
-        return origin->m_game->top_request_is(request_type::flightable, origin);
+        return !origin->m_game->m_requests.empty() && origin->m_game->top_request().flightable();
     }
 
     void effect_flight::on_play(player *origin) {

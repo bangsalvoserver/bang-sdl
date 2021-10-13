@@ -12,7 +12,12 @@ namespace banggame {
         using enum_type = typename Holder::enum_type;
         constexpr auto lut = []<enum_type ... Es>(enums::enum_sequence<Es ...>) {
             return std::array {
-                +[] { return Holder(enums::enum_constant<Es>{}); } ...
+                +[](const card_effect &e) {
+                    constexpr enum_type E = Es;
+                    Holder obj(enums::enum_constant<E>{});
+                    static_cast<card_effect &>(obj.template get<E>()) = e;
+                    return obj;
+                } ...
             };
         }(enums::make_enum_sequence<enum_type>());
 
@@ -25,18 +30,21 @@ namespace banggame {
                 throw std::runtime_error("Invalid effect class: " + json_effect["class"].asString());
             }
 
-            auto effect = lut[enums::indexof(e)]();
+            card_effect effect;
             if (json_effect.isMember("maxdistance")) {
-                effect.set_maxdistance(json_effect["maxdistance"].asInt());
+                effect.maxdistance  = json_effect["maxdistance"].asInt();
             }
             if (json_effect.isMember("target")) {
-                effect.set_target(enums::flags_from_string<target_type>(json_effect["target"].asString()));
-                if (effect.target() != enums::flags_none<target_type>
-                    && !bool(effect.target() & (target_type::card | target_type::player | target_type::dead))) {
+                effect.target = enums::flags_from_string<target_type>(json_effect["target"].asString());
+                if (effect.target != enums::flags_none<target_type>
+                    && !bool(effect.target & (target_type::card | target_type::player | target_type::dead))) {
                     throw std::runtime_error("Invalid target: " + json_effect["target"].asString());
                 }
             }
-            ret.push_back(effect);
+            if (json_effect.isMember("flightable")) {
+                effect.flightable = json_effect["flightable"].asBool();
+            }
+            ret.push_back(lut[enums::indexof(e)](effect));
         }
 
         return ret;

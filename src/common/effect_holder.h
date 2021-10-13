@@ -118,27 +118,15 @@ namespace banggame {
         static_assert(detail::all_is_effect<enums::enum_variant_base<E>>::value);
 
         target_type target() const {
-            return enums::visit([](auto tag, const card_effect &value) {
-                return value.target;
-            }, *this);
-        }
-
-        void set_target(target_type type) {
-            enums::visit([=](auto tag, card_effect &value) {
-                value.target = type;
-            }, *this);
+            return std::visit(&card_effect::target, this->as_base());
         }
 
         int maxdistance() const {
-            return enums::visit([](auto tag, const card_effect &value) {
-                return value.maxdistance;
-            }, *this);
+            return std::visit(&card_effect::maxdistance, this->as_base());
         };
 
-        void set_maxdistance(int maxdistance) {
-            enums::visit([=](auto tag, card_effect &value) {
-                value.maxdistance = maxdistance;
-            }, *this);
+        bool flightable() const {
+            return std::visit(&card_effect::flightable, this->as_base());
         }
     };
 

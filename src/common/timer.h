@@ -22,16 +22,6 @@ namespace banggame {
         void on_finished();
     };
 
-    struct timer_flightable : timer_base {
-        timer_flightable() {
-            duration = 150;
-        }
-
-        std::function<void()> on_finished;
-
-        void on_resolve();
-    };
-
 }
 
 #endif

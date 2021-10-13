@@ -41,6 +41,18 @@ namespace banggame {
         void on_resolve();
     };
 
+    struct request_destroy : request_base {
+        int card_id;
+
+        void on_resolve();
+    };
+
+    struct request_steal : request_base {
+        int card_id;
+
+        void on_resolve();
+    };
+
     struct request_death : request_base {
         std::vector<int> draw_attempts;
         
@@ -77,6 +89,8 @@ namespace banggame {
         (bang,          request_bang)
         (duel,          request_damaging)
         (indians,       request_damaging)
+        (destroy,       request_destroy)
+        (steal,         request_steal)
         (death,         request_death)
         (bandidos,      request_bandidos)
         (tornado,       request_tornado)
@@ -88,7 +102,6 @@ namespace banggame {
         (youl_grinner,  request_youl_grinner)
         (beer,          timer_beer)
         (damaging,      timer_damaging)
-        (flightable,    timer_flightable)
     )
 
     template<request_type E> concept picking_request = requires (enums::enum_type_t<E> &req, const pick_card_args &args) {
@@ -110,15 +123,15 @@ namespace banggame {
         }
 
         player *origin() const {
-            return enums::visit([]<request_type E>(enums::enum_constant<E>, const auto &obj) {
-                return obj.origin;
-            }, *this);
+            return std::visit(&request_base::origin, this->as_base());
         }
 
         player *target() const {
-            return enums::visit([]<request_type E>(enums::enum_constant<E>, const auto &obj) {
-                return obj.target;
-            }, *this);
+            return std::visit(&request_base::target, this->as_base());
+        }
+
+        bool flightable() const {
+            return std::visit(&request_base::flightable, this->as_base());
         }
     };
 

@@ -11,11 +11,13 @@ namespace banggame {
     struct card_effect {
         target_type target = enums::flags_none<target_type>;
         int maxdistance = 0;
+        bool flightable = false;
     };
 
     struct request_base {
         player *origin;
         player *target;
+        bool flightable = false;
     };
     
     struct effect_bang : card_effect {

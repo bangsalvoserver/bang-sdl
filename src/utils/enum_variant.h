@@ -47,6 +47,14 @@ namespace enums {
         template<Enum Value> auto &get() {
             return std::get<indexof(Value)>(*this);
         }
+
+        base &as_base() {
+            return static_cast<base &>(*this);
+        }
+
+        const base &as_base() const {
+            return static_cast<const base &>(*this);
+        }
     };
     
     namespace detail {

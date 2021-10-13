@@ -75,6 +75,16 @@ namespace banggame {
         target->m_game->pop_request();
     }
 
+    void request_destroy::on_resolve() {
+        target->m_game->pop_request();
+        effect_destroy{}.on_play(origin, target, card_id);
+    }
+
+    void request_steal::on_resolve() {
+        target->m_game->pop_request();
+        effect_steal{}.on_play(origin, target, card_id);
+    }
+
     void request_bandidos::on_pick(const pick_card_args &args) {
         if (args.pile == card_pile_type::player_hand && args.player_id == target->id) {
             target->discard_card(args.card_id);
