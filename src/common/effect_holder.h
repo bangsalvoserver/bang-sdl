@@ -89,6 +89,7 @@ namespace banggame {
         (don_bell,      effect_don_bell)
         (madam_yto,     effect_madam_yto)
         (greygory_deck, effect_greygory_deck)
+        (lemonade_jim,  effect_lemonade_jim)
     )
 
     namespace detail {

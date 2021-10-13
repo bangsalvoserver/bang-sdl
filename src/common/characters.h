@@ -146,9 +146,10 @@ namespace banggame {
         void on_equip(player *target, int card_id);
     };
 
-    struct effect_lemonade_jim : card_effect {
+    struct effect_lemonade_jim : event_based_effect {
         bool can_respond(player *origin) const;
         void on_play(player *origin, player *target);
+        void on_equip(player *target, int card_id);
     };
 }
 

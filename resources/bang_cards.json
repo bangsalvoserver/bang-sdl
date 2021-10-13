@@ -2312,6 +2312,11 @@
             "hp": 4,
             "expansion": "valleyofshadows",
             "offturn": true,
+            "equip": [
+                {
+                    "class": "lemonade_jim"
+                }
+            ],
             "responses": [
                 {
                     "target": "self hand card",
