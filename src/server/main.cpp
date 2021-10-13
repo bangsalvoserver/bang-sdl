@@ -22,10 +22,8 @@ int main(int argc, char **argv) {
             for (auto it = clients.begin(); it != clients.end();) {
                 try {
                     if (set.ready(it->second)) {
-                        message_header header;
-                        recv_message_header(it->second, header);
-                        std::string str(header.length, '\0');
-                        it->second.recv(str.data(), header.length);
+                        auto header = recv_message_header(it->second);
+                        auto str = recv_message_string(it->second, header.length);
                         switch (header.type) {
                         case message_header::json:
                             mgr.parse_message(it->first, str);
@@ -61,7 +59,7 @@ int main(int argc, char **argv) {
                     std::string str = ss.str();
 
                     send_message_header(it->second, message_header{message_header::json, (uint32_t)str.size()});
-                    it->second.send(str.data(), str.size());
+                    send_message_string(it->second, str);
                 } catch (sdlnet::socket_disconnected) {
                     mgr.client_disconnected(it->first);
                     std::cout << it->first.ip_string() << " Disconnected\n";

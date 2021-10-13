@@ -32,7 +32,7 @@ void game_manager::parse_message(const sdlnet::ip_address &addr, const std::stri
     } catch (const game_error &e) {
         send_message<server_message_type::game_error>(addr, e);
     } catch (const Json::Exception &e) {
-        // ignore
+        std::cerr << addr.ip_string() << ": Errore Json (" << e.what() << ")\n";
     } catch (const std::exception &e) {
         std::cerr << addr.ip_string() << ": Errore (" << e.what() << ")\n";
     }

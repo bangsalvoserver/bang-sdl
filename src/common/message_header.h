@@ -21,11 +21,31 @@ void send_message_header(sdlnet::tcp_socket &sock, const message_header &header)
     sock.send(&buf, sizeof(buf));
 }
 
-void recv_message_header(sdlnet::tcp_socket &sock, message_header &header) {
+message_header recv_message_header(sdlnet::tcp_socket &sock) {
+    message_header header;
     std::byte buf[sizeof(message_header)];
     sock.recv(&buf, sizeof(buf));
     header.type = static_cast<message_header::message_type>(SDLNet_Read32(buf));
     header.length = SDLNet_Read32(buf + 4);
+    return header;
+}
+
+constexpr size_t buffer_size = 1024;
+
+void send_message_string(sdlnet::tcp_socket &sock, const std::string &str) {
+    const char *pos = str.data();
+    while (pos != str.data() + str.size()) {
+        pos += sock.send(pos, std::min(buffer_size, (size_t)(str.data() + str.size() - pos)));
+    }
+}
+
+std::string recv_message_string(sdlnet::tcp_socket &sock, int length) {
+    std::string ret(length, '\0');
+    char *pos = ret.data();
+    while (pos != ret.data() + ret.size()) {
+        pos += sock.recv(pos, std::min(buffer_size, (size_t)(ret.data() + ret.size() - pos)));
+    }
+    return ret;
 }
 
 #endif

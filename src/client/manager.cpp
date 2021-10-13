@@ -33,10 +33,8 @@ void game_manager::update_net() {
 
     while (sock.isopen() && sock_set.check(0)) {
         try {
-            message_header header;
-            recv_message_header(sock, header);
-            std::string str(header.length, '\0');
-            sock.recv(str.data(), header.length);
+            auto header = recv_message_header(sock);
+            auto str = recv_message_string(sock, header.length);
             switch (header.type) {
             case message_header::json: {
                 util::isviewstream ss(str);
@@ -54,8 +52,8 @@ void game_manager::update_net() {
             }
         } catch (sdlnet::socket_disconnected) {
             disconnect();
-        } catch (Json::Exception) {
-            // ignore
+        } catch (const Json::Exception &e) {
+            std::cerr << "Errore Json (" << e.what() << ")\n";
         } catch (const std::exception &error) {
             std::cerr << "Errore (" << error.what() << ")\n";
         }
@@ -67,7 +65,7 @@ void game_manager::update_net() {
             std::string str = ss.str();
 
             send_message_header(sock, message_header{message_header::json, (uint32_t)str.size()});
-            sock.send(str.data(), str.size());
+            send_message_string(sock, str);
             
             m_out_queue.pop_front();
         }
