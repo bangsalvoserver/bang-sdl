@@ -147,7 +147,7 @@ namespace banggame {
     }
 
     void effect_destroy::on_play(player *origin, player *target, int card_id) {
-        if (flightable) {
+        if (flightable && origin != target) {
             auto &req = target->m_game->queue_request<request_type::destroy>(origin, target, true);
             req.card_id = card_id;
         } else {
@@ -159,7 +159,7 @@ namespace banggame {
     }
 
     void effect_steal::on_play(player *origin, player *target, int card_id) {
-        if (flightable) {
+        if (flightable && origin != target) {
             auto &req = target->m_game->queue_request<request_type::steal>(origin, target, true);
             req.card_id = card_id;
         } else {
