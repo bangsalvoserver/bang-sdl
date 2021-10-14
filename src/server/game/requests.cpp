@@ -87,9 +87,10 @@ namespace banggame {
 
     void request_bandidos::on_pick(const pick_card_args &args) {
         if (args.pile == card_pile_type::player_hand && args.player_id == target->id) {
-            target->discard_card(args.card_id);
+            auto &moved = target->discard_card(args.card_id);
             if (--target->m_game->top_request().get<request_type::bandidos>().num_cards == 0
-                || target->num_hand_cards() == 0) {
+                || target->num_hand_cards() == 0
+                || (flightable && !moved.responses.empty() && moved.responses.front().is(effect_type::flight))) {
                 target->m_game->pop_request();
             }
         }
@@ -97,9 +98,11 @@ namespace banggame {
 
     void request_tornado::on_pick(const pick_card_args &args) {
         if (args.pile == card_pile_type::player_hand && args.player_id == target->id) {
-            target->discard_card(args.card_id);
-            target->add_to_hand(target->m_game->draw_card());
-            target->add_to_hand(target->m_game->draw_card());
+            auto &moved = target->discard_card(args.card_id);
+            if (!flightable || moved.responses.empty() || !moved.responses.front().is(effect_type::flight)) {
+                target->add_to_hand(target->m_game->draw_card());
+                target->add_to_hand(target->m_game->draw_card());
+            }
             target->m_game->pop_request();
         }
     }
@@ -108,8 +111,13 @@ namespace banggame {
         if (origin != target) {
             if (args.pile == card_pile_type::player_hand && args.player_id == target->id) {
                 auto it = std::ranges::find(target->m_hand, args.card_id, &card::id);
-                target->m_game->add_to_temps(std::move(*it));
-                target->m_hand.erase(it);
+
+                if (flightable && !it->responses.empty() && it->responses.front().is(effect_type::flight)) {
+                    target->discard_card(args.card_id);
+                } else {
+                    target->m_game->add_to_temps(std::move(*it));
+                    target->m_hand.erase(it);
+                }
                 
                 auto next = target;
                 do {
