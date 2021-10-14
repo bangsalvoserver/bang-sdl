@@ -160,7 +160,7 @@ namespace banggame {
             target->add_to_hand(target->m_game->draw_card());
             target->m_game->pop_request();
         } else if (args.pile == card_pile_type::player_hand && args.player_id == saved->id) {
-            for (int i=0; i<2 && !target->m_hand.empty(); ++i) {
+            for (int i=0; i<2 && !saved->m_hand.empty(); ++i) {
                 target->steal_card(saved, saved->random_hand_card().id);
             }
             target->m_game->pop_request();
