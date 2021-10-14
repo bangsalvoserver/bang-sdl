@@ -148,7 +148,6 @@ namespace banggame {
                 if constexpr (timer_request<E>) {
                     if (obj.duration && --obj.duration == 0) {
                         auto copy = std::move(obj);
-                        pop_request();
                         if constexpr (requires { obj.on_finished(); }) {
                             copy.on_finished();
                         }
@@ -189,7 +188,7 @@ namespace banggame {
         return c;
     }
 
-    void game::draw_check_then(player *p, draw_check_function &&fun) {
+    void game::draw_check_then(player *p, draw_check_function fun) {
         if (p->m_num_checks == 1) {
             auto &moved = add_to_discards(draw_card());
             auto suit = moved.suit;

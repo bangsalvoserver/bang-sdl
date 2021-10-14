@@ -13,12 +13,14 @@ namespace banggame {
     void effect_bangcard::on_play(player *origin, player *target) {
         auto &req = target->m_game->queue_request<request_type::bang>(origin, target);
         req.is_bang_card = true;
-        req.bang_damage = origin->m_bang_damage;
+        origin->apply_bang_mods(req);
         target->m_game->instant_event<event_type::apply_bang_modifiers>(origin, req);
     }
 
     void effect_aim::on_play(player *origin) {
-        ++origin->m_bang_damage;
+        origin->add_bang_mod([](request_bang &req) {
+            ++req.bang_damage;
+        });
     }
 
     bool effect_missed::can_respond(player *origin) const {

@@ -9,6 +9,10 @@ namespace banggame {
         void on_unequip(player *target, int card_id);
     };
 
+    struct predraw_check_effect : card_effect {
+        void on_unequip(player *target, int card_id);
+    };
+
     struct effect_mustang : card_effect {
         void on_equip(player *target, int card_id);
         void on_unequip(player *target, int card_id);
@@ -19,22 +23,16 @@ namespace banggame {
         void on_unequip(player *target, int card_id);
     };
 
-    struct effect_jail : card_effect {
+    struct effect_jail : predraw_check_effect {
         void on_equip(player *target, int card_id);
-        void on_unequip(player *target, int card_id);
-        void on_predraw_check(player *target, int card_id);
     };
 
-    struct effect_dynamite : card_effect {
+    struct effect_dynamite : predraw_check_effect {
         void on_equip(player *target, int card_id);
-        void on_unequip(player *target, int card_id);
-        void on_predraw_check(player *target, int card_id);
     };
 
-    struct effect_snake : card_effect {
+    struct effect_snake : predraw_check_effect {
         void on_equip(player *target, int card_id);
-        void on_unequip(player *target, int card_id);
-        void on_predraw_check(player *target, int card_id);
     };
 
     struct effect_weapon : card_effect {

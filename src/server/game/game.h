@@ -16,8 +16,6 @@
 
 namespace banggame {
 
-    using draw_check_function = std::function<void(card_suit_type, card_value_type)>;
-
     struct game_options {
         int nplayers = 0;
         card_expansion_type allowed_expansions = enums::flags_all<card_expansion_type>;
@@ -213,7 +211,7 @@ namespace banggame {
         deck_card draw_from_discards();
         deck_card draw_from_temp(int card_id);
 
-        void draw_check_then(player *p, draw_check_function &&fun);
+        void draw_check_then(player *p, draw_check_function fun);
         void resolve_check(int card_id);
 
         void disable_table_cards(int player_id);

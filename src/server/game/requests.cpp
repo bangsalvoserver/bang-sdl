@@ -7,13 +7,10 @@
 
 namespace banggame {
     void request_predraw::on_pick(const pick_card_args &args) {
-        if (args.pile == card_pile_type::player_table) {
-            auto &c = target->find_card(args.card_id);
-            if (target->is_top_predraw_check(c)) {
+        if (args.pile == card_pile_type::player_table && args.player_id == target->id) {
+            if (auto *check = target->get_if_top_predraw_check(args.card_id)) {
                 target->m_game->pop_request();
-                for (auto &e : c.equips) {
-                    e.on_predraw_check(target, args.card_id);
-                }
+                target->m_game->draw_check_then(target, check->check_fun);
             }
         }
     }

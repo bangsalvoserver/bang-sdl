@@ -1,6 +1,7 @@
 #ifndef __PLAYER_H__
 #define __PLAYER_H__
 
+#include <list>
 #include <vector>
 #include <algorithm>
 #include <optional>
@@ -10,7 +11,8 @@
 namespace banggame {
 
     struct game;
-    struct player;
+    
+    using draw_check_function = std::function<void(card_suit_type, card_value_type)>;
 
     struct player : public util::id_counter<player> {
         game *m_game;
@@ -22,13 +24,13 @@ namespace banggame {
         std::optional<std::pair<int, deck_card>> m_virtual;
         player_role m_role;
 
-        struct predraw_check_t {
-            int card_id;
+        struct predraw_check {
             int priority;
+            bool resolved;
+            draw_check_function check_fun;
         };
 
-        std::vector<predraw_check_t> m_predraw_checks;
-        std::vector<predraw_check_t> m_pending_predraw_checks;
+        std::map<int, predraw_check> m_predraw_checks;
 
         int m_range_mod = 0;
         int m_weapon_range = 1;
@@ -45,7 +47,9 @@ namespace banggame {
 
         int m_bangs_played = 0;
         int m_bangs_per_turn = 1;
-        int m_bang_damage = 1;
+
+        using bang_modifier = std::function<void(request_bang &req)>;
+        std::list<bang_modifier> m_bang_mods;
         bool m_cant_play_missedcard = false;
 
         int m_beer_strength = 1;
@@ -105,27 +109,40 @@ namespace banggame {
         bool can_play_bang() const {
             return m_infinite_bangs > 0 || m_bangs_played < m_bangs_per_turn;
         }
+
+        void add_bang_mod(bang_modifier &&mod) {
+            m_bang_mods.push_back(std::move(mod));
+        }
+
+        void apply_bang_mods(request_bang &req) {
+            while (!m_bang_mods.empty()) {
+                m_bang_mods.front()(req);
+                m_bang_mods.pop_front();
+            }
+        }
         
         void discard_all();
 
-        void add_predraw_check(int card_id, int priority) {
-            auto it = std::ranges::find(m_predraw_checks, card_id, &predraw_check_t::card_id);
-            if (it == m_predraw_checks.end()) {
-                m_predraw_checks.emplace_back(card_id, priority);
-            }
+        void add_predraw_check(int card_id, int priority, draw_check_function &&fun) {
+            m_predraw_checks.try_emplace(card_id, priority, false, std::move(fun));
         }
 
         void remove_predraw_check(int card_id) {
-            auto it = std::ranges::find(m_predraw_checks, card_id, &predraw_check_t::card_id);
-            if (it != m_predraw_checks.end()) {
-                m_predraw_checks.erase(it);
-            }
+            m_predraw_checks.erase(card_id);
         }
 
-        bool is_top_predraw_check(const deck_card &e) {
-            int top_priority = std::ranges::max(m_pending_predraw_checks | std::views::transform(&predraw_check_t::priority));
-            auto it = std::ranges::find(m_pending_predraw_checks, e.id, &predraw_check_t::card_id);
-            return it != m_pending_predraw_checks.end() && it->priority == top_priority;
+        predraw_check *get_if_top_predraw_check(int card_id) {
+            int top_priority = std::ranges::max(m_predraw_checks
+                | std::views::values
+                | std::views::filter(std::not_fn(&predraw_check::resolved))
+                | std::views::transform(&predraw_check::priority));
+            auto it = m_predraw_checks.find(card_id);
+            if (it != m_predraw_checks.end()
+                && !it->second.resolved
+                && it->second.priority == top_priority) {
+                return &it->second;
+            }
+            return nullptr;
         }
 
         void next_predraw_check(int card_id);

@@ -314,6 +314,8 @@ namespace banggame {
             if (is_character) return false;
             return target->immune_to(*static_cast<deck_card*>(card_ptr));
         };
+
+        size_t initial_mods_size = m_bang_mods.size();
         
         auto effect_it = targets.begin();
         auto &effects = is_response ? card_ptr->responses : card_ptr->effects;
@@ -350,8 +352,8 @@ namespace banggame {
             m_virtual.reset();
         }
 
-        if (m_bang_damage > 1 && std::ranges::find(effects, effect_type::aim, &effect_holder::enum_index) == effects.end()) {
-            m_bang_damage = 1;
+        if (m_bang_mods.size() == initial_mods_size) {
+            m_bang_mods.clear();
         }
     }
 
@@ -547,24 +549,26 @@ namespace banggame {
         
         m_game->add_public_update<game_update_type::switch_turn>(id);
 
-        m_pending_predraw_checks = m_predraw_checks;
-        if (m_pending_predraw_checks.empty()) {
+        if (m_predraw_checks.empty()) {
             m_game->queue_event<event_type::on_turn_start>(this);
         } else {
+            for (auto &[card_id, obj] : m_predraw_checks) {
+                obj.resolved = false;
+            }
             m_game->queue_request<request_type::predraw>(this, this);
         }
     }
 
     void player::next_predraw_check(int card_id) {
         m_game->queue_event<event_type::delayed_action>([this, card_id]{
-            if (alive()) {
-                m_pending_predraw_checks.erase(std::ranges::find(m_pending_predraw_checks, card_id, &predraw_check_t::card_id));
+            if (auto it = m_predraw_checks.find(card_id); it != m_predraw_checks.end()) {
+                it->second.resolved = true;
+            }
 
-                if (m_pending_predraw_checks.empty()) {
-                    m_game->queue_event<event_type::on_turn_start>(this);
-                } else {
-                    m_game->queue_request<request_type::predraw>(this, this);
-                }
+            if (std::ranges::all_of(m_predraw_checks | std::views::values, &predraw_check::resolved)) {
+                m_game->queue_event<event_type::on_turn_start>(this);
+            } else {
+                m_game->queue_request<request_type::predraw>(this, this);
             }
         });
     }
@@ -577,7 +581,6 @@ namespace banggame {
             }
         }
         m_current_card_targets.clear();
-        m_pending_predraw_checks.clear();
         m_game->m_playing = m_game->get_next_player(this);
         m_game->queue_event<event_type::on_turn_end>(this);
         m_game->queue_event<event_type::delayed_action>([this]{
@@ -593,6 +596,7 @@ namespace banggame {
                 c.inactive = false;
                 m_game->add_public_update<game_update_type::tap_card>(c.id, false);
             }
+            c.on_unequip(this);
             m_game->add_to_discards(std::move(c));
         }
         m_table.clear();

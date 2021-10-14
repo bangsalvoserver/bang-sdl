@@ -10,6 +10,10 @@ namespace banggame {
         target->m_game->remove_events(card_id);
     }
 
+    void predraw_check_effect::on_unequip(player *target, int card_id) {
+        target->remove_predraw_check(card_id);
+    }
+
     void effect_mustang::on_equip(player *target, int card_id) {
         ++target->m_distance_mod;
     }
@@ -27,15 +31,7 @@ namespace banggame {
     }
 
     void effect_jail::on_equip(player *target, int card_id) {
-        target->add_predraw_check(card_id, 1);
-    }
-
-    void effect_jail::on_unequip(player *target, int card_id) {
-        target->remove_predraw_check(card_id);
-    }
-
-    void effect_jail::on_predraw_check(player *target, int card_id) {
-        target->m_game->draw_check_then(target, [=](card_suit_type suit, card_value_type) {
+        target->add_predraw_check(card_id, 1, [=](card_suit_type suit, card_value_type) {
             auto &moved = target->discard_card(card_id);
             if (suit == card_suit_type::hearts) {
                 target->next_predraw_check(card_id);
@@ -46,15 +42,7 @@ namespace banggame {
     }
 
     void effect_dynamite::on_equip(player *target, int card_id) {
-        target->add_predraw_check(card_id, 2);
-    }
-
-    void effect_dynamite::on_unequip(player *target, int card_id) {
-        target->remove_predraw_check(card_id);
-    }
-
-    void effect_dynamite::on_predraw_check(player *target, int card_id) {
-        target->m_game->draw_check_then(target, [=](card_suit_type suit, card_value_type value) {
+        target->add_predraw_check(card_id, 2, [=](card_suit_type suit, card_value_type value) {
             if (suit == card_suit_type::spades
                 && enums::indexof(value) >= enums::indexof(card_value_type::value_2)
                 && enums::indexof(value) <= enums::indexof(card_value_type::value_9)) {
@@ -66,7 +54,7 @@ namespace banggame {
                 auto *p = target;
                 do {
                     p = p->m_game->get_next_player(p);
-                } while (p->has_card_equipped(it->name));
+                } while (p->has_card_equipped(it->name) && p != target);
 
                 if (p != target) {
                     it->on_unequip(target);
@@ -79,15 +67,7 @@ namespace banggame {
     }
 
     void effect_snake::on_equip(player *target, int card_id) {
-        target->add_predraw_check(card_id, 0);
-    }
-
-    void effect_snake::on_unequip(player *target, int card_id) {
-        target->remove_predraw_check(card_id);
-    }
-
-    void effect_snake::on_predraw_check(player *target, int card_id) {
-        target->m_game->draw_check_then(target, [=](card_suit_type suit, card_value_type value) {
+        target->add_predraw_check(card_id, 0, [=](card_suit_type suit, card_value_type value) {
             if (suit == card_suit_type::spades) {
                 target->damage(nullptr, 1);
             }
