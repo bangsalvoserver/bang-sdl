@@ -4,6 +4,8 @@
 #include "common/card_enums.h"
 #include "game_action.h"
 
+#include <ranges>
+
 namespace banggame {
 
     struct player;

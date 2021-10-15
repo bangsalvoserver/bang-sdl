@@ -11,7 +11,7 @@ constexpr int window_width = 800;
 constexpr int window_height = 600;
 
 int main(int argc, char **argv) {
-    sdl::initializer sdl_init;
+    sdl::initializer sdl_init(SDL_INIT_VIDEO);
     sdl::ttf_initializer sdl_ttf_init;
     sdl::img_initializer sdl_img_init(IMG_INIT_PNG);
     sdlnet::initializer sdl_net_init;

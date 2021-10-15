@@ -21,7 +21,7 @@ namespace sdl {
     };
 
     struct initializer {
-        initalizer(uint32_t flags) {
+        explicit initializer(uint32_t flags) {
             if (SDL_Init(flags) != 0) {
                 throw error(std::string("Could not init SDL: ") + SDL_GetError());
             }
@@ -47,7 +47,7 @@ namespace sdl {
     };
 
     struct img_initializer {
-        img_initializer(int flags) {
+        explicit img_initializer(int flags) {
             if ((IMG_Init(flags) & flags) != flags) {
                 throw error(std::string("Could not init SDL_image") + IMG_GetError());
             }
