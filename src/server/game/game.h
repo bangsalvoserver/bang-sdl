@@ -27,7 +27,6 @@ namespace banggame {
         (on_draw_check,     std::function<void(int card_id)>)
         (on_discard_card,   std::function<void(player *origin, player *target, int card_id)>)
         (on_hit,            std::function<void(player *origin, player *target, int damage, bool is_bang)>)
-        (apply_bang_modifiers, std::function<void(player *origin, request_bang &req)>)
         (on_player_death,   std::function<void(player *origin, player *target)>)
         (on_equip,          std::function<void(player *origin, player *target, int card_id)>)
         (on_play_hand_card, std::function<void(player *origin, int card_id)>)
@@ -36,6 +35,7 @@ namespace banggame {
         (on_turn_start,     std::function<void(player *origin)>)
         (on_turn_end,       std::function<void(player *origin)>)
         (on_draw_from_deck, std::function<void(player *origin)>)
+        (on_play_bang,      std::function<void(player *origin)>)
         (on_play_beer,      std::function<void(player *origin)>)
         (on_game_start,     std::function<void()>)
     )
@@ -129,6 +129,14 @@ namespace banggame {
             send_request_update();
 
             return ret;
+        }
+
+        void queue_request(auto &&req) {
+            auto &ret = m_requests.emplace_back(std::move(req));
+
+            if (m_requests.size() == 1) {
+                send_request_update();
+            }
         }
 
         template<request_type E>

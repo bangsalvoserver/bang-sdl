@@ -6,9 +6,11 @@
 
 namespace banggame {
     void effect_slab_the_killer::on_equip(player *p, int card_id) {
-        p->m_game->add_event<event_type::apply_bang_modifiers>(card_id, [p](player *target, request_bang &req) {
+        p->m_game->add_event<event_type::on_play_bang>(card_id, [p](player *target) {
             if (p == target) {
-                ++req.bang_strength;
+                target->add_bang_mod([](request_bang &req) {
+                    ++req.bang_strength;
+                });
             }
         });
     }
@@ -280,11 +282,13 @@ namespace banggame {
     }
 
     void effect_colorado_bill::on_equip(player *p, int card_id) {
-        p->m_game->add_event<event_type::apply_bang_modifiers>(card_id, [p](player *origin, request_bang &req) {
+        p->m_game->add_event<event_type::on_play_bang>(card_id, [p](player *origin) {
             if (p == origin) {
-                origin->m_game->draw_check_then(origin, [&](card_suit_type suit, card_value_type) {
+                origin->m_game->draw_check_then(origin, [=](card_suit_type suit, card_value_type) {
                     if (suit == card_suit_type::spades) {
-                        req.unavoidable = true;
+                        origin->add_bang_mod([](request_bang &req) {
+                            req.unavoidable = true;
+                        });
                     }
                 });
             }

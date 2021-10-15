@@ -11,10 +11,13 @@ namespace banggame {
     }
 
     void effect_bangcard::on_play(player *origin, player *target) {
-        auto &req = target->m_game->queue_request<request_type::bang>(origin, target);
-        req.is_bang_card = true;
-        origin->apply_bang_mods(req);
-        target->m_game->instant_event<event_type::apply_bang_modifiers>(origin, req);
+        target->m_game->queue_event<event_type::on_play_bang>(origin);
+        target->m_game->queue_event<event_type::delayed_action>([=]{
+            request_bang req{origin, target};
+            req.is_bang_card = true;
+            origin->apply_bang_mods(req);
+            origin->m_game->queue_request(std::move(req));
+        });
     }
 
     void effect_aim::on_play(player *origin) {

@@ -115,6 +115,8 @@ namespace banggame {
     template<request_type E> concept timer_request = std::derived_from<enums::enum_type_t<E>, timer_base>;
 
     struct request_holder : enums::enum_variant<request_type> {
+        using enums::enum_variant<request_type>::enum_variant;
+        
         template<request_type E> request_holder(enums::enum_constant<E> tag, player *origin, player *target)
             : enums::enum_variant<request_type>(tag) {
             auto &obj = get<E>();
