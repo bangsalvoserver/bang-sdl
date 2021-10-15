@@ -11,7 +11,7 @@ namespace banggame {
     }
 
     void effect_bangcard::on_play(int origin_card_id, player *origin, player *target) {
-        target->m_game->queue_event<event_type::on_play_bang>(origin, origin_card_id);
+        target->m_game->queue_event<event_type::on_play_bang>(origin);
         target->m_game->queue_event<event_type::delayed_action>([=]{
             request_bang req{origin_card_id, origin, target};
             req.is_bang_card = true;
@@ -132,7 +132,7 @@ namespace banggame {
     }
 
     void effect_beer::on_play(int origin_card_id, player *origin, player *target) {
-        target->m_game->queue_event<event_type::on_play_beer>(target, origin_card_id);
+        target->m_game->queue_event<event_type::on_play_beer>(target);
         if (target->m_game->m_players.size() <= 2 || target->m_game->num_alive() > 2) {
             target->heal(target->m_beer_strength);
         }
@@ -272,5 +272,14 @@ namespace banggame {
 
     void effect_flight::on_play(int origin_card_id, player *origin) {
         origin->m_game->pop_request();
+    }
+
+    void effect_doublebarrel::on_play(int origin_card_id, player *origin) {
+        origin->add_bang_mod([=](request_bang &req) {
+            if (auto it = std::ranges::find(origin->m_game->m_discards | std::views::reverse, req.origin_card_id, &deck_card::id);
+                it != origin->m_game->m_discards.rend() && it->suit == card_suit_type::diamonds) {
+                req.unavoidable = true;
+            }
+        });
     }
 }

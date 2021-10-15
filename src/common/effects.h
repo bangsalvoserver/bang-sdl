@@ -147,6 +147,10 @@ namespace banggame {
         bool can_respond(player *origin) const;
         void on_play(int origin_card_id, player *origin);
     };
+
+    struct effect_doublebarrel : card_effect {
+        void on_play(int origin_card_id, player *origin);
+    };
 }
 
 #endif

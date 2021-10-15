@@ -6,7 +6,7 @@
 
 namespace banggame {
     void effect_slab_the_killer::on_equip(player *p, int card_id) {
-        p->m_game->add_event<event_type::on_play_bang>(card_id, [p](player *target, int bang_card_id) {
+        p->m_game->add_event<event_type::on_play_bang>(card_id, [p](player *target) {
             if (p == target) {
                 target->add_bang_mod([](request_bang &req) {
                     ++req.bang_strength;
@@ -282,7 +282,7 @@ namespace banggame {
     }
 
     void effect_colorado_bill::on_equip(player *p, int card_id) {
-        p->m_game->add_event<event_type::on_play_bang>(card_id, [p](player *origin, int bang_card_id) {
+        p->m_game->add_event<event_type::on_play_bang>(card_id, [p](player *origin) {
             if (p == origin) {
                 origin->m_game->draw_check_then(origin, [=](card_suit_type suit, card_value_type) {
                     if (suit == card_suit_type::spades) {
@@ -421,7 +421,7 @@ namespace banggame {
     }
 
     void effect_madam_yto::on_equip(player *p, int card_id) {
-        p->m_game->add_event<event_type::on_play_beer>(card_id, [p](player *target, int beer_card_id) {
+        p->m_game->add_event<event_type::on_play_beer>(card_id, [p](player *target) {
             p->add_to_hand(p->m_game->draw_card());
         });
     }
@@ -468,9 +468,9 @@ namespace banggame {
     }
 
     void effect_lemonade_jim::on_equip(player *origin, int card_id) {
-        origin->m_game->add_event<event_type::on_play_beer>(card_id, [origin](player *target, int beer_card_id) {
+        origin->m_game->add_event<event_type::on_play_beer>(card_id, [=](player *target) {
             if (origin != target) {
-                target->m_game->queue_request<request_type::beer>(beer_card_id, target, target).players.push_back(target->id);
+                target->m_game->queue_request<request_type::beer>(card_id, target, target).players.push_back(target->id);
             }
         });
     }
