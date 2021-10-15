@@ -177,7 +177,7 @@ void game_manager::handle_message(enums::enum_constant<client_message_type::game
         throw game_error("Non proprietario della lobby");
     }
 
-    if (it->state != lobby_state::waiting) {
+    if (it->state == lobby_state::playing) {
         throw game_error("Lobby non in attesa");
     }
 
@@ -221,6 +221,8 @@ void lobby::send_updates(game_manager &mgr) {
 }
 
 void lobby::start_game() {
+    game = {};
+
     game_options opts;
     opts.nplayers = users.size();
     opts.allowed_expansions = allowed_expansions;

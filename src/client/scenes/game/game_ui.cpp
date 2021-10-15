@@ -16,6 +16,9 @@ game_ui::game_ui(game_scene *parent)
     })
     , m_leave_btn("Esci", [parent] {
         parent->parent->add_message<client_message_type::lobby_leave>();
+    })
+    , m_restart_btn("Riavvia", [parent] {
+        parent->parent->add_message<client_message_type::game_start>();
     }) {}
 
 void game_ui::resize(int width, int height) {
@@ -24,6 +27,7 @@ void game_ui::resize(int width, int height) {
     m_pass_btn.set_rect(sdl::rect{340, height - 50, 100, 25});
     m_resolve_btn.set_rect(sdl::rect{450, height - 50, 100, 25});
     m_leave_btn.set_rect(sdl::rect{20, 20, 100, 25});
+    m_restart_btn.set_rect(sdl::rect{140, 20, 100, 25});
 }
 
 void game_ui::render(sdl::renderer &renderer) {
@@ -32,6 +36,7 @@ void game_ui::render(sdl::renderer &renderer) {
     m_pass_btn.render(renderer);
     m_resolve_btn.render(renderer);
     m_leave_btn.render(renderer);
+    m_restart_btn.render(renderer);
 
     sdl::rect status_rect = m_status_text.get_rect();
     status_rect.x = (parent->parent->width() - status_rect.w) / 2;

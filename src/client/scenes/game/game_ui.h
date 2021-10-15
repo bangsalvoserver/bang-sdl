@@ -35,6 +35,7 @@ namespace banggame {
         sdl::button m_pass_btn;
         sdl::button m_resolve_btn;
         sdl::button m_leave_btn;
+        sdl::button m_restart_btn;
     };
 
 }
