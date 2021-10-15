@@ -722,11 +722,11 @@
             "color": "brown",
             "responses": [
                 {
-                    "class": "missed"
-                },
-                {
                     "target": "player self",
                     "class": "draw"
+                },
+                {
+                    "class": "missed"
                 }
             ]
         },
