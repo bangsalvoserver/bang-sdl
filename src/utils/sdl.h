@@ -4,6 +4,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL2_rotozoom.h>
 
 #include <stdexcept>
 
@@ -240,6 +241,8 @@ namespace sdl {
             return m_surface.get_rect();
         }
 
+        const surface &get_surface() const { return m_surface; }
+
         SDL_Texture *get_texture(sdl::renderer &renderer) {
             if (!m_texture) {
                 m_texture = SDL_CreateTextureFromSurface(renderer.get(), m_surface.get());
@@ -320,6 +323,11 @@ namespace sdl {
         rect.h = new_width * rect.h / rect.w;
         rect.w = new_width;
     }
+
+    inline surface scale_surface(const surface &surf, int scale) {
+        return shrinkSurface(surf.get(), scale, scale);
+    }
+
 }
 
 #endif

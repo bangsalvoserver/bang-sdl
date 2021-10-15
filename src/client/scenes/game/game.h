@@ -69,7 +69,7 @@ namespace banggame {
         void find_overlay(const sdl::point &mouse_pt);
 
         void on_click_main_deck();
-        void on_click_temp_table_card(int card_id);
+        void on_click_selection_card(int card_id);
         void on_click_table_card(int player_id, int card_id);
         void on_click_hand_card(int player_id, int card_id);
         void on_click_character(int player_id, int card_id);
@@ -85,10 +85,9 @@ namespace banggame {
         std::list<game_update> m_pending_updates;
         std::list<animation> m_animations;
 
-        card_pile_view main_deck{0};
-
-        card_pile_view discard_pile{0};
-        card_pile_view temp_table;
+        card_pile_view m_main_deck{0};
+        card_pile_view m_discard_pile{0};
+        card_pile_view m_selection{sizes::selection_width};
 
         std::map<int, card_view> m_cards;
         std::map<int, player_view> m_players;

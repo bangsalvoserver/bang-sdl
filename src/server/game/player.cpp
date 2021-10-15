@@ -81,13 +81,13 @@ namespace banggame {
             }
             auto &moved = add_to_hand(std::move(*it));
             target->m_table.erase(it);
-            m_game->queue_event<event_type::post_discard_card>(this, card_id);
+            m_game->queue_event<event_type::post_discard_card>(target, card_id);
             moved.on_unequip(target);
             return moved;
         } else if (auto it = std::ranges::find(target->m_hand, card_id, &card::id); it != target->m_hand.end()) {
             auto &moved = add_to_hand(std::move(*it));
             target->m_hand.erase(it);
-            m_game->queue_event<event_type::post_discard_card>(this, card_id);
+            m_game->queue_event<event_type::post_discard_card>(target, card_id);
             return moved;
         } else {
             throw game_error("server.steal_card: ID non trovato");

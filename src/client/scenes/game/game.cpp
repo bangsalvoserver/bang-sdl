@@ -27,14 +27,14 @@ game_scene::game_scene(class game_manager *parent)
 void game_scene::resize(int width, int height) {
     scene_base::resize(width, height);
     
-    main_deck.pos = sdl::point{parent->width() / 2, parent->height() / 2};
+    m_main_deck.pos = sdl::point{parent->width() / 2, parent->height() / 2};
 
-    discard_pile.pos = main_deck.pos;
-    discard_pile.pos.x -= 80;
+    m_discard_pile.pos = m_main_deck.pos;
+    m_discard_pile.pos.x -= 80;
     
-    temp_table.pos = sdl::point{
-        (main_deck.pos.x + discard_pile.pos.x) / 2,
-        main_deck.pos.y + 100};
+    m_selection.pos = sdl::point{
+        m_main_deck.pos.x,
+        m_main_deck.pos.y + 100};
 
     move_player_views();
     for (auto &[id, card] : m_cards) {
@@ -57,7 +57,7 @@ void game_scene::render(sdl::renderer &renderer) {
     
     if (!m_player_own_id) return;
 
-    for (int id : main_deck | std::views::reverse | std::views::take(2) | std::views::reverse) {
+    for (int id : m_main_deck | std::views::reverse | std::views::take(2) | std::views::reverse) {
         get_card(id).render(renderer);
     }
 
@@ -79,11 +79,11 @@ void game_scene::render(sdl::renderer &renderer) {
         }
     }
 
-    for (int id : discard_pile | std::views::reverse | std::views::take(2) | std::views::reverse) {
+    for (int id : m_discard_pile | std::views::reverse | std::views::take(2) | std::views::reverse) {
         get_card(id).render(renderer);
     }
 
-    for (int id : temp_table) {
+    for (int id : m_selection) {
         get_card(id).render(renderer);
     }
 
@@ -91,6 +91,8 @@ void game_scene::render(sdl::renderer &renderer) {
     for (int id : m_highlights) {
         renderer.draw_rect(get_card_widget(id).get_rect());
     }
+
+    m_ui.render(renderer);
 
     if (m_overlay) {
         sdl::texture *tex = nullptr;
@@ -116,8 +118,6 @@ void game_scene::render(sdl::renderer &renderer) {
             tex->render(renderer, rect);
         }
     }
-
-    m_ui.render(renderer);
 }
 
 void game_scene::handle_event(const sdl::event &event) {
@@ -154,12 +154,12 @@ void game_scene::handle_card_click(const sdl::point &mouse_pt) {
     };
 
     sdl::rect main_deck_rect = card_view::texture_back.get_rect();
-    sdl::scale_rect(main_deck_rect, card_widget_base::card_width);
-    main_deck_rect.x = main_deck.pos.x - main_deck_rect.w / 2;
-    main_deck_rect.y = main_deck.pos.y - main_deck_rect.h / 2;
+    sdl::scale_rect(main_deck_rect, sizes::card_width);
+    main_deck_rect.x = m_main_deck.pos.x - main_deck_rect.w / 2;
+    main_deck_rect.y = m_main_deck.pos.y - main_deck_rect.h / 2;
 
-    if (int card_id = find_clicked(temp_table)) {
-        on_click_temp_table_card(card_id);
+    if (int card_id = find_clicked(m_selection)) {
+        on_click_selection_card(card_id);
         return;
     }
     if (sdl::point_in_rect(mouse_pt, main_deck_rect)) {
@@ -198,11 +198,11 @@ void game_scene::find_overlay(const sdl::point &mouse_pt) {
     };
 
     sdl::rect main_deck_rect = card_view::texture_back.get_rect();
-    sdl::scale_rect(main_deck_rect, card_widget_base::card_width);
-    main_deck_rect.x = main_deck.pos.x - main_deck_rect.w / 2;
-    main_deck_rect.y = main_deck.pos.y - main_deck_rect.h / 2;
+    sdl::scale_rect(main_deck_rect, sizes::card_width);
+    main_deck_rect.x = m_main_deck.pos.x - main_deck_rect.w / 2;
+    main_deck_rect.y = m_main_deck.pos.y - main_deck_rect.h / 2;
 
-    if (m_overlay = find_clicked(temp_table)) {
+    if (m_overlay = find_clicked(m_selection)) {
         return;
     }
     for (const auto &[player_id, p] : m_players) {
@@ -212,8 +212,8 @@ void game_scene::find_overlay(const sdl::point &mouse_pt) {
                 return;
             }
         }
-        if (!discard_pile.empty() && mouse_in_card(discard_pile.back())) {
-            m_overlay = discard_pile.back();
+        if (!m_discard_pile.empty() && mouse_in_card(m_discard_pile.back())) {
+            m_overlay = m_discard_pile.back();
             return;
         }
         if (m_overlay = find_clicked(p.table)) {
@@ -252,9 +252,9 @@ void game_scene::on_click_main_deck() {
     }
 }
 
-void game_scene::on_click_temp_table_card(int card_id) {
+void game_scene::on_click_selection_card(int card_id) {
     if (m_current_request.target_id == m_player_own_id && is_picking_request(m_current_request.type)) {
-        add_action<game_action_type::pick_card>(card_pile_type::temp_table, 0, card_id);
+        add_action<game_action_type::pick_card>(card_pile_type::selection, 0, card_id);
     }
 }
 
@@ -611,19 +611,19 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::game_over>
 }
 
 void game_scene::handle_update(enums::enum_constant<game_update_type::deck_shuffled>) {
-    int top_discard = discard_pile.back();
-    discard_pile.resize(discard_pile.size() - 1);
+    int top_discard = m_discard_pile.back();
+    m_discard_pile.resize(m_discard_pile.size() - 1);
     card_move_animation anim;
-    for (int id : discard_pile) {
+    for (int id : m_discard_pile) {
         auto &c = get_card(id);
         c.known = false;
         c.flip_amt = 0.f;
-        c.pile = &main_deck;
-        main_deck.push_back(id);
+        c.pile = &m_main_deck;
+        m_main_deck.push_back(id);
         anim.add_move_card(c);
     }
-    discard_pile.clear();
-    discard_pile.push_back(top_discard);
+    m_discard_pile.clear();
+    m_discard_pile.push_back(top_discard);
 
     m_ui.add_message("Deck shuffled");
     
@@ -637,9 +637,9 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::add_cards>
     for (int id : args.card_ids) {
         auto &c = m_cards[id];
         c.id = id;
-        c.pos = main_deck.pos;
-        c.pile = &main_deck;
-        main_deck.push_back(id);
+        c.pos = m_main_deck.pos;
+        c.pile = &m_main_deck;
+        m_main_deck.push_back(id);
     }
 
     pop_update();
@@ -659,9 +659,9 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::move_card>
     switch(args.pile) {
     case card_pile_type::player_hand:   c.pile = &get_player(args.player_id).hand; break;
     case card_pile_type::player_table:  c.pile = &get_player(args.player_id).table; break;
-    case card_pile_type::main_deck:     c.pile = &main_deck; break;
-    case card_pile_type::discard_pile:  c.pile = &discard_pile; break;
-    case card_pile_type::temp_table:    c.pile = &temp_table; break;
+    case card_pile_type::main_deck:     c.pile = &m_main_deck; break;
+    case card_pile_type::discard_pile:  c.pile = &m_discard_pile; break;
+    case card_pile_type::selection:     c.pile = &m_selection; break;
     }
     c.pile->push_back(c.id);
     if (c.pile->width > 0) {
@@ -699,8 +699,8 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::show_card>
 
         c.make_texture_front();
 
-        if (c.pile == &main_deck) {
-            std::swap(*std::ranges::find(main_deck, c.id), main_deck.back());
+        if (c.pile == &m_main_deck) {
+            std::swap(*std::ranges::find(m_main_deck, c.id), m_main_deck.back());
         }
         m_animations.emplace_back(10, card_flip_animation{&c, false});
 
@@ -737,22 +737,19 @@ void game_scene::move_player_views() {
     auto own_player = m_players.find(m_player_own_id);
     if (own_player == m_players.end()) return;
 
-    sdl::point pos{parent->width() / 2, parent->height() - 120};
-    own_player->second.set_position(pos, true);
+    int xradius = (parent->width() / 2) - sizes::player_ellipse_x_distance;
+    int yradius = (parent->height() / 2) - sizes::player_ellipse_y_distance;
 
-    int xradius = (parent->width() - 200) - (parent->width() / 2);
-    int yradius = pos.y - (parent->height() / 2);
-
-    auto it = own_player;
-    double angle = std::numbers::pi * 1.5f;
-    for(;;) {
+    double angle = 0.f;
+    for(auto it = own_player;;) {
+        it->second.set_position(sdl::point{
+            int(parent->width() / 2 - std::sin(angle) * xradius),
+            int(parent->height() / 2 + std::cos(angle) * yradius)
+        }, it == own_player);
+        
+        angle += std::numbers::pi * 2.f / m_players.size();
         if (++it == m_players.end()) it = m_players.begin();
         if (it == own_player) break;
-        angle -= std::numbers::pi * 2.f / m_players.size();
-        it->second.set_position(sdl::point{
-            int(parent->width() / 2 + std::cos(angle) * xradius),
-            int(parent->height() / 2 - std::sin(angle) * yradius)
-        });
     }
 }
 
@@ -822,6 +819,9 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::player_sho
         p.m_role.role = args.role;
         p.m_role.make_texture_front();
         if (args.instant) {
+            if (args.role == player_role::sheriff) {
+                p.set_hp_marker_position(++p.hp);
+            }
             p.m_role.flip_amt = 1.f;
             pop_update();
         } else {

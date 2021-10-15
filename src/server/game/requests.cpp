@@ -16,20 +16,20 @@ namespace banggame {
     }
 
     void request_check::on_pick(const pick_card_args &args) {
-        if (args.pile == card_pile_type::temp_table) {
+        if (args.pile == card_pile_type::selection) {
             target->m_game->pop_request();
             target->m_game->resolve_check(args.card_id);
         }
     }
 
     void request_generalstore::on_pick(const pick_card_args &args) {
-        if (args.pile == card_pile_type::temp_table) {
+        if (args.pile == card_pile_type::selection) {
             auto next = target->m_game->get_next_player(target);
             auto removed = target->m_game->draw_from_temp(args.card_id);
-            if (target->m_game->m_temps.size() == 1) {
+            if (target->m_game->m_selection.size() == 1) {
                 target->add_to_hand(std::move(removed));
-                next->add_to_hand(std::move(target->m_game->m_temps.front()));
-                target->m_game->m_temps.clear();
+                next->add_to_hand(std::move(target->m_game->m_selection.front()));
+                target->m_game->m_selection.clear();
                 target->m_game->pop_request();
             } else {
                 target->m_game->pop_request_noupdate();
@@ -112,7 +112,7 @@ namespace banggame {
                 if (flightable && !it->responses.empty() && it->responses.front().is(effect_type::flight)) {
                     target->discard_card(args.card_id);
                 } else {
-                    target->m_game->add_to_temps(std::move(*it));
+                    target->m_game->add_to_selection(std::move(*it));
                     target->m_hand.erase(it);
                 }
                 
@@ -121,19 +121,19 @@ namespace banggame {
                     next = target->m_game->get_next_player(next);
                 } while (next->m_hand.empty() && next != origin);
                 if (next == origin) {
-                    if (std::ranges::any_of(target->m_game->m_temps, [](const deck_card &c) {
+                    if (std::ranges::any_of(target->m_game->m_selection, [](const deck_card &c) {
                         return c.value == card_value_type::value_A;
                     })) {
                         target->m_game->pop_request();
-                        for (auto &c : target->m_game->m_temps) {
+                        for (auto &c : target->m_game->m_selection) {
                             target->m_game->add_to_discards(std::move(c));
                         }
-                        target->m_game->m_temps.clear();
-                    } else if (target->m_game->m_temps.size() <= 2) {
-                        for (auto &c : target->m_game->m_temps) {
+                        target->m_game->m_selection.clear();
+                    } else if (target->m_game->m_selection.size() <= 2) {
+                        for (auto &c : target->m_game->m_selection) {
                             next->add_to_hand(std::move(c));
                         }
-                        target->m_game->m_temps.clear();
+                        target->m_game->m_selection.clear();
                         target->m_game->pop_request();
                     } else {
                         target->m_game->pop_request_noupdate();
@@ -145,15 +145,15 @@ namespace banggame {
                 }
             }
         } else {
-            if (args.pile == card_pile_type::temp_table) {
+            if (args.pile == card_pile_type::selection) {
                 target->add_to_hand(target->m_game->draw_from_temp(args.card_id));
                 if (--target->m_game->top_request().get<request_type::poker>().num_cards == 0
-                    || target->m_game->m_temps.size() == 0) {
+                    || target->m_game->m_selection.size() == 0) {
                     target->m_game->pop_request();
-                    for (auto &c : target->m_game->m_temps) {
+                    for (auto &c : target->m_game->m_selection) {
                         target->m_game->add_to_discards(std::move(c));
                     }
-                    target->m_game->m_temps.clear();
+                    target->m_game->m_selection.clear();
                 }
             }
         }

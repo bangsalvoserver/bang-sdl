@@ -68,7 +68,7 @@ namespace banggame {
         
         std::vector<deck_card> m_deck;
         std::vector<deck_card> m_discards;
-        std::vector<deck_card> m_temps;
+        std::vector<deck_card> m_selection;
         std::vector<player> m_players;
 
         std::vector<character> m_base_characters;
@@ -83,7 +83,7 @@ namespace banggame {
             return ++m_id_counter;
         }
 
-        std::mt19937 rng;
+        std::default_random_engine rng;
 
         template<game_update_type E, typename ... Ts>
         void add_public_update(const Ts & ... args) {
@@ -209,10 +209,10 @@ namespace banggame {
             return m_discards.emplace_back(std::move(c));
         }
 
-        deck_card &add_to_temps(deck_card &&c, player *owner = nullptr) {
+        deck_card &add_to_selection(deck_card &&c, player *owner = nullptr) {
             send_card_update(c, owner);
-            add_public_update<game_update_type::move_card>(c.id, 0, card_pile_type::temp_table);
-            return m_temps.emplace_back(std::move(c));
+            add_public_update<game_update_type::move_card>(c.id, 0, card_pile_type::selection);
+            return m_selection.emplace_back(std::move(c));
         }
 
         deck_card draw_card();

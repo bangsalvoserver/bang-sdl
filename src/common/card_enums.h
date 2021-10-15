@@ -88,7 +88,7 @@ namespace banggame {
         (player_character)
         (main_deck)
         (discard_pile)
-        (temp_table)
+        (selection)
     )
 
 }

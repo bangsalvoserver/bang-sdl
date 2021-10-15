@@ -7,8 +7,8 @@
 
 #include "manager.h"
 
-constexpr int window_width = 800;
-constexpr int window_height = 600;
+constexpr int window_width = 900;
+constexpr int window_height = 700;
 
 int main(int argc, char **argv) {
     sdl::initializer sdl_init(SDL_INIT_VIDEO);

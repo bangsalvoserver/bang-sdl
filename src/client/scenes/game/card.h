@@ -5,6 +5,7 @@
 #include "common/game_update.h"
 
 #include "utils/sdl.h"
+#include "sizes.h"
 #include "../widgets/stattext.h"
 
 #include <vector>
@@ -18,8 +19,6 @@ namespace banggame {
 
         float flip_amt = 0.f;
         float rotation = 0.f;
-
-        static constexpr int card_width = 70;
 
         const sdl::rect &get_rect() const {
             return m_rect;
@@ -35,20 +34,26 @@ namespace banggame {
     template<typename T>
     struct card_widget : card_widget_base {
         sdl::texture texture_front;
+        sdl::texture texture_front_scaled;
         static inline sdl::texture texture_back;
 
+        void set_texture_front(sdl::texture &&tex) {
+            texture_front = std::move(tex);
+            texture_front_scaled = sdl::scale_surface(texture_front.get_surface(),
+                texture_front.get_rect().w / sizes::card_width);
+        }
+
         void render(sdl::renderer &renderer) {
-            if (flip_amt > 0.5f && texture_front) card_widget_base::render(renderer, texture_front);
+            if (flip_amt > 0.5f && texture_front_scaled) card_widget_base::render(renderer, texture_front_scaled);
             else if (texture_back) card_widget_base::render(renderer, texture_back);
         }
     };
 
     struct card_pile_view : std::vector<int> {
-        static constexpr int card_distance = 10;
         sdl::point pos;
         int width;
 
-        card_pile_view(int width = 200) : width(width) {}
+        explicit card_pile_view(int width) : width(width) {}
 
         auto find(int card_id) const {
             return std::ranges::find(*this, card_id);
@@ -58,7 +63,7 @@ namespace banggame {
             if (size() == 1) {
                 return pos;
             }
-            float xoffset = std::min((float)width / (size() - 1), (float)(card_widget_base::card_width + card_distance));
+            float xoffset = std::min((float)width / (size() - 1), (float)(sizes::card_width + sizes::card_xoffset));
             return sdl::point{(int)(pos.x + xoffset *
                 (std::ranges::distance(begin(), find(card_id)) - (size() - 1) * .5f)),
                 pos.y};
@@ -100,12 +105,11 @@ namespace banggame {
     };
 
     struct player_view {
-        static constexpr float one_hp_size = 20.f;
         int hp = 0;
         bool dead = false;
 
-        card_pile_view hand;
-        card_pile_view table;
+        card_pile_view hand{sizes::player_hand_width};
+        card_pile_view table{sizes::player_hand_width};
 
         sdl::rect m_bounding_rect;
 

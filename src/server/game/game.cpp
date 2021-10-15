@@ -185,10 +185,10 @@ namespace banggame {
     }
 
     deck_card game::draw_from_temp(int card_id) {
-        auto it = std::ranges::find(m_temps, card_id, &deck_card::id);
-        if (it == m_temps.end()) throw game_error("server.draw_from_temp: ID non trovato");
+        auto it = std::ranges::find(m_selection, card_id, &deck_card::id);
+        if (it == m_selection.end()) throw game_error("server.draw_from_temp: ID non trovato");
         deck_card c = std::move(*it);
-        m_temps.erase(it);
+        m_selection.erase(it);
         return c;
     }
 
@@ -202,7 +202,7 @@ namespace banggame {
         } else {
             m_pending_checks.push_back(std::move(fun));
             for (int i=0; i<p->m_num_checks; ++i) {
-                add_to_temps(draw_card());
+                add_to_selection(draw_card());
             }
             add_request<request_type::check>(0, p, p);
         }
@@ -210,11 +210,11 @@ namespace banggame {
 
     void game::resolve_check(int card_id) {
         auto c = draw_from_temp(card_id);
-        for (auto &c : m_temps) {
+        for (auto &c : m_selection) {
             add_to_discards(std::move(c));
             queue_event<event_type::on_draw_check>(c.id);
         }
-        m_temps.clear();
+        m_selection.clear();
         auto &moved = add_to_discards(std::move(c));
         auto suit = moved.suit;
         auto value = moved.value;

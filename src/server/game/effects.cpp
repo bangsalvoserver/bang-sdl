@@ -114,7 +114,7 @@ namespace banggame {
 
     void effect_generalstore::on_play(int origin_card_id, player *origin) {
         for (int i=0; i<origin->m_game->num_alive(); ++i) {
-            origin->m_game->add_to_temps(origin->m_game->draw_card());
+            origin->m_game->add_to_selection(origin->m_game->draw_card());
         }
         origin->m_game->queue_request<request_type::generalstore>(origin_card_id, origin, origin);
     }

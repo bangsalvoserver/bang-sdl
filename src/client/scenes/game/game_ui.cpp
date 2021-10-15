@@ -35,14 +35,14 @@ void game_ui::render(sdl::renderer &renderer) {
 
     sdl::rect status_rect = m_status_text.get_rect();
     status_rect.x = (parent->parent->width() - status_rect.w) / 2;
-    status_rect.y = (parent->parent->height() - status_rect.h) - 10;
+    status_rect.y = (parent->parent->height() - status_rect.h) - sizes::status_text_y_distance;
     m_status_text.set_rect(status_rect);
     m_status_text.render(renderer);
 
     if (m_error_timeout > 0) {
         sdl::rect error_rect = m_error_text.get_rect();
         error_rect.x = (parent->parent->width() - error_rect.w) / 2;
-        error_rect.y = (parent->parent->height() - error_rect.h) - 50;
+        error_rect.y = (parent->parent->height() - error_rect.h) - sizes::error_msg_y_distance;
         m_error_text.set_rect(error_rect);
         m_error_text.render(renderer);
         --m_error_timeout;
