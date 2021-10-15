@@ -34,7 +34,7 @@ namespace banggame {
             } else {
                 target->m_game->pop_request_noupdate();
                 target->add_to_hand(std::move(removed));
-                target->m_game->queue_request<request_type::generalstore>(origin, next);
+                target->m_game->queue_request<request_type::generalstore>(origin_card_id, origin, next);
             }
         }
     }
@@ -59,12 +59,12 @@ namespace banggame {
 
     void request_damaging::on_resolve() {
         target->m_game->pop_request();
-        target->damage(origin, 1);
+        target->damage(origin_card_id, origin, 1);
     }
 
     void request_bang::on_resolve() {
         target->m_game->pop_request();
-        target->damage(origin, bang_damage, is_bang_card);
+        target->damage(origin_card_id, origin, bang_damage, is_bang_card);
     }
 
     void request_death::on_resolve() {
@@ -74,12 +74,12 @@ namespace banggame {
 
     void request_destroy::on_resolve() {
         target->m_game->pop_request();
-        effect_destroy{}.on_play(origin, target, card_id);
+        effect_destroy{}.on_play(origin_card_id, origin, target, card_id);
     }
 
     void request_steal::on_resolve() {
         target->m_game->pop_request();
-        effect_steal{}.on_play(origin, target, card_id);
+        effect_steal{}.on_play(origin_card_id, origin, target, card_id);
     }
 
     void request_bandidos::on_pick(const pick_card_args &args) {
@@ -137,11 +137,11 @@ namespace banggame {
                         target->m_game->pop_request();
                     } else {
                         target->m_game->pop_request_noupdate();
-                        target->m_game->queue_request<request_type::poker>(origin, next);
+                        target->m_game->queue_request<request_type::poker>(origin_card_id, origin, next);
                     }
                 } else {
                     target->m_game->pop_request_noupdate();
-                    target->m_game->queue_request<request_type::poker>(origin, next);
+                    target->m_game->queue_request<request_type::poker>(origin_card_id, origin, next);
                 }
             }
         } else {

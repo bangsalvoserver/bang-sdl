@@ -117,11 +117,16 @@ namespace banggame {
     struct request_holder : enums::enum_variant<request_type> {
         using enums::enum_variant<request_type>::enum_variant;
         
-        template<request_type E> request_holder(enums::enum_constant<E> tag, player *origin, player *target)
+        template<request_type E> request_holder(enums::enum_constant<E> tag, int origin_card_id, player *origin, player *target)
             : enums::enum_variant<request_type>(tag) {
             auto &obj = get<E>();
+            obj.origin_card_id = origin_card_id;
             obj.origin = origin;
             obj.target = target;
+        }
+
+        int origin_card_id() const {
+            return enums::visit(&request_base::origin_card_id, *this);
         }
 
         player *origin() const {

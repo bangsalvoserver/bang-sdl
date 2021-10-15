@@ -6,7 +6,7 @@
 
 namespace banggame {
     void effect_slab_the_killer::on_equip(player *p, int card_id) {
-        p->m_game->add_event<event_type::on_play_bang>(card_id, [p](player *target) {
+        p->m_game->add_event<event_type::on_play_bang>(card_id, [p](player *target, int bang_card_id) {
             if (p == target) {
                 target->add_bang_mod([](request_bang &req) {
                     ++req.bang_strength;
@@ -15,7 +15,7 @@ namespace banggame {
         });
     }
 
-    void effect_black_jack::on_play(player *target) {
+    void effect_black_jack::on_play(int origin_card_id, player *target) {
         int ncards = target->m_num_drawn_cards = target->m_num_cards_to_draw;
         for (int i=0; i<ncards; ++i) {
             if (i==1) {
@@ -31,7 +31,7 @@ namespace banggame {
         }
     }
 
-    void effect_bill_noface::on_play(player *target) {
+    void effect_bill_noface::on_play(int origin_card_id, player *target) {
         target->m_num_drawn_cards = target->m_num_cards_to_draw;
         int ncards = target->m_num_cards_to_draw - 1 + target->m_max_hp - target->m_hp;
         for (int i=0; i<ncards; ++i) {
@@ -58,11 +58,11 @@ namespace banggame {
         }
     }
 
-    void effect_kit_carlson::on_play(player *target) {
+    void effect_kit_carlson::on_play(int origin_card_id, player *target) {
         for (int i=0; i<=target->m_num_cards_to_draw; ++i) {
             target->m_game->add_to_temps(target->m_game->draw_card(), target);
         }
-        target->m_game->queue_request<request_type::kit_carlson>(target, target);
+        target->m_game->queue_request<request_type::kit_carlson>(origin_card_id, target, target);
     }
 
     void request_kit_carlson::on_pick(const pick_card_args &args) {
@@ -78,18 +78,18 @@ namespace banggame {
                 target->m_num_drawn_cards = target->m_num_cards_to_draw;
             } else {
                 target->m_game->pop_request_noupdate();
-                target->m_game->queue_request<request_type::kit_carlson>(target, target);
+                target->m_game->queue_request<request_type::kit_carlson>(origin_card_id, target, target);
             }
         }
     }
 
-    void effect_claus_the_saint::on_play(player *target) {
+    void effect_claus_the_saint::on_play(int origin_card_id, player *target) {
         target->m_num_drawn_cards = target->m_num_cards_to_draw;
         int ncards = target->m_game->num_alive() + target->m_num_cards_to_draw - 1;
         for (int i=0; i<ncards; ++i) {
             target->m_game->add_to_temps(target->m_game->draw_card(), target);
         }
-        target->m_game->queue_request<request_type::claus_the_saint>(target, target);
+        target->m_game->queue_request<request_type::claus_the_saint>(origin_card_id, target, target);
     }
 
     void request_claus_the_saint::on_pick(const pick_card_args &args) {
@@ -109,7 +109,7 @@ namespace banggame {
                 target->m_game->m_temps.clear();
             } else {
                 target->m_game->pop_request_noupdate();
-                target->m_game->queue_request<request_type::claus_the_saint>(nullptr, target);
+                target->m_game->queue_request<request_type::claus_the_saint>(origin_card_id, target, target);
             }
         }
     }
@@ -231,13 +231,13 @@ namespace banggame {
     }
 
     void effect_vera_custer::on_equip(player *p, int card_id) {
-        p->m_game->add_event<event_type::on_turn_start>(card_id, [p](player *target) {
+        p->m_game->add_event<event_type::on_turn_start>(card_id, [=](player *target) {
             if (p == target) {
                 ++p->m_characters.front().usages;
                 if (p->m_game->num_alive() == 2 && p->m_game->get_next_player(p)->m_characters.size() == 1) {
                     vera_custer_copy_character(p, p->m_game->get_next_player(p)->m_characters.front());
                 } else if (p->m_game->num_alive() > 2) {
-                    p->m_game->queue_request<request_type::vera_custer>(p, p);
+                    p->m_game->queue_request<request_type::vera_custer>(card_id, target, target);
                 }
             }
         });
@@ -282,7 +282,7 @@ namespace banggame {
     }
 
     void effect_colorado_bill::on_equip(player *p, int card_id) {
-        p->m_game->add_event<event_type::on_play_bang>(card_id, [p](player *origin) {
+        p->m_game->add_event<event_type::on_play_bang>(card_id, [p](player *origin, int bang_card_id) {
             if (p == origin) {
                 origin->m_game->draw_check_then(origin, [=](card_suit_type suit, card_value_type) {
                     if (suit == card_suit_type::spades) {
@@ -298,7 +298,7 @@ namespace banggame {
     void effect_henry_block::on_equip(player *p, int card_id) {
         p->m_game->add_event<event_type::on_discard_card>(card_id, [p](player *origin, player *target, int card_id) {
             if (p == target && p != origin) {
-                p->m_game->queue_request<request_type::bang>(target, origin);
+                p->m_game->queue_request<request_type::bang>(card_id, target, origin);
             }
         });
     }
@@ -341,7 +341,7 @@ namespace banggame {
         return origin->m_game->top_request_is(request_type::death, origin);
     }
 
-    void effect_teren_kill::on_play(player *origin) {
+    void effect_teren_kill::on_play(int origin_card_id, player *origin) {
         auto &req = origin->m_game->top_request().get<request_type::death>();
         if (std::ranges::find(req.draw_attempts, origin->id) == req.draw_attempts.end()) {
             req.draw_attempts.push_back(origin->id);
@@ -357,11 +357,11 @@ namespace banggame {
     }
 
     void effect_youl_grinner::on_equip(player *target, int card_id) {
-        target->m_game->add_event<event_type::on_turn_start>(card_id, [target](player *origin) {
+        target->m_game->add_event<event_type::on_turn_start>(card_id, [=](player *origin) {
             if (target == origin) {
                 for (auto &p : target->m_game->m_players) {
                     if (p.alive() && p.id != target->id && p.m_hand.size() > target->m_hand.size()) {
-                        target->m_game->queue_request<request_type::youl_grinner>(target, &p);
+                        target->m_game->queue_request<request_type::youl_grinner>(card_id, target, &p);
                     }
                 }
             }
@@ -375,7 +375,7 @@ namespace banggame {
         }
     }
 
-    void effect_flint_westwood::on_play(player *origin, player *target, int card_id) {
+    void effect_flint_westwood::on_play(int origin_card_id, player *origin, player *target, int card_id) {
         int num_cards = 2;
         for (int i=0; !target->m_hand.empty() && i<2; ++i) {
             origin->steal_card(target, target->random_hand_card().id);
@@ -391,7 +391,7 @@ namespace banggame {
         return false;
     }
 
-    void effect_lee_van_kliff::on_play(player *origin, player *target, int card_id) {
+    void effect_lee_van_kliff::on_play(int origin_card_id, player *origin, player *target, int card_id) {
         auto copy = *std::ranges::find(origin->m_game->m_discards | std::views::reverse, origin->m_last_played_card, &deck_card::id);
         copy.id = card_id;
         copy.suit = card_suit_type::none;
@@ -421,7 +421,7 @@ namespace banggame {
     }
 
     void effect_madam_yto::on_equip(player *p, int card_id) {
-        p->m_game->add_event<event_type::on_play_beer>(card_id, [p](player *target) {
+        p->m_game->add_event<event_type::on_play_beer>(card_id, [p](player *target, int beer_card_id) {
             p->add_to_hand(p->m_game->draw_card());
         });
     }
@@ -435,7 +435,7 @@ namespace banggame {
         }
     }
 
-    void effect_greygory_deck::on_play(player *origin, player *target, int card_id) {
+    void effect_greygory_deck::on_play(int card_id, player *target) {
         int &usages = target->find_character(card_id).usages;
         if (usages == 0) {
             ++usages;
@@ -462,15 +462,15 @@ namespace banggame {
         return false;
     }
 
-    void effect_lemonade_jim::on_play(player *origin, player *target) {
+    void effect_lemonade_jim::on_play(int origin_card_id, player *origin, player *target) {
         target->heal(1);
         target->m_game->top_request().get<request_type::beer>().players.push_back(target->id);
     }
 
     void effect_lemonade_jim::on_equip(player *origin, int card_id) {
-        origin->m_game->add_event<event_type::on_play_beer>(card_id, [origin](player *target) {
+        origin->m_game->add_event<event_type::on_play_beer>(card_id, [origin](player *target, int beer_card_id) {
             if (origin != target) {
-                target->m_game->queue_request<request_type::beer>(nullptr, target).players.push_back(target->id);
+                target->m_game->queue_request<request_type::beer>(beer_card_id, target, target).players.push_back(target->id);
             }
         });
     }

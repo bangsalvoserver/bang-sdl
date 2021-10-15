@@ -11,11 +11,11 @@ namespace banggame {
     };
 
     struct effect_black_jack : card_effect {
-        void on_play(player *target);
+        void on_play(int origin_card_id, player *target);
     };
 
     struct effect_bill_noface : card_effect {
-        void on_play(player *target);
+        void on_play(int origin_card_id, player *target);
     };
 
     struct effect_tequila_joe : card_effect {
@@ -29,7 +29,7 @@ namespace banggame {
     };
 
     struct effect_kit_carlson : card_effect {
-        void on_play(player *target);
+        void on_play(int origin_card_id, player *target);
     };
 
     struct request_kit_carlson : request_base {
@@ -37,7 +37,7 @@ namespace banggame {
     };
 
     struct effect_claus_the_saint : card_effect {
-        void on_play(player *target);
+        void on_play(int origin_card_id, player *target);
     };
 
     struct request_claus_the_saint : request_base {
@@ -113,7 +113,7 @@ namespace banggame {
 
     struct effect_teren_kill : card_effect {
         bool can_respond(player *origin) const;
-        void on_play(player *origin);
+        void on_play(int origin_card_id, player *origin);
     };
 
     struct effect_youl_grinner : event_based_effect {
@@ -125,12 +125,12 @@ namespace banggame {
     };
 
     struct effect_flint_westwood : card_effect {
-        void on_play(player *origin, player *target, int card_id);
+        void on_play(int origin_card_id, player *origin, player *target, int card_id);
     };
 
     struct effect_lee_van_kliff : card_effect {
         bool can_play(player *origin) const;
-        void on_play(player *origin, player *target, int card_id);
+        void on_play(int origin_card_id, player *origin, player *target, int card_id);
     };
 
     struct effect_don_bell : event_based_effect {
@@ -142,13 +142,13 @@ namespace banggame {
     };
 
     struct effect_greygory_deck : event_based_effect {
-        void on_play(player *origin, player *target, int card_id);
+        void on_play(int origin_card_id, player *origin);
         void on_equip(player *target, int card_id);
     };
 
     struct effect_lemonade_jim : event_based_effect {
         bool can_respond(player *origin) const;
-        void on_play(player *origin, player *target);
+        void on_play(int origin_card_id, player *origin, player *target);
         void on_equip(player *target, int card_id);
     };
 }

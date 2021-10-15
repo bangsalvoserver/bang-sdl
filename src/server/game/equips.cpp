@@ -47,7 +47,7 @@ namespace banggame {
                 && enums::indexof(value) >= enums::indexof(card_value_type::value_2)
                 && enums::indexof(value) <= enums::indexof(card_value_type::value_9)) {
                 target->discard_card(card_id);
-                target->damage(nullptr, 3);
+                target->damage(card_id, nullptr, 3);
             } else {
                 auto it = std::ranges::find(target->m_table, card_id, &card::id);
 
@@ -69,7 +69,7 @@ namespace banggame {
     void effect_snake::on_equip(player *target, int card_id) {
         target->add_predraw_check(card_id, 0, [=](card_suit_type suit, card_value_type value) {
             if (suit == card_suit_type::spades) {
-                target->damage(nullptr, 1);
+                target->damage(card_id, nullptr, 1);
             }
             target->next_predraw_check(card_id);
         });
@@ -151,9 +151,9 @@ namespace banggame {
     }
 
     void effect_shotgun::on_equip(player *p, int card_id) {
-        p->m_game->add_event<event_type::on_hit>(card_id, [p](player *origin, player *target, int damage, bool is_bang) {
+        p->m_game->add_event<event_type::on_hit>(card_id, [=](player *origin, player *target, int damage, bool is_bang) {
             if (origin == p && target != p && !target->m_hand.empty() && is_bang) {
-                target->m_game->queue_request<request_type::discard>(origin, target);
+                target->m_game->queue_request<request_type::discard>(card_id, origin, target);
             }
         });
     }

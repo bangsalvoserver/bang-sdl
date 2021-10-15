@@ -136,9 +136,9 @@ namespace banggame {
         bool can_play(player *target) const;
         bool can_respond(player *target) const;
 
-        void on_play(player *origin);
-        void on_play(player *origin, player *target);
-        void on_play(player *origin, player *target, int card_id);
+        void on_play(int origin_card_id, player *origin);
+        void on_play(int origin_card_id, player *origin, player *target);
+        void on_play(int origin_card_id, player *origin, player *target, int card_id);
     };
 
     struct equip_holder : effect_base<equip_type> {

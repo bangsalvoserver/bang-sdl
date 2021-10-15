@@ -31,12 +31,12 @@ namespace banggame {
         (on_equip,          std::function<void(player *origin, player *target, int card_id)>)
         (on_play_hand_card, std::function<void(player *origin, int card_id)>)
         (post_discard_card, std::function<void(player *target, int card_id)>)
+        (on_play_bang,      std::function<void(player *origin, int card_id)>)
+        (on_play_beer,      std::function<void(player *origin, int card_id)>)
         (on_effect_end,     std::function<void(player *origin)>)
         (on_turn_start,     std::function<void(player *origin)>)
         (on_turn_end,       std::function<void(player *origin)>)
         (on_draw_from_deck, std::function<void(player *origin)>)
-        (on_play_bang,      std::function<void(player *origin)>)
-        (on_play_beer,      std::function<void(player *origin)>)
         (on_game_start,     std::function<void()>)
     )
 
@@ -122,8 +122,8 @@ namespace banggame {
         }
 
         template<request_type E>
-        auto &add_request(player *origin, player *target, bool flightable = false) {
-            auto &ret = m_requests.emplace_front(enums::enum_constant<E>{}, origin, target).template get<E>();
+        auto &add_request(int origin_card_id, player *origin, player *target, bool flightable = false) {
+            auto &ret = m_requests.emplace_front(enums::enum_constant<E>{}, origin_card_id, origin, target).template get<E>();
             ret.flightable = flightable;
 
             send_request_update();
@@ -140,8 +140,8 @@ namespace banggame {
         }
 
         template<request_type E>
-        auto &queue_request(player *origin, player *target, bool flightable = false) {
-            auto &ret = m_requests.emplace_back(enums::enum_constant<E>{}, origin, target).template get<E>();
+        auto &queue_request(int origin_card_id, player *origin, player *target, bool flightable = false) {
+            auto &ret = m_requests.emplace_back(enums::enum_constant<E>{}, origin_card_id, origin, target).template get<E>();
             ret.flightable = flightable;
 
             if (m_requests.size() == 1) {

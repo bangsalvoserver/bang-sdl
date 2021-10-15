@@ -77,15 +77,15 @@ namespace banggame {
     };
 
     struct effect_bandidos : card_effect {
-        void on_play(player *origin, player *target);
+        void on_play(int origin_card_id, player *origin, player *target);
     };
 
     struct effect_tornado : card_effect {
-        void on_play(player *origin, player *target);
+        void on_play(int origin_card_id, player *origin, player *target);
     };
 
     struct effect_poker : card_effect {
-        void on_play(player *origin);
+        void on_play(int origin_card_id, player *origin);
     };
 
 }

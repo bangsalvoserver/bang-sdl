@@ -11,7 +11,6 @@
             "color": "blue",
             "responses": [
                 {
-                    "target": "self card",
                     "class": "barrel"
                 }
             ]
@@ -437,7 +436,6 @@
             "color": "blue",
             "responses": [
                 {
-                    "target": "self card",
                     "class": "barrel"
                 }
             ]
@@ -1842,7 +1840,6 @@
             "expansion": "base",
             "responses": [
                 {
-                    "target": "self card",
                     "class": "barrel"
                 }
             ]
@@ -2419,7 +2416,6 @@
             "type": "drawing",
             "effects": [
                 {
-                    "target": "self card",
                     "class": "greygory_deck"
                 }
             ],

@@ -15,44 +15,45 @@ namespace banggame {
     };
 
     struct request_base {
+        int origin_card_id;
         player *origin;
         player *target;
         bool flightable = false;
     };
     
     struct effect_bang : card_effect {
-        void on_play(player *origin, player *target);
+        void on_play(int origin_card_id, player *origin, player *target);
     };
 
     struct effect_bangcard : card_effect {
-        void on_play(player *origin, player *target);
+        void on_play(int origin_card_id, player *origin, player *target);
     };
 
     struct effect_aim : card_effect {
-        void on_play(player *origin);
+        void on_play(int origin_card_id, player *origin);
     };
 
     struct effect_banglimit : card_effect {
         bool can_play(player *target) const;
-        void on_play(player *origin);
+        void on_play(int origin_card_id, player *origin);
     };
 
     struct effect_indians : card_effect {
-        void on_play(player *origin, player *target);
+        void on_play(int origin_card_id, player *origin, player *target);
     };
 
     struct effect_duel : card_effect {
-        void on_play(player *origin, player *target);
+        void on_play(int origin_card_id, player *origin, player *target);
     };
 
     struct effect_bangresponse : card_effect {
         bool can_respond(player *origin) const;
-        void on_play(player *origin);
+        void on_play(int origin_card_id, player *origin);
     };
     
     struct effect_missed : card_effect {
         bool can_respond(player *origin) const;
-        void on_play(player *origin);
+        void on_play(int origin_card_id, player *origin);
     };
 
     struct effect_missedcard : effect_missed {
@@ -61,90 +62,90 @@ namespace banggame {
 
     struct effect_bangmissed : card_effect {
         bool can_respond(player *origin) const;
-        void on_play(player *origin);
+        void on_play(int origin_card_id, player *origin);
     };
     
     struct effect_barrel : card_effect {
         bool can_respond(player *origin) const;
-        void on_play(player *origin, player *target, int card_id);
+        void on_play(int origin_card_id, player *target);
     };
 
     struct effect_heal : card_effect {
-        void on_play(player *origin, player *target);
+        void on_play(int origin_card_id, player *origin, player *target);
     };
 
     struct effect_damage : card_effect {
         bool can_play(player *target) const;
-        void on_play(player *origin, player *target);
+        void on_play(int origin_card_id, player *origin, player *target);
     };
 
     struct effect_empty : card_effect {
-        void on_play(player *origin) {}
+        void on_play(int origin_card_id, player *origin) {}
     };
 
     struct effect_beer : card_effect {
-        void on_play(player *origin, player *target);
+        void on_play(int origin_card_id, player *origin, player *target);
     };
 
     struct effect_deathsave : card_effect {
         bool can_respond(player *origin) const;
-        void on_play(player *origin);
+        void on_play(int origin_card_id, player *origin);
     };
 
     struct effect_destroy : card_effect {
-        void on_play(player *origin, player *target, int card_id);
+        void on_play(int origin_card_id, player *origin, player *target, int card_id);
     };
 
     struct effect_virtual_destroy : card_effect {
-        void on_play(player *origin, player *target, int card_id);
+        void on_play(int origin_card_id, player *origin, player *target, int card_id);
     };
 
     struct effect_virtual_copy : card_effect {
-        void on_play(player *origin, player *target, int card_id);
+        void on_play(int origin_card_id, player *origin, player *target, int card_id);
     };
 
     struct effect_virtual_clear : card_effect {
-        void on_play(player *origin);
+        void on_play(int origin_card_id, player *origin);
     };
 
     struct effect_draw : card_effect {
-        void on_play(player *origin, player *target);
+        void on_play(int origin_card_id, player *origin, player *target);
     };
 
     struct effect_draw_discard : card_effect {
         bool can_play(player *target) const;
-        void on_play(player *origin, player *target);
+        void on_play(int origin_card_id, player *origin, player *target);
     };
 
     struct effect_draw_rest : card_effect {
-        void on_play(player *target);
+        void on_play(int origin_card_id, player *target);
     };
 
     struct effect_draw_done : card_effect {
-        void on_play(player *target);
+        void on_play(int origin_card_id, player *target);
     };
 
     struct effect_draw_skip : card_effect {
         bool can_play(player *target) const;
-        void on_play(player *target);
+        void on_play(int origin_card_id, player *target);
     };
 
     struct effect_steal : card_effect {
-        void on_play(player *origin, player *target, int card_id);
+        void on_play(int origin_card_id, player *origin, player *target, int card_id);
     };
 
     struct effect_generalstore : card_effect {
-        void on_play(player *origin);
+        void on_play(int origin_card_id, player *origin);
     };
 
     struct effect_saved : card_effect {
         bool can_respond(player *origin) const;
-        void on_play(player *origin);
+        void on_play(int origin_card_id, player *origin);
     };
 
     struct effect_flight : card_effect {
         bool can_respond(player *origin) const;
-        void on_play(player *origin);
+        void on_play(int origin_card_id, player *origin);
     };
 }
 

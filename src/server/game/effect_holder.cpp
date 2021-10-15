@@ -22,30 +22,30 @@ namespace banggame {
         }, *this);
     }
 
-    void effect_holder::on_play(player *origin) {
+    void effect_holder::on_play(int origin_card_id, player *origin) {
         enums::visit([=](auto &value) {
-            if constexpr (requires { value.on_play(origin); }) {
-                value.on_play(origin);
+            if constexpr (requires { value.on_play(origin_card_id, origin); }) {
+                value.on_play(origin_card_id, origin);
             } else {
                 throw std::runtime_error("on_play(origin)");
             }
         }, *this);
     }
 
-    void effect_holder::on_play(player *origin, player *target) {
+    void effect_holder::on_play(int origin_card_id, player *origin, player *target) {
         enums::visit([=](auto &value) {
-            if constexpr (requires { value.on_play(origin, target); }) {
-                value.on_play(origin, target);
+            if constexpr (requires { value.on_play(origin_card_id, origin, target); }) {
+                value.on_play(origin_card_id, origin, target);
             } else {
                 throw std::runtime_error("on_play(origin, target)");
             }
         }, *this);
     }
 
-    void effect_holder::on_play(player *origin, player *target, int card_id) {
+    void effect_holder::on_play(int origin_card_id, player *origin, player *target, int card_id) {
         enums::visit([=](auto &value) {
-            if constexpr (requires { value.on_play(origin, target, card_id); }) {
-                value.on_play(origin, target, card_id);
+            if constexpr (requires { value.on_play(origin_card_id, origin, target, card_id); }) {
+                value.on_play(origin_card_id, origin, target, card_id);
             } else {
                 throw std::runtime_error("on_play(origin, target, card_id)");
             }

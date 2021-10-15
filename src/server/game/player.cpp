@@ -94,9 +94,9 @@ namespace banggame {
         }
     }
 
-    void player::damage(player *source, int value, bool is_bang) {
+    void player::damage(int origin_card_id, player *source, int value, bool is_bang) {
         if (!m_ghost) {
-            auto &obj = m_game->queue_request<request_type::damaging>(source, this);
+            auto &obj = m_game->queue_request<request_type::damaging>(origin_card_id, source, this);
             obj.damage = value;
             obj.is_bang = is_bang;
         }
@@ -322,14 +322,14 @@ namespace banggame {
         for (auto &e : effects) {
             enums::visit_indexed(util::overloaded{
                 [&](enums::enum_constant<play_card_target_type::target_none>) {
-                    e.on_play(this);
+                    e.on_play(card_id, this);
                 },
                 [&](enums::enum_constant<play_card_target_type::target_player>, const std::vector<target_player_id> &args) {
                     for (const auto &target : args) {
                         auto *p = m_game->get_player(target.player_id);
                         if (p != this && check_immunity(p)) continue;
                         m_current_card_targets.emplace(card_id, target.player_id);
-                        e.on_play(this, p);
+                        e.on_play(card_id, this, p);
                     }
                 },
                 [&](enums::enum_constant<play_card_target_type::target_card>, const std::vector<target_card_id> &args) {
@@ -338,9 +338,9 @@ namespace banggame {
                         if (p != this && check_immunity(p)) continue;
                         m_current_card_targets.emplace(card_id, target.player_id);
                         if (target.from_hand && p != this) {
-                            e.on_play(this, p, p->random_hand_card().id);
+                            e.on_play(card_id, this, p, p->random_hand_card().id);
                         } else {
-                            e.on_play(this, p, target.card_id);
+                            e.on_play(card_id, this, p, target.card_id);
                         }
                     }
                 }
@@ -555,7 +555,7 @@ namespace banggame {
             for (auto &[card_id, obj] : m_predraw_checks) {
                 obj.resolved = false;
             }
-            m_game->queue_request<request_type::predraw>(this, this);
+            m_game->queue_request<request_type::predraw>(0, this, this);
         }
     }
 
@@ -568,7 +568,7 @@ namespace banggame {
             if (std::ranges::all_of(m_predraw_checks | std::views::values, &predraw_check::resolved)) {
                 m_game->queue_event<event_type::on_turn_start>(this);
             } else {
-                m_game->queue_request<request_type::predraw>(this, this);
+                m_game->queue_request<request_type::predraw>(0, this, this);
             }
         });
     }
