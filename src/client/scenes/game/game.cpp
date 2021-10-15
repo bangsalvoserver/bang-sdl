@@ -126,7 +126,9 @@ void game_scene::handle_event(const sdl::event &event) {
         sdl::point mouse_pt{event.button.x, event.button.y};
         switch (event.button.button) {
         case SDL_BUTTON_LEFT:
-            handle_card_click(mouse_pt);
+            if (m_animations.empty()) {
+                handle_card_click(mouse_pt);
+            }
             break;
         case SDL_BUTTON_RIGHT:
             find_overlay(mouse_pt);
