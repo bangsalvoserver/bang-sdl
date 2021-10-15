@@ -144,12 +144,14 @@ namespace banggame {
 
     void game::tick() {
         if (!m_requests.empty()) {
-            enums::visit([&]<request_type E>(enums::enum_constant<E>, auto &obj) {
+            enums::visit_indexed([&]<request_type E>(enums::enum_constant<E>, auto &obj) {
                 if constexpr (timer_request<E>) {
                     if (obj.duration && --obj.duration == 0) {
-                        auto copy = std::move(obj);
                         if constexpr (requires { obj.on_finished(); }) {
+                            auto copy = std::move(obj);
                             copy.on_finished();
+                        } else {
+                            pop_request();
                         }
                     }
                 }
@@ -294,7 +296,7 @@ namespace banggame {
     void game::handle_event(event_args &event) {
         for (auto &[card_id, e] : m_event_handlers) {
             if (e.index() == event.index()) {
-                enums::visit([&]<event_type T>(enums::enum_constant<T>, auto &fun) {
+                enums::visit_indexed([&]<event_type T>(enums::enum_constant<T>, auto &fun) {
                     std::apply(fun, std::get<enums::indexof(T)>(event));
                 }, e);
             }
@@ -333,7 +335,7 @@ namespace banggame {
 
     void game::handle_action(enums::enum_constant<game_action_type::pick_card>, player *p, const pick_card_args &args) {
         if (!m_requests.empty() && p == top_request().target()) {
-            enums::visit([&]<request_type E>(enums::enum_constant<E>, auto &req) {
+            enums::visit_indexed([&]<request_type E>(enums::enum_constant<E>, auto &req) {
                 if constexpr (picking_request<E>) {
                     auto req_copy = req;
                     req_copy.on_pick(args);
@@ -370,7 +372,7 @@ namespace banggame {
 
     void game::handle_action(enums::enum_constant<game_action_type::resolve>, player *p) {
         if (!m_requests.empty() && p == top_request().target()) {
-            enums::visit([]<request_type E>(enums::enum_constant<E>, auto &req) {
+            enums::visit_indexed([]<request_type E>(enums::enum_constant<E>, auto &req) {
                 if constexpr (resolvable_request<E>) {
                     auto req_copy = std::move(req);
                     req_copy.on_resolve();

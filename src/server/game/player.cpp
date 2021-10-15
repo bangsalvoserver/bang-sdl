@@ -157,7 +157,7 @@ namespace banggame {
 
         if (effects.size() != targets.size()) return false;
         return std::ranges::all_of(effects, [&, it = targets.begin()] (const effect_holder &e) mutable {
-            return enums::visit(util::overloaded{
+            return enums::visit_indexed(util::overloaded{
                 [&](enums::enum_constant<play_card_target_type::target_none>) {
                     return e.target() == enums::flags_none<target_type>;
                 },
@@ -320,7 +320,7 @@ namespace banggame {
         auto effect_it = targets.begin();
         auto &effects = is_response ? card_ptr->responses : card_ptr->effects;
         for (auto &e : effects) {
-            enums::visit(util::overloaded{
+            enums::visit_indexed(util::overloaded{
                 [&](enums::enum_constant<play_card_target_type::target_none>) {
                     e.on_play(this);
                 },

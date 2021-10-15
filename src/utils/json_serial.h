@@ -68,7 +68,7 @@ namespace json {
     template<enums::reflected_enum T>
     struct serializer<enums::enum_variant<T>> {
         Json::Value operator()(const enums::enum_variant<T> &value) const {
-            return enums::visit([]<T Value>(enums::enum_constant<Value>, auto && ... args) {
+            return enums::visit_indexed([]<T Value>(enums::enum_constant<Value>, auto && ... args) {
                 Json::Value ret = Json::objectValue;
                 ret["type"] = serializer<T>{}(Value);
                 if constexpr (sizeof...(args) > 0) {

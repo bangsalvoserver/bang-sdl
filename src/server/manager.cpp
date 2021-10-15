@@ -203,7 +203,7 @@ void game_manager::handle_message(enums::enum_constant<client_message_type::game
         throw game_error("Giocatore non in questa lobby");
     }
 
-    enums::visit([&]<game_action_type T>(enums::enum_constant<T> tag, auto && ... args) {
+    enums::visit_indexed([&]<game_action_type T>(enums::enum_constant<T> tag, auto && ... args) {
         it->game.handle_action(tag, user_it->second.controlling, std::forward<decltype(args)>(args) ...);
     }, value);
 }

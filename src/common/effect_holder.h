@@ -118,15 +118,15 @@ namespace banggame {
         static_assert(detail::all_is_effect<enums::enum_variant_base<E>>::value);
 
         target_type target() const {
-            return std::visit(&card_effect::target, this->as_base());
+            return enums::visit(&card_effect::target, *this);
         }
 
         int maxdistance() const {
-            return std::visit(&card_effect::maxdistance, this->as_base());
+            return enums::visit(&card_effect::maxdistance, *this);
         };
 
         bool flightable() const {
-            return std::visit(&card_effect::flightable, this->as_base());
+            return enums::visit(&card_effect::flightable, *this);
         }
     };
 

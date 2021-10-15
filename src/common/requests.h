@@ -123,15 +123,15 @@ namespace banggame {
         }
 
         player *origin() const {
-            return std::visit(&request_base::origin, this->as_base());
+            return enums::visit(&request_base::origin, *this);
         }
 
         player *target() const {
-            return std::visit(&request_base::target, this->as_base());
+            return enums::visit(&request_base::target, *this);
         }
 
         bool flightable() const {
-            return std::visit(&request_base::flightable, this->as_base());
+            return enums::visit(&request_base::flightable, *this);
         }
     };
 

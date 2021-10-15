@@ -47,14 +47,6 @@ namespace enums {
         template<Enum Value> auto &get() {
             return std::get<indexof(Value)>(*this);
         }
-
-        base &as_base() {
-            return static_cast<base &>(*this);
-        }
-
-        const base &as_base() const {
-            return static_cast<const base &>(*this);
-        }
     };
     
     namespace detail {
@@ -92,12 +84,12 @@ namespace enums {
     }
 
     template<typename RetType, typename Visitor, reflected_enum T>
-    RetType visit(Visitor &&visitor, const enum_variant<T> &v) {
+    RetType visit_indexed(Visitor &&visitor, const enum_variant<T> &v) {
         return do_visit<RetType, T>(visitor, v);
     }
 
     template<typename RetType, typename Visitor, reflected_enum T>
-    RetType visit(Visitor &&visitor, enum_variant<T> &v) {
+    RetType visit_indexed(Visitor &&visitor, enum_variant<T> &v) {
         return do_visit<RetType, T>(visitor, v);
     }
 
@@ -111,13 +103,33 @@ namespace enums {
     using visit_return_type_t = typename visit_return_type<Visitor, E>::type;
 
     template<typename Visitor, reflected_enum T>
-    auto visit(Visitor &&visitor, const enum_variant<T> &v) {
+    decltype(auto) visit_indexed(Visitor &&visitor, const enum_variant<T> &v) {
         return do_visit<visit_return_type_t<Visitor, enum_values_v<T>[0]>, T>(visitor, v);
     }
 
     template<typename Visitor, reflected_enum T>
-    auto visit(Visitor &&visitor, enum_variant<T> &v) {
+    decltype(auto) visit_indexed(Visitor &&visitor, enum_variant<T> &v) {
         return do_visit<visit_return_type_t<Visitor, enum_values_v<T>[0]>, T>(visitor, v);
+    }
+
+    template<typename RetType, typename Visitor, reflected_enum T>
+    RetType visit(Visitor &&visitor, const enum_variant<T> &v) {
+        return std::visit<RetType>(visitor, static_cast<const enum_variant_base<T> &>(v));
+    }
+
+    template<typename RetType, typename Visitor, reflected_enum T>
+    RetType visit(Visitor &&visitor, enum_variant<T> &v) {
+        return std::visit<RetType>(visitor, static_cast<enum_variant_base<T> &>(v));
+    }
+
+    template<typename Visitor, reflected_enum T>
+    decltype(auto) visit(Visitor &&visitor, const enum_variant<T> &v) {
+        return std::visit(visitor, static_cast<const enum_variant_base<T> &>(v));
+    }
+
+    template<typename Visitor, reflected_enum T>
+    decltype(auto) visit(Visitor &&visitor, enum_variant<T> &v) {
+        return std::visit(visitor, static_cast<enum_variant_base<T> &>(v));
     }
 }
 
