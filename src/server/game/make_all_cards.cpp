@@ -30,6 +30,9 @@ namespace banggame {
         if (json_card.isMember("offturn")) {
             out.playable_offturn = json_card["offturn"].asBool();
         }
+        if (json_card.isMember("discard_if_two_players")) {
+            out.discard_if_two_players = json_card["discard_if_two_players"].asBool();
+        }
     }
 
     const all_cards_t all_cards = [] {

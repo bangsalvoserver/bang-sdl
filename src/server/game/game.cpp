@@ -72,6 +72,7 @@ namespace banggame {
 
         std::vector<character> characters;
         for (const auto &c : all_cards.characters) {
+            if (m_players.size() <= 2 && c.discard_if_two_players) continue;
             if (bool(c.expansion & options.allowed_expansions)) {
                 characters.emplace_back(c).id = get_next_id();
             }
@@ -115,6 +116,7 @@ namespace banggame {
         }
 
         for (const auto &c : all_cards.deck) {
+            if (m_players.size() <= 2 && c.discard_if_two_players) continue;
             if (bool(c.expansion & options.allowed_expansions)) {
                 m_deck.emplace_back(c).id = get_next_id();
             }

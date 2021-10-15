@@ -1014,6 +1014,7 @@
             "image": "07_fantasma",
             "expansion": "valleyofshadows",
             "color": "blue",
+            "discard_if_two_players": true,
             "equip": [
                 {
                     "target": "dead",
@@ -1201,6 +1202,7 @@
             "image": "07_sventagliata",
             "expansion": "valleyofshadows",
             "color": "brown",
+            "discard_if_two_players": true,
             "effects": [
                 {
                     "target": "player reachable notself",
@@ -1646,6 +1648,7 @@
             "image": "17_cespuglio",
             "expansion": "armedanddangerous",
             "color": "orange",
+            "offturn": true,
             "cube_responses": [
                 {
                     "cost": 1,
@@ -1973,6 +1976,7 @@
             "image": "01_vulturesam",
             "hp": 4,
             "expansion": "base",
+            "discard_if_two_players": true,
             "equip": [
                 {
                     "class": "vulture_sam"
@@ -2127,6 +2131,7 @@
             "image": "03_greg_digger",
             "hp": 4,
             "expansion": "dodgecity",
+            "discard_if_two_players": true,
             "equip": [
                 {
                     "class": "greg_digger"
@@ -2138,6 +2143,7 @@
             "image": "03_herb_hunter",
             "hp": 4,
             "expansion": "dodgecity",
+            "discard_if_two_players": true,
             "equip": [
                 {
                     "class": "herb_hunter"

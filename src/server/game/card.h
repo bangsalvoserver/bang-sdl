@@ -19,6 +19,7 @@ namespace banggame {
         std::string name;
         std::string image;
         bool playable_offturn = false;
+        bool discard_if_two_players = false;
 
         void on_equip(player *target) {
             for (auto &e : equips) {

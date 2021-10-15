@@ -199,7 +199,7 @@ namespace banggame {
                                 case target_type::new_target: return is_new_target(m_current_card_targets, c.id, target->id);
                                 case target_type::fanning_target: {
                                     player *prev_target = m_game->get_player((it - 2)->get<play_card_target_type::target_player>().front().player_id);
-                                    return player_in_range(prev_target, target, 1);
+                                    return player_in_range(prev_target, target, 1) && target != prev_target;
                                 }
                                 default: return false;
                                 }
