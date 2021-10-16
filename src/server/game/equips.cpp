@@ -77,7 +77,7 @@ namespace banggame {
 
     void effect_weapon::on_equip(player *target, int card_id) {
         target->discard_weapon(card_id);
-        target->m_weapon_range = maxdistance;
+        target->m_weapon_range = args;
     }
 
     void effect_weapon::on_unequip(player *target, int card_id) {
@@ -108,6 +108,14 @@ namespace banggame {
 
     void effect_horsecharm::on_unequip(player *target, int card_id) {
         --target->m_num_checks;
+    }
+
+    void effect_luckycharm::on_equip(player *p, int card_id) {
+        p->m_game->add_event<event_type::on_hit>(card_id, [p](player *origin, player *target, int damage, bool is_bang) {
+            if (p == target) {
+                target->add_gold(damage);
+            }
+        });
     }
 
     void effect_pickaxe::on_equip(player *target, int card_id) {
@@ -164,5 +172,16 @@ namespace banggame {
                 origin->add_to_hand(origin->m_game->draw_card());
             }
         });
+    }
+
+    void effect_gunbelt::on_equip(player *target, int card_id) {
+        target->m_max_cards_mods.push_back(8);
+    }
+
+    void effect_gunbelt::on_unequip(player *target, int card_id) {
+        auto it = std::ranges::find(target->m_max_cards_mods, 8);
+        if (it != target->m_max_cards_mods.end()) {
+            target->m_max_cards_mods.erase(it);
+        }
     }
 }

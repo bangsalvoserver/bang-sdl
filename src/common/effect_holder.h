@@ -70,6 +70,8 @@ namespace banggame {
         (bounty,        effect_bounty)
         (el_gringo,     effect_el_gringo)
         (horsecharm,    effect_horsecharm)
+        (luckycharm,    effect_luckycharm)
+        (gunbelt,       effect_gunbelt)
         (slab_the_killer, effect_slab_the_killer)
         (suzy_lafayette, effect_suzy_lafayette)
         (vulture_sam,   effect_vulture_sam)
@@ -122,8 +124,8 @@ namespace banggame {
             return enums::visit(&card_effect::target, *this);
         }
 
-        int maxdistance() const {
-            return enums::visit(&card_effect::maxdistance, *this);
+        int args() const {
+            return enums::visit(&card_effect::args, *this);
         };
 
         bool flightable() const {

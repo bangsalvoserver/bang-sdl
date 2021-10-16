@@ -23,7 +23,7 @@ namespace banggame {
 
     DEFINE_SERIALIZABLE(card_target_data,
         (target, target_type)
-        (maxdistance, int)
+        (args, int)
     )
 
     DEFINE_SERIALIZABLE(virtual_card_update,
@@ -87,6 +87,11 @@ namespace banggame {
         (dead, bool)
     )
 
+    DEFINE_SERIALIZABLE(player_gold_update,
+        (player_id, int)
+        (gold, int)
+    )
+
     DEFINE_SERIALIZABLE(player_show_role_update,
         (player_id, int)
         (role, player_role)
@@ -114,6 +119,7 @@ namespace banggame {
         (tap_card, tap_card_update)
         (player_add, player_user_update)
         (player_hp, player_hp_update)
+        (player_gold, player_gold_update)
         (player_add_character, player_character_update)
         (player_remove_character, player_remove_character_update)
         (player_show_role, player_show_role_update)

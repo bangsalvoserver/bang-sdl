@@ -18,13 +18,13 @@ namespace banggame {
         info.image = c.image;
         info.playable_offturn = c.playable_offturn;
         for (const auto &value : c.effects) {
-            info.targets.emplace_back(value.target(), value.maxdistance());
+            info.targets.emplace_back(value.target(), value.args());
         }
         for (const auto &value : c.responses) {
-            info.response_targets.emplace_back(value.target(), value.maxdistance());
+            info.response_targets.emplace_back(value.target(), value.args());
         }
         for (const auto &value : c.equips) {
-            info.equip_targets.emplace_back(value.target(), value.maxdistance());
+            info.equip_targets.emplace_back(value.target(), value.args());
         }
         return info;
     }

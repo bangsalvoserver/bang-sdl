@@ -54,6 +54,10 @@ namespace banggame {
         void on_unequip(player *target, int card_id);
     };
 
+    struct effect_luckycharm : event_based_effect {
+        void on_equip(player *target, int card_id);
+    };
+
     struct effect_pickaxe : card_effect {
         void on_equip(player *target, int card_id);
         void on_unequip(player *target, int card_id);
@@ -76,16 +80,9 @@ namespace banggame {
         void on_equip(player *target, int card_id);
     };
 
-    struct effect_bandidos : card_effect {
-        void on_play(int origin_card_id, player *origin, player *target);
-    };
-
-    struct effect_tornado : card_effect {
-        void on_play(int origin_card_id, player *origin, player *target);
-    };
-
-    struct effect_poker : card_effect {
-        void on_play(int origin_card_id, player *origin);
+    struct effect_gunbelt : card_effect {
+        void on_equip(player *target, int card_id);
+        void on_unequip(player *target, int card_id);
     };
 
 }

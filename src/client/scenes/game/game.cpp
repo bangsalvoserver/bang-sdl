@@ -776,6 +776,13 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::player_hp>
     p.hp = args.hp;
 }
 
+void game_scene::handle_update(enums::enum_constant<game_update_type::player_gold>, const player_gold_update &args) {
+    auto &p = get_player(args.player_id);
+    p.set_gold(args.gold);
+
+    pop_update();
+}
+
 void game_scene::handle_update(enums::enum_constant<game_update_type::player_add_character>, const player_character_update &args) {
     if (!character_card::texture_back) {
         character_card::make_texture_back();

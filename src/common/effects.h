@@ -12,7 +12,7 @@ namespace banggame {
 
     struct card_effect {
         target_type target = enums::flags_none<target_type>;
-        int maxdistance = 0;
+        int args = 0;
         bool flightable = false;
     };
 
@@ -137,6 +137,18 @@ namespace banggame {
     };
 
     struct effect_generalstore : card_effect {
+        void on_play(int origin_card_id, player *origin);
+    };
+
+    struct effect_bandidos : card_effect {
+        void on_play(int origin_card_id, player *origin, player *target);
+    };
+
+    struct effect_tornado : card_effect {
+        void on_play(int origin_card_id, player *origin, player *target);
+    };
+
+    struct effect_poker : card_effect {
         void on_play(int origin_card_id, player *origin);
     };
 

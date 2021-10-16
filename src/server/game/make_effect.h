@@ -31,8 +31,8 @@ namespace banggame {
             }
 
             card_effect effect;
-            if (json_effect.isMember("maxdistance")) {
-                effect.maxdistance  = json_effect["maxdistance"].asInt();
+            if (json_effect.isMember("args")) {
+                effect.args  = json_effect["args"].asInt();
             }
             if (json_effect.isMember("target")) {
                 effect.target = enums::flags_from_string<target_type>(json_effect["target"].asString());

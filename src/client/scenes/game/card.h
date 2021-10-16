@@ -106,6 +106,7 @@ namespace banggame {
 
     struct player_view {
         int hp = 0;
+        int gold = 0;
         bool dead = false;
 
         card_pile_view hand{sizes::player_hand_width};
@@ -120,9 +121,15 @@ namespace banggame {
 
         sdl::stattext m_username_text;
 
+        sdl::stattext m_gold_text;
+        
+        static inline sdl::texture m_gold_texture;
+
         void set_position(sdl::point pos, bool flipped = false);
 
         void set_hp_marker_position(float hp);
+
+        void set_gold(int amount);
 
         void render(sdl::renderer &renderer);
         void render_turn_indicator(sdl::renderer &renderer);

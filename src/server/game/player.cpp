@@ -102,11 +102,31 @@ namespace banggame {
         }
     }
 
+    void player::do_damage(int origin_card_id, player *origin, int value, bool is_bang) {
+        m_hp -= value;
+        m_game->add_public_update<game_update_type::player_hp>(id, m_hp);
+        if (m_hp <= 0) {
+            m_game->pop_request_noupdate();
+            m_game->add_request<request_type::death>(origin_card_id, origin, this);
+        } else {
+            m_game->pop_request();
+        }
+        if (origin && origin->m_game->m_playing == origin) {
+            origin->add_gold(value);
+        }
+        m_game->queue_event<event_type::on_hit>(origin, this, value, is_bang);
+    }
+
     void player::heal(int value) {
         if (!m_ghost) {
             m_hp = std::min(m_hp + value, m_max_hp);
             m_game->add_public_update<game_update_type::player_hp>(id, m_hp);
         }
+    }
+
+    void player::add_gold(int amount) {
+        m_gold += amount;
+        m_game->add_public_update<game_update_type::player_gold>(id, m_gold);
     }
 
     deck_card &player::add_to_hand(deck_card &&target) {
@@ -138,7 +158,7 @@ namespace banggame {
                 case target_type::notself: return target->id != id;
                 case target_type::notsheriff: return target->m_role != player_role::sheriff;
                 case target_type::reachable: return player_in_range(this, target, m_weapon_range + m_range_mod);
-                case target_type::maxdistance: return player_in_range(this, target, c.equips.front().maxdistance() + m_range_mod);
+                case target_type::maxdistance: return player_in_range(this, target, c.equips.front().args() + m_range_mod);
                 default: return false;
                 }
             });
@@ -151,6 +171,7 @@ namespace banggame {
 
     bool player::verify_card_targets(const card &c, bool is_response, const std::vector<play_card_target> &targets) {
         auto &effects = is_response ? c.responses : c.effects;
+        if (c.cost > m_gold) return false;
         if (!std::ranges::all_of(effects, [this](const effect_holder &e) {
             return e.can_play(this);
         })) return false;
@@ -194,7 +215,7 @@ namespace banggame {
                                 case target_type::notself: return target->id != id;
                                 case target_type::notsheriff: return target->m_role != player_role::sheriff;
                                 case target_type::reachable: return player_in_range(this, target, m_weapon_range + m_range_mod);
-                                case target_type::maxdistance: return player_in_range(this, target, e.maxdistance() + m_range_mod);
+                                case target_type::maxdistance: return player_in_range(this, target, e.args() + m_range_mod);
                                 case target_type::attacker: return !m_game->m_requests.empty() && m_game->top_request().origin() == target;
                                 case target_type::new_target: return is_new_target(m_current_card_targets, c.id, target->id);
                                 case target_type::fanning_target: {
@@ -235,7 +256,7 @@ namespace banggame {
                                 case target_type::notself: return target->id != id;
                                 case target_type::notsheriff: return target->m_role != player_role::sheriff;
                                 case target_type::reachable: return player_in_range(this, target, m_weapon_range + m_range_mod);
-                                case target_type::maxdistance: return player_in_range(this, target, e.maxdistance() + m_range_mod);
+                                case target_type::maxdistance: return player_in_range(this, target, e.args() + m_range_mod);
                                 case target_type::attacker: return !m_game->m_requests.empty() && m_game->top_request().origin() == target;
                                 case target_type::new_target: return is_new_target(m_current_card_targets, c.id, target->id);
                                 case target_type::fanning_target: {
@@ -316,6 +337,10 @@ namespace banggame {
         };
 
         size_t initial_mods_size = m_bang_mods.size();
+        
+        if (card_ptr->cost > 0) {
+            add_gold(-card_ptr->cost);
+        }
         
         auto effect_it = targets.begin();
         auto &effects = is_response ? card_ptr->responses : card_ptr->effects;
@@ -529,7 +554,7 @@ namespace banggame {
         obj.suit = c.suit;
         obj.value = c.value;
         for (const auto &value : c.effects) {
-            obj.targets.emplace_back(value.target(), value.maxdistance());
+            obj.targets.emplace_back(value.target(), value.args());
         }
         m_virtual = std::make_pair(obj.virtual_id, std::move(c));
 

@@ -21,6 +21,9 @@ namespace banggame {
         bool playable_offturn = false;
         bool discard_if_two_players = false;
 
+        int buy_cost = 0;
+        int cost = 0;
+
         void on_equip(player *target) {
             for (auto &e : equips) {
                 e.on_equip(target, id);
@@ -35,8 +38,8 @@ namespace banggame {
     };
 
     struct deck_card : card {
-        card_suit_type suit;
-        card_value_type value;
+        card_suit_type suit = card_suit_type::none;
+        card_value_type value = card_value_type::none;
         card_color_type color;
         bool inactive = false;
     };
@@ -51,6 +54,7 @@ namespace banggame {
     struct all_cards_t {
         std::vector<deck_card> deck;
         std::vector<character> characters;
+        std::vector<deck_card> goldrush;
     };
 
     extern const all_cards_t all_cards;

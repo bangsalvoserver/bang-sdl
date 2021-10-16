@@ -11,6 +11,8 @@ namespace sizes {
 
     constexpr int one_hp_size = 18;
     constexpr int character_offset = 20;
+
+    constexpr int gold_yoffset = 60;
     
     constexpr int selection_width = 300;
 

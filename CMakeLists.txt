@@ -42,7 +42,6 @@ set(bangserver_srcs
     src/server/game/make_equip.cpp
     src/server/game/player.cpp
     src/server/game/requests.cpp
-    src/server/game/timer.cpp
 )
 
 include_directories(bangclient src)

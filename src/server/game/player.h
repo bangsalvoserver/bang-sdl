@@ -61,6 +61,8 @@ namespace banggame {
 
         int m_last_played_card = 0;
 
+        int m_gold = 0;
+
         std::vector<int> m_max_cards_mods;
         std::multimap<int, int> m_current_card_targets;
 
@@ -100,7 +102,11 @@ namespace banggame {
         bool alive() const { return !m_dead || m_ghost; }
 
         void damage(int origin_card_id, player *source, int value, bool is_bang = false);
+        void do_damage(int origin_card_id, player *source, int value, bool is_bang = false);
+
         void heal(int value);
+
+        void add_gold(int amount);
 
         bool immune_to(const deck_card &c) {
             return m_calumets > 0 && c.suit == card_suit_type::diamonds;

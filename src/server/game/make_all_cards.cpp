@@ -30,6 +30,9 @@ namespace banggame {
         if (json_card.isMember("offturn")) {
             out.playable_offturn = json_card["offturn"].asBool();
         }
+        if (json_card.isMember("cost")) {
+            out.cost = json_card["cost"].asInt();
+        }
         if (json_card.isMember("discard_if_two_players")) {
             out.discard_if_two_players = json_card["discard_if_two_players"].asBool();
         }
@@ -83,6 +86,18 @@ namespace banggame {
                 }
                 c.max_hp = json_character["hp"].asInt();
                 ret.characters.push_back(c);
+            }
+        }
+
+        for (const auto &json_card : json_cards["goldrush"]) {
+            deck_card c;
+            c.expansion = card_expansion_type::goldrush;
+            if (json_card.isMember("disabled") && json_card["disabled"].asBool()) continue;
+            make_all_effects(c, json_card);
+            c.color = enums::from_string<card_color_type>(json_card["color"].asString());
+            c.buy_cost = json_card["buy_cost"].asInt();
+            for (int i=json_card["count"].asInt(); i>0; --i) {
+                ret.goldrush.push_back(c);
             }
         }
 

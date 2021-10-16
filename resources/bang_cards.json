@@ -86,7 +86,7 @@
             "equip": [
                 {
                     "class": "weapon",
-                    "maxdistance": 3
+                    "args": 3
                 }
             ]
         },
@@ -101,7 +101,7 @@
             "equip": [
                 {
                     "class": "weapon",
-                    "maxdistance": 4
+                    "args": 4
                 }
             ]
         },
@@ -118,7 +118,7 @@
             "equip": [
                 {
                     "class": "weapon",
-                    "maxdistance": 2
+                    "args": 2
                 }
             ]
         },
@@ -134,7 +134,7 @@
             "equip": [
                 {
                     "class": "weapon",
-                    "maxdistance": 1
+                    "args": 1
                 },
                 {
                     "class": "volcanic"
@@ -152,7 +152,7 @@
             "equip": [
                 {
                     "class": "weapon",
-                    "maxdistance": 5
+                    "args": 5
                 }
             ]
         },
@@ -379,7 +379,7 @@
             "effects": [
                 {
                     "target": "card maxdistance",
-                    "maxdistance": 1,
+                    "args": 1,
                     "class": "steal",
                     "flightable": true
                 }
@@ -493,7 +493,7 @@
             "equip": [
                 {
                     "class": "weapon",
-                    "maxdistance": 3
+                    "args": 3
                 }
             ]
         },
@@ -508,7 +508,7 @@
             "equip": [
                 {
                     "class": "weapon",
-                    "maxdistance": 4
+                    "args": 4
                 }
             ]
         },
@@ -648,7 +648,7 @@
             "effects": [
                 {
                     "target": "card maxdistance",
-                    "maxdistance": 1,
+                    "args": 1,
                     "class": "steal",
                     "flightable": true
                 }
@@ -665,7 +665,7 @@
             "effects": [
                 {
                     "target": "player notself maxdistance",
-                    "maxdistance": 1,
+                    "args": 1,
                     "class": "bang",
                     "flightable": true
                 }
@@ -880,7 +880,7 @@
             "effects": [
                 {
                     "target": "player notself maxdistance",
-                    "maxdistance": 1,
+                    "args": 1,
                     "class": "bang"
                 },
                 {
@@ -986,7 +986,7 @@
             "effects": [
                 {
                     "target": "player notself maxdistance",
-                    "maxdistance": 1,
+                    "args": 1,
                     "class": "bang"
                 }
             ]
@@ -1033,7 +1033,7 @@
             "equip": [
                 {
                     "class": "weapon",
-                    "maxdistance": 1
+                    "args": 1
                 }
             ],
             "effects": [
@@ -1079,7 +1079,7 @@
             "equip": [
                 {
                     "class": "weapon",
-                    "maxdistance": 1
+                    "args": 1
                 },
                 {
                     "class": "shotgun"
@@ -1230,7 +1230,7 @@
             "effects": [
                 {
                     "target": "player notself maxdistance",
-                    "maxdistance": 2,
+                    "args": 2,
                     "class": "bang",
                     "flightable": true
                 }
@@ -1313,10 +1313,17 @@
                     "class": "changewws"
                 }
             ],
-            "cube_effects": [
+            "optional_repeatable": true,
+            "optional": [
                 {
-                    "cost": 2,
-                    "repeatable": true,
+                    "class": "pay_cube",
+                    "target": "self cube_slot card"
+                },
+                {
+                    "class": "pay_cube",
+                    "target": "self cube_slot card"
+                },
+                {
                     "target": "player self",
                     "class": "draw"
                 }
@@ -1352,10 +1359,21 @@
                     "class": "heal"
                 }
             ],
-            "cube_effects": [
+            "optional_repeatable": true,
+            "optional": [
                 {
-                    "cost": 3,
-                    "repeatable": true,
+                    "class": "pay_cube",
+                    "target": "self cube_slot card"
+                },
+                {
+                    "class": "pay_cube",
+                    "target": "self cube_slot card"
+                },
+                {
+                    "class": "pay_cube",
+                    "target": "self cube_slot card"
+                },
+                {
                     "target": "player self",
                     "class": "heal"
                 }
@@ -1376,10 +1394,13 @@
                     "flightable": true
                 }
             ],
-            "cube_effects": [
+            "optional_repeatable": true,
+            "optional": [
                 {
-                    "cost": 1,
-                    "repeatable": true,
+                    "class": "pay_cube",
+                    "target": "self cube_slot card"
+                },
+                {
                     "target": "player reachable notself new_target",
                     "class": "bang",
                     "flightable": true
@@ -1401,9 +1422,12 @@
                     "flightable": true
                 }
             ],
-            "cube_effects": [
+            "optional": [
                 {
-                    "cost": 2,
+                    "class": "pay_cube",
+                    "target": "self card"
+                },
+                {
                     "class": "flintlock"
                 }
             ]
@@ -1423,10 +1447,13 @@
                     "flightable": true
                 }
             ],
-            "cube_effects": [
+            "optional_repeatable": true,
+            "optional": [
                 {
-                    "cost": 1,
-                    "repeatable": true,
+                    "class": "pay_cube",
+                    "target": "self cube_slot card"
+                },
+                {
                     "target": "player notself new_target",
                     "class": "indians",
                     "flightable": true
@@ -1446,9 +1473,16 @@
                     "class": "missed"
                 }
             ],
-            "cube_responses": [
+            "optional": [
                 {
-                    "cost": 2,
+                    "class": "pay_cube",
+                    "target": "self cube_slot card"
+                },
+                {
+                    "class": "pay_cube",
+                    "target": "self cube_slot card"
+                },
+                {
                     "class": "duck"
                 }
             ]
@@ -1511,9 +1545,16 @@
                     "flightable": true
                 }
             ],
-            "cube_effects": [
+            "optional": [
                 {
-                    "cost": 2,
+                    "class": "pay_cube",
+                    "target": "self cube_slot card"
+                },
+                {
+                    "class": "pay_cube",
+                    "target": "self cube_slot card"
+                },
+                {
                     "class": "squaw"
                 }
             ]
@@ -1526,14 +1567,18 @@
             "image": "17_assonellamanica",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "cube_effects": [
+            "effects": [
                 {
-                    "cost": 2,
-                    "target": "player self",
-                    "class": "draw"
+                    "class": "pay_cube",
+                    "target": "self card"
                 },
                 {
-                    "class": "changewws"
+                    "class": "pay_cube",
+                    "target": "self card"
+                },
+                {
+                    "target": "player self",
+                    "class": "draw"
                 }
             ]
         },
@@ -1545,9 +1590,12 @@
             "image": "17_bandoliera",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "cube_effects": [
+            "effects": [
                 {
-                    "cost": 1,
+                    "class": "pay_cube",
+                    "target": "self card"
+                },
+                {
                     "class": "bandolier"
                 }
             ]
@@ -1563,12 +1611,15 @@
             "equip": [
                 {
                     "class": "weapon",
-                    "maxdistance": 6
+                    "args": 6
                 }
             ],
-            "cube_effects": [
+            "effects": [
                 {
-                    "cost": 1,
+                    "class": "pay_cube",
+                    "target": "self card"
+                },
+                {
                     "class": "bigfifty"
                 }
             ]
@@ -1599,12 +1650,15 @@
             "equip": [
                 {
                     "class": "weapon",
-                    "maxdistance": 2
+                    "args": 2
                 }
              ],
-             "cube_effects": [
+             "effects": [
                 {
-                    "cost": 1,
+                    "class": "pay_cube",
+                    "target": "self card"
+                },
+                {
                     "class": "buntlinespecial"
                 }
             ]
@@ -1617,9 +1671,12 @@
             "image": "17_campanile",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "cube_effects": [
+            "effects": [
                 {
-                    "cost": 1,
+                    "class": "pay_cube",
+                    "target": "self card"
+                },
+                {
                     "class": "belltower"
                 }
             ]
@@ -1632,15 +1689,21 @@
             "image": "17_cassa",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "cube_responses": [
+            "responses": [
                 {
-                    "cost": 2,
+                    "class": "pay_cube",
+                    "target": "self card"
+                },
+                {
+                    "class": "pay_cube",
+                    "target": "self card"
+                },
+                {
                     "class": "missed"
                 }
             ]
         },
         {
-            "disabled": true,
             "name": "Cespuglio",
             "signs": [
                 "4F"
@@ -1649,9 +1712,17 @@
             "expansion": "armedanddangerous",
             "color": "orange",
             "offturn": true,
-            "cube_responses": [
+            "equip": [
                 {
-                    "cost": 1,
+                    "class": "bush"
+                }
+            ],
+            "responses": [
+                {
+                    "class": "pay_cube",
+                    "target": "self card"
+                },
+                {
                     "class": "bush"
                 }
             ]
@@ -1667,12 +1738,15 @@
             "equip": [
                 {
                     "class": "weapon",
-                    "maxdistance": 1
+                    "args": 1
                 }
             ],
-            "cube_effects": [
+            "effects": [
                 {
-                    "cost": 1,
+                    "class": "pay_cube",
+                    "target": "self card"
+                },
+                {
                     "class": "doublebarrel"
                 }
             ]
@@ -1685,9 +1759,20 @@
             "image": "17_frusta",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "cube_effects": [
+            "effects": [
                 {
-                    "cost": 3,
+                    "class": "pay_cube",
+                    "target": "self card"
+                },
+                {
+                    "class": "pay_cube",
+                    "target": "self card"
+                },
+                {
+                    "class": "pay_cube",
+                    "target": "self card"
+                },
+                {
                     "target": "table card",
                     "class": "destroy"
                 }
@@ -1701,9 +1786,20 @@
             "image": "17_fustodibirra",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "cube_effects": [
+            "optional": [
                 {
-                    "cost": 3,
+                    "class": "pay_cube",
+                    "target": "self card"
+                },
+                {
+                    "class": "pay_cube",
+                    "target": "self card"
+                },
+                {
+                    "class": "pay_cube",
+                    "target": "self card"
+                },
+                {
                     "target": "player self",
                     "class": "heal"
                 }
@@ -1717,9 +1813,20 @@
             "image": "17_grimaldello",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "cube_effects": [
+            "optional": [
                 {
-                    "cost": 3,
+                    "class": "pay_cube",
+                    "target": "self card"
+                },
+                {
+                    "class": "pay_cube",
+                    "target": "self card"
+                },
+                {
+                    "class": "pay_cube",
+                    "target": "self card"
+                },
+                {
                     "target": "notself hand card",
                     "class": "steal"
                 }
@@ -1736,12 +1843,15 @@
             "equip": [
                 {
                     "class": "weapon",
-                    "maxdistance": 3
+                    "args": 3
                 }
             ],
-            "cube_effects": [
+            "optional": [
                 {
-                    "cost": 1,
+                    "class": "pay_cube",
+                    "target": "self card"
+                },
+                {
                     "class": "thunderer"
                 }
             ]
@@ -2482,9 +2592,22 @@
             "image": "17_alpreacher",
             "hp": 4,
             "expansion": "armedanddangerous",
-            "effects": [
+            "offturn": true,
+            "responses": [
                 {
                     "class": "al_preacher"
+                },
+                {
+                    "class": "pay_cube",
+                    "target": "self cube_slot card"
+                },
+                {
+                    "class": "pay_cube",
+                    "target": "self cube_slot card"
+                },
+                {
+                    "target": "player self",
+                    "class": "draw"
                 }
             ]
         },
@@ -2493,9 +2616,17 @@
             "image": "17_bassgreeves",
             "hp": 4,
             "expansion": "armedanddangerous",
+            "type": "active",
+            "usages": 1,
             "effects": [
                 {
-                    "class": "bass_greeves"
+                    "target": "self hand card",
+                    "class": "destroy"
+                },
+                {
+                    "target": "self cube_slot card",
+                    "class": "add_cube",
+                    "args": 2
                 }
             ]
         },
@@ -2504,7 +2635,7 @@
             "image": "17_bloodymary",
             "hp": 4,
             "expansion": "armedanddangerous",
-            "effects": [
+            "equip": [
                 {
                     "class": "bloody_mary"
                 }
@@ -2515,9 +2646,17 @@
             "image": "17_frankiecanton",
             "hp": 4,
             "expansion": "armedanddangerous",
+            "type": "active",
+            "usages": 1,
             "effects": [
                 {
-                    "class": "frankie_canton"
+                    "target": "cube_slot card",
+                    "class": "pay_cube"
+                },
+                {
+                    "target": "self card",
+                    "class": "add_cube",
+                    "args": 1
                 }
             ]
         },
@@ -2526,7 +2665,7 @@
             "image": "17_juliecutter",
             "hp": 4,
             "expansion": "armedanddangerous",
-            "effects": [
+            "equip": [
                 {
                     "class": "julie_cutter"
                 }
@@ -2537,9 +2676,20 @@
             "image": "17_mexicalikid",
             "hp": 4,
             "expansion": "armedanddangerous",
+            "type": "active",
+            "usages": 1,
             "effects": [
                 {
-                    "class": "mexicali_kid"
+                    "target": "self cube_slot card",
+                    "class": "pay_cube"
+                },
+                {
+                    "target": "self cube_slot card",
+                    "class": "pay_cube"
+                },
+                {
+                    "target": "player reachable notself",
+                    "class": "bang"
                 }
             ]
         },
@@ -2548,7 +2698,7 @@
             "image": "17_msabigail",
             "hp": 4,
             "expansion": "armedanddangerous",
-            "effects": [
+            "equip": [
                 {
                     "class": "ms_abigail"
                 }
@@ -2559,9 +2709,22 @@
             "image": "17_redringo",
             "hp": 5,
             "expansion": "armedanddangerous",
-            "effects": [
+            "type": "active",
+            "usages": 2,
+            "equip": [
                 {
                     "class": "red_ringo"
+                }
+            ],
+            "effects": [
+                {
+                    "target": "self card",
+                    "class": "pay_cube"
+                },
+                {
+                    "target": "self cube_slot card",
+                    "class": "add_cube",
+                    "args": 1
                 }
             ]
         },
@@ -2582,6 +2745,7 @@
             "image": "04_dutch_will",
             "hp": 4,
             "expansion": "goldrush",
+            "type": "drawing_forced",
             "effects": [
                 {
                     "class": "dutch_will"
@@ -2589,14 +2753,17 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Jacky Murieta",
             "image": "04_jacky_murieta",
             "hp": 4,
             "expansion": "goldrush",
+            "type": "active",
+            "usages": 1,
+            "cost": 2,
             "effects": [
                 {
-                    "class": "jacky_murieta"
+                    "target": "player reachable notself",
+                    "class": "bang"
                 }
             ]
         },
@@ -2606,6 +2773,7 @@
             "image": "04_josh_mccloud",
             "hp": 4,
             "expansion": "goldrush",
+            "type": "active",
             "effects": [
                 {
                     "class": "josh_mccloud"
@@ -2636,24 +2804,26 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Raddie Snake",
             "image": "04_raddie_snake",
             "hp": 4,
             "expansion": "goldrush",
+            "type": "active",
+            "usages": 2,
+            "cost": 1,
             "effects": [
                 {
-                    "class": "goldpan"
+                    "target": "player self",
+                    "class": "draw"
                 }
             ]
         },
         {
-            "disabled": true,
             "name": "Simeon Picos",
             "image": "04_simeon_picos",
             "hp": 4,
             "expansion": "goldrush",
-            "effects": [
+            "equip": [
                 {
                     "class": "luckycharm"
                 }
@@ -2849,131 +3019,303 @@
             "count": 3,
             "image": "04_bicchierino",
             "color": "brown",
-            "gold_cost": 1,
-            "target": "player",
-            "effect": "heal"
+            "buy_cost": 1,
+            "effects": [
+                {
+                    "target": "player",
+                    "class": "heal"
+                }
+            ]
         },
         {
+            "disabled": true,
             "name": "Bottiglia",
             "count": 3,
             "image": "04_bottiglia",
             "color": "brown",
-            "gold_cost": 2,
-            "effect": "bottle"
+            "buy_cost": 2,
+            "effects": [
+                {
+                    "class": "bottle"
+                }
+            ]
+        },
+        {
+            "disabled": true,
+            "name": "Bottiglia come Panico!",
+            "count": 0,
+            "image": "04_bottiglia_panico",
+            "color": "brown",
+            "responses": [
+                {
+                    "class": "bottlechoice"
+                },
+                {
+                    "target": "card maxdistance",
+                    "args": 1,
+                    "class": "steal"
+                }
+            ]
+        },
+        {
+            "disabled": true,
+            "name": "Bottiglia come Birra",
+            "count": 0,
+            "image": "04_bottiglia_birra",
+            "color": "brown",
+            "responses": [
+                {
+                    "class": "bottlechoice"
+                },
+                {
+                    "target": "player self",
+                    "class": "heal"
+                }
+            ]
+        },
+        {
+            "disabled": true,
+            "name": "Bottiglia come Bang!",
+            "count": 0,
+            "image": "04_bottiglia_bang",
+            "color": "brown",
+            "responses": [
+                {
+                    "class": "bottlechoice"
+                },
+                {
+                    "target": "player reachable notself",
+                    "class": "bang"
+                }
+            ]
         },
         {
             "name": "Calumet",
             "count": 1,
             "image": "04_calumet",
             "color": "black",
-            "type": "equip",
-            "gold_cost": 3,
-            "effect": "calumet"
+            "buy_cost": 3,
+            "equip": [
+                {
+                    "class": "calumet"
+                }
+            ]
         },
         {
             "name": "Cinturone",
             "count": 1,
             "image": "04_cinturone",
             "color": "black",
-            "type": "equip",
-            "gold_cost": 2,
-            "effect": "gunbelt"
+            "buy_cost": 2,
+            "equip": [
+                {
+                    "class": "gunbelt"
+                }
+            ]
         },
         {
+            "disabled": true,
             "name": "Complice",
             "count": 3,
             "image": "04_complice",
             "color": "brown",
-            "gold_cost": 2,
-            "effect": "pardner"
+            "buy_cost": 2,
+            "effects": [
+                {
+                    "class": "pardner"
+                }
+            ]
         },
         {
+            "disabled": true,
+            "name": "Complice come Emporio",
+            "count": 0,
+            "image": "04_complice_emporio",
+            "color": "brown",
+            "responses": [
+                {
+                    "class": "pardnerchoice"
+                },
+                {
+                    "class": "generalstore"
+                }
+            ]
+        },
+        {
+            "disabled": true,
+            "name": "Complice come Duello",
+            "count": 0,
+            "image": "04_complice_duello",
+            "color": "brown",
+            "responses": [
+                {
+                    "class": "pardnerchoice"
+                },
+                {
+                    "target": "player notself",
+                    "class": "duel"
+                }
+            ]
+        },
+        {
+            "disabled": true,
+            "name": "Complice come Cat Balou",
+            "count": 0,
+            "image": "04_complice_catbalou",
+            "color": "brown",
+            "responses": [
+                {
+                    "class": "pardnerchoice"
+                },
+                {
+                    "target": "card",
+                    "class": "destroy"
+                }
+            ]
+        },
+        {
+            "disabled": true,
             "name": "Corsa all' Oro",
             "count": 1,
             "image": "04_corsa_all_oro",
             "color": "brown",
-            "gold_cost": 5,
-            "effect": "goldrush"
+            "buy_cost": 5,
+            "effects": [
+                {
+                    "class": "goldrush"
+                }
+            ]
         },
         {
             "name": "Ferro di Cavallo",
             "count": 1,
             "image": "04_ferro_di_cavallo",
             "color": "black",
-            "type": "equip",
-            "gold_cost": 2,
-            "effect": "horseshoe"
+            "buy_cost": 2,
+            "equip": [
+                {
+                    "class": "horsecharm"
+                }
+            ]
         },
         {
             "name": "Piccone",
             "count": 1,
             "image": "04_piccone",
             "color": "black",
-            "type": "equip",
-            "gold_cost": 4,
-            "effect": "pickaxe"
+            "buy_cost": 4,
+            "equip": [
+                {
+                    "class": "pickaxe"
+                }
+            ]
         },
         {
+            "disabled": true,
             "name": "Ricercato",
             "count": 3,
             "image": "04_ricercato",
             "color": "black",
-            "gold_cost": 2,
-            "type": "equip",
-            "equip_target": "notsheriff",
-            "effect": "wanted"
+            "buy_cost": 2,
+            "equip": [
+                {
+                    "target": "player notsheriff",
+                    "class": "wanted"
+                }
+            ]
         },
         {
+            "disabled": true,
             "name": "Rum",
             "count": 2,
             "image": "04_rum",
             "color": "brown",
-            "gold_cost": 3,
-            "effect": "rum"
+            "buy_cost": 3,
+            "effects": [
+                {
+                    "class": "rum"
+                }
+            ]
         },
         {
             "name": "Setaccio",
             "count": 1,
             "image": "04_setaccio",
             "color": "black",
-            "type": "equip",
-            "gold_cost": 3,
-            "effect": "goldpan"
+            "buy_cost": 3,
+            "cost": 1,
+            "effects": [
+                {
+                    "target": "player self",
+                    "class": "draw"
+                }
+            ]
         },
         {
             "name": "Stivali",
             "count": 1,
             "image": "04_stivali",
             "color": "black",
-            "gold_cost": 3,
-            "type": "equip",
-            "effect": "boots"
+            "buy_cost": 3,
+            "equip": [
+                {
+                    "class": "boots"
+                }
+            ]
         },
         {
             "name": "Talismano",
             "count": 1,
             "image": "04_talismano",
             "color": "black",
-            "gold_cost": 3,
-            "type": "equip",
-            "effect": "luckycharm"
+            "buy_cost": 3,
+            "equip": [
+                {
+                    "class": "luckycharm"
+                }
+            ]
         },
         {
             "name": "Union Pacific",
             "count": 1,
             "image": "04_union_pacific",
             "color": "brown",
-            "gold_cost": 4,
-            "effect": "draw draw draw draw changewws"
+            "buy_cost": 4,
+            "effects": [
+                {
+                    "target": "player self",
+                    "class": "draw"
+                },
+                {
+                    "target": "player self",
+                    "class": "draw"
+                },
+                {
+                    "target": "player self",
+                    "class": "draw"
+                },
+                {
+                    "target": "player self",
+                    "class": "draw"
+                },
+                {
+                    "class": "changewws"
+                }
+            ]
         },
         {
             "name": "Zaino",
             "count": 1,
             "image": "04_zaino",
             "color": "black",
-            "type": "equip",
-            "gold_cost": 3,
-            "effect": "rucksack"
+            "buy_cost": 3,
+            "cost": 2,
+            "effects": [
+                {
+                    "target": "player self",
+                    "class": "heal"
+                }
+            ]
         }
     ]
 }

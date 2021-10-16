@@ -61,6 +61,10 @@ namespace banggame {
         target->m_game->pop_request();
         target->damage(origin_card_id, origin, 1);
     }
+    
+    void timer_damaging::on_finished() {
+        target->do_damage(origin_card_id, origin, damage, is_bang);
+    }
 
     void request_bang::on_resolve() {
         target->m_game->pop_request();

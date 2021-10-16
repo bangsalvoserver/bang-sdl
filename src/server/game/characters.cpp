@@ -372,6 +372,7 @@ namespace banggame {
         if (args.pile == card_pile_type::player_hand && args.player_id == target->id) {
             target->m_game->pop_request();
             origin->steal_card(target, args.card_id);
+            target->m_game->queue_event<event_type::on_effect_end>(origin);
         }
     }
 

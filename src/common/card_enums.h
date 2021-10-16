@@ -43,6 +43,7 @@ namespace banggame {
         (brown)
         (blue)
         (green)
+        (black)
     )
 
     DEFINE_ENUM_IN_NS(banggame, character_type,
