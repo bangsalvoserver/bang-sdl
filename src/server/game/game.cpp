@@ -63,6 +63,26 @@ namespace banggame {
         
         add_public_update<game_update_type::player_add_character>(std::move(obj));
     }
+    
+    deck_card &game::move_to(deck_card &&c, card_pile_type pile, bool known, player *owner) {
+        if (known) {
+            send_card_update(c, owner);
+        } else {
+            add_public_update<game_update_type::hide_card>(c.id);
+        }
+        add_public_update<game_update_type::move_card>(c.id, 0, pile);
+        return [this, pile] () -> std::vector<deck_card>& {
+            switch (pile) {
+            case card_pile_type::main_deck:         return m_deck;
+            case card_pile_type::discard_pile:      return m_discards;
+            case card_pile_type::selection:         return m_selection;
+            case card_pile_type::shop_selection:    return m_shop_selection;
+            case card_pile_type::shop_discard:      return m_shop_discards;
+            case card_pile_type::shop_hidden:       return m_shop_hidden;
+            default: throw std::runtime_error("Pila non valida");
+            }
+        }().emplace_back(std::move(c));
+    }
 
     void game::start_game(const game_options &options) {
         add_event<event_type::delayed_action>(0, [](std::function<void()> fun) { fun(); });
@@ -133,6 +153,12 @@ namespace banggame {
             ids_view = m_shop_deck | std::views::transform(&deck_card::id);
             add_public_update<game_update_type::add_cards>(std::vector(ids_view.begin(), ids_view.end()), card_pile_type::shop_deck);
             shuffle_cards_and_ids(m_shop_deck, rng);
+
+            for (const auto &c : all_cards.goldrush_choices) {
+                m_shop_hidden.emplace_back(c).id = get_next_id();
+            }
+            ids_view = m_shop_hidden | std::views::transform(&deck_card::id);
+            add_public_update<game_update_type::add_cards>(std::vector(ids_view.begin(), ids_view.end()), card_pile_type::shop_hidden);
         }
 
         int max_initial_cards = std::ranges::max(m_players | std::views::transform(&player::get_initial_cards));
@@ -146,7 +172,7 @@ namespace banggame {
 
         if (!m_shop_deck.empty()) {
             for (int i=0; i<3; ++i) {
-                add_to_shop_selection(draw_shop_card());
+                move_to(draw_shop_card(), card_pile_type::shop_selection);
             }
         }
 
@@ -220,7 +246,7 @@ namespace banggame {
 
     void game::draw_check_then(player *p, draw_check_function fun, bool force_one, bool invert_pop_req) {
         if (force_one || p->m_num_checks == 1) {
-            auto &moved = add_to_discards(draw_card());
+            auto &moved = move_to(draw_card(), card_pile_type::discard_pile);
             auto suit = moved.suit;
             auto value = moved.value;
             queue_event<event_type::on_draw_check>(moved.id);
@@ -228,7 +254,7 @@ namespace banggame {
         } else {
             m_pending_checks.push_back(std::move(fun));
             for (int i=0; i<p->m_num_checks; ++i) {
-                add_to_selection(draw_card());
+                move_to(draw_card(), card_pile_type::selection);
             }
             add_request<request_type::check>(0, p, p).invert_pop_req = invert_pop_req;
         }
@@ -237,11 +263,11 @@ namespace banggame {
     void game::resolve_check(int card_id) {
         auto c = draw_from_temp(card_id);
         for (auto &c : m_selection) {
-            add_to_discards(std::move(c));
+            move_to(std::move(c), card_pile_type::discard_pile);
             queue_event<event_type::on_draw_check>(c.id);
         }
         m_selection.clear();
-        auto &moved = add_to_discards(std::move(c));
+        auto &moved = move_to(std::move(c), card_pile_type::discard_pile);
         auto suit = moved.suit;
         auto value = moved.value;
         queue_event<event_type::on_draw_check>(moved.id);

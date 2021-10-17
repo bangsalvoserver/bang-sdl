@@ -73,6 +73,7 @@ namespace banggame {
 
         std::vector<deck_card> m_shop_deck;
         std::vector<deck_card> m_shop_discards;
+        std::vector<deck_card> m_shop_hidden;
         std::vector<deck_card> m_shop_selection;
 
         std::vector<character> m_base_characters;
@@ -208,29 +209,7 @@ namespace banggame {
             }
         }
 
-        deck_card &add_to_discards(deck_card &&c) {
-            send_card_update(c);
-            add_public_update<game_update_type::move_card>(c.id, 0, card_pile_type::discard_pile);
-            return m_discards.emplace_back(std::move(c));
-        }
-
-        deck_card &add_to_selection(deck_card &&c, player *owner = nullptr) {
-            send_card_update(c, owner);
-            add_public_update<game_update_type::move_card>(c.id, 0, card_pile_type::selection);
-            return m_selection.emplace_back(std::move(c));
-        }
-
-        deck_card &add_to_shop_discards(deck_card &&c) {
-            send_card_update(c);
-            add_public_update<game_update_type::move_card>(c.id, 0, card_pile_type::shop_discard);
-            return m_shop_discards.emplace_back(std::move(c));
-        }
-
-        deck_card &add_to_shop_selection(deck_card &&c) {
-            send_card_update(c);
-            add_public_update<game_update_type::move_card>(c.id, 0, card_pile_type::shop_selection);
-            return m_shop_selection.emplace_back(std::move(c));
-        }
+        deck_card &move_to(deck_card &&c, card_pile_type pile, bool known = true, player *owner = nullptr);
 
         deck_card draw_card();
         deck_card draw_from_discards();

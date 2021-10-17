@@ -132,7 +132,7 @@ namespace banggame {
                 if (flightable && !it->responses.empty() && it->responses.front().is(effect_type::flight)) {
                     target->discard_card(args.card_id);
                 } else {
-                    target->m_game->add_to_selection(std::move(*it));
+                    target->m_game->move_to(std::move(*it), card_pile_type::selection);
                     target->m_hand.erase(it);
                 }
                 
@@ -146,7 +146,7 @@ namespace banggame {
                     })) {
                         target->m_game->pop_request();
                         for (auto &c : target->m_game->m_selection) {
-                            target->m_game->add_to_discards(std::move(c));
+                            target->m_game->move_to(std::move(c), card_pile_type::discard_pile);
                         }
                         target->m_game->m_selection.clear();
                     } else if (target->m_game->m_selection.size() <= 2) {
@@ -171,7 +171,7 @@ namespace banggame {
                     || target->m_game->m_selection.size() == 0) {
                     target->m_game->pop_request();
                     for (auto &c : target->m_game->m_selection) {
-                        target->m_game->add_to_discards(std::move(c));
+                        target->m_game->move_to(std::move(c), card_pile_type::discard_pile);
                     }
                     target->m_game->m_selection.clear();
                 }

@@ -3027,7 +3027,6 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Bottiglia",
             "count": 3,
             "image": "04_bottiglia",
@@ -3040,11 +3039,10 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Bottiglia come Panico!",
             "count": 0,
             "image": "04_bottiglia_panico",
-            "color": "brown",
+            "color": "none",
             "responses": [
                 {
                     "class": "bottlechoice"
@@ -3057,11 +3055,10 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Bottiglia come Birra",
             "count": 0,
             "image": "04_bottiglia_birra",
-            "color": "brown",
+            "color": "none",
             "responses": [
                 {
                     "class": "bottlechoice"
@@ -3073,11 +3070,10 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Bottiglia come Bang!",
             "count": 0,
             "image": "04_bottiglia_bang",
-            "color": "brown",
+            "color": "none",
             "responses": [
                 {
                     "class": "bottlechoice"
@@ -3113,7 +3109,6 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Complice",
             "count": 3,
             "image": "04_complice",
@@ -3126,11 +3121,10 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Complice come Emporio",
             "count": 0,
             "image": "04_complice_emporio",
-            "color": "brown",
+            "color": "none",
             "responses": [
                 {
                     "class": "pardnerchoice"
@@ -3141,11 +3135,10 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Complice come Duello",
             "count": 0,
             "image": "04_complice_duello",
-            "color": "brown",
+            "color": "none",
             "responses": [
                 {
                     "class": "pardnerchoice"
@@ -3157,11 +3150,10 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Complice come Cat Balou",
             "count": 0,
             "image": "04_complice_catbalou",
-            "color": "brown",
+            "color": "none",
             "responses": [
                 {
                     "class": "pardnerchoice"

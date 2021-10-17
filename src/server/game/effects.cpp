@@ -114,7 +114,7 @@ namespace banggame {
 
     void effect_generalstore::on_play(int origin_card_id, player *origin) {
         for (int i=0; i<origin->m_game->num_alive(); ++i) {
-            origin->m_game->add_to_selection(origin->m_game->draw_card());
+            origin->m_game->move_to(origin->m_game->draw_card(), card_pile_type::selection);
         }
         origin->m_game->queue_request<request_type::generalstore>(origin_card_id, origin, origin);
     }
@@ -309,5 +309,51 @@ namespace banggame {
         origin->m_game->queue_event<event_type::delayed_action>([=] {
             origin->heal(origin->m_max_hp);
         });
+    }
+
+    static void swap_shop_choice_in(int origin_card_id, player *origin, effect_type type) {
+        for (auto &c : origin->m_game->m_shop_selection) {
+            origin->m_game->move_to(std::move(c), card_pile_type::shop_hidden);
+        }
+        origin->m_game->m_shop_selection.clear();
+
+        auto &vec = origin->m_game->m_shop_hidden;
+        for (auto it = vec.begin(); it != vec.end(); ) {
+            if (!it->responses.empty() && it->responses.front().is(type)) {
+                origin->m_game->move_to(std::move(*it), card_pile_type::shop_selection);
+                it = vec.erase(it);
+            } else {
+                ++it;
+            }
+        }
+
+        origin->m_game->queue_request<request_type::shopchoice>(origin_card_id, nullptr, origin);
+    }
+
+    void effect_bottle::on_play(int origin_card_id, player *origin) {
+        swap_shop_choice_in(origin_card_id, origin, effect_type::bottlechoice);
+    }
+
+    void effect_pardner::on_play(int origin_card_id, player *origin) {
+        swap_shop_choice_in(origin_card_id, origin, effect_type::pardnerchoice);
+    }
+
+    bool effect_shopchoice::can_respond(player *origin) const {
+        return origin->m_game->top_request_is(request_type::shopchoice, origin);
+    }
+
+    void effect_shopchoice::on_play(int origin_card_id, player *origin) {
+        for (auto &c : origin->m_game->m_shop_selection) {
+            origin->m_game->move_to(std::move(c), card_pile_type::shop_hidden);
+        }
+        origin->m_game->m_shop_selection.clear();
+
+        auto end = origin->m_game->m_shop_hidden.end() - 3;
+        auto begin = end - 2;
+        for (auto it = begin; it != end; ++it) {
+            origin->m_game->move_to(std::move(*it), card_pile_type::shop_selection);
+        }
+        origin->m_game->m_shop_hidden.erase(begin, end);
+        origin->m_game->pop_request();
     }
 }

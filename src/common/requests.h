@@ -98,6 +98,7 @@ namespace banggame {
         (tornado,       request_tornado)
         (poker,         request_poker)
         (saved,         request_saved)
+        (shopchoice,    request_base)
         (kit_carlson,   request_kit_carlson)
         (claus_the_saint, request_claus_the_saint)
         (vera_custer,   request_vera_custer)

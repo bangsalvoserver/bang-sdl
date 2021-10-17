@@ -173,6 +173,19 @@ namespace banggame {
     struct effect_goldrush : card_effect {
         void on_play(int origin_card_id, player *origin);
     };
+
+    struct effect_bottle : card_effect {
+        void on_play(int origin_card_id, player *origin);
+    };
+
+    struct effect_pardner : card_effect {
+        void on_play(int origin_card_id, player *origin);
+    };
+
+    struct effect_shopchoice : card_effect {
+        bool can_respond(player *origin) const;
+        void on_play(int origin_card_id, player *origin);
+    };
 }
 
 #endif

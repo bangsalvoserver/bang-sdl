@@ -40,6 +40,7 @@ namespace banggame {
     )
 
     DEFINE_ENUM_IN_NS(banggame, card_color_type,
+        (none)
         (brown)
         (blue)
         (green)
@@ -93,6 +94,7 @@ namespace banggame {
         (shop_deck)
         (shop_discard)
         (shop_selection)
+        (shop_hidden)
     )
 
 }

@@ -14,7 +14,7 @@ namespace banggame {
             return !c.equips.empty() && c.equips.front().is(equip_type::weapon) && c.id != card_id;
         });
         if (it != m_table.end()) {
-            m_game->add_to_discards(std::move(*it)).on_unequip(this);
+            m_game->move_to(std::move(*it), card_pile_type::discard_pile).on_unequip(this);
             m_table.erase(it);
         }
     }
@@ -58,15 +58,15 @@ namespace banggame {
                 it->inactive = false;
                 m_game->add_public_update<game_update_type::tap_card>(it->id, false);
             }
-            auto &moved = it->color == card_color_type::black
-                ? m_game->add_to_shop_discards(std::move(*it))
-                : m_game->add_to_discards(std::move(*it));
+            auto &moved = m_game->move_to(std::move(*it), it->color == card_color_type::black
+                ? card_pile_type::shop_discard
+                : card_pile_type::discard_pile);
             m_table.erase(it);
             m_game->queue_event<event_type::post_discard_card>(this, card_id);
             moved.on_unequip(this);
             return moved;
         } else if (auto it = std::ranges::find(m_hand, card_id, &card::id); it != m_hand.end()) {
-            auto &moved = m_game->add_to_discards(std::move(*it));
+            auto &moved = m_game->move_to(std::move(*it), card_pile_type::discard_pile);
             m_hand.erase(it);
             m_game->queue_event<event_type::post_discard_card>(this, card_id);
             return moved;
@@ -285,7 +285,7 @@ namespace banggame {
             card_ptr = &*it;
             is_character = true;
         } else if (auto it = std::ranges::find(m_hand, card_id, &deck_card::id); it != m_hand.end()) {
-            auto &moved = m_game->add_to_discards(std::move(*it));
+            auto &moved = m_game->move_to(std::move(*it), card_pile_type::discard_pile);
             card_ptr = &moved;
             m_last_played_card = card_id;
             m_hand.erase(it);
@@ -299,24 +299,24 @@ namespace banggame {
                 card_ptr = &*it;
                 break;
             case card_color_type::green:
-                card_ptr = &m_game->add_to_discards(std::move(*it));
+                card_ptr = &m_game->move_to(std::move(*it), card_pile_type::discard_pile);
                 m_table.erase(it);
                 break;
             }
         } else if (auto it = std::ranges::find(m_game->m_shop_selection, card_id, &deck_card::id); it != m_game->m_shop_selection.end()) {
             if (it->color == card_color_type::brown) {
                 m_last_played_card = card_id;
-                card_ptr = &m_game->add_to_shop_discards(std::move(*it));
+                card_ptr = &m_game->move_to(std::move(*it), card_pile_type::shop_discard);
                 m_game->m_shop_selection.erase(it);
             } else {
-                throw game_error("Puoi giocare dallo shop solo carte marroni");
+                card_ptr = &*it;
             }
         } else if (m_virtual && card_id == m_virtual->first) {
             card_ptr = &m_virtual->second;
             is_virtual = true;
             m_last_played_card = 0;
             if (auto it = std::ranges::find(m_hand, m_virtual->second.id, &card::id); it != m_hand.end()) {
-                m_game->add_to_discards(std::move(*it));
+                m_game->move_to(std::move(*it), card_pile_type::discard_pile);
                 m_hand.erase(it);
                 m_game->queue_event<event_type::on_play_hand_card>(this, m_virtual->second.id);
             }
@@ -477,7 +477,9 @@ namespace banggame {
                     verify_card_targets(*card_it, false, args.targets);
                     add_gold(-card_it->buy_cost);
                     do_play_card(args.card_id, false, args.targets);
-                    m_game->add_to_shop_selection(m_game->draw_shop_card());
+                    m_game->queue_event<event_type::delayed_action>([this]{
+                        m_game->move_to(m_game->draw_shop_card(), card_pile_type::shop_selection);
+                    });
                 break;
                 case card_color_type::black:
                     verify_equip_target(*card_it, args.targets);
@@ -487,7 +489,7 @@ namespace banggame {
                     deck_card removed = std::move(*card_it);
                     m_game->m_shop_selection.erase(card_it);
                     target->equip_card(std::move(removed));
-                    m_game->add_to_shop_selection(m_game->draw_shop_card());
+                    m_game->move_to(m_game->draw_shop_card(), card_pile_type::shop_selection);
                     m_game->queue_event<event_type::on_effect_end>(this);
                     break;
                 }
@@ -533,6 +535,15 @@ namespace banggame {
                     do_play_card(args.card_id, true, args.targets);
                 }
                 break;
+            }
+        } else if (auto card_it = std::ranges::find(m_game->m_shop_selection, args.card_id, &deck_card::id); card_it != m_table.end()) {
+            if (m_num_drawn_cards < m_num_cards_to_draw) throw game_error("Devi pescare");
+            if (m_gold >= card_it->buy_cost) {
+                verify_card_targets(*card_it, true, args.targets);
+                add_gold(-card_it->buy_cost);
+                do_play_card(args.card_id, true, args.targets);
+            } else {
+                throw game_error("Non hai abbastanza pepite");
             }
         } else {
             throw game_error("server.respond_card: ID non trovato");
@@ -637,15 +648,13 @@ namespace banggame {
                 m_game->add_public_update<game_update_type::tap_card>(c.id, false);
             }
             c.on_unequip(this);
-            if (c.color == card_color_type::black) {
-                m_game->add_to_shop_discards(std::move(c));
-            } else {
-                m_game->add_to_discards(std::move(c));
-            }
+            m_game->move_to(std::move(c), c.color == card_color_type::black
+                ? card_pile_type::shop_discard
+                : card_pile_type::discard_pile);
         }
         m_table.clear();
         for (deck_card &c : m_hand) {
-            m_game->add_to_discards(std::move(c));
+            m_game->move_to(std::move(c), card_pile_type::discard_pile);
         }
         m_hand.clear();
     }

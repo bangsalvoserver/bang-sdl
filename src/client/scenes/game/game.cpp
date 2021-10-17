@@ -32,7 +32,7 @@ void game_scene::resize(int width, int height) {
     
     m_selection.pos = sdl::point{width / 2, height / 2 + sizes::selection_yoffset};
 
-    m_shop_discard.pos = m_shop_deck.pos = sdl::point{
+    m_shop_hidden.pos = m_shop_discard.pos = m_shop_deck.pos = sdl::point{
         width / 2 + sizes::shop_xoffset - sizes::shop_selection_width - sizes::card_width,
         height / 2};
 
@@ -65,6 +65,10 @@ void game_scene::render(sdl::renderer &renderer) {
     if (!m_player_own_id) return;
 
     for (int id : m_main_deck | take_last<2>) {
+        get_card(id).render(renderer);
+    }
+
+    for (int id : m_shop_hidden | take_last<1>) {
         get_card(id).render(renderer);
     }
 
@@ -292,7 +296,7 @@ void game_scene::on_click_shop_card(int card_id) {
         clear_targets();
     } else if (m_play_card_args.card_id == 0) {
         if (m_current_request.target_id == m_player_own_id && m_current_request.type != request_type::none) {
-            if (c.color == card_color_type::brown) {
+            if (c.color == card_color_type::none) {
                 m_play_card_args.card_id = card_id;
                 m_highlights.push_back(card_id);
                 handle_auto_targets(true);
@@ -748,6 +752,7 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::add_cards>
         switch (args.pile) {
         case card_pile_type::main_deck:         c.pile = &m_main_deck; c.texture_back = &textures_back::main_deck(); break;
         case card_pile_type::shop_deck:         c.pile = &m_shop_deck; c.texture_back = &textures_back::goldrush(); break;
+        case card_pile_type::shop_hidden:       c.pile = &m_shop_hidden; break;
         }
         c.pos = c.pile->pos;
         c.pile->push_back(id);
@@ -767,16 +772,20 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::move_card>
         }
     }
     
-    switch(args.pile) {
-    case card_pile_type::player_hand:   c.pile = &get_player(args.player_id).hand; break;
-    case card_pile_type::player_table:  c.pile = &get_player(args.player_id).table; break;
-    case card_pile_type::main_deck:     c.pile = &m_main_deck; break;
-    case card_pile_type::discard_pile:  c.pile = &m_discard_pile; break;
-    case card_pile_type::selection:     c.pile = &m_selection; break;
-    case card_pile_type::shop_deck:     c.pile = &m_shop_deck; break;
-    case card_pile_type::shop_discard:  c.pile = &m_shop_discard; break;
-    case card_pile_type::shop_selection: c.pile = &m_shop_selection; break;
-    }
+    c.pile = &[&] () -> card_pile_view& {
+        switch(args.pile) {
+        case card_pile_type::player_hand:       return get_player(args.player_id).hand;
+        case card_pile_type::player_table:      return get_player(args.player_id).table;
+        case card_pile_type::main_deck:         return m_main_deck;
+        case card_pile_type::discard_pile:      return m_discard_pile;
+        case card_pile_type::selection:         return m_selection;
+        case card_pile_type::shop_deck:         return m_shop_deck;
+        case card_pile_type::shop_selection:    return m_shop_selection;
+        case card_pile_type::shop_discard:      return m_shop_discard;
+        case card_pile_type::shop_hidden:       return m_shop_hidden;
+        default: throw std::runtime_error("Pila non valida");
+        }
+    }();
     c.pile->push_back(c.id);
     if (c.pile->width > 0) {
         for (int id : *c.pile) {

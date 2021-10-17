@@ -60,7 +60,7 @@ namespace banggame {
 
     void effect_kit_carlson::on_play(int origin_card_id, player *target) {
         for (int i=0; i<=target->m_num_cards_to_draw; ++i) {
-            target->m_game->add_to_selection(target->m_game->draw_card(), target);
+            target->m_game->move_to(target->m_game->draw_card(), card_pile_type::selection, true, target);
         }
         target->m_game->queue_request<request_type::kit_carlson>(origin_card_id, target, target);
     }
@@ -70,11 +70,8 @@ namespace banggame {
             target->add_to_hand(target->m_game->draw_from_temp(args.card_id));
             if (target->m_game->m_selection.size() == 1) {
                 target->m_game->pop_request();
-                auto removed = std::move(target->m_game->m_selection.front());
-                target->m_game->add_private_update<game_update_type::hide_card>(target, removed.id);
-                target->m_game->add_public_update<game_update_type::move_card>(removed.id, 0, card_pile_type::main_deck);
+                target->m_game->move_to(std::move(target->m_game->m_selection.front()), card_pile_type::main_deck, false);
                 target->m_game->m_selection.clear();
-                target->m_game->m_deck.push_back(std::move(removed));
                 target->m_num_drawn_cards = target->m_num_cards_to_draw;
             } else {
                 target->m_game->pop_request_noupdate();
@@ -87,7 +84,7 @@ namespace banggame {
         target->m_num_drawn_cards = target->m_num_cards_to_draw;
         int ncards = target->m_game->num_alive() + target->m_num_cards_to_draw - 1;
         for (int i=0; i<ncards; ++i) {
-            target->m_game->add_to_selection(target->m_game->draw_card(), target);
+            target->m_game->move_to(target->m_game->draw_card(), card_pile_type::selection, true, target);
         }
         target->m_game->queue_request<request_type::claus_the_saint>(origin_card_id, target, target);
     }
@@ -482,7 +479,7 @@ namespace banggame {
 
     void effect_dutch_will::on_play(int origin_card_id, player *target) {
         for (int i=0; i<target->m_num_cards_to_draw; ++i) {
-            target->m_game->add_to_selection(target->m_game->draw_card(), target);
+            target->m_game->move_to(target->m_game->draw_card(), card_pile_type::selection, true, target);
         }
         target->m_game->queue_request<request_type::dutch_will>(origin_card_id, target, target);
     }
@@ -492,7 +489,7 @@ namespace banggame {
             target->add_to_hand(target->m_game->draw_from_temp(args.card_id));
             if (target->m_game->m_selection.size() == 1) {
                 target->m_game->pop_request();
-                target->m_game->add_to_discards(std::move(target->m_game->m_selection.front()));
+                target->m_game->move_to(std::move(target->m_game->m_selection.front()), card_pile_type::discard_pile);
                 target->m_game->m_selection.clear();
                 target->add_gold(1);
                 target->m_num_drawn_cards = target->m_num_cards_to_draw;
