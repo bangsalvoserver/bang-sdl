@@ -153,11 +153,11 @@ namespace banggame {
     }
 
     void effect_destroy::on_play(int origin_card_id, player *origin, player *target, int card_id) {
+        target->m_game->queue_event<event_type::on_discard_card>(origin, target, card_id);
         if (flightable && origin != target) {
             auto &req = target->m_game->queue_request<request_type::destroy>(origin_card_id, origin, target, true);
             req.card_id = card_id;
         } else {
-            target->m_game->queue_event<event_type::on_discard_card>(origin, target, card_id);
             target->m_game->queue_event<event_type::delayed_action>([=]{
                 target->discard_card(card_id);
             });
@@ -165,11 +165,11 @@ namespace banggame {
     }
 
     void effect_steal::on_play(int origin_card_id, player *origin, player *target, int card_id) {
+        target->m_game->queue_event<event_type::on_discard_card>(origin, target, card_id);
         if (flightable && origin != target) {
             auto &req = target->m_game->queue_request<request_type::steal>(origin_card_id, origin, target, true);
             req.card_id = card_id;
         } else {
-            target->m_game->queue_event<event_type::on_discard_card>(origin, target, card_id);
             target->m_game->queue_event<event_type::delayed_action>([=]{
                 origin->steal_card(target, card_id);
             });
