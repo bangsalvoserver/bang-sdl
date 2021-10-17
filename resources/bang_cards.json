@@ -3201,6 +3201,7 @@
             ]
         },
         {
+            "discard_if_two_players": true,
             "name": "Ricercato",
             "count": 3,
             "image": "04_ricercato",
