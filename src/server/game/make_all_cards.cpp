@@ -27,6 +27,9 @@ namespace banggame {
         if (json_card.isMember("equip")) {
             out.equips = make_effects_from_json<equip_holder>(json_card["equip"]);
         }
+        if (json_card.isMember("usages")) {
+            out.max_usages = json_card["usages"].asInt();
+        }
         if (json_card.isMember("offturn")) {
             out.playable_offturn = json_card["offturn"].asBool();
         }
@@ -81,9 +84,6 @@ namespace banggame {
                 if (json_character.isMember("type")) {
                     c.type = enums::from_string<character_type>(json_character["type"].asString());
                 }
-                if (json_character.isMember("usages")) {
-                    c.max_usages = json_character["usages"].asInt();
-                }
                 c.max_hp = json_character["hp"].asInt();
                 ret.characters.push_back(c);
             }
@@ -96,8 +96,13 @@ namespace banggame {
             make_all_effects(c, json_card);
             c.color = enums::from_string<card_color_type>(json_card["color"].asString());
             c.buy_cost = json_card["buy_cost"].asInt();
-            for (int i=json_card["count"].asInt(); i>0; --i) {
-                ret.goldrush.push_back(c);
+            int count = json_card["count"].asInt();
+            if (count == 0) {
+                ret.goldrush_choices.push_back(c);
+            } else {
+                for (int i=0; i<count; ++i) {
+                    ret.goldrush.push_back(c);
+                }
             }
         }
 

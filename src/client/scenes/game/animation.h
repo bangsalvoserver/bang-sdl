@@ -30,7 +30,7 @@ namespace banggame {
     };
 
     struct card_flip_animation {
-        card_widget_base *card;
+        card_widget *card;
         bool flips;
 
         void do_animation(float amt) {
@@ -39,7 +39,7 @@ namespace banggame {
     };
 
     struct card_tap_animation {
-        card_widget_base *card;
+        card_widget *card;
         bool taps;
 
         void do_animation(float amt) {

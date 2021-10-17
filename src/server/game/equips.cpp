@@ -119,6 +119,9 @@ namespace banggame {
     }
 
     void effect_pickaxe::on_equip(player *target, int card_id) {
+        if (target->m_num_drawn_cards >= target->m_num_cards_to_draw) {
+            ++target->m_num_drawn_cards;
+        }
         ++target->m_num_cards_to_draw;
     }
 

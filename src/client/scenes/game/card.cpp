@@ -37,6 +37,41 @@ namespace banggame {
         return ret;
     }
 
+    namespace textures_back {
+        static sdl::texture s_main_deck;
+        static sdl::texture s_character;
+        static sdl::texture s_role;
+        static sdl::texture s_goldrush;
+
+        sdl::texture &main_deck() {
+            if (!s_main_deck) {
+                s_main_deck = apply_card_mask(sdl::surface(card_resources["back_card"]));
+            }
+            return s_main_deck;
+        }
+
+        sdl::texture &character() {
+            if (!s_character) {
+                s_character = apply_card_mask(sdl::surface(card_resources["back_character"]));
+            }
+            return s_character;
+        }
+
+        sdl::texture &role() {
+            if (!s_role) {
+                s_role = apply_card_mask(sdl::surface(card_resources["back_role"]));
+            }
+            return s_role;
+        }
+
+        sdl::texture &goldrush() {
+            if (!s_goldrush) {
+                s_goldrush = apply_card_mask(sdl::surface(card_resources["back_goldrush"]));
+            }
+            return s_goldrush;
+        }
+    }
+
     void card_view::make_texture_front() {
         sdl::surface card_base_surf(card_resources[image]);
         sdl::rect card_rect = card_base_surf.get_rect();
@@ -67,17 +102,9 @@ namespace banggame {
         set_texture_front(apply_card_mask(card_base_surf));
     }
 
-    void card_view::make_texture_back() {
-        texture_back = apply_card_mask(sdl::surface(card_resources["back_card"]));
-    }
-
     void character_card::make_texture_front() {
         set_texture_front(apply_card_mask(sdl::surface(card_resources[image])));
         flip_amt = 1.f;
-    }
-
-    void character_card::make_texture_back() {
-        texture_back = apply_card_mask(sdl::surface(card_resources["back_character"]));
     }
 
     void role_card::make_texture_front() {
@@ -85,12 +112,8 @@ namespace banggame {
         role_string.append(enums::to_string(role));
         set_texture_front(apply_card_mask(sdl::surface(card_resources[role_string])));
     }
-
-    void role_card::make_texture_back() {
-        texture_back = apply_card_mask(sdl::surface(card_resources["back_role"]));
-    }
     
-    void card_widget_base::render(sdl::renderer &renderer, sdl::texture &tex) {
+    void card_widget::do_render(sdl::renderer &renderer, sdl::texture &tex) {
         m_rect = tex.get_rect();
         sdl::scale_rect(m_rect, sizes::card_width);
         
@@ -137,8 +160,8 @@ namespace banggame {
     }
 
     void player_view::set_hp_marker_position(float hp) {
-        m_hp_marker.pos = m_characters.front().pos;
-        m_hp_marker.pos.y -= std::max(0.f, hp * sizes::one_hp_size);
+        m_hp_marker_pos = m_characters.front().pos;
+        m_hp_marker_pos.y -= std::max(0.f, hp * sizes::one_hp_size);
     }
 
     void player_view::set_gold(int amount) {
@@ -157,11 +180,13 @@ namespace banggame {
         renderer.set_draw_color(sdl::color{0x0, 0x0, 0x0, 0xff});
         renderer.draw_rect(m_bounding_rect);
         m_role.render(renderer);
-        m_hp_marker.render(renderer);
+        sdl::rect hp_marker_rect = m_characters.front().get_rect();
+        hp_marker_rect.x = m_hp_marker_pos.x - hp_marker_rect.w / 2;
+        hp_marker_rect.y = m_hp_marker_pos.y - hp_marker_rect.h / 2;
+        textures_back::character().render(renderer, hp_marker_rect);
         if (hp > 5) {
-            auto rect = m_hp_marker.get_rect();
-            rect.y += sizes::one_hp_size * 5;
-            m_hp_marker.texture_back.render(renderer, rect);
+            hp_marker_rect.y += sizes::one_hp_size * 5;
+            textures_back::character().render(renderer, hp_marker_rect);
         }
         for (auto &c : m_characters) {
             c.render(renderer);

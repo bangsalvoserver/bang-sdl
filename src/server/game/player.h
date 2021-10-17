@@ -102,7 +102,6 @@ namespace banggame {
         bool alive() const { return !m_dead || m_ghost; }
 
         void damage(int origin_card_id, player *source, int value, bool is_bang = false);
-        void do_damage(int origin_card_id, player *source, int value, bool is_bang = false);
 
         void heal(int value);
 
@@ -155,8 +154,8 @@ namespace banggame {
 
         void set_character_and_role(character &&c, player_role role);
 
-        bool verify_equip_target(const card &c, const std::vector<play_card_target> &targets);
-        bool verify_card_targets(const card &c, bool is_response, const std::vector<play_card_target> &targets);
+        void verify_equip_target(const card &c, const std::vector<play_card_target> &targets);
+        void verify_card_targets(const card &c, bool is_response, const std::vector<play_card_target> &targets);
         void do_play_card(int card_id, bool is_response, const std::vector<play_card_target> &targets);
 
         void play_card(const play_card_args &args);

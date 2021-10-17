@@ -141,9 +141,13 @@ namespace banggame {
                         c.inactive = false;
                         p->m_game->add_public_update<game_update_type::tap_card>(c.id, false);
                     }
-                    p->add_to_hand(std::move(c));
+                    if (c.color != card_color_type::black) {
+                        p->add_to_hand(std::move(c));
+                    }
                 }
-                target->m_table.clear();
+                std::erase_if(target->m_table, [](const deck_card &c) {
+                    return c.color != card_color_type::black;
+                });
                 for (auto &c : target->m_hand) {
                     p->add_to_hand(std::move(c));
                 }

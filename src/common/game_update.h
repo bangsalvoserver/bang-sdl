@@ -13,6 +13,7 @@ namespace banggame {
 
     DEFINE_SERIALIZABLE(add_cards_update,
         (card_ids, std::vector<int>)
+        (pile, card_pile_type)
     )
 
     DEFINE_SERIALIZABLE(move_card_update,
@@ -112,7 +113,7 @@ namespace banggame {
         (game_over, game_over_update)
         (add_cards, add_cards_update)
         (move_card, move_card_update)
-        (deck_shuffled)
+        (deck_shuffled, card_pile_type)
         (virtual_card, virtual_card_update)
         (show_card, show_card_update)
         (hide_card, hide_card_update)

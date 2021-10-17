@@ -3244,6 +3244,7 @@
             "color": "black",
             "buy_cost": 3,
             "cost": 1,
+            "usages": 2,
             "effects": [
                 {
                     "target": "player self",

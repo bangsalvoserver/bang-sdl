@@ -122,8 +122,18 @@ namespace banggame {
             }
         }
         auto ids_view = m_deck | std::views::transform(&deck_card::id);
-        add_public_update<game_update_type::add_cards>(std::vector(ids_view.begin(), ids_view.end()));
+        add_public_update<game_update_type::add_cards>(std::vector(ids_view.begin(), ids_view.end()), card_pile_type::main_deck);
         shuffle_cards_and_ids(m_deck, rng);
+
+        if (bool(options.allowed_expansions & card_expansion_type::goldrush)) {
+            for (const auto &c : all_cards.goldrush) {
+                if (m_players.size() <= 2 && c.discard_if_two_players) continue;
+                m_shop_deck.emplace_back(c).id = get_next_id();
+            }
+            ids_view = m_shop_deck | std::views::transform(&deck_card::id);
+            add_public_update<game_update_type::add_cards>(std::vector(ids_view.begin(), ids_view.end()), card_pile_type::shop_deck);
+            shuffle_cards_and_ids(m_shop_deck, rng);
+        }
 
         int max_initial_cards = std::ranges::max(m_players | std::views::transform(&player::get_initial_cards));
         for (int i=0; i<max_initial_cards; ++i) {
@@ -131,6 +141,12 @@ namespace banggame {
                 if (p.m_hand.size() < p.get_initial_cards()) {
                     p.add_to_hand(draw_card());
                 }
+            }
+        }
+
+        if (!m_shop_deck.empty()) {
+            for (int i=0; i<3; ++i) {
+                add_to_shop_selection(draw_shop_card());
             }
         }
 
@@ -162,19 +178,29 @@ namespace banggame {
     }
 
     deck_card game::draw_card() {
+        if (m_deck.empty()) {
+            deck_card top_discards = std::move(m_discards.back());
+            m_discards.resize(m_discards.size()-1);
+            m_deck = std::move(m_discards);
+            m_discards.clear();
+            m_discards.emplace_back(std::move(top_discards));
+            shuffle_cards_and_ids(m_deck, rng);
+            add_public_update<game_update_type::deck_shuffled>(card_pile_type::main_deck);
+        }
         deck_card c = std::move(m_deck.back());
         m_deck.pop_back();
-        if (m_deck.empty()) {
-            queue_event<event_type::delayed_action>([this]{
-                deck_card top_discards = std::move(m_discards.back());
-                m_discards.resize(m_discards.size()-1);
-                m_deck = std::move(m_discards);
-                m_discards.clear();
-                m_discards.emplace_back(std::move(top_discards));
-                shuffle_cards_and_ids(m_deck, rng);
-                add_public_update<game_update_type::deck_shuffled>();
-            });
+        return c;
+    }
+
+    deck_card game::draw_shop_card() {
+        if (m_shop_deck.empty()) {
+            m_shop_deck = std::move(m_shop_discards);
+            m_shop_discards.clear();
+            shuffle_cards_and_ids(m_shop_deck, rng);
+            add_public_update<game_update_type::deck_shuffled>(card_pile_type::shop_deck);
         }
+        deck_card c = std::move(m_shop_deck.back());
+        m_shop_deck.pop_back();
         return c;
     }
 
@@ -357,13 +383,13 @@ namespace banggame {
     }
 
     void game::handle_action(enums::enum_constant<game_action_type::draw_from_deck>, player *p) {
-        if (m_requests.empty() && m_playing == p && p->m_num_drawn_cards != p->m_num_cards_to_draw) {
+        if (m_requests.empty() && m_playing == p && p->m_num_drawn_cards < p->m_num_cards_to_draw) {
             p->draw_from_deck();
         }
     }
 
     void game::handle_action(enums::enum_constant<game_action_type::pass_turn>, player *p) {
-        if (m_requests.empty() && m_playing == p && p->m_num_drawn_cards == p->m_num_cards_to_draw) {
+        if (m_requests.empty() && m_playing == p && p->m_num_drawn_cards >= p->m_num_cards_to_draw) {
             if (p->num_hand_cards() > p->max_cards_end_of_turn()) {
                 queue_request<request_type::discard_pass>(0, p, p);
             } else {

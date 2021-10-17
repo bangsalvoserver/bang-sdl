@@ -27,16 +27,21 @@ game_scene::game_scene(class game_manager *parent)
 void game_scene::resize(int width, int height) {
     scene_base::resize(width, height);
     
-    m_main_deck.pos = sdl::point{parent->width() / 2, parent->height() / 2};
-
-    m_discard_pile.pos = m_main_deck.pos;
-    m_discard_pile.pos.x -= 80;
+    m_discard_pile.pos = m_main_deck.pos = sdl::point{width / 2 + sizes::deck_xoffset, height / 2};
+    m_discard_pile.pos.x -= sizes::discard_xoffset;
     
-    m_selection.pos = sdl::point{
-        m_main_deck.pos.x,
-        m_main_deck.pos.y + 100};
+    m_selection.pos = sdl::point{width / 2, height / 2 + sizes::selection_yoffset};
+
+    m_shop_discard.pos = m_shop_deck.pos = sdl::point{
+        width / 2 + sizes::shop_xoffset - sizes::shop_selection_width - sizes::card_width,
+        height / 2};
+
+    m_shop_selection.pos = sdl::point{
+        width / 2 + sizes::shop_xoffset - sizes::shop_selection_width / 2,
+        height / 2};
 
     move_player_views();
+
     for (auto &[id, card] : m_cards) {
         card.pos = card.pile->get_position(card.id);
     }
@@ -45,6 +50,8 @@ void game_scene::resize(int width, int height) {
 }
 
 void game_scene::render(sdl::renderer &renderer) {
+    constexpr auto last_two = std::views::reverse | std::views::take(2) | std::views::reverse;
+
     if (m_animations.empty()) {
         pop_update();
     } else {
@@ -57,7 +64,19 @@ void game_scene::render(sdl::renderer &renderer) {
     
     if (!m_player_own_id) return;
 
-    for (int id : m_main_deck | std::views::reverse | std::views::take(2) | std::views::reverse) {
+    for (int id : m_main_deck | last_two) {
+        get_card(id).render(renderer);
+    }
+
+    for (int id : m_shop_discard | last_two) {
+        get_card(id).render(renderer);
+    }
+
+    for (int id : m_shop_deck | std::views::reverse | std::views::take(1)) {
+        get_card(id).render(renderer);
+    }
+
+    for (int id : m_shop_selection) {
         get_card(id).render(renderer);
     }
 
@@ -79,7 +98,7 @@ void game_scene::render(sdl::renderer &renderer) {
         }
     }
 
-    for (int id : m_discard_pile | std::views::reverse | std::views::take(2) | std::views::reverse) {
+    for (int id : m_discard_pile | last_two) {
         get_card(id).render(renderer);
     }
 
@@ -153,13 +172,17 @@ void game_scene::handle_card_click(const sdl::point &mouse_pt) {
         return (it == pile.rend()) ? 0 : *it;
     };
 
-    sdl::rect main_deck_rect = card_view::texture_back.get_rect();
+    sdl::rect main_deck_rect = textures_back::main_deck().get_rect();
     sdl::scale_rect(main_deck_rect, sizes::card_width);
     main_deck_rect.x = m_main_deck.pos.x - main_deck_rect.w / 2;
     main_deck_rect.y = m_main_deck.pos.y - main_deck_rect.h / 2;
 
     if (int card_id = find_clicked(m_selection)) {
         on_click_selection_card(card_id);
+        return;
+    }
+    if (int card_id = find_clicked(m_shop_selection)) {
+        on_click_shop_card(card_id);
         return;
     }
     if (sdl::point_in_rect(mouse_pt, main_deck_rect)) {
@@ -197,12 +220,23 @@ void game_scene::find_overlay(const sdl::point &mouse_pt) {
         return (it == pile.rend()) ? 0 : *it;
     };
 
-    sdl::rect main_deck_rect = card_view::texture_back.get_rect();
+    sdl::rect main_deck_rect = textures_back::main_deck().get_rect();
     sdl::scale_rect(main_deck_rect, sizes::card_width);
     main_deck_rect.x = m_main_deck.pos.x - main_deck_rect.w / 2;
     main_deck_rect.y = m_main_deck.pos.y - main_deck_rect.h / 2;
 
     if (m_overlay = find_clicked(m_selection)) {
+        return;
+    }
+    if (m_overlay = find_clicked(m_shop_selection)) {
+        return;
+    }
+    if (!m_discard_pile.empty() && mouse_in_card(m_discard_pile.back())) {
+        m_overlay = m_discard_pile.back();
+        return;
+    }
+    if (!m_shop_discard.empty() && mouse_in_card(m_shop_discard.back())) {
+        m_overlay = m_shop_discard.back();
         return;
     }
     for (const auto &[player_id, p] : m_players) {
@@ -211,10 +245,6 @@ void game_scene::find_overlay(const sdl::point &mouse_pt) {
                 m_overlay = c.id;
                 return;
             }
-        }
-        if (!m_discard_pile.empty() && mouse_in_card(m_discard_pile.back())) {
-            m_overlay = m_discard_pile.back();
-            return;
         }
         if (m_overlay = find_clicked(p.table)) {
             return;
@@ -258,6 +288,43 @@ void game_scene::on_click_selection_card(int card_id) {
     }
 }
 
+void game_scene::on_click_shop_card(int card_id) {
+    auto &c = get_card(card_id);
+    if (!m_highlights.empty() && card_id == m_highlights.front()) {
+        clear_targets();
+    } else if (m_play_card_args.card_id == 0) {
+        if (m_current_request.target_id == m_player_own_id && m_current_request.type != request_type::none) {
+            if (c.color == card_color_type::brown) {
+                m_play_card_args.card_id = card_id;
+                m_highlights.push_back(card_id);
+                handle_auto_targets(true);
+            }
+        } else if (m_playing_id == m_player_own_id) {
+            switch (c.color) {
+            case card_color_type::black:
+                if (c.equip_targets.empty()
+                    || c.equip_targets.front().target == enums::flags_none<target_type>
+                    || bool(c.equip_targets.front().target & target_type::self)) {
+                    add_action<game_action_type::play_card>(card_id, std::vector{
+                        play_card_target{enums::enum_constant<play_card_target_type::target_player>{},
+                        std::vector{target_player_id{m_playing_id}}}
+                    });
+                } else {
+                    m_play_card_args.card_id = card_id;
+                    m_play_card_args.flags |= play_card_flags::equipping;
+                    m_highlights.push_back(card_id);
+                }
+                break;
+            case card_color_type::brown:
+                m_play_card_args.card_id = card_id;
+                m_highlights.push_back(card_id);
+                handle_auto_targets(false);
+                break;
+            }
+        }
+    }
+}
+
 void game_scene::on_click_table_card(int player_id, int card_id) {
     auto &c = get_card(card_id);
     if (!m_highlights.empty() && card_id == m_highlights.front()) {
@@ -293,12 +360,13 @@ void game_scene::on_click_table_card(int player_id, int card_id) {
                     }
                     break;
                 case card_color_type::blue:
+                case card_color_type::black:
                     m_play_card_args.card_id = card_id;
                     m_highlights.push_back(card_id);
                     handle_auto_targets(false);
                     break;
                 case card_color_type::brown:
-                    throw invalid_action();
+                    throw std::runtime_error("Azione non valida");
                 }
             }
         } else {
@@ -610,36 +678,51 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::game_over>
     m_ui.add_message(msg);
 }
 
-void game_scene::handle_update(enums::enum_constant<game_update_type::deck_shuffled>) {
-    int top_discard = m_discard_pile.back();
-    m_discard_pile.resize(m_discard_pile.size() - 1);
-    card_move_animation anim;
-    for (int id : m_discard_pile) {
-        auto &c = get_card(id);
-        c.known = false;
-        c.flip_amt = 0.f;
-        c.pile = &m_main_deck;
-        m_main_deck.push_back(id);
-        anim.add_move_card(c);
+void game_scene::handle_update(enums::enum_constant<game_update_type::deck_shuffled>, const card_pile_type &pile) {
+    switch (pile) {
+    case card_pile_type::main_deck: {
+        int top_discard = m_discard_pile.back();
+        m_discard_pile.resize(m_discard_pile.size() - 1);
+        card_move_animation anim;
+        for (int id : m_discard_pile) {
+            auto &c = get_card(id);
+            c.known = false;
+            c.flip_amt = 0.f;
+            c.pile = &m_main_deck;
+            m_main_deck.push_back(id);
+            anim.add_move_card(c);
+        }
+        m_discard_pile.clear();
+        m_discard_pile.push_back(top_discard);
+        
+        m_animations.emplace_back(30, std::move(anim));
+        break;
     }
-    m_discard_pile.clear();
-    m_discard_pile.push_back(top_discard);
-
-    m_ui.add_message("Deck shuffled");
-    
-    m_animations.emplace_back(30, std::move(anim));
+    case card_pile_type::shop_deck:
+        for (int id : m_shop_discard) {
+            auto &c = get_card(id);
+            c.known = false;
+            c.flip_amt = 0.f;
+            c.pile = &m_shop_deck;
+            m_shop_deck.push_back(id);
+        }
+        m_shop_discard.clear();
+        m_animations.emplace_back(20, card_flip_animation{&get_card(m_shop_deck.back()), true});
+        m_animations.emplace_back(20, pause_animation{});
+        break;
+    }
 }
 
 void game_scene::handle_update(enums::enum_constant<game_update_type::add_cards>, const add_cards_update &args) {
-    if (!card_view::texture_back) {
-        card_view::make_texture_back();
-    }
     for (int id : args.card_ids) {
         auto &c = m_cards[id];
         c.id = id;
-        c.pos = m_main_deck.pos;
-        c.pile = &m_main_deck;
-        m_main_deck.push_back(id);
+        switch (args.pile) {
+        case card_pile_type::main_deck:         c.pile = &m_main_deck; c.texture_back = &textures_back::main_deck(); break;
+        case card_pile_type::shop_deck:         c.pile = &m_shop_deck; c.texture_back = &textures_back::goldrush(); break;
+        }
+        c.pos = c.pile->pos;
+        c.pile->push_back(id);
     }
 
     pop_update();
@@ -662,6 +745,9 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::move_card>
     case card_pile_type::main_deck:     c.pile = &m_main_deck; break;
     case card_pile_type::discard_pile:  c.pile = &m_discard_pile; break;
     case card_pile_type::selection:     c.pile = &m_selection; break;
+    case card_pile_type::shop_deck:     c.pile = &m_shop_deck; break;
+    case card_pile_type::shop_discard:  c.pile = &m_shop_discard; break;
+    case card_pile_type::shop_selection: c.pile = &m_shop_selection; break;
     }
     c.pile->push_back(c.id);
     if (c.pile->width > 0) {
@@ -701,6 +787,8 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::show_card>
 
         if (c.pile == &m_main_deck) {
             std::swap(*std::ranges::find(m_main_deck, c.id), m_main_deck.back());
+        } else if (c.pile == &m_shop_deck) {
+            std::swap(*std::ranges::find(m_shop_deck, c.id), m_shop_deck.back());
         }
         m_animations.emplace_back(10, card_flip_animation{&c, false});
 
@@ -784,19 +872,15 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::player_gol
 }
 
 void game_scene::handle_update(enums::enum_constant<game_update_type::player_add_character>, const player_character_update &args) {
-    if (!character_card::texture_back) {
-        character_card::make_texture_back();
-    }
-    if (!role_card::texture_back) {
-        role_card::make_texture_back();
-    }
-
     auto &p = get_player(args.player_id);
+    p.m_role.texture_back = &textures_back::role();
+
     while (args.index >= p.m_characters.size()) {
         auto &last = p.m_characters.back();
         p.m_characters.emplace_back().pos = sdl::point(last.pos.x + 20, last.pos.y + 20);
     }
     auto &c = *std::next(p.m_characters.begin(), args.index);
+
     static_cast<card_info &>(c) = args.info;
     c.type = args.type;
 

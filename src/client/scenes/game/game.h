@@ -41,7 +41,7 @@ namespace banggame {
         void handle_update(enums::enum_constant<game_update_type::game_over>,        const game_over_update &args);
         void handle_update(enums::enum_constant<game_update_type::add_cards>,        const add_cards_update &args);
         void handle_update(enums::enum_constant<game_update_type::move_card>,        const move_card_update &args);
-        void handle_update(enums::enum_constant<game_update_type::deck_shuffled>);
+        void handle_update(enums::enum_constant<game_update_type::deck_shuffled>,    const card_pile_type &pile);
         void handle_update(enums::enum_constant<game_update_type::virtual_card>,     const virtual_card_update &args);
         void handle_update(enums::enum_constant<game_update_type::show_card>,        const show_card_update &args);
         void handle_update(enums::enum_constant<game_update_type::hide_card>,        const hide_card_update &args);
@@ -71,6 +71,7 @@ namespace banggame {
 
         void on_click_main_deck();
         void on_click_selection_card(int card_id);
+        void on_click_shop_card(int card_id);
         void on_click_table_card(int player_id, int card_id);
         void on_click_hand_card(int player_id, int card_id);
         void on_click_character(int player_id, int card_id);
@@ -86,8 +87,13 @@ namespace banggame {
         std::list<game_update> m_pending_updates;
         std::list<animation> m_animations;
 
+        card_pile_view m_shop_deck{0};
+        card_pile_view m_shop_discard{0};
+        card_pile_view m_shop_selection{sizes::shop_selection_width};
+
         card_pile_view m_main_deck{0};
         card_pile_view m_discard_pile{0};
+
         card_pile_view m_selection{sizes::selection_width};
 
         std::map<int, card_view> m_cards;
@@ -105,7 +111,7 @@ namespace banggame {
             return it->second;
         }
 
-        card_widget_base &get_card_widget(int id) {
+        card_widget &get_card_widget(int id) {
             if (auto it = m_cards.find(id); it != m_cards.end()) {
                 return it->second;
             }

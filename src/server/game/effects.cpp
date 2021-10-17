@@ -128,7 +128,7 @@ namespace banggame {
     }
 
     void effect_damage::on_play(int origin_card_id, player *origin, player *target) {
-        target->do_damage(origin_card_id, origin, 1);
+        target->damage(origin_card_id, origin, 1);
     }
 
     void effect_beer::on_play(int origin_card_id, player *origin, player *target) {

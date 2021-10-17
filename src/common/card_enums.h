@@ -90,6 +90,9 @@ namespace banggame {
         (main_deck)
         (discard_pile)
         (selection)
+        (shop_deck)
+        (shop_discard)
+        (shop_selection)
     )
 
 }

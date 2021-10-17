@@ -18,6 +18,8 @@ namespace banggame {
         std::vector<equip_holder> equips;
         std::string name;
         std::string image;
+        int usages = 0;
+        int max_usages = 0;
         bool playable_offturn = false;
         bool discard_if_two_players = false;
 
@@ -46,8 +48,6 @@ namespace banggame {
 
     struct character : card {
         character_type type = character_type::none;
-        int usages = 0;
-        int max_usages = 0;
         int max_hp;
     };
 
@@ -55,6 +55,7 @@ namespace banggame {
         std::vector<deck_card> deck;
         std::vector<character> characters;
         std::vector<deck_card> goldrush;
+        std::vector<deck_card> goldrush_choices;
     };
 
     extern const all_cards_t all_cards;

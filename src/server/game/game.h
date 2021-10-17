@@ -71,6 +71,10 @@ namespace banggame {
         std::vector<deck_card> m_selection;
         std::vector<player> m_players;
 
+        std::vector<deck_card> m_shop_deck;
+        std::vector<deck_card> m_shop_discards;
+        std::vector<deck_card> m_shop_selection;
+
         std::vector<character> m_base_characters;
 
         std::vector<int> m_table_card_disablers;
@@ -215,9 +219,23 @@ namespace banggame {
             return m_selection.emplace_back(std::move(c));
         }
 
+        deck_card &add_to_shop_discards(deck_card &&c) {
+            send_card_update(c);
+            add_public_update<game_update_type::move_card>(c.id, 0, card_pile_type::shop_discard);
+            return m_shop_discards.emplace_back(std::move(c));
+        }
+
+        deck_card &add_to_shop_selection(deck_card &&c) {
+            send_card_update(c);
+            add_public_update<game_update_type::move_card>(c.id, 0, card_pile_type::shop_selection);
+            return m_shop_selection.emplace_back(std::move(c));
+        }
+
         deck_card draw_card();
         deck_card draw_from_discards();
         deck_card draw_from_temp(int card_id);
+
+        deck_card draw_shop_card();
 
         void draw_check_then(player *p, draw_check_function fun);
         void resolve_check(int card_id);

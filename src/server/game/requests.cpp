@@ -63,7 +63,18 @@ namespace banggame {
     }
     
     void timer_damaging::on_finished() {
-        target->do_damage(origin_card_id, origin, damage, is_bang);
+        target->m_hp -= damage;
+        target->m_game->add_public_update<game_update_type::player_hp>(target->id, target->m_hp);
+        if (target->m_hp <= 0) {
+            target->m_game->pop_request_noupdate();
+            target->m_game->add_request<request_type::death>(origin_card_id, origin, target);
+        } else {
+            target->m_game->pop_request();
+        }
+        if (origin && origin->m_game->m_playing == origin && origin != target) {
+            origin->add_gold(damage);
+        }
+        target->m_game->queue_event<event_type::on_hit>(origin, target, damage, is_bang);
     }
 
     void request_bang::on_resolve() {
