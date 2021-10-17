@@ -187,4 +187,14 @@ namespace banggame {
             target->m_max_cards_mods.erase(it);
         }
     }
+
+    void effect_wanted::on_equip(player *p, int card_id) {
+        p->m_game->add_event<event_type::on_player_death>(card_id, [p](player *origin, player *target) {
+            if (origin && p == target && origin != target) {
+                origin->add_to_hand(origin->m_game->draw_card());
+                origin->add_to_hand(origin->m_game->draw_card());
+                origin->add_gold(1);
+            }
+        });
+    }
 }

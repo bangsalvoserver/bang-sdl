@@ -218,8 +218,8 @@ namespace banggame {
         return c;
     }
 
-    void game::draw_check_then(player *p, draw_check_function fun) {
-        if (p->m_num_checks == 1) {
+    void game::draw_check_then(player *p, draw_check_function fun, bool force_one) {
+        if (force_one || p->m_num_checks == 1) {
             auto &moved = add_to_discards(draw_card());
             auto suit = moved.suit;
             auto value = moved.value;
@@ -390,11 +390,7 @@ namespace banggame {
 
     void game::handle_action(enums::enum_constant<game_action_type::pass_turn>, player *p) {
         if (m_requests.empty() && m_playing == p && p->m_num_drawn_cards >= p->m_num_cards_to_draw) {
-            if (p->num_hand_cards() > p->max_cards_end_of_turn()) {
-                queue_request<request_type::discard_pass>(0, p, p);
-            } else {
-                p->end_of_turn();
-            }
+            p->pass_turn();
         }
     }
 

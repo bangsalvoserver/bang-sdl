@@ -31,6 +31,8 @@ namespace banggame {
     DEFINE_ENUM_FLAGS_IN_NS(banggame, play_card_flags,
         (equipping)
         (offturn)
+        (sell_beer)
+        (discard_black)
     )
 
     DEFINE_SERIALIZABLE(play_card_args,

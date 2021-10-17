@@ -80,6 +80,7 @@ namespace banggame {
         std::vector<int> m_table_card_disablers;
 
         player *m_playing = nullptr;
+        player *m_next_turn = nullptr;
 
         int m_id_counter = 0;
         
@@ -237,7 +238,7 @@ namespace banggame {
 
         deck_card draw_shop_card();
 
-        void draw_check_then(player *p, draw_check_function fun);
+        void draw_check_then(player *p, draw_check_function fun, bool force_one = false);
         void resolve_check(int card_id);
 
         void disable_table_cards(int player_id);

@@ -100,6 +100,7 @@ namespace banggame {
         (claus_the_saint, request_claus_the_saint)
         (vera_custer,   request_vera_custer)
         (youl_grinner,  request_youl_grinner)
+        (dutch_will,    request_dutch_will)
         (beer,          timer_beer)
         (damaging,      timer_damaging)
     )

@@ -415,7 +415,7 @@ namespace banggame {
                     p->m_game->draw_check_then(p, [&](card_suit_type suit, card_value_type) {
                         if (suit == card_suit_type::diamonds || suit == card_suit_type::hearts) {
                             ++usages;
-                            p->m_game->m_playing = p;
+                            p->m_game->m_next_turn = p;
                         }
                     });
                 } else {
@@ -478,5 +478,25 @@ namespace banggame {
                 target->m_game->queue_request<request_type::beer>(card_id, target, target).players.push_back(target->id);
             }
         });
+    }
+
+    void effect_dutch_will::on_play(int origin_card_id, player *target) {
+        for (int i=0; i<target->m_num_cards_to_draw; ++i) {
+            target->m_game->add_to_selection(target->m_game->draw_card(), target);
+        }
+        target->m_game->queue_request<request_type::dutch_will>(origin_card_id, target, target);
+    }
+
+    void request_dutch_will::on_pick(const pick_card_args &args) {
+        if (args.pile == card_pile_type::selection) {
+            target->add_to_hand(target->m_game->draw_from_temp(args.card_id));
+            if (target->m_game->m_selection.size() == 1) {
+                target->m_game->pop_request();
+                target->m_game->add_to_discards(std::move(target->m_game->m_selection.front()));
+                target->m_game->m_selection.clear();
+                target->add_gold(1);
+                target->m_num_drawn_cards = target->m_num_cards_to_draw;
+            }
+        }
     }
 }

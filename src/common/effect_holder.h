@@ -41,6 +41,9 @@ namespace banggame {
         (damage,        effect_damage)
         (saved,         effect_saved)
         (flight,        effect_flight)
+        (doublebarrel,  effect_doublebarrel)
+        (rum,           effect_rum)
+        (goldrush,      effect_goldrush)
         (changewws,     effect_empty)
         (black_jack,    effect_black_jack)
         (kit_carlson,   effect_kit_carlson)
@@ -51,7 +54,7 @@ namespace banggame {
         (lee_van_kliff, effect_lee_van_kliff)
         (greygory_deck, effect_greygory_deck)
         (lemonade_jim,  effect_lemonade_jim)
-        (doublebarrel,  effect_doublebarrel)
+        (dutch_will,    effect_dutch_will)
     )
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, equip_type,
@@ -72,6 +75,7 @@ namespace banggame {
         (horsecharm,    effect_horsecharm)
         (luckycharm,    effect_luckycharm)
         (gunbelt,       effect_gunbelt)
+        (wanted,        effect_wanted)
         (slab_the_killer, effect_slab_the_killer)
         (suzy_lafayette, effect_suzy_lafayette)
         (vulture_sam,   effect_vulture_sam)

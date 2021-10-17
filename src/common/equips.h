@@ -85,6 +85,10 @@ namespace banggame {
         void on_unequip(player *target, int card_id);
     };
 
+    struct effect_wanted : event_based_effect {
+        void on_equip(player *target, int card_id);
+    };
+
 }
 
 #endif

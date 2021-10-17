@@ -165,6 +165,14 @@ namespace banggame {
     struct effect_doublebarrel : card_effect {
         void on_play(int origin_card_id, player *origin);
     };
+
+    struct effect_rum : card_effect {
+        void on_play(int origin_card_id, player *origin);
+    };
+
+    struct effect_goldrush : card_effect {
+        void on_play(int origin_card_id, player *origin);
+    };
 }
 
 #endif

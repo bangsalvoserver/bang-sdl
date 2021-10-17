@@ -2740,7 +2740,6 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Dutch Will",
             "image": "04_dutch_will",
             "hp": 4,
@@ -3174,7 +3173,6 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Corsa all' Oro",
             "count": 1,
             "image": "04_corsa_all_oro",
@@ -3211,7 +3209,6 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Ricercato",
             "count": 3,
             "image": "04_ricercato",
@@ -3225,7 +3222,6 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Rum",
             "count": 2,
             "image": "04_rum",

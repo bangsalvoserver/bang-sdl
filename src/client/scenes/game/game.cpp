@@ -49,9 +49,9 @@ void game_scene::resize(int width, int height) {
     m_ui.resize(width, height);
 }
 
-void game_scene::render(sdl::renderer &renderer) {
-    constexpr auto last_two = std::views::reverse | std::views::take(2) | std::views::reverse;
+template<int N> constexpr auto take_last = std::views::reverse | std::views::take(N) | std::views::reverse;
 
+void game_scene::render(sdl::renderer &renderer) {
     if (m_animations.empty()) {
         pop_update();
     } else {
@@ -64,15 +64,15 @@ void game_scene::render(sdl::renderer &renderer) {
     
     if (!m_player_own_id) return;
 
-    for (int id : m_main_deck | last_two) {
+    for (int id : m_main_deck | take_last<2>) {
         get_card(id).render(renderer);
     }
 
-    for (int id : m_shop_discard | last_two) {
+    for (int id : m_shop_discard | take_last<1>) {
         get_card(id).render(renderer);
     }
 
-    for (int id : m_shop_deck | std::views::reverse | std::views::take(1)) {
+    for (int id : m_shop_deck | take_last<2>) {
         get_card(id).render(renderer);
     }
 
@@ -98,7 +98,7 @@ void game_scene::render(sdl::renderer &renderer) {
         }
     }
 
-    for (int id : m_discard_pile | last_two) {
+    for (int id : m_discard_pile | take_last<2>) {
         get_card(id).render(renderer);
     }
 
@@ -233,10 +233,6 @@ void game_scene::find_overlay(const sdl::point &mouse_pt) {
     }
     if (!m_discard_pile.empty() && mouse_in_card(m_discard_pile.back())) {
         m_overlay = m_discard_pile.back();
-        return;
-    }
-    if (!m_shop_discard.empty() && mouse_in_card(m_shop_discard.back())) {
-        m_overlay = m_shop_discard.back();
         return;
     }
     for (const auto &[player_id, p] : m_players) {

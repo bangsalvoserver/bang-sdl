@@ -151,6 +151,14 @@ namespace banggame {
         void on_play(int origin_card_id, player *origin, player *target);
         void on_equip(player *target, int card_id);
     };
+
+    struct effect_dutch_will : card_effect {
+        void on_play(int origin_card_id, player *origin);
+    };
+
+    struct request_dutch_will : request_base {
+        void on_pick(const pick_card_args &args);
+    };
 }
 
 #endif

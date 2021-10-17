@@ -542,6 +542,8 @@ namespace banggame {
 
     void player::start_of_turn() {
         m_game->m_playing = this;
+        m_game->m_next_turn = m_game->get_next_player(this);
+
         m_bangs_played = 0;
         m_bangs_per_turn = 1;
         m_num_drawn_cards = 0;
@@ -580,6 +582,14 @@ namespace banggame {
         });
     }
 
+    void player::pass_turn() {
+        if (num_hand_cards() > max_cards_end_of_turn()) {
+            m_game->queue_request<request_type::discard_pass>(0, this, this);
+        } else {
+            end_of_turn();
+        }
+    }
+
     void player::end_of_turn() {
         for (auto &c : m_table) {
             if (c.inactive) {
@@ -588,11 +598,10 @@ namespace banggame {
             }
         }
         m_current_card_targets.clear();
-        m_game->m_playing = m_game->get_next_player(this);
         m_game->queue_event<event_type::on_turn_end>(this);
         m_game->queue_event<event_type::delayed_action>([this]{
             if (m_game->num_alive() > 0) {
-                m_game->m_playing->start_of_turn();
+                m_game->m_next_turn->start_of_turn();
             }
         });
     }

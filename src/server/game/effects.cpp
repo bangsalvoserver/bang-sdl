@@ -282,4 +282,32 @@ namespace banggame {
             }
         });
     }
+
+    struct rum_check_handler {
+        player *origin;
+
+        std::array<card_suit_type, 4> checks;
+        int count_checks;
+
+        void operator()(card_suit_type suit, card_value_type value) {
+            if (count_checks < 3) {
+                checks[count_checks++] = suit;
+                origin->m_game->draw_check_then(origin, std::move(*this), true);
+            } else {
+                origin->heal(std::distance(checks.begin(), std::unique(checks.begin(), checks.end())));
+            }
+        }
+    };
+
+    void effect_rum::on_play(int origin_card_id, player *origin) {
+        origin->m_game->draw_check_then(origin, rum_check_handler{origin}, true);
+    }
+
+    void effect_goldrush::on_play(int origin_card_id, player *origin) {
+        origin->m_game->m_next_turn = origin;
+        origin->pass_turn();
+        origin->m_game->queue_event<event_type::delayed_action>([=] {
+            origin->heal(origin->m_max_hp);
+        });
+    }
 }
