@@ -12,6 +12,8 @@ namespace banggame {
     };
 
     struct request_check : request_base {
+        bool invert_pop_req = false;
+        
         void on_pick(const pick_card_args &args);
     };
 

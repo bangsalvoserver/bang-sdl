@@ -218,7 +218,7 @@ namespace banggame {
         return c;
     }
 
-    void game::draw_check_then(player *p, draw_check_function fun, bool force_one) {
+    void game::draw_check_then(player *p, draw_check_function fun, bool force_one, bool invert_pop_req) {
         if (force_one || p->m_num_checks == 1) {
             auto &moved = add_to_discards(draw_card());
             auto suit = moved.suit;
@@ -230,7 +230,7 @@ namespace banggame {
             for (int i=0; i<p->m_num_checks; ++i) {
                 add_to_selection(draw_card());
             }
-            add_request<request_type::check>(0, p, p);
+            add_request<request_type::check>(0, p, p).invert_pop_req = invert_pop_req;
         }
     }
 

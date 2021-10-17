@@ -23,8 +23,11 @@ namespace banggame {
     struct card_pile_view : std::vector<int> {
         sdl::point pos;
         int width;
+        int hflip;
 
-        explicit card_pile_view(int width) : width(width) {}
+        explicit card_pile_view(int width, bool hflip = false)
+            : width(width)
+            , hflip(hflip ? -1 : 1) {}
 
         auto find(int card_id) const {
             return std::ranges::find(*this, card_id);
@@ -34,7 +37,8 @@ namespace banggame {
             if (size() == 1) {
                 return pos;
             }
-            float xoffset = std::min((float)width / (size() - 1), (float)(sizes::card_width + sizes::card_xoffset));
+            float xoffset = std::min(float(width) / (size() - 1), float(sizes::card_width + sizes::card_xoffset)) * hflip;
+
             return sdl::point{(int)(pos.x + xoffset *
                 (std::ranges::distance(begin(), find(card_id)) - (size() - 1) * .5f)),
                 pos.y};

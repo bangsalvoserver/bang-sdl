@@ -3312,6 +3312,15 @@
                     "target": "player self",
                     "class": "heal"
                 }
+            ],
+            "responses": [
+                {
+                    "target": "player self",
+                    "class": "heal"
+                },
+                {
+                    "class": "deathsave"
+                }
             ]
         }
     ]

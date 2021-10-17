@@ -285,6 +285,8 @@ void game_scene::on_click_selection_card(int card_id) {
 }
 
 void game_scene::on_click_shop_card(int card_id) {
+    m_play_card_args.flags &= ~(play_card_flags::sell_beer | play_card_flags::discard_black);
+
     auto &c = get_card(card_id);
     if (!m_highlights.empty() && card_id == m_highlights.front()) {
         clear_targets();
@@ -322,8 +324,15 @@ void game_scene::on_click_shop_card(int card_id) {
 }
 
 void game_scene::on_click_table_card(int player_id, int card_id) {
+    m_play_card_args.flags &= ~play_card_flags::sell_beer;
+
     auto &c = get_card(card_id);
-    if (!m_highlights.empty() && card_id == m_highlights.front()) {
+    if (bool(m_play_card_args.flags & play_card_flags::discard_black)) {
+        m_play_card_args.targets.emplace_back(enums::enum_constant<play_card_target_type::target_card>{},
+            std::vector{target_card_id{player_id, card_id, false}});
+        add_action<game_action_type::play_card>(m_play_card_args);
+        clear_targets();
+    } else if (!m_highlights.empty() && card_id == m_highlights.front()) {
         clear_targets();
     } else if (m_current_request.target_id == m_player_own_id && m_current_request.type != request_type::none) {
         if (is_picking_request(m_current_request.type)) {
@@ -372,8 +381,15 @@ void game_scene::on_click_table_card(int player_id, int card_id) {
 }
 
 void game_scene::on_click_hand_card(int player_id, int card_id) {
+    m_play_card_args.flags &= ~play_card_flags::discard_black;
+
     auto &c = get_card(card_id);
-    if (!m_highlights.empty() && card_id == m_highlights.front()) {
+    if (bool(m_play_card_args.flags & play_card_flags::sell_beer) && player_id == m_player_own_id) {
+        m_play_card_args.targets.emplace_back(enums::enum_constant<play_card_target_type::target_card>{},
+            std::vector{target_card_id{player_id, card_id, true}});
+        add_action<game_action_type::play_card>(m_play_card_args);
+        clear_targets();
+    } else if (!m_highlights.empty() && card_id == m_highlights.front()) {
         clear_targets();
     } else if (m_current_request.target_id == m_player_own_id && m_current_request.type != request_type::none) {
         if (is_picking_request(m_current_request.type)) {
@@ -430,6 +446,8 @@ void game_scene::on_click_hand_card(int player_id, int card_id) {
 }
 
 void game_scene::on_click_character(int player_id, int card_id) {
+    m_play_card_args.flags &= ~(play_card_flags::sell_beer | play_card_flags::discard_black);
+
     auto &c = *std::ranges::find(get_player(player_id).m_characters, card_id, &character_card::id);
     if (card_id == m_play_card_args.card_id) {
         clear_targets();
@@ -458,6 +476,8 @@ void game_scene::on_click_character(int player_id, int card_id) {
 }
 
 void game_scene::on_click_player(int player_id) {
+    m_play_card_args.flags &= ~(play_card_flags::sell_beer | play_card_flags::discard_black);
+
     if (m_play_card_args.card_id != 0) {
         if (m_current_request.target_id == m_player_own_id && m_current_request.type != request_type::none) {
             if (!is_picking_request(m_current_request.type)) {
@@ -466,6 +486,18 @@ void game_scene::on_click_player(int player_id) {
         } else if (m_playing_id == m_player_own_id) {
             add_player_targets(false, std::vector{target_player_id{player_id}});
         }
+    }
+}
+
+void game_scene::on_click_sell_beer() {
+    if (m_play_card_args.card_id == 0 && m_playing_id == m_player_own_id) {
+        m_play_card_args.flags ^= play_card_flags::sell_beer;
+    }
+}
+
+void game_scene::on_click_discard_black() {
+    if (m_play_card_args.card_id == 0 && m_playing_id == m_player_own_id) {
+        m_play_card_args.flags ^= play_card_flags::discard_black;
     }
 }
 

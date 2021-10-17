@@ -58,7 +58,9 @@ namespace banggame {
                 it->inactive = false;
                 m_game->add_public_update<game_update_type::tap_card>(it->id, false);
             }
-            auto &moved = m_game->add_to_discards(std::move(*it));
+            auto &moved = it->color == card_color_type::black
+                ? m_game->add_to_shop_discards(std::move(*it))
+                : m_game->add_to_discards(std::move(*it));
             m_table.erase(it);
             m_game->queue_event<event_type::post_discard_card>(this, card_id);
             moved.on_unequip(this);
@@ -381,7 +383,28 @@ namespace banggame {
     }
 
     void player::play_card(const play_card_args &args) {
-        if (auto card_it = std::ranges::find(m_characters, args.card_id, &character::id); card_it != m_characters.end()) {
+        if (bool(args.flags & play_card_flags::sell_beer)) {
+            if (args.targets.size() != 1
+                || !args.targets.front().is(play_card_target_type::target_card)) throw game_error("Azione non valida");
+            const auto &l = args.targets.front().get<play_card_target_type::target_card>();
+            if (l.size() != 1) throw game_error("Azione non valida");
+            const auto &c = find_card(l.front().card_id);
+            if (c.effects.empty() || !c.effects.front().is(effect_type::beer)) throw game_error("Azione non valida");
+            discard_card(c.id);
+            add_gold(1);
+            m_game->queue_event<event_type::on_play_beer>(this);
+        } else if (bool(args.flags & play_card_flags::discard_black)) {
+            if (args.targets.size() != 1
+                || !args.targets.front().is(play_card_target_type::target_card)) throw game_error("Azione non valida");
+            const auto &l = args.targets.front().get<play_card_target_type::target_card>();
+            if (l.size() != 1) throw game_error("Azione non valida");
+            auto *p = m_game->get_player(l.front().player_id);
+            auto &c = p->find_card(l.front().card_id);
+            if (c.color != card_color_type::black) throw game_error("Azione non valida");
+            if (m_gold < c.buy_cost + 1) throw game_error("Non hai abbastanza pepite");
+            add_gold(-c.buy_cost - 1);
+            p->discard_card(c.id);
+        } else if (auto card_it = std::ranges::find(m_characters, args.card_id, &character::id); card_it != m_characters.end()) {
             switch (card_it->type) {
             case character_type::active:
                 if (m_num_drawn_cards < m_num_cards_to_draw) throw game_error("Devi pescare");
@@ -504,6 +527,7 @@ namespace banggame {
                 }
                 break;
             case card_color_type::blue:
+            case card_color_type::black:
                 if (can_respond(*card_it)) {
                     verify_card_targets(*card_it, true, args.targets);
                     do_play_card(args.card_id, true, args.targets);

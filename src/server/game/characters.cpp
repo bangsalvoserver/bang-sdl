@@ -417,7 +417,7 @@ namespace banggame {
                             ++usages;
                             p->m_game->m_next_turn = p;
                         }
-                    });
+                    }, false, true);
                 } else {
                     usages = 0;
                 }

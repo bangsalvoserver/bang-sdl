@@ -14,6 +14,12 @@ game_ui::game_ui(game_scene *parent)
     , m_resolve_btn("Risolvi", [parent] {
         parent->add_resolve_action();
     })
+    , m_sell_beer_btn("Vendi birra", [parent] {
+        parent->on_click_sell_beer();
+    })
+    , m_discard_black_btn("Scarta nera", [parent] {
+        parent->on_click_discard_black();
+    })
     , m_leave_btn("Esci", [parent] {
         parent->parent->add_message<client_message_type::lobby_leave>();
     })
@@ -26,6 +32,9 @@ void game_ui::resize(int width, int height) {
     
     m_pass_btn.set_rect(sdl::rect{340, height - 50, 100, 25});
     m_resolve_btn.set_rect(sdl::rect{450, height - 50, 100, 25});
+    m_sell_beer_btn.set_rect(sdl::rect{560, height - 50, 100, 25});
+    m_discard_black_btn.set_rect(sdl::rect{670, height - 50, 100, 25});
+
     m_leave_btn.set_rect(sdl::rect{20, 20, 100, 25});
     m_restart_btn.set_rect(sdl::rect{140, 20, 100, 25});
 }
@@ -35,6 +44,9 @@ void game_ui::render(sdl::renderer &renderer) {
 
     m_pass_btn.render(renderer);
     m_resolve_btn.render(renderer);
+    m_sell_beer_btn.render(renderer);
+    m_discard_black_btn.render(renderer);
+    
     m_leave_btn.render(renderer);
     m_restart_btn.render(renderer);
 

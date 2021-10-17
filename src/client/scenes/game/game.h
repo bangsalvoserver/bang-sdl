@@ -77,6 +77,9 @@ namespace banggame {
         void on_click_character(int player_id, int card_id);
         void on_click_player(int player_id);
 
+        void on_click_sell_beer();
+        void on_click_discard_black();
+
         void handle_auto_targets(bool is_response);
         void add_card_target(bool is_response, const target_card_id &target);
         void add_player_targets(bool is_response, const std::vector<target_player_id> &targets);
@@ -89,7 +92,7 @@ namespace banggame {
 
         card_pile_view m_shop_deck{0};
         card_pile_view m_shop_discard{0};
-        card_pile_view m_shop_selection{sizes::shop_selection_width};
+        card_pile_view m_shop_selection{sizes::shop_selection_width, true};
 
         card_pile_view m_main_deck{0};
         card_pile_view m_discard_pile{0};

@@ -238,7 +238,7 @@ namespace banggame {
 
         deck_card draw_shop_card();
 
-        void draw_check_then(player *p, draw_check_function fun, bool force_one = false);
+        void draw_check_then(player *p, draw_check_function fun, bool force_one = false, bool invert_pop_req = false);
         void resolve_check(int card_id);
 
         void disable_table_cards(int player_id);

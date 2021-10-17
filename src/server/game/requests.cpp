@@ -17,8 +17,13 @@ namespace banggame {
 
     void request_check::on_pick(const pick_card_args &args) {
         if (args.pile == card_pile_type::selection) {
-            target->m_game->pop_request();
-            target->m_game->resolve_check(args.card_id);
+            if (invert_pop_req) {
+                target->m_game->resolve_check(args.card_id);
+                target->m_game->pop_request();
+            } else {
+                target->m_game->pop_request();
+                target->m_game->resolve_check(args.card_id);
+            }
         }
     }
 
