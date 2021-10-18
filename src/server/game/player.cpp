@@ -564,8 +564,8 @@ namespace banggame {
     }
 
     void player::start_of_turn() {
+        m_game->m_next_turn = nullptr;
         m_game->m_playing = this;
-        m_game->m_next_turn = m_game->get_next_player(this);
 
         m_bangs_played = 0;
         m_bangs_per_turn = 1;
@@ -624,7 +624,11 @@ namespace banggame {
         m_game->queue_event<event_type::on_turn_end>(this);
         m_game->queue_event<event_type::delayed_action>([this]{
             if (m_game->num_alive() > 0) {
-                m_game->m_next_turn->start_of_turn();
+                if (m_game->m_next_turn) {
+                    m_game->m_next_turn->start_of_turn();
+                } else {
+                    m_game->get_next_player(this)->start_of_turn();
+                }
             }
         });
     }
