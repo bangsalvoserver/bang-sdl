@@ -12,8 +12,7 @@ find_package(SDL2_ttf REQUIRED)
 find_package(SDL2_image REQUIRED)
 find_package(SDL2_gfx REQUIRED)
 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(jsoncpp REQUIRED jsoncpp IMPORTED_TARGET)
+add_subdirectory(external/jsoncpp)
 
 set(bangclient_srcs
     src/client/main.cpp
@@ -50,7 +49,7 @@ add_subdirectory(resources)
 find_package(Boost REQUIRED)
 
 add_executable(bangclient ${bangclient_srcs})
-target_link_libraries(bangclient SDL2::Main SDL2::Net SDL2::TTF SDL2::Image SDL2::GFX PkgConfig::jsoncpp)
+target_link_libraries(bangclient SDL2::Main SDL2::Net SDL2::TTF SDL2::Image SDL2::GFX jsoncpp_lib)
 if(WIN32)
     target_link_options(bangclient PRIVATE -mconsole)
 endif()
@@ -63,7 +62,7 @@ else()
 endif()
 
 add_executable(bangserver ${bangserver_srcs})
-target_link_libraries(bangserver SDL2::Main SDL2::Net PkgConfig::jsoncpp bang_cards)
+target_link_libraries(bangserver SDL2::Main SDL2::Net jsoncpp_lib bang_cards)
 if(WIN32)
     target_link_options(bangserver PRIVATE -mconsole)
 endif()
