@@ -204,7 +204,7 @@ namespace banggame {
         }
 
         void pop_events() {
-            while (!m_pending_events.empty()) {
+            while (m_requests.empty() && !m_pending_events.empty()) {
                 handle_event(m_pending_events.front());
                 m_pending_events.pop_front();
             }

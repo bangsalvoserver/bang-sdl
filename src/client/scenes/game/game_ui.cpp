@@ -4,6 +4,7 @@
 #include "../../manager.h"
 
 using namespace banggame;
+using namespace enums::flag_operators;
 
 game_ui::game_ui(game_scene *parent)
     : parent(parent)
@@ -63,6 +64,18 @@ void game_ui::render(sdl::renderer &renderer) {
         m_error_text.set_rect(error_rect);
         m_error_text.render(renderer);
         --m_error_timeout;
+    }
+}
+
+void game_ui::render_highlights(sdl::renderer &renderer, play_card_flags flags) {
+    if (bool(flags & play_card_flags::sell_beer)) {
+        renderer.set_draw_color(sdl::color{0xff, 0x0, 0x0, 0xff});
+        renderer.draw_rect(m_sell_beer_btn.get_rect());
+    }
+
+    if (bool(flags & play_card_flags::discard_black)) {
+        renderer.set_draw_color(sdl::color{0xff, 0x0, 0x0, 0xff});
+        renderer.draw_rect(m_discard_black_btn.get_rect());
     }
 }
 

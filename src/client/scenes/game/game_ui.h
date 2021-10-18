@@ -2,6 +2,7 @@
 #define __GAME_UI_H__
 
 #include "../widgets/chat_ui.h"
+#include "common/game_action.h"
 
 namespace banggame {
 
@@ -11,6 +12,7 @@ namespace banggame {
 
         void resize(int width, int height);
         void render(sdl::renderer &renderer);
+        void render_highlights(sdl::renderer &renderer, play_card_flags flags);
 
         void add_message(const std::string &message);
         void show_error(const std::string &message);

@@ -5,6 +5,8 @@
 #include "sdlnet.h"
 #include "svstream.h"
 
+#include <iostream>
+
 namespace util {
 
     template<typename T>

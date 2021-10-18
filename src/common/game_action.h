@@ -2,6 +2,7 @@
 #define __GAME_ACTION_H__
 
 #include "utils/json_serial.h"
+#include "card_enums.h"
 
 namespace banggame {
 

@@ -116,6 +116,7 @@ void game_scene::render(sdl::renderer &renderer) {
     }
 
     m_ui.render(renderer);
+    m_ui.render_highlights(renderer, m_play_card_args.flags);
 
     if (m_overlay) {
         sdl::texture *tex = nullptr;
