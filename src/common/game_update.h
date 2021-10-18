@@ -16,10 +16,16 @@ namespace banggame {
         (pile, card_pile_type)
     )
 
+    DEFINE_ENUM_FLAGS_IN_NS(banggame, show_card_flags,
+        (short_pause)
+        (no_animation)
+    )
+
     DEFINE_SERIALIZABLE(move_card_update,
         (card_id, int)
         (player_id, int)
         (pile, card_pile_type)
+        (flags, show_card_flags)
     )
 
     DEFINE_SERIALIZABLE(card_target_data,
@@ -52,7 +58,7 @@ namespace banggame {
         (suit, card_suit_type)
         (value, card_value_type)
         (color, card_color_type)
-        (short_pause, bool)
+        (flags, show_card_flags)
     )
 
     DEFINE_SERIALIZABLE(player_character_update,
@@ -70,6 +76,7 @@ namespace banggame {
 
     DEFINE_SERIALIZABLE(hide_card_update,
         (card_id, int)
+        (flags, show_card_flags)
     )
 
     DEFINE_SERIALIZABLE(tap_card_update,

@@ -794,7 +794,12 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::move_card>
     } else {
         anim.add_move_card(c);
     }
-    m_animations.emplace_back(20, std::move(anim));
+    if (bool(args.flags & show_card_flags::no_animation)) {
+        anim.do_animation(1.f);
+        pop_update();
+    } else {
+        m_animations.emplace_back(20, std::move(anim));
+    }
 }
 
 void game_scene::handle_update(enums::enum_constant<game_update_type::virtual_card>, const virtual_card_update &args) {
@@ -827,10 +832,15 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::show_card>
         } else if (c.pile == &m_shop_deck) {
             std::swap(*std::ranges::find(m_shop_deck, c.id), m_shop_deck.back());
         }
-        m_animations.emplace_back(10, card_flip_animation{&c, false});
+        if (bool(args.flags & show_card_flags::no_animation)) {
+            c.flip_amt = 1.f;
+            pop_update();
+        } else {
+            m_animations.emplace_back(10, card_flip_animation{&c, false});
 
-        if (args.short_pause) {
-            m_animations.emplace_back(10, pause_animation{});
+            if (bool(args.flags & show_card_flags::short_pause)) {
+                m_animations.emplace_back(10, pause_animation{});
+            }
         }
 
     } else {
@@ -842,7 +852,16 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::hide_card>
     auto &c = get_card(args.card_id);
     if (c.known) {
         c.known = false;
-        m_animations.emplace_back(10, card_flip_animation{&c, true});
+        if (bool(args.flags & show_card_flags::no_animation)) {
+            c.flip_amt = 0.f;
+            pop_update();
+        } else {
+            m_animations.emplace_back(10, card_flip_animation{&c, true});
+
+            if (bool(args.flags & show_card_flags::short_pause)) {
+                m_animations.emplace_back(20, pause_animation{});
+            }
+        }
     } else {
         pop_update();
     }

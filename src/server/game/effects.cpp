@@ -153,11 +153,11 @@ namespace banggame {
     }
 
     void effect_destroy::on_play(int origin_card_id, player *origin, player *target, int card_id) {
-        target->m_game->queue_event<event_type::on_discard_card>(origin, target, card_id);
         if (flightable && origin != target) {
             auto &req = target->m_game->queue_request<request_type::destroy>(origin_card_id, origin, target, true);
             req.card_id = card_id;
         } else {
+            target->m_game->queue_event<event_type::on_discard_card>(origin, target, card_id);
             target->m_game->queue_event<event_type::delayed_action>([=]{
                 target->discard_card(card_id);
             });
@@ -165,11 +165,11 @@ namespace banggame {
     }
 
     void effect_steal::on_play(int origin_card_id, player *origin, player *target, int card_id) {
-        target->m_game->queue_event<event_type::on_discard_card>(origin, target, card_id);
         if (flightable && origin != target) {
             auto &req = target->m_game->queue_request<request_type::steal>(origin_card_id, origin, target, true);
             req.card_id = card_id;
         } else {
+            target->m_game->queue_event<event_type::on_discard_card>(origin, target, card_id);
             target->m_game->queue_event<event_type::delayed_action>([=]{
                 origin->steal_card(target, card_id);
             });
@@ -313,14 +313,14 @@ namespace banggame {
 
     static void swap_shop_choice_in(int origin_card_id, player *origin, effect_type type) {
         for (auto &c : origin->m_game->m_shop_selection) {
-            origin->m_game->move_to(std::move(c), card_pile_type::shop_hidden);
+            origin->m_game->move_to(std::move(c), card_pile_type::shop_hidden, true, nullptr, show_card_flags::no_animation);
         }
         origin->m_game->m_shop_selection.clear();
 
         auto &vec = origin->m_game->m_shop_hidden;
         for (auto it = vec.begin(); it != vec.end(); ) {
             if (!it->responses.empty() && it->responses.front().is(type)) {
-                origin->m_game->move_to(std::move(*it), card_pile_type::shop_selection);
+                origin->m_game->move_to(std::move(*it), card_pile_type::shop_selection, true, nullptr, show_card_flags::no_animation);
                 it = vec.erase(it);
             } else {
                 ++it;
@@ -343,15 +343,16 @@ namespace banggame {
     }
 
     void effect_shopchoice::on_play(int origin_card_id, player *origin) {
+        int n_choice = origin->m_game->m_shop_selection.size();
         for (auto &c : origin->m_game->m_shop_selection) {
-            origin->m_game->move_to(std::move(c), card_pile_type::shop_hidden);
+            origin->m_game->move_to(std::move(c), card_pile_type::shop_hidden, true, nullptr, show_card_flags::no_animation);
         }
         origin->m_game->m_shop_selection.clear();
 
-        auto end = origin->m_game->m_shop_hidden.end() - 3;
+        auto end = origin->m_game->m_shop_hidden.end() - n_choice;
         auto begin = end - 2;
         for (auto it = begin; it != end; ++it) {
-            origin->m_game->move_to(std::move(*it), card_pile_type::shop_selection);
+            origin->m_game->move_to(std::move(*it), card_pile_type::shop_selection, true, nullptr, show_card_flags::no_animation);
         }
         origin->m_game->m_shop_hidden.erase(begin, end);
         origin->m_game->pop_request();

@@ -29,25 +29,22 @@ namespace banggame {
         return info;
     }
 
-    void game::send_card_update(const deck_card &c, player *owner, bool short_pause) {
+    void game::send_card_update(const deck_card &c, player *owner, show_card_flags flags) {
         show_card_update obj;
         obj.info = make_card_info(c);
         obj.suit = c.suit;
         obj.value = c.value;
         obj.color = c.color;
-        obj.short_pause = short_pause;
+        obj.flags = flags;
 
         if (!owner) {
             add_public_update<game_update_type::show_card>(obj);
         } else {
-            hide_card_update hide;
-            hide.card_id = c.id;
-
             for (auto &p : m_players) {
                 if (&p == owner) {
                     add_private_update<game_update_type::show_card>(&p, obj);
                 } else {
-                    add_private_update<game_update_type::hide_card>(&p, hide);
+                    add_private_update<game_update_type::hide_card>(&p, c.id, flags);
                 }
             }
         }
@@ -64,13 +61,13 @@ namespace banggame {
         add_public_update<game_update_type::player_add_character>(std::move(obj));
     }
     
-    deck_card &game::move_to(deck_card &&c, card_pile_type pile, bool known, player *owner) {
+    deck_card &game::move_to(deck_card &&c, card_pile_type pile, bool known, player *owner, show_card_flags flags) {
         if (known) {
-            send_card_update(c, owner);
+            send_card_update(c, owner, flags);
         } else {
-            add_public_update<game_update_type::hide_card>(c.id);
+            add_public_update<game_update_type::hide_card>(c.id, flags);
         }
-        add_public_update<game_update_type::move_card>(c.id, 0, pile);
+        add_public_update<game_update_type::move_card>(c.id, 0, pile, flags);
         return [this, pile] () -> std::vector<deck_card>& {
             switch (pile) {
             case card_pile_type::main_deck:         return m_deck;

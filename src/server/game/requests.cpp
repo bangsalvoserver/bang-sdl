@@ -93,14 +93,14 @@ namespace banggame {
     }
 
     void request_destroy::on_resolve() {
-        effect_destroy{}.on_play(origin_card_id, origin, target, card_id);
         target->m_game->pop_request();
+        effect_destroy{}.on_play(origin_card_id, origin, target, card_id);
         target->m_game->queue_event<event_type::on_effect_end>(origin);
     }
 
     void request_steal::on_resolve() {
-        effect_steal{}.on_play(origin_card_id, origin, target, card_id);
         target->m_game->pop_request();
+        effect_steal{}.on_play(origin_card_id, origin, target, card_id);
         target->m_game->queue_event<event_type::on_effect_end>(origin);
     }
 

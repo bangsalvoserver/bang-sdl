@@ -106,7 +106,7 @@ namespace banggame {
                 std::make_tuple(enums::enum_constant<E>{}, std::forward<Ts>(args) ...));
         }
 
-        void send_card_update(const deck_card &c, player *owner = nullptr, bool short_pause = false);
+        void send_card_update(const deck_card &c, player *owner = nullptr, show_card_flags flags = enums::flags_none<show_card_flags>);
         void send_character_update(const character &c, int player_id, int index);
 
         void start_game(const game_options &options);
@@ -210,7 +210,7 @@ namespace banggame {
             }
         }
 
-        deck_card &move_to(deck_card &&c, card_pile_type pile, bool known = true, player *owner = nullptr);
+        deck_card &move_to(deck_card &&c, card_pile_type pile, bool known = true, player *owner = nullptr, show_card_flags flags = enums::flags_none<show_card_flags>);
 
         deck_card draw_card();
         deck_card draw_from_discards();
