@@ -471,11 +471,11 @@ namespace banggame {
             }
         } else if (auto card_it = std::ranges::find(m_game->m_shop_selection, args.card_id, &deck_card::id); card_it != m_table.end()) {
             if (m_num_drawn_cards < m_num_cards_to_draw) throw game_error("Devi pescare");
-            if (m_gold >= card_it->buy_cost) {
+            if (m_gold >= card_it->buy_cost - m_discount) {
                 switch (card_it->color) {
                 case card_color_type::brown:
                     verify_card_targets(*card_it, false, args.targets);
-                    add_gold(-card_it->buy_cost);
+                    add_gold(m_discount - card_it->buy_cost);
                     do_play_card(args.card_id, false, args.targets);
                     m_game->queue_event<event_type::delayed_action>([this]{
                         m_game->move_to(m_game->draw_shop_card(), card_pile_type::shop_selection);
@@ -485,13 +485,17 @@ namespace banggame {
                     verify_equip_target(*card_it, args.targets);
                     auto *target = m_game->get_player(args.targets.front().get<play_card_target_type::target_player>().front().player_id);
                     if (target->has_card_equipped(card_it->name)) throw game_error("Carta duplicata");
-                    add_gold(-card_it->buy_cost);
+                    add_gold(m_discount - card_it->buy_cost);
                     deck_card removed = std::move(*card_it);
                     m_game->m_shop_selection.erase(card_it);
                     target->equip_card(std::move(removed));
                     m_game->move_to(m_game->draw_shop_card(), card_pile_type::shop_selection);
                     m_game->queue_event<event_type::on_effect_end>(this);
                     break;
+                }
+                if (m_discount > 0) {
+                    m_game->queue_event<event_type::on_apply_discount>();
+                    m_discount = 0;
                 }
             } else {
                 throw game_error("Non hai abbastanza pepite");
@@ -520,31 +524,15 @@ namespace banggame {
             }
         } else if (auto card_it = std::ranges::find(m_table, args.card_id, &deck_card::id); card_it != m_table.end()) {
             if (m_game->table_cards_disabled(id)) throw game_error("Le carte in gioco sono disabilitate");
-            switch (card_it->color) {
-            case card_color_type::green:
-                if (card_it->inactive) throw game_error("Carta non attiva in questo turno");
-                if (can_respond(*card_it)) {
-                    verify_card_targets(*card_it, true, args.targets);
-                    do_play_card(args.card_id, true, args.targets);
-                }
-                break;
-            case card_color_type::blue:
-            case card_color_type::black:
-                if (can_respond(*card_it)) {
-                    verify_card_targets(*card_it, true, args.targets);
-                    do_play_card(args.card_id, true, args.targets);
-                }
-                break;
+            if (card_it->inactive) throw game_error("Carta non attiva in questo turno");
+            if (can_respond(*card_it)) {
+                verify_card_targets(*card_it, true, args.targets);
+                do_play_card(args.card_id, true, args.targets);
             }
         } else if (auto card_it = std::ranges::find(m_game->m_shop_selection, args.card_id, &deck_card::id); card_it != m_table.end()) {
             if (m_num_drawn_cards < m_num_cards_to_draw) throw game_error("Devi pescare");
-            if (m_gold >= card_it->buy_cost) {
-                verify_card_targets(*card_it, true, args.targets);
-                add_gold(-card_it->buy_cost);
-                do_play_card(args.card_id, true, args.targets);
-            } else {
-                throw game_error("Non hai abbastanza pepite");
-            }
+            verify_card_targets(*card_it, true, args.targets);
+            do_play_card(args.card_id, true, args.targets);
         } else {
             throw game_error("server.respond_card: ID non trovato");
         }

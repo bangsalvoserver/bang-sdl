@@ -2791,12 +2791,17 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Pretty Luzena",
             "image": "04_pretty_luzena",
             "hp": 4,
             "expansion": "goldrush",
+            "type": "active",
             "effects": [
+                {
+                    "class": "pretty_luzena"
+                }
+            ],
+            "equip": [
                 {
                     "class": "pretty_luzena"
                 }

@@ -159,6 +159,11 @@ namespace banggame {
     struct request_dutch_will : request_base {
         void on_pick(const pick_card_args &args);
     };
+
+    struct effect_pretty_luzena : event_based_effect {
+        void on_play(int origin_card_id, player *origin);
+        void on_equip(player *origin, int card_id);
+    };
 }
 
 #endif

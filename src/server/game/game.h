@@ -37,6 +37,7 @@ namespace banggame {
         (on_turn_start,     std::function<void(player *origin)>)
         (on_turn_end,       std::function<void(player *origin)>)
         (on_draw_from_deck, std::function<void(player *origin)>)
+        (on_apply_discount, std::function<void()>)
         (on_game_start,     std::function<void()>)
     )
 

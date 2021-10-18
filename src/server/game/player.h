@@ -13,6 +13,7 @@ namespace banggame {
     struct game;
     
     using draw_check_function = std::function<void(card_suit_type, card_value_type)>;
+    using bang_modifier = std::function<void(request_bang &req)>;
 
     struct player : public util::id_counter<player> {
         game *m_game;
@@ -48,8 +49,8 @@ namespace banggame {
         int m_bangs_played = 0;
         int m_bangs_per_turn = 1;
 
-        using bang_modifier = std::function<void(request_bang &req)>;
         std::list<bang_modifier> m_bang_mods;
+
         bool m_cant_play_missedcard = false;
 
         int m_beer_strength = 1;
@@ -62,7 +63,8 @@ namespace banggame {
         int m_last_played_card = 0;
 
         int m_gold = 0;
-
+        int m_discount = 0;
+        
         std::vector<int> m_max_cards_mods;
         std::multimap<int, int> m_current_card_targets;
 
