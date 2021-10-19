@@ -1,10 +1,5 @@
 function(compile_resources out_list)
     foreach(file IN LISTS ARGN)
-        if (TARGET ${file})
-            set(target_file "${CMAKE_BINARY_DIR}/cards.pak")
-        else()
-            set(target_file "${CMAKE_CURRENT_SOURCE_DIR}/${file}")
-        endif()
         get_filename_component(varname "${file}" NAME)
         string(MAKE_C_IDENTIFIER "${varname}" varname)
 
@@ -14,7 +9,7 @@ function(compile_resources out_list)
         add_custom_command(
             OUTPUT "${resource_c_file}"
             COMMAND ${CMAKE_COMMAND}
-                -D "resource_file_name=${target_file}"
+                -D "resource_file_name=${CMAKE_CURRENT_SOURCE_DIR}/${file}"
                 -D "source_file_name=${resource_c_file}"
                 -D "variable_name=__resource__${varname}"
                 -P "${CMAKE_CURRENT_SOURCE_DIR}/EmbedResource.cmake"
@@ -43,6 +38,3 @@ add_custom_command(
     VERBATIM
 )
 add_custom_target(cards_pak DEPENDS "${CMAKE_BINARY_DIR}/cards.pak")
-
-compile_resources(card_images cards_pak)
-add_library(card_images OBJECT ${card_images})
