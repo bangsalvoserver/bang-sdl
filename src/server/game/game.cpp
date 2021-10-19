@@ -60,26 +60,6 @@ namespace banggame {
         
         add_public_update<game_update_type::player_add_character>(std::move(obj));
     }
-    
-    deck_card &game::move_to(deck_card &&c, card_pile_type pile, bool known, player *owner, show_card_flags flags) {
-        if (known) {
-            send_card_update(c, owner, flags);
-        } else {
-            add_public_update<game_update_type::hide_card>(c.id, flags);
-        }
-        add_public_update<game_update_type::move_card>(c.id, 0, pile, flags);
-        return [this, pile] () -> std::vector<deck_card>& {
-            switch (pile) {
-            case card_pile_type::main_deck:         return m_deck;
-            case card_pile_type::discard_pile:      return m_discards;
-            case card_pile_type::selection:         return m_selection;
-            case card_pile_type::shop_selection:    return m_shop_selection;
-            case card_pile_type::shop_discard:      return m_shop_discards;
-            case card_pile_type::shop_hidden:       return m_shop_hidden;
-            default: throw std::runtime_error("Pila non valida");
-            }
-        }().emplace_back(std::move(c));
-    }
 
     void game::start_game(const game_options &options) {
         add_event<event_type::delayed_action>(0, [](std::function<void()> fun) { fun(); });
@@ -162,14 +142,14 @@ namespace banggame {
         for (int i=0; i<max_initial_cards; ++i) {
             for (auto &p : m_players) {
                 if (p.m_hand.size() < p.get_initial_cards()) {
-                    p.add_to_hand(draw_card());
+                    draw_card_to(card_pile_type::player_hand, &p);
                 }
             }
         }
 
         if (!m_shop_deck.empty()) {
             for (int i=0; i<3; ++i) {
-                move_to(draw_shop_card(), card_pile_type::shop_selection);
+                draw_shop_card();
             }
         }
 
@@ -200,7 +180,31 @@ namespace banggame {
         }
     }
 
-    deck_card game::draw_card() {
+    deck_card &game::move_to(deck_card &&c, card_pile_type pile, bool known, player *owner, show_card_flags flags) {
+        if (known) {
+            send_card_update(c, owner, flags);
+        } else {
+            add_public_update<game_update_type::hide_card>(c.id, flags);
+        }
+        add_public_update<game_update_type::move_card>(c.id, owner ? owner->id : 0, pile, flags);
+        return [this, pile, owner] () -> std::vector<deck_card>& {
+            switch (pile) {
+            case card_pile_type::player_hand:       return owner->m_hand;
+            case card_pile_type::player_table:      return owner->m_table;
+            case card_pile_type::main_deck:         return m_deck;
+            case card_pile_type::discard_pile:      return m_discards;
+            case card_pile_type::selection:         return m_selection;
+            case card_pile_type::shop_selection:    return m_shop_selection;
+            case card_pile_type::shop_discard:      return m_shop_discards;
+            case card_pile_type::shop_hidden:       return m_shop_hidden;
+            default: throw std::runtime_error("Pila non valida");
+            }
+        }().emplace_back(std::move(c));
+    }
+
+    deck_card &game::draw_card_to(card_pile_type pile, player *owner, show_card_flags flags) {
+        auto &moved = move_to(std::move(m_deck.back()), pile, true, owner, flags);
+        m_deck.pop_back();
         if (m_deck.empty()) {
             deck_card top_discards = std::move(m_discards.back());
             m_discards.resize(m_discards.size()-1);
@@ -210,21 +214,19 @@ namespace banggame {
             shuffle_cards_and_ids(m_deck, rng);
             add_public_update<game_update_type::deck_shuffled>(card_pile_type::main_deck);
         }
-        deck_card c = std::move(m_deck.back());
-        m_deck.pop_back();
-        return c;
+        return moved;
     }
 
-    deck_card game::draw_shop_card() {
+    deck_card &game::draw_shop_card() {
+        auto &moved = move_to(std::move(m_shop_deck.back()), card_pile_type::shop_selection);
+        m_shop_deck.pop_back();
         if (m_shop_deck.empty()) {
             m_shop_deck = std::move(m_shop_discards);
             m_shop_discards.clear();
             shuffle_cards_and_ids(m_shop_deck, rng);
             add_public_update<game_update_type::deck_shuffled>(card_pile_type::shop_deck);
         }
-        deck_card c = std::move(m_shop_deck.back());
-        m_shop_deck.pop_back();
-        return c;
+        return moved;
     }
 
     deck_card game::draw_from_discards() {
@@ -243,7 +245,7 @@ namespace banggame {
 
     void game::draw_check_then(player *p, draw_check_function fun, bool force_one, bool invert_pop_req) {
         if (force_one || p->m_num_checks == 1) {
-            auto &moved = move_to(draw_card(), card_pile_type::discard_pile);
+            auto &moved = draw_card_to(card_pile_type::discard_pile);
             auto suit = moved.suit;
             auto value = moved.value;
             queue_event<event_type::on_draw_check>(moved.id);
@@ -251,7 +253,7 @@ namespace banggame {
         } else {
             m_pending_checks.push_back(std::move(fun));
             for (int i=0; i<p->m_num_checks; ++i) {
-                move_to(draw_card(), card_pile_type::selection);
+                draw_card_to(card_pile_type::selection);
             }
             add_request<request_type::check>(0, p, p).invert_pop_req = invert_pop_req;
         }
@@ -309,9 +311,9 @@ namespace banggame {
             if (m_players.size() > 3) {
                 switch (target->m_role) {
                 case player_role::outlaw:
-                    killer->add_to_hand(target->m_game->draw_card());
-                    killer->add_to_hand(target->m_game->draw_card());
-                    killer->add_to_hand(target->m_game->draw_card());
+                    draw_card_to(card_pile_type::player_hand, killer);
+                    draw_card_to(card_pile_type::player_hand, killer);
+                    draw_card_to(card_pile_type::player_hand, killer);
                     break;
                 case player_role::deputy:
                     if (killer->m_role == player_role::sheriff) {
@@ -320,9 +322,9 @@ namespace banggame {
                     break;
                 }
             } else {
-                killer->add_to_hand(target->m_game->draw_card());
-                killer->add_to_hand(target->m_game->draw_card());
-                killer->add_to_hand(target->m_game->draw_card());
+                draw_card_to(card_pile_type::player_hand, killer);
+                draw_card_to(card_pile_type::player_hand, killer);
+                draw_card_to(card_pile_type::player_hand, killer);
             }
         }
     }

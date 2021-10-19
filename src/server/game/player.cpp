@@ -117,10 +117,7 @@ namespace banggame {
     }
 
     deck_card &player::add_to_hand(deck_card &&target) {
-        auto &moved = m_hand.emplace_back(std::move(target));
-        m_game->send_card_update(moved, this);
-        m_game->add_public_update<game_update_type::move_card>(moved.id, id, card_pile_type::player_hand);
-        return moved;
+        return m_game->move_to(std::move(target), card_pile_type::player_hand, true, this);
     }
 
     static bool player_in_range(player *origin, player *target, int distance) {
@@ -478,7 +475,7 @@ namespace banggame {
                     add_gold(m_discount - card_it->buy_cost);
                     do_play_card(args.card_id, false, args.targets);
                     m_game->queue_event<event_type::delayed_action>([this]{
-                        m_game->move_to(m_game->draw_shop_card(), card_pile_type::shop_selection);
+                        m_game->draw_shop_card();
                     });
                 break;
                 case card_color_type::black:
@@ -489,7 +486,7 @@ namespace banggame {
                     deck_card removed = std::move(*card_it);
                     m_game->m_shop_selection.erase(card_it);
                     target->equip_card(std::move(removed));
-                    m_game->move_to(m_game->draw_shop_card(), card_pile_type::shop_selection);
+                    m_game->draw_shop_card();
                     m_game->queue_event<event_type::on_effect_end>(this);
                     break;
                 }
@@ -541,7 +538,7 @@ namespace banggame {
     void player::draw_from_deck() {
         if (std::ranges::find(m_characters, character_type::drawing_forced, &character::type) == m_characters.end()) {
             for (; m_num_drawn_cards<m_num_cards_to_draw; ++m_num_drawn_cards) {
-                add_to_hand(m_game->draw_card());
+                m_game->draw_card_to(card_pile_type::player_hand, this);
             }
             m_game->queue_event<event_type::on_draw_from_deck>(this);
             m_game->add_private_update<game_update_type::status_clear>(this);

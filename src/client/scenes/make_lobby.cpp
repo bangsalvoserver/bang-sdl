@@ -51,5 +51,5 @@ void make_lobby_scene::do_make_lobby() {
         m_lobbyname_box.get_value(),
         m_username_box.get_value(),
         enums::flags_all<banggame::card_expansion_type>,
-        7);
+        8);
 }

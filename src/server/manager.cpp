@@ -91,7 +91,7 @@ void game_manager::handle_message(enums::enum_constant<client_message_type::lobb
     new_lobby.owner = addr;
     new_lobby.name = value.lobby_name;
     new_lobby.state = lobby_state::waiting;
-    new_lobby.maxplayers = value.max_players;
+    new_lobby.maxplayers = std::clamp(value.max_players, 2, 8);
     new_lobby.allowed_expansions = value.expansions;
     m_lobbies.push_back(new_lobby);
 

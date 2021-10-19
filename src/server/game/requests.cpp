@@ -119,8 +119,8 @@ namespace banggame {
         if (args.pile == card_pile_type::player_hand && args.player_id == target->id) {
             auto &moved = target->discard_card(args.card_id);
             if (!flightable || moved.responses.empty() || !moved.responses.front().is(effect_type::flight)) {
-                target->add_to_hand(target->m_game->draw_card());
-                target->add_to_hand(target->m_game->draw_card());
+                target->m_game->draw_card_to(card_pile_type::player_hand, target);
+                target->m_game->draw_card_to(card_pile_type::player_hand, target);
             }
             target->m_game->pop_request();
         }
@@ -183,8 +183,8 @@ namespace banggame {
 
     void request_saved::on_pick(const pick_card_args &args) {
         if (args.pile == card_pile_type::main_deck) {
-            target->add_to_hand(target->m_game->draw_card());
-            target->add_to_hand(target->m_game->draw_card());
+            target->m_game->draw_card_to(card_pile_type::player_hand, target);
+            target->m_game->draw_card_to(card_pile_type::player_hand, target);
             target->m_game->pop_request();
         } else if (args.pile == card_pile_type::player_hand && args.player_id == saved->id) {
             for (int i=0; i<2 && !saved->m_hand.empty(); ++i) {

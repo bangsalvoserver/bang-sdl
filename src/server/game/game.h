@@ -211,12 +211,12 @@ namespace banggame {
         }
 
         deck_card &move_to(deck_card &&c, card_pile_type pile, bool known = true, player *owner = nullptr, show_card_flags flags = enums::flags_none<show_card_flags>);
+        deck_card &draw_card_to(card_pile_type pile, player *owner = nullptr, show_card_flags flags = enums::flags_none<show_card_flags>);
 
-        deck_card draw_card();
         deck_card draw_from_discards();
         deck_card draw_from_temp(int card_id);
 
-        deck_card draw_shop_card();
+        deck_card &draw_shop_card();
 
         void draw_check_then(player *p, draw_check_function fun, bool force_one = false, bool invert_pop_req = false);
         void resolve_check(int card_id);

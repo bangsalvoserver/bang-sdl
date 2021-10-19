@@ -96,7 +96,7 @@ namespace banggame {
         p->m_game->add_event<event_type::on_hit>(card_id, [p](player *origin, player *target, int damage, bool is_bang){
             if (p == target) {
                 while (damage--) {
-                    target->add_to_hand(target->m_game->draw_card());
+                    target->m_game->draw_card_to(card_pile_type::player_hand, target);
                 }
             }
         });
@@ -172,7 +172,7 @@ namespace banggame {
     void effect_bounty::on_equip(player *p, int card_id) {
         p->m_game->add_event<event_type::on_hit>(card_id, [p](player *origin, player *target, int damage, bool is_bang) {
             if (origin && target == p && is_bang) {
-                origin->add_to_hand(origin->m_game->draw_card());
+                origin->m_game->draw_card_to(card_pile_type::player_hand, origin);
             }
         });
     }
@@ -191,8 +191,8 @@ namespace banggame {
     void effect_wanted::on_equip(player *p, int card_id) {
         p->m_game->add_event<event_type::on_player_death>(card_id, [p](player *origin, player *target) {
             if (origin && p == target && origin != target) {
-                origin->add_to_hand(origin->m_game->draw_card());
-                origin->add_to_hand(origin->m_game->draw_card());
+                origin->m_game->draw_card_to(card_pile_type::player_hand, origin);
+                origin->m_game->draw_card_to(card_pile_type::player_hand, origin);
                 origin->add_gold(1);
             }
         });

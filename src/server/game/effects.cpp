@@ -114,7 +114,7 @@ namespace banggame {
 
     void effect_generalstore::on_play(int origin_card_id, player *origin) {
         for (int i=0; i<origin->m_game->num_alive(); ++i) {
-            origin->m_game->move_to(origin->m_game->draw_card(), card_pile_type::selection);
+            origin->m_game->draw_card_to(card_pile_type::selection);
         }
         origin->m_game->queue_request<request_type::generalstore>(origin_card_id, origin, origin);
     }
@@ -192,7 +192,7 @@ namespace banggame {
     }
 
     void effect_draw::on_play(int origin_card_id, player *origin, player *target) {
-        target->add_to_hand(target->m_game->draw_card());
+        target->m_game->draw_card_to(card_pile_type::player_hand, target);
     }
 
     bool effect_draw_discard::can_play(player *target) const {
@@ -205,7 +205,7 @@ namespace banggame {
 
     void effect_draw_rest::on_play(int origin_card_id, player *target) {
         for (; target->m_num_drawn_cards<target->m_num_cards_to_draw; ++target->m_num_drawn_cards) {
-            target->add_to_hand(target->m_game->draw_card());
+            target->m_game->draw_card_to(card_pile_type::player_hand, target);
         }
     }
 
@@ -228,8 +228,8 @@ namespace banggame {
     void effect_tornado::on_play(int origin_card_id, player *origin, player *target) {
         if (target->num_hand_cards() == 0) {
             target->m_game->queue_event<event_type::delayed_action>([=]{
-                target->add_to_hand(target->m_game->draw_card());
-                target->add_to_hand(target->m_game->draw_card());
+                target->m_game->draw_card_to(card_pile_type::player_hand, target);
+                target->m_game->draw_card_to(card_pile_type::player_hand, target);
             });
         } else {
             target->m_game->queue_request<request_type::tornado>(origin_card_id, origin, target);
