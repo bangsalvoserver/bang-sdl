@@ -21,7 +21,7 @@ int main(int argc, char **argv) {
     sdl::window window("Bang!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, window_width, window_height, SDL_WINDOW_RESIZABLE);
     sdl::renderer renderer(window, -1, SDL_RENDERER_ACCELERATED);
 
-    game_manager mgr(SDL_GetBasePath() + std::string("config.json"));
+    game_manager mgr(std::string(SDL_GetPrefPath(nullptr, "bang-sdl")) + "config.json");
     mgr.resize(window_width, window_height);
 
     sdl::event event;
