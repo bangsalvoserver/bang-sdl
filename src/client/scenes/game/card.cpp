@@ -2,9 +2,10 @@
 
 #include "utils/unpacker.h"
 
-DECLARE_RESOURCE(cards_pak)
+#include <SDL2/SDL.h>
 
-static const unpacker card_resources(GET_RESOURCE(cards_pak));
+static const resource cards_pak_data(std::string(SDL_GetBasePath()) + "cards.pak");
+static const unpacker card_resources(cards_pak_data);
 
 namespace banggame {
     static const sdl::surface card_mask(card_resources["mask"]);

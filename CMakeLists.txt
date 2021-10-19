@@ -12,8 +12,8 @@ find_package(SDL2_ttf REQUIRED)
 find_package(SDL2_image REQUIRED)
 find_package(SDL2_gfx REQUIRED)
 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(jsoncpp REQUIRED jsoncpp IMPORTED_TARGET)
+find_package(Boost REQUIRED)
+find_package(jsoncpp REQUIRED)
 
 set(bangclient_srcs
     src/client/main.cpp
@@ -47,23 +47,17 @@ set(bangserver_srcs
 include_directories(bangclient src)
 add_subdirectory(resources)
 
-find_package(Boost REQUIRED)
-
 add_executable(bangclient ${bangclient_srcs})
-target_link_libraries(bangclient SDL2::Main SDL2::Net SDL2::TTF SDL2::Image SDL2::GFX PkgConfig::jsoncpp)
+target_link_libraries(bangclient SDL2::Main SDL2::Net SDL2::TTF SDL2::Image SDL2::GFX jsoncpp_lib)
+target_link_libraries(bangclient fonts)
+add_dependencies(bangclient cards_pak)
 if(WIN32)
     target_link_options(bangclient PRIVATE -mconsole)
 endif()
 
-option(no_link_resources "Non includere le risorse nell'eseguibile" ON)
-if(no_link_resources)
-    target_compile_definitions(bangclient PRIVATE NO_LINK_RESOURCES)
-else()
-    target_link_libraries(bangclient fonts card_images)
-endif()
-
 add_executable(bangserver ${bangserver_srcs})
-target_link_libraries(bangserver SDL2::Main SDL2::Net PkgConfig::jsoncpp bang_cards)
+target_link_libraries(bangserver SDL2::Main SDL2::Net jsoncpp_lib)
+target_link_libraries(bangserver bang_cards)
 if(WIN32)
     target_link_options(bangserver PRIVATE -mconsole)
 endif()

@@ -1,0 +1,80 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'alpha*'
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: 'recursive'
+
+    - uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW64
+        update: true
+        install: >
+          zip
+          mingw-w64-x86_64-gcc
+          mingw-w64-x86_64-make
+          mingw-w64-x86_64-cmake
+          mingw-w64-x86_64-boost
+          mingw-w64-x86_64-jsoncpp
+          mingw-w64-x86_64-SDL2
+          mingw-w64-x86_64-SDL2_gfx
+          mingw-w64-x86_64-SDL2_image
+          mingw-w64-x86_64-SDL2_net
+          mingw-w64-x86_64-SDL2_ttf
+
+    - name: Configure CMake
+      shell: msys2 {0}
+      working-directory: ${{github.workspace}}
+      run: >
+        cmake -B build
+        -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        -G "MinGW Makefiles"
+        -DCMAKE_C_COMPILER=gcc
+        -DCMAKE_CXX_COMPILER=g++
+      
+    - name: Build
+      shell: msys2 {0}
+      working-directory: ${{github.workspace}}
+      run: cmake --build build --config ${{env.BUILD_TYPE}}
+
+    - name: Prepare bang.zip
+      shell: msys2 {0}
+      working-directory: ${{github.workspace}}
+      run: |
+        mkdir -p bang && ldd build/bangclient.exe | grep -i -v /c/windows/ | gawk 'match($0, /=> (.+\.dll)/, a) { print a[1]}' | xargs cp -n -t bang
+        cp -t bang build/bangclient.exe build/bangserver.exe build/cards.pak
+        zip -r bang.zip bang
+    
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          draft: false
+          prerelease: true
+    
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./bang.zip
+        asset_name: bang.zip
+        asset_content_type: application/zip
