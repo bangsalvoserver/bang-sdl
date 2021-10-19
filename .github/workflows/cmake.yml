@@ -3,8 +3,8 @@ name: CMake
 on:
   push:
     branches: [ master ]
-  pull_request:
-    branches: [ master ]
+    tags:
+      - 'alpha*'
 
 env:
   BUILD_TYPE: Release
@@ -48,3 +48,33 @@ jobs:
       shell: msys2 {0}
       working-directory: ${{github.workspace}}
       run: cmake --build build --config ${{env.BUILD_TYPE}}
+
+    - name: Prepare bang.zip
+      shell: msys2 {0}
+      working-directory: ${{github.workspace}}
+      run: |
+        mkdir -p bang && ldd build/bangclient.exe | grep -i -v /c/windows/ | gawk 'match($0, /=> (.+\.dll)/, a) { print a[1]}' | xargs cp -n -t bang
+        cp -t bang build/bangclient.exe build/bangserver.exe build/cards.pak
+        zip -r bang.zip bang
+    
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: true
+    
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./bang.zip
+        asset_name: bang.zip
+        asset_content_type: application/zip
