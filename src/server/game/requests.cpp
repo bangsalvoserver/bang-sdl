@@ -134,7 +134,7 @@ namespace banggame {
                 if (flightable && !it->responses.empty() && it->responses.front().is(effect_type::flight)) {
                     target->discard_card(args.card_id);
                 } else {
-                    target->m_game->move_to(std::move(*it), card_pile_type::selection);
+                    target->m_game->move_to(std::move(*it), card_pile_type::selection, true, origin);
                     target->m_hand.erase(it);
                 }
                 
