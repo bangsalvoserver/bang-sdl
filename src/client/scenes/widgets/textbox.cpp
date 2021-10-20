@@ -20,30 +20,53 @@ void textbox::render(renderer &renderer) {
         linex = m_tex.get_rect().x + m_tex.get_rect().w;
     }
 
-    if (m_active) {
+    if (focused() && (m_ticks++ % 50) < 25) {
         SDL_RenderDrawLine(renderer.get(), linex, m_border_rect.y + m_style.margin, linex, m_border_rect.y + m_border_rect.h - m_style.margin);
     }
+}
+
+void textbox::on_gain_focus() {
+    m_ticks = 0;
+    SDL_StartTextInput();
+}
+
+void textbox::on_lose_focus() {
+    SDL_StopTextInput();
 }
 
 bool textbox::handle_event(const event &event) {
     switch (event.type) {
     case SDL_MOUSEBUTTONDOWN:
-        m_active = event.button.button == SDL_BUTTON_LEFT && point_in_rect(point{event.button.x, event.button.y}, m_border_rect);
-        break;
-    case SDL_KEYDOWN:
-        if (m_active && event.key.keysym.sym == SDLK_BACKSPACE) {
-            if (!m_value.empty()) {
-                m_value.resize(m_value.size() - 1);
-            }
-            update_texture();
+        if (event.button.button == SDL_BUTTON_LEFT && point_in_rect(point{event.button.x, event.button.y}, m_border_rect)) {
+            set_focus(this);
+            return true;
         }
-        break;
+        return false;
+    case SDL_KEYDOWN:
+        if (focused()) {
+            switch (event.key.keysym.sym) {
+            case SDLK_BACKSPACE:
+                if (!m_value.empty()) {
+                    m_value.resize(m_value.size() - 1);
+                }
+                update_texture();
+                return true;
+            case SDLK_RETURN:
+                if (on_enter) {
+                    on_enter();
+                    return true;
+                }
+            }
+        }
+        return false;
     case SDL_TEXTINPUT:
-        if (m_active && event.text.text[0] != '\n') {
+        if (focused() && event.text.text[0] != '\n') {
             m_value.append(event.text.text);
             update_texture();
+            return true;
         }
-        break;
+        return false;
+    default:
+        return false;
     }
-    return false;
 }

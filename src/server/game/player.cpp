@@ -98,10 +98,28 @@ namespace banggame {
 
     void player::damage(int origin_card_id, player *source, int value, bool is_bang) {
         if (!m_ghost) {
-            auto &obj = m_game->queue_request<request_type::damaging>(origin_card_id, source, this);
-            obj.damage = value;
-            obj.is_bang = is_bang;
+            if (bool(m_game->m_options.allowed_expansions & card_expansion_type::valleyofshadows)) {
+                auto &obj = m_game->queue_request<request_type::damaging>(origin_card_id, source, this);
+                obj.damage = value;
+                obj.is_bang = is_bang;
+            } else {
+                do_damage(origin_card_id, source, value, is_bang);
+            }
         }
+    }
+
+    void player::do_damage(int origin_card_id, player *origin, int value, bool is_bang) {
+        m_hp -= value;
+        m_game->add_public_update<game_update_type::player_hp>(id, m_hp);
+        if (m_hp <= 0) {
+            m_game->add_request<request_type::death>(origin_card_id, origin, this);
+        }
+        if (bool(m_game->m_options.allowed_expansions & card_expansion_type::goldrush)) {
+            if (origin && origin->m_game->m_playing == origin && origin != this) {
+                origin->add_gold(value);
+            }
+        }
+        m_game->queue_event<event_type::on_hit>(origin, this, value, is_bang);
     }
 
     void player::heal(int value) {
@@ -381,7 +399,9 @@ namespace banggame {
 
     void player::play_card(const play_card_args &args) {
         if (bool(args.flags & play_card_flags::sell_beer)) {
-            if (args.targets.size() != 1
+            if (m_num_drawn_cards < m_num_cards_to_draw) throw game_error("Devi pescare");
+            if (!bool(m_game->m_options.allowed_expansions & card_expansion_type::goldrush)
+                || args.targets.size() != 1
                 || !args.targets.front().is(play_card_target_type::target_card)) throw game_error("Azione non valida");
             const auto &l = args.targets.front().get<play_card_target_type::target_card>();
             if (l.size() != 1) throw game_error("Azione non valida");
@@ -390,7 +410,9 @@ namespace banggame {
             discard_card(c.id);
             add_gold(1);
             m_game->queue_event<event_type::on_play_beer>(this);
+            m_game->queue_event<event_type::on_effect_end>(this);
         } else if (bool(args.flags & play_card_flags::discard_black)) {
+            if (m_num_drawn_cards < m_num_cards_to_draw) throw game_error("Devi pescare");
             if (args.targets.size() != 1
                 || !args.targets.front().is(play_card_target_type::target_card)) throw game_error("Azione non valida");
             const auto &l = args.targets.front().get<play_card_target_type::target_card>();

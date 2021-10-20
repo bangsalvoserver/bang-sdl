@@ -26,11 +26,9 @@ namespace sdl {
             if (SDL_Init(flags) != 0) {
                 throw error(std::string("Could not init SDL: ") + SDL_GetError());
             }
-            SDL_StartTextInput();
         }
 
         ~initializer() {
-            SDL_StopTextInput();
             SDL_Quit();
         }
     };
@@ -307,7 +305,7 @@ namespace sdl {
         if (label.empty()) {
             return surface();
         }
-        SDL_Surface *s = TTF_RenderText_Blended(font.get(), label.c_str(), text_color);
+        SDL_Surface *s = TTF_RenderUTF8_Blended(font.get(), label.c_str(), text_color);
         if (!s) {
             throw error(std::string("Could not render text: ") + TTF_GetError());
         }

@@ -67,16 +67,9 @@ void game_ui::render(sdl::renderer &renderer) {
     }
 }
 
-void game_ui::render_highlights(sdl::renderer &renderer, play_card_flags flags) {
-    if (bool(flags & play_card_flags::sell_beer)) {
-        renderer.set_draw_color(sdl::color{0xff, 0x0, 0x0, 0xff});
-        renderer.draw_rect(m_sell_beer_btn.get_rect());
-    }
-
-    if (bool(flags & play_card_flags::discard_black)) {
-        renderer.set_draw_color(sdl::color{0xff, 0x0, 0x0, 0xff});
-        renderer.draw_rect(m_discard_black_btn.get_rect());
-    }
+void game_ui::set_button_flags(play_card_flags flags) {
+    m_sell_beer_btn.set_toggled(bool(flags & play_card_flags::sell_beer));
+    m_discard_black_btn.set_toggled(bool(flags & play_card_flags::discard_black));
 }
 
 void game_ui::add_message(const std::string &message) {

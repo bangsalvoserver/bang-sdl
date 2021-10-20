@@ -62,6 +62,8 @@ namespace banggame {
     }
 
     void game::start_game(const game_options &options) {
+        m_options = options;
+        
         add_event<event_type::delayed_action>(0, [](std::function<void()> fun) { fun(); });
         
         std::random_device rd;

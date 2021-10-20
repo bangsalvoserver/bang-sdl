@@ -1,12 +1,8 @@
 #ifndef __BUTTON_H__
 #define __BUTTON_H__
 
-#include <functional>
-
-#include "utils/sdl.h"
-#include "stattext.h"
-
 #include "event_handler.h"
+#include "stattext.h"
 
 namespace sdl {
 
@@ -27,8 +23,6 @@ namespace sdl {
         {0x0, 0x0, 0x0, 0xff},
     };
 
-    using button_callback_fun = std::function<void()>;
-
     class button : private event_handler {
     private:
         button_style m_style;
@@ -44,6 +38,8 @@ namespace sdl {
             state_hover,
             state_down
         } m_state = state_up;
+
+        bool toggled = false;
     
     protected:
         bool handle_event(const event &event) override;
@@ -67,6 +63,10 @@ namespace sdl {
 
         const sdl::rect &get_rect() const noexcept {
             return m_border_rect;
+        }
+
+        void set_toggled(bool down) {
+            toggled = down;
         }
     };
 

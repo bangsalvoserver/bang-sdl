@@ -23,8 +23,8 @@ endfunction()
 compile_resources(bang_cards bang_cards.json)
 add_library(bang_cards OBJECT ${bang_cards})
 
-compile_resources(fonts arial.ttf)
-add_library(fonts OBJECT ${fonts})
+compile_resources(resources_obj arial.ttf icons/icon_checkbox.png)
+add_library(resources_obj OBJECT ${resources_obj})
 
 add_executable(packer pack.cpp)
 file(GLOB_RECURSE card_files "${CMAKE_CURRENT_SOURCE_DIR}/cards/*.png")

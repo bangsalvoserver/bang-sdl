@@ -12,7 +12,8 @@ namespace banggame {
 
         void resize(int width, int height);
         void render(sdl::renderer &renderer);
-        void render_highlights(sdl::renderer &renderer, play_card_flags flags);
+
+        void set_button_flags(play_card_flags flags);
 
         void add_message(const std::string &message);
         void show_error(const std::string &message);

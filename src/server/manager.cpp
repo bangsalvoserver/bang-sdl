@@ -6,6 +6,7 @@
 #include "common/net_enums.h"
 
 using namespace banggame;
+using namespace enums::flag_operators;
 
 void game_manager::parse_message(const sdlnet::ip_address &addr, const std::string &str) {
     constexpr auto lut = []<client_message_type ... Es>(enums::enum_sequence<Es...>) {
@@ -92,7 +93,7 @@ void game_manager::handle_message(enums::enum_constant<client_message_type::lobb
     new_lobby.name = value.lobby_name;
     new_lobby.state = lobby_state::waiting;
     new_lobby.maxplayers = std::clamp(value.max_players, 2, 8);
-    new_lobby.allowed_expansions = value.expansions;
+    new_lobby.allowed_expansions = value.expansions | card_expansion_type::base;
     m_lobbies.push_back(new_lobby);
 
     send_message<server_message_type::lobby_entered>(addr, value.lobby_name, u.id, u.id);

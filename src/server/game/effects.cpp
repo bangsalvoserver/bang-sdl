@@ -6,6 +6,8 @@
 
 namespace banggame {
 
+    using namespace enums::flag_operators;
+
     void effect_bang::on_play(int origin_card_id, player *origin, player *target) {
         target->m_game->queue_request<request_type::bang>(origin_card_id, origin, target, flightable);
     }
@@ -153,7 +155,7 @@ namespace banggame {
     }
 
     void effect_destroy::on_play(int origin_card_id, player *origin, player *target, int card_id) {
-        if (flightable && origin != target) {
+        if (flightable && origin != target && bool(origin->m_game->m_options.allowed_expansions & card_expansion_type::valleyofshadows)) {
             auto &req = target->m_game->queue_request<request_type::destroy>(origin_card_id, origin, target, true);
             req.card_id = card_id;
         } else {
@@ -165,7 +167,7 @@ namespace banggame {
     }
 
     void effect_steal::on_play(int origin_card_id, player *origin, player *target, int card_id) {
-        if (flightable && origin != target) {
+        if (flightable && origin != target && bool(origin->m_game->m_options.allowed_expansions & card_expansion_type::valleyofshadows)) {
             auto &req = target->m_game->queue_request<request_type::steal>(origin_card_id, origin, target, true);
             req.card_id = card_id;
         } else {

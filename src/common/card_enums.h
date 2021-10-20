@@ -30,13 +30,13 @@ namespace banggame {
         (value_K,   "K")
     )
     
-    DEFINE_ENUM_FLAGS_IN_NS(banggame, card_expansion_type,
+    DEFINE_ENUM_FLAGS_DATA_IN_NS(banggame, card_expansion_type,
         (base)
-        (thebullet)
-        (dodgecity)
-        (valleyofshadows)
-        (wildwestshow)
-        (goldrush)
+        (thebullet,         "La Pallottola")
+        (dodgecity,         "Dodge City")
+        (valleyofshadows,   "Valley of Shadows")
+        (wildwestshow,      "Wild West Show")
+        (goldrush,          "Gold Rush")
     )
 
     DEFINE_ENUM_IN_NS(banggame, card_color_type,

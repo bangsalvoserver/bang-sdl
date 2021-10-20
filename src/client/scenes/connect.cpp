@@ -30,9 +30,12 @@ connect_scene::connect_scene(game_manager *parent)
         20
     })
 {
+    m_address_box.set_onenter([this]{
+        do_connect(m_address_box.get_value());
+    });
     for (const auto &obj : parent->get_config().recent_servers) {
         m_recents.emplace_back(this, obj);
-    } 
+    }
 }
 
 void connect_scene::render(sdl::renderer &renderer) {

@@ -1,15 +1,13 @@
-#include "button.h"
+#include "checkbox.h"
 
 using namespace sdl;
 
-button::button(const std::string &label, button_callback_fun &&onclick, const button_style &style)
+checkbox::checkbox(const std::string &label, const button_style &style)
     : m_style(style)
-    , m_text(label, style)
-    , m_onclick(std::move(onclick)) {}
+    , m_text(label, style) {}
 
-void button::render(renderer &renderer) {
+void checkbox::render(renderer &renderer) {
     renderer.set_draw_color([&]{
-        if (toggled) return m_style.down_color;
         switch (m_state) {
         case state_hover:   return m_style.hover_color;
         case state_down:    return m_style.down_color;
@@ -17,25 +15,32 @@ void button::render(renderer &renderer) {
         default:            return m_style.up_color;
         }
     }());
-    renderer.fill_rect(m_border_rect);
+    renderer.fill_rect(m_checkbox_rect);
 
     renderer.set_draw_color(m_style.border_color);
-    renderer.draw_rect(m_border_rect);
-
-    point pos = m_text_pos;
-    if (m_state == state_down) {
-        ++pos.x;
-        ++pos.y;
+    renderer.draw_rect(m_checkbox_rect);
+    
+    if (m_value) {
+        s_checkbox_texture.render(renderer, m_checkbox_rect);
     }
 
-    m_text.set_point(pos);
     m_text.render(renderer);
 }
 
-bool button::handle_event(const event &event) {
+void checkbox::set_rect(const sdl::rect &rect) {
+    m_border_rect = rect;
+    m_checkbox_rect = sdl::rect{rect.x, rect.y, rect.h, rect.h};
+
+    sdl::rect text_rect = m_text.get_rect();
+    text_rect.x = m_checkbox_rect.x + m_checkbox_rect.w + 10;
+    text_rect.y = m_checkbox_rect.y + (m_checkbox_rect.h - text_rect.h) / 2;
+    m_text.set_rect(text_rect);
+}
+
+bool checkbox::handle_event(const event &event) {
     switch (event.type) {
     case SDL_MOUSEMOTION:
-        if (point_in_rect(point{event.motion.x, event.motion.y}, m_border_rect)) {
+        if (point_in_rect(point{event.motion.x, event.motion.y}, m_checkbox_rect)) {
             if (m_state == state_up) {
                 m_state = state_hover;
             }
@@ -47,7 +52,7 @@ bool button::handle_event(const event &event) {
         break;
     case SDL_MOUSEBUTTONDOWN:
         if (event.button.button == SDL_BUTTON_LEFT
-            && point_in_rect(point{event.motion.x, event.motion.y}, m_border_rect)) {
+            && point_in_rect(point{event.motion.x, event.motion.y}, m_checkbox_rect)) {
             m_state = state_down;
             set_focus(this);
             return true;
@@ -56,12 +61,10 @@ bool button::handle_event(const event &event) {
     case SDL_MOUSEBUTTONUP:
         if (event.button.button == SDL_BUTTON_LEFT
             && m_state == state_down) {
-            if (point_in_rect(point{event.motion.x, event.motion.y}, m_border_rect)) {
+            if (point_in_rect(point{event.motion.x, event.motion.y}, m_checkbox_rect)) {
                 m_state = state_hover;
-                if (m_onclick) {
-                    m_onclick();
-                    return true;
-                }
+                m_value = !m_value;
+                return true;
             } else {
                 m_state = state_up;
             }

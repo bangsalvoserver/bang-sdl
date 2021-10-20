@@ -22,6 +22,7 @@ set(bangclient_srcs
     src/client/scenes/game/game.cpp
     src/client/scenes/game/game_ui.cpp
     src/client/scenes/widgets/button.cpp
+    src/client/scenes/widgets/checkbox.cpp
     src/client/scenes/widgets/chat_ui.cpp
     src/client/scenes/widgets/textbox.cpp
     src/client/scenes/connect.cpp
@@ -49,7 +50,7 @@ add_subdirectory(resources)
 
 add_executable(bangclient ${bangclient_srcs})
 target_link_libraries(bangclient SDL2::Main SDL2::Net SDL2::TTF SDL2::Image SDL2::GFX jsoncpp_lib)
-target_link_libraries(bangclient fonts)
+target_link_libraries(bangclient resources_obj)
 add_dependencies(bangclient cards_pak)
 if(WIN32)
     target_link_options(bangclient PRIVATE -mconsole)

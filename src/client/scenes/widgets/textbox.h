@@ -1,12 +1,8 @@
 #ifndef __TEXTBOX_H__
 #define __TEXTBOX_H__
 
-#include "utils/sdl.h"
-#include "stattext.h"
-
-#include <string>
-
 #include "event_handler.h"
+#include "stattext.h"
 
 namespace sdl {
 
@@ -34,7 +30,9 @@ namespace sdl {
 
         sdl::rect m_border_rect;
 
-        bool m_active = false;
+        button_callback_fun on_enter;
+
+        int m_ticks;
 
         void update_texture() {
             m_tex.redraw(m_value);
@@ -42,6 +40,9 @@ namespace sdl {
 
     protected:
         bool handle_event(const event &event);
+
+        void on_gain_focus() override;
+        void on_lose_focus() override;
 
     public:
         textbox(const textbox_style &style = default_textbox_style);
@@ -63,6 +64,10 @@ namespace sdl {
         void set_value(const std::string &value) {
             m_value = value;
             update_texture();
+        }
+
+        void set_onenter(button_callback_fun &&fun) {
+            on_enter = std::move(fun);
         }
     };
 

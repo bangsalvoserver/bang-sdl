@@ -84,6 +84,8 @@ namespace banggame {
         player *m_playing = nullptr;
         player *m_next_turn = nullptr;
 
+        game_options m_options;
+
         int m_id_counter = 0;
         
         int get_next_id() {

@@ -6,7 +6,12 @@ chat_ui::chat_ui(game_manager *parent)
     : parent(parent)
     , m_send_btn("Invia", [this] {
         send_chat_message();
-    }) {}
+    })
+{
+    m_chat_box.set_onenter([this] {
+        send_chat_message();
+    });
+}
 
 void chat_ui::resize(int width, int height) {
     m_chat_box.set_rect(sdl::rect{20, height - 50, 200, 25});
@@ -33,6 +38,8 @@ void chat_ui::add_message(const std::string &message) {
 }
 
 void chat_ui::send_chat_message() {
-    parent->add_message<client_message_type::lobby_chat>(m_chat_box.get_value());
-    m_chat_box.set_value("");
+    if (!m_chat_box.get_value().empty()) {
+        parent->add_message<client_message_type::lobby_chat>(m_chat_box.get_value());
+        m_chat_box.set_value("");
+    }
 }

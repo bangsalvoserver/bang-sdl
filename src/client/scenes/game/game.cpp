@@ -115,8 +115,8 @@ void game_scene::render(sdl::renderer &renderer) {
         renderer.draw_rect(get_card_widget(id).get_rect());
     }
 
+    m_ui.set_button_flags(m_play_card_args.flags);
     m_ui.render(renderer);
-    m_ui.render_highlights(renderer, m_play_card_args.flags);
 
     if (m_overlay) {
         sdl::texture *tex = nullptr;
@@ -497,12 +497,14 @@ void game_scene::on_click_player(int player_id) {
 void game_scene::on_click_sell_beer() {
     if (m_play_card_args.card_id == 0 && m_playing_id == m_player_own_id) {
         m_play_card_args.flags ^= play_card_flags::sell_beer;
+        m_play_card_args.flags &= ~(play_card_flags::discard_black);
     }
 }
 
 void game_scene::on_click_discard_black() {
     if (m_play_card_args.card_id == 0 && m_playing_id == m_player_own_id) {
         m_play_card_args.flags ^= play_card_flags::discard_black;
+        m_play_card_args.flags &= ~(play_card_flags::sell_beer);
     }
 }
 

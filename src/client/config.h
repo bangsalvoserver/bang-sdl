@@ -5,11 +5,13 @@
 #include <vector>
 
 #include "utils/json_serial.h"
+#include "common/card_enums.h"
 
 DEFINE_SERIALIZABLE(config_data,
     (recent_servers, std::vector<std::string>)
     (user_name, std::string)
     (lobby_name, std::string)
+    (expansions, banggame::card_expansion_type)
 )
 
 class config : public config_data {
