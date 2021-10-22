@@ -22,6 +22,8 @@ class connect_scene : public scene_base {
 public:
     connect_scene(class game_manager *parent);
     
+    void resize(int width, int height) override;
+    
     void render(sdl::renderer &renderer) override;
 
     void show_error(const std::string &message);
@@ -29,8 +31,13 @@ public:
     void do_connect(const std::string &address);
 
 private:
+    sdl::stattext m_username_label;
+    sdl::textbox m_username_box;
+
+    sdl::stattext m_address_label;
     sdl::textbox m_address_box;
     sdl::button m_connect_btn;
+
     sdl::stattext m_error_text;
 
     std::list<recent_server_line> m_recents;

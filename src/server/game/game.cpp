@@ -72,7 +72,7 @@ namespace banggame {
         std::vector<character> characters;
         for (const auto &c : all_cards.characters) {
             if (m_players.size() <= 2 && c.discard_if_two_players) continue;
-            if (bool(c.expansion & options.allowed_expansions)) {
+            if (bool(c.expansion & options.expansions)) {
                 characters.emplace_back(c).id = get_next_id();
             }
         }
@@ -116,7 +116,7 @@ namespace banggame {
 
         for (const auto &c : all_cards.deck) {
             if (m_players.size() <= 2 && c.discard_if_two_players) continue;
-            if (bool(c.expansion & options.allowed_expansions)) {
+            if (bool(c.expansion & options.expansions)) {
                 m_deck.emplace_back(c).id = get_next_id();
             }
         }
@@ -124,7 +124,7 @@ namespace banggame {
         add_public_update<game_update_type::add_cards>(std::vector(ids_view.begin(), ids_view.end()), card_pile_type::main_deck);
         shuffle_cards_and_ids(m_deck, rng);
 
-        if (bool(options.allowed_expansions & card_expansion_type::goldrush)) {
+        if (bool(options.expansions & card_expansion_type::goldrush)) {
             for (const auto &c : all_cards.goldrush) {
                 if (m_players.size() <= 2 && c.discard_if_two_players) continue;
                 m_shop_deck.emplace_back(c).id = get_next_id();

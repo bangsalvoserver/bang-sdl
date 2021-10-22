@@ -3,26 +3,17 @@
 
 #include "game_update.h"
 
-DEFINE_SERIALIZABLE(game_error,
-    (message, std::string)
+DEFINE_SERIALIZABLE(connect_args,
+    (user_name, std::string)
 )
 
-DEFINE_ENUM(lobby_state,
-    (waiting)
-    (playing)
-    (finished)
-)
-
-DEFINE_SERIALIZABLE(lobby_make_args,
-    (lobby_name, std::string)
-    (player_name, std::string)
+DEFINE_SERIALIZABLE(lobby_info,
+    (name, std::string)
     (expansions, banggame::card_expansion_type)
-    (max_players, int)
 )
 
 DEFINE_SERIALIZABLE(lobby_join_args,
     (lobby_id, int)
-    (player_name, std::string)
 )
 
 DEFINE_SERIALIZABLE(lobby_chat_client_args,
@@ -30,8 +21,10 @@ DEFINE_SERIALIZABLE(lobby_chat_client_args,
 )
 
 DEFINE_ENUM_TYPES(client_message_type,
+    (connect, connect_args)
     (lobby_list)
-    (lobby_make, lobby_make_args)
+    (lobby_make, lobby_info)
+    (lobby_edit, lobby_info)
     (lobby_join, lobby_join_args)
     (lobby_players)
     (lobby_leave)
@@ -40,11 +33,16 @@ DEFINE_ENUM_TYPES(client_message_type,
     (game_action, game_action)
 )
 
+DEFINE_ENUM(lobby_state,
+    (waiting)
+    (playing)
+    (finished)
+)
+
 DEFINE_SERIALIZABLE(lobby_data,
     (lobby_id, int)
     (name, std::string)
     (num_players, int)
-    (max_players, int)
     (state, lobby_state)
 )
 
@@ -54,7 +52,7 @@ DEFINE_SERIALIZABLE(lobby_player_data,
 )
 
 DEFINE_SERIALIZABLE(lobby_entered_args,
-    (lobby_name, std::string)
+    (info, lobby_info)
     (user_id, int)
     (owner_id, int)
 )
@@ -69,14 +67,16 @@ DEFINE_SERIALIZABLE(lobby_chat_args,
 )
 
 DEFINE_ENUM_TYPES(server_message_type,
-    (game_error, game_error)
+    (client_accepted)
     (lobby_list, std::vector<lobby_data>)
     (lobby_entered, lobby_entered_args)
     (lobby_players, std::vector<lobby_player_data>)
+    (lobby_edited, lobby_info)
     (lobby_joined, lobby_player_data)
     (lobby_left, lobby_left_args)
     (lobby_chat, lobby_chat_args)
     (game_started)
+    (game_error, std::string)
     (game_update, game_update)
 )
 

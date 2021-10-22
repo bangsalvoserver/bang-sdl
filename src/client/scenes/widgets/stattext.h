@@ -30,6 +30,8 @@ namespace sdl {
 
         rect m_rect;
 
+        std::string m_value;
+
     public:
         stattext(const text_style &style = default_text_style)
             : m_style(style)
@@ -42,8 +44,15 @@ namespace sdl {
         }
 
         void redraw(const std::string &label) {
-            m_tex = make_text_surface(label, m_font, m_style.text_color);
-            m_rect = m_tex.get_rect();
+            if (label != m_value) {
+                m_value = label;
+                m_tex = make_text_surface(label, m_font, m_style.text_color);
+                m_rect = m_tex.get_rect();
+            }
+        }
+
+        const std::string &get_value() const {
+            return m_value;
         }
 
         void render(renderer &renderer) {

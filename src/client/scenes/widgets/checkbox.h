@@ -13,6 +13,9 @@ namespace sdl {
         stattext m_text;
         sdl::rect m_border_rect;
         sdl::rect m_checkbox_rect;
+        
+        bool m_locked = false;
+        button_callback_fun m_ontoggle;
 
         static inline sdl::texture s_checkbox_texture{sdl::surface(GET_RESOURCE(icon_checkbox_png))};
         
@@ -44,6 +47,14 @@ namespace sdl {
 
         void set_value(bool value) noexcept {
             m_value = value;
+        }
+
+        void set_locked(bool value) noexcept {
+            m_locked = value;
+        }
+
+        void set_ontoggle(button_callback_fun &&fun) {
+            m_ontoggle = std::move(fun);
         }
     };
 }

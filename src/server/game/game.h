@@ -18,7 +18,7 @@ namespace banggame {
 
     struct game_options {
         int nplayers = 0;
-        card_expansion_type allowed_expansions = enums::flags_all<card_expansion_type>;
+        card_expansion_type expansions = enums::flags_all<card_expansion_type>;
     };
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, event_type,
@@ -59,6 +59,10 @@ namespace banggame {
     };
 
     using event_args = detail::function_argument_tuple_variant<event_type>;
+
+    struct game_error : std::runtime_error {
+        using std::runtime_error::runtime_error;
+    };
 
     struct game {
         std::list<std::pair<player *, game_update>> m_updates;

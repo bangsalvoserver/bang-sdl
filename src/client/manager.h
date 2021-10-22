@@ -8,7 +8,6 @@
 
 #include "scenes/connect.h"
 #include "scenes/lobby_list.h"
-#include "scenes/make_lobby.h"
 #include "scenes/lobby.h"
 #include "scenes/game/game.h"
 
@@ -17,7 +16,6 @@
 DEFINE_ENUM_TYPES(scene_type,
     (connect, connect_scene)
     (lobby_list, lobby_list_scene)
-    (make_lobby, make_lobby_scene)
     (lobby, lobby_scene)
     (game, banggame::game_scene)
 )
@@ -78,14 +76,16 @@ public:
     }
 
 private:
-    void handle_message(enums::enum_constant<server_message_type::game_error>, const game_error &args);
+    void handle_message(enums::enum_constant<server_message_type::client_accepted>);
     void handle_message(enums::enum_constant<server_message_type::lobby_list>, const std::vector<lobby_data> &args);
+    void handle_message(enums::enum_constant<server_message_type::lobby_edited>, const lobby_info &args);
     void handle_message(enums::enum_constant<server_message_type::lobby_entered>, const lobby_entered_args &args);
     void handle_message(enums::enum_constant<server_message_type::lobby_players>, const std::vector<lobby_player_data> &args);
     void handle_message(enums::enum_constant<server_message_type::lobby_joined>, const lobby_player_data &args);
     void handle_message(enums::enum_constant<server_message_type::lobby_left>, const lobby_left_args &args);
     void handle_message(enums::enum_constant<server_message_type::lobby_chat>, const lobby_chat_args &args);
     void handle_message(enums::enum_constant<server_message_type::game_started>);
+    void handle_message(enums::enum_constant<server_message_type::game_error>, const std::string &message);
     void handle_message(enums::enum_constant<server_message_type::game_update>, const banggame::game_update &args);
 
     scene_base *m_scene = nullptr;
@@ -94,6 +94,7 @@ private:
 
     sdlnet::tcp_socket sock;
     sdlnet::socket_set sock_set{1};
+    std::string connected_ip;
 
     std::map<int, std::string> m_user_names;
 

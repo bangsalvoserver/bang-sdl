@@ -28,7 +28,6 @@ set(bangclient_srcs
     src/client/scenes/connect.cpp
     src/client/scenes/lobby_list.cpp
     src/client/scenes/lobby.cpp
-    src/client/scenes/make_lobby.cpp
 )
 
 set(bangserver_srcs

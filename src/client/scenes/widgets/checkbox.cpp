@@ -63,7 +63,12 @@ bool checkbox::handle_event(const event &event) {
             && m_state == state_down) {
             if (point_in_rect(point{event.motion.x, event.motion.y}, m_checkbox_rect)) {
                 m_state = state_hover;
-                m_value = !m_value;
+                if (!m_locked) {
+                    m_value = !m_value;
+                    if (m_ontoggle) {
+                        m_ontoggle();
+                    }
+                }
                 return true;
             } else {
                 m_state = state_up;

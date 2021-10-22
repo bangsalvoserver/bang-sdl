@@ -75,14 +75,9 @@ void game_manager::update_net() {
 void game_manager::connect(const std::string &host) {
     try {
         sock.open(sdlnet::ip_address(host, banggame::server_port));
-        if (!host.empty()) {
-            auto it = std::ranges::find(m_config.recent_servers, host);
-            if (it == m_config.recent_servers.end()) {
-                m_config.recent_servers.push_back(host);
-            }
-        }
         sock_set.add(sock);
-        switch_scene<scene_type::lobby_list>();
+        connected_ip = host;
+        add_message<client_message_type::connect>(m_config.user_name);
     } catch (const sdlnet::net_error &e) {
         if (auto *s = dynamic_cast<connect_scene *>(m_scene)) {
             s->show_error(e.what());
@@ -117,15 +112,25 @@ void game_manager::handle_event(const sdl::event &event) {
     }
 }
 
-void game_manager::handle_message(enums::enum_constant<server_message_type::game_error>, const game_error &args) {
-    if (auto *s = dynamic_cast<game_scene *>(m_scene)) {
-        s->show_error(args.message);
+void game_manager::handle_message(enums::enum_constant<server_message_type::client_accepted>) {
+    if (!connected_ip.empty()) {
+        auto it = std::ranges::find(m_config.recent_servers, connected_ip);
+        if (it == m_config.recent_servers.end()) {
+            m_config.recent_servers.push_back(connected_ip);
+        }
     }
+    switch_scene<scene_type::lobby_list>();
 }
 
 void game_manager::handle_message(enums::enum_constant<server_message_type::lobby_list>, const std::vector<lobby_data> &args) {
     if (auto *s = dynamic_cast<lobby_list_scene *>(m_scene)) {
         s->set_lobby_list(args);
+    }
+}
+
+void game_manager::handle_message(enums::enum_constant<server_message_type::lobby_edited>, const lobby_info &args) {
+    if (auto *s = dynamic_cast<lobby_scene *>(m_scene)) {
+        s->set_lobby_info(args);
     }
 }
 
@@ -173,6 +178,12 @@ void game_manager::handle_message(enums::enum_constant<server_message_type::lobb
 
 void game_manager::handle_message(enums::enum_constant<server_message_type::game_started>) {
     switch_scene<scene_type::game>();
+}
+
+void game_manager::handle_message(enums::enum_constant<server_message_type::game_error>, const std::string &message) {
+    if (auto *s = dynamic_cast<banggame::game_scene *>(m_scene)) {
+        s->show_error(message);
+    }
 }
 
 void game_manager::handle_message(enums::enum_constant<server_message_type::game_update>, const game_update &args) {

@@ -98,7 +98,7 @@ namespace banggame {
 
     void player::damage(int origin_card_id, player *source, int value, bool is_bang) {
         if (!m_ghost) {
-            if (bool(m_game->m_options.allowed_expansions & card_expansion_type::valleyofshadows)) {
+            if (bool(m_game->m_options.expansions & card_expansion_type::valleyofshadows)) {
                 auto &obj = m_game->queue_request<request_type::damaging>(origin_card_id, source, this);
                 obj.damage = value;
                 obj.is_bang = is_bang;
@@ -114,7 +114,7 @@ namespace banggame {
         if (m_hp <= 0) {
             m_game->add_request<request_type::death>(origin_card_id, origin, this);
         }
-        if (bool(m_game->m_options.allowed_expansions & card_expansion_type::goldrush)) {
+        if (bool(m_game->m_options.expansions & card_expansion_type::goldrush)) {
             if (origin && origin->m_game->m_playing == origin && origin != this) {
                 origin->add_gold(value);
             }
@@ -400,7 +400,7 @@ namespace banggame {
     void player::play_card(const play_card_args &args) {
         if (bool(args.flags & play_card_flags::sell_beer)) {
             if (m_num_drawn_cards < m_num_cards_to_draw) throw game_error("Devi pescare");
-            if (!bool(m_game->m_options.allowed_expansions & card_expansion_type::goldrush)
+            if (!bool(m_game->m_options.expansions & card_expansion_type::goldrush)
                 || args.targets.size() != 1
                 || !args.targets.front().is(play_card_target_type::target_card)) throw game_error("Azione non valida");
             const auto &l = args.targets.front().get<play_card_target_type::target_card>();
