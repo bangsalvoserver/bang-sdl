@@ -5,36 +5,34 @@
 
 namespace banggame {
 
-    struct card_animation_item {
-        sdl::point start;
-        card_pile_view *pile;
-    };
-
     struct card_move_animation {
-        std::map<card_view *, card_animation_item> data;
+        std::vector<std::pair<card_view*, sdl::point>> data;
 
-        bool add_move_card(card_view *c) {
-            auto [it, inserted] = data.try_emplace(c, c->pos, c->pile);
-            it->first->animating = true;
-            if (!inserted) {
-                it->second.pile = c->pile;
-                return false;
-            }
-            return true;
-        }
-
-        void do_animation(float amt) {
-            for (auto &[card, pos] : data) {
-                sdl::point dest = pos.pile->get_position(card);
-                card->pos.x = std::lerp(pos.start.x, dest.x, amt);
-                card->pos.y = std::lerp(pos.start.y, dest.y, amt);
+        void add_move_card(card_view *card) {
+            if (std::ranges::find(data, card, &decltype(data)::value_type::first) == data.end()) {
+                data.emplace_back(card, card->pos);
+                card->animating = true;
             }
         }
 
         void end() {
-            for (auto &[card, pos] : data) {
-                card->pos = pos.pile->get_position(card);
+            for (auto &[card, _] : data) {
+                card->pos = card->pile->get_position(card);
                 card->animating = false;
+            }
+        }
+
+        void do_animation(float amt) {
+            for (auto &[card, start] : data) {
+                sdl::point dest = card->pile->get_position(card);
+                card->pos.x = std::lerp(start.x, dest.x, amt);
+                card->pos.y = std::lerp(start.y, dest.y, amt);
+            }
+        }
+
+        void render(sdl::renderer &renderer) {
+            for (auto &[card, _] : data) {
+                card->render(renderer, false);
             }
         }
     };
@@ -43,8 +41,22 @@ namespace banggame {
         card_widget *card;
         bool flips;
 
+        card_flip_animation(card_widget *card, bool flips)
+            : card(card), flips(flips) {
+            card->animating = true;
+        }
+
+        void end() {
+            card->flip_amt = float(!flips);
+            card->animating = false;
+        }
+
         void do_animation(float amt) {
             card->flip_amt = flips ? 1.f - amt : amt;
+        }
+
+        void render(sdl::renderer &renderer) {
+            card->render(renderer, false);
         }
     };
 
@@ -78,9 +90,10 @@ namespace banggame {
         std::variant<card_move_animation, card_flip_animation, card_tap_animation, player_hp_animation, pause_animation> m_anim;
 
     public:
-        animation(int duration, decltype(m_anim) &&anim)
+        template<typename ... Ts>
+        animation(int duration, Ts && ... args)
             : duration(duration)
-            , m_anim(std::move(anim)) {}
+            , m_anim(std::forward<Ts>(args) ...) {}
 
         void tick() {
             ++elapsed;
@@ -92,9 +105,17 @@ namespace banggame {
         }
 
         void end() {
-            std::visit([](auto &anim) {
+            std::visit([this](auto &anim) {
                 if constexpr (requires { anim.end(); }) {
                     anim.end();
+                }
+            }, m_anim);
+        }
+
+        void render(sdl::renderer &renderer) {
+            std::visit([&](auto &anim) {
+                if constexpr (requires { anim.render(renderer); }) {
+                    anim.render(renderer);
                 }
             }, m_anim);
         }

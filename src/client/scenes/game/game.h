@@ -142,7 +142,6 @@ namespace banggame {
 
         play_card_args m_play_card_args;
         std::vector<card_widget *> m_highlights;
-        std::vector<card_widget *> m_animating;
 
         request_view m_current_request;
 

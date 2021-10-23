@@ -19,10 +19,12 @@ namespace banggame {
         int ncards = target->m_num_drawn_cards = target->m_num_cards_to_draw;
         for (int i=0; i<ncards; ++i) {
             if (i==1) {
-                auto &moved = target->m_game->draw_card_to(card_pile_type::player_hand, target, show_card_flags::short_pause);
-                if (moved.suit == card_suit_type::hearts || moved.suit == card_suit_type::diamonds) {
+                auto &drawn_card = target->m_game->m_deck.back();
+                if (drawn_card.suit == card_suit_type::hearts || drawn_card.suit == card_suit_type::diamonds) {
                     ++ncards;
                 }
+                target->m_game->send_card_update(drawn_card, nullptr, show_card_flags::short_pause);
+                target->m_game->draw_card_to(card_pile_type::player_hand, target);
             } else {
                 target->m_game->draw_card_to(card_pile_type::player_hand, target);
             }
