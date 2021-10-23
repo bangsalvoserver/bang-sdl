@@ -66,23 +66,23 @@ void game_scene::render(sdl::renderer &renderer) {
     
     if (!m_player_own_id) return;
 
-    for (card_widget *card : m_main_deck | take_last<2>) {
+    for (card_view *card : m_main_deck | take_last<2>) {
         card->render(renderer);
     }
 
-    for (card_widget *card : m_shop_hidden | take_last<1>) {
+    for (card_view *card : m_shop_hidden | take_last<1>) {
         card->render(renderer);
     }
 
-    for (card_widget *card : m_shop_discard | take_last<1>) {
+    for (card_view *card : m_shop_discard | take_last<1>) {
         card->render(renderer);
     }
 
-    for (card_widget *card : m_shop_deck | take_last<2>) {
+    for (card_view *card : m_shop_deck | take_last<2>) {
         card->render(renderer);
     }
 
-    for (card_widget *card : m_shop_selection) {
+    for (card_view *card : m_shop_selection) {
         card->render(renderer);
     }
 
@@ -96,19 +96,19 @@ void game_scene::render(sdl::renderer &renderer) {
 
         p.render(renderer);
 
-        for (card_widget *card : p.table) {
+        for (card_view *card : p.table) {
             card->render(renderer);
         }
-        for (card_widget *card : p.hand) {
+        for (card_view *card : p.hand) {
             card->render(renderer);
         }
     }
 
-    for (card_widget *card : m_discard_pile | take_last<2>) {
+    for (card_view *card : m_discard_pile | take_last<2>) {
         card->render(renderer);
     }
 
-    for (card_widget *card : m_selection) {
+    for (card_view *card : m_selection) {
         card->render(renderer);
     }
 
@@ -171,12 +171,12 @@ void game_scene::handle_card_click(const sdl::point &mouse_pt) {
     main_deck_rect.x = m_main_deck.pos.x - main_deck_rect.w / 2;
     main_deck_rect.y = m_main_deck.pos.y - main_deck_rect.h / 2;
 
-    if (card_widget *card = find_clicked(m_selection)) {
-        on_click_selection_card(static_cast<card_view*>(card));
+    if (card_view *card = find_clicked(m_selection)) {
+        on_click_selection_card(card);
         return;
     }
-    if (card_widget *card = find_clicked(m_shop_selection)) {
-        on_click_shop_card(static_cast<card_view*>(card));
+    if (card_view *card = find_clicked(m_shop_selection)) {
+        on_click_shop_card(card);
         return;
     }
     if (sdl::point_in_rect(mouse_pt, main_deck_rect)) {
@@ -186,7 +186,7 @@ void game_scene::handle_card_click(const sdl::point &mouse_pt) {
     for (auto &[player_id, p] : m_players) {
         for (auto &c : p.m_characters | std::views::reverse) {
             if (sdl::point_in_rect(mouse_pt, c.get_rect())) {
-                on_click_character(player_id, static_cast<character_card *>(&c));
+                on_click_character(player_id, &c);
                 return;
             }
         }
@@ -194,12 +194,12 @@ void game_scene::handle_card_click(const sdl::point &mouse_pt) {
             on_click_player(player_id);
             return;
         }
-        if (card_widget *card = find_clicked(p.table)) {
-            on_click_table_card(player_id, static_cast<card_view*>(card));
+        if (card_view *card = find_clicked(p.table)) {
+            on_click_table_card(player_id, card);
             return;
         }
-        if (card_widget *card = find_clicked(p.hand)) {
-            on_click_hand_card(player_id, static_cast<card_view*>(card));
+        if (card_view *card = find_clicked(p.hand)) {
+            on_click_hand_card(player_id, card);
             return;
         }
     }
@@ -703,17 +703,13 @@ void game_scene::handle_update(UPDATE_TAG(game_over), const game_over_update &ar
     m_ui.add_message(msg);
 }
 
-constexpr auto cast_to_card_view = std::views::transform([](card_widget *card) {
-    return static_cast<card_view *>(card);
-});
-
 void game_scene::handle_update(UPDATE_TAG(deck_shuffled), const card_pile_type &pile) {
     switch (pile) {
     case card_pile_type::main_deck: {
-        card_widget *top_discard = m_discard_pile.back();
+        card_view *top_discard = m_discard_pile.back();
         m_discard_pile.resize(m_discard_pile.size() - 1);
         card_move_animation anim;
-        for (card_view *card : m_discard_pile | cast_to_card_view) {
+        for (card_view *card : m_discard_pile) {
             card->known = false;
             card->flip_amt = 0.f;
             card->pile = &m_main_deck;
@@ -728,7 +724,7 @@ void game_scene::handle_update(UPDATE_TAG(deck_shuffled), const card_pile_type &
         break;
     }
     case card_pile_type::shop_deck:
-        for (card_view *card : m_shop_discard | cast_to_card_view) {
+        for (card_view *card : m_shop_discard) {
             card->known = false;
             card->flip_amt = 0.f;
             card->pile = &m_shop_deck;
@@ -768,7 +764,7 @@ void game_scene::handle_update(UPDATE_TAG(move_card), const move_card_update &ar
 
     card->pile->erase_card(card);
     if (card->pile->width > 0) {
-        for (card_view *anim_card : *card->pile | cast_to_card_view) {
+        for (card_view *anim_card : *card->pile) {
             anim.add_move_card(anim_card);
             m_animating.push_back(anim_card);
         }
@@ -790,7 +786,7 @@ void game_scene::handle_update(UPDATE_TAG(move_card), const move_card_update &ar
     }();
     card->pile->push_back(card);
     if (card->pile->width > 0) {
-        for (card_view *anim_card : *card->pile | cast_to_card_view) {
+        for (card_view *anim_card : *card->pile) {
             if (anim.add_move_card(anim_card)) {
                 m_animating.push_back(anim_card);
             }

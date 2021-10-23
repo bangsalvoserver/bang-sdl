@@ -20,9 +20,9 @@ namespace banggame {
         sdl::texture &goldrush();
     };
 
-    struct card_widget;
+    struct card_view;
 
-    struct card_pile_view : std::vector<card_widget *> {
+    struct card_pile_view : std::vector<card_view *> {
         sdl::point pos;
         int width;
         int hflip;
@@ -31,7 +31,7 @@ namespace banggame {
             : width(width)
             , hflip(hflip ? -1 : 1) {}
 
-        sdl::point get_position(card_widget *card) const {
+        sdl::point get_position(card_view *card) const {
             if (size() == 1) {
                 return pos;
             }
@@ -42,7 +42,7 @@ namespace banggame {
                 pos.y};
         }
 
-        void erase_card(card_widget *card) {
+        void erase_card(card_view *card) {
             if (auto it = std::ranges::find(*this, card); it != end()) {
                 erase(it);
             }
