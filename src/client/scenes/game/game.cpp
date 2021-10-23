@@ -697,7 +697,7 @@ void game_scene::show_error(const std::string &message) {
     m_ui.show_error(message);
 }
 
-void game_scene::handle_update(enums::enum_constant<game_update_type::game_over>, const game_over_update &args) {
+void game_scene::handle_update(UPDATE_TAG(game_over), const game_over_update &args) {
     std::string msg = "Game Over. Winner: ";
     msg += enums::to_string(args.winner_role);
     m_ui.add_message(msg);
@@ -707,7 +707,7 @@ constexpr auto cast_to_card_view = std::views::transform([](card_widget *card) {
     return static_cast<card_view *>(card);
 });
 
-void game_scene::handle_update(enums::enum_constant<game_update_type::deck_shuffled>, const card_pile_type &pile) {
+void game_scene::handle_update(UPDATE_TAG(deck_shuffled), const card_pile_type &pile) {
     switch (pile) {
     case card_pile_type::main_deck: {
         card_widget *top_discard = m_discard_pile.back();
@@ -741,7 +741,7 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::deck_shuff
     }
 }
 
-void game_scene::handle_update(enums::enum_constant<game_update_type::add_cards>, const add_cards_update &args) {
+void game_scene::handle_update(UPDATE_TAG(add_cards), const add_cards_update &args) {
     for (int id : args.card_ids) {
         auto &c = m_cards[id];
         c.id = id;
@@ -757,7 +757,7 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::add_cards>
     pop_update();
 }
 
-void game_scene::handle_update(enums::enum_constant<game_update_type::move_card>, const move_card_update &args) {
+void game_scene::handle_update(UPDATE_TAG(move_card), const move_card_update &args) {
     auto *card = find_card(args.card_id);
     if (!card) {
         pop_update();
@@ -807,7 +807,7 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::move_card>
     }
 }
 
-void game_scene::handle_update(enums::enum_constant<game_update_type::virtual_card>, const virtual_card_update &args) {
+void game_scene::handle_update(UPDATE_TAG(virtual_card), const virtual_card_update &args) {
     auto &c = m_virtual.emplace();
     c.id = args.virtual_id;
     c.suit = args.suit;
@@ -820,7 +820,7 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::virtual_ca
     handle_auto_targets(false);
 }
 
-void game_scene::handle_update(enums::enum_constant<game_update_type::show_card>, const show_card_update &args) {
+void game_scene::handle_update(UPDATE_TAG(show_card), const show_card_update &args) {
     auto *card = find_card(args.info.id);
 
     if (card && !card->known) {
@@ -853,7 +853,7 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::show_card>
     }
 }
 
-void game_scene::handle_update(enums::enum_constant<game_update_type::hide_card>, const hide_card_update &args) {
+void game_scene::handle_update(UPDATE_TAG(hide_card), const hide_card_update &args) {
     auto *card = find_card(args.card_id);
 
     if (card && card->known) {
@@ -873,7 +873,7 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::hide_card>
     }
 }
 
-void game_scene::handle_update(enums::enum_constant<game_update_type::tap_card>, const tap_card_update &args) {
+void game_scene::handle_update(UPDATE_TAG(tap_card), const tap_card_update &args) {
     auto *card = find_card(args.card_id);
     if (card->inactive != args.inactive) {
         card->inactive = args.inactive;
@@ -903,7 +903,7 @@ void game_scene::move_player_views() {
     }
 }
 
-void game_scene::handle_update(enums::enum_constant<game_update_type::player_add>, const player_user_update &args) {
+void game_scene::handle_update(UPDATE_TAG(player_add), const player_user_update &args) {
     if (args.user_id == parent->get_user_own_id()) {
         m_player_own_id = args.player_id;
     }
@@ -915,7 +915,7 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::player_add
     pop_update();
 }
 
-void game_scene::handle_update(enums::enum_constant<game_update_type::player_hp>, const player_hp_update &args) {
+void game_scene::handle_update(UPDATE_TAG(player_hp), const player_hp_update &args) {
     auto *player = find_player(args.player_id);
     if (player->hp != args.hp && !args.dead) {
         m_animations.emplace_back(20, player_hp_animation{player, player->hp, args.hp});
@@ -926,12 +926,12 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::player_hp>
     player->hp = args.hp;
 }
 
-void game_scene::handle_update(enums::enum_constant<game_update_type::player_gold>, const player_gold_update &args) {
+void game_scene::handle_update(UPDATE_TAG(player_gold), const player_gold_update &args) {
     find_player(args.player_id)->set_gold(args.gold);
     pop_update();
 }
 
-void game_scene::handle_update(enums::enum_constant<game_update_type::player_add_character>, const player_character_update &args) {
+void game_scene::handle_update(UPDATE_TAG(player_add_character), const player_character_update &args) {
     auto &p = *find_player(args.player_id);
     p.m_role.texture_back = &textures_back::role();
 
@@ -953,7 +953,7 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::player_add
     pop_update();
 }
 
-void game_scene::handle_update(enums::enum_constant<game_update_type::player_remove_character>, const player_remove_character_update &args) {
+void game_scene::handle_update(UPDATE_TAG(player_remove_character), const player_remove_character_update &args) {
     auto &p = *find_player(args.player_id);
     if (args.index < p.m_characters.size()) {
         p.m_characters.erase(std::next(p.m_characters.begin(), args.index));
@@ -962,7 +962,7 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::player_rem
     pop_update();
 }
 
-void game_scene::handle_update(enums::enum_constant<game_update_type::player_show_role>, const player_show_role_update &args) {
+void game_scene::handle_update(UPDATE_TAG(player_show_role), const player_show_role_update &args) {
     auto &p = *find_player(args.player_id);
     if (p.m_role.role == args.role) {
         pop_update();
@@ -981,7 +981,7 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::player_sho
     }
 }
 
-void game_scene::handle_update(enums::enum_constant<game_update_type::switch_turn>, const switch_turn_update &args) {
+void game_scene::handle_update(UPDATE_TAG(switch_turn), const switch_turn_update &args) {
     m_playing_id = args.player_id;
     clear_targets();
 
@@ -992,7 +992,7 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::switch_tur
     pop_update();
 }
 
-void game_scene::handle_update(enums::enum_constant<game_update_type::request_handle>, const request_handle_update &args) {
+void game_scene::handle_update(UPDATE_TAG(request_handle), const request_handle_update &args) {
     m_current_request.type = args.type;
     m_current_request.origin_id = args.origin_id;
     m_current_request.target_id = args.target_id;
@@ -1012,7 +1012,7 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::request_ha
     pop_update();
 }
 
-void game_scene::handle_update(enums::enum_constant<game_update_type::status_clear>) {
+void game_scene::handle_update(UPDATE_TAG(status_clear)) {
     m_current_request.type = request_type::none;
     m_current_request.origin_id = 0;
 

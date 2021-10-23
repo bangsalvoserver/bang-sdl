@@ -20,6 +20,8 @@ DEFINE_ENUM_TYPES(scene_type,
     (game, banggame::game_scene)
 )
 
+#define MESSAGE_TAG(name) enums::enum_constant<server_message_type::name>
+
 class game_manager {
 public:
     game_manager(const std::string &config_filename);
@@ -76,17 +78,17 @@ public:
     }
 
 private:
-    void handle_message(enums::enum_constant<server_message_type::client_accepted>);
-    void handle_message(enums::enum_constant<server_message_type::lobby_list>, const std::vector<lobby_data> &args);
-    void handle_message(enums::enum_constant<server_message_type::lobby_edited>, const lobby_info &args);
-    void handle_message(enums::enum_constant<server_message_type::lobby_entered>, const lobby_entered_args &args);
-    void handle_message(enums::enum_constant<server_message_type::lobby_players>, const std::vector<lobby_player_data> &args);
-    void handle_message(enums::enum_constant<server_message_type::lobby_joined>, const lobby_player_data &args);
-    void handle_message(enums::enum_constant<server_message_type::lobby_left>, const lobby_left_args &args);
-    void handle_message(enums::enum_constant<server_message_type::lobby_chat>, const lobby_chat_args &args);
-    void handle_message(enums::enum_constant<server_message_type::game_started>);
-    void handle_message(enums::enum_constant<server_message_type::game_error>, const std::string &message);
-    void handle_message(enums::enum_constant<server_message_type::game_update>, const banggame::game_update &args);
+    void handle_message(MESSAGE_TAG(client_accepted));
+    void handle_message(MESSAGE_TAG(lobby_list), const std::vector<lobby_data> &args);
+    void handle_message(MESSAGE_TAG(lobby_edited), const lobby_info &args);
+    void handle_message(MESSAGE_TAG(lobby_entered), const lobby_entered_args &args);
+    void handle_message(MESSAGE_TAG(lobby_players), const std::vector<lobby_player_data> &args);
+    void handle_message(MESSAGE_TAG(lobby_joined), const lobby_player_data &args);
+    void handle_message(MESSAGE_TAG(lobby_left), const lobby_left_args &args);
+    void handle_message(MESSAGE_TAG(lobby_chat), const lobby_chat_args &args);
+    void handle_message(MESSAGE_TAG(game_started));
+    void handle_message(MESSAGE_TAG(game_error), const std::string &message);
+    void handle_message(MESSAGE_TAG(game_update), const banggame::game_update &args);
 
     scene_base *m_scene = nullptr;
 

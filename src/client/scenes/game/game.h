@@ -11,6 +11,8 @@
 #include <list>
 #include <optional>
 
+#define UPDATE_TAG(name) enums::enum_constant<game_update_type::name>
+
 namespace banggame {
 
     struct request_view {
@@ -38,23 +40,23 @@ namespace banggame {
         void show_error(const std::string &message);
 
     private:
-        void handle_update(enums::enum_constant<game_update_type::game_over>,        const game_over_update &args);
-        void handle_update(enums::enum_constant<game_update_type::add_cards>,        const add_cards_update &args);
-        void handle_update(enums::enum_constant<game_update_type::move_card>,        const move_card_update &args);
-        void handle_update(enums::enum_constant<game_update_type::deck_shuffled>,    const card_pile_type &pile);
-        void handle_update(enums::enum_constant<game_update_type::virtual_card>,     const virtual_card_update &args);
-        void handle_update(enums::enum_constant<game_update_type::show_card>,        const show_card_update &args);
-        void handle_update(enums::enum_constant<game_update_type::hide_card>,        const hide_card_update &args);
-        void handle_update(enums::enum_constant<game_update_type::tap_card>,         const tap_card_update &args);
-        void handle_update(enums::enum_constant<game_update_type::player_add>,       const player_user_update &args);
-        void handle_update(enums::enum_constant<game_update_type::player_hp>,        const player_hp_update &args);
-        void handle_update(enums::enum_constant<game_update_type::player_gold>,      const player_gold_update &args);
-        void handle_update(enums::enum_constant<game_update_type::player_add_character>, const player_character_update &args);
-        void handle_update(enums::enum_constant<game_update_type::player_remove_character>, const player_remove_character_update &args);
-        void handle_update(enums::enum_constant<game_update_type::player_show_role>, const player_show_role_update &args);
-        void handle_update(enums::enum_constant<game_update_type::switch_turn>,      const switch_turn_update &args);
-        void handle_update(enums::enum_constant<game_update_type::request_handle>,   const request_handle_update &args);
-        void handle_update(enums::enum_constant<game_update_type::status_clear>);
+        void handle_update(UPDATE_TAG(game_over),        const game_over_update &args);
+        void handle_update(UPDATE_TAG(add_cards),        const add_cards_update &args);
+        void handle_update(UPDATE_TAG(move_card),        const move_card_update &args);
+        void handle_update(UPDATE_TAG(deck_shuffled),    const card_pile_type &pile);
+        void handle_update(UPDATE_TAG(virtual_card),     const virtual_card_update &args);
+        void handle_update(UPDATE_TAG(show_card),        const show_card_update &args);
+        void handle_update(UPDATE_TAG(hide_card),        const hide_card_update &args);
+        void handle_update(UPDATE_TAG(tap_card),         const tap_card_update &args);
+        void handle_update(UPDATE_TAG(player_add),       const player_user_update &args);
+        void handle_update(UPDATE_TAG(player_hp),        const player_hp_update &args);
+        void handle_update(UPDATE_TAG(player_gold),      const player_gold_update &args);
+        void handle_update(UPDATE_TAG(player_add_character), const player_character_update &args);
+        void handle_update(UPDATE_TAG(player_remove_character), const player_remove_character_update &args);
+        void handle_update(UPDATE_TAG(player_show_role), const player_show_role_update &args);
+        void handle_update(UPDATE_TAG(switch_turn),      const switch_turn_update &args);
+        void handle_update(UPDATE_TAG(request_handle),   const request_handle_update &args);
+        void handle_update(UPDATE_TAG(status_clear));
         
         void pop_update();
 

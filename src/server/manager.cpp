@@ -72,13 +72,13 @@ std::list<lobby>::iterator game_manager::find_lobby(const user *u) {
     });
 }
 
-void game_manager::handle_message(enums::enum_constant<client_message_type::connect>, const sdlnet::ip_address &addr, const connect_args &args) {
+void game_manager::handle_message(MESSAGE_TAG(connect), const sdlnet::ip_address &addr, const connect_args &args) {
     if (users.try_emplace(addr, addr, args.user_name).second) {
         send_message<server_message_type::client_accepted>(addr);
     }
 }
 
-void game_manager::handle_message(enums::enum_constant<client_message_type::lobby_list>, const sdlnet::ip_address &addr) {
+void game_manager::handle_message(MESSAGE_TAG(lobby_list), const sdlnet::ip_address &addr) {
     std::vector<lobby_data> vec;
     for (const auto &lobby : m_lobbies) {
         lobby_data obj;
@@ -91,7 +91,7 @@ void game_manager::handle_message(enums::enum_constant<client_message_type::lobb
     send_message<server_message_type::lobby_list>(addr, std::move(vec));
 }
 
-void game_manager::handle_message(enums::enum_constant<client_message_type::lobby_make>, const sdlnet::ip_address &addr, const lobby_info &value) {
+void game_manager::handle_message(MESSAGE_TAG(lobby_make), const sdlnet::ip_address &addr, const lobby_info &value) {
     auto *u = find_user(addr);
     if (!u) {
         return;
@@ -114,7 +114,7 @@ void game_manager::handle_message(enums::enum_constant<client_message_type::lobb
     send_message<server_message_type::lobby_entered>(addr, value, u->id, u->id);
 }
 
-void game_manager::handle_message(enums::enum_constant<client_message_type::lobby_edit>, const sdlnet::ip_address &addr, const lobby_info &args) {
+void game_manager::handle_message(MESSAGE_TAG(lobby_edit), const sdlnet::ip_address &addr, const lobby_info &args) {
     auto *u = find_user(addr);
     if (!u) {
         return;
@@ -142,7 +142,7 @@ void game_manager::handle_message(enums::enum_constant<client_message_type::lobb
     }
 }
 
-void game_manager::handle_message(enums::enum_constant<client_message_type::lobby_join>, const sdlnet::ip_address &addr, const lobby_join_args &value) {
+void game_manager::handle_message(MESSAGE_TAG(lobby_join), const sdlnet::ip_address &addr, const lobby_join_args &value) {
     auto *u = find_user(addr);
     if (!u) {
         return;
@@ -170,7 +170,7 @@ void game_manager::handle_message(enums::enum_constant<client_message_type::lobb
     }
 }
 
-void game_manager::handle_message(enums::enum_constant<client_message_type::lobby_players>, const sdlnet::ip_address &addr) {
+void game_manager::handle_message(MESSAGE_TAG(lobby_players), const sdlnet::ip_address &addr) {
     auto it = find_lobby(find_user(addr));
     if (it == m_lobbies.end()) {
         throw game_error("Giocatore non in una lobby");
@@ -185,11 +185,11 @@ void game_manager::handle_message(enums::enum_constant<client_message_type::lobb
 }
 
 void game_manager::client_disconnected(const sdlnet::ip_address &addr) {
-    handle_message(enums::enum_constant<client_message_type::lobby_leave>{}, addr);
+    handle_message(MESSAGE_TAG(lobby_leave){}, addr);
     users.erase(addr);
 }
 
-void game_manager::handle_message(enums::enum_constant<client_message_type::lobby_leave>, const sdlnet::ip_address &addr) {
+void game_manager::handle_message(MESSAGE_TAG(lobby_leave), const sdlnet::ip_address &addr) {
     auto *u = find_user(addr);
     if (!u) {
         return;
@@ -211,7 +211,7 @@ void game_manager::handle_message(enums::enum_constant<client_message_type::lobb
     }
 }
 
-void game_manager::handle_message(enums::enum_constant<client_message_type::lobby_chat>, const sdlnet::ip_address &addr, const lobby_chat_client_args &value) {
+void game_manager::handle_message(MESSAGE_TAG(lobby_chat), const sdlnet::ip_address &addr, const lobby_chat_client_args &value) {
     auto *u = find_user(addr);
     if (!u) {
         return;
@@ -225,7 +225,7 @@ void game_manager::handle_message(enums::enum_constant<client_message_type::lobb
     broadcast_message<server_message_type::lobby_chat>(*it, u->id, value.message);
 }
 
-void game_manager::handle_message(enums::enum_constant<client_message_type::game_start>, const sdlnet::ip_address &addr) {
+void game_manager::handle_message(MESSAGE_TAG(game_start), const sdlnet::ip_address &addr) {
     auto *u = find_user(addr);
     if (!u) {
         return;
@@ -251,7 +251,7 @@ void game_manager::handle_message(enums::enum_constant<client_message_type::game
     it->start_game();
 }
 
-void game_manager::handle_message(enums::enum_constant<client_message_type::game_action>, const sdlnet::ip_address &addr, const game_action &value) {
+void game_manager::handle_message(MESSAGE_TAG(game_action), const sdlnet::ip_address &addr, const game_action &value) {
     auto *u = find_user(addr);
     if (!u) {
         return;
