@@ -13,11 +13,11 @@ namespace banggame {
     struct card_move_animation {
         std::map<card_view *, card_animation_item> data;
 
-        bool add_move_card(card_view &c) {
-            auto [it, inserted] = data.try_emplace(&c, c.pos, c.pile);
+        bool add_move_card(card_view *c) {
+            auto [it, inserted] = data.try_emplace(c, c->pos, c->pile);
             it->first->animating = true;
             if (!inserted) {
-                it->second.pile = c.pile;
+                it->second.pile = c->pile;
                 return false;
             }
             return true;
@@ -25,7 +25,7 @@ namespace banggame {
 
         void do_animation(float amt) {
             for (auto &[card, pos] : data) {
-                sdl::point dest = pos.pile->get_position(card->id);
+                sdl::point dest = pos.pile->get_position(card);
                 card->pos.x = std::lerp(pos.start.x, dest.x, amt);
                 card->pos.y = std::lerp(pos.start.y, dest.y, amt);
             }
@@ -33,7 +33,7 @@ namespace banggame {
 
         void end() {
             for (auto &[card, pos] : data) {
-                card->pos = pos.pile->get_position(card->id);
+                card->pos = pos.pile->get_position(card);
                 card->animating = false;
             }
         }

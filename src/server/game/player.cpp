@@ -8,6 +8,10 @@
 
 namespace banggame {
     using namespace enums::flag_operators;
+
+    player::player(game *game)
+        : m_game(game)
+        , id(game->get_next_id()) {}
     
     void player::discard_weapon(int card_id) {
         auto it = std::ranges::find_if(m_table, [card_id](const deck_card &c) {

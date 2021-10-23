@@ -20,7 +20,9 @@ namespace banggame {
         sdl::texture &goldrush();
     };
 
-    struct card_pile_view : std::vector<int> {
+    struct card_widget;
+
+    struct card_pile_view : std::vector<card_widget *> {
         sdl::point pos;
         int width;
         int hflip;
@@ -29,23 +31,19 @@ namespace banggame {
             : width(width)
             , hflip(hflip ? -1 : 1) {}
 
-        auto find(int card_id) const {
-            return std::ranges::find(*this, card_id);
-        }
-
-        sdl::point get_position(int card_id) const {
+        sdl::point get_position(card_widget *card) const {
             if (size() == 1) {
                 return pos;
             }
             float xoffset = std::min(float(width) / (size() - 1), float(sizes::card_width + sizes::card_xoffset)) * hflip;
 
             return sdl::point{(int)(pos.x + xoffset *
-                (std::ranges::distance(begin(), find(card_id)) - (size() - 1) * .5f)),
+                (std::ranges::distance(begin(), std::ranges::find(*this, card)) - (size() - 1) * .5f)),
                 pos.y};
         }
 
-        void erase_card(int card_id) {
-            if (auto it = find(card_id); it != end()) {
+        void erase_card(card_widget *card) {
+            if (auto it = std::ranges::find(*this, card); it != end()) {
                 erase(it);
             }
         }

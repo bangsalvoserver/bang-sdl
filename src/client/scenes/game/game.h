@@ -70,11 +70,11 @@ namespace banggame {
         void find_overlay(const sdl::point &mouse_pt);
 
         void on_click_main_deck();
-        void on_click_selection_card(int card_id);
-        void on_click_shop_card(int card_id);
-        void on_click_table_card(int player_id, int card_id);
-        void on_click_hand_card(int player_id, int card_id);
-        void on_click_character(int player_id, int card_id);
+        void on_click_selection_card(card_view *card);
+        void on_click_shop_card(card_view *card);
+        void on_click_table_card(int player_id, card_view *card);
+        void on_click_hand_card(int player_id, card_view *card);
+        void on_click_character(int player_id, character_card *card);
         void on_click_player(int player_id);
 
         void on_click_sell_beer();
@@ -105,41 +105,42 @@ namespace banggame {
 
         std::optional<card_view> m_virtual;
 
-        int m_overlay = 0;
+        card_widget *m_overlay = nullptr;
 
         std::vector<card_target_data> &get_current_card_targets(bool is_response);
 
-        card_view &get_card(int id) {
-            auto it = m_cards.find(id);
-            if (it == m_cards.end()) throw std::runtime_error("client.get_card: ID non trovato");
-            return it->second;
+        card_view *find_card(int id) {
+            if (auto it = m_cards.find(id); it != m_cards.end()) {
+                return &it->second;
+            }
+            return nullptr;
         }
 
-        card_widget &get_card_widget(int id) {
+        card_widget *get_card_widget(int id) {
             if (auto it = m_cards.find(id); it != m_cards.end()) {
-                return it->second;
+                return &it->second;
             }
             for (auto &[player_id, p] : m_players) {
                 if (auto it = std::ranges::find(p.m_characters, id, &character_card::id); it != p.m_characters.end()) {
-                    return *it;
+                    return &*it;
                 }
             }
-            throw std::runtime_error("client.get_card_widget: ID non trovato");
+            return nullptr;
         }
 
-        player_view &get_player(int id) {
-            auto it = m_players.find(id);
-            if (it == m_players.end()) throw std::runtime_error("client.get_player: ID non trovato");
-            return it->second;
+        player_view *find_player(int id) {
+            if (auto it = m_players.find(id); it != m_players.end()) {
+                return &it->second;
+            }
+            return nullptr;
         }
 
         int m_player_own_id = 0;
-
-        int m_playing_id;
+        int m_playing_id = 0;
 
         play_card_args m_play_card_args;
-        std::vector<int> m_highlights;
-        std::vector<int> m_animating;
+        std::vector<card_widget *> m_highlights;
+        std::vector<card_widget *> m_animating;
 
         request_view m_current_request;
 

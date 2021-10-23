@@ -15,8 +15,9 @@ namespace banggame {
     using draw_check_function = std::function<void(card_suit_type, card_value_type)>;
     using bang_modifier = std::function<void(request_bang &req)>;
 
-    struct player : public util::id_counter<player> {
+    struct player {
         game *m_game;
+        int id;
 
         std::vector<deck_card> m_hand;
         std::vector<deck_card> m_table;
@@ -68,7 +69,7 @@ namespace banggame {
         std::vector<int> m_max_cards_mods;
         std::multimap<int, int> m_current_card_targets;
 
-        explicit player(game *game) : m_game(game) {}
+        explicit player(game *game);
 
         void equip_card(deck_card &&target);
         bool has_card_equipped(const std::string &name) const;
