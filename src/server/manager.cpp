@@ -153,10 +153,6 @@ void game_manager::handle_message(MESSAGE_TAG(lobby_join), const sdlnet::ip_addr
         throw game_error("Id Lobby non valido");
     }
 
-    if (it->state != lobby_state::waiting) {
-        throw game_error("Lobby non in attesa");
-    }
-
     if (it->users.size() < lobby_max_players) {
         it->users.emplace_back(u, nullptr);
 
@@ -165,6 +161,26 @@ void game_manager::handle_message(MESSAGE_TAG(lobby_join), const sdlnet::ip_addr
                 send_message<server_message_type::lobby_entered>(p.user->addr, lobby_info{it->name, it->expansions}, u->id, it->owner->id);
             } else {
                 send_message<server_message_type::lobby_joined>(p.user->addr, u->id, u->name);
+            }
+        }
+        if (it->state != lobby_state::waiting) {
+            std::vector<lobby_player_data> vec;
+            for (const auto &l_u : it->users) {
+                if (l_u.user != u) {
+                    vec.emplace_back(l_u.user->id, l_u.user->name);
+                }
+            }
+            send_message<server_message_type::lobby_players>(addr, std::move(vec));
+
+            send_message<server_message_type::game_started>(addr);
+            for (const auto &u : it->users) {
+                if (u.controlling) {
+                    send_message<server_message_type::game_update>(addr, enums::enum_constant<game_update_type::player_add>{},
+                        u.controlling->id, u.user->id);
+                }
+            }
+            for (const auto &msg : it->game.get_game_state_updates()) {
+                send_message<server_message_type::game_update>(addr, msg);
             }
         }
     }
@@ -279,8 +295,12 @@ void lobby::send_updates(game_manager &mgr) {
         if (data.second.is(game_update_type::game_over)) {
             state = lobby_state::finished;
         }
-        const auto &addr = std::ranges::find(users, data.first, &lobby_user::controlling)->user->addr;
-        mgr.send_message<server_message_type::game_update>(addr, data.second);
+        if (data.first) {
+            const auto &addr = std::ranges::find(users, data.first, &lobby_user::controlling)->user->addr;
+            mgr.send_message<server_message_type::game_update>(addr, data.second);
+        } else {
+            mgr.broadcast_message<server_message_type::game_update>(*this, data.second);
+        }
         game.m_updates.pop_front();
     }
 }

@@ -62,8 +62,6 @@ void game_scene::render(sdl::renderer &renderer) {
             m_animations.pop_front();
         }
     }
-    
-    if (!m_player_own_id) return;
 
     for (card_view *card : m_main_deck | take_last<2>) {
         card->render(renderer);
@@ -874,7 +872,7 @@ void game_scene::handle_update(UPDATE_TAG(tap_card), const tap_card_update &args
 }
 
 void game_scene::move_player_views() {
-    auto own_player = m_players.find(m_player_own_id);
+    auto own_player = m_player_own_id ? m_players.find(m_player_own_id) : m_players.begin();
     if (own_player == m_players.end()) return;
 
     int xradius = (parent->width() / 2) - sizes::player_ellipse_x_distance;

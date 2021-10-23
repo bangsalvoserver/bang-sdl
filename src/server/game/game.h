@@ -99,18 +99,18 @@ namespace banggame {
         std::default_random_engine rng;
 
         template<game_update_type E, typename ... Ts>
-        void add_public_update(const Ts & ... args) {
-            for (auto &p : m_players) {
-                add_private_update<E>(&p, args ...);
-            }
-        }
-
-        template<game_update_type E, typename ... Ts>
         void add_private_update(player *p, Ts && ... args) {
             m_updates.emplace_back(std::piecewise_construct,
                 std::make_tuple(p),
                 std::make_tuple(enums::enum_constant<E>{}, std::forward<Ts>(args) ...));
         }
+
+        template<game_update_type E, typename ... Ts>
+        void add_public_update(const Ts & ... args) {
+            add_private_update<E>(nullptr, args ...);
+        }
+
+        std::vector<game_update> get_game_state_updates();
 
         void send_card_update(const deck_card &c, player *owner = nullptr, show_card_flags flags = enums::flags_none<show_card_flags>);
         void send_character_update(const character &c, int player_id, int index);

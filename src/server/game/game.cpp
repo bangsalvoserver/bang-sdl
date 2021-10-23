@@ -61,6 +61,76 @@ namespace banggame {
         add_public_update<game_update_type::player_add_character>(std::move(obj));
     }
 
+    std::vector<game_update> game::get_game_state_updates() {
+        std::vector<game_update> ret;
+
+        auto add_cards = [&ret](std::vector<deck_card> vec) {
+            auto pos = std::partition(vec.begin(), vec.end(), [](const deck_card &c) { return c.expansion != card_expansion_type::goldrush; });
+            if (pos != vec.begin()) {
+                auto view = std::ranges::subrange(vec.begin(), pos) | std::views::transform(&deck_card::id);
+                ret.emplace_back(enums::enum_constant<game_update_type::add_cards>{},
+                    std::vector(view.begin(), view.end()), card_pile_type::main_deck);
+            }
+            if (pos != vec.end()) {
+                auto view = std::ranges::subrange(pos, vec.end()) | std::views::transform(&deck_card::id);
+                ret.emplace_back(enums::enum_constant<game_update_type::add_cards>{}, std::vector(view.begin(), view.end()),
+                    pos->color == card_color_type::none ? card_pile_type::shop_hidden : card_pile_type::shop_deck);
+            }
+        };
+
+        auto add_cards_to = [&](const std::vector<deck_card> &vec, card_pile_type pile, player *owner = nullptr) {
+            add_cards(vec);
+            for (const auto &card : vec) {
+                ret.emplace_back(enums::enum_constant<game_update_type::move_card>{},
+                    card.id, owner ? owner->id : 0, pile, show_card_flags::no_animation);
+            }
+        };
+
+        auto add_cards_and_show = [&](const std::vector<deck_card> &vec, card_pile_type pile, player *owner = nullptr) {
+            add_cards_to(vec, pile, owner);
+
+            for (const auto &c : vec) {
+                show_card_update obj;
+                obj.info = make_card_info(c);
+                obj.suit = c.suit;
+                obj.value = c.value;
+                obj.color = c.color;
+                obj.flags = show_card_flags::no_animation;
+
+                ret.emplace_back(enums::enum_constant<game_update_type::show_card>{}, std::move(obj));
+            }
+        };
+
+        add_cards(m_deck);
+        add_cards_to(m_discards, card_pile_type::discard_pile);
+
+        add_cards(m_shop_deck);
+        add_cards_to(m_shop_discards, card_pile_type::shop_discard);
+        add_cards_and_show(m_shop_selection, card_pile_type::shop_selection);
+        add_cards(m_shop_hidden);
+
+        add_cards(m_selection);
+
+        for (auto &p : m_players) {
+            player_character_update obj;
+            obj.max_hp = p.m_max_hp;
+            obj.player_id = p.id;
+            obj.index = 0;
+
+            for (const auto &c : p.m_characters) {
+                obj.type = c.type;
+                obj.info = make_card_info(c);
+                ret.emplace_back(enums::enum_constant<game_update_type::player_add_character>{}, obj);
+                ++obj.index;
+            }
+
+            add_cards_to(p.m_hand, card_pile_type::player_hand, &p);
+            add_cards_and_show(p.m_table, card_pile_type::player_table, &p);
+        }
+
+        return ret;
+    }
+
     void game::start_game(const game_options &options) {
         m_options = options;
         
