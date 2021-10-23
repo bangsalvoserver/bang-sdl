@@ -141,8 +141,8 @@ namespace banggame {
             return enums::visit(&request_base::target, *this);
         }
 
-        bool flightable() const {
-            return enums::visit(&request_base::flightable, *this);
+        bool escapable() const {
+            return enums::visit(&request_base::escapable, *this);
         }
     };
 

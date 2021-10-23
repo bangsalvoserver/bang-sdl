@@ -40,7 +40,7 @@ namespace banggame {
         (tornado,       effect_tornado)
         (damage,        effect_damage)
         (saved,         effect_saved)
-        (flight,        effect_flight)
+        (escape,        effect_escape)
         (doublebarrel,  effect_doublebarrel)
         (rum,           effect_rum)
         (bottle,        effect_bottle)
@@ -138,8 +138,8 @@ namespace banggame {
             return enums::visit(&card_effect::args, *this);
         };
 
-        bool flightable() const {
-            return enums::visit(&card_effect::flightable, *this);
+        bool escapable() const {
+            return enums::visit(&card_effect::escapable, *this);
         }
     };
 

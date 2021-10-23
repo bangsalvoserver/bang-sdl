@@ -247,7 +247,7 @@
                 {
                     "target": "card",
                     "class": "destroy",
-                    "flightable": true
+                    "escapable": true
                 }
             ]
         },
@@ -288,7 +288,7 @@
                 {
                     "target": "player notself",
                     "class": "duel",
-                    "flightable": true
+                    "escapable": true
                 }
             ]
         },
@@ -319,7 +319,7 @@
                 {
                     "target": "player everyone notself",
                     "class": "bang",
-                    "flightable": true
+                    "escapable": true
                 }
             ]
         },
@@ -336,7 +336,7 @@
                 {
                     "target": "player everyone notself",
                     "class": "indians",
-                    "flightable": true
+                    "escapable": true
                 }
             ]
         },
@@ -381,7 +381,7 @@
                     "target": "card maxdistance",
                     "args": 1,
                     "class": "steal",
-                    "flightable": true
+                    "escapable": true
                 }
             ]
         },
@@ -589,7 +589,7 @@
                 {
                     "target": "card",
                     "class": "destroy",
-                    "flightable": true
+                    "escapable": true
                 }
             ]
         },
@@ -619,7 +619,7 @@
                 {
                     "target": "player everyone notself",
                     "class": "indians",
-                    "flightable": true
+                    "escapable": true
                 }
             ]
         },
@@ -650,7 +650,7 @@
                     "target": "card maxdistance",
                     "args": 1,
                     "class": "steal",
-                    "flightable": true
+                    "escapable": true
                 }
             ]
         },
@@ -667,7 +667,7 @@
                     "target": "player notself maxdistance",
                     "args": 1,
                     "class": "bang",
-                    "flightable": true
+                    "escapable": true
                 }
             ]
         },
@@ -687,7 +687,7 @@
                 {
                     "target": "card",
                     "class": "steal",
-                    "flightable": true
+                    "escapable": true
                 }
             ]
         },
@@ -707,7 +707,7 @@
                 {
                     "target": "everyone notself card",
                     "class": "destroy",
-                    "flightable": true
+                    "escapable": true
                 }
             ]
         },
@@ -746,7 +746,7 @@
                 {
                     "target": "player notself",
                     "class": "bang",
-                    "flightable": true
+                    "escapable": true
                 }
             ]
         },
@@ -1113,7 +1113,7 @@
                 {
                     "target": "player everyone",
                     "class": "bandidos",
-                    "flightable": true
+                    "escapable": true
                 }
             ]
         },
@@ -1127,7 +1127,7 @@
             "color": "brown",
             "responses": [
                 {
-                    "class": "flight"
+                    "class": "escape"
                 }
             ]
         },
@@ -1156,7 +1156,7 @@
             "effects": [
                 {
                     "class": "poker",
-                    "flightable": true
+                    "escapable": true
                 }
             ]
         },
@@ -1175,7 +1175,7 @@
                 {
                     "target": "player attacker",
                     "class": "bang",
-                    "flightable": true
+                    "escapable": true
                 }
             ]
         },
@@ -1207,12 +1207,12 @@
                 {
                     "target": "player reachable notself",
                     "class": "bang",
-                    "flightable": true
+                    "escapable": true
                 },
                 {
                     "target": "player notself fanning_target",
                     "class": "bang",
-                    "flightable": true
+                    "escapable": true
                 },
                 {
                     "class": "banglimit"
@@ -1232,7 +1232,7 @@
                     "target": "player notself maxdistance",
                     "args": 2,
                     "class": "bang",
-                    "flightable": true
+                    "escapable": true
                 }
             ]
         },
@@ -1341,7 +1341,7 @@
                 {
                     "target": "card",
                     "class": "destroy",
-                    "flightable": true
+                    "escapable": true
                 }
             ]
         },
@@ -1391,7 +1391,7 @@
                 {
                     "target": "player reachable notself",
                     "class": "bang",
-                    "flightable": true
+                    "escapable": true
                 }
             ],
             "optional_repeatable": true,
@@ -1403,7 +1403,7 @@
                 {
                     "target": "player reachable notself new_target",
                     "class": "bang",
-                    "flightable": true
+                    "escapable": true
                 }
             ]
         },
@@ -1419,7 +1419,7 @@
                 {
                     "target": "player reachable notself",
                     "class": "bang",
-                    "flightable": true
+                    "escapable": true
                 }
             ],
             "optional": [
@@ -1444,7 +1444,7 @@
                 {
                     "target": "player notself",
                     "class": "indians",
-                    "flightable": true
+                    "escapable": true
                 }
             ],
             "optional_repeatable": true,
@@ -1456,7 +1456,7 @@
                 {
                     "target": "player notself new_target",
                     "class": "indians",
-                    "flightable": true
+                    "escapable": true
                 }
             ]
         },
@@ -1526,7 +1526,7 @@
             "effects": [
                 {
                     "class": "rust",
-                    "flightable": true
+                    "escapable": true
                 }
             ]
         },
@@ -1542,7 +1542,7 @@
                 {
                     "target": "card",
                     "class": "destroy",
-                    "flightable": true
+                    "escapable": true
                 }
             ],
             "optional": [
@@ -2466,7 +2466,7 @@
                     "class": "destroy"
                 },
                 {
-                    "class": "flight"
+                    "class": "escape"
                 }
             ]
         },

@@ -9,7 +9,7 @@ namespace banggame {
     using namespace enums::flag_operators;
 
     void effect_bang::on_play(int origin_card_id, player *origin, player *target) {
-        target->m_game->queue_request<request_type::bang>(origin_card_id, origin, target, flightable);
+        target->m_game->queue_request<request_type::bang>(origin_card_id, origin, target, escapable);
     }
 
     void effect_bangcard::on_play(int origin_card_id, player *origin, player *target) {
@@ -72,11 +72,11 @@ namespace banggame {
     }
 
     void effect_indians::on_play(int origin_card_id, player *origin, player *target) {
-        target->m_game->queue_request<request_type::indians>(origin_card_id, origin, target, flightable);
+        target->m_game->queue_request<request_type::indians>(origin_card_id, origin, target, escapable);
     }
 
     void effect_duel::on_play(int origin_card_id, player *origin, player *target) {
-        target->m_game->queue_request<request_type::duel>(origin_card_id, origin, target, flightable);
+        target->m_game->queue_request<request_type::duel>(origin_card_id, origin, target, escapable);
     }
 
     bool effect_bangresponse::can_respond(player *origin) const {
@@ -155,7 +155,7 @@ namespace banggame {
     }
 
     void effect_destroy::on_play(int origin_card_id, player *origin, player *target, int card_id) {
-        if (flightable && origin != target && bool(origin->m_game->m_options.expansions & card_expansion_type::valleyofshadows)) {
+        if (escapable && origin != target && bool(origin->m_game->m_options.expansions & card_expansion_type::valleyofshadows)) {
             auto &req = target->m_game->queue_request<request_type::destroy>(origin_card_id, origin, target, true);
             req.card_id = card_id;
         } else {
@@ -167,7 +167,7 @@ namespace banggame {
     }
 
     void effect_steal::on_play(int origin_card_id, player *origin, player *target, int card_id) {
-        if (flightable && origin != target && bool(origin->m_game->m_options.expansions & card_expansion_type::valleyofshadows)) {
+        if (escapable && origin != target && bool(origin->m_game->m_options.expansions & card_expansion_type::valleyofshadows)) {
             auto &req = target->m_game->queue_request<request_type::steal>(origin_card_id, origin, target, true);
             req.card_id = card_id;
         } else {
@@ -224,7 +224,7 @@ namespace banggame {
     }
 
     void effect_bandidos::on_play(int origin_card_id, player *origin, player *target) {
-        target->m_game->queue_request<request_type::bandidos>(origin_card_id, origin, target, flightable);
+        target->m_game->queue_request<request_type::bandidos>(origin_card_id, origin, target, escapable);
     }
 
     void effect_tornado::on_play(int origin_card_id, player *origin, player *target) {
@@ -244,7 +244,7 @@ namespace banggame {
             next = origin->m_game->get_next_player(next);
             if (next == origin) return;
         } while (next->m_hand.empty());
-        origin->m_game->queue_request<request_type::poker>(origin_card_id, origin, next, flightable);
+        origin->m_game->queue_request<request_type::poker>(origin_card_id, origin, next, escapable);
     }
 
     bool effect_saved::can_respond(player *origin) const {
@@ -268,11 +268,11 @@ namespace banggame {
         });
     }
 
-    bool effect_flight::can_respond(player *origin) const {
-        return !origin->m_game->m_requests.empty() && origin->m_game->top_request().flightable();
+    bool effect_escape::can_respond(player *origin) const {
+        return !origin->m_game->m_requests.empty() && origin->m_game->top_request().escapable();
     }
 
-    void effect_flight::on_play(int origin_card_id, player *origin) {
+    void effect_escape::on_play(int origin_card_id, player *origin) {
         origin->m_game->pop_request();
     }
 

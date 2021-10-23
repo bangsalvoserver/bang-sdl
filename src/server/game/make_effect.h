@@ -41,8 +41,8 @@ namespace banggame {
                     throw std::runtime_error("Invalid target: " + json_effect["target"].asString());
                 }
             }
-            if (json_effect.isMember("flightable")) {
-                effect.flightable = json_effect["flightable"].asBool();
+            if (json_effect.isMember("escapable")) {
+                effect.escapable = json_effect["escapable"].asBool();
             }
             ret.push_back(lut[enums::indexof(e)](effect));
         }

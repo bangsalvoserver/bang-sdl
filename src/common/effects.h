@@ -13,14 +13,14 @@ namespace banggame {
     struct card_effect {
         target_type target = enums::flags_none<target_type>;
         int args = 0;
-        bool flightable = false;
+        bool escapable = false;
     };
 
     struct request_base {
         int origin_card_id;
         player *origin;
         player *target;
-        bool flightable = false;
+        bool escapable = false;
     };
     
     struct effect_bang : card_effect {
@@ -157,7 +157,7 @@ namespace banggame {
         void on_play(int origin_card_id, player *origin);
     };
 
-    struct effect_flight : card_effect {
+    struct effect_escape : card_effect {
         bool can_respond(player *origin) const;
         void on_play(int origin_card_id, player *origin);
     };

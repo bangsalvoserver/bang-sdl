@@ -103,7 +103,7 @@ namespace banggame {
             auto &moved = target->discard_card(args.card_id);
             if (--target->m_game->top_request().get<request_type::bandidos>().num_cards == 0
                 || target->num_hand_cards() == 0
-                || (flightable && !moved.responses.empty() && moved.responses.front().is(effect_type::flight))) {
+                || (escapable && !moved.responses.empty() && moved.responses.front().is(effect_type::escape))) {
                 target->m_game->pop_request();
             }
         }
@@ -112,7 +112,7 @@ namespace banggame {
     void request_tornado::on_pick(const pick_card_args &args) {
         if (args.pile == card_pile_type::player_hand && args.player_id == target->id) {
             auto &moved = target->discard_card(args.card_id);
-            if (!flightable || moved.responses.empty() || !moved.responses.front().is(effect_type::flight)) {
+            if (!escapable || moved.responses.empty() || !moved.responses.front().is(effect_type::escape)) {
                 target->m_game->draw_card_to(card_pile_type::player_hand, target);
                 target->m_game->draw_card_to(card_pile_type::player_hand, target);
             }
@@ -125,7 +125,7 @@ namespace banggame {
             if (args.pile == card_pile_type::player_hand && args.player_id == target->id) {
                 auto it = std::ranges::find(target->m_hand, args.card_id, &card::id);
 
-                if (flightable && !it->responses.empty() && it->responses.front().is(effect_type::flight)) {
+                if (escapable && !it->responses.empty() && it->responses.front().is(effect_type::escape)) {
                     target->discard_card(args.card_id);
                 } else {
                     target->m_game->move_to(std::move(*it), card_pile_type::selection, true, origin);
