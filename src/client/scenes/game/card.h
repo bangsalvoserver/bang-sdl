@@ -58,13 +58,17 @@ namespace banggame {
         float flip_amt = 0.f;
         float rotation = 0.f;
 
+        bool animating = false;
+
         const sdl::rect &get_rect() const {
             return m_rect;
         }
 
-        void render(sdl::renderer &renderer) {
-            if (flip_amt > 0.5f && texture_front_scaled) do_render(renderer, texture_front_scaled);
-            else if (texture_back) do_render(renderer, *texture_back);
+        void render(sdl::renderer &renderer, bool skip_if_animating = true) {
+            if (!skip_if_animating || !animating) {
+                if (flip_amt > 0.5f && texture_front_scaled) do_render(renderer, texture_front_scaled);
+                else if (texture_back) do_render(renderer, *texture_back);
+            }
         }
 
         sdl::texture texture_front;

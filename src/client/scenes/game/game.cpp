@@ -57,6 +57,8 @@ void game_scene::render(sdl::renderer &renderer) {
     } else {
         m_animations.front().tick();
         if (m_animations.front().done()) {
+            m_animations.front().end();
+            m_animating.clear();
             m_animations.pop_front();
             pop_update();
         }
@@ -108,6 +110,10 @@ void game_scene::render(sdl::renderer &renderer) {
 
     for (int id : m_selection) {
         get_card(id).render(renderer);
+    }
+
+    for (int id : m_animating) {
+        get_card(id).render(renderer, false);
     }
 
     renderer.set_draw_color(sdl::color{0xff, 0x0, 0x0, 0xff});
@@ -726,6 +732,7 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::deck_shuff
             c.pile = &m_main_deck;
             m_main_deck.push_back(id);
             anim.add_move_card(c);
+            m_animating.push_back(id);
         }
         m_discard_pile.clear();
         m_discard_pile.push_back(top_discard);
@@ -772,6 +779,7 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::move_card>
     if (c.pile->width > 0) {
         for (int id : *c.pile) {
             anim.add_move_card(get_card(id));
+            m_animating.push_back(id);
         }
     }
     
@@ -792,13 +800,16 @@ void game_scene::handle_update(enums::enum_constant<game_update_type::move_card>
     c.pile->push_back(c.id);
     if (c.pile->width > 0) {
         for (int id : *c.pile) {
-            anim.add_move_card(get_card(id));
+            if (anim.add_move_card(get_card(id))) {
+                m_animating.push_back(id);
+            }
         }
     } else {
         anim.add_move_card(c);
+        m_animating.push_back(c.id);
     }
     if (bool(args.flags & show_card_flags::no_animation)) {
-        anim.do_animation(1.f);
+        anim.end();
         pop_update();
     } else {
         m_animations.emplace_back(20, std::move(anim));

@@ -13,11 +13,14 @@ namespace banggame {
     struct card_move_animation {
         std::map<card_view *, card_animation_item> data;
 
-        void add_move_card(card_view &c) {
+        bool add_move_card(card_view &c) {
             auto [it, inserted] = data.try_emplace(&c, c.pos, c.pile);
+            it->first->animating = true;
             if (!inserted) {
                 it->second.pile = c.pile;
+                return false;
             }
+            return true;
         }
 
         void do_animation(float amt) {
@@ -25,6 +28,13 @@ namespace banggame {
                 sdl::point dest = pos.pile->get_position(card->id);
                 card->pos.x = std::lerp(pos.start.x, dest.x, amt);
                 card->pos.y = std::lerp(pos.start.y, dest.y, amt);
+            }
+        }
+
+        void end() {
+            for (auto &[card, pos] : data) {
+                card->pos = pos.pile->get_position(card->id);
+                card->animating = false;
             }
         }
     };
@@ -58,9 +68,7 @@ namespace banggame {
         }
     };
 
-    struct pause_animation {
-        void do_animation(float amt) {}
-    };
+    struct pause_animation {};
 
     class animation {
     private:
@@ -77,7 +85,17 @@ namespace banggame {
         void tick() {
             ++elapsed;
             std::visit([this](auto &anim) {
-                anim.do_animation((float)elapsed / (float)duration);
+                if constexpr (requires (float value) { anim.do_animation(value); }) {
+                    anim.do_animation((float)elapsed / (float)duration);
+                }
+            }, m_anim);
+        }
+
+        void end() {
+            std::visit([](auto &anim) {
+                if constexpr (requires { anim.end(); }) {
+                    anim.end();
+                }
             }, m_anim);
         }
 
