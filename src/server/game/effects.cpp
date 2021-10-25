@@ -98,6 +98,10 @@ namespace banggame {
         }
     }
 
+    bool effect_bangresponse_onturn::can_respond(player *origin) const {
+        return effect_bangresponse::can_respond(origin) && origin == origin->m_game->m_playing;
+    }
+
     bool effect_bangmissed::can_respond(player *origin) const {
         return effect_missed().can_respond(origin) || effect_bangresponse().can_respond(origin);
     }

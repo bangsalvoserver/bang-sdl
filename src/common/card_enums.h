@@ -97,6 +97,12 @@ namespace banggame {
         (shop_hidden)
     )
 
+    DEFINE_ENUM_IN_NS(banggame, card_modifier_type,
+        (none)
+        (bangcard)
+        (discount)
+    )
+
 }
 
 #endif

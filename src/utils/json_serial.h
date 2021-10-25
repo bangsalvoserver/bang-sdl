@@ -190,4 +190,23 @@ namespace json {
 
 #define DEFINE_SERIALIZABLE(structName, seq) DO_DEFINE_SERIALIZABLE(structName, ADD_PARENTHESES(seq))
 
+#define DO_DEFINE_SERIALIZABLE_INHERITS(structName, baseName, tupleSeq) \
+    struct structName : baseName { \
+        static_assert(json::serializable<baseName>); \
+        BOOST_PP_SEQ_FOR_EACH(DEFINE_STRUCT_FIELD, structName, tupleSeq) \
+        Json::Value serialize() const { \
+            Json::Value ret = baseName::serialize(); \
+            BOOST_PP_SEQ_FOR_EACH(JSON_WRITE_FIELD, structName, tupleSeq) \
+            return ret; \
+        } \
+        static structName deserialize(const Json::Value &value) { \
+            structName ret; \
+            static_cast<baseName &>(ret) = baseName::deserialize(value); \
+            BOOST_PP_SEQ_FOR_EACH(JSON_READ_FIELD, structName, tupleSeq) \
+            return ret; \
+        } \
+    };
+
+#define DEFINE_SERIALIZABLE_INHERITS(structName, baseName, seq) DO_DEFINE_SERIALIZABLE_INHERITS(structName, baseName, ADD_PARENTHESES(seq))
+
 #endif

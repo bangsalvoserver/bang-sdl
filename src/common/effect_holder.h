@@ -17,6 +17,7 @@ namespace banggame {
         (missedcard,    effect_missedcard)
         (bangresponse,  effect_bangresponse)
         (bangmissed,    effect_bangmissed)
+        (bangresponse_onturn, effect_bangresponse_onturn)
         (barrel,        effect_barrel)
         (destroy,       effect_destroy)
         (virtual_destroy, effect_virtual_destroy)
@@ -59,7 +60,6 @@ namespace banggame {
         (greygory_deck, effect_greygory_deck)
         (lemonade_jim,  effect_lemonade_jim)
         (dutch_will,    effect_dutch_will)
-        (pretty_luzena, effect_pretty_luzena)
     )
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, equip_type,
@@ -103,7 +103,6 @@ namespace banggame {
         (madam_yto,     effect_madam_yto)
         (greygory_deck, effect_greygory_deck)
         (lemonade_jim,  effect_lemonade_jim)
-        (pretty_luzena, effect_pretty_luzena)
     )
 
     namespace detail {

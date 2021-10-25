@@ -146,6 +146,20 @@ namespace banggame {
         return origin->m_game->calc_distance(origin, target) <= distance;
     }
 
+    void player::verify_and_play_modifier(const card &c, int modifier_id) {
+        if (!modifier_id) return;
+        if (auto modifier_it = std::ranges::find(m_hand, modifier_id, &deck_card::id); modifier_it != m_hand.end()) {
+            if (modifier_it->modifier == card_modifier_type::bangcard
+                && std::ranges::find(c.effects, effect_type::bangcard, &effect_holder::enum_index) != c.effects.end()) {
+                do_play_card(modifier_id, false, std::vector{c.effects.size(), play_card_target{enums::enum_constant<play_card_target_type::target_none>{}}});
+            } else {
+                throw game_error("Azione non valida");
+            }
+        } else {
+            throw game_error("server.verify_and_play_modifier: ID non trovato");
+        }
+    }
+
     void player::verify_equip_target(const card &c, const std::vector<play_card_target> &targets) {
         if (targets.size() != 1) throw game_error("Azione non valida");
         if (targets.front().enum_index() != play_card_target_type::target_player) throw game_error("Azione non valida");
@@ -432,6 +446,7 @@ namespace banggame {
             case character_type::active:
                 if (m_num_drawn_cards < m_num_cards_to_draw) throw game_error("Devi pescare");
                 verify_card_targets(*card_it, false, args.targets);
+                verify_and_play_modifier(*card_it, args.modifier_id);
                 do_play_card(args.card_id, false, args.targets);
                 break;
             case character_type::drawing:
@@ -446,12 +461,14 @@ namespace banggame {
             }
         } else if (m_virtual && args.card_id == m_virtual->first) {
             verify_card_targets(m_virtual->second, false, args.targets);
+            verify_and_play_modifier(*card_it, args.modifier_id);
             do_play_card(args.card_id, false, args.targets);
         } else if (auto card_it = std::ranges::find(m_hand, args.card_id, &deck_card::id); card_it != m_hand.end()) {
             if (m_num_drawn_cards < m_num_cards_to_draw) throw game_error("Devi pescare");
             switch (card_it->color) {
             case card_color_type::brown:
                 verify_card_targets(*card_it, false, args.targets);
+                verify_and_play_modifier(*card_it, args.modifier_id);
                 do_play_card(args.card_id, false, args.targets);
                 break;
             case card_color_type::blue: {
@@ -482,11 +499,13 @@ namespace banggame {
             case card_color_type::blue:
             case card_color_type::black:
                 verify_card_targets(*card_it, false, args.targets);
+                verify_and_play_modifier(*card_it, args.modifier_id);
                 do_play_card(args.card_id, false, args.targets);
                 break;
             case card_color_type::green:
                 if (card_it->inactive) throw game_error("Carta non attiva in questo turno");
                 verify_card_targets(*card_it, false, args.targets);
+                verify_and_play_modifier(*card_it, args.modifier_id);
                 do_play_card(args.card_id, false, args.targets);
                 break;
             default:
@@ -494,11 +513,22 @@ namespace banggame {
             }
         } else if (auto card_it = std::ranges::find(m_game->m_shop_selection, args.card_id, &deck_card::id); card_it != m_table.end()) {
             if (m_num_drawn_cards < m_num_cards_to_draw) throw game_error("Devi pescare");
-            if (m_gold >= card_it->buy_cost - m_discount) {
+            int discount = 0;
+            if (auto modifier_it = std::ranges::find(m_characters, args.modifier_id, &character::id); modifier_it != m_characters.end()) {
+                if (modifier_it->modifier == card_modifier_type::discount
+                    && modifier_it->usages < modifier_it->max_usages) {
+                    discount = 1;
+                } else {
+                    throw game_error("Azione non valida");
+                }
+            }
+            if (m_gold >= card_it->buy_cost - discount) {
                 switch (card_it->color) {
                 case card_color_type::brown:
                     verify_card_targets(*card_it, false, args.targets);
-                    add_gold(m_discount - card_it->buy_cost);
+                    if (args.modifier_id) do_play_card(args.modifier_id, false, {});
+                    verify_and_play_modifier(*card_it, args.modifier_id);
+                    add_gold(discount - card_it->buy_cost);
                     do_play_card(args.card_id, false, args.targets);
                     m_game->queue_event<event_type::delayed_action>([this]{
                         m_game->draw_shop_card();
@@ -506,19 +536,16 @@ namespace banggame {
                 break;
                 case card_color_type::black:
                     verify_equip_target(*card_it, args.targets);
+                    if (args.modifier_id) do_play_card(args.modifier_id, false, {});
                     auto *target = m_game->get_player(args.targets.front().get<play_card_target_type::target_player>().front().player_id);
                     if (target->has_card_equipped(card_it->name)) throw game_error("Carta duplicata");
-                    add_gold(m_discount - card_it->buy_cost);
+                    add_gold(discount - card_it->buy_cost);
                     deck_card removed = std::move(*card_it);
                     m_game->m_shop_selection.erase(card_it);
                     target->equip_card(std::move(removed));
                     m_game->draw_shop_card();
                     m_game->queue_event<event_type::on_effect_end>(this);
                     break;
-                }
-                if (m_discount > 0) {
-                    m_game->queue_event<event_type::on_apply_discount>();
-                    m_discount = 0;
                 }
             } else {
                 throw game_error("Non hai abbastanza pepite");
@@ -579,7 +606,11 @@ namespace banggame {
         obj.suit = c.suit;
         obj.value = c.value;
         for (const auto &value : c.effects) {
-            obj.targets.emplace_back(value.target(), value.args());
+            card_target_data ctd;
+            ctd.type = value.enum_index();
+            ctd.target = value.target();
+            ctd.args = value.args();
+            obj.targets.emplace_back(std::move(ctd));
         }
         m_virtual = std::make_pair(obj.virtual_id, std::move(c));
 

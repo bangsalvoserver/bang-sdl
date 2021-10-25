@@ -64,7 +64,6 @@ namespace banggame {
         int m_last_played_card = 0;
 
         int m_gold = 0;
-        int m_discount = 0;
         
         std::vector<int> m_max_cards_mods;
         std::multimap<int, int> m_current_card_targets;
@@ -158,6 +157,7 @@ namespace banggame {
 
         void set_character_and_role(character &&c, player_role role);
 
+        void verify_and_play_modifier(const card &c, int modifier_id);
         void verify_equip_target(const card &c, const std::vector<play_card_target> &targets);
         void verify_card_targets(const card &c, bool is_response, const std::vector<play_card_target> &targets);
         void do_play_card(int card_id, bool is_response, const std::vector<play_card_target> &targets);

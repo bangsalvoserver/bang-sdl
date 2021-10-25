@@ -39,6 +39,9 @@ namespace banggame {
         if (json_card.isMember("discard_if_two_players")) {
             out.discard_if_two_players = json_card["discard_if_two_players"].asBool();
         }
+        if (json_card.isMember("modifier")) {
+            out.modifier = enums::from_string<card_modifier_type>(json_card["modifier"].asString());
+        }
     }
 
     const all_cards_t all_cards = [] {

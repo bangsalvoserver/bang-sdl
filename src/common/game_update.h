@@ -28,9 +28,17 @@ namespace banggame {
         (flags, show_card_flags)
     )
 
-    DEFINE_SERIALIZABLE(card_target_data,
+    DEFINE_SERIALIZABLE(target_data_base,
         (target, target_type)
         (args, int)
+    )
+
+    DEFINE_SERIALIZABLE_INHERITS(card_target_data, target_data_base,
+        (type, effect_type)
+    )
+
+    DEFINE_SERIALIZABLE_INHERITS(equip_target_data, target_data_base,
+        (type, equip_type)
     )
 
     DEFINE_SERIALIZABLE(virtual_card_update,
@@ -49,7 +57,8 @@ namespace banggame {
         (image, std::string)
         (targets, std::vector<card_target_data>)
         (response_targets, std::vector<card_target_data>)
-        (equip_targets, std::vector<card_target_data>)
+        (equip_targets, std::vector<equip_target_data>)
+        (modifier, card_modifier_type)
         (playable_offturn, bool)
     )
 

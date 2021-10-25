@@ -52,6 +52,10 @@ namespace banggame {
         bool can_respond(player *origin) const;
         void on_play(int origin_card_id, player *origin);
     };
+
+    struct effect_bangresponse_onturn : effect_bangresponse {
+        bool can_respond(player *origin) const;
+    };
     
     struct effect_missed : card_effect {
         bool can_respond(player *origin) const;

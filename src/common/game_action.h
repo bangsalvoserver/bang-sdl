@@ -38,6 +38,7 @@ namespace banggame {
 
     DEFINE_SERIALIZABLE(play_card_args,
         (card_id, int)
+        (modifier_id, int)
         (targets, std::vector<play_card_target>)
         (flags, play_card_flags)
     )

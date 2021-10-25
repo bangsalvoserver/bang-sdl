@@ -496,17 +496,4 @@ namespace banggame {
             }
         }
     }
-
-    void effect_pretty_luzena::on_play(int origin_card_id, player *target) {
-        if (target->find_character(origin_card_id).usages == 0
-            && target->m_discount == 0) {
-            ++target->m_discount;
-        }
-    }
-
-    void effect_pretty_luzena::on_equip(player *p, int card_id) {
-        p->m_game->add_event<event_type::on_apply_discount>(card_id, [p, card_id]{
-            ++p->find_character(card_id).usages;
-        });
-    }
 }

@@ -37,7 +37,6 @@ namespace banggame {
         (on_turn_start,     std::function<void(player *origin)>)
         (on_turn_end,       std::function<void(player *origin)>)
         (on_draw_from_deck, std::function<void(player *origin)>)
-        (on_apply_discount, std::function<void()>)
         (on_game_start,     std::function<void()>)
     )
 
@@ -63,6 +62,8 @@ namespace banggame {
     struct game_error : std::runtime_error {
         using std::runtime_error::runtime_error;
     };
+
+    #define ACTION_TAG(name) enums::enum_constant<game_action_type::name>
 
     struct game {
         std::list<std::pair<player *, game_update>> m_updates;
@@ -263,12 +264,12 @@ namespace banggame {
         void check_game_over(player *target, bool discarded_ghost = false);
         void player_death(player *target);
 
-        void handle_action(enums::enum_constant<game_action_type::pick_card>, player *p, const pick_card_args &args);
-        void handle_action(enums::enum_constant<game_action_type::play_card>, player *p, const play_card_args &args);
-        void handle_action(enums::enum_constant<game_action_type::respond_card>, player *p, const play_card_args &args);
-        void handle_action(enums::enum_constant<game_action_type::draw_from_deck>, player *p);
-        void handle_action(enums::enum_constant<game_action_type::pass_turn>, player *p);
-        void handle_action(enums::enum_constant<game_action_type::resolve>, player *p);
+        void handle_action(ACTION_TAG(pick_card), player *p, const pick_card_args &args);
+        void handle_action(ACTION_TAG(play_card), player *p, const play_card_args &args);
+        void handle_action(ACTION_TAG(respond_card), player *p, const play_card_args &args);
+        void handle_action(ACTION_TAG(draw_from_deck), player *p);
+        void handle_action(ACTION_TAG(pass_turn), player *p);
+        void handle_action(ACTION_TAG(resolve), player *p);
     };
 
 }

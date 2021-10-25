@@ -11,21 +11,26 @@ namespace banggame {
     using namespace enums::flag_operators;
 
     static card_info make_card_info(const card &c) {
+        auto make_card_info_effects = []<typename T>(std::vector<T> &out, const auto &vec) {
+            for (const auto &value : vec) {
+                T obj;
+                obj.type = value.enum_index();
+                obj.target = value.target();
+                obj.args = value.args();
+                out.push_back(std::move(obj));
+            }
+        };
+        
         card_info info;
         info.expansion = c.expansion;
         info.id = c.id;
         info.name = c.name;
         info.image = c.image;
         info.playable_offturn = c.playable_offturn;
-        for (const auto &value : c.effects) {
-            info.targets.emplace_back(value.target(), value.args());
-        }
-        for (const auto &value : c.responses) {
-            info.response_targets.emplace_back(value.target(), value.args());
-        }
-        for (const auto &value : c.equips) {
-            info.equip_targets.emplace_back(value.target(), value.args());
-        }
+        info.modifier = c.modifier;
+        make_card_info_effects(info.targets, c.effects);
+        make_card_info_effects(info.response_targets, c.responses);
+        make_card_info_effects(info.equip_targets, c.equips);
         return info;
     }
 
@@ -458,7 +463,7 @@ namespace banggame {
         return !m_table_card_disablers.empty() && std::ranges::find(m_table_card_disablers, player_id) == m_table_card_disablers.end();
     }
 
-    void game::handle_action(enums::enum_constant<game_action_type::pick_card>, player *p, const pick_card_args &args) {
+    void game::handle_action(ACTION_TAG(pick_card), player *p, const pick_card_args &args) {
         if (!m_requests.empty() && p == top_request().target()) {
             enums::visit_indexed([&]<request_type E>(enums::enum_constant<E>, auto &req) {
                 if constexpr (picking_request<E>) {
@@ -469,29 +474,29 @@ namespace banggame {
         }
     }
 
-    void game::handle_action(enums::enum_constant<game_action_type::play_card>, player *p, const play_card_args &args) {
+    void game::handle_action(ACTION_TAG(play_card), player *p, const play_card_args &args) {
         if (m_requests.empty() && m_playing == p) {
             p->play_card(args);
         }
     }
 
-    void game::handle_action(enums::enum_constant<game_action_type::respond_card>, player *p, const play_card_args &args) {
+    void game::handle_action(ACTION_TAG(respond_card), player *p, const play_card_args &args) {
         p->respond_card(args);
     }
 
-    void game::handle_action(enums::enum_constant<game_action_type::draw_from_deck>, player *p) {
+    void game::handle_action(ACTION_TAG(draw_from_deck), player *p) {
         if (m_requests.empty() && m_playing == p && p->m_num_drawn_cards < p->m_num_cards_to_draw) {
             p->draw_from_deck();
         }
     }
 
-    void game::handle_action(enums::enum_constant<game_action_type::pass_turn>, player *p) {
+    void game::handle_action(ACTION_TAG(pass_turn), player *p) {
         if (m_requests.empty() && m_playing == p && p->m_num_drawn_cards >= p->m_num_cards_to_draw) {
             p->pass_turn();
         }
     }
 
-    void game::handle_action(enums::enum_constant<game_action_type::resolve>, player *p) {
+    void game::handle_action(ACTION_TAG(resolve), player *p) {
         if (!m_requests.empty() && p == top_request().target()) {
             enums::visit_indexed([]<request_type E>(enums::enum_constant<E>, auto &req) {
                 if constexpr (resolvable_request<E>) {

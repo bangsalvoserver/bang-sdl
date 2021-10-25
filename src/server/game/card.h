@@ -16,6 +16,7 @@ namespace banggame {
         std::vector<effect_holder> effects;
         std::vector<effect_holder> responses;
         std::vector<equip_holder> equips;
+        card_modifier_type modifier = card_modifier_type::none;
         std::string name;
         std::string image;
         int usages = 0;

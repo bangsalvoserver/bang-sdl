@@ -82,6 +82,8 @@ namespace banggame {
         void on_click_sell_beer();
         void on_click_discard_black();
 
+        bool verify_modifier(card_widget *card);
+
         void handle_auto_targets(bool is_response);
         void add_card_target(bool is_response, const target_card_id &target);
         void add_player_targets(bool is_response, const std::vector<target_player_id> &targets);
@@ -118,7 +120,7 @@ namespace banggame {
             return nullptr;
         }
 
-        card_widget *get_card_widget(int id) {
+        card_widget *find_card_widget(int id) {
             if (auto it = m_cards.find(id); it != m_cards.end()) {
                 return &it->second;
             }

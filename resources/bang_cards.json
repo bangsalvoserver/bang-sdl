@@ -1051,6 +1051,15 @@
                 {
                     "class": "virtual_clear"
                 }
+            ],
+            "responses": [
+                {
+                    "target": "self hand card",
+                    "class": "destroy"
+                },
+                {
+                    "class": "bangresponse_onturn"
+                }
             ]
         },
         {
@@ -1139,6 +1148,7 @@
             "image": "07_mira",
             "expansion": "valleyofshadows",
             "color": "brown",
+            "modifier": "bangcard",
             "effects": [
                 {
                     "class": "aim"
@@ -1906,13 +1916,10 @@
             "responses": [
                 {
                     "target": "self hand bangormissed card",
-                    "class": "virtual_destroy"
+                    "class": "destroy"
                 },
                 {
                     "class": "bangmissed"
-                },
-                {
-                    "class": "virtual_clear"
                 }
             ]
         },
@@ -2796,16 +2803,8 @@
             "hp": 4,
             "expansion": "goldrush",
             "type": "active",
-            "effects": [
-                {
-                    "class": "pretty_luzena"
-                }
-            ],
-            "equip": [
-                {
-                    "class": "pretty_luzena"
-                }
-            ]
+            "usages": 1,
+            "modifier": "discount"
         },
         {
             "name": "Raddie Snake",
