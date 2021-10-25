@@ -366,11 +366,11 @@ namespace banggame {
                     return player_role::outlaw;
                 }
             } else if (!discarded_ghost) {
-                if (target->m_role == player_role::outlaw && killer->m_role == player_role::deputy) {
+                if (target->m_role == player_role::outlaw && killer->m_role == player_role::renegade) {
                     return player_role::deputy;
-                } else if (target->m_role == player_role::renegade && killer->m_role == player_role::outlaw) {
+                } else if (target->m_role == player_role::renegade && killer->m_role == player_role::deputy) {
                     return player_role::outlaw;
-                } else if (target->m_role == player_role::deputy && killer->m_role == player_role::renegade) {
+                } else if (target->m_role == player_role::deputy && killer->m_role == player_role::outlaw) {
                     return player_role::renegade;
                 }
             }
