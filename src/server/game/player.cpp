@@ -527,7 +527,6 @@ namespace banggame {
                 case card_color_type::brown:
                     verify_card_targets(*card_it, false, args.targets);
                     if (args.modifier_id) do_play_card(args.modifier_id, false, {});
-                    verify_and_play_modifier(*card_it, args.modifier_id);
                     add_gold(discount - card_it->buy_cost);
                     do_play_card(args.card_id, false, args.targets);
                     m_game->queue_event<event_type::delayed_action>([this]{
