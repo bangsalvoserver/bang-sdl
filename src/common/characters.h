@@ -23,11 +23,6 @@ namespace banggame {
         void on_unequip(player *target, int card_id);
     };
 
-    struct effect_sean_mallory : card_effect {
-        void on_equip(player *target, int card_id);
-        void on_unequip(player *target, int card_id);
-    };
-
     struct effect_kit_carlson : card_effect {
         void on_play(int origin_card_id, player *target);
     };

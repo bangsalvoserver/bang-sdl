@@ -178,11 +178,11 @@ namespace banggame {
     }
 
     void effect_gunbelt::on_equip(player *target, int card_id) {
-        target->m_max_cards_mods.push_back(8);
+        target->m_max_cards_mods.push_back(args);
     }
 
     void effect_gunbelt::on_unequip(player *target, int card_id) {
-        auto it = std::ranges::find(target->m_max_cards_mods, 8);
+        auto it = std::ranges::find(target->m_max_cards_mods, args);
         if (it != target->m_max_cards_mods.end()) {
             target->m_max_cards_mods.erase(it);
         }

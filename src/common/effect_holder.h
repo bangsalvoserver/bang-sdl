@@ -89,7 +89,6 @@ namespace banggame {
         (greg_digger,   effect_greg_digger)
         (herb_hunter,   effect_herb_hunter)
         (molly_stark,   effect_molly_stark)
-        (sean_mallory,  effect_sean_mallory)
         (tequila_joe,   effect_tequila_joe)
         (vera_custer,   effect_vera_custer)
         (tuco_franziskaner, effect_tuco_franziskaner)

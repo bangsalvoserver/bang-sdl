@@ -47,17 +47,6 @@ namespace banggame {
         --target->m_beer_strength;
     }
 
-    void effect_sean_mallory::on_equip(player *target, int card_id) {
-        target->m_max_cards_mods.push_back(10);
-    }
-
-    void effect_sean_mallory::on_unequip(player *target, int card_id) {
-        auto it = std::ranges::find(target->m_max_cards_mods, 10);
-        if (it != target->m_max_cards_mods.end()) {
-            target->m_max_cards_mods.erase(it);
-        }
-    }
-
     void effect_kit_carlson::on_play(int origin_card_id, player *target) {
         for (int i=0; i<=target->m_num_cards_to_draw; ++i) {
             target->m_game->draw_card_to(card_pile_type::selection, target);

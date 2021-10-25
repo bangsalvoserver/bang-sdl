@@ -2340,7 +2340,8 @@
             "expansion": "dodgecity",
             "equip": [
                 {
-                    "class": "sean_mallory"
+                    "class": "gunbelt",
+                    "args": 10
                 }
             ]
         },
@@ -3114,7 +3115,8 @@
             "buy_cost": 2,
             "equip": [
                 {
-                    "class": "gunbelt"
+                    "class": "gunbelt",
+                    "args": 8
                 }
             ]
         },
