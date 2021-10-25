@@ -12,6 +12,10 @@ namespace banggame {
     };
 
     struct timer_beer : timer_base {
+        timer_beer() {
+            duration = 200;
+        }
+
         std::vector<int> players;
     };
 

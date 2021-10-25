@@ -203,12 +203,16 @@ void game_scene::handle_card_click(const sdl::point &mouse_pt) {
 }
 
 void game_scene::find_overlay(const sdl::point &mouse_pt) {
-    auto mouse_in_card = [&](card_widget *card) {
+    auto mouse_in_card = [&](const card_widget *card) {
         return sdl::point_in_rect(mouse_pt, card->get_rect());
     };
     auto find_clicked = [&](const card_pile_view &pile) {
-        auto it = std::ranges::find_if(pile | std::views::reverse, mouse_in_card);
-        return (it == pile.rend()) ? 0 : *it;
+        auto it = std::ranges::find_if(pile | std::views::reverse,
+            [&](const card_view *card) {
+                return mouse_in_card(card) && card->known;
+            }
+        );
+        return (it == pile.rend()) ? nullptr : *it;
     };
 
     sdl::rect main_deck_rect = textures_back::main_deck().get_rect();
