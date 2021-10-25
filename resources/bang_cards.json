@@ -1055,10 +1055,13 @@
             "responses": [
                 {
                     "target": "self hand card",
-                    "class": "destroy"
+                    "class": "virtual_destroy"
                 },
                 {
                     "class": "bangresponse_onturn"
+                },
+                {
+                    "class": "virtual_clear"
                 }
             ]
         },
@@ -1916,10 +1919,13 @@
             "responses": [
                 {
                     "target": "self hand bangormissed card",
-                    "class": "destroy"
+                    "class": "virtual_destroy"
                 },
                 {
                     "class": "bangmissed"
+                },
+                {
+                    "class": "virtual_clear"
                 }
             ]
         },
