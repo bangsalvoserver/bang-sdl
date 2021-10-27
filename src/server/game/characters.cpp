@@ -123,12 +123,8 @@ namespace banggame {
         p->m_game->add_event<event_type::on_player_death>(card_id, [p](player *origin, player *target) {
             if (p != target) {
                 for (auto &c : target->m_table) {
-                    if (c.inactive) {
-                        c.inactive = false;
-                        p->m_game->add_public_update<game_update_type::tap_card>(c.id, false);
-                    }
                     if (c.color != card_color_type::black) {
-                        p->add_to_hand(std::move(c));
+                        p->steal_card(target, c.id);
                     }
                 }
                 std::erase_if(target->m_table, [](const deck_card &c) {

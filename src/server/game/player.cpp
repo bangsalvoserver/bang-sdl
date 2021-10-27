@@ -23,11 +23,12 @@ namespace banggame {
         }
     }
 
-    void player::equip_card(deck_card &&target) {
+    deck_card &player::equip_card(deck_card &&target) {
         target.on_equip(this);
         auto &moved = m_table.emplace_back(std::move(target));
         m_game->send_card_update(moved);
         m_game->add_public_update<game_update_type::move_card>(moved.id, id, card_pile_type::player_table);
+        return moved;
     }
 
     bool player::has_card_equipped(const std::string &name) const {
@@ -85,6 +86,7 @@ namespace banggame {
                 it->inactive = false;
                 m_game->add_public_update<game_update_type::tap_card>(it->id, false);
             }
+            m_game->drop_cubes(*it);
             auto &moved = add_to_hand(std::move(*it));
             target->m_table.erase(it);
             m_game->queue_event<event_type::post_discard_card>(target, card_id);
@@ -148,16 +150,19 @@ namespace banggame {
 
     void player::verify_and_play_modifier(const card &c, int modifier_id) {
         if (!modifier_id) return;
-        if (auto modifier_it = std::ranges::find(m_hand, modifier_id, &deck_card::id); modifier_it != m_hand.end()) {
-            if (modifier_it->modifier == card_modifier_type::bangcard
-                && std::ranges::find(c.effects, effect_type::bangcard, &effect_holder::enum_index) != c.effects.end()) {
-                do_play_card(modifier_id, false, std::vector{c.effects.size(), play_card_target{enums::enum_constant<play_card_target_type::target_none>{}}});
-            } else {
-                throw game_error("Azione non valida");
-            }
-        } else {
-            throw game_error("server.verify_and_play_modifier: ID non trovato");
+        auto &mod_card = find_card(modifier_id);
+        switch(mod_card.modifier) {
+        case card_modifier_type::anycard:
+            break;
+        case card_modifier_type::bangcard:
+            if (std::ranges::find(c.effects, effect_type::bangcard, &effect_holder::enum_index) != c.effects.end())
+                break;
+            [[fallthrough]];
+        default:
+            throw game_error("Azione non valida");
         }
+        do_play_card(modifier_id, false, std::vector{mod_card.effects.size(),
+            play_card_target{enums::enum_constant<play_card_target_type::target_none>{}}});
     }
 
     void player::verify_equip_target(const card &c, const std::vector<play_card_target> &targets) {
@@ -301,6 +306,9 @@ namespace banggame {
                                     if (!c.effects.empty()) return c.effects.front().is(effect_type::bangcard);
                                     else if (!c.responses.empty()) return c.responses.front().is(effect_type::missedcard);
                                 }
+                                case target_type::cube_slot:
+                                    return args.front().card_id == target->m_characters.front().id
+                                        || target->find_card(args.front().card_id).color == card_color_type::orange;
                                 default: return false;
                                 }
                             });
@@ -482,7 +490,7 @@ namespace banggame {
                 m_game->queue_event<event_type::on_effect_end>(this);
                 break;
             }
-            case card_color_type::green:
+            case card_color_type::green: {
                 if (has_card_equipped(card_it->name)) throw game_error("Carta duplicata");
                 card_it->inactive = true;
                 deck_card removed = std::move(*card_it);
@@ -493,11 +501,21 @@ namespace banggame {
                 m_game->add_public_update<game_update_type::tap_card>(removed.id, true);
                 break;
             }
+            case card_color_type::orange: {
+                if (has_card_equipped(card_it->name)) throw game_error("Carta duplicata");
+                deck_card removed = std::move(*card_it);
+                m_hand.erase(card_it);
+                m_game->add_cubes(equip_card(std::move(removed)), 3);
+                m_game->queue_event<event_type::on_equip>(this, this, args.card_id);
+                m_game->queue_event<event_type::on_effect_end>(this);
+            }
+            }
         } else if (auto card_it = std::ranges::find(m_table, args.card_id, &deck_card::id); card_it != m_table.end()) {
             if (m_num_drawn_cards < m_num_cards_to_draw) throw game_error("Devi pescare");
             switch (card_it->color) {
             case card_color_type::blue:
             case card_color_type::black:
+            case card_color_type::orange:
                 verify_card_targets(*card_it, false, args.targets);
                 verify_and_play_modifier(*card_it, args.modifier_id);
                 do_play_card(args.card_id, false, args.targets);

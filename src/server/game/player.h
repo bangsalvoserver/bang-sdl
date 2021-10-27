@@ -70,7 +70,7 @@ namespace banggame {
 
         explicit player(game *game);
 
-        void equip_card(deck_card &&target);
+        deck_card &equip_card(deck_card &&target);
         bool has_card_equipped(const std::string &name) const;
 
         void discard_weapon(int card_id);

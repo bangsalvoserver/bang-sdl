@@ -166,10 +166,6 @@ namespace banggame {
         void on_play(int origin_card_id, player *origin);
     };
 
-    struct effect_doublebarrel : card_effect {
-        void on_play(int origin_card_id, player *origin);
-    };
-
     struct effect_rum : card_effect {
         void on_play(int origin_card_id, player *origin);
     };
@@ -190,6 +186,27 @@ namespace banggame {
         bool can_respond(player *origin) const;
         void on_play(int origin_card_id, player *origin);
     };
+
+    struct effect_pay_cube : card_effect {
+        void on_play(int origin_card_id, player *origin) {
+            on_play(origin_card_id, origin, origin, origin_card_id);
+        }
+
+        void on_play(int origin_card_id, player *origin, player *target, int card_id);
+    };
+
+    struct effect_add_cube : card_effect {
+        void on_play(int origin_card_id, player *origin, player *target, int card_id);
+    };
+
+    struct effect_reload : card_effect {
+
+    };
+
+    struct effect_doublebarrel : card_effect {
+        void on_play(int origin_card_id, player *origin);
+    };
+
 }
 
 #endif

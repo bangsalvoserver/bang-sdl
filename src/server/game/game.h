@@ -82,6 +82,8 @@ namespace banggame {
         std::vector<deck_card> m_shop_hidden;
         std::vector<deck_card> m_shop_selection;
 
+        std::vector<int> m_cubes;
+
         std::vector<character> m_base_characters;
 
         std::vector<int> m_table_card_disablers;
@@ -224,6 +226,9 @@ namespace banggame {
         deck_card draw_from_temp(int card_id);
 
         deck_card &draw_shop_card();
+
+        void add_cubes(deck_card &target, int ncubes);
+        void drop_cubes(deck_card &target);
 
         void draw_check_then(player *p, draw_check_function fun, bool force_one = false, bool invert_pop_req = false);
         void resolve_check(int card_id);

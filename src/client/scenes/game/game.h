@@ -43,6 +43,8 @@ namespace banggame {
         void handle_update(UPDATE_TAG(game_over),        const game_over_update &args);
         void handle_update(UPDATE_TAG(add_cards),        const add_cards_update &args);
         void handle_update(UPDATE_TAG(move_card),        const move_card_update &args);
+        void handle_update(UPDATE_TAG(add_cubes),        const add_cubes_update &args);
+        void handle_update(UPDATE_TAG(move_cube),        const move_cube_update &args);
         void handle_update(UPDATE_TAG(deck_shuffled),    const card_pile_type &pile);
         void handle_update(UPDATE_TAG(virtual_card),     const virtual_card_update &args);
         void handle_update(UPDATE_TAG(show_card),        const show_card_update &args);

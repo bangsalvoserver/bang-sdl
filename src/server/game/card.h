@@ -27,6 +27,8 @@ namespace banggame {
         int buy_cost = 0;
         int cost = 0;
 
+        std::vector<int> cubes;
+
         void on_equip(player *target) {
             for (auto &e : equips) {
                 e.on_equip(target, id);

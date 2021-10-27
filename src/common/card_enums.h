@@ -37,6 +37,7 @@ namespace banggame {
         (valleyofshadows,   "Valley of Shadows")
         (wildwestshow,      "Wild West Show")
         (goldrush,          "Gold Rush")
+        (armedanddangerous, "Armed And Dangerous")
     )
 
     DEFINE_ENUM_IN_NS(banggame, card_color_type,
@@ -45,6 +46,7 @@ namespace banggame {
         (blue)
         (green)
         (black)
+        (orange)
     )
 
     DEFINE_ENUM_IN_NS(banggame, character_type,
@@ -82,6 +84,7 @@ namespace banggame {
         (attacker)
         (fanning_target)
         (new_target)
+        (cube_slot)
     )
 
     DEFINE_ENUM_IN_NS(banggame, card_pile_type,
@@ -99,6 +102,7 @@ namespace banggame {
 
     DEFINE_ENUM_IN_NS(banggame, card_modifier_type,
         (none)
+        (anycard)
         (bangcard)
         (discount)
     )

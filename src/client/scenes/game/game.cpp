@@ -363,6 +363,7 @@ void game_scene::on_click_table_card(int player_id, card_view *card) {
                     break;
                 case card_color_type::blue:
                 case card_color_type::black:
+                case card_color_type::orange:
                     m_play_card_args.card_id = card->id;
                     m_highlights.push_back(card);
                     handle_auto_targets(false);
@@ -423,6 +424,7 @@ void game_scene::on_click_hand_card(int player_id, card_view *card) {
                     }
                     break;
                 case card_color_type::green:
+                case card_color_type::orange:
                     add_action<game_action_type::play_card>(card->id, 0, std::vector{
                         play_card_target{enums::enum_constant<play_card_target_type::target_player>{},
                         std::vector{target_player_id{player_id}}}
@@ -511,6 +513,8 @@ void game_scene::on_click_discard_black() {
 bool game_scene::verify_modifier(card_widget *card) {
     if (m_play_card_args.modifier_id == 0) return true;
     switch (find_card_widget(m_play_card_args.modifier_id)->modifier) {
+    case card_modifier_type::anycard:
+        return true;
     case card_modifier_type::bangcard:
         return std::ranges::find(card->targets, effect_type::bangcard, &card_target_data::type) != card->targets.end();
     case card_modifier_type::discount:
@@ -845,6 +849,14 @@ void game_scene::handle_update(UPDATE_TAG(move_card), const move_card_update &ar
     } else {
         m_animations.emplace_back(20, std::move(anim));
     }
+}
+
+void game_scene::handle_update(UPDATE_TAG(add_cubes), const add_cubes_update &args) {
+    pop_update();
+}
+
+void game_scene::handle_update(UPDATE_TAG(move_cube), const move_cube_update &args) {
+    pop_update();
 }
 
 void game_scene::handle_update(UPDATE_TAG(virtual_card), const virtual_card_update &args) {
