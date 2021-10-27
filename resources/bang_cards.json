@@ -1975,7 +1975,7 @@
             "image": "01_kitcarlson",
             "hp": 4,
             "expansion": "base",
-            "type": "drawing",
+            "type": "drawing_forced",
             "effects": [
                 {
                     "class": "kit_carlson"
