@@ -36,7 +36,7 @@ namespace banggame {
     };
 
     struct effect_banglimit : card_effect {
-        bool can_play(player *target) const;
+        bool can_play(int origin_card_id, player *origin) const;
         void on_play(int origin_card_id, player *origin);
     };
 
@@ -81,7 +81,7 @@ namespace banggame {
     };
 
     struct effect_damage : card_effect {
-        bool can_play(player *target) const;
+        bool can_play(int origin_card_id, player *origin, player *target) const;
         void on_play(int origin_card_id, player *origin, player *target);
     };
 
@@ -119,7 +119,7 @@ namespace banggame {
     };
 
     struct effect_draw_discard : card_effect {
-        bool can_play(player *target) const;
+        bool can_play(int origin_card_id, player *origin, player *target) const;
         void on_play(int origin_card_id, player *origin, player *target);
     };
 
@@ -132,7 +132,7 @@ namespace banggame {
     };
 
     struct effect_draw_skip : card_effect {
-        bool can_play(player *target) const;
+        bool can_play(int origin_card_id, player *target) const;
         void on_play(int origin_card_id, player *target);
     };
 
@@ -188,6 +188,16 @@ namespace banggame {
     };
 
     struct effect_pay_cube : card_effect {
+        effect_pay_cube() {
+            args = 1;
+        }
+
+        bool can_play(int origin_card_id, player *origin) const {
+            return can_play(origin_card_id, origin, origin, origin_card_id);
+        }
+
+        bool can_play(int origin_card_id, player *origin, player *target, int card_id) const;
+
         void on_play(int origin_card_id, player *origin) {
             on_play(origin_card_id, origin, origin, origin_card_id);
         }

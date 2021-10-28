@@ -55,6 +55,13 @@ namespace banggame {
         if (args.pile == card_pile_type::player_hand && args.player_id == target->id) {
             target->discard_card(args.card_id);
             target->m_game->instant_event<event_type::on_discard_pass>(target, args.card_id);
+            if (target->m_game->has_expansion(card_expansion_type::armedanddangerous)) {
+                target->m_game->queue_event<event_type::delayed_action>([target = this->target]{
+                    if (target->can_receive_cubes()) {
+                        target->m_game->queue_request<request_type::add_cube>(0, nullptr, target);
+                    }
+                });
+            }
             if (target->num_hand_cards() <= target->max_cards_end_of_turn()) {
                 target->m_game->pop_request();
                 target->end_of_turn();
@@ -185,6 +192,24 @@ namespace banggame {
                 target->steal_card(saved, saved->random_hand_card().id);
             }
             target->m_game->pop_request();
+        }
+    }
+
+    void request_add_cube::on_pick(const pick_card_args &args) {
+        if (args.player_id == target->id) {
+            if (args.pile == card_pile_type::player_table) {
+                auto &card = target->find_card(args.card_id);
+                if (card.color == card_color_type::orange && card.cubes.size() < 4) {
+                    target->m_game->add_cubes(card, 1);
+                    target->m_game->pop_request();
+                }
+            } else if (args.pile == card_pile_type::player_character) {
+                auto &card = target->m_characters.front();
+                if (card.id == args.card_id && card.cubes.size() < 4) {
+                    target->m_game->add_cubes(card, 1);
+                    target->m_game->pop_request();
+                }
+            }
         }
     }
 }

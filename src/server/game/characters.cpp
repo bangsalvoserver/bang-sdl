@@ -370,7 +370,7 @@ namespace banggame {
         target->steal_card(origin, origin->m_virtual->first);
     }
 
-    bool effect_lee_van_kliff::can_play(player *origin) const {
+    bool effect_lee_van_kliff::can_play(int origin_card_id, player *origin, player *target, int card_id) const {
         if (origin->m_last_played_card) {
             auto card_it = std::ranges::find(origin->m_game->m_discards | std::views::reverse, origin->m_last_played_card, &deck_card::id);
             return card_it != origin->m_game->m_discards.rend() && card_it->color == card_color_type::brown;

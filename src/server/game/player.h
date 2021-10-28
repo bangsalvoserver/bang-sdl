@@ -83,6 +83,8 @@ namespace banggame {
         bool is_hand_empty() const {
             return m_hand.empty();
         }
+
+        bool can_receive_cubes() const;
         
         deck_card &add_to_hand(deck_card &&c);
         

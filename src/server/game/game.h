@@ -120,6 +120,11 @@ namespace banggame {
 
         void start_game(const game_options &options);
 
+        bool has_expansion(card_expansion_type type) const {
+            using namespace enums::flag_operators;
+            return bool(m_options.expansions & type);
+        }
+
         request_holder &top_request() {
             return m_requests.front();
         }
@@ -227,8 +232,9 @@ namespace banggame {
 
         deck_card &draw_shop_card();
 
-        void add_cubes(deck_card &target, int ncubes);
-        void drop_cubes(deck_card &target);
+        void add_cubes(card &target, int ncubes);
+        void pay_cubes(card &target, int ncubes);
+        void drop_all_cubes(card &target);
 
         void draw_check_then(player *p, draw_check_function fun, bool force_one = false, bool invert_pop_req = false);
         void resolve_check(int card_id);

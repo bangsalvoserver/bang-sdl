@@ -48,7 +48,7 @@ namespace banggame {
         (pardner,       effect_pardner)
         (pardnerchoice, effect_shopchoice)
         (goldrush,      effect_goldrush)
-        // (pay_cube,      effect_pay_cube)
+        (pay_cube,      effect_pay_cube)
         // (add_cube,      effect_add_cube)
         // (reload,        effect_reload)
         // (rust,          effect_rust)
@@ -153,11 +153,15 @@ namespace banggame {
     struct effect_holder : effect_base<effect_type> {
         using effect_base<effect_type>::effect_base;
 
-        bool can_play(player *target) const;
         bool can_respond(player *target) const;
 
+        bool can_play(int origin_card_id, player *origin) const;
         void on_play(int origin_card_id, player *origin);
+        
+        bool can_play(int origin_card_id, player *origin, player *target) const;
         void on_play(int origin_card_id, player *origin, player *target);
+        
+        bool can_play(int origin_card_id, player *origin, player *target, int card_id) const;
         void on_play(int origin_card_id, player *origin, player *target, int card_id);
     };
 

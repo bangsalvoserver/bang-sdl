@@ -4,10 +4,28 @@
 
 namespace banggame {
 
-    bool effect_holder::can_play(player *target) const {
+    bool effect_holder::can_play(int origin_card_id, player *origin) const {
         return enums::visit([=](const auto &value) {
-            if constexpr (requires { value.can_play(target); }) {
-                return value.can_play(target);
+            if constexpr (requires { value.can_play(origin_card_id, origin); }) {
+                return value.can_play(origin_card_id, origin);
+            }
+            return true;
+        }, *this);
+    }
+
+    bool effect_holder::can_play(int origin_card_id, player *origin, player *target) const {
+        return enums::visit([=](const auto &value) {
+            if constexpr (requires { value.can_play(origin_card_id, origin, target); }) {
+                return value.can_play(origin_card_id, origin, target);
+            }
+            return true;
+        }, *this);
+    }
+
+    bool effect_holder::can_play(int origin_card_id, player *origin, player *target, int card_id) const {
+        return enums::visit([=](const auto &value) {
+            if constexpr (requires { value.can_play(origin_card_id, origin, target, card_id); }) {
+                return value.can_play(origin_card_id, origin, target, card_id);
             }
             return true;
         }, *this);

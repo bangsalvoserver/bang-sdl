@@ -124,7 +124,7 @@ namespace banggame {
     };
 
     struct effect_lee_van_kliff : card_effect {
-        bool can_play(player *origin) const;
+        bool can_play(int origin_card_id, player *origin, player *target, int card_id) const;
         void on_play(int origin_card_id, player *origin, player *target, int card_id);
     };
 

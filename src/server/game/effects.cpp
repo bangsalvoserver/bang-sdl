@@ -63,8 +63,8 @@ namespace banggame {
         }
     }
 
-    bool effect_banglimit::can_play(player *target) const {
-        return target->can_play_bang();
+    bool effect_banglimit::can_play(int origin_card_id, player *origin) const {
+        return origin->can_play_bang();
     }
 
     void effect_banglimit::on_play(int origin_card_id, player *origin) {
@@ -129,7 +129,7 @@ namespace banggame {
         target->heal(1);
     }
 
-    bool effect_damage::can_play(player *target) const {
+    bool effect_damage::can_play(int origin_card_id, player *origin, player *target) const {
         return target->m_hp > 1;
     }
 
@@ -159,7 +159,7 @@ namespace banggame {
     }
 
     void effect_destroy::on_play(int origin_card_id, player *origin, player *target, int card_id) {
-        if (escapable && origin != target && bool(origin->m_game->m_options.expansions & card_expansion_type::valleyofshadows)) {
+        if (escapable && origin != target && origin->m_game->has_expansion(card_expansion_type::valleyofshadows)) {
             auto &req = target->m_game->queue_request<request_type::destroy>(origin_card_id, origin, target, true);
             req.card_id = card_id;
         } else {
@@ -171,7 +171,7 @@ namespace banggame {
     }
 
     void effect_steal::on_play(int origin_card_id, player *origin, player *target, int card_id) {
-        if (escapable && origin != target && bool(origin->m_game->m_options.expansions & card_expansion_type::valleyofshadows)) {
+        if (escapable && origin != target && origin->m_game->has_expansion(card_expansion_type::valleyofshadows)) {
             auto &req = target->m_game->queue_request<request_type::steal>(origin_card_id, origin, target, true);
             req.card_id = card_id;
         } else {
@@ -201,7 +201,7 @@ namespace banggame {
         target->m_game->draw_card_to(card_pile_type::player_hand, target);
     }
 
-    bool effect_draw_discard::can_play(player *target) const {
+    bool effect_draw_discard::can_play(int origin_card_id, player *origin, player *target) const {
         return ! target->m_game->m_discards.empty();
     }
 
@@ -219,7 +219,7 @@ namespace banggame {
         target->m_num_drawn_cards = target->m_num_cards_to_draw;
     }
 
-    bool effect_draw_skip::can_play(player *target) const {
+    bool effect_draw_skip::can_play(int origin_card_id, player *target) const {
         return target->m_num_drawn_cards < target->m_num_cards_to_draw;
     }
 
@@ -362,5 +362,30 @@ namespace banggame {
         }
         origin->m_game->m_shop_hidden.erase(begin, end);
         origin->m_game->pop_request();
+    }
+
+    bool effect_pay_cube::can_play(int origin_card_id, player *origin, player *target, int card_id) const {
+        if (card_id == target->m_characters.front().id) {
+            auto &card = target->m_characters.front();
+            return card.cubes.size() >= args;
+        } else {
+            auto &card = target->find_card(card_id);
+            return card.cubes.size() >= args;
+        }
+    }
+
+    void effect_pay_cube::on_play(int origin_card_id, player *origin, player *target, int card_id) {
+        if (card_id == target->m_characters.front().id) {
+            auto &card = target->m_characters.front();
+            target->m_game->pay_cubes(card, args);
+        } else {
+            auto &card = target->find_card(card_id);
+            target->m_game->pay_cubes(card, args);
+            if (card.cubes.empty()) {
+                target->m_game->queue_event<event_type::delayed_action>([=]{
+                    target->discard_card(card_id);
+                });
+            }
+        }
     }
 }

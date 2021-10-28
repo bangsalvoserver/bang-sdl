@@ -1301,7 +1301,7 @@
             ],
             "responses": [
                 {
-                    "target": "bangresponse"
+                    "class": "bangresponse"
                 }
             ]
         },
@@ -1519,6 +1519,7 @@
             ]
         },
         {
+            "disabled": true,
             "name": "Ricarica",
             "signs": [
                 "4Q"
@@ -1533,6 +1534,7 @@
             ]
         },
         {
+            "disabled": true,
             "name": "Ruggine",
             "signs": [
                 "9P"
@@ -1597,6 +1599,7 @@
             ]
         },
         {
+            "disabled": true,
             "name": "Bandoliera",
             "signs": [
                 "2C"
@@ -1614,6 +1617,7 @@
             ]
         },
         {
+            "disabled": true,
             "name": "Big Fifty",
             "signs": [
                 "QP"
@@ -1638,6 +1642,7 @@
             ]
         },
         {
+            "disabled": true,
             "name": "Bomba",
             "signs": [
                 "7Q"
@@ -1653,6 +1658,7 @@
             ]
         },
         {
+            "disabled": true,
             "name": "Buntline Special",
             "signs": [
                 "JP"
@@ -1677,6 +1683,7 @@
             ]
         },
         {
+            "disabled": true,
             "name": "Campanile",
             "signs": [
                 "7F"
@@ -1737,6 +1744,7 @@
             ]
         },
         {
+            "disabled": true,
             "name": "Doppia Canna",
             "signs": [
                 "6F"
@@ -1818,6 +1826,7 @@
             ]
         },
         {
+            "disabled": true,
             "name": "Thunderer",
             "signs": [
                 "3F"
@@ -2604,6 +2613,7 @@
             ]
         },
         {
+            "disabled": true,
             "name": "Bass Greeves",
             "image": "17_bassgreeves",
             "hp": 4,
@@ -2623,6 +2633,7 @@
             ]
         },
         {
+            "disabled": true,
             "name": "Bloody Mary",
             "image": "17_bloodymary",
             "hp": 4,
@@ -2634,6 +2645,7 @@
             ]
         },
         {
+            "disabled": true,
             "name": "Frankie Canton",
             "image": "17_frankiecanton",
             "hp": 4,
@@ -2653,6 +2665,7 @@
             ]
         },
         {
+            "disabled": true,
             "name": "Julie Cutter",
             "image": "17_juliecutter",
             "hp": 4,
@@ -2664,6 +2677,7 @@
             ]
         },
         {
+            "disabled": true,
             "name": "Mexicali Kid",
             "image": "17_mexicalikid",
             "hp": 4,
