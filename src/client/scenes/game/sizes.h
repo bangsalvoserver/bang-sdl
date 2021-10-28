@@ -24,6 +24,8 @@ namespace sizes {
 
     constexpr int shop_selection_width = 150;
 
+    constexpr int cube_pile_size = 25;
+
     constexpr int turn_indicator_border = 5;
     constexpr int request_indicator_border = 10;
 

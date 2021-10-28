@@ -23,7 +23,11 @@ void game_scene::add_resolve_action() {
 
 game_scene::game_scene(class game_manager *parent)
     : scene_base(parent)
-    , m_ui(this) {}
+    , m_ui(this)
+{
+    std::random_device rd;
+    rng.seed(rd());
+}
 
 void game_scene::resize(int width, int height) {
     scene_base::resize(width, height);
@@ -43,8 +47,13 @@ void game_scene::resize(int width, int height) {
 
     move_player_views();
 
+    if (!m_animations.empty()) {
+        m_animations.front().end();
+        m_animations.pop_front();
+    }
+
     for (auto &[id, card] : m_cards) {
-        card.pos = card.pile->get_position(&card);
+        card.set_pos(card.pile->get_position(&card));
     }
 
     m_ui.resize(width, height);
@@ -112,6 +121,10 @@ void game_scene::render(sdl::renderer &renderer) {
 
     if (!m_animations.empty()) {
         m_animations.front().render(renderer);
+    }
+
+    for (auto &[_, cube] : m_cubes) {
+        cube.render(renderer);
     }
 
     renderer.set_draw_color(sdl::color{0xff, 0x0, 0x0, 0xff});
@@ -798,7 +811,7 @@ void game_scene::handle_update(UPDATE_TAG(add_cards), const add_cards_update &ar
         case card_pile_type::shop_deck:         c.pile = &m_shop_deck; c.texture_back = &textures_back::goldrush(); break;
         case card_pile_type::shop_hidden:       c.pile = &m_shop_hidden; break;
         }
-        c.pos = c.pile->pos;
+        c.set_pos(c.pile->pos);
         c.pile->push_back(&c);
     }
 
@@ -852,11 +865,42 @@ void game_scene::handle_update(UPDATE_TAG(move_card), const move_card_update &ar
 }
 
 void game_scene::handle_update(UPDATE_TAG(add_cubes), const add_cubes_update &args) {
+    for (int id : args.cubes) {
+        auto &cube = m_cubes.emplace(id, id).first->second;
+
+        cube.pos = sdl::point{
+            parent->width() / 2 + int(rng() % (2 * sizes::cube_pile_size)) - sizes::cube_pile_size,
+            parent->height() / 2 + int(rng() % (2 * sizes::cube_pile_size)) - sizes::cube_pile_size
+        };
+    }
     pop_update();
 }
 
 void game_scene::handle_update(UPDATE_TAG(move_cube), const move_cube_update &args) {
-    pop_update();
+    auto cube_it = m_cubes.find(args.cube_id);
+    if (cube_it != m_cubes.end()) {
+        auto &cube = cube_it->second;
+        if (cube.owner) {
+            if (auto it = std::ranges::find(cube.owner->cubes, cube.id, &cube_widget::id); it != cube.owner->cubes.end()) {
+                cube.owner->cubes.erase(it);
+            }
+        }
+        sdl::point diff{
+            int(rng() % (2 * sizes::cube_pile_size)) - sizes::cube_pile_size,
+            int(rng() % (2 * sizes::cube_pile_size)) - sizes::cube_pile_size
+        };
+        if (args.card_id) {
+            cube.owner = find_card_widget(args.card_id);
+            cube.owner->cubes.push_back(&cube);
+        } else {
+            cube.owner = nullptr;
+            diff.x += parent->width() / 2;
+            diff.y += parent->height() / 2;
+        }
+        m_animations.emplace_back(8, cube_move_animation(&cube, diff));
+    } else {
+        pop_update();
+    }
 }
 
 void game_scene::handle_update(UPDATE_TAG(virtual_card), const virtual_card_update &args) {
@@ -988,8 +1032,8 @@ void game_scene::handle_update(UPDATE_TAG(player_add_character), const player_ch
     p.m_role.texture_back = &textures_back::role();
 
     while (args.index >= p.m_characters.size()) {
-        auto &last = p.m_characters.back();
-        p.m_characters.emplace_back().pos = sdl::point(last.pos.x + 20, last.pos.y + 20);
+        auto &last_pos = p.m_characters.back().get_pos();
+        p.m_characters.emplace_back().set_pos(sdl::point(last_pos.x + 20, last_pos.y + 20));
     }
     auto &c = *std::next(p.m_characters.begin(), args.index);
 

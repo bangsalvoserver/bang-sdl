@@ -10,6 +10,7 @@
 
 #include <list>
 #include <optional>
+#include <random>
 
 #define UPDATE_TAG(name) enums::enum_constant<game_update_type::name>
 
@@ -108,6 +109,7 @@ namespace banggame {
 
         std::map<int, card_view> m_cards;
         std::map<int, player_view> m_players;
+        std::map<int, cube_widget> m_cubes;
 
         std::optional<card_view> m_virtual;
 
@@ -143,6 +145,8 @@ namespace banggame {
 
         int m_player_own_id = 0;
         int m_playing_id = 0;
+        
+        std::default_random_engine rng;
 
         play_card_args m_play_card_args;
         std::vector<card_widget *> m_highlights;

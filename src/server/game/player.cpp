@@ -720,6 +720,7 @@ namespace banggame {
                 c.inactive = false;
                 m_game->add_public_update<game_update_type::tap_card>(c.id, false);
             }
+            m_game->drop_all_cubes(c);
             c.on_unequip(this);
             m_game->move_to(std::move(c), c.color == card_color_type::black
                 ? card_pile_type::shop_discard
