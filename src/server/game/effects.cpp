@@ -280,15 +280,6 @@ namespace banggame {
         origin->m_game->pop_request();
     }
 
-    void effect_doublebarrel::on_play(int origin_card_id, player *origin) {
-        origin->add_bang_mod([=](request_bang &req) {
-            if (auto it = std::ranges::find(origin->m_game->m_discards | std::views::reverse, req.origin_card_id, &deck_card::id);
-                it != origin->m_game->m_discards.rend() && it->suit == card_suit_type::diamonds) {
-                req.unavoidable = true;
-            }
-        });
-    }
-
     struct rum_check_handler {
         player *origin;
 
@@ -388,4 +379,39 @@ namespace banggame {
             }
         }
     }
+
+    void effect_add_cube::on_play(int origin_card_id, player *origin, player *target, int card_id) {
+        if (card_id == target->m_characters.front().id) {
+            auto &card = target->m_characters.front();
+            target->m_game->add_cubes(card, args);
+        } else {
+            auto &card = target->find_card(card_id);
+            target->m_game->add_cubes(card, args);
+        }
+    }
+
+    void effect_reload::on_play(int origin_card_id, player *origin) {
+        if (origin->can_receive_cubes()) {
+            origin->m_game->queue_request<request_type::add_cube>(origin_card_id, nullptr, origin).ncubes = 3;
+        }
+    }
+
+    bool effect_bandolier::can_play(int origin_card_id, player *origin) const {
+        return origin->m_bangs_played > 0 && origin->m_bangs_per_turn == 1;
+    }
+
+    void effect_bandolier::on_play(int origin_card_id, player *origin) {
+        origin->m_bangs_per_turn = 2;
+    }
+
+    void effect_doublebarrel::on_play(int origin_card_id, player *origin) {
+        origin->add_bang_mod([=](request_bang &req) {
+            if (auto it = std::ranges::find(origin->m_game->m_discards | std::views::reverse, req.origin_card_id, &deck_card::id);
+                it != origin->m_game->m_discards.rend() && it->suit == card_suit_type::diamonds) {
+                req.unavoidable = true;
+            }
+        });
+    }
+
+
 }

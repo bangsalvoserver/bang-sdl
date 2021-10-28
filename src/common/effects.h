@@ -206,11 +206,20 @@ namespace banggame {
     };
 
     struct effect_add_cube : card_effect {
+        effect_add_cube() {
+            args = 1;
+        }
+
         void on_play(int origin_card_id, player *origin, player *target, int card_id);
     };
-
+    
     struct effect_reload : card_effect {
+        void on_play(int origin_card_id, player *origin);
+    };
 
+    struct effect_bandolier : card_effect {
+        bool can_play(int origin_card_id, player *origin) const;
+        void on_play(int origin_card_id, player *origin);
     };
 
     struct effect_doublebarrel : card_effect {

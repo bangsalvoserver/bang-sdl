@@ -364,25 +364,14 @@ void game_scene::on_click_table_card(int player_id, card_view *card) {
         add_card_target(true, target_card_id{player_id, card->id, false});
     } else if (m_playing_id == m_player_own_id) {
         if (m_play_card_args.card_id == 0) {
-            if (!verify_modifier(card)) return;
-            if (player_id == m_player_own_id) {
-                switch (card->color) {
-                case card_color_type::green:
-                    if (!card->inactive) {
-                        m_play_card_args.card_id = card->id;
-                        m_highlights.push_back(card);
-                        handle_auto_targets(false);
-                    }
-                    break;
-                case card_color_type::blue:
-                case card_color_type::black:
-                case card_color_type::orange:
+            if (player_id == m_player_own_id && !card->inactive && verify_modifier(card)) {
+                if (card->modifier != card_modifier_type::none) {
+                    m_play_card_args.modifier_id = card->id;
+                    m_highlights.push_back(card);
+                } else {
                     m_play_card_args.card_id = card->id;
                     m_highlights.push_back(card);
                     handle_auto_targets(false);
-                    break;
-                case card_color_type::brown:
-                    throw std::runtime_error("Azione non valida");
                 }
             }
         } else {

@@ -18,6 +18,7 @@ namespace banggame {
             return !c.equips.empty() && c.equips.front().is(equip_type::weapon) && c.id != card_id;
         });
         if (it != m_table.end()) {
+            m_game->drop_all_cubes(*it);
             m_game->move_to(std::move(*it), card_pile_type::discard_pile).on_unequip(this);
             m_table.erase(it);
         }
@@ -506,7 +507,7 @@ namespace banggame {
                 deck_card removed = std::move(*card_it);
                 m_hand.erase(card_it);
                 target->equip_card(std::move(removed));
-                if (m_game->has_expansion(card_expansion_type::armedanddangerous) && target->can_receive_cubes()) {
+                if (m_game->has_expansion(card_expansion_type::armedanddangerous) && can_receive_cubes()) {
                     m_game->queue_request<request_type::add_cube>(0, nullptr, this);
                 }
                 m_game->queue_event<event_type::on_equip>(this, target, args.card_id);

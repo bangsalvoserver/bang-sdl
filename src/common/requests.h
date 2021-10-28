@@ -82,6 +82,8 @@ namespace banggame {
     };
 
     struct request_add_cube : request_base {
+        int ncubes = 1;
+        
         void on_pick(const pick_card_args &args);
     };
 

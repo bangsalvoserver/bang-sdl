@@ -1519,7 +1519,6 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Ricarica",
             "signs": [
                 "4Q"
@@ -1599,7 +1598,6 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Bandoliera",
             "signs": [
                 "2C"
@@ -1609,7 +1607,8 @@
             "color": "orange",
             "effects": [
                 {
-                    "class": "pay_cube"
+                    "class": "pay_cube",
+                    "args": 1
                 },
                 {
                     "class": "bandolier"
@@ -1744,7 +1743,6 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Doppia Canna",
             "signs": [
                 "6F"
@@ -2613,7 +2611,6 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Bass Greeves",
             "image": "17_bassgreeves",
             "hp": 4,
@@ -2655,12 +2652,7 @@
             "effects": [
                 {
                     "target": "cube_slot card",
-                    "class": "pay_cube"
-                },
-                {
-                    "target": "self card",
-                    "class": "add_cube",
-                    "args": 1
+                    "class": "steal_cube"
                 }
             ]
         },
@@ -2728,13 +2720,14 @@
             ],
             "effects": [
                 {
-                    "target": "self card",
-                    "class": "pay_cube"
-                },
+                    "target": "cube_slot self card",
+                    "class": "move_cube"
+                }
+            ],
+            "optional": [
                 {
                     "target": "cube_slot self card",
-                    "class": "add_cube",
-                    "args": 1
+                    "class": "move_cube"
                 }
             ]
         },
