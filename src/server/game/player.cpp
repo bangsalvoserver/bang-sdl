@@ -18,16 +18,18 @@ namespace banggame {
             return !c.equips.empty() && c.equips.front().is(equip_type::weapon) && c.id != card_id;
         });
         if (it != m_table.end()) {
+            m_game->drop_all_cubes(*it);
             m_game->move_to(std::move(*it), card_pile_type::discard_pile).on_unequip(this);
             m_table.erase(it);
         }
     }
 
-    void player::equip_card(deck_card &&target) {
+    deck_card &player::equip_card(deck_card &&target) {
         target.on_equip(this);
         auto &moved = m_table.emplace_back(std::move(target));
         m_game->send_card_update(moved);
         m_game->add_public_update<game_update_type::move_card>(moved.id, id, card_pile_type::player_table);
+        return moved;
     }
 
     bool player::has_card_equipped(const std::string &name) const {
@@ -62,6 +64,7 @@ namespace banggame {
                 it->inactive = false;
                 m_game->add_public_update<game_update_type::tap_card>(it->id, false);
             }
+            m_game->drop_all_cubes(*it);
             auto &moved = m_game->move_to(std::move(*it), it->color == card_color_type::black
                 ? card_pile_type::shop_discard
                 : card_pile_type::discard_pile);
@@ -85,6 +88,7 @@ namespace banggame {
                 it->inactive = false;
                 m_game->add_public_update<game_update_type::tap_card>(it->id, false);
             }
+            m_game->drop_all_cubes(*it);
             auto &moved = add_to_hand(std::move(*it));
             target->m_table.erase(it);
             m_game->queue_event<event_type::post_discard_card>(target, card_id);
@@ -102,7 +106,7 @@ namespace banggame {
 
     void player::damage(int origin_card_id, player *source, int value, bool is_bang) {
         if (!m_ghost) {
-            if (bool(m_game->m_options.expansions & card_expansion_type::valleyofshadows)) {
+            if (m_game->has_expansion(card_expansion_type::valleyofshadows)) {
                 auto &obj = m_game->queue_request<request_type::damaging>(origin_card_id, source, this);
                 obj.damage = value;
                 obj.is_bang = is_bang;
@@ -118,7 +122,7 @@ namespace banggame {
         if (m_hp <= 0) {
             m_game->add_request<request_type::death>(origin_card_id, origin, this);
         }
-        if (bool(m_game->m_options.expansions & card_expansion_type::goldrush)) {
+        if (m_game->has_expansion(card_expansion_type::goldrush)) {
             if (origin && origin->m_game->m_playing == origin && origin != this) {
                 origin->add_gold(value);
             }
@@ -138,6 +142,14 @@ namespace banggame {
         m_game->add_public_update<game_update_type::player_gold>(id, m_gold);
     }
 
+    bool player::can_receive_cubes() const {
+        if (m_game->m_cubes.empty()) return false;
+        if (m_characters.front().cubes.size() < 4) return true;
+        return std::ranges::any_of(m_table, [](const deck_card &card) {
+            return card.color == card_color_type::orange && card.cubes.size() < 4;
+        });
+    }
+
     deck_card &player::add_to_hand(deck_card &&target) {
         return m_game->move_to(std::move(target), card_pile_type::player_hand, true, this);
     }
@@ -148,16 +160,24 @@ namespace banggame {
 
     void player::verify_and_play_modifier(const card &c, int modifier_id) {
         if (!modifier_id) return;
-        if (auto modifier_it = std::ranges::find(m_hand, modifier_id, &deck_card::id); modifier_it != m_hand.end()) {
-            if (modifier_it->modifier == card_modifier_type::bangcard
-                && std::ranges::find(c.effects, effect_type::bangcard, &effect_holder::enum_index) != c.effects.end()) {
-                do_play_card(modifier_id, false, std::vector{c.effects.size(), play_card_target{enums::enum_constant<play_card_target_type::target_none>{}}});
-            } else {
+        auto &mod_card = find_card(modifier_id);
+        switch(mod_card.modifier) {
+        case card_modifier_type::anycard:
+            break;
+        case card_modifier_type::bangcard:
+            if (std::ranges::find(c.effects, effect_type::bangcard, &effect_holder::enum_index) != c.effects.end())
+                break;
+            [[fallthrough]];
+        default:
+            throw game_error("Azione non valida");
+        }
+        for (const auto &e : mod_card.effects) {
+            if (!e.can_play(modifier_id, this)) {
                 throw game_error("Azione non valida");
             }
-        } else {
-            throw game_error("server.verify_and_play_modifier: ID non trovato");
         }
+        do_play_card(modifier_id, false, std::vector{mod_card.effects.size(),
+            play_card_target{enums::enum_constant<play_card_target_type::target_none>{}}});
     }
 
     void player::verify_equip_target(const card &c, const std::vector<play_card_target> &targets) {
@@ -193,14 +213,12 @@ namespace banggame {
         auto &effects = is_response ? c.responses : c.effects;
         if (c.cost > m_gold) throw game_error("Non hai abbastanza pepite");
         if (c.max_usages != 0 && c.usages >= c.max_usages) throw game_error("Azione non valida");
-        if (!std::ranges::all_of(effects, [this](const effect_holder &e) {
-            return e.can_play(this);
-        })) throw game_error("Azione non valida");
 
         if (effects.size() != targets.size()) throw game_error("Target non validi");
         if (!std::ranges::all_of(effects, [&, it = targets.begin()] (const effect_holder &e) mutable {
             return enums::visit_indexed(util::overloaded{
                 [&](enums::enum_constant<play_card_target_type::target_none>) {
+                    if (!e.can_play(c.id, this)) return false;
                     return e.target() == enums::flags_none<target_type>;
                 },
                 [&](enums::enum_constant<play_card_target_type::target_player>, const std::vector<target_player_id> &args) {
@@ -211,11 +229,13 @@ namespace banggame {
                             for (auto *p = this;;) {
                                 p = m_game->get_next_player(p);
                                 if (p == this) break;
+                                if (!e.can_play(c.id, this, p)) return false;
                                 ids.emplace_back(p->id);
                             }
                         } else {
                             for (auto *p = this;;) {
                                 ids.emplace_back(p->id);
+                                if (!e.can_play(c.id, this, p)) return false;
                                 p = m_game->get_next_player(p);
                                 if (p == this) break;
                             }
@@ -225,6 +245,7 @@ namespace banggame {
                         return false;
                     } else {
                         player *target = m_game->get_player(args.front().player_id);
+                        if (!e.can_play(c.id, this, target)) return false;
                         return std::ranges::all_of(enums::enum_values_v<target_type>
                             | std::views::filter([type = e.target()](target_type value) {
                                 return bool(type & value);
@@ -261,12 +282,14 @@ namespace banggame {
                         }, &player::id)) return false;
                         return std::ranges::all_of(args, [&](const target_card_id &arg) {
                             if (arg.player_id == id) return false;
+                            auto *target = m_game->get_player(arg.player_id);
+                            if (!e.can_play(c.id, this, target, arg.card_id)) return false;
                             if (arg.from_hand) return true;
-                            auto &l = m_game->get_player(arg.player_id)->m_table;
-                            return std::ranges::find(l, arg.card_id, &deck_card::id) != l.end();
+                            return std::ranges::find(target->m_table, arg.card_id, &deck_card::id) != target->m_table.end();
                         });
                     } else {
                         player *target = m_game->get_player(args.front().player_id);
+                        if (!e.can_play(c.id, this, target, args.front().card_id)) return false;
                         return std::ranges::all_of(enums::enum_values_v<target_type>
                             | std::views::filter([type = e.target()](target_type value) {
                                 return bool(type & value);
@@ -301,6 +324,9 @@ namespace banggame {
                                     if (!c.effects.empty()) return c.effects.front().is(effect_type::bangcard);
                                     else if (!c.responses.empty()) return c.responses.front().is(effect_type::missedcard);
                                 }
+                                case target_type::cube_slot:
+                                    return args.front().card_id == target->m_characters.front().id
+                                        || target->find_card(args.front().card_id).color == card_color_type::orange;
                                 default: return false;
                                 }
                             });
@@ -326,15 +352,11 @@ namespace banggame {
         } else if (auto it = std::ranges::find(m_table, card_id, &deck_card::id); it != m_table.end()) {
             if (m_game->table_cards_disabled(id)) throw game_error("Le carte in gioco sono disabilitate");
             m_last_played_card = card_id;
-            switch (it->color) {
-            case card_color_type::blue:
-            case card_color_type::black:
-                card_ptr = &*it;
-                break;
-            case card_color_type::green:
+            if (it->color == card_color_type::green) {
                 card_ptr = &m_game->move_to(std::move(*it), card_pile_type::discard_pile);
                 m_table.erase(it);
-                break;
+            } else {
+                card_ptr = &*it;
             }
         } else if (auto it = std::ranges::find(m_game->m_shop_selection, card_id, &deck_card::id); it != m_game->m_shop_selection.end()) {
             if (it->color == card_color_type::brown) {
@@ -353,7 +375,9 @@ namespace banggame {
                 m_hand.erase(it);
                 m_game->queue_event<event_type::on_play_hand_card>(this, m_virtual->second.id);
             }
-        } else {
+        }
+
+        if (!card_ptr) {
             throw game_error("server.do_play_card: ID non trovato");
         }
 
@@ -418,13 +442,14 @@ namespace banggame {
     void player::play_card(const play_card_args &args) {
         if (bool(args.flags & play_card_flags::sell_beer)) {
             if (m_num_drawn_cards < m_num_cards_to_draw) throw game_error("Devi pescare");
-            if (!bool(m_game->m_options.expansions & card_expansion_type::goldrush)
+            if (!m_game->has_expansion(card_expansion_type::goldrush)
                 || args.targets.size() != 1
                 || !args.targets.front().is(play_card_target_type::target_card)) throw game_error("Azione non valida");
             const auto &l = args.targets.front().get<play_card_target_type::target_card>();
             if (l.size() != 1) throw game_error("Azione non valida");
             const auto &c = find_card(l.front().card_id);
             if (c.effects.empty() || !c.effects.front().is(effect_type::beer)) throw game_error("Azione non valida");
+            m_game->add_log(this, nullptr, std::string("venduto ") + c.name);
             discard_card(c.id);
             add_gold(1);
             m_game->queue_event<event_type::on_play_beer>(this);
@@ -439,6 +464,7 @@ namespace banggame {
             auto &c = p->find_card(l.front().card_id);
             if (c.color != card_color_type::black) throw game_error("Azione non valida");
             if (m_gold < c.buy_cost + 1) throw game_error("Non hai abbastanza pepite");
+            m_game->add_log(this, p, std::string("scartato ") + c.name);
             add_gold(-c.buy_cost - 1);
             p->discard_card(c.id);
         } else if (auto card_it = std::ranges::find(m_characters, args.card_id, &character::id); card_it != m_characters.end()) {
@@ -447,6 +473,7 @@ namespace banggame {
                 if (m_num_drawn_cards < m_num_cards_to_draw) throw game_error("Devi pescare");
                 verify_card_targets(*card_it, false, args.targets);
                 verify_and_play_modifier(*card_it, args.modifier_id);
+                m_game->add_log(this, nullptr, std::string("giocato effetto di ") + card_it->name);
                 do_play_card(args.card_id, false, args.targets);
                 break;
             case character_type::drawing:
@@ -454,6 +481,7 @@ namespace banggame {
                 if (m_num_drawn_cards >= m_num_cards_to_draw) throw game_error("Non devi pescare adesso");
                 verify_card_targets(*card_it, false, args.targets);
                 m_game->add_private_update<game_update_type::status_clear>(this);
+                m_game->add_log(this, nullptr, std::string("pescato con l'effetto di ") + card_it->name);
                 do_play_card(args.card_id, false, args.targets);
                 break;
             default:
@@ -469,21 +497,27 @@ namespace banggame {
             case card_color_type::brown:
                 verify_card_targets(*card_it, false, args.targets);
                 verify_and_play_modifier(*card_it, args.modifier_id);
+                m_game->add_log(this, nullptr, std::string("giocato ") + card_it->name);
                 do_play_card(args.card_id, false, args.targets);
                 break;
             case card_color_type::blue: {
                 verify_equip_target(*card_it, args.targets);
                 auto *target = m_game->get_player(args.targets.front().get<play_card_target_type::target_player>().front().player_id);
                 if (target->has_card_equipped(card_it->name)) throw game_error("Carta duplicata");
+                m_game->add_log(this, target, std::string("equipaggiato ") + card_it->name);
                 deck_card removed = std::move(*card_it);
                 m_hand.erase(card_it);
                 target->equip_card(std::move(removed));
+                if (m_game->has_expansion(card_expansion_type::armedanddangerous) && can_receive_cubes()) {
+                    m_game->queue_request<request_type::add_cube>(0, nullptr, this);
+                }
                 m_game->queue_event<event_type::on_equip>(this, target, args.card_id);
                 m_game->queue_event<event_type::on_effect_end>(this);
                 break;
             }
-            case card_color_type::green:
+            case card_color_type::green: {
                 if (has_card_equipped(card_it->name)) throw game_error("Carta duplicata");
+                m_game->add_log(this, nullptr, std::string("equipaggiato ") + card_it->name);
                 card_it->inactive = true;
                 deck_card removed = std::move(*card_it);
                 m_hand.erase(card_it);
@@ -493,24 +527,25 @@ namespace banggame {
                 m_game->add_public_update<game_update_type::tap_card>(removed.id, true);
                 break;
             }
+            case card_color_type::orange: {
+                verify_equip_target(*card_it, args.targets);
+                auto *target = m_game->get_player(args.targets.front().get<play_card_target_type::target_player>().front().player_id);
+                if (target->has_card_equipped(card_it->name)) throw game_error("Carta duplicata");
+                m_game->add_log(this, target, std::string("equipaggiato ") + card_it->name);
+                deck_card removed = std::move(*card_it);
+                m_hand.erase(card_it);
+                m_game->add_cubes(target->equip_card(std::move(removed)), 3);
+                m_game->queue_event<event_type::on_equip>(this, this, args.card_id);
+                m_game->queue_event<event_type::on_effect_end>(this);
+            }
+            }
         } else if (auto card_it = std::ranges::find(m_table, args.card_id, &deck_card::id); card_it != m_table.end()) {
             if (m_num_drawn_cards < m_num_cards_to_draw) throw game_error("Devi pescare");
-            switch (card_it->color) {
-            case card_color_type::blue:
-            case card_color_type::black:
-                verify_card_targets(*card_it, false, args.targets);
-                verify_and_play_modifier(*card_it, args.modifier_id);
-                do_play_card(args.card_id, false, args.targets);
-                break;
-            case card_color_type::green:
-                if (card_it->inactive) throw game_error("Carta non attiva in questo turno");
-                verify_card_targets(*card_it, false, args.targets);
-                verify_and_play_modifier(*card_it, args.modifier_id);
-                do_play_card(args.card_id, false, args.targets);
-                break;
-            default:
-                throw game_error("Puoi giocare dal tavolo solo carte blu, nere o verdi");
-            }
+            if (card_it->inactive) throw game_error("Carta non attiva in questo turno");
+            verify_card_targets(*card_it, false, args.targets);
+            verify_and_play_modifier(*card_it, args.modifier_id);
+            m_game->add_log(this, nullptr, std::string("giocato ") + card_it->name + " da terra");
+            do_play_card(args.card_id, false, args.targets);
         } else if (auto card_it = std::ranges::find(m_game->m_shop_selection, args.card_id, &deck_card::id); card_it != m_table.end()) {
             if (m_num_drawn_cards < m_num_cards_to_draw) throw game_error("Devi pescare");
             int discount = 0;
@@ -528,6 +563,7 @@ namespace banggame {
                     verify_card_targets(*card_it, false, args.targets);
                     if (args.modifier_id) do_play_card(args.modifier_id, false, {});
                     add_gold(discount - card_it->buy_cost);
+                    m_game->add_log(this, nullptr, std::string("comprato e giocato ") + card_it->name);
                     do_play_card(args.card_id, false, args.targets);
                     m_game->queue_event<event_type::delayed_action>([this]{
                         m_game->draw_shop_card();
@@ -538,6 +574,7 @@ namespace banggame {
                     if (args.modifier_id) do_play_card(args.modifier_id, false, {});
                     auto *target = m_game->get_player(args.targets.front().get<play_card_target_type::target_player>().front().player_id);
                     if (target->has_card_equipped(card_it->name)) throw game_error("Carta duplicata");
+                    m_game->add_log(this, target, std::string("comprato e equipaggiato ") + card_it->name);
                     add_gold(discount - card_it->buy_cost);
                     deck_card removed = std::move(*card_it);
                     m_game->m_shop_selection.erase(card_it);
@@ -564,11 +601,13 @@ namespace banggame {
         if (auto card_it = std::ranges::find(m_characters, args.card_id, &character::id); card_it != m_characters.end()) {
             if (can_respond(*card_it)) {
                 verify_card_targets(*card_it, true, args.targets);
+                m_game->add_log(this, nullptr, std::string("risposto con l'effetto di ") + card_it->name);
                 do_play_card(args.card_id, true, args.targets);
             }
         } else if (auto card_it = std::ranges::find(m_hand, args.card_id, &deck_card::id); card_it != m_hand.end()) {
             if (card_it->color == card_color_type::brown && can_respond(*card_it)) {
                 verify_card_targets(*card_it, true, args.targets);
+                m_game->add_log(this, nullptr, std::string("risposto con ") + card_it->name);
                 do_play_card(args.card_id, true, args.targets);
             }
         } else if (auto card_it = std::ranges::find(m_table, args.card_id, &deck_card::id); card_it != m_table.end()) {
@@ -576,11 +615,14 @@ namespace banggame {
             if (card_it->inactive) throw game_error("Carta non attiva in questo turno");
             if (can_respond(*card_it)) {
                 verify_card_targets(*card_it, true, args.targets);
+                m_game->add_log(this, nullptr, std::string("risposto con ") + card_it->name + " da terra");
                 do_play_card(args.card_id, true, args.targets);
             }
         } else if (auto card_it = std::ranges::find(m_game->m_shop_selection, args.card_id, &deck_card::id); card_it != m_table.end()) {
+            // hack per bottiglia e complice
             if (m_num_drawn_cards < m_num_cards_to_draw) throw game_error("Devi pescare");
             verify_card_targets(*card_it, true, args.targets);
+            m_game->add_log(this, nullptr, std::string("scelto opzione ") + card_it->name);
             do_play_card(args.card_id, true, args.targets);
         } else {
             throw game_error("server.respond_card: ID non trovato");
@@ -592,6 +634,7 @@ namespace banggame {
             for (; m_num_drawn_cards<m_num_cards_to_draw; ++m_num_drawn_cards) {
                 m_game->draw_card_to(card_pile_type::player_hand, this);
             }
+            m_game->add_log(this, nullptr, "pescato dal mazzo");
             m_game->queue_event<event_type::on_draw_from_deck>(this);
             m_game->add_private_update<game_update_type::status_clear>(this);
         }
@@ -692,6 +735,7 @@ namespace banggame {
                 c.inactive = false;
                 m_game->add_public_update<game_update_type::tap_card>(c.id, false);
             }
+            m_game->drop_all_cubes(c);
             c.on_unequip(this);
             m_game->move_to(std::move(c), c.color == card_color_type::black
                 ? card_pile_type::shop_discard

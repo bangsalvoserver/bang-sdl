@@ -10,14 +10,14 @@ namespace banggame {
 
         void add_move_card(card_view *card) {
             if (std::ranges::find(data, card, &decltype(data)::value_type::first) == data.end()) {
-                data.emplace_back(card, card->pos);
+                data.emplace_back(card, card->get_pos());
                 card->animating = true;
             }
         }
 
         void end() {
             for (auto &[card, _] : data) {
-                card->pos = card->pile->get_position(card);
+                card->set_pos(card->pile->get_position(card));
                 card->animating = false;
             }
         }
@@ -25,8 +25,10 @@ namespace banggame {
         void do_animation(float amt) {
             for (auto &[card, start] : data) {
                 sdl::point dest = card->pile->get_position(card);
-                card->pos.x = std::lerp(start.x, dest.x, amt);
-                card->pos.y = std::lerp(start.y, dest.y, amt);
+                card->set_pos(sdl::point{
+                    (int) std::lerp(start.x, dest.x, amt),
+                    (int) std::lerp(start.y, dest.y, amt)
+                });
             }
         }
 
@@ -80,6 +82,33 @@ namespace banggame {
         }
     };
 
+    struct cube_move_animation {
+        cube_widget *cube;
+        sdl::point start;
+        sdl::point diff;
+
+        cube_move_animation(cube_widget *cube, sdl::point diff)
+            : cube(cube), diff(diff)
+        {
+            start = cube->pos;
+        }
+        
+        void do_animation(float amt) {
+            sdl::point dest{};
+            if (cube->owner) dest = cube->owner->get_pos();
+            cube->pos = sdl::point{
+                (int) std::lerp(start.x, dest.x + diff.x, amt),
+                (int) std::lerp(start.y, dest.y + diff.y, amt)
+            };
+        }
+
+        void end() {
+            sdl::point dest{};
+            if (cube->owner) dest = cube->owner->get_pos();
+            cube->pos = sdl::point{dest.x + diff.x, dest.y + diff.y};
+        }
+    };
+
     struct pause_animation {};
 
     class animation {
@@ -87,7 +116,7 @@ namespace banggame {
         int duration;
         int elapsed = 0;
 
-        std::variant<card_move_animation, card_flip_animation, card_tap_animation, player_hp_animation, pause_animation> m_anim;
+        std::variant<card_move_animation, card_flip_animation, card_tap_animation, player_hp_animation, cube_move_animation, pause_animation> m_anim;
 
     public:
         template<typename ... Ts>
@@ -105,6 +134,7 @@ namespace banggame {
         }
 
         void end() {
+            elapsed = duration;
             std::visit([this](auto &anim) {
                 if constexpr (requires { anim.end(); }) {
                     anim.end();

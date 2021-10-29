@@ -63,10 +63,18 @@ namespace banggame {
         using std::runtime_error::runtime_error;
     };
 
+    struct game_log {
+        player *origin;
+        player *target;
+        std::string message;
+    };
+
     #define ACTION_TAG(name) enums::enum_constant<game_action_type::name>
 
     struct game {
         std::list<std::pair<player *, game_update>> m_updates;
+        std::list<game_log> m_logs;
+
         std::list<request_holder> m_requests;
         std::list<draw_check_function> m_pending_checks;
         std::multimap<int, event_function> m_event_handlers;
@@ -81,6 +89,8 @@ namespace banggame {
         std::vector<deck_card> m_shop_discards;
         std::vector<deck_card> m_shop_hidden;
         std::vector<deck_card> m_shop_selection;
+
+        std::vector<int> m_cubes;
 
         std::vector<character> m_base_characters;
 
@@ -111,12 +121,21 @@ namespace banggame {
             add_private_update<E>(nullptr, args ...);
         }
 
+        void add_log(player *origin, player *target, std::string message) {
+            m_logs.emplace_back(origin, target, std::move(message));
+        }
+
         std::vector<game_update> get_game_state_updates();
 
         void send_card_update(const deck_card &c, player *owner = nullptr, show_card_flags flags = enums::flags_none<show_card_flags>);
         void send_character_update(const character &c, int player_id, int index);
 
         void start_game(const game_options &options);
+
+        bool has_expansion(card_expansion_type type) const {
+            using namespace enums::flag_operators;
+            return bool(m_options.expansions & type);
+        }
 
         request_holder &top_request() {
             return m_requests.front();
@@ -224,6 +243,10 @@ namespace banggame {
         deck_card draw_from_temp(int card_id);
 
         deck_card &draw_shop_card();
+
+        void add_cubes(card &target, int ncubes);
+        void pay_cubes(card &target, int ncubes);
+        void drop_all_cubes(card &target);
 
         void draw_check_then(player *p, draw_check_function fun, bool force_one = false, bool invert_pop_req = false);
         void resolve_check(int card_id);

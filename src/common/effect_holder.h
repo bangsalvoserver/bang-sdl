@@ -42,13 +42,22 @@ namespace banggame {
         (damage,        effect_damage)
         (saved,         effect_saved)
         (escape,        effect_escape)
-        (doublebarrel,  effect_doublebarrel)
         (rum,           effect_rum)
         (bottle,        effect_bottle)
         (bottlechoice,  effect_shopchoice)
         (pardner,       effect_pardner)
         (pardnerchoice, effect_shopchoice)
         (goldrush,      effect_goldrush)
+        (pay_cube,      effect_pay_cube)
+        (bandolier,     effect_bandolier)
+        (doublebarrel,  effect_doublebarrel)
+        (add_cube,      effect_add_cube)
+        (reload,        effect_reload)
+        // (rust,          effect_rust)
+        // (bomb,          effect_bomb)
+        // (buntlinespecial, effect_buntlinespecial)
+        // (belltower,     effect_belltower)
+        // (thunderer,     effect_thunderer)
         (changewws,     effect_empty)
         (black_jack,    effect_black_jack)
         (kit_carlson,   effect_kit_carlson)
@@ -144,11 +153,15 @@ namespace banggame {
     struct effect_holder : effect_base<effect_type> {
         using effect_base<effect_type>::effect_base;
 
-        bool can_play(player *target) const;
         bool can_respond(player *target) const;
 
+        bool can_play(int origin_card_id, player *origin) const;
         void on_play(int origin_card_id, player *origin);
+        
+        bool can_play(int origin_card_id, player *origin, player *target) const;
         void on_play(int origin_card_id, player *origin, player *target);
+        
+        bool can_play(int origin_card_id, player *origin, player *target, int card_id) const;
         void on_play(int origin_card_id, player *origin, player *target, int card_id);
     };
 

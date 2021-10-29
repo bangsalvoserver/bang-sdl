@@ -113,13 +113,30 @@ namespace banggame {
         role_string.append(enums::to_string(role));
         set_texture_front(apply_card_mask(sdl::surface(card_resources[role_string])));
     }
+
+    sdl::texture cube_widget::cube_texture{sdl::surface(card_resources["cube"])};
+
+    void cube_widget::render(sdl::renderer &renderer) {
+        sdl::rect rect = cube_texture.get_rect();
+        rect.x = pos.x - rect.w / 2;
+        rect.y = pos.y - rect.h / 2;
+        cube_texture.render(renderer, rect);
+    }
+
+    void card_widget::set_pos(const sdl::point &new_pos) {
+        for (auto *cube : cubes) {
+            sdl::point diff{cube->pos.x - m_pos.x, cube->pos.y - m_pos.y};
+            cube->pos = sdl::point{diff.x + new_pos.x, diff.y + new_pos.y};
+        }
+        m_pos = new_pos;
+    }
     
     void card_widget::do_render(sdl::renderer &renderer, sdl::texture &tex) {
         m_rect = tex.get_rect();
         sdl::scale_rect(m_rect, sizes::card_width);
         
-        m_rect.x = pos.x - m_rect.w / 2;
-        m_rect.y = pos.y - m_rect.h / 2;
+        m_rect.x = m_pos.x - m_rect.w / 2;
+        m_rect.y = m_pos.y - m_rect.h / 2;
 
         sdl::rect rect = m_rect;
         float wscale = std::abs(1.f - 2.f * flip_amt);
@@ -139,9 +156,9 @@ namespace banggame {
         sdl::point char_pos = sdl::point{
             m_bounding_rect.x + m_bounding_rect.w - sizes::card_width - sizes::card_width / 2 - 20,
             m_bounding_rect.y + m_bounding_rect.h - sizes::card_width - 10};
-        m_role.pos = sdl::point(char_pos.x + sizes::card_width + 10, char_pos.y);
+        m_role.set_pos(sdl::point(char_pos.x + sizes::card_width + 10, char_pos.y));
         for (auto &c : m_characters) {
-            c.pos = char_pos;
+            c.set_pos(char_pos);
             char_pos.x += sizes::character_offset;
             char_pos.y += sizes::character_offset;
         }
@@ -155,13 +172,13 @@ namespace banggame {
         }
 
         sdl::rect username_rect = m_username_text.get_rect();
-        username_rect.x = m_role.pos.x - (username_rect.w) / 2;
+        username_rect.x = m_role.get_pos().x - (username_rect.w) / 2;
         username_rect.y = m_bounding_rect.y + 20;
         m_username_text.set_rect(username_rect);
     }
 
     void player_view::set_hp_marker_position(float hp) {
-        m_hp_marker_pos = m_characters.front().pos;
+        m_hp_marker_pos = m_characters.front().get_pos();
         m_hp_marker_pos.y -= std::max(0.f, hp * sizes::one_hp_size);
     }
 
@@ -194,8 +211,8 @@ namespace banggame {
         }
         if (gold > 0 && m_gold_texture) {
             sdl::rect gold_rect = m_gold_texture.get_rect();
-            gold_rect.x = m_characters.front().pos.x - gold_rect.w / 2;
-            gold_rect.y = m_characters.front().pos.y - sizes::gold_yoffset;
+            gold_rect.x = m_characters.front().get_pos().x - gold_rect.w / 2;
+            gold_rect.y = m_characters.front().get_pos().y - sizes::gold_yoffset;
             m_gold_texture.render(renderer, gold_rect);
 
             sdl::rect gold_text_rect = m_gold_text.get_rect();

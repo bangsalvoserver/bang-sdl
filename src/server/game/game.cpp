@@ -199,7 +199,7 @@ namespace banggame {
         add_public_update<game_update_type::add_cards>(std::vector(ids_view.begin(), ids_view.end()), card_pile_type::main_deck);
         shuffle_cards_and_ids(m_deck, rng);
 
-        if (bool(options.expansions & card_expansion_type::goldrush)) {
+        if (has_expansion(card_expansion_type::goldrush)) {
             for (const auto &c : all_cards.goldrush) {
                 if (m_players.size() <= 2 && c.discard_if_two_players) continue;
                 m_shop_deck.emplace_back(c).id = get_next_id();
@@ -214,6 +214,10 @@ namespace banggame {
             ids_view = m_shop_hidden | std::views::transform(&deck_card::id);
             add_public_update<game_update_type::add_cards>(std::vector(ids_view.begin(), ids_view.end()), card_pile_type::shop_hidden);
         }
+
+        auto cube_ids = std::views::iota(1, 32);
+        m_cubes.assign(cube_ids.begin(), cube_ids.end());
+        add_public_update<game_update_type::add_cubes>(m_cubes);
 
         int max_initial_cards = std::ranges::max(m_players | std::views::transform(&player::get_initial_cards));
         for (int i=0; i<max_initial_cards; ++i) {
@@ -318,6 +322,34 @@ namespace banggame {
         deck_card c = std::move(*it);
         m_selection.erase(it);
         return c;
+    }
+
+    void game::add_cubes(card &target, int ncubes) {
+        for (;ncubes!=0 && !m_cubes.empty() && target.cubes.size() < 4; --ncubes) {
+            int cube = m_cubes.back();
+            m_cubes.pop_back();
+
+            target.cubes.push_back(cube);
+            add_public_update<game_update_type::move_cube>(cube, target.id);
+        }
+    }
+
+    void game::pay_cubes(card &target, int ncubes) {
+        for (;ncubes!=0 && !target.cubes.empty(); --ncubes) {
+            int cube = target.cubes.back();
+            target.cubes.pop_back();
+
+            m_cubes.push_back(cube);
+            add_public_update<game_update_type::move_cube>(cube, 0);
+        }
+    }
+
+    void game::drop_all_cubes(card &target) {
+        for (int id : target.cubes) {
+            m_cubes.push_back(id);
+            add_public_update<game_update_type::move_cube>(id, 0);
+        }
+        target.cubes.clear();
     }
 
     void game::draw_check_then(player *p, draw_check_function fun, bool force_one, bool invert_pop_req) {

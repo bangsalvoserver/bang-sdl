@@ -20,6 +20,7 @@ namespace banggame {
         sdl::texture &goldrush();
     };
 
+    struct card_widget;
     struct card_view;
 
     struct card_pile_view : std::vector<card_view *> {
@@ -49,14 +50,34 @@ namespace banggame {
         }
     };
 
+    class cube_widget {
+    public:
+        card_widget *owner = nullptr;
+
+        int id;
+        sdl::point pos;
+
+        cube_widget(int id) : id(id) {}
+
+        void render(sdl::renderer &renderer);
+
+    private:
+        static sdl::texture cube_texture;
+    };
+
     class card_widget : public card_info {
     public:
-        sdl::point pos;
+        std::vector<cube_widget *> cubes;
 
         float flip_amt = 0.f;
         float rotation = 0.f;
 
         bool animating = false;
+
+        void set_pos(const sdl::point &pos);
+        const sdl::point &get_pos() const {
+            return m_pos;
+        }
 
         const sdl::rect &get_rect() const {
             return m_rect;
@@ -81,6 +102,7 @@ namespace banggame {
         }
 
     private:
+        sdl::point m_pos;
         sdl::rect m_rect;
         
         void do_render(sdl::renderer &renderer, sdl::texture &front);

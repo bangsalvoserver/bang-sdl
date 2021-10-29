@@ -28,6 +28,15 @@ namespace banggame {
         (flags, show_card_flags)
     )
 
+    DEFINE_SERIALIZABLE(add_cubes_update,
+        (cubes, std::vector<int>)
+    )
+
+    DEFINE_SERIALIZABLE(move_cube_update,
+        (cube_id, int)
+        (card_id, int)
+    )
+
     DEFINE_SERIALIZABLE(target_data_base,
         (target, target_type)
         (args, int)
@@ -129,6 +138,8 @@ namespace banggame {
         (game_over, game_over_update)
         (add_cards, add_cards_update)
         (move_card, move_card_update)
+        (add_cubes, add_cubes_update)
+        (move_cube, move_cube_update)
         (deck_shuffled, card_pile_type)
         (virtual_card, virtual_card_update)
         (show_card, show_card_update)

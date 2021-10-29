@@ -18,11 +18,15 @@ namespace banggame {
     static void make_all_effects(card &out, const Json::Value &json_card) {
         out.name = json_card["name"].asString();
         out.image = json_card["image"].asString();
-        if (json_card.isMember("effects")) {
-            out.effects = make_effects_from_json<effect_holder>(json_card["effects"]);
-        }
-        if (json_card.isMember("responses")) {
-            out.responses = make_effects_from_json<effect_holder>(json_card["responses"]);
+        try {
+            if (json_card.isMember("effects")) {
+                out.effects = make_effects_from_json<effect_holder>(json_card["effects"]);
+            }
+            if (json_card.isMember("responses")) {
+                out.responses = make_effects_from_json<effect_holder>(json_card["responses"]);
+            }
+        } catch (const invalid_effect &e) {
+            throw std::runtime_error(out.name + ": " + e.what());
         }
         if (json_card.isMember("equip")) {
             out.equips = make_effects_from_json<equip_holder>(json_card["equip"]);
