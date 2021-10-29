@@ -215,9 +215,11 @@ namespace banggame {
             add_public_update<game_update_type::add_cards>(std::vector(ids_view.begin(), ids_view.end()), card_pile_type::shop_hidden);
         }
 
-        auto cube_ids = std::views::iota(1, 32);
-        m_cubes.assign(cube_ids.begin(), cube_ids.end());
-        add_public_update<game_update_type::add_cubes>(m_cubes);
+        if (has_expansion(card_expansion_type::armedanddangerous)) {
+            auto cube_ids = std::views::iota(1, 32);
+            m_cubes.assign(cube_ids.begin(), cube_ids.end());
+            add_public_update<game_update_type::add_cubes>(m_cubes);
+        }
 
         int max_initial_cards = std::ranges::max(m_players | std::views::transform(&player::get_initial_cards));
         for (int i=0; i<max_initial_cards; ++i) {
