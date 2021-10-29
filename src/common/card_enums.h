@@ -37,7 +37,7 @@ namespace banggame {
         (valleyofshadows,   "Valley of Shadows")
         (wildwestshow,      "Wild West Show")
         (goldrush,          "Gold Rush")
-        (armedanddangerous, "Armed And Dangerous")
+        (armedanddangerous, "Armed And Dangerous (beta)")
     )
 
     DEFINE_ENUM_IN_NS(banggame, card_color_type,
