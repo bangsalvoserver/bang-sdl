@@ -368,10 +368,10 @@ namespace banggame {
     void effect_pay_cube::on_play(int origin_card_id, player *origin, player *target, int card_id) {
         if (card_id == target->m_characters.front().id) {
             auto &card = target->m_characters.front();
-            target->m_game->pay_cubes(card, args);
+            target->m_game->pay_cubes(card, std::max(1, args));
         } else {
             auto &card = target->find_card(card_id);
-            target->m_game->pay_cubes(card, args);
+            target->m_game->pay_cubes(card, std::max(1, args));
             if (card.cubes.empty()) {
                 target->m_game->queue_event<event_type::delayed_action>([=]{
                     target->discard_card(card_id);
@@ -383,10 +383,10 @@ namespace banggame {
     void effect_add_cube::on_play(int origin_card_id, player *origin, player *target, int card_id) {
         if (card_id == target->m_characters.front().id) {
             auto &card = target->m_characters.front();
-            target->m_game->add_cubes(card, args);
+            target->m_game->add_cubes(card, std::max(1, args));
         } else {
             auto &card = target->find_card(card_id);
-            target->m_game->add_cubes(card, args);
+            target->m_game->add_cubes(card, std::max(1, args));
         }
     }
 

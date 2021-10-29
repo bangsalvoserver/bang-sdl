@@ -89,6 +89,7 @@ namespace banggame {
 
         void handle_auto_targets(bool is_response);
         void add_card_target(bool is_response, const target_card_id &target);
+        void add_character_target(bool is_response, const target_card_id &target);
         void add_player_targets(bool is_response, const std::vector<target_player_id> &targets);
         void clear_targets();
 

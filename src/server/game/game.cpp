@@ -325,7 +325,7 @@ namespace banggame {
     }
 
     void game::add_cubes(card &target, int ncubes) {
-        for (;ncubes!=0 && !m_cubes.empty(); --ncubes) {
+        for (;ncubes!=0 && !m_cubes.empty() && target.cubes.size() < 4; --ncubes) {
             int cube = m_cubes.back();
             m_cubes.pop_back();
 

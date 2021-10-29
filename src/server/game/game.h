@@ -63,10 +63,18 @@ namespace banggame {
         using std::runtime_error::runtime_error;
     };
 
+    struct game_log {
+        player *origin;
+        player *target;
+        std::string message;
+    };
+
     #define ACTION_TAG(name) enums::enum_constant<game_action_type::name>
 
     struct game {
         std::list<std::pair<player *, game_update>> m_updates;
+        std::list<game_log> m_logs;
+
         std::list<request_holder> m_requests;
         std::list<draw_check_function> m_pending_checks;
         std::multimap<int, event_function> m_event_handlers;
@@ -111,6 +119,10 @@ namespace banggame {
         template<game_update_type E, typename ... Ts>
         void add_public_update(const Ts & ... args) {
             add_private_update<E>(nullptr, args ...);
+        }
+
+        void add_log(player *origin, player *target, std::string message) {
+            m_logs.emplace_back(origin, target, std::move(message));
         }
 
         std::vector<game_update> get_game_state_updates();

@@ -188,10 +188,6 @@ namespace banggame {
     };
 
     struct effect_pay_cube : card_effect {
-        effect_pay_cube() {
-            args = 1;
-        }
-
         bool can_play(int origin_card_id, player *origin) const {
             return can_play(origin_card_id, origin, origin, origin_card_id);
         }
@@ -206,10 +202,6 @@ namespace banggame {
     };
 
     struct effect_add_cube : card_effect {
-        effect_add_cube() {
-            args = 1;
-        }
-
         void on_play(int origin_card_id, player *origin, player *target, int card_id);
     };
     
