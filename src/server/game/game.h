@@ -245,10 +245,6 @@ namespace banggame {
 
         deck_card &draw_shop_card();
 
-        void add_cubes(card &target, int ncubes);
-        void pay_cubes(card &target, int ncubes);
-        void drop_all_cubes(card &target);
-
         void draw_check_then(player *p, draw_check_function fun, bool force_one = false, bool invert_pop_req = false);
         void resolve_check(int card_id);
 

@@ -325,36 +325,7 @@ namespace banggame {
         m_selection.erase(it);
         return c;
     }
-
-    void game::add_cubes(card &target, int ncubes) {
-        for (;ncubes!=0 && !m_cubes.empty() && target.cubes.size() < 4; --ncubes) {
-            int cube = m_cubes.back();
-            m_cubes.pop_back();
-
-            target.cubes.push_back(cube);
-            add_public_update<game_update_type::move_cube>(cube, target.id);
-        }
-    }
-
-    void game::pay_cubes(card &target, int ncubes) {
-        for (;ncubes!=0 && !target.cubes.empty(); --ncubes) {
-            int cube = target.cubes.back();
-            target.cubes.pop_back();
-
-            m_cubes.push_back(cube);
-            add_public_update<game_update_type::move_cube>(cube, 0);
-        }
-        instant_event<event_type::on_pay_cube>(target.id, target.cubes.size());
-    }
-
-    void game::drop_all_cubes(card &target) {
-        for (int id : target.cubes) {
-            m_cubes.push_back(id);
-            add_public_update<game_update_type::move_cube>(id, 0);
-        }
-        target.cubes.clear();
-    }
-
+    
     void game::draw_check_then(player *p, draw_check_function fun, bool force_one, bool invert_pop_req) {
         if (force_one || p->m_num_checks == 1) {
             auto &moved = draw_card_to(card_pile_type::discard_pile);

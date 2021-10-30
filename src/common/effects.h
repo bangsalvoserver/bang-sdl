@@ -209,6 +209,10 @@ namespace banggame {
         void on_play(int origin_card_id, player *origin);
     };
 
+    struct effect_rust : card_effect {
+        void on_play(int origin_card_id, player *origin, player *target);
+    };
+
     struct effect_bandolier : card_effect {
         bool can_play(int origin_card_id, player *origin) const;
         void on_play(int origin_card_id, player *origin);

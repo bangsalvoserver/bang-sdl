@@ -18,7 +18,7 @@ namespace banggame {
             return !c.equips.empty() && c.equips.front().is(equip_type::weapon) && c.id != card_id;
         });
         if (it != m_table.end()) {
-            m_game->drop_all_cubes(*it);
+            drop_all_cubes(*it);
             m_game->move_to(std::move(*it), card_pile_type::discard_pile).on_unequip(this);
             m_table.erase(it);
         }
@@ -64,7 +64,7 @@ namespace banggame {
                 it->inactive = false;
                 m_game->add_public_update<game_update_type::tap_card>(it->id, false);
             }
-            m_game->drop_all_cubes(*it);
+            drop_all_cubes(*it);
             auto &moved = m_game->move_to(std::move(*it), it->color == card_color_type::black
                 ? card_pile_type::shop_discard
                 : card_pile_type::discard_pile);
@@ -88,7 +88,7 @@ namespace banggame {
                 it->inactive = false;
                 m_game->add_public_update<game_update_type::tap_card>(it->id, false);
             }
-            m_game->drop_all_cubes(*it);
+            drop_all_cubes(*it);
             auto &moved = add_to_hand(std::move(*it));
             target->m_table.erase(it);
             m_game->queue_event<event_type::post_discard_card>(target, card_id);
@@ -149,6 +149,62 @@ namespace banggame {
             return card.color == card_color_type::orange && card.cubes.size() < 4;
         });
     }
+    
+    void player::add_cubes(card &target, int ncubes) {
+        for (;ncubes!=0 && !m_game->m_cubes.empty() && target.cubes.size() < 4; --ncubes) {
+            int cube = m_game->m_cubes.back();
+            m_game->m_cubes.pop_back();
+
+            target.cubes.push_back(cube);
+            m_game->add_public_update<game_update_type::move_cube>(cube, target.id);
+        }
+    }
+
+    void player::pay_cubes(card &target, int ncubes) {
+        for (;ncubes!=0 && !target.cubes.empty(); --ncubes) {
+            int cube = target.cubes.back();
+            target.cubes.pop_back();
+
+            m_game->m_cubes.push_back(cube);
+            m_game->add_public_update<game_update_type::move_cube>(cube, 0);
+        }
+        m_game->instant_event<event_type::on_pay_cube>(target.id, target.cubes.size());
+        if (target.cubes.empty() && target.id != m_characters.front().id) {
+            m_game->queue_event<event_type::delayed_action>([this, card_id = target.id]{
+                discard_card(card_id);
+            });
+        }
+    }
+
+    void player::move_cubes(card &origin, card &target, int ncubes) {
+        for(;ncubes!=0 && !origin.cubes.empty(); --ncubes) {
+            int cube = origin.cubes.back();
+            origin.cubes.pop_back();
+            
+            if (target.cubes.size() < 4) {
+                target.cubes.push_back(cube);
+                m_game->add_public_update<game_update_type::move_cube>(cube, target.id);
+            } else {
+                m_game->m_cubes.push_back(cube);
+                m_game->add_public_update<game_update_type::move_cube>(cube, 0);
+            }
+        }
+        m_game->instant_event<event_type::on_pay_cube>(origin.id, origin.cubes.size());
+        if (origin.cubes.empty() && origin.id != m_characters.front().id) {
+            m_game->queue_event<event_type::delayed_action>([this, card_id = origin.id]{
+                discard_card(card_id);
+            });
+        }
+    }
+
+    void player::drop_all_cubes(card &target) {
+        for (int id : target.cubes) {
+            m_game->m_cubes.push_back(id);
+            m_game->add_public_update<game_update_type::move_cube>(id, 0);
+        }
+        target.cubes.clear();
+    }
+
 
     deck_card &player::add_to_hand(deck_card &&target) {
         return m_game->move_to(std::move(target), card_pile_type::player_hand, true, this);
@@ -534,7 +590,7 @@ namespace banggame {
                 m_game->add_log(this, target, std::string("equipaggiato ") + card_it->name);
                 deck_card removed = std::move(*card_it);
                 m_hand.erase(card_it);
-                m_game->add_cubes(target->equip_card(std::move(removed)), 3);
+                add_cubes(target->equip_card(std::move(removed)), 3);
                 m_game->queue_event<event_type::on_equip>(this, this, args.card_id);
                 m_game->queue_event<event_type::on_effect_end>(this);
             }
@@ -735,7 +791,7 @@ namespace banggame {
                 c.inactive = false;
                 m_game->add_public_update<game_update_type::tap_card>(c.id, false);
             }
-            m_game->drop_all_cubes(c);
+            drop_all_cubes(c);
             c.on_unequip(this);
             m_game->move_to(std::move(c), c.color == card_color_type::black
                 ? card_pile_type::shop_discard

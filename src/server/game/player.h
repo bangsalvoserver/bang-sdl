@@ -84,6 +84,11 @@ namespace banggame {
             return m_hand.empty();
         }
 
+        void add_cubes(card &target, int ncubes);
+        void pay_cubes(card &target, int ncubes);
+        void move_cubes(card &origin, card &target, int ncubes);
+        void drop_all_cubes(card &target);
+
         bool can_receive_cubes() const;
         
         deck_card &add_to_hand(deck_card &&c);

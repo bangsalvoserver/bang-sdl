@@ -201,13 +201,13 @@ namespace banggame {
             if (args.pile == card_pile_type::player_table) {
                 auto &card = target->find_card(args.card_id);
                 if (card.color == card_color_type::orange && card.cubes.size() < 4) {
-                    target->m_game->add_cubes(card, 1);
+                    target->add_cubes(card, 1);
                     --ncubes_ref;
                 }
             } else if (args.pile == card_pile_type::player_character) {
                 auto &card = target->m_characters.front();
                 if (card.id == args.card_id && card.cubes.size() < 4) {
-                    target->m_game->add_cubes(card, 1);
+                    target->add_cubes(card, 1);
                     --ncubes_ref;
                 }
             }
@@ -235,5 +235,11 @@ namespace banggame {
                 target->m_game->pop_request();
             }
         }
+    }
+
+    void request_rust::on_resolve() {
+        target->m_game->pop_request();
+
+        effect_rust{}.on_play(origin_card_id, origin, target);
     }
 }
