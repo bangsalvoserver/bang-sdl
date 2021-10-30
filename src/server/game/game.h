@@ -25,6 +25,7 @@ namespace banggame {
         (delayed_action,    std::function<void(std::function<void()>)>)
         (on_discard_pass,   std::function<void(player *origin, int card_id)>)
         (on_draw_check,     std::function<void(int card_id)>)
+        (on_pay_cube,       std::function<void(int card_id, int ncubes)>)
         (on_discard_card,   std::function<void(player *origin, player *target, int card_id)>)
         (on_hit,            std::function<void(player *origin, player *target, int damage, bool is_bang)>)
         (on_player_death,   std::function<void(player *origin, player *target)>)
@@ -243,10 +244,6 @@ namespace banggame {
         deck_card draw_from_temp(int card_id);
 
         deck_card &draw_shop_card();
-
-        void add_cubes(card &target, int ncubes);
-        void pay_cubes(card &target, int ncubes);
-        void drop_all_cubes(card &target);
 
         void draw_check_then(player *p, draw_check_function fun, bool force_one = false, bool invert_pop_req = false);
         void resolve_check(int card_id);

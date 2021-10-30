@@ -368,25 +368,20 @@ namespace banggame {
     void effect_pay_cube::on_play(int origin_card_id, player *origin, player *target, int card_id) {
         if (card_id == target->m_characters.front().id) {
             auto &card = target->m_characters.front();
-            target->m_game->pay_cubes(card, std::max(1, args));
+            target->pay_cubes(card, std::max(1, args));
         } else {
             auto &card = target->find_card(card_id);
-            target->m_game->pay_cubes(card, std::max(1, args));
-            if (card.cubes.empty()) {
-                target->m_game->queue_event<event_type::delayed_action>([=]{
-                    target->discard_card(card_id);
-                });
-            }
+            target->pay_cubes(card, std::max(1, args));
         }
     }
 
     void effect_add_cube::on_play(int origin_card_id, player *origin, player *target, int card_id) {
         if (card_id == target->m_characters.front().id) {
             auto &card = target->m_characters.front();
-            target->m_game->add_cubes(card, std::max(1, args));
+            target->add_cubes(card, std::max(1, args));
         } else {
             auto &card = target->find_card(card_id);
-            target->m_game->add_cubes(card, std::max(1, args));
+            target->add_cubes(card, std::max(1, args));
         }
     }
 
@@ -413,5 +408,16 @@ namespace banggame {
         });
     }
 
-
+    void effect_rust::on_play(int origin_card_id, player *origin, player *target) {
+        if (escapable && origin->m_game->has_expansion(card_expansion_type::valleyofshadows)) {
+            origin->m_game->queue_request<request_type::rust>(origin_card_id, origin, target).escapable = escapable;
+        } else {
+            for (auto &c : target->m_table) {
+                if (c.color == card_color_type::orange) {
+                    target->move_cubes(c, origin->m_characters.front(), 1);
+                }
+            }
+            target->move_cubes(target->m_characters.front(), origin->m_characters.front(), 1);
+        }
+    }
 }

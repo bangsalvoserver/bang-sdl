@@ -1533,7 +1533,6 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Ruggine",
             "signs": [
                 "9P"
@@ -1543,6 +1542,7 @@
             "color": "brown",
             "effects": [
                 {
+                    "target": "player everyone notself",
                     "class": "rust",
                     "escapable": true
                 }
@@ -1641,7 +1641,6 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Bomba",
             "signs": [
                 "7Q"

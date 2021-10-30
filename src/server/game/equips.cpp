@@ -75,6 +75,27 @@ namespace banggame {
         });
     }
 
+    void effect_bomb::on_equip(player *target, int card_id) {
+        target->add_predraw_check(card_id, 0, [=](card_suit_type suit, card_value_type value) {
+            if (suit == card_suit_type::spades || suit == card_suit_type::clubs) {
+                target->pay_cubes(target->find_card(card_id), 2);
+            } else {
+                target->m_game->add_request<request_type::move_bomb>(card_id, nullptr, target);
+            }
+            target->next_predraw_check(card_id);
+        });
+        target->m_game->add_event<event_type::on_pay_cube>(card_id, [=](int c_id, int ncubes) {
+            if (c_id == card_id && ncubes == 0) {
+                target->damage(card_id, nullptr, 2);
+            }
+        });
+    }
+
+    void effect_bomb::on_unequip(player *target, int card_id) {
+        predraw_check_effect{}.on_unequip(target, card_id);
+        event_based_effect{}.on_unequip(target, card_id);
+    }
+
     void effect_weapon::on_equip(player *target, int card_id) {
         target->discard_weapon(card_id);
         target->m_weapon_range = args;

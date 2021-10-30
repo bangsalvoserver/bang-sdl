@@ -201,13 +201,13 @@ namespace banggame {
             if (args.pile == card_pile_type::player_table) {
                 auto &card = target->find_card(args.card_id);
                 if (card.color == card_color_type::orange && card.cubes.size() < 4) {
-                    target->m_game->add_cubes(card, 1);
+                    target->add_cubes(card, 1);
                     --ncubes_ref;
                 }
             } else if (args.pile == card_pile_type::player_character) {
                 auto &card = target->m_characters.front();
                 if (card.id == args.card_id && card.cubes.size() < 4) {
-                    target->m_game->add_cubes(card, 1);
+                    target->add_cubes(card, 1);
                     --ncubes_ref;
                 }
             }
@@ -215,5 +215,31 @@ namespace banggame {
         if (ncubes_ref == 0 || !target->can_receive_cubes()) {
             target->m_game->pop_request();
         }
+    }
+
+    void request_move_bomb::on_pick(const pick_card_args &args) {
+        if (args.pile == card_pile_type::player) {
+            auto card_it = std::ranges::find(target->m_table, origin_card_id, &card::id);
+            player *p = target->m_game->get_player(args.player_id);
+            if (p && !p->immune_to(*card_it)) {
+                if (p == target) {
+                    target->m_game->pop_request();
+                } else if (!p->has_card_equipped(card_it->name)) {
+                    card_it->on_unequip(target);
+                    p->equip_card(std::move(*card_it));
+                    target->m_table.erase(card_it);
+                    target->m_game->pop_request();
+                }
+            } else {
+                target->discard_card(origin_card_id);
+                target->m_game->pop_request();
+            }
+        }
+    }
+
+    void request_rust::on_resolve() {
+        target->m_game->pop_request();
+
+        effect_rust{}.on_play(origin_card_id, origin, target);
     }
 }
