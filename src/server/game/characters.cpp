@@ -497,11 +497,7 @@ namespace banggame {
                 target->equip_card(std::move(card));
                 target->m_game->m_shop_selection.pop_back();
             } else {
-                target->m_game->move_to(std::move(card), card_pile_type::shop_discard);
-                target->m_game->m_shop_selection.pop_back();
-                // auto card_copy = card;
-                // card_copy.buy_cost = 0;
-                // target->play_virtual_card(std::move(card_copy));
+                target->m_game->queue_request<request_type::shop_choose_target>(card.id, nullptr, target);
             }
             break;
         case card_color_type::brown:
@@ -519,13 +515,30 @@ namespace banggame {
                     }
                 }
             } else {
-                target->m_game->move_to(std::move(card), card_pile_type::shop_discard);
-                target->m_game->m_shop_selection.pop_back();
-                // auto card_copy = card;
-                // card_copy.buy_cost = 0;
-                // target->play_virtual_card(std::move(card_copy));
+                target->m_game->queue_request<request_type::shop_choose_target>(card.id, nullptr, target);
             }
             break;
+        }
+    }
+
+    void request_shop_choose_target::on_pick(const pick_card_args &args) {
+        if (args.pile == card_pile_type::player) {
+            auto card_it = std::ranges::find(target->m_game->m_shop_selection, origin_card_id, &card::id);
+            if (card_it == target->m_game->m_shop_selection.end()) return;
+
+            auto *p = target->m_game->get_player(args.player_id);
+            if (!p) return;
+
+            target->m_game->pop_request();
+            if (card_it->color == card_color_type::black) {
+                p->equip_card(std::move(*card_it));
+            } else {
+                auto &moved = target->m_game->move_to(std::move(*card_it), card_pile_type::shop_discard);
+                for (auto &e : moved.effects) {
+                    e.on_play(origin_card_id, target, p);
+                }
+            }
+            target->m_game->m_shop_selection.erase(card_it);
         }
     }
 }
