@@ -622,7 +622,9 @@ namespace banggame {
                     m_game->add_log(this, nullptr, std::string("comprato e giocato ") + card_it->name);
                     do_play_card(args.card_id, false, args.targets);
                     m_game->queue_event<event_type::delayed_action>([this]{
-                        m_game->draw_shop_card();
+                        while (m_game->m_shop_selection.size() < 3) {
+                            m_game->draw_shop_card();
+                        }
                     });
                 break;
                 case card_color_type::black:
@@ -635,7 +637,9 @@ namespace banggame {
                     deck_card removed = std::move(*card_it);
                     m_game->m_shop_selection.erase(card_it);
                     target->equip_card(std::move(removed));
-                    m_game->draw_shop_card();
+                    while (m_game->m_shop_selection.size() < 3) {
+                        m_game->draw_shop_card();
+                    }
                     m_game->queue_event<event_type::on_effect_end>(this);
                     break;
                 }

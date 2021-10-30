@@ -481,4 +481,51 @@ namespace banggame {
             }
         }
     }
+
+    void effect_josh_mccloud::on_play(int origin_card_id, player *target) {
+        using namespace enums::flag_operators;
+
+        constexpr auto is_self_or_none = [](target_type type) {
+            using namespace enums::flag_operators;
+            return type == (target_type::self | target_type::player) || type == enums::flags_none<target_type>;
+        };
+
+        auto &card = target->m_game->draw_shop_card();
+        switch (card.color) {
+        case card_color_type::black:
+            if (std::ranges::all_of(card.equips, is_self_or_none, &equip_holder::target)) {
+                target->equip_card(std::move(card));
+                target->m_game->m_shop_selection.pop_back();
+            } else {
+                target->m_game->move_to(std::move(card), card_pile_type::shop_discard);
+                target->m_game->m_shop_selection.pop_back();
+                // auto card_copy = card;
+                // card_copy.buy_cost = 0;
+                // target->play_virtual_card(std::move(card_copy));
+            }
+            break;
+        case card_color_type::brown:
+            if (std::ranges::all_of(card.effects, is_self_or_none, &effect_holder::target)) {
+                auto &moved = target->m_game->move_to(std::move(card), card_pile_type::shop_discard);
+                target->m_game->m_shop_selection.pop_back();
+                for (auto &e : moved.effects) {
+                    switch(e.target()) {
+                    case target_type::self | target_type::player:
+                        e.on_play(card.id, target, target);
+                        break;
+                    case enums::flags_none<target_type>:
+                        e.on_play(card.id, target);
+                        break;
+                    }
+                }
+            } else {
+                target->m_game->move_to(std::move(card), card_pile_type::shop_discard);
+                target->m_game->m_shop_selection.pop_back();
+                // auto card_copy = card;
+                // card_copy.buy_cost = 0;
+                // target->play_virtual_card(std::move(card_copy));
+            }
+            break;
+        }
+    }
 }

@@ -353,6 +353,11 @@ namespace banggame {
         }
         origin->m_game->m_shop_hidden.erase(begin, end);
         origin->m_game->pop_request();
+        origin->m_game->queue_event<event_type::delayed_action>([m_game = origin->m_game]{
+            while (m_game->m_shop_selection.size() < 3) {
+                m_game->draw_shop_card();
+            }
+        });
     }
 
     bool effect_pay_cube::can_play(int origin_card_id, player *origin, player *target, int card_id) const {
