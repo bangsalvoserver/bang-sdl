@@ -56,7 +56,7 @@ namespace banggame {
         (rust,          effect_rust)
         // (buntlinespecial, effect_buntlinespecial)
         // (belltower,     effect_belltower)
-        // (thunderer,     effect_thunderer)
+        (thunderer,     effect_thunderer)
         (changewws,     effect_empty)
         (black_jack,    effect_black_jack)
         (kit_carlson,   effect_kit_carlson)

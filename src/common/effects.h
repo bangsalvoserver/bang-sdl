@@ -222,6 +222,10 @@ namespace banggame {
         void on_play(int origin_card_id, player *origin);
     };
 
+    struct effect_thunderer : card_effect {
+        void on_play(int origin_card_id, player *origin);
+    };
+
 }
 
 #endif

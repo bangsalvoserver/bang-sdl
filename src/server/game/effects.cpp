@@ -395,6 +395,19 @@ namespace banggame {
             origin->m_game->queue_request<request_type::add_cube>(origin_card_id, nullptr, origin).ncubes = 3;
         }
     }
+    
+    void effect_rust::on_play(int origin_card_id, player *origin, player *target) {
+        if (escapable && origin->m_game->has_expansion(card_expansion_type::valleyofshadows)) {
+            origin->m_game->queue_request<request_type::rust>(origin_card_id, origin, target).escapable = escapable;
+        } else {
+            for (auto &c : target->m_table) {
+                if (c.color == card_color_type::orange) {
+                    target->move_cubes(c, origin->m_characters.front(), 1);
+                }
+            }
+            target->move_cubes(target->m_characters.front(), origin->m_characters.front(), 1);
+        }
+    }
 
     bool effect_bandolier::can_play(int origin_card_id, player *origin) const {
         return origin->m_bangs_played > 0 && origin->m_bangs_per_turn == 1;
@@ -413,16 +426,14 @@ namespace banggame {
         });
     }
 
-    void effect_rust::on_play(int origin_card_id, player *origin, player *target) {
-        if (escapable && origin->m_game->has_expansion(card_expansion_type::valleyofshadows)) {
-            origin->m_game->queue_request<request_type::rust>(origin_card_id, origin, target).escapable = escapable;
-        } else {
-            for (auto &c : target->m_table) {
-                if (c.color == card_color_type::orange) {
-                    target->move_cubes(c, origin->m_characters.front(), 1);
-                }
+    void effect_thunderer::on_play(int origin_card_id, player *origin) {
+        origin->add_bang_mod([=](request_bang &req) {
+            if (auto it = std::ranges::find(origin->m_game->m_discards | std::views::reverse, req.origin_card_id, &deck_card::id);
+                it != origin->m_game->m_discards.rend()) {
+                origin->add_to_hand(std::move(*it));
+                origin->m_game->m_discards.erase(it.base());
             }
-            target->move_cubes(target->m_characters.front(), origin->m_characters.front(), 1);
-        }
+        });
     }
+
 }
