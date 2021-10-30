@@ -121,6 +121,7 @@ namespace banggame {
         (vera_custer,   request_vera_custer)
         (youl_grinner,  request_youl_grinner)
         (dutch_will,    request_dutch_will)
+        (shop_choose_target, request_shop_choose_target)
         (beer,          timer_beer)
         (damaging,      timer_damaging)
     )

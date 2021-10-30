@@ -481,4 +481,64 @@ namespace banggame {
             }
         }
     }
+
+    void effect_josh_mccloud::on_play(int origin_card_id, player *target) {
+        using namespace enums::flag_operators;
+
+        constexpr auto is_self_or_none = [](target_type type) {
+            using namespace enums::flag_operators;
+            return type == (target_type::self | target_type::player) || type == enums::flags_none<target_type>;
+        };
+
+        auto &card = target->m_game->draw_shop_card();
+        switch (card.color) {
+        case card_color_type::black:
+            if (std::ranges::all_of(card.equips, is_self_or_none, &equip_holder::target)) {
+                target->equip_card(std::move(card));
+                target->m_game->m_shop_selection.pop_back();
+            } else {
+                target->m_game->queue_request<request_type::shop_choose_target>(card.id, nullptr, target);
+            }
+            break;
+        case card_color_type::brown:
+            if (std::ranges::all_of(card.effects, is_self_or_none, &effect_holder::target)) {
+                auto &moved = target->m_game->move_to(std::move(card), card_pile_type::shop_discard);
+                target->m_game->m_shop_selection.pop_back();
+                for (auto &e : moved.effects) {
+                    switch(e.target()) {
+                    case target_type::self | target_type::player:
+                        e.on_play(card.id, target, target);
+                        break;
+                    case enums::flags_none<target_type>:
+                        e.on_play(card.id, target);
+                        break;
+                    }
+                }
+            } else {
+                target->m_game->queue_request<request_type::shop_choose_target>(card.id, nullptr, target);
+            }
+            break;
+        }
+    }
+
+    void request_shop_choose_target::on_pick(const pick_card_args &args) {
+        if (args.pile == card_pile_type::player) {
+            auto card_it = std::ranges::find(target->m_game->m_shop_selection, origin_card_id, &card::id);
+            if (card_it == target->m_game->m_shop_selection.end()) return;
+
+            auto *p = target->m_game->get_player(args.player_id);
+            if (!p) return;
+
+            target->m_game->pop_request();
+            if (card_it->color == card_color_type::black) {
+                p->equip_card(std::move(*card_it));
+            } else {
+                auto &moved = target->m_game->move_to(std::move(*card_it), card_pile_type::shop_discard);
+                for (auto &e : moved.effects) {
+                    e.on_play(origin_card_id, target, p);
+                }
+            }
+            target->m_game->m_shop_selection.erase(card_it);
+        }
+    }
 }

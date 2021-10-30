@@ -154,6 +154,15 @@ namespace banggame {
     struct request_dutch_will : request_base {
         void on_pick(const pick_card_args &args);
     };
+
+    struct effect_josh_mccloud : card_effect {
+        void on_play(int origin_card_id, player *origin);
+    };
+
+    struct request_shop_choose_target : request_base {
+        void on_pick(const pick_card_args &args);
+    };
+
 }
 
 #endif

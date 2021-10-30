@@ -2768,12 +2768,13 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Josh McCloud",
             "image": "04_josh_mccloud",
             "hp": 4,
             "expansion": "goldrush",
             "type": "active",
+            "usages": 1,
+            "cost": 2,
             "effects": [
                 {
                     "class": "josh_mccloud"
@@ -3208,7 +3209,7 @@
             "buy_cost": 2,
             "equip": [
                 {
-                    "target": "player notsheriff",
+                    "target": "player",
                     "class": "wanted"
                 }
             ]
