@@ -168,10 +168,13 @@ namespace banggame {
             m_game->m_cubes.push_back(cube);
             m_game->add_public_update<game_update_type::move_cube>(cube, 0);
         }
-        m_game->instant_event<event_type::on_pay_cube>(target.id, target.cubes.size());
         if (target.cubes.empty() && target.id != m_characters.front().id) {
             m_game->queue_event<event_type::delayed_action>([this, card_id = target.id]{
-                discard_card(card_id);
+                auto it = std::ranges::find(m_table, card_id, &card::id);
+                auto &moved = m_game->move_to(std::move(*it), card_pile_type::discard_pile);
+                m_table.erase(it);
+                m_game->instant_event<event_type::on_pay_cube>(card_id, 0);
+                moved.on_unequip(this);
             });
         }
     }
