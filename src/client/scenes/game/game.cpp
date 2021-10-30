@@ -454,8 +454,8 @@ void game_scene::on_click_character(int player_id, character_card *card) {
         m_highlights.push_back(card);
         handle_auto_targets(true);
     } else if (m_playing_id == m_player_own_id) {
-        if (m_play_card_args.card_id == 0 && player_id == m_player_own_id) {
-            if (card->type != character_type::none) {
+        if (m_play_card_args.card_id == 0) {
+            if (player_id == m_player_own_id && card->type != character_type::none) {
                 m_highlights.push_back(card);
                 if (card->modifier != card_modifier_type::none) {
                     m_play_card_args.modifier_id = card->id;
@@ -473,14 +473,14 @@ void game_scene::on_click_character(int player_id, character_card *card) {
 void game_scene::on_click_player(int player_id) {
     m_play_card_args.flags &= ~(play_card_flags::sell_beer | play_card_flags::discard_black);
 
-    if (m_play_card_args.card_id != 0) {
-        if (m_current_request.target_id == m_player_own_id && m_current_request.type != request_type::none) {
-            if (!is_picking_request(m_current_request.type)) {
-                add_player_targets(true, std::vector{target_player_id{player_id}});
-            }
-        } else if (m_playing_id == m_player_own_id) {
-            add_player_targets(false, std::vector{target_player_id{player_id}});
+    if (m_current_request.target_id == m_player_own_id && m_current_request.type != request_type::none) {
+        if (is_picking_request(m_current_request.type)) {
+            add_action<game_action_type::pick_card>(card_pile_type::player, player_id);
+        } else if (m_play_card_args.card_id != 0) {
+            add_player_targets(true, std::vector{target_player_id{player_id}});
         }
+    } else if (m_playing_id == m_player_own_id && m_play_card_args.card_id != 0) {
+        add_player_targets(false, std::vector{target_player_id{player_id}});
     }
 }
 
@@ -679,6 +679,8 @@ void game_scene::add_card_target(bool is_response, const target_card_id &target)
 }
 
 void game_scene::add_character_target(bool is_response, const target_card_id &target) {
+    if (bool(m_play_card_args.flags & play_card_flags::equipping)) return;
+    
     auto &card_targets = get_current_card_targets(is_response);
     auto &cur_target = card_targets[m_play_card_args.targets.size()];
     if (bool(cur_target.target & target_type::cube_slot)) {
@@ -877,7 +879,7 @@ void game_scene::handle_update(UPDATE_TAG(move_cube), const move_cube_update &ar
     if (cube_it != m_cubes.end()) {
         auto &cube = cube_it->second;
         if (cube.owner) {
-            if (auto it = std::ranges::find(cube.owner->cubes, cube.id, &cube_widget::id); it != cube.owner->cubes.end()) {
+            if (auto it = std::ranges::find(cube.owner->cubes, &cube); it != cube.owner->cubes.end()) {
                 cube.owner->cubes.erase(it);
             }
         }

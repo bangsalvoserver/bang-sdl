@@ -87,6 +87,10 @@ namespace banggame {
         void on_pick(const pick_card_args &args);
     };
 
+    struct request_move_bomb : request_base {
+        void on_pick(const pick_card_args &args);
+    };
+
     DEFINE_ENUM_TYPES_IN_NS(banggame, request_type,
         (none,          request_base)
         (predraw,       request_predraw)
@@ -105,6 +109,7 @@ namespace banggame {
         (poker,         request_poker)
         (saved,         request_saved)
         (add_cube,      request_add_cube)
+        (move_bomb,     request_move_bomb)
         (shopchoice,    request_base)
         (kit_carlson,   request_kit_carlson)
         (claus_the_saint, request_claus_the_saint)

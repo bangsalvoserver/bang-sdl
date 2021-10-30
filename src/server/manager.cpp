@@ -309,7 +309,7 @@ void lobby::send_updates(game_manager &mgr) {
             std::cout << std::ranges::find(users, log.origin, &lobby_user::controlling)->user->name << " ha ";
         }
         std::cout << log.message;
-        if (log.target) {
+        if (log.target && log.target != log.origin) {
             std::cout << " a " << std::ranges::find(users, log.target, &lobby_user::controlling)->user->name;
         }
         std::cout << '\n';

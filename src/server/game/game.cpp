@@ -344,6 +344,7 @@ namespace banggame {
             m_cubes.push_back(cube);
             add_public_update<game_update_type::move_cube>(cube, 0);
         }
+        instant_event<event_type::on_pay_cube>(target.id, target.cubes.size());
     }
 
     void game::drop_all_cubes(card &target) {

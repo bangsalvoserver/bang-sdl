@@ -216,4 +216,24 @@ namespace banggame {
             target->m_game->pop_request();
         }
     }
+
+    void request_move_bomb::on_pick(const pick_card_args &args) {
+        if (args.pile == card_pile_type::player) {
+            auto card_it = std::ranges::find(target->m_table, origin_card_id, &card::id);
+            player *p = target->m_game->get_player(args.player_id);
+            if (p && !p->immune_to(*card_it)) {
+                if (p == target) {
+                    target->m_game->pop_request();
+                } else if (!p->has_card_equipped(card_it->name)) {
+                    card_it->on_unequip(target);
+                    p->equip_card(std::move(*card_it));
+                    target->m_table.erase(card_it);
+                    target->m_game->pop_request();
+                }
+            } else {
+                target->discard_card(origin_card_id);
+                target->m_game->pop_request();
+            }
+        }
+    }
 }
