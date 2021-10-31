@@ -230,6 +230,11 @@ namespace banggame {
         void on_play(int origin_card_id, player *origin);
     };
 
+    struct effect_belltower : card_effect {
+        bool can_play(int origin_card_id, player *origin) const;
+        void on_play(int origin_card_id, player *origin);
+    };
+
 }
 
 #endif

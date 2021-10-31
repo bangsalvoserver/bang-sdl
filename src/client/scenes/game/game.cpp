@@ -501,8 +501,6 @@ void game_scene::on_click_discard_black() {
 bool game_scene::verify_modifier(card_widget *card) {
     if (m_play_card_args.modifier_id == 0) return true;
     switch (find_card_widget(m_play_card_args.modifier_id)->modifier) {
-    case card_modifier_type::anycard:
-        return true;
     case card_modifier_type::bangcard:
         return std::ranges::find(card->targets, effect_type::bangcard, &card_target_data::type) != card->targets.end();
     case card_modifier_type::discount:

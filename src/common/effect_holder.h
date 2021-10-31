@@ -53,7 +53,7 @@ namespace banggame {
         (add_cube,      effect_add_cube)
         (reload,        effect_reload)
         (rust,          effect_rust)
-        // (belltower,     effect_belltower)
+        (belltower,     effect_belltower)
         (doublebarrel,  effect_doublebarrel)
         (thunderer,     effect_thunderer)
         (buntlinespecial, effect_buntlinespecial)

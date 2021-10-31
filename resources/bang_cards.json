@@ -1680,7 +1680,6 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Campanile",
             "signs": [
                 "7F"
@@ -1688,7 +1687,6 @@
             "image": "17_campanile",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "modifier": "anycard",
             "effects": [
                 {
                     "class": "pay_cube"

@@ -447,4 +447,12 @@ namespace banggame {
         });
     }
 
+    bool effect_belltower::can_play(int origin_card_id, player *origin) const {
+        return origin->m_belltower == 0;
+    }
+
+    void effect_belltower::on_play(int origin_card_id, player *origin) {
+        ++origin->m_belltower;
+    }
+
 }
