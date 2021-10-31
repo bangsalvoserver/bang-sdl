@@ -1550,7 +1550,7 @@
             "image": "17_squaw",
             "expansion": "armedanddangerous",
             "color": "brown",
-            "class": [
+            "effects": [
                 {
                     "target": "card",
                     "class": "destroy",
