@@ -581,4 +581,19 @@ namespace banggame {
             }
         });
     }
+
+    void effect_red_ringo::on_equip(player *p, int card_id) {
+        p->m_game->add_event<event_type::on_game_start>(card_id, [p] {
+            p->add_cubes(p->m_characters.front(), 4);
+        });
+    }
+
+    bool effect_red_ringo::can_play(int origin_card_id, player *origin, player *target, int card_id) const {
+        return origin->m_characters.front().cubes.size() > 0
+            && target->find_card(card_id).cubes.size() < 4;
+    }
+
+    void effect_red_ringo::on_play(int origin_card_id, player *origin, player *target, int card_id) {
+        origin->move_cubes(origin->m_characters.front(), target->find_card(card_id), 1);
+    }
 }
