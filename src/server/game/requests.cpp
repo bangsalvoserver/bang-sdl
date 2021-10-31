@@ -89,7 +89,9 @@ namespace banggame {
     }
 
     void request_bang::cleanup() {
-        target->m_game->remove_events(origin_card_id);
+        if (cleanup_function) {
+            cleanup_function();
+        }
     }
 
     void request_death::on_resolve() {

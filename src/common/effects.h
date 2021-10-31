@@ -218,6 +218,11 @@ namespace banggame {
         void on_play(int origin_card_id, player *origin);
     };
 
+    struct effect_belltower : card_effect {
+        bool can_play(int origin_card_id, player *origin) const;
+        void on_play(int origin_card_id, player *origin);
+    };
+
     struct effect_doublebarrel : card_effect {
         void on_play(int origin_card_id, player *origin);
     };
@@ -230,8 +235,7 @@ namespace banggame {
         void on_play(int origin_card_id, player *origin);
     };
 
-    struct effect_belltower : card_effect {
-        bool can_play(int origin_card_id, player *origin) const;
+    struct effect_bigfifty : card_effect {
         void on_play(int origin_card_id, player *origin);
     };
 

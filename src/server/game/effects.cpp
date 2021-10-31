@@ -418,6 +418,14 @@ namespace banggame {
         origin->m_bangs_per_turn = 2;
     }
 
+    bool effect_belltower::can_play(int origin_card_id, player *origin) const {
+        return origin->m_belltower == 0;
+    }
+
+    void effect_belltower::on_play(int origin_card_id, player *origin) {
+        ++origin->m_belltower;
+    }
+
     void effect_doublebarrel::on_play(int origin_card_id, player *origin) {
         origin->add_bang_mod([=](request_bang &req) {
             if (auto it = std::ranges::find(origin->m_game->m_discards | std::views::reverse, req.origin_card_id, &deck_card::id);
@@ -439,20 +447,24 @@ namespace banggame {
 
     void effect_buntlinespecial::on_play(int origin_card_id, player *p) {
         p->add_bang_mod([=](request_bang &req) {
-            p->m_game->add_event<event_type::on_missed>(req.origin_card_id, [=](player *origin, player *target, bool is_bang) {
+            p->m_game->add_event<event_type::on_missed>(origin_card_id, [=](player *origin, player *target, bool is_bang) {
                 if (target && origin == p && is_bang) {
                     target->m_game->queue_request<request_type::discard>(origin_card_id, origin, target);
                 }
             });
+            req.cleanup_function = [=]{
+                p->m_game->remove_events(origin_card_id);
+            };
         });
     }
 
-    bool effect_belltower::can_play(int origin_card_id, player *origin) const {
-        return origin->m_belltower == 0;
-    }
-
-    void effect_belltower::on_play(int origin_card_id, player *origin) {
-        ++origin->m_belltower;
+    void effect_bigfifty::on_play(int origin_card_id, player *p) {
+        p->add_bang_mod([p](request_bang &req) {
+            p->m_game->disable_table_cards(p->id, true);
+            req.cleanup_function = [=]{
+                p->m_game->enable_table_cards(p->id);
+            };
+        });
     }
 
 }
