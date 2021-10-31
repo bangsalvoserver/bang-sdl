@@ -371,13 +371,13 @@ namespace banggame {
     }
 
     void effect_pay_cube::on_play(int origin_card_id, player *origin, player *target, int card_id) {
+        card *card = nullptr;
         if (card_id == target->m_characters.front().id) {
-            auto &card = target->m_characters.front();
-            target->pay_cubes(card, std::max(1, args));
+            card = &target->m_characters.front();
         } else {
-            auto &card = target->find_card(card_id);
-            target->pay_cubes(card, std::max(1, args));
+            card = &target->find_card(card_id);
         }
+        target->pay_cubes(*card, std::max(1, args));
     }
 
     void effect_add_cube::on_play(int origin_card_id, player *origin, player *target, int card_id) {

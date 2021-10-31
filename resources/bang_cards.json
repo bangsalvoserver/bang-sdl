@@ -2640,7 +2640,6 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Frankie Canton",
             "image": "17_frankiecanton",
             "hp": 4,
@@ -2650,7 +2649,7 @@
             "effects": [
                 {
                     "target": "cube_slot card",
-                    "class": "steal_cube"
+                    "class": "frankie_canton"
                 }
             ]
         },

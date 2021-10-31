@@ -553,4 +553,24 @@ namespace banggame {
             }
         });
     }
+
+    bool effect_frankie_canton::can_play(int origin_card_id, player *origin, player *target, int card_id) const {
+        card *card = nullptr;
+        if (card_id == target->m_characters.front().id) {
+            card = &target->m_characters.front();
+        } else {
+            card = &target->find_card(card_id);
+        }
+        return !card->cubes.empty();
+    }
+
+    void effect_frankie_canton::on_play(int origin_card_id, player *origin, player *target, int card_id) {
+        card *card = nullptr;
+        if (card_id == target->m_characters.front().id) {
+            card = &target->m_characters.front();
+        } else {
+            card = &target->find_card(card_id);
+        }
+        target->move_cubes(*card, origin->m_characters.front(), 1);
+    }
 }

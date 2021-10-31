@@ -167,6 +167,11 @@ namespace banggame {
         void on_equip(player *target, int card_id);
     };
 
+    struct effect_frankie_canton : card_effect {
+        bool can_play(int origin_card_id, player *origin, player *target, int card_id) const;
+        void on_play(int origin_card_id, player *origin, player *target, int card_id);
+    };
+
 }
 
 #endif

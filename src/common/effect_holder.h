@@ -69,6 +69,7 @@ namespace banggame {
         (lemonade_jim,  effect_lemonade_jim)
         (dutch_will,    effect_dutch_will)
         (josh_mccloud,  effect_josh_mccloud)
+        (frankie_canton, effect_frankie_canton)
     )
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, equip_type,
