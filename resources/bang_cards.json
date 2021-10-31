@@ -2628,7 +2628,6 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Bloody Mary",
             "image": "17_bloodymary",
             "hp": 4,

@@ -39,6 +39,7 @@ namespace banggame {
     void effect_missed::on_play(int origin_card_id, player *origin) {
         auto &req = origin->m_game->top_request().get<request_type::bang>();
         if (0 == --req.bang_strength) {
+            origin->m_game->queue_event<event_type::on_missed>(req.origin, req.target, req.is_bang_card);
             origin->m_game->pop_request();
         }
     }

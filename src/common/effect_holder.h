@@ -114,6 +114,7 @@ namespace banggame {
         (greygory_deck, effect_greygory_deck)
         (lemonade_jim,  effect_lemonade_jim)
         (julie_cutter,  effect_julie_cutter)
+        (bloody_mary,   effect_bloody_mary)
     )
 
     namespace detail {

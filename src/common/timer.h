@@ -11,8 +11,8 @@ namespace banggame {
         int duration = 100;
     };
 
-    struct timer_beer : timer_base {
-        timer_beer() {
+    struct timer_lemonade_jim : timer_base {
+        timer_lemonade_jim() {
             duration = 200;
         }
 
