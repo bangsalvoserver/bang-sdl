@@ -103,7 +103,6 @@ namespace banggame {
 
     DEFINE_ENUM_IN_NS(banggame, card_modifier_type,
         (none)
-        (anycard)
         (bangcard)
         (discount)
     )

@@ -39,6 +39,7 @@ namespace banggame {
     void effect_missed::on_play(int origin_card_id, player *origin) {
         auto &req = origin->m_game->top_request().get<request_type::bang>();
         if (0 == --req.bang_strength) {
+            origin->m_game->instant_event<event_type::on_missed>(req.origin, req.target, req.is_bang_card);
             origin->m_game->pop_request();
         }
     }
@@ -371,13 +372,13 @@ namespace banggame {
     }
 
     void effect_pay_cube::on_play(int origin_card_id, player *origin, player *target, int card_id) {
+        card *card = nullptr;
         if (card_id == target->m_characters.front().id) {
-            auto &card = target->m_characters.front();
-            target->pay_cubes(card, std::max(1, args));
+            card = &target->m_characters.front();
         } else {
-            auto &card = target->find_card(card_id);
-            target->pay_cubes(card, std::max(1, args));
+            card = &target->find_card(card_id);
         }
+        target->pay_cubes(*card, std::max(1, args));
     }
 
     void effect_add_cube::on_play(int origin_card_id, player *origin, player *target, int card_id) {
@@ -434,6 +435,24 @@ namespace banggame {
                 origin->m_game->m_discards.erase(it.base());
             }
         });
+    }
+
+    void effect_buntlinespecial::on_play(int origin_card_id, player *p) {
+        p->add_bang_mod([=](request_bang &req) {
+            p->m_game->add_event<event_type::on_missed>(req.origin_card_id, [=](player *origin, player *target, bool is_bang) {
+                if (target && origin == p && is_bang) {
+                    target->m_game->queue_request<request_type::discard>(origin_card_id, origin, target);
+                }
+            });
+        });
+    }
+
+    bool effect_belltower::can_play(int origin_card_id, player *origin) const {
+        return origin->m_belltower == 0;
+    }
+
+    void effect_belltower::on_play(int origin_card_id, player *origin) {
+        ++origin->m_belltower;
     }
 
 }

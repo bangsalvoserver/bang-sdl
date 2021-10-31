@@ -1656,7 +1656,6 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Buntline Special",
             "signs": [
                 "JP"
@@ -1681,7 +1680,6 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Campanile",
             "signs": [
                 "7F"
@@ -1689,7 +1687,6 @@
             "image": "17_campanile",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "modifier": "anycard",
             "effects": [
                 {
                     "class": "pay_cube"
@@ -2628,7 +2625,6 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Bloody Mary",
             "image": "17_bloodymary",
             "hp": 4,
@@ -2640,7 +2636,6 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Frankie Canton",
             "image": "17_frankiecanton",
             "hp": 4,
@@ -2650,12 +2645,11 @@
             "effects": [
                 {
                     "target": "cube_slot card",
-                    "class": "steal_cube"
+                    "class": "frankie_canton"
                 }
             ]
         },
         {
-            "disabled": true,
             "name": "Julie Cutter",
             "image": "17_juliecutter",
             "hp": 4,

@@ -45,6 +45,7 @@ namespace banggame {
 
         int m_infinite_bangs = 0;
         int m_calumets = 0;
+        int m_belltower = 0;
         bool m_ghost = false;
 
         int m_bangs_played = 0;

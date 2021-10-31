@@ -25,13 +25,14 @@ namespace banggame {
         (delayed_action,    std::function<void(std::function<void()>)>)
         (on_discard_pass,   std::function<void(player *origin, int card_id)>)
         (on_draw_check,     std::function<void(int card_id)>)
-        (on_pay_cube,       std::function<void(int card_id, int ncubes)>)
         (on_discard_card,   std::function<void(player *origin, player *target, int card_id)>)
         (on_hit,            std::function<void(player *origin, player *target, int damage, bool is_bang)>)
+        (on_missed,         std::function<void(player *origin, player *target, bool is_bang)>)
         (on_player_death,   std::function<void(player *origin, player *target)>)
         (on_equip,          std::function<void(player *origin, player *target, int card_id)>)
         (on_play_hand_card, std::function<void(player *origin, int card_id)>)
         (post_discard_card, std::function<void(player *target, int card_id)>)
+        (post_discard_orange_card, std::function<void(player *target, int card_id)>)
         (on_play_bang,      std::function<void(player *origin)>)
         (on_play_beer,      std::function<void(player *origin)>)
         (on_effect_end,     std::function<void(player *origin)>)
@@ -186,7 +187,7 @@ namespace banggame {
         }
 
         void pop_request() {
-            m_requests.pop_front();
+            pop_request_noupdate();
             if (m_requests.empty()) {
                 add_public_update<game_update_type::status_clear>();
                 pop_events();
@@ -195,9 +196,7 @@ namespace banggame {
             }
         }
 
-        void pop_request_noupdate() {
-            m_requests.pop_front();
-        }
+        void pop_request_noupdate();
 
         void tick();
 

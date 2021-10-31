@@ -50,13 +50,13 @@ namespace banggame {
         (goldrush,      effect_goldrush)
         (pay_cube,      effect_pay_cube)
         (bandolier,     effect_bandolier)
-        (doublebarrel,  effect_doublebarrel)
         (add_cube,      effect_add_cube)
         (reload,        effect_reload)
         (rust,          effect_rust)
-        // (buntlinespecial, effect_buntlinespecial)
-        // (belltower,     effect_belltower)
+        (belltower,     effect_belltower)
+        (doublebarrel,  effect_doublebarrel)
         (thunderer,     effect_thunderer)
+        (buntlinespecial, effect_buntlinespecial)
         (changewws,     effect_empty)
         (black_jack,    effect_black_jack)
         (kit_carlson,   effect_kit_carlson)
@@ -69,6 +69,7 @@ namespace banggame {
         (lemonade_jim,  effect_lemonade_jim)
         (dutch_will,    effect_dutch_will)
         (josh_mccloud,  effect_josh_mccloud)
+        (frankie_canton, effect_frankie_canton)
     )
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, equip_type,
@@ -112,6 +113,8 @@ namespace banggame {
         (madam_yto,     effect_madam_yto)
         (greygory_deck, effect_greygory_deck)
         (lemonade_jim,  effect_lemonade_jim)
+        (julie_cutter,  effect_julie_cutter)
+        (bloody_mary,   effect_bloody_mary)
     )
 
     namespace detail {

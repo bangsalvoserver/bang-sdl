@@ -442,8 +442,8 @@ namespace banggame {
     }
 
     bool effect_lemonade_jim::can_respond(player *target) const {
-        if (target->m_game->top_request_is(request_type::beer)) {
-            const auto &vec = target->m_game->top_request().get<request_type::beer>().players;
+        if (target->m_game->top_request_is(request_type::lemonade_jim)) {
+            const auto &vec = target->m_game->top_request().get<request_type::lemonade_jim>().players;
             return std::ranges::find(vec, target->id) == vec.end();
         }
         return false;
@@ -451,13 +451,13 @@ namespace banggame {
 
     void effect_lemonade_jim::on_play(int origin_card_id, player *origin, player *target) {
         target->heal(1);
-        target->m_game->top_request().get<request_type::beer>().players.push_back(target->id);
+        target->m_game->top_request().get<request_type::lemonade_jim>().players.push_back(target->id);
     }
 
     void effect_lemonade_jim::on_equip(player *origin, int card_id) {
         origin->m_game->add_event<event_type::on_play_beer>(card_id, [=](player *target) {
             if (origin != target) {
-                target->m_game->queue_request<request_type::beer>(card_id, target, target).players.push_back(target->id);
+                target->m_game->queue_request<request_type::lemonade_jim>(card_id, target, target).players.push_back(target->id);
             }
         });
     }
@@ -540,5 +540,45 @@ namespace banggame {
             }
             target->m_game->m_shop_selection.erase(card_it);
         }
+    }
+
+    void effect_julie_cutter::on_equip(player *p, int card_id) {
+        p->m_game->add_event<event_type::on_hit>(card_id, [=](player *origin, player *target, int damage, bool is_bang) {
+            if (origin && p == target) {
+                p->m_game->draw_check_then(target, [=](card_suit_type suit, card_value_type value) {
+                    if (suit == card_suit_type::hearts || suit == card_suit_type::diamonds) {
+                        p->m_game->queue_request<request_type::bang>(card_id, target, origin);
+                    }
+                });
+            }
+        });
+    }
+
+    bool effect_frankie_canton::can_play(int origin_card_id, player *origin, player *target, int card_id) const {
+        card *card = nullptr;
+        if (card_id == target->m_characters.front().id) {
+            card = &target->m_characters.front();
+        } else {
+            card = &target->find_card(card_id);
+        }
+        return !card->cubes.empty();
+    }
+
+    void effect_frankie_canton::on_play(int origin_card_id, player *origin, player *target, int card_id) {
+        card *card = nullptr;
+        if (card_id == target->m_characters.front().id) {
+            card = &target->m_characters.front();
+        } else {
+            card = &target->find_card(card_id);
+        }
+        target->move_cubes(*card, origin->m_characters.front(), 1);
+    }
+
+    void effect_bloody_mary::on_equip(player *p, int card_id) {
+        p->m_game->add_event<event_type::on_missed>(card_id, [=](player *origin, player *target, bool is_bang) {
+            if (origin == p && is_bang) {
+                origin->m_game->draw_card_to(card_pile_type::player_hand, p);
+            }
+        });
     }
 }

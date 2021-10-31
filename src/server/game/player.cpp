@@ -173,7 +173,7 @@ namespace banggame {
                 auto it = std::ranges::find(m_table, card_id, &card::id);
                 auto &moved = m_game->move_to(std::move(*it), card_pile_type::discard_pile);
                 m_table.erase(it);
-                m_game->instant_event<event_type::on_pay_cube>(card_id, 0);
+                m_game->instant_event<event_type::post_discard_orange_card>(this, card_id);
                 moved.on_unequip(this);
             });
         }
@@ -197,7 +197,7 @@ namespace banggame {
                 auto it = std::ranges::find(m_table, card_id, &card::id);
                 auto &moved = m_game->move_to(std::move(*it), card_pile_type::discard_pile);
                 m_table.erase(it);
-                m_game->instant_event<event_type::on_pay_cube>(card_id, 0);
+                m_game->instant_event<event_type::post_discard_orange_card>(this, card_id);
                 moved.on_unequip(this);
             });
         }
@@ -217,20 +217,15 @@ namespace banggame {
     }
 
     static bool player_in_range(player *origin, player *target, int distance) {
-        return origin->m_game->calc_distance(origin, target) <= distance;
+        return origin->m_belltower > 0
+            || origin->m_game->calc_distance(origin, target) <= distance;
     }
 
     void player::verify_and_play_modifier(const card &c, int modifier_id) {
         if (!modifier_id) return;
         auto &mod_card = find_card(modifier_id);
-        switch(mod_card.modifier) {
-        case card_modifier_type::anycard:
-            break;
-        case card_modifier_type::bangcard:
-            if (std::ranges::find(c.effects, effect_type::bangcard, &effect_holder::enum_index) != c.effects.end())
-                break;
-            [[fallthrough]];
-        default:
+        if (mod_card.modifier != card_modifier_type::bangcard
+            || std::ranges::find(c.effects, effect_type::bangcard, &effect_holder::enum_index) == c.effects.end()) {
             throw game_error("Azione non valida");
         }
         for (const auto &e : mod_card.effects) {
@@ -455,7 +450,7 @@ namespace banggame {
             return target->immune_to(*static_cast<deck_card*>(card_ptr));
         };
 
-        size_t initial_mods_size = m_bang_mods.size();
+        int initial_belltower = m_belltower;
         
         if (card_ptr->cost > 0) {
             add_gold(-card_ptr->cost);
@@ -495,9 +490,9 @@ namespace banggame {
         if (is_virtual) {
             m_virtual.reset();
         }
-
-        if (m_bang_mods.size() == initial_mods_size) {
-            m_bang_mods.clear();
+        
+        if (m_belltower == initial_belltower) {
+            m_belltower = 0;
         }
     }
 

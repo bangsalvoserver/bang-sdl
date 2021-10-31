@@ -84,8 +84,8 @@ namespace banggame {
             }
             target->next_predraw_check(card_id);
         });
-        target->m_game->add_event<event_type::on_pay_cube>(card_id, [=](int c_id, int ncubes) {
-            if (c_id == card_id && ncubes == 0) {
+        target->m_game->add_event<event_type::post_discard_orange_card>(card_id, [=](player *p, int c_id) {
+            if (c_id == card_id && p == target) {
                 target->damage(card_id, nullptr, 2);
             }
         });

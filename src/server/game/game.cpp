@@ -357,6 +357,15 @@ namespace banggame {
         m_pending_checks.pop_front();
     }
 
+    void game::pop_request_noupdate() {
+        enums::visit([](auto &value) {
+            if constexpr (requires { value.cleanup(); }) {
+                value.cleanup();
+            }
+        }, m_requests.front());
+        m_requests.pop_front();
+    }
+
     void game::check_game_over(player *target, bool discarded_ghost) {
         player *killer = m_playing;
 
