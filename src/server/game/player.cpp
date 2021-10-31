@@ -407,7 +407,6 @@ namespace banggame {
             m_hand.erase(it);
             m_game->queue_event<event_type::on_play_hand_card>(this, card_id);
         } else if (auto it = std::ranges::find(m_table, card_id, &deck_card::id); it != m_table.end()) {
-            if (m_game->table_cards_disabled(id)) throw game_error("Le carte in gioco sono disabilitate");
             m_last_played_card = card_id;
             if (it->color == card_color_type::green) {
                 card_ptr = &m_game->move_to(std::move(*it), card_pile_type::discard_pile);
@@ -660,6 +659,7 @@ namespace banggame {
         };
 
         if (auto card_it = std::ranges::find(m_characters, args.card_id, &character::id); card_it != m_characters.end()) {
+            if (m_game->characters_disabled(id)) throw game_error("I personaggi sono disabilitati");
             if (can_respond(*card_it)) {
                 verify_card_targets(*card_it, true, args.targets);
                 m_game->add_log(this, nullptr, std::string("risposto con l'effetto di ") + card_it->name);

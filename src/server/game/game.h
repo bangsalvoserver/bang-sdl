@@ -96,7 +96,8 @@ namespace banggame {
 
         std::vector<character> m_base_characters;
 
-        std::vector<int> m_table_card_disablers;
+        using table_card_disabler = std::pair<int, bool>;
+        std::vector<table_card_disabler> m_table_card_disablers;
 
         player *m_playing = nullptr;
         player *m_next_turn = nullptr;
@@ -247,9 +248,11 @@ namespace banggame {
         void draw_check_then(player *p, draw_check_function fun, bool force_one = false, bool invert_pop_req = false);
         void resolve_check(int card_id);
 
-        void disable_table_cards(int player_id);
+        void disable_table_cards(int player_id, bool disable_characters = false);
         void enable_table_cards(int player_id);
+
         bool table_cards_disabled(int player_id);
+        bool characters_disabled(int player_id);
 
         int num_alive() const {
             return std::ranges::count_if(m_players, &player::alive);

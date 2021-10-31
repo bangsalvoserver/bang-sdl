@@ -40,6 +40,8 @@ namespace banggame {
         bool unavoidable = false;
         bool is_bang_card = false;
 
+        std::function<void()> cleanup_function;
+
         void on_resolve();
         void cleanup();
     };
