@@ -9,17 +9,17 @@ using namespace enums::flag_operators;
 game_ui::game_ui(game_scene *parent)
     : parent(parent)
     , m_chat(parent->parent)
-    , m_pass_btn("Passa", [parent] {
-        parent->add_pass_action();
+    , m_pass_btn("Passa", [&mgr = *parent->parent] {
+        mgr.add_message<client_message_type::game_action>(enums::enum_constant<game_action_type::pass_turn>());
     })
-    , m_resolve_btn("Risolvi", [parent] {
-        parent->add_resolve_action();
+    , m_resolve_btn("Risolvi", [&mgr = *parent->parent] {
+        mgr.add_message<client_message_type::game_action>(enums::enum_constant<game_action_type::resolve>());
     })
-    , m_sell_beer_btn("Vendi birra", [parent] {
-        parent->on_click_sell_beer();
+    , m_sell_beer_btn("Vendi birra", [&target = parent->m_target] {
+        target.on_click_sell_beer();
     })
-    , m_discard_black_btn("Scarta nera", [parent] {
-        parent->on_click_discard_black();
+    , m_discard_black_btn("Scarta nera", [&target = parent->m_target] {
+        target.on_click_discard_black();
     })
     , m_leave_btn("Esci", [parent] {
         parent->parent->add_message<client_message_type::lobby_leave>();
