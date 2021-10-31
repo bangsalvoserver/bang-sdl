@@ -226,6 +226,10 @@ namespace banggame {
         void on_play(int origin_card_id, player *origin);
     };
 
+    struct effect_buntlinespecial : card_effect {
+        void on_play(int origin_card_id, player *origin);
+    };
+
 }
 
 #endif

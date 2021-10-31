@@ -41,6 +41,7 @@ namespace banggame {
         bool is_bang_card = false;
 
         void on_resolve();
+        void cleanup();
     };
 
     struct request_destroy : request_base {

@@ -187,7 +187,7 @@ namespace banggame {
         }
 
         void pop_request() {
-            m_requests.pop_front();
+            pop_request_noupdate();
             if (m_requests.empty()) {
                 add_public_update<game_update_type::status_clear>();
                 pop_events();
@@ -196,9 +196,7 @@ namespace banggame {
             }
         }
 
-        void pop_request_noupdate() {
-            m_requests.pop_front();
-        }
+        void pop_request_noupdate();
 
         void tick();
 

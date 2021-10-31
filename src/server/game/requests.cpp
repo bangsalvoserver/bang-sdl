@@ -88,6 +88,10 @@ namespace banggame {
         target->damage(origin_card_id, origin, bang_damage, is_bang_card);
     }
 
+    void request_bang::cleanup() {
+        target->m_game->remove_events(origin_card_id);
+    }
+
     void request_death::on_resolve() {
         target->m_game->player_death(target);
         target->m_game->pop_request();
