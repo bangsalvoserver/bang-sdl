@@ -84,6 +84,7 @@ namespace banggame {
     }
 
     void request_bang::on_resolve() {
+        cleanup();
         target->m_game->pop_request();
         target->damage(origin_card_id, origin, bang_damage, is_bang_card);
     }
@@ -91,6 +92,7 @@ namespace banggame {
     void request_bang::cleanup() {
         if (cleanup_function) {
             cleanup_function();
+            cleanup_function = nullptr;
         }
     }
 
