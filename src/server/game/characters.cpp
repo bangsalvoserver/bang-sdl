@@ -541,4 +541,16 @@ namespace banggame {
             target->m_game->m_shop_selection.erase(card_it);
         }
     }
+
+    void effect_julie_cutter::on_equip(player *p, int card_id) {
+        p->m_game->add_event<event_type::on_hit>(card_id, [=](player *origin, player *target, int damage, bool is_bang) {
+            if (origin && p == target) {
+                p->m_game->draw_check_then(target, [=](card_suit_type suit, card_value_type value) {
+                    if (suit == card_suit_type::hearts || suit == card_suit_type::diamonds) {
+                        p->m_game->queue_request<request_type::bang>(card_id, target, origin);
+                    }
+                });
+            }
+        });
+    }
 }

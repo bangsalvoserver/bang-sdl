@@ -173,7 +173,7 @@ namespace banggame {
                 auto it = std::ranges::find(m_table, card_id, &card::id);
                 auto &moved = m_game->move_to(std::move(*it), card_pile_type::discard_pile);
                 m_table.erase(it);
-                m_game->instant_event<event_type::on_pay_cube>(card_id, 0);
+                m_game->instant_event<event_type::post_discard_orange_card>(this, card_id);
                 moved.on_unequip(this);
             });
         }
@@ -197,7 +197,7 @@ namespace banggame {
                 auto it = std::ranges::find(m_table, card_id, &card::id);
                 auto &moved = m_game->move_to(std::move(*it), card_pile_type::discard_pile);
                 m_table.erase(it);
-                m_game->instant_event<event_type::on_pay_cube>(card_id, 0);
+                m_game->instant_event<event_type::post_discard_orange_card>(this, card_id);
                 moved.on_unequip(this);
             });
         }
