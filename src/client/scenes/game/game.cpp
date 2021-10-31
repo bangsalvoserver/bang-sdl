@@ -29,6 +29,13 @@ game_scene::game_scene(class game_manager *parent)
     rng.seed(rd());
 }
 
+static sdl::point cube_pile_offset(auto &rng) {
+    return {
+        int(rng() % (2 * sizes::cube_pile_size)) - sizes::cube_pile_size,
+        int(rng() % (2 * sizes::cube_pile_size)) - sizes::cube_pile_size
+    };
+}
+
 void game_scene::resize(int width, int height) {
     scene_base::resize(width, height);
     
@@ -54,6 +61,16 @@ void game_scene::resize(int width, int height) {
 
     for (auto &[id, card] : m_cards) {
         card.set_pos(card.pile->get_position(&card));
+    }
+
+    for (auto &cube : m_cubes | std::views::values) {
+        if (!cube.owner) {
+            auto diff = cube_pile_offset(rng);
+            cube.pos = sdl::point{
+                width / 2 + diff.x + sizes::cube_pile_xoffset,
+                height / 2 + diff.y
+            };
+        }
     }
 
     m_ui.resize(width, height);
@@ -864,9 +881,10 @@ void game_scene::handle_update(UPDATE_TAG(add_cubes), const add_cubes_update &ar
     for (int id : args.cubes) {
         auto &cube = m_cubes.emplace(id, id).first->second;
 
+        auto pos = cube_pile_offset(rng);
         cube.pos = sdl::point{
-            parent->width() / 2 + int(rng() % (2 * sizes::cube_pile_size)) - sizes::cube_pile_size,
-            parent->height() / 2 + int(rng() % (2 * sizes::cube_pile_size)) - sizes::cube_pile_size
+            parent->width() / 2 + pos.x + sizes::cube_pile_xoffset,
+            parent->height() / 2 + pos.y
         };
     }
     pop_update();
@@ -881,16 +899,13 @@ void game_scene::handle_update(UPDATE_TAG(move_cube), const move_cube_update &ar
                 cube.owner->cubes.erase(it);
             }
         }
-        sdl::point diff{
-            int(rng() % (2 * sizes::cube_pile_size)) - sizes::cube_pile_size,
-            int(rng() % (2 * sizes::cube_pile_size)) - sizes::cube_pile_size
-        };
+        sdl::point diff = cube_pile_offset(rng);
         if (args.card_id) {
             cube.owner = find_card_widget(args.card_id);
             cube.owner->cubes.push_back(&cube);
         } else {
             cube.owner = nullptr;
-            diff.x += parent->width() / 2;
+            diff.x += parent->width() / 2 + sizes::cube_pile_xoffset;
             diff.y += parent->height() / 2;
         }
         m_animations.emplace_back(8, cube_move_animation(&cube, diff));

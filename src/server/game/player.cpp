@@ -803,6 +803,7 @@ namespace banggame {
                 : card_pile_type::discard_pile);
         }
         m_table.clear();
+        drop_all_cubes(m_characters.front());
         for (deck_card &c : m_hand) {
             m_game->move_to(std::move(c), card_pile_type::discard_pile);
         }

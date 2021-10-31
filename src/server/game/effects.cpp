@@ -401,12 +401,14 @@ namespace banggame {
         if (escapable && origin->m_game->has_expansion(card_expansion_type::valleyofshadows)) {
             origin->m_game->queue_request<request_type::rust>(origin_card_id, origin, target).escapable = escapable;
         } else {
-            for (auto &c : target->m_table) {
-                if (c.color == card_color_type::orange) {
-                    target->move_cubes(c, origin->m_characters.front(), 1);
+            target->m_game->queue_event<event_type::delayed_action>([=]{
+                target->move_cubes(target->m_characters.front(), origin->m_characters.front(), 1);
+                for (auto &c : target->m_table) {
+                    if (c.color == card_color_type::orange) {
+                        target->move_cubes(c, origin->m_characters.front(), 1);
+                    }
                 }
-            }
-            target->move_cubes(target->m_characters.front(), origin->m_characters.front(), 1);
+            });
         }
     }
 
@@ -448,7 +450,7 @@ namespace banggame {
     void effect_buntlinespecial::on_play(int origin_card_id, player *p) {
         p->add_bang_mod([=](request_bang &req) {
             p->m_game->add_event<event_type::on_missed>(origin_card_id, [=](player *origin, player *target, bool is_bang) {
-                if (target && origin == p && is_bang) {
+                if (target && origin == p && is_bang && !target->m_hand.empty()) {
                     target->m_game->queue_request<request_type::discard>(origin_card_id, origin, target);
                 }
             });

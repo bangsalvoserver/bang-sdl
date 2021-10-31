@@ -14,10 +14,10 @@ namespace sizes {
 
     constexpr int gold_yoffset = 60;
 
-    constexpr int deck_xoffset = 190;
-    constexpr int shop_xoffset = 20;
+    constexpr int deck_xoffset = 200;
+    constexpr int shop_xoffset = 10;
 
-    constexpr int discard_xoffset = 80;
+    constexpr int discard_xoffset = 70;
     
     constexpr int selection_yoffset = 100;
     constexpr int selection_width = 300;
@@ -25,6 +25,7 @@ namespace sizes {
     constexpr int shop_selection_width = 150;
 
     constexpr int cube_pile_size = 25;
+    constexpr int cube_pile_xoffset = 70;
 
     constexpr int turn_indicator_border = 5;
     constexpr int request_indicator_border = 10;
