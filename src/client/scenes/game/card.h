@@ -136,6 +136,10 @@ namespace banggame {
     };
 
     struct player_view {
+        int id;
+        
+        explicit player_view(int id) : id(id) {}
+
         int hp = 0;
         int gold = 0;
         bool dead = false;

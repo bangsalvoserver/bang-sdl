@@ -196,23 +196,23 @@ void game_scene::handle_card_click(const sdl::point &mouse_pt) {
         m_target.on_click_main_deck();
         return;
     }
-    for (auto &[player_id, p] : m_players) {
+    for (auto &p : m_players | std::views::values) {
         for (auto &c : p.m_characters | std::views::reverse) {
             if (sdl::point_in_rect(mouse_pt, c.get_rect())) {
-                m_target.on_click_character(player_id, &c);
+                m_target.on_click_character(&p, &c);
                 return;
             }
         }
         if (sdl::point_in_rect(mouse_pt, p.m_role.get_rect())) {
-            m_target.on_click_player(player_id);
+            m_target.on_click_player(&p);
             return;
         }
         if (card_view *card = find_clicked(p.table)) {
-            m_target.on_click_table_card(player_id, card);
+            m_target.on_click_table_card(&p, card);
             return;
         }
         if (card_view *card = find_clicked(p.hand)) {
-            m_target.on_click_hand_card(player_id, card);
+            m_target.on_click_hand_card(&p, card);
             return;
         }
     }
@@ -522,7 +522,7 @@ void game_scene::handle_update(UPDATE_TAG(player_add), const player_user_update 
     if (args.user_id == parent->get_user_own_id()) {
         m_player_own_id = args.player_id;
     }
-    auto &p = m_players.try_emplace(args.player_id).first->second;
+    auto &p = m_players.try_emplace(args.player_id, args.player_id).first->second;
 
     p.m_username_text.redraw(parent->get_user_name(args.user_id));
 

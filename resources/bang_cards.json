@@ -1330,11 +1330,11 @@
             "optional": [
                 {
                     "class": "pay_cube",
-                    "target": "cube_slot self card"
+                    "target": "cube_slot self"
                 },
                 {
                     "class": "pay_cube",
-                    "target": "cube_slot self card"
+                    "target": "cube_slot self"
                 },
                 {
                     "target": "player self",
@@ -1376,15 +1376,15 @@
             "optional": [
                 {
                     "class": "pay_cube",
-                    "target": "cube_slot self card"
+                    "target": "cube_slot self"
                 },
                 {
                     "class": "pay_cube",
-                    "target": "cube_slot self card"
+                    "target": "cube_slot self"
                 },
                 {
                     "class": "pay_cube",
-                    "target": "cube_slot self card"
+                    "target": "cube_slot self"
                 },
                 {
                     "target": "player self",
@@ -1411,7 +1411,7 @@
             "optional": [
                 {
                     "class": "pay_cube",
-                    "target": "cube_slot self card"
+                    "target": "cube_slot self"
                 },
                 {
                     "target": "player reachable notself new_target",
@@ -1487,11 +1487,11 @@
             "optional": [
                 {
                     "class": "pay_cube",
-                    "target": "cube_slot self card"
+                    "target": "cube_slot self"
                 },
                 {
                     "class": "pay_cube",
-                    "target": "cube_slot self card"
+                    "target": "cube_slot self"
                 },
                 {
                     "class": "duck"
@@ -1552,7 +1552,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "card",
+                    "target": "table card",
                     "class": "destroy",
                     "escapable": true
                 }
@@ -1560,11 +1560,11 @@
             "optional": [
                 {
                     "class": "pay_cube",
-                    "target": "cube_slot self card"
+                    "target": "cube_slot self"
                 },
                 {
                     "class": "pay_cube",
-                    "target": "cube_slot self card"
+                    "target": "cube_slot self"
                 },
                 {
                     "class": "squaw"
@@ -2585,11 +2585,11 @@
                 },
                 {
                     "class": "pay_cube",
-                    "target": "cube_slot self card"
+                    "target": "cube_slot self"
                 },
                 {
                     "class": "pay_cube",
-                    "target": "cube_slot self card"
+                    "target": "cube_slot self"
                 },
                 {
                     "target": "player self",
@@ -2661,11 +2661,11 @@
             "usages": 1,
             "effects": [
                 {
-                    "target": "cube_slot self card",
+                    "target": "cube_slot self",
                     "class": "pay_cube"
                 },
                 {
-                    "target": "cube_slot self card",
+                    "target": "cube_slot self",
                     "class": "pay_cube"
                 },
                 {
