@@ -30,6 +30,7 @@ namespace banggame {
     )
 
     DEFINE_ENUM_FLAGS_IN_NS(banggame, play_card_flags,
+        (response)
         (equipping)
         (offturn)
         (sell_beer)
@@ -46,7 +47,6 @@ namespace banggame {
     DEFINE_ENUM_TYPES_IN_NS(banggame, game_action_type,
         (pick_card, pick_card_args)
         (play_card, play_card_args)
-        (respond_card, play_card_args)
         (draw_from_deck)
         (pass_turn)
         (resolve)

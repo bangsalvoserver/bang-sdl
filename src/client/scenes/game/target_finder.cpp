@@ -14,13 +14,14 @@ void target_finder::add_action(Ts && ... args) {
 }
 
 void target_finder::render(sdl::renderer &renderer) {
-    renderer.set_draw_color(sdl::color{0xff, 0x0, 0x0, 0xff});
+    renderer.set_draw_color(sdl::color{0x00, 0x0, 0xff, 0xff});
     if (m_modifier) {
         renderer.draw_rect(m_modifier->get_rect());
     }
     if (m_playing_card) {
         renderer.draw_rect(m_playing_card->get_rect());
     }
+    renderer.set_draw_color(sdl::color{0xff, 0x0, 0x0, 0xff});
     for (auto &l : m_targets) {
         for (auto [player, card] : l) {
             if (card) {
@@ -29,6 +30,9 @@ void target_finder::render(sdl::renderer &renderer) {
                 renderer.draw_rect(player->m_role.get_rect());
             }
         }
+    }
+    for (auto *cube : m_selected_cubes) {
+        renderer.draw_rect(cube->get_rect());
     }
 }
 
@@ -60,7 +64,8 @@ void target_finder::on_click_shop_card(card_view *card) {
         if (m_game->m_current_request.target_id == m_game->m_player_own_id && m_game->m_current_request.type != request_type::none) {
             if (card->color == card_color_type::none) {
                 m_playing_card = card;
-                handle_auto_targets(true);
+                m_flags |= play_card_flags::response;
+                handle_auto_targets();
             }
         } else if (m_game->m_playing_id == m_game->m_player_own_id) {
             if (!verify_modifier(card)) return;
@@ -78,7 +83,7 @@ void target_finder::on_click_shop_card(card_view *card) {
                 }
             } else {
                 m_playing_card = card;
-                handle_auto_targets(false);
+                handle_auto_targets();
             }
         }
     }
@@ -99,17 +104,20 @@ void target_finder::on_click_table_card(player_view *player, card_view *card) {
         } else if (!m_playing_card) {
             if (!card->inactive) {
                 m_playing_card = card;
-                handle_auto_targets(true);
+                m_flags |= play_card_flags::response;
+                handle_auto_targets();
             }
         } else {
-            add_card_target(true, target_pair{player, card});
+            m_flags |= play_card_flags::response;
+            add_card_target(target_pair{player, card});
         }
     } else if (!m_playing_card && card->playable_offturn && !card->inactive) {
         m_playing_card = card;
-        m_flags |= play_card_flags::offturn;
-        handle_auto_targets(true);
+        m_flags |= play_card_flags::response | play_card_flags::offturn;
+        handle_auto_targets();
     } else if (bool(m_flags & play_card_flags::offturn)) {
-        add_card_target(true, target_pair{player, card});
+        m_flags |= play_card_flags::response;
+        add_card_target(target_pair{player, card});
     } else if (m_game->m_playing_id == m_game->m_player_own_id) {
         if (!m_playing_card) {
             if (player->id == m_game->m_player_own_id && !card->inactive && verify_modifier(card)) {
@@ -117,11 +125,11 @@ void target_finder::on_click_table_card(player_view *player, card_view *card) {
                     m_modifier = card;
                 } else {
                     m_playing_card = card;
-                    handle_auto_targets(false);
+                    handle_auto_targets();
                 }
             }
         } else {
-            add_card_target(false, target_pair{player, card});
+            add_card_target(target_pair{player, card});
         }
     }
 }
@@ -140,16 +148,19 @@ void target_finder::on_click_hand_card(player_view *player, card_view *card) {
             add_action<game_action_type::pick_card>(card_pile_type::player_hand, player->id, card->id);
         } else if (!m_playing_card) {
             m_playing_card = card;
-            handle_auto_targets(true);
+            m_flags |= play_card_flags::response;
+            handle_auto_targets();
         } else {
-            add_card_target(true, target_pair{player, card});
+            m_flags |= play_card_flags::response;
+            add_card_target(target_pair{player, card});
         }
     } else if (!m_playing_card && card->playable_offturn) {
         m_playing_card = card;
-        m_flags |= play_card_flags::offturn;
-        handle_auto_targets(true);
+        m_flags |= play_card_flags::response | play_card_flags::offturn;
+        handle_auto_targets();
     } else if (bool(m_flags & play_card_flags::offturn)) {
-        add_card_target(true, target_pair{player, card});
+        m_flags |= play_card_flags::response;
+        add_card_target(target_pair{player, card});
     } else if (m_game->m_playing_id == m_game->m_player_own_id) {
         if (!m_playing_card) {
             if (player->id == m_game->m_player_own_id && verify_modifier(card)) {
@@ -158,7 +169,7 @@ void target_finder::on_click_hand_card(player_view *player, card_view *card) {
                         m_modifier = card;
                     } else {
                         m_playing_card = card;
-                        handle_auto_targets(false);
+                        handle_auto_targets();
                     }
                 } else {
                     if (card->equip_targets.empty()
@@ -175,7 +186,7 @@ void target_finder::on_click_hand_card(player_view *player, card_view *card) {
                 }
             }
         } else {
-            add_card_target(false, target_pair{player, card});
+            add_card_target(target_pair{player, card});
         }
     }
 }
@@ -190,12 +201,13 @@ void target_finder::on_click_character(player_view *player, character_card *card
             add_action<game_action_type::pick_card>(card_pile_type::player_character, player->id, card->id);
         } else if (!m_playing_card && player->id == m_game->m_player_own_id) {
             m_playing_card = card;
-            handle_auto_targets(true);
+            m_flags |= play_card_flags::response;
+            handle_auto_targets();
         }
     } else if (card->playable_offturn && !m_playing_card && player->id == m_game->m_player_own_id) {
         m_playing_card = card;
-        m_flags |= play_card_flags::offturn;
-        handle_auto_targets(true);
+        m_flags |= play_card_flags::response | play_card_flags::offturn;
+        handle_auto_targets();
     } else if (m_game->m_playing_id == m_game->m_player_own_id) {
         if (!m_playing_card) {
             if (player->id == m_game->m_player_own_id && card->type != character_type::none) {
@@ -203,11 +215,11 @@ void target_finder::on_click_character(player_view *player, character_card *card
                     m_modifier = card;
                 } else {
                     m_playing_card = card;
-                    handle_auto_targets(false);
+                    handle_auto_targets();
                 }
             }
         } else {
-            add_character_target(false, target_pair{player, card});
+            add_character_target(target_pair{player, card});
         }
     }
 }
@@ -219,10 +231,11 @@ void target_finder::on_click_player(player_view *player) {
         if (is_picking_request(m_game->m_current_request.type)) {
             add_action<game_action_type::pick_card>(card_pile_type::player, player->id);
         } else if (m_playing_card) {
-            add_player_targets(true, std::vector{target_pair{player, nullptr}});
+            m_flags |= play_card_flags::response;
+            add_player_targets(std::vector{target_pair{player, nullptr}});
         }
     } else if (m_game->m_playing_id == m_game->m_player_own_id && m_playing_card) {
-        add_player_targets(false, std::vector{target_pair{player, nullptr}});
+        add_player_targets(std::vector{target_pair{player, nullptr}});
     }
 }
 
@@ -254,7 +267,7 @@ bool target_finder::verify_modifier(card_widget *card) {
 
 
 
-std::vector<card_target_data> &target_finder::get_current_card_targets(bool is_response) {
+std::vector<card_target_data> &target_finder::get_current_card_targets() {
     assert(!bool(m_flags & play_card_flags::equipping));
 
     card_widget *card = nullptr;
@@ -266,14 +279,14 @@ std::vector<card_target_data> &target_finder::get_current_card_targets(bool is_r
         card = m_modifier;
     }
     if (!card) throw std::runtime_error("Carta non trovata");
-    if (is_response) {
+    if (bool(m_flags & play_card_flags::response)) {
         return card->response_targets;
     } else {
         return card->targets;
     }
 }
 
-void target_finder::handle_auto_targets(bool is_response) {
+void target_finder::handle_auto_targets() {
     using namespace enums::flag_operators;
 
     auto *self_player = m_game->find_player(m_game->m_player_own_id);
@@ -322,7 +335,7 @@ void target_finder::handle_auto_targets(bool is_response) {
         }
     };
 
-    auto &targets = get_current_card_targets(is_response);
+    auto &targets = get_current_card_targets();
     if (targets.empty()) {
         clear_targets();
     } else {
@@ -331,11 +344,7 @@ void target_finder::handle_auto_targets(bool is_response) {
             if (!do_handle_target(target_it->target)) break;
         }
         if (target_it == targets.end()) {
-            if (is_response) {
-                add_action<game_action_type::respond_card>(make_play_card_args());
-            } else {
-                add_action<game_action_type::play_card>(make_play_card_args());
-            }
+            add_action<game_action_type::play_card>(make_play_card_args());
             clear_targets();
         }
     }
@@ -349,12 +358,8 @@ constexpr auto is_none_target = [](const target_pair &pair) {
     return !pair.player && !pair.card;
 };
 
-void target_finder::add_card_target(bool is_response, target_pair target) {
-    if (std::ranges::any_of(m_targets, [&](const auto &vec) {
-        return std::ranges::find(vec, target.card, &target_pair::card) != vec.end();
-    })) return;
-
-    auto &card_targets = get_current_card_targets(is_response);
+void target_finder::add_card_target(target_pair target) {
+    auto &card_targets = get_current_card_targets();
     if (m_targets.empty()) {
         m_targets.emplace_back();
     }
@@ -392,9 +397,7 @@ void target_finder::add_card_target(bool is_response, target_pair target) {
     card_view *as_deck_card = target.card ? m_game->find_card(target.card->id) : nullptr;
     bool from_hand = std::ranges::find(target.player->hand, as_deck_card) != target.player->hand.end();
 
-    if (!bool(cur_target() & target_type::card)) {
-        m_targets.pop_back();
-    } else if (std::ranges::all_of(enums::enum_values_v<target_type>
+    if (std::ranges::all_of(enums::enum_values_v<target_type>
         | std::views::filter([&](target_type value) {
             return bool(cur_target() & value);
         }), [&](target_type value) {
@@ -419,18 +422,36 @@ void target_finder::add_card_target(bool is_response, target_pair target) {
             }
         }))
     {
-        auto &l = m_targets.back();
-        l.push_back(target);
-        if (l.size() == num_targets()) {
-            handle_auto_targets(is_response);
+        if (bool(cur_target() & target_type::card)) {
+            if (std::ranges::none_of(m_targets, [&](const auto &vec) {
+                return std::ranges::find(vec, target.card, &target_pair::card) != vec.end();
+            })) {
+                auto &l = m_targets.back();
+                l.push_back(target);
+                if (l.size() == num_targets()) {
+                    handle_auto_targets();
+                }
+            }
+        } else if (bool(cur_target() & target_type::cube_slot)) {
+            int ncubes = std::ranges::count_if(m_selected_cubes,
+                [card = target.card](const cube_widget *cube) {
+                    return cube->owner == card;
+                });
+            if (ncubes < target.card->cubes.size()) {
+                m_targets.back().push_back(target);
+                m_selected_cubes.push_back(*(target.card->cubes.rbegin() + ncubes));
+                handle_auto_targets();
+            }
+        } else {
+            m_targets.pop_back();
         }
     }
 }
 
-void target_finder::add_character_target(bool is_response, target_pair target) {
+void target_finder::add_character_target(target_pair target) {
     if (bool(m_flags & play_card_flags::equipping)) return;
     
-    auto &card_targets = get_current_card_targets(is_response);
+    auto &card_targets = get_current_card_targets();
     auto &cur_target = card_targets[m_targets.size()];
     if (bool(cur_target.target & target_type::cube_slot)) {
         character_card *card = nullptr;
@@ -442,12 +463,12 @@ void target_finder::add_character_target(bool is_response, target_pair target) {
         }
         if (card) {
             m_targets.emplace_back(std::vector{target});
-            handle_auto_targets(is_response);
+            handle_auto_targets();
         }
     }
 }
 
-void target_finder::add_player_targets(bool is_response, const std::vector<target_pair> &targets) {
+void target_finder::add_player_targets(const std::vector<target_pair> &targets) {
     if (bool(m_flags & play_card_flags::equipping)) {
         auto &card_targets = m_playing_card->equip_targets;
         auto &cur_target = card_targets[m_targets.size()];
@@ -457,11 +478,11 @@ void target_finder::add_player_targets(bool is_response, const std::vector<targe
             clear_targets();
         }
     } else {
-        auto &card_targets = get_current_card_targets(is_response);
+        auto &card_targets = get_current_card_targets();
         auto &cur_target = card_targets[m_targets.size()];
         if (bool(cur_target.target & (target_type::player | target_type::dead))) {
             m_targets.emplace_back(targets);
-            handle_auto_targets(is_response);
+            handle_auto_targets();
         }
     }
 }
@@ -479,7 +500,7 @@ void target_finder::handle_virtual_card(const virtual_card_update &args) {
     c.targets = args.targets;
 
     m_playing_card = m_game->find_card_widget(args.card_id);
-    handle_auto_targets(false);
+    handle_auto_targets();
 }
 
 play_card_args target_finder::make_play_card_args() {

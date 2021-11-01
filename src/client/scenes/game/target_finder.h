@@ -70,12 +70,12 @@ namespace banggame {
     private:
         bool verify_modifier(card_widget *card);
 
-        void handle_auto_targets(bool is_response);
-        void add_card_target(bool is_response, target_pair target);
-        void add_character_target(bool is_response, target_pair target);
-        void add_player_targets(bool is_response, const std::vector<target_pair> &targets);
+        void handle_auto_targets();
+        void add_card_target(target_pair target);
+        void add_character_target(target_pair target);
+        void add_player_targets( const std::vector<target_pair> &targets);
 
-        std::vector<card_target_data> &get_current_card_targets(bool is_response);
+        std::vector<card_target_data> &get_current_card_targets();
 
         play_card_args make_play_card_args();
         

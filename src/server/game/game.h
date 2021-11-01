@@ -288,7 +288,6 @@ namespace banggame {
 
         void handle_action(ACTION_TAG(pick_card), player *p, const pick_card_args &args);
         void handle_action(ACTION_TAG(play_card), player *p, const play_card_args &args);
-        void handle_action(ACTION_TAG(respond_card), player *p, const play_card_args &args);
         void handle_action(ACTION_TAG(draw_from_deck), player *p);
         void handle_action(ACTION_TAG(pass_turn), player *p);
         void handle_action(ACTION_TAG(resolve), player *p);
