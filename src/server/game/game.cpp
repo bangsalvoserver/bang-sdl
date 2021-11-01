@@ -477,7 +477,7 @@ namespace banggame {
                 }
                 if (it->second) {
                     for (auto &c : p.m_characters) {
-                        c.on_unequip(&p);
+                        c.on_equip(&p);
                     }
                 }
             }

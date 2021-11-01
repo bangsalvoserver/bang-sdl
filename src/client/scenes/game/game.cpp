@@ -97,6 +97,12 @@ void game_scene::render(sdl::renderer &renderer) {
         card->render(renderer);
     }
 
+    for (auto &cube : m_cubes | std::views::values) {
+        if (cube.owner == nullptr) {
+            cube.render(renderer);
+        }
+    }
+
     for (auto &[player_id, p] : m_players) {
         if (player_id == m_playing_id) {
             p.render_turn_indicator(renderer);
@@ -125,10 +131,6 @@ void game_scene::render(sdl::renderer &renderer) {
 
     if (!m_animations.empty()) {
         m_animations.front().render(renderer);
-    }
-
-    for (auto &[_, cube] : m_cubes) {
-        cube.render(renderer);
     }
 
     m_target.render(renderer);
@@ -411,12 +413,15 @@ void game_scene::handle_update(UPDATE_TAG(move_cube), const move_cube_update &ar
                 cube.owner->cubes.erase(it);
             }
         }
-        sdl::point diff = cube_pile_offset(rng);
+        sdl::point diff;
         if (args.card_id) {
             cube.owner = find_card_widget(args.card_id);
+            diff.x = sizes::cube_xdiff;
+            diff.y = sizes::cube_ydiff + sizes::cube_yoff * cube.owner->cubes.size();
             cube.owner->cubes.push_back(&cube);
         } else {
             cube.owner = nullptr;
+            diff = cube_pile_offset(rng);
             diff.x += parent->width() / 2 + sizes::cube_pile_xoffset;
             diff.y += parent->height() / 2;
         }

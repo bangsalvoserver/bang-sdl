@@ -91,6 +91,11 @@ namespace banggame {
             : cube(cube), diff(diff)
         {
             start = cube->pos;
+            cube->animating = true;
+        }
+
+        void render(sdl::renderer &renderer) {
+            cube->render(renderer, false);
         }
         
         void do_animation(float amt) {
@@ -106,6 +111,7 @@ namespace banggame {
             sdl::point dest{};
             if (cube->owner) dest = cube->owner->get_pos();
             cube->pos = sdl::point{dest.x + diff.x, dest.y + diff.y};
+            cube->animating = false;
         }
     };
 
