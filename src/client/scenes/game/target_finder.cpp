@@ -14,14 +14,14 @@ void target_finder::add_action(Ts && ... args) {
 }
 
 void target_finder::render(sdl::renderer &renderer) {
-    renderer.set_draw_color(sdl::color{0x00, 0x0, 0xff, 0xff});
+    renderer.set_draw_color(sdl::color{0xff, 0x0, 0x0, 0xff});
     if (m_modifier) {
         renderer.draw_rect(m_modifier->get_rect());
     }
     if (m_playing_card) {
         renderer.draw_rect(m_playing_card->get_rect());
     }
-    renderer.set_draw_color(sdl::color{0xff, 0x0, 0x0, 0xff});
+    renderer.set_draw_color(sdl::color{0xff, 0x0, 0xff, 0xff});
     for (auto &l : m_targets) {
         for (auto [player, card] : l) {
             if (card) {
@@ -58,9 +58,7 @@ void target_finder::on_click_selection_card(card_view *card) {
 void target_finder::on_click_shop_card(card_view *card) {
     m_flags &= ~(play_card_flags::sell_beer | play_card_flags::discard_black);
 
-    if (card == m_modifier || card == m_playing_card) {
-        clear_targets();
-    } else if (!m_playing_card) {
+    if (!m_playing_card) {
         if (m_game->m_current_request.target_id == m_game->m_player_own_id && m_game->m_current_request.type != request_type::none) {
             if (card->color == card_color_type::none) {
                 m_playing_card = card;
@@ -74,9 +72,8 @@ void target_finder::on_click_shop_card(card_view *card) {
                     || card->equip_targets.front().target == enums::flags_none<target_type>
                     || bool(card->equip_targets.front().target & target_type::self)) {
                     m_playing_card = card;
-                    m_targets.emplace_back(std::vector{target_pair{m_game->find_player(m_game->m_playing_id), nullptr}});
-                    add_action<game_action_type::play_card>(make_play_card_args());
-                    clear_targets();
+                    m_targets.emplace_back(std::vector{target_pair{m_game->find_player(m_game->m_playing_id)}});
+                    send_play_card();
                 } else {
                     m_playing_card = card;
                     m_flags |= play_card_flags::equipping;
@@ -94,10 +91,7 @@ void target_finder::on_click_table_card(player_view *player, card_view *card) {
 
     if (bool(m_flags & play_card_flags::discard_black)) {
         m_targets.emplace_back(std::vector{target_pair{player, card}});
-        add_action<game_action_type::play_card>(make_play_card_args());
-        clear_targets();
-    } else if (card == m_modifier || card == m_playing_card) {
-        clear_targets();
+        send_play_card();
     } else if (m_game->m_current_request.target_id == m_game->m_player_own_id && m_game->m_current_request.type != request_type::none) {
         if (is_picking_request(m_game->m_current_request.type)) {
             add_action<game_action_type::pick_card>(card_pile_type::player_table, player->id, card->id);
@@ -139,10 +133,7 @@ void target_finder::on_click_hand_card(player_view *player, card_view *card) {
 
     if (bool(m_flags & play_card_flags::sell_beer) && player->id == m_game->m_player_own_id) {
         m_targets.emplace_back(std::vector{target_pair{player, card}});
-        add_action<game_action_type::play_card>(make_play_card_args());
-        clear_targets();
-    } else if (card == m_modifier || card == m_playing_card) {
-        clear_targets();
+        send_play_card();
     } else if (m_game->m_current_request.target_id == m_game->m_player_own_id && m_game->m_current_request.type != request_type::none) {
         if (is_picking_request(m_game->m_current_request.type)) {
             add_action<game_action_type::pick_card>(card_pile_type::player_hand, player->id, card->id);
@@ -194,9 +185,7 @@ void target_finder::on_click_hand_card(player_view *player, card_view *card) {
 void target_finder::on_click_character(player_view *player, character_card *card) {
     m_flags &= ~(play_card_flags::sell_beer | play_card_flags::discard_black);
 
-    if (card == m_modifier || card == m_playing_card) {
-        clear_targets();
-    } else if (m_game->m_current_request.target_id == m_game->m_player_own_id && m_game->m_current_request.type != request_type::none) {
+    if (m_game->m_current_request.target_id == m_game->m_player_own_id && m_game->m_current_request.type != request_type::none) {
         if (is_picking_request(m_game->m_current_request.type)) {
             add_action<game_action_type::pick_card>(card_pile_type::player_character, player->id, card->id);
         } else if (!m_playing_card && player->id == m_game->m_player_own_id) {
@@ -232,10 +221,10 @@ void target_finder::on_click_player(player_view *player) {
             add_action<game_action_type::pick_card>(card_pile_type::player, player->id);
         } else if (m_playing_card) {
             m_flags |= play_card_flags::response;
-            add_player_targets(std::vector{target_pair{player, nullptr}});
+            add_player_targets(std::vector{target_pair{player}});
         }
     } else if (m_game->m_playing_id == m_game->m_player_own_id && m_playing_card) {
-        add_player_targets(std::vector{target_pair{player, nullptr}});
+        add_player_targets(std::vector{target_pair{player}});
     }
 }
 
@@ -293,23 +282,23 @@ void target_finder::handle_auto_targets() {
     auto do_handle_target = [&](target_type type) {
         switch (type) {
         case enums::flags_none<target_type>:
-            m_targets.push_back(std::vector{target_pair{nullptr, nullptr}});
+            m_targets.push_back(std::vector{target_pair{}});
             return true;
         case target_type::self | target_type::player:
-            m_targets.push_back(std::vector{target_pair{self_player, nullptr}});
+            m_targets.push_back(std::vector{target_pair{self_player}});
             return true;
         case target_type::self | target_type::card:
             m_targets.push_back(std::vector{target_pair{self_player, m_playing_card}});
             return true;
         case target_type::attacker | target_type::player:
-            m_targets.push_back(std::vector{target_pair{m_game->find_player(m_game->m_current_request.origin_id), nullptr}});
+            m_targets.push_back(std::vector{target_pair{m_game->find_player(m_game->m_current_request.origin_id)}});
             return true;
         case target_type::everyone | target_type::player: {
             std::vector<target_pair> ids;
             auto self = m_game->m_players.find(m_game->m_player_own_id);
             for (auto it = self;;) {
                 if (!it->second.dead) {
-                    ids.emplace_back(&it->second, nullptr);
+                    ids.emplace_back(&it->second);
                 }
                 if (++it == m_game->m_players.end()) it = m_game->m_players.begin();
                 if (it == self) break;
@@ -324,7 +313,7 @@ void target_finder::handle_auto_targets() {
                 if (++it == m_game->m_players.end()) it = m_game->m_players.begin();
                 if (it == self) break;
                 if (!it->second.dead) {
-                    ids.emplace_back(&it->second, nullptr);
+                    ids.emplace_back(&it->second);
                 }
             }
             m_targets.push_back(ids);
@@ -344,8 +333,7 @@ void target_finder::handle_auto_targets() {
             if (!do_handle_target(target_it->target)) break;
         }
         if (target_it == targets.end()) {
-            add_action<game_action_type::play_card>(make_play_card_args());
-            clear_targets();
+            send_play_card();
         }
     }
 }
@@ -359,25 +347,14 @@ constexpr auto is_none_target = [](const target_pair &pair) {
 };
 
 void target_finder::add_card_target(target_pair target) {
-    auto &card_targets = get_current_card_targets();
-    if (m_targets.empty()) {
-        m_targets.emplace_back();
-    }
-
-    auto cur_target = [&] {
-        return card_targets[m_targets.size() - 1].target;
-    };
-
-    auto num_targets = [&] {
+    auto num_targets = [&](target_type type) {
         int ret = 1;
-        if (bool(cur_target() & target_type::everyone)) {
-            ret = 0;
-            for (const auto &p : m_game->m_players | std::views::values) {
-                if (!p.dead) ++ret;
-            }
-            if (bool(cur_target() & target_type::notself)) {
+        if (bool(type & target_type::everyone)) {
+            ret = std::ranges::count_if(m_game->m_players | std::views::values, std::not_fn(&player_view::dead));
+            if (bool(type & target_type::notself)) {
                 --ret;
             }
+            return ret;
         }
         return ret;
     };
@@ -390,16 +367,21 @@ void target_finder::add_card_target(target_pair target) {
         return card && !card->response_targets.empty() && card->response_targets.front().type == effect_type::missedcard;
     };
 
-    if (m_targets.back().size() == num_targets() || std::ranges::any_of(m_targets.back(), is_player_target)) {
-        m_targets.emplace_back();
+    auto &card_targets = get_current_card_targets();
+    int index = std::max(0, int(m_targets.size()) - 1);
+
+    auto cur_target = card_targets[index].target;
+    if (!m_targets.empty() && m_targets[index].size() >= num_targets(cur_target)) {
+        ++index;
+        cur_target = card_targets[index].target;
     }
 
     card_view *as_deck_card = target.card ? m_game->find_card(target.card->id) : nullptr;
     bool from_hand = std::ranges::find(target.player->hand, as_deck_card) != target.player->hand.end();
 
-    if (std::ranges::all_of(enums::enum_values_v<target_type>
+    if (!std::ranges::all_of(enums::enum_values_v<target_type>
         | std::views::filter([&](target_type value) {
-            return bool(cur_target() & value);
+            return bool(cur_target & value);
         }), [&](target_type value) {
             switch (value) {
             case target_type::card:
@@ -420,30 +402,29 @@ void target_finder::add_card_target(target_pair target) {
             case target_type::cube_slot: return as_deck_card && as_deck_card->color == card_color_type::orange;
             default: return false;
             }
-        }))
-    {
-        if (bool(cur_target() & target_type::card)) {
-            if (std::ranges::none_of(m_targets, [&](const auto &vec) {
-                return std::ranges::find(vec, target.card, &target_pair::card) != vec.end();
-            })) {
-                auto &l = m_targets.back();
-                l.push_back(target);
-                if (l.size() == num_targets()) {
-                    handle_auto_targets();
-                }
-            }
-        } else if (bool(cur_target() & target_type::cube_slot)) {
-            int ncubes = std::ranges::count_if(m_selected_cubes,
-                [card = target.card](const cube_widget *cube) {
-                    return cube->owner == card;
-                });
-            if (ncubes < target.card->cubes.size()) {
-                m_targets.back().push_back(target);
-                m_selected_cubes.push_back(*(target.card->cubes.rbegin() + ncubes));
+        })) return;
+    
+    if (bool(cur_target & target_type::card)) {
+        if (std::ranges::none_of(m_targets, [&](const auto &vec) {
+            return std::ranges::find(vec, target.card, &target_pair::card) != vec.end();
+        }) && target.card != m_playing_card && target.card != m_modifier) {
+            auto &l = index >= m_targets.size()
+                ? m_targets.emplace_back()
+                : m_targets.back();
+            l.push_back(target);
+            if (l.size() == num_targets(cur_target)) {
                 handle_auto_targets();
             }
-        } else {
-            m_targets.pop_back();
+        }
+    } else if (bool(cur_target & target_type::cube_slot)) {
+        int ncubes = std::ranges::count(m_selected_cubes, target.card, &cube_widget::owner);
+        if (ncubes < target.card->cubes.size()) {
+            auto &l = index >= m_targets.size()
+                ? m_targets.emplace_back()
+                : m_targets.back();
+            l.push_back(target);
+            m_selected_cubes.push_back(*(target.card->cubes.rbegin() + ncubes));
+            handle_auto_targets();
         }
     }
 }
@@ -474,8 +455,7 @@ void target_finder::add_player_targets(const std::vector<target_pair> &targets) 
         auto &cur_target = card_targets[m_targets.size()];
         if (bool(cur_target.target & (target_type::player | target_type::dead))) {
             m_targets.emplace_back(targets);
-            add_action<game_action_type::play_card>(make_play_card_args());
-            clear_targets();
+            send_play_card();
         }
     } else {
         auto &card_targets = get_current_card_targets();
@@ -503,7 +483,7 @@ void target_finder::handle_virtual_card(const virtual_card_update &args) {
     handle_auto_targets();
 }
 
-play_card_args target_finder::make_play_card_args() {
+void target_finder::send_play_card() {
     play_card_args ret;
     if (m_virtual) {
         ret.card_id = m_virtual->id;
@@ -531,5 +511,6 @@ play_card_args target_finder::make_play_card_args() {
             }
         }
     }
-    return ret;
+    add_action<game_action_type::play_card>(std::move(ret));
+    clear_targets();
 }

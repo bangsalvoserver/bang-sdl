@@ -45,6 +45,8 @@ namespace banggame {
             return *it;
         } else if (auto it = std::ranges::find(m_table, card_id, &deck_card::id); it != m_table.end()) {
             return *it;
+        } else if (auto it = std::ranges::find(m_characters, card_id, &character::id); it != m_characters.end()) {
+            return *it;
         } else {
             throw game_error("server.find_card: ID non trovato");
         }
@@ -394,12 +396,10 @@ namespace banggame {
     }
 
     void player::do_play_card(int card_id, bool is_response, const std::vector<play_card_target> &targets) {
-        card *card_ptr = nullptr;
-        bool is_character = false;
+        deck_card *card_ptr = nullptr;
         bool is_virtual = false;
         if (auto it = std::ranges::find(m_characters, card_id, &character::id); it != m_characters.end()) {
             card_ptr = &*it;
-            is_character = true;
         } else if (auto it = std::ranges::find(m_hand, card_id, &deck_card::id); it != m_hand.end()) {
             auto &moved = m_game->move_to(std::move(*it), card_pile_type::discard_pile);
             card_ptr = &moved;
@@ -445,8 +445,7 @@ namespace banggame {
             if (m_virtual) {
                 return target->immune_to(m_virtual->second);
             }
-            if (is_character) return false;
-            return target->immune_to(*static_cast<deck_card*>(card_ptr));
+            return target->immune_to(*card_ptr);
         };
 
         int initial_belltower = m_belltower;

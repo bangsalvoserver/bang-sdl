@@ -61,3 +61,7 @@ target_link_libraries(bangserver bang_cards)
 if(WIN32)
     target_link_options(bangserver PRIVATE -mconsole)
 endif()
+
+if(TESTING_CHARACTER)
+    target_compile_definitions(bangserver PRIVATE TESTING_CHARACTER="${TESTING_CHARACTER}")
+endif()

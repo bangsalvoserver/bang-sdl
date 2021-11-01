@@ -45,11 +45,11 @@ namespace banggame {
     struct deck_card : card {
         card_suit_type suit = card_suit_type::none;
         card_value_type value = card_value_type::none;
-        card_color_type color;
+        card_color_type color = card_color_type::none;
         bool inactive = false;
     };
 
-    struct character : card {
+    struct character : deck_card {
         character_type type = character_type::none;
         int max_hp;
     };

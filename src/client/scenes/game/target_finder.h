@@ -77,7 +77,7 @@ namespace banggame {
 
         std::vector<card_target_data> &get_current_card_targets();
 
-        play_card_args make_play_card_args();
+        void send_play_card();
         
     private:
         game_scene *m_game;

@@ -156,14 +156,17 @@ void game_scene::handle_event(const sdl::event &event) {
                 handle_card_click(mouse_pt);
             }
             break;
-        case SDL_BUTTON_RIGHT:
+        case SDL_BUTTON_MIDDLE:
             find_overlay(mouse_pt);
+            break;
+        case SDL_BUTTON_RIGHT:
+            m_target.clear_targets();
             break;
         }
         break;
     }
     case SDL_MOUSEBUTTONUP:
-        if (event.button.button == SDL_BUTTON_RIGHT) {
+        if (event.button.button == SDL_BUTTON_MIDDLE) {
             m_overlay = nullptr;
         }
         break;
