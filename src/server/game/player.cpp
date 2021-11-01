@@ -45,6 +45,8 @@ namespace banggame {
             return *it;
         } else if (auto it = std::ranges::find(m_table, card_id, &deck_card::id); it != m_table.end()) {
             return *it;
+        } else if (auto it = std::ranges::find(m_characters, card_id, &character::id); it != m_characters.end()) {
+            return *it;
         } else {
             throw game_error("server.find_card: ID non trovato");
         }
@@ -327,7 +329,7 @@ namespace banggame {
                     }
                 },
                 [&](enums::enum_constant<play_card_target_type::target_card>, const std::vector<target_card_id> &args) {
-                    if (!bool(e.target() & target_type::card)) return false;
+                    if (!bool(e.target() & (target_type::card | target_type::cube_slot))) return false;
                     if (bool(e.target() & target_type::everyone)) {
                         if (!std::ranges::all_of(m_game->m_players | std::views::filter(&player::alive), [&](int player_id) {
                             bool found = std::ranges::find(args, player_id, &target_card_id::player_id) != args.end();
@@ -394,12 +396,10 @@ namespace banggame {
     }
 
     void player::do_play_card(int card_id, bool is_response, const std::vector<play_card_target> &targets) {
-        card *card_ptr = nullptr;
-        bool is_character = false;
+        deck_card *card_ptr = nullptr;
         bool is_virtual = false;
         if (auto it = std::ranges::find(m_characters, card_id, &character::id); it != m_characters.end()) {
             card_ptr = &*it;
-            is_character = true;
         } else if (auto it = std::ranges::find(m_hand, card_id, &deck_card::id); it != m_hand.end()) {
             auto &moved = m_game->move_to(std::move(*it), card_pile_type::discard_pile);
             card_ptr = &moved;
@@ -445,8 +445,7 @@ namespace banggame {
             if (m_virtual) {
                 return target->immune_to(m_virtual->second);
             }
-            if (is_character) return false;
-            return target->immune_to(*static_cast<deck_card*>(card_ptr));
+            return target->immune_to(*card_ptr);
         };
 
         int initial_belltower = m_belltower;
@@ -455,19 +454,19 @@ namespace banggame {
             add_gold(-card_ptr->cost);
         }
         
-        auto effect_it = targets.begin();
-        auto &effects = is_response ? card_ptr->responses : card_ptr->effects;
-        for (auto &e : effects) {
+        auto *effects_ptr = is_response ? &card_ptr->responses : &card_ptr->effects;
+        auto effect_it = effects_ptr->begin();
+        for (auto &t : targets) {
             enums::visit_indexed(util::overloaded{
                 [&](enums::enum_constant<play_card_target_type::target_none>) {
-                    e.on_play(card_id, this);
+                    effect_it->on_play(card_id, this);
                 },
                 [&](enums::enum_constant<play_card_target_type::target_player>, const std::vector<target_player_id> &args) {
                     for (const auto &target : args) {
                         auto *p = m_game->get_player(target.player_id);
                         if (p != this && check_immunity(p)) continue;
                         m_current_card_targets.emplace(card_id, target.player_id);
-                        e.on_play(card_id, this, p);
+                        effect_it->on_play(card_id, this, p);
                     }
                 },
                 [&](enums::enum_constant<play_card_target_type::target_card>, const std::vector<target_card_id> &args) {
@@ -476,13 +475,17 @@ namespace banggame {
                         if (p != this && check_immunity(p)) continue;
                         m_current_card_targets.emplace(card_id, target.player_id);
                         if (target.from_hand && p != this) {
-                            e.on_play(card_id, this, p, p->random_hand_card().id);
+                            effect_it->on_play(card_id, this, p, p->random_hand_card().id);
                         } else {
-                            e.on_play(card_id, this, p, target.card_id);
+                            effect_it->on_play(card_id, this, p, target.card_id);
                         }
                     }
                 }
-            }, *effect_it++);
+            }, t);
+            if (++effect_it == effects_ptr->end()) {
+                effects_ptr = &card_ptr->optionals;
+                effect_it = effects_ptr->end();
+            }
         }
 
         m_game->queue_event<event_type::on_effect_end>(this);

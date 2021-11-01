@@ -41,7 +41,7 @@ namespace banggame {
             if (json_effect.isMember("target")) {
                 effect.target = enums::flags_from_string<target_type>(json_effect["target"].asString());
                 if (effect.target != enums::flags_none<target_type>
-                    && !bool(effect.target & (target_type::card | target_type::player | target_type::dead))) {
+                    && !bool(effect.target & (target_type::card | target_type::player | target_type::dead | target_type::cube_slot))) {
                     throw invalid_effect("Invalid target: " + json_effect["target"].asString());
                 }
             }

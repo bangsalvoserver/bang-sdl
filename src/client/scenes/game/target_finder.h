@@ -25,23 +25,40 @@ namespace banggame {
         return lut[enums::indexof(type)];
     };
 
-    class target_finder {
+    struct target_pair {
+        player_view *player;
+        card_widget *card;
+    };
+
+    struct target_status {
+        card_widget *m_playing_card = nullptr;
+        card_widget *m_modifier = nullptr;
+
+        std::vector<std::vector<target_pair>> m_targets;
+        std::vector<cube_widget *> m_selected_cubes;
+
+        play_card_flags m_flags = enums::flags_none<play_card_flags>;
+
+        std::optional<card_view> m_virtual;
+    };
+
+    class target_finder : private target_status {
     public:
         target_finder(game_scene *parent) : m_game(parent) {}
         
         void render(sdl::renderer &renderer);
 
         play_card_flags get_flags() const {
-            return m_play_card_args.flags;
+            return m_flags;
         }
 
         void on_click_main_deck();
         void on_click_selection_card(card_view *card);
         void on_click_shop_card(card_view *card);
-        void on_click_table_card(int player_id, card_view *card);
-        void on_click_hand_card(int player_id, card_view *card);
-        void on_click_character(int player_id, character_card *card);
-        void on_click_player(int player_id);
+        void on_click_table_card(player_view *player, card_view *card);
+        void on_click_hand_card(player_view *player, card_view *card);
+        void on_click_character(player_view *player, character_card *card);
+        void on_click_player(player_view *player);
 
         void on_click_sell_beer();
         void on_click_discard_black();
@@ -53,19 +70,17 @@ namespace banggame {
     private:
         bool verify_modifier(card_widget *card);
 
-        void handle_auto_targets(bool is_response);
-        void add_card_target(bool is_response, const target_card_id &target);
-        void add_character_target(bool is_response, const target_card_id &target);
-        void add_player_targets(bool is_response, const std::vector<target_player_id> &targets);
+        void handle_auto_targets();
+        void add_card_target(target_pair target);
+        void add_character_target(target_pair target);
+        void add_player_targets( const std::vector<target_pair> &targets);
 
-        std::vector<card_target_data> &get_current_card_targets(bool is_response);
+        std::vector<card_target_data> &get_current_card_targets();
+
+        void send_play_card();
         
     private:
         game_scene *m_game;
-
-        play_card_args m_play_card_args;
-        std::vector<card_widget *> m_highlights;
-        std::optional<card_view> m_virtual;
 
         template<game_action_type T, typename ... Ts>
         void add_action(Ts && ... args);

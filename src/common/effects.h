@@ -239,6 +239,22 @@ namespace banggame {
         void on_play(int origin_card_id, player *origin);
     };
 
+    struct effect_flintlock : card_effect {
+        void on_play(int origin_card_id, player *origin);
+    };
+
+    struct effect_duck : card_effect {
+        void on_play(int origin_card_id, player *origin);
+    };
+
+    struct effect_squaw_destroy : card_effect {
+        void on_play(int origin_card_id, player *origin, player *target, int card_id);
+    };
+
+    struct effect_squaw : card_effect {
+        void on_play(int origin_card_id, player *origin);
+    };
+
 }
 
 #endif

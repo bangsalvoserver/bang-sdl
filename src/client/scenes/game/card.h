@@ -63,8 +63,11 @@ namespace banggame {
 
         void render(sdl::renderer &renderer, bool skip_if_animating = true);
 
+        const sdl::rect get_rect() const { return m_rect; }
+
     private:
         static sdl::texture cube_texture;
+        sdl::rect m_rect;
     };
 
     class card_widget : public card_info {
@@ -136,6 +139,10 @@ namespace banggame {
     };
 
     struct player_view {
+        int id;
+        
+        explicit player_view(int id) : id(id) {}
+
         int hp = 0;
         int gold = 0;
         bool dead = false;

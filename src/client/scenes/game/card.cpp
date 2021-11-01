@@ -118,10 +118,10 @@ namespace banggame {
 
     void cube_widget::render(sdl::renderer &renderer, bool skip_if_animating) {
         if (!skip_if_animating || !animating) {
-            sdl::rect rect = cube_texture.get_rect();
-            rect.x = pos.x - rect.w / 2;
-            rect.y = pos.y - rect.h / 2;
-            cube_texture.render(renderer, rect);
+            m_rect = cube_texture.get_rect();
+            m_rect.x = pos.x - m_rect.w / 2;
+            m_rect.y = pos.y - m_rect.h / 2;
+            cube_texture.render(renderer, m_rect);
         }
     }
 
