@@ -116,11 +116,13 @@ namespace banggame {
 
     sdl::texture cube_widget::cube_texture{sdl::surface(card_resources["cube"])};
 
-    void cube_widget::render(sdl::renderer &renderer) {
-        sdl::rect rect = cube_texture.get_rect();
-        rect.x = pos.x - rect.w / 2;
-        rect.y = pos.y - rect.h / 2;
-        cube_texture.render(renderer, rect);
+    void cube_widget::render(sdl::renderer &renderer, bool skip_if_animating) {
+        if (!skip_if_animating || !animating) {
+            sdl::rect rect = cube_texture.get_rect();
+            rect.x = pos.x - rect.w / 2;
+            rect.y = pos.y - rect.h / 2;
+            cube_texture.render(renderer, rect);
+        }
     }
 
     void card_widget::set_pos(const sdl::point &new_pos) {
@@ -143,6 +145,10 @@ namespace banggame {
         rect.x += rect.w * (1.f - wscale) * 0.5f;
         rect.w *= wscale;
         SDL_RenderCopyEx(renderer.get(), tex.get_texture(renderer), nullptr, &rect, rotation, nullptr, SDL_FLIP_NONE);
+
+        for (auto *cube : cubes) {
+            cube->render(renderer);
+        }
     }
 
     void player_view::set_position(sdl::point pos, bool flipped) {

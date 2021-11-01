@@ -27,6 +27,10 @@ namespace sizes {
     constexpr int cube_pile_size = 25;
     constexpr int cube_pile_xoffset = 70;
 
+    constexpr int cube_xdiff = -20;
+    constexpr int cube_ydiff = -25;
+    constexpr int cube_yoff = 12;
+
     constexpr int turn_indicator_border = 5;
     constexpr int request_indicator_border = 10;
 

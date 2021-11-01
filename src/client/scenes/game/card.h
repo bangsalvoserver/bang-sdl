@@ -57,9 +57,11 @@ namespace banggame {
         int id;
         sdl::point pos;
 
+        bool animating = false;
+
         cube_widget(int id) : id(id) {}
 
-        void render(sdl::renderer &renderer);
+        void render(sdl::renderer &renderer, bool skip_if_animating = true);
 
     private:
         static sdl::texture cube_texture;

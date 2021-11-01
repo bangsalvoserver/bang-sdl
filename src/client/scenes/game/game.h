@@ -3,10 +3,10 @@
 
 #include "../scene_base.h"
 
-#include "common/requests.h"
-
 #include "animation.h"
 #include "game_ui.h"
+
+#include "target_finder.h"
 
 #include <list>
 #include <optional>
@@ -63,37 +63,13 @@ namespace banggame {
         
         void pop_update();
 
-        template<game_action_type T, typename ... Ts>
-        void add_action(Ts && ... args);
-
-        void add_pass_action();
-        void add_resolve_action();
-
         void move_player_views();
 
         void handle_card_click(const sdl::point &mouse_pt);
         void find_overlay(const sdl::point &mouse_pt);
 
-        void on_click_main_deck();
-        void on_click_selection_card(card_view *card);
-        void on_click_shop_card(card_view *card);
-        void on_click_table_card(int player_id, card_view *card);
-        void on_click_hand_card(int player_id, card_view *card);
-        void on_click_character(int player_id, character_card *card);
-        void on_click_player(int player_id);
-
-        void on_click_sell_beer();
-        void on_click_discard_black();
-
-        bool verify_modifier(card_widget *card);
-
-        void handle_auto_targets(bool is_response);
-        void add_card_target(bool is_response, const target_card_id &target);
-        void add_character_target(bool is_response, const target_card_id &target);
-        void add_player_targets(bool is_response, const std::vector<target_player_id> &targets);
-        void clear_targets();
-
         game_ui m_ui;
+        target_finder m_target;
 
         std::list<game_update> m_pending_updates;
         std::list<animation> m_animations;
@@ -112,11 +88,14 @@ namespace banggame {
         std::map<int, player_view> m_players;
         std::map<int, cube_widget> m_cubes;
 
-        std::optional<card_view> m_virtual;
-
         card_widget *m_overlay = nullptr;
+        
+        int m_player_own_id = 0;
+        int m_playing_id = 0;
+        
+        std::default_random_engine rng;
 
-        std::vector<card_target_data> &get_current_card_targets(bool is_response);
+        request_view m_current_request;
 
         card_view *find_card(int id) {
             if (auto it = m_cards.find(id); it != m_cards.end()) {
@@ -144,17 +123,8 @@ namespace banggame {
             return nullptr;
         }
 
-        int m_player_own_id = 0;
-        int m_playing_id = 0;
-        
-        std::default_random_engine rng;
-
-        play_card_args m_play_card_args;
-        std::vector<card_widget *> m_highlights;
-
-        request_view m_current_request;
-
         friend class game_ui;
+        friend class target_finder;
     };
 
 }
