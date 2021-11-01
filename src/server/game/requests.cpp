@@ -48,6 +48,7 @@ namespace banggame {
         if (args.pile == card_pile_type::player_hand && args.player_id == target->id) {
             target->m_game->pop_request();
             target->discard_card(args.card_id);
+            target->m_game->queue_event<event_type::on_effect_end>(target);
         }
     }
 
