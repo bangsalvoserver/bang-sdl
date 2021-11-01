@@ -1437,7 +1437,8 @@
             ],
             "optional": [
                 {
-                    "class": "pay_cube"
+                    "class": "pay_cube",
+                    "target": "cube_slot self"
                 },
                 {
                     "class": "flintlock"
@@ -1462,7 +1463,8 @@
             "optional_repeatable": true,
             "optional": [
                 {
-                    "class": "pay_cube"
+                    "class": "pay_cube",
+                    "target": "cube_slot self"
                 },
                 {
                     "target": "player notself new_target",
@@ -1553,7 +1555,7 @@
             "effects": [
                 {
                     "target": "table card",
-                    "class": "destroy",
+                    "class": "squaw_destroy",
                     "escapable": true
                 }
             ],

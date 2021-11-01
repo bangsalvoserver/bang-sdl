@@ -25,6 +25,9 @@ namespace banggame {
             if (json_card.isMember("responses")) {
                 out.responses = make_effects_from_json<effect_holder>(json_card["responses"]);
             }
+            if (json_card.isMember("optional")) {
+                out.optionals = make_effects_from_json<effect_holder>(json_card["optional"]);
+            }
         } catch (const invalid_effect &e) {
             throw std::runtime_error(out.name + ": " + e.what());
         }
@@ -42,6 +45,9 @@ namespace banggame {
         }
         if (json_card.isMember("discard_if_two_players")) {
             out.discard_if_two_players = json_card["discard_if_two_players"].asBool();
+        }
+        if (json_card.isMember("optional_repeatable")) {
+            out.optional_repeatable = json_card["optional_repeatable"].asBool();
         }
         if (json_card.isMember("modifier")) {
             out.modifier = enums::from_string<card_modifier_type>(json_card["modifier"].asString());

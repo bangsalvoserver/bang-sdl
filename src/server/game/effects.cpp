@@ -430,8 +430,8 @@ namespace banggame {
 
     void effect_doublebarrel::on_play(int origin_card_id, player *origin) {
         origin->add_bang_mod([=](request_bang &req) {
-            if (auto it = std::ranges::find(origin->m_game->m_discards | std::views::reverse, req.origin_card_id, &deck_card::id);
-                it != origin->m_game->m_discards.rend() && it->suit == card_suit_type::diamonds) {
+            auto it = std::ranges::find(origin->m_game->m_discards | std::views::reverse, req.origin_card_id, &deck_card::id);
+            if (it->suit == card_suit_type::diamonds) {
                 req.unavoidable = true;
             }
         });
@@ -439,11 +439,9 @@ namespace banggame {
 
     void effect_thunderer::on_play(int origin_card_id, player *origin) {
         origin->add_bang_mod([=](request_bang &req) {
-            if (auto it = std::ranges::find(origin->m_game->m_discards | std::views::reverse, req.origin_card_id, &deck_card::id);
-                it != origin->m_game->m_discards.rend()) {
-                origin->add_to_hand(std::move(*it));
-                origin->m_game->m_discards.erase(it.base());
-            }
+            auto it = std::ranges::find(origin->m_game->m_discards | std::views::reverse, req.origin_card_id, &deck_card::id);
+            origin->add_to_hand(std::move(*it));
+            origin->m_game->m_discards.erase(it.base());
         });
     }
 
@@ -466,6 +464,44 @@ namespace banggame {
             req.cleanup_function = [=]{
                 p->m_game->enable_table_cards(p->id);
             };
+        });
+    }
+
+    void effect_flintlock::on_play(int origin_card_id, player *p) {
+        p->m_game->add_event<event_type::on_missed>(origin_card_id, [=](player *origin, player *target, bool is_bang) {
+            if (origin == p) {
+                auto it = std::ranges::find(origin->m_game->m_discards | std::views::reverse, origin_card_id, &deck_card::id);
+                origin->m_game->move_to(std::move(*it), card_pile_type::player_hand, true, origin);
+                origin->m_game->m_discards.erase(it.base());
+            }
+        });
+        p->m_game->top_request().get<request_type::bang>().cleanup_function = [=]{
+            p->m_game->remove_events(origin_card_id);
+        };
+    }
+
+    void effect_duck::on_play(int origin_card_id, player *origin) {
+        auto it = std::ranges::find(origin->m_game->m_discards | std::views::reverse, origin_card_id, &deck_card::id);
+        origin->m_game->move_to(std::move(*it), card_pile_type::player_hand, true, origin);
+        origin->m_game->m_discards.erase(it.base());
+    }
+
+    void effect_squaw_destroy::on_play(int origin_card_id, player *origin, player *target, int card_id) {
+        effect_destroy e;
+        e.escapable = escapable;
+        e.on_play(origin_card_id, origin, target, card_id);
+        args = card_id;
+    }
+
+    void effect_squaw::on_play(int origin_card_id, player *origin) {
+        origin->m_game->queue_event<event_type::delayed_action>([=]{
+            auto it = std::ranges::find(origin->m_game->m_discards | std::views::reverse, origin_card_id, &deck_card::id);
+            auto &squaw_destroy = std::ranges::find(it->effects, effect_type::squaw_destroy, &effect_holder::enum_index)
+                ->get<effect_type::squaw_destroy>();
+            it = std::ranges::find(origin->m_game->m_discards | std::views::reverse, squaw_destroy.args, &deck_card::id);
+            origin->m_game->move_to(std::move(*it), card_pile_type::player_hand, true, origin);
+            origin->m_game->m_discards.erase(it.base());
+            squaw_destroy.args = 0;
         });
     }
 

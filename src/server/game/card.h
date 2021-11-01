@@ -15,6 +15,7 @@ namespace banggame {
         card_expansion_type expansion;
         std::vector<effect_holder> effects;
         std::vector<effect_holder> responses;
+        std::vector<effect_holder> optionals;
         std::vector<equip_holder> equips;
         card_modifier_type modifier = card_modifier_type::none;
         std::string name;
@@ -23,6 +24,7 @@ namespace banggame {
         int max_usages = 0;
         bool playable_offturn = false;
         bool discard_if_two_players = false;
+        bool optional_repeatable = false;
 
         int buy_cost = 0;
         int cost = 0;

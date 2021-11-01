@@ -188,10 +188,15 @@ void target_finder::on_click_character(player_view *player, character_card *card
     if (m_game->m_current_request.target_id == m_game->m_player_own_id && m_game->m_current_request.type != request_type::none) {
         if (is_picking_request(m_game->m_current_request.type)) {
             add_action<game_action_type::pick_card>(card_pile_type::player_character, player->id, card->id);
-        } else if (!m_playing_card && player->id == m_game->m_player_own_id) {
-            m_playing_card = card;
-            m_flags |= play_card_flags::response;
-            handle_auto_targets();
+        } else if (player->id == m_game->m_player_own_id) {
+            if (!m_playing_card) {
+                m_playing_card = card;
+                m_flags |= play_card_flags::response;
+                handle_auto_targets();
+            } else {
+                m_flags |= play_card_flags::response;
+                add_character_target(target_pair{player, card});
+            }
         }
     } else if (card->playable_offturn && !m_playing_card && player->id == m_game->m_player_own_id) {
         m_playing_card = card;
@@ -434,16 +439,25 @@ void target_finder::add_character_target(target_pair target) {
     
     auto &card_targets = get_current_card_targets();
     auto &cur_target = card_targets[m_targets.size()];
-    if (bool(cur_target.target & target_type::cube_slot)) {
-        character_card *card = nullptr;
-        for (auto &p : m_game->m_players | std::views::values) {
-            if (&p.m_characters.front() == target.card) {
-                card = &p.m_characters.front();
-                break;
-            }
+    if (!bool(cur_target.target & target_type::cube_slot)) return;
+
+    character_card *card = nullptr;
+    for (auto &p : m_game->m_players | std::views::values) {
+        if (&p.m_characters.front() == target.card) {
+            card = &p.m_characters.front();
+            break;
         }
-        if (card) {
+    }
+    if (!card) return;
+
+    if(bool(cur_target.target & target_type::card)) {
+        m_targets.emplace_back(std::vector{target});
+        handle_auto_targets();
+    } else {
+        int ncubes = std::ranges::count(m_selected_cubes, card, &cube_widget::owner);
+        if (ncubes < card->cubes.size()) {
             m_targets.emplace_back(std::vector{target});
+            m_selected_cubes.push_back(*(card->cubes.rbegin() + ncubes));
             handle_auto_targets();
         }
     }
