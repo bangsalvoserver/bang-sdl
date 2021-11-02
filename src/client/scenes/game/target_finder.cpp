@@ -36,6 +36,20 @@ void target_finder::render(sdl::renderer &renderer) {
     }
 }
 
+void target_finder::on_click_pass_turn() {
+    add_action<game_action_type::pass_turn>();
+}
+
+void target_finder::on_click_resolve() {
+    if (!m_playing_card && !m_modifier) {
+        add_action<game_action_type::resolve>();
+    } else if (m_playing_card && !bool(m_flags & play_card_flags::equipping)) {
+        if ((m_targets.size() - get_current_card_targets().size()) % m_playing_card->optional_targets.size() == 0) {
+            send_play_card();
+        }
+    }
+}
+
 void target_finder::on_click_main_deck() {
     if (m_game->m_current_request.target_id == m_game->m_player_own_id && is_picking_request(m_game->m_current_request.type)) {
         add_action<game_action_type::pick_card>(card_pile_type::main_deck);
@@ -259,8 +273,6 @@ bool target_finder::verify_modifier(card_widget *card) {
     }
 }
 
-
-
 std::vector<card_target_data> &target_finder::get_current_card_targets() {
     assert(!bool(m_flags & play_card_flags::equipping));
 
@@ -278,6 +290,15 @@ std::vector<card_target_data> &target_finder::get_current_card_targets() {
     } else {
         return card->targets;
     }
+}
+
+card_target_data &target_finder::get_target_at(int index) {
+    auto &targets = get_current_card_targets();
+    if (index < targets.size()) {
+        return targets[index];
+    }
+
+    return m_playing_card->optional_targets[(index - targets.size()) % m_playing_card->optional_targets.size()];
 }
 
 void target_finder::handle_auto_targets() {
@@ -334,10 +355,26 @@ void target_finder::handle_auto_targets() {
         clear_targets();
     } else {
         auto target_it = targets.begin() + m_targets.size();
-        for (; target_it != targets.end(); ++target_it) {
-            if (!do_handle_target(target_it->target)) break;
+        auto target_end = targets.end();
+        if (target_it >= target_end && !m_playing_card->optional_targets.empty()) {
+            int diff = m_targets.size() - targets.size();
+            target_it = m_playing_card->optional_targets.begin() + (diff % m_playing_card->optional_targets.size());
+            target_end = m_playing_card->optional_targets.end();
         }
-        if (target_it == targets.end()) {
+        while (true) {
+            if (target_it == target_end) {
+                if (m_playing_card->optional_targets.empty()
+                    || (target_end == m_playing_card->optional_targets.end() && !m_playing_card->optional_repeatable)) {
+                    break;
+                }
+                target_it = m_playing_card->optional_targets.begin();
+                target_end = m_playing_card->optional_targets.end();
+            }
+            if (!do_handle_target(target_it->target)) break;
+            ++target_it;
+        }
+        if (target_it == target_end
+            && (m_playing_card->optional_targets.empty() || !m_playing_card->optional_repeatable)) {
             send_play_card();
         }
     }
@@ -375,10 +412,10 @@ void target_finder::add_card_target(target_pair target) {
     auto &card_targets = get_current_card_targets();
     int index = std::max(0, int(m_targets.size()) - 1);
 
-    auto cur_target = card_targets[index].target;
+    auto cur_target = get_target_at(index).target;
     if (!m_targets.empty() && m_targets[index].size() >= num_targets(cur_target)) {
         ++index;
-        cur_target = card_targets[index].target;
+        cur_target = get_target_at(index).target;
     }
 
     card_view *as_deck_card = target.card ? m_game->find_card(target.card->id) : nullptr;
@@ -438,7 +475,7 @@ void target_finder::add_character_target(target_pair target) {
     if (bool(m_flags & play_card_flags::equipping)) return;
     
     auto &card_targets = get_current_card_targets();
-    auto &cur_target = card_targets[m_targets.size()];
+    auto &cur_target = get_target_at(m_targets.size());
     if (!bool(cur_target.target & target_type::cube_slot)) return;
 
     character_card *card = nullptr;
@@ -473,7 +510,7 @@ void target_finder::add_player_targets(const std::vector<target_pair> &targets) 
         }
     } else {
         auto &card_targets = get_current_card_targets();
-        auto &cur_target = card_targets[m_targets.size()];
+        auto &cur_target = get_target_at(m_targets.size());
         if (bool(cur_target.target & (target_type::player | target_type::dead))) {
             m_targets.emplace_back(targets);
             handle_auto_targets();

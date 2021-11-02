@@ -460,8 +460,9 @@ namespace banggame {
             add_gold(-card_ptr->cost);
         }
         
-        auto *effects_ptr = is_response ? &card_ptr->responses : &card_ptr->effects;
-        auto effect_it = effects_ptr->begin();
+        auto &effects = is_response ? card_ptr->responses : card_ptr->effects;
+        auto effect_it = effects.begin();
+        auto effect_end = effects.end();
         for (auto &t : targets) {
             enums::visit_indexed(util::overloaded{
                 [&](enums::enum_constant<play_card_target_type::target_none>) {
@@ -488,9 +489,9 @@ namespace banggame {
                     }
                 }
             }, t);
-            if (++effect_it == effects_ptr->end()) {
-                effects_ptr = &card_ptr->optionals;
-                effect_it = effects_ptr->end();
+            if (++effect_it == effect_end) {
+                effect_it = card_ptr->optionals.begin();
+                effect_end = card_ptr->optionals.end();
             }
         }
 

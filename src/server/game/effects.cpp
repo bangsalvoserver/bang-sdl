@@ -471,8 +471,10 @@ namespace banggame {
         p->m_game->add_event<event_type::on_missed>(origin_card_id, [=](player *origin, player *target, bool is_bang) {
             if (origin == p) {
                 auto it = std::ranges::find(origin->m_game->m_discards | std::views::reverse, origin_card_id, &deck_card::id);
-                origin->m_game->move_to(std::move(*it), card_pile_type::player_hand, true, origin);
-                origin->m_game->m_discards.erase(it.base());
+                if (it != origin->m_game->m_discards.rend()) {
+                    origin->m_game->move_to(std::move(*it), card_pile_type::player_hand, true, origin);
+                    origin->m_game->m_discards.erase(it.base());
+                }
             }
         });
         p->m_game->top_request().get<request_type::bang>().cleanup_function = [=]{
