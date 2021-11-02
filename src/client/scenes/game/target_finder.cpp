@@ -43,7 +43,7 @@ void target_finder::on_click_pass_turn() {
 void target_finder::on_click_resolve() {
     if (!m_playing_card && !m_modifier) {
         add_action<game_action_type::resolve>();
-    } else if (m_playing_card && !bool(m_flags & play_card_flags::equipping)) {
+    } else if (m_playing_card && !bool(m_flags & play_card_flags::equipping) && !get_optional_targets().empty()) {
         if ((m_targets.size() - get_current_card_targets().size()) % get_optional_targets().size() == 0) {
             send_play_card();
         }
