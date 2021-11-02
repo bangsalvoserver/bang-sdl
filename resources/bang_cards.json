@@ -1728,10 +1728,10 @@
             ],
             "responses": [
                 {
-                    "class": "pay_cube"
+                    "class": "bush"
                 },
                 {
-                    "class": "bush"
+                    "class": "pay_cube"
                 }
             ]
         },
