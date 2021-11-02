@@ -101,18 +101,18 @@ namespace banggame {
     }
 
     void effect_el_gringo::on_equip(player *p, int card_id) {
-        p->m_game->add_event<event_type::on_hit>(card_id, [p](player *origin, player *target, int damage, bool is_bang) {
+        p->m_game->add_event<event_type::on_hit>(card_id, [=](player *origin, player *target, int damage, bool is_bang) {
             if (origin && p == target && p->m_game->m_playing != p) {
                 while(damage-- && !origin->m_hand.empty()) {
                     target->steal_card(origin, origin->random_hand_card().id);
                 }
-                target->m_game->queue_event<event_type::on_effect_end>(p);
+                target->m_game->queue_event<event_type::on_effect_end>(p, card_id);
             }
         });
     }
 
     void effect_suzy_lafayette::on_equip(player *p, int card_id) {
-        p->m_game->add_event<event_type::on_effect_end>(card_id, [p](player *origin) {
+        p->m_game->add_event<event_type::on_effect_end>(card_id, [p](player *origin, int card_id) {
             if (p->m_hand.empty()) {
                 p->m_game->draw_card_to(card_pile_type::player_hand, p);
             }
@@ -358,7 +358,7 @@ namespace banggame {
         if (args.pile == card_pile_type::player_hand && args.player_id == target->id) {
             target->m_game->pop_request();
             origin->steal_card(target, args.card_id);
-            target->m_game->queue_event<event_type::on_effect_end>(origin);
+            target->m_game->queue_event<event_type::on_effect_end>(origin, origin_card_id);
         }
     }
 

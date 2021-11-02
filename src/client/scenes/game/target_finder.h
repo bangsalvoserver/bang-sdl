@@ -60,6 +60,8 @@ namespace banggame {
         void on_click_character(player_view *player, character_card *card);
         void on_click_player(player_view *player);
 
+        void on_click_pass_turn();
+        void on_click_resolve();
         void on_click_sell_beer();
         void on_click_discard_black();
 
@@ -76,6 +78,7 @@ namespace banggame {
         void add_player_targets( const std::vector<target_pair> &targets);
 
         std::vector<card_target_data> &get_current_card_targets();
+        card_target_data &get_target_at(int index);
 
         void send_play_card();
         

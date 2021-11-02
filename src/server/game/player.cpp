@@ -273,8 +273,18 @@ namespace banggame {
         if (c.cost > m_gold) throw game_error("Non hai abbastanza pepite");
         if (c.max_usages != 0 && c.usages >= c.max_usages) throw game_error("Azione non valida");
 
-        if (effects.size() != targets.size()) throw game_error("Target non validi");
-        if (!std::ranges::all_of(effects, [&, it = targets.begin()] (const effect_holder &e) mutable {
+        int diff = targets.size() - effects.size();
+        if (c.optional_repeatable) {
+            if (diff % c.optionals.size() != 0) throw game_error("Target non validi");
+        } else {
+            if (diff != 0 && diff != c.optionals.size()) throw game_error("Target non validi");
+        }
+        if (!std::ranges::all_of(targets, [&, it = effects.begin(), end = effects.end()] (const play_card_target &target) mutable {
+            const effect_holder &e = *it++;
+            if (it == end) {
+                it = c.optionals.begin();
+                end = c.optionals.end();
+            }
             return enums::visit_indexed(util::overloaded{
                 [&](enums::enum_constant<play_card_target_type::target_none>) {
                     if (!e.can_play(c.id, this)) return false;
@@ -320,7 +330,7 @@ namespace banggame {
                                 case target_type::attacker: return !m_game->m_requests.empty() && m_game->top_request().origin() == target;
                                 case target_type::new_target: return is_new_target(m_current_card_targets, c.id, target->id);
                                 case target_type::fanning_target: {
-                                    player *prev_target = m_game->get_player((it - 2)->get<play_card_target_type::target_player>().front().player_id);
+                                    player *prev_target = m_game->get_player(targets.front().get<play_card_target_type::target_player>().front().player_id);
                                     return player_in_range(prev_target, target, 1) && target != prev_target;
                                 }
                                 default: return false;
@@ -362,10 +372,6 @@ namespace banggame {
                                 case target_type::maxdistance: return player_in_range(this, target, e.args() + m_range_mod);
                                 case target_type::attacker: return !m_game->m_requests.empty() && m_game->top_request().origin() == target;
                                 case target_type::new_target: return is_new_target(m_current_card_targets, c.id, target->id);
-                                case target_type::fanning_target: {
-                                    player *prev_target = m_game->get_player((it - 2)->get<play_card_target_type::target_player>().front().player_id);
-                                    return player_in_range(prev_target, target, 1);
-                                }
                                 case target_type::table: return !args.front().from_hand;
                                 case target_type::hand: return args.front().from_hand;
                                 case target_type::blue: return target->find_card(args.front().card_id).color == card_color_type::blue;
@@ -391,7 +397,7 @@ namespace banggame {
                             });
                     }
                 }
-            }, *it++);
+            }, target);
         })) throw game_error("Azione non valida");
     }
 
@@ -454,8 +460,9 @@ namespace banggame {
             add_gold(-card_ptr->cost);
         }
         
-        auto *effects_ptr = is_response ? &card_ptr->responses : &card_ptr->effects;
-        auto effect_it = effects_ptr->begin();
+        auto &effects = is_response ? card_ptr->responses : card_ptr->effects;
+        auto effect_it = effects.begin();
+        auto effect_end = effects.end();
         for (auto &t : targets) {
             enums::visit_indexed(util::overloaded{
                 [&](enums::enum_constant<play_card_target_type::target_none>) {
@@ -482,13 +489,13 @@ namespace banggame {
                     }
                 }
             }, t);
-            if (++effect_it == effects_ptr->end()) {
-                effects_ptr = &card_ptr->optionals;
-                effect_it = effects_ptr->end();
+            if (++effect_it == effect_end) {
+                effect_it = card_ptr->optionals.begin();
+                effect_end = card_ptr->optionals.end();
             }
         }
 
-        m_game->queue_event<event_type::on_effect_end>(this);
+        m_game->queue_event<event_type::on_effect_end>(this, card_id);
         if (is_virtual) {
             m_virtual.reset();
         }
@@ -512,7 +519,7 @@ namespace banggame {
             discard_card(c.id);
             add_gold(1);
             m_game->queue_event<event_type::on_play_beer>(this);
-            m_game->queue_event<event_type::on_effect_end>(this);
+            m_game->queue_event<event_type::on_effect_end>(this, args.card_id);
         } else if (bool(args.flags & play_card_flags::discard_black)) {
             if (m_num_drawn_cards < m_num_cards_to_draw) throw game_error("Devi pescare");
             if (args.targets.size() != 1
@@ -571,7 +578,7 @@ namespace banggame {
                     m_game->queue_request<request_type::add_cube>(0, nullptr, this);
                 }
                 m_game->queue_event<event_type::on_equip>(this, target, args.card_id);
-                m_game->queue_event<event_type::on_effect_end>(this);
+                m_game->queue_event<event_type::on_effect_end>(this, args.card_id);
                 break;
             }
             case card_color_type::green: {
@@ -582,7 +589,7 @@ namespace banggame {
                 m_hand.erase(card_it);
                 equip_card(std::move(removed));
                 m_game->queue_event<event_type::on_equip>(this, this, args.card_id);
-                m_game->queue_event<event_type::on_effect_end>(this);
+                m_game->queue_event<event_type::on_effect_end>(this, args.card_id);
                 m_game->add_public_update<game_update_type::tap_card>(removed.id, true);
                 break;
             }
@@ -595,7 +602,7 @@ namespace banggame {
                 m_hand.erase(card_it);
                 add_cubes(target->equip_card(std::move(removed)), 3);
                 m_game->queue_event<event_type::on_equip>(this, this, args.card_id);
-                m_game->queue_event<event_type::on_effect_end>(this);
+                m_game->queue_event<event_type::on_effect_end>(this, args.card_id);
             }
             }
         } else if (auto card_it = std::ranges::find(m_table, args.card_id, &deck_card::id); card_it != m_table.end()) {
@@ -643,7 +650,7 @@ namespace banggame {
                     while (m_game->m_shop_selection.size() < 3) {
                         m_game->draw_shop_card();
                     }
-                    m_game->queue_event<event_type::on_effect_end>(this);
+                    m_game->queue_event<event_type::on_effect_end>(this, args.card_id);
                     break;
                 }
             } else {

@@ -66,9 +66,11 @@ namespace banggame {
         (image, std::string)
         (targets, std::vector<card_target_data>)
         (response_targets, std::vector<card_target_data>)
+        (optional_targets, std::vector<card_target_data>)
         (equip_targets, std::vector<equip_target_data>)
         (modifier, card_modifier_type)
         (playable_offturn, bool)
+        (optional_repeatable, bool)
     )
 
     DEFINE_SERIALIZABLE(show_card_update,
