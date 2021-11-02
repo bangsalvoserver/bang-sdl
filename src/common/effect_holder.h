@@ -62,6 +62,7 @@ namespace banggame {
         (duck,          effect_duck)
         (squaw_destroy, effect_squaw_destroy)
         (squaw,         effect_squaw)
+        (bush,          effect_bush)
         (changewws,     effect_empty)
         (black_jack,    effect_black_jack)
         (kit_carlson,   effect_kit_carlson)
@@ -76,6 +77,7 @@ namespace banggame {
         (josh_mccloud,  effect_josh_mccloud)
         (frankie_canton, effect_frankie_canton)
         (red_ringo,     effect_red_ringo)
+        (al_preacher,   effect_al_preacher)
     )
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, equip_type,
@@ -98,6 +100,7 @@ namespace banggame {
         (gunbelt,       effect_gunbelt)
         (wanted,        effect_wanted)
         (bomb,          effect_bomb)
+        (bush,          effect_bush)
         (slab_the_killer, effect_slab_the_killer)
         (suzy_lafayette, effect_suzy_lafayette)
         (vulture_sam,   effect_vulture_sam)
@@ -122,6 +125,7 @@ namespace banggame {
         (julie_cutter,  effect_julie_cutter)
         (bloody_mary,   effect_bloody_mary)
         (red_ringo,     effect_red_ringo)
+        (al_preacher,   effect_al_preacher)
     )
 
     namespace detail {

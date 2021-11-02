@@ -441,8 +441,16 @@ namespace banggame {
         });
     }
 
+    void effect_lemonade_jim::on_equip(player *origin, int card_id) {
+        origin->m_game->add_event<event_type::on_play_beer>(card_id, [=](player *target) {
+            if (origin != target) {
+                target->m_game->queue_request<request_type::lemonade_jim>(card_id, nullptr, origin).players.push_back(target->id);
+            }
+        });
+    }
+
     bool effect_lemonade_jim::can_respond(player *target) const {
-        if (target->m_game->top_request_is(request_type::lemonade_jim)) {
+        if (target->m_game->top_request_is(request_type::lemonade_jim, target)) {
             const auto &vec = target->m_game->top_request().get<request_type::lemonade_jim>().players;
             return std::ranges::find(vec, target->id) == vec.end();
         }
@@ -453,13 +461,28 @@ namespace banggame {
         target->heal(1);
         target->m_game->top_request().get<request_type::lemonade_jim>().players.push_back(target->id);
     }
-
-    void effect_lemonade_jim::on_equip(player *origin, int card_id) {
-        origin->m_game->add_event<event_type::on_play_beer>(card_id, [=](player *target) {
-            if (origin != target) {
-                target->m_game->queue_request<request_type::lemonade_jim>(card_id, target, target).players.push_back(target->id);
+    
+    void effect_al_preacher::on_equip(player *p, int card_id) {
+        p->m_game->add_event<event_type::on_equip>(card_id, [=](player *origin, player *target, int equipped_card) {
+            if (p != origin) {
+                auto &card = target->find_card(equipped_card);
+                if (card.color == card_color_type::blue || card.color == card_color_type::orange) {
+                    p->m_game->queue_request<request_type::al_preacher>(card_id, nullptr, p);
+                }
             }
         });
+    }
+
+    bool effect_al_preacher::can_respond(player *target) const {
+        if (target->m_game->top_request_is(request_type::al_preacher, target)) {
+            const auto &vec = target->m_game->top_request().get<request_type::al_preacher>().players;
+            return std::ranges::find(vec, target->id) == vec.end();
+        }
+        return false;
+    }
+
+    void effect_al_preacher::on_play(int origin_card_id, player *target) {
+        target->m_game->top_request().get<request_type::al_preacher>().players.push_back(target->id);
     }
 
     void effect_dutch_will::on_play(int origin_card_id, player *target) {
