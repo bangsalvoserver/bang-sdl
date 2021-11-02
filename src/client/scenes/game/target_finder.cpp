@@ -447,9 +447,12 @@ void target_finder::add_card_target(target_pair target) {
         })) return;
     
     if (bool(cur_target & target_type::card)) {
-        if (std::ranges::none_of(m_targets, [&](const auto &vec) {
-            return std::ranges::find(vec, target.card, &target_pair::card) != vec.end();
-        }) && target.card != m_playing_card && target.card != m_modifier) {
+        if ((bool(cur_target & target_type::can_repeat)
+            || std::ranges::none_of(m_targets, [&](const auto &vec) {
+                return std::ranges::find(vec, target.card, &target_pair::card) != vec.end();
+            }))
+            && target.card != m_playing_card && target.card != m_modifier)
+        {
             auto &l = index >= m_targets.size()
                 ? m_targets.emplace_back()
                 : m_targets.back();
@@ -512,8 +515,16 @@ void target_finder::add_player_targets(const std::vector<target_pair> &targets) 
         auto &card_targets = get_current_card_targets();
         auto &cur_target = get_target_at(m_targets.size());
         if (bool(cur_target.target & (target_type::player | target_type::dead))) {
-            m_targets.emplace_back(targets);
-            handle_auto_targets();
+            if (!bool(cur_target.target & target_type::new_target)
+                || std::ranges::none_of(m_targets, [&](const auto &vec) {
+                    return std::ranges::any_of(vec, [&](const target_pair &pair) {
+                        return std::ranges::find(targets, pair.player, &target_pair::player) != targets.end();
+                    });
+                }))
+            {
+                m_targets.emplace_back(targets);
+                handle_auto_targets();
+            }
         }
     }
 }

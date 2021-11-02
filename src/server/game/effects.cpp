@@ -403,7 +403,7 @@ namespace banggame {
         } else {
             target->m_game->queue_event<event_type::delayed_action>([=]{
                 target->move_cubes(target->m_characters.front(), origin->m_characters.front(), 1);
-                for (auto &c : target->m_table) {
+                for (auto &c : target->m_table | std::views::reverse) {
                     if (c.color == card_color_type::orange) {
                         target->move_cubes(c, origin->m_characters.front(), 1);
                     }
