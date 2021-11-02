@@ -159,7 +159,7 @@ void target_finder::on_click_hand_card(player_view *player, card_view *card) {
             m_flags |= play_card_flags::response;
             add_card_target(target_pair{player, card});
         }
-    } else if (!m_playing_card && card->playable_offturn) {
+    } else if (!m_playing_card && card->playable_offturn && card->color == card_color_type::brown) {
         m_playing_card = card;
         m_flags |= play_card_flags::response | play_card_flags::offturn;
         handle_auto_targets();

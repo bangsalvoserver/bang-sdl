@@ -329,18 +329,27 @@ namespace banggame {
     }
     
     void game::draw_check_then(player *p, draw_check_function fun, bool force_one, bool invert_pop_req) {
-        if (force_one || p->m_num_checks == 1) {
+        m_current_check.emplace(std::move(fun), p, force_one, invert_pop_req);
+        do_draw_check();
+    }
+
+    void game::do_draw_check() {
+        if (m_current_check->force_one || m_current_check->origin->m_num_checks == 1) {
             auto &moved = draw_card_to(card_pile_type::discard_pile);
             auto suit = moved.suit;
             auto value = moved.value;
             queue_event<event_type::on_draw_check>(moved.id);
-            fun(suit, value);
+            instant_event<event_type::trigger_bush>(suit, value);
+            if (!m_current_check->no_auto_resolve) {
+                m_current_check->function(suit, value);
+                m_current_check.reset();
+            }
         } else {
-            m_pending_checks.push_back(std::move(fun));
-            for (int i=0; i<p->m_num_checks; ++i) {
+            for (int i=0; i<m_current_check->origin->m_num_checks; ++i) {
                 draw_card_to(card_pile_type::selection);
             }
-            add_request<request_type::check>(0, p, p).invert_pop_req = invert_pop_req;
+            add_request<request_type::check>(0, m_current_check->origin, m_current_check->origin)
+                .invert_pop_req = m_current_check->invert_pop_req;
         }
     }
 
@@ -355,8 +364,11 @@ namespace banggame {
         auto suit = moved.suit;
         auto value = moved.value;
         queue_event<event_type::on_draw_check>(moved.id);
-        m_pending_checks.front()(suit, value);
-        m_pending_checks.pop_front();
+        instant_event<event_type::trigger_bush>(suit, value);
+        if (!m_current_check->no_auto_resolve) {
+            m_current_check->function(suit, value);
+            m_current_check.reset();
+        }
     }
 
     void game::pop_request_noupdate() {

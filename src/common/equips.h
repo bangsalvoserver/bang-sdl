@@ -94,6 +94,13 @@ namespace banggame {
         void on_unequip(player *target, int card_id);
     };
 
+    struct effect_bush : event_based_effect {
+        void on_equip(player *target, int card_id);
+
+        bool can_respond(player *origin) const;
+        void on_play(int origin_card_id, player *target);
+    };
+
 }
 
 #endif

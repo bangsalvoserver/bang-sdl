@@ -519,4 +519,28 @@ namespace banggame {
         }
     }
 
+    void effect_bush::on_equip(player *origin, int card_id) {
+        origin->m_game->add_event<event_type::trigger_bush>(card_id, [=](card_suit_type suit, card_value_type value) {
+            auto &req = origin->m_game->add_request<request_type::bush>(card_id, origin, origin);
+            req.suit = suit;
+            req.value = value;
+            origin->m_game->m_current_check->no_auto_resolve = true;
+        });
+    }
+
+    bool effect_bush::can_respond(player *origin) const {
+        return origin->m_game->top_request_is(request_type::bush);
+    }
+
+    void effect_bush::on_play(int origin_card_id, player *origin) {
+        origin->m_game->pop_request();
+        origin->m_game->do_draw_check();
+    }
+
+    void timer_bush::on_finished() {
+        origin->m_game->pop_request();
+        origin->m_game->m_current_check->function(suit, value);
+        origin->m_game->m_current_check.reset();
+    }
+
 }

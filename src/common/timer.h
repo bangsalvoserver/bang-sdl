@@ -8,7 +8,7 @@ namespace banggame {
     struct player;
 
     struct timer_base : request_base {
-        int duration = 100;
+        int duration;
     };
 
     struct timer_lemonade_jim : timer_base {
@@ -20,8 +20,23 @@ namespace banggame {
     };
 
     struct timer_damaging : timer_base {
+        timer_damaging() {
+            duration = 100;
+        }
+        
         int damage;
         bool is_bang;
+
+        void on_finished();
+    };
+
+    struct timer_bush : timer_base {
+        timer_bush() {
+            duration = 150;
+        }
+        
+        card_suit_type suit;
+        card_value_type value;
 
         void on_finished();
     };

@@ -5,6 +5,7 @@
 #include <vector>
 #include <algorithm>
 #include <functional>
+#include <optional>
 #include <random>
 
 #include "card.h"
@@ -25,6 +26,7 @@ namespace banggame {
         (delayed_action,    std::function<void(std::function<void()>)>)
         (on_discard_pass,   std::function<void(player *origin, int card_id)>)
         (on_draw_check,     std::function<void(int card_id)>)
+        (trigger_bush,      std::function<void(card_suit_type, card_value_type)>)
         (on_discard_card,   std::function<void(player *origin, player *target, int card_id)>)
         (on_hit,            std::function<void(player *origin, player *target, int damage, bool is_bang)>)
         (on_missed,         std::function<void(player *origin, player *target, bool is_bang)>)
@@ -78,7 +80,14 @@ namespace banggame {
         std::list<game_log> m_logs;
 
         std::list<request_holder> m_requests;
-        std::list<draw_check_function> m_pending_checks;
+        struct draw_check_handler {
+            draw_check_function function;
+            player *origin = nullptr;
+            bool force_one = false;
+            bool invert_pop_req = false;
+            bool no_auto_resolve = false;
+        };
+        std::optional<draw_check_handler> m_current_check;
         std::multimap<int, event_function> m_event_handlers;
         std::list<event_args> m_pending_events;
         
@@ -246,6 +255,8 @@ namespace banggame {
         deck_card &draw_shop_card();
 
         void draw_check_then(player *p, draw_check_function fun, bool force_one = false, bool invert_pop_req = false);
+        void do_draw_check();
+
         void resolve_check(int card_id);
 
         void disable_table_cards(int player_id, bool disable_characters = false);
