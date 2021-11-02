@@ -273,8 +273,18 @@ namespace banggame {
         if (c.cost > m_gold) throw game_error("Non hai abbastanza pepite");
         if (c.max_usages != 0 && c.usages >= c.max_usages) throw game_error("Azione non valida");
 
-        if (effects.size() != targets.size()) throw game_error("Target non validi");
-        if (!std::ranges::all_of(effects, [&, it = targets.begin()] (const effect_holder &e) mutable {
+        int diff = targets.size() - effects.size();
+        if (c.optional_repeatable) {
+            if (diff % c.optionals.size() != 0) throw game_error("Target non validi");
+        } else {
+            if (diff != 0 && diff != c.optionals.size()) throw game_error("Target non validi");
+        }
+        if (!std::ranges::all_of(targets, [&, it = effects.begin(), end = effects.end()] (const play_card_target &target) mutable {
+            const effect_holder &e = *it++;
+            if (it == end) {
+                it = c.optionals.begin();
+                end = c.optionals.end();
+            }
             return enums::visit_indexed(util::overloaded{
                 [&](enums::enum_constant<play_card_target_type::target_none>) {
                     if (!e.can_play(c.id, this)) return false;
@@ -320,7 +330,7 @@ namespace banggame {
                                 case target_type::attacker: return !m_game->m_requests.empty() && m_game->top_request().origin() == target;
                                 case target_type::new_target: return is_new_target(m_current_card_targets, c.id, target->id);
                                 case target_type::fanning_target: {
-                                    player *prev_target = m_game->get_player((it - 2)->get<play_card_target_type::target_player>().front().player_id);
+                                    player *prev_target = m_game->get_player(targets.front().get<play_card_target_type::target_player>().front().player_id);
                                     return player_in_range(prev_target, target, 1) && target != prev_target;
                                 }
                                 default: return false;
@@ -362,10 +372,6 @@ namespace banggame {
                                 case target_type::maxdistance: return player_in_range(this, target, e.args() + m_range_mod);
                                 case target_type::attacker: return !m_game->m_requests.empty() && m_game->top_request().origin() == target;
                                 case target_type::new_target: return is_new_target(m_current_card_targets, c.id, target->id);
-                                case target_type::fanning_target: {
-                                    player *prev_target = m_game->get_player((it - 2)->get<play_card_target_type::target_player>().front().player_id);
-                                    return player_in_range(prev_target, target, 1);
-                                }
                                 case target_type::table: return !args.front().from_hand;
                                 case target_type::hand: return args.front().from_hand;
                                 case target_type::blue: return target->find_card(args.front().card_id).color == card_color_type::blue;
@@ -391,7 +397,7 @@ namespace banggame {
                             });
                     }
                 }
-            }, *it++);
+            }, target);
         })) throw game_error("Azione non valida");
     }
 
