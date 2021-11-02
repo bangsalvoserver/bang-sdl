@@ -78,6 +78,7 @@ namespace banggame {
         void add_player_targets( const std::vector<target_pair> &targets);
 
         std::vector<card_target_data> &get_current_card_targets();
+        std::vector<card_target_data> &get_optional_targets();
         card_target_data &get_target_at(int index);
 
         void send_play_card();

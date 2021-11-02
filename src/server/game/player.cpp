@@ -6,6 +6,8 @@
 #include "common/requests.h"
 #include "common/net_enums.h"
 
+#include <cassert>
+
 namespace banggame {
     using namespace enums::flag_operators;
 
@@ -246,10 +248,8 @@ namespace banggame {
         if (c.equips.empty()) return;
         if (tgts.size() != 1) throw game_error("Azione non valida");
         player *target = m_game->get_player(tgts.front().player_id);
-        if (!std::ranges::all_of(enums::enum_values_v<target_type>
-            | std::views::filter([type = c.equips.front().target()](target_type value) {
-                return bool(type & value);
-            }), [&](target_type value) {
+        if (!std::ranges::all_of(util::enum_flag_values(c.equips.front().target()),
+            [&](target_type value) {
                 switch (value) {
                 case target_type::player: return target->alive();
                 case target_type::dead: return !target->alive();
@@ -315,10 +315,8 @@ namespace banggame {
                     } else {
                         player *target = m_game->get_player(args.front().player_id);
                         if (!e.can_play(c.id, this, target)) return false;
-                        return std::ranges::all_of(enums::enum_values_v<target_type>
-                            | std::views::filter([type = e.target()](target_type value) {
-                                return bool(type & value);
-                            }), [&](target_type value) {
+                        return std::ranges::all_of(util::enum_flag_values(e.target()),
+                            [&](target_type value) {
                                 switch (value) {
                                 case target_type::player: return target->alive();
                                 case target_type::dead: return !target->alive();
@@ -359,10 +357,8 @@ namespace banggame {
                     } else {
                         player *target = m_game->get_player(args.front().player_id);
                         if (!e.can_play(c.id, this, target, args.front().card_id)) return false;
-                        return std::ranges::all_of(enums::enum_values_v<target_type>
-                            | std::views::filter([type = e.target()](target_type value) {
-                                return bool(type & value);
-                            }), [&](target_type value) {
+                        return std::ranges::all_of(util::enum_flag_values(e.target()),
+                            [&](target_type value) {
                                 switch (value) {
                                 case target_type::card: return target->alive() && target->find_card(args.front().card_id).color != card_color_type::black;
                                 case target_type::self: return target->id == id;
@@ -440,9 +436,7 @@ namespace banggame {
             }
         }
 
-        if (!card_ptr) {
-            throw game_error("server.do_play_card: ID non trovato");
-        }
+        assert(card_ptr != nullptr);
 
         if (card_ptr->max_usages != 0) {
             ++card_ptr->usages;

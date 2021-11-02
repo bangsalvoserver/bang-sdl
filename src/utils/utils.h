@@ -6,6 +6,7 @@
 #include "svstream.h"
 
 #include <iostream>
+#include <ranges>
 
 namespace util {
 
@@ -18,6 +19,14 @@ namespace util {
 
     template<typename ... Ts> struct overloaded : Ts ... { using Ts::operator() ...; };
     template<typename ... Ts> overloaded(Ts ...) -> overloaded<Ts ...>;
+
+    template<enums::flags_enum E>
+    auto enum_flag_values(E value) {
+        return enums::enum_values_v<E> | std::views::filter([=](E item) {
+            using namespace enums::flag_operators;
+            return bool(item & value);
+        });
+    }
 
 }
 

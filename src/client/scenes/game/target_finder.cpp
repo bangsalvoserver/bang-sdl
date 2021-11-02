@@ -44,7 +44,7 @@ void target_finder::on_click_resolve() {
     if (!m_playing_card && !m_modifier) {
         add_action<game_action_type::resolve>();
     } else if (m_playing_card && !bool(m_flags & play_card_flags::equipping)) {
-        if ((m_targets.size() - get_current_card_targets().size()) % m_playing_card->optional_targets.size() == 0) {
+        if ((m_targets.size() - get_current_card_targets().size()) % get_optional_targets().size() == 0) {
             send_play_card();
         }
     }
@@ -284,11 +284,20 @@ std::vector<card_target_data> &target_finder::get_current_card_targets() {
     } else if (m_modifier) {
         card = m_modifier;
     }
-    if (!card) throw std::runtime_error("Carta non trovata");
+    assert(card != nullptr);
+
     if (bool(m_flags & play_card_flags::response)) {
         return card->response_targets;
     } else {
         return card->targets;
+    }
+}
+
+std::vector<card_target_data> &target_finder::get_optional_targets() {
+    if (m_virtual) {
+        return m_virtual->optional_targets;
+    } else {
+        return m_playing_card->optional_targets;
     }
 }
 
@@ -298,7 +307,8 @@ card_target_data &target_finder::get_target_at(int index) {
         return targets[index];
     }
 
-    return m_playing_card->optional_targets[(index - targets.size()) % m_playing_card->optional_targets.size()];
+    auto &optionals = get_optional_targets();
+    return optionals[(index - targets.size()) % optionals.size()];
 }
 
 void target_finder::handle_auto_targets() {
@@ -351,30 +361,29 @@ void target_finder::handle_auto_targets() {
     };
 
     auto &targets = get_current_card_targets();
+    auto &optionals = get_optional_targets();
+    bool repeatable = m_virtual ? m_virtual->optional_repeatable : m_playing_card->optional_repeatable;
     if (targets.empty()) {
         clear_targets();
     } else {
         auto target_it = targets.begin() + m_targets.size();
         auto target_end = targets.end();
-        if (target_it >= target_end && !m_playing_card->optional_targets.empty()) {
+        if (target_it >= target_end && !optionals.empty()) {
             int diff = m_targets.size() - targets.size();
-            target_it = m_playing_card->optional_targets.begin() + (diff % m_playing_card->optional_targets.size());
-            target_end = m_playing_card->optional_targets.end();
+            target_it = optionals.begin() + (repeatable ? diff % optionals.size() : diff);
+            target_end = optionals.end();
         }
-        while (true) {
+        for(;;++target_it) {
             if (target_it == target_end) {
-                if (m_playing_card->optional_targets.empty()
-                    || (target_end == m_playing_card->optional_targets.end() && !m_playing_card->optional_repeatable)) {
+                if (optionals.empty() || (target_end == optionals.end() && !repeatable)) {
                     break;
                 }
-                target_it = m_playing_card->optional_targets.begin();
-                target_end = m_playing_card->optional_targets.end();
+                target_it = optionals.begin();
+                target_end = optionals.end();
             }
             if (!do_handle_target(target_it->target)) break;
-            ++target_it;
         }
-        if (target_it == target_end
-            && (m_playing_card->optional_targets.empty() || !m_playing_card->optional_repeatable)) {
+        if (target_it == target_end && (optionals.empty() || !repeatable)) {
             send_play_card();
         }
     }
@@ -396,17 +405,8 @@ void target_finder::add_card_target(target_pair target) {
             if (bool(type & target_type::notself)) {
                 --ret;
             }
-            return ret;
         }
         return ret;
-    };
-
-    auto is_bang = [](card_view *card) {
-        return card && !card->targets.empty() && card->targets.front().type == effect_type::bangcard;
-    };
-
-    auto is_missed = [](card_view *card) {
-        return card && !card->response_targets.empty() && card->response_targets.front().type == effect_type::missedcard;
     };
 
     auto &card_targets = get_current_card_targets();
@@ -421,16 +421,18 @@ void target_finder::add_card_target(target_pair target) {
     card_view *as_deck_card = target.card ? m_game->find_card(target.card->id) : nullptr;
     bool from_hand = std::ranges::find(target.player->hand, as_deck_card) != target.player->hand.end();
 
-    if (!std::ranges::all_of(enums::enum_values_v<target_type>
-        | std::views::filter([&](target_type value) {
-            return bool(cur_target & value);
-        }), [&](target_type value) {
+    bool is_bang = as_deck_card && !as_deck_card->targets.empty() && as_deck_card->targets.front().type == effect_type::bangcard;
+    bool is_missed = as_deck_card && !as_deck_card->response_targets.empty() && as_deck_card->response_targets.front().type == effect_type::missedcard;
+
+    if (!std::ranges::all_of(util::enum_flag_values(cur_target),
+        [&](target_type value) {
             switch (value) {
             case target_type::card:
             case target_type::everyone:
             case target_type::reachable:
             case target_type::maxdistance:
-            case target_type::new_target: return true;
+            case target_type::new_target:
+            case target_type::can_repeat: return true;
             case target_type::self: return target.player->id == m_game->m_player_own_id;
             case target_type::notself: return target.player->id != m_game->m_player_own_id;
             case target_type::notsheriff: return target.player && target.player->m_role.role != player_role::sheriff;
@@ -438,9 +440,9 @@ void target_finder::add_card_target(target_pair target) {
             case target_type::hand: return from_hand;
             case target_type::blue: return as_deck_card && as_deck_card->color == card_color_type::blue;
             case target_type::clubs: return as_deck_card && as_deck_card->suit == card_suit_type::clubs;
-            case target_type::bang: return is_bang(as_deck_card);
-            case target_type::missed: return is_missed(as_deck_card);
-            case target_type::bangormissed: return is_bang(as_deck_card) || is_missed(as_deck_card);
+            case target_type::bang: return is_bang;
+            case target_type::missed: return is_missed;
+            case target_type::bangormissed: return is_bang || is_missed;
             case target_type::cube_slot: return as_deck_card && as_deck_card->color == card_color_type::orange;
             default: return false;
             }
@@ -480,6 +482,7 @@ void target_finder::add_character_target(target_pair target) {
     auto &card_targets = get_current_card_targets();
     auto &cur_target = get_target_at(m_targets.size());
     if (!bool(cur_target.target & target_type::cube_slot)) return;
+    if (bool(cur_target.target & target_type::table)) return;
 
     character_card *card = nullptr;
     for (auto &p : m_game->m_players | std::views::values) {

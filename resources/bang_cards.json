@@ -2706,13 +2706,13 @@
             ],
             "effects": [
                 {
-                    "target": "cube_slot self card",
+                    "target": "cube_slot self table card",
                     "class": "red_ringo"
                 }
             ],
             "optional": [
                 {
-                    "target": "cube_slot self card can_repeat",
+                    "target": "cube_slot self table card can_repeat",
                     "class": "red_ringo"
                 }
             ]
