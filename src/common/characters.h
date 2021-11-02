@@ -183,6 +183,13 @@ namespace banggame {
         void on_play(int origin_card_id, player *origin, player *target, int card_id);
     };
 
+    struct effect_al_preacher : event_based_effect {
+        void on_equip(player *target, int card_id);
+
+        bool can_respond(player *target) const;
+        void on_play(int origin_card_id, player *origin);
+    };
+
 }
 
 #endif

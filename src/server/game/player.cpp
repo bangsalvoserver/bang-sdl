@@ -596,7 +596,7 @@ namespace banggame {
                 deck_card removed = std::move(*card_it);
                 m_hand.erase(card_it);
                 add_cubes(target->equip_card(std::move(removed)), 3);
-                m_game->queue_event<event_type::on_equip>(this, this, args.card_id);
+                m_game->queue_event<event_type::on_equip>(this, target, args.card_id);
                 m_game->queue_event<event_type::on_effect_end>(this, args.card_id);
             }
             }

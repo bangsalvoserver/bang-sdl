@@ -126,6 +126,7 @@ namespace banggame {
         (dutch_will,    request_dutch_will)
         (shop_choose_target, request_shop_choose_target)
         (lemonade_jim,  timer_lemonade_jim)
+        (al_preacher,   timer_al_preacher)
         (damaging,      timer_damaging)
         (bush,          timer_bush)
     )

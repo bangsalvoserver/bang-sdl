@@ -77,6 +77,7 @@ namespace banggame {
         (josh_mccloud,  effect_josh_mccloud)
         (frankie_canton, effect_frankie_canton)
         (red_ringo,     effect_red_ringo)
+        (al_preacher,   effect_al_preacher)
     )
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, equip_type,
@@ -124,6 +125,7 @@ namespace banggame {
         (julie_cutter,  effect_julie_cutter)
         (bloody_mary,   effect_bloody_mary)
         (red_ringo,     effect_red_ringo)
+        (al_preacher,   effect_al_preacher)
     )
 
     namespace detail {

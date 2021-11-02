@@ -19,6 +19,14 @@ namespace banggame {
         std::vector<int> players;
     };
 
+    struct timer_al_preacher : timer_base {
+        timer_al_preacher() {
+            duration = 200;
+        }
+
+        std::vector<int> players;
+    };
+
     struct timer_damaging : timer_base {
         timer_damaging() {
             duration = 100;
