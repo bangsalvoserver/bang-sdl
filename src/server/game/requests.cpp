@@ -48,7 +48,7 @@ namespace banggame {
         if (args.pile == card_pile_type::player_hand && args.player_id == target->id) {
             target->m_game->pop_request();
             target->discard_card(args.card_id);
-            target->m_game->queue_event<event_type::on_effect_end>(target);
+            target->m_game->queue_event<event_type::on_effect_end>(target, origin_card_id);
         }
     }
 
@@ -105,13 +105,13 @@ namespace banggame {
     void request_destroy::on_resolve() {
         target->m_game->pop_request();
         effect_destroy{}.on_play(origin_card_id, origin, target, card_id);
-        target->m_game->queue_event<event_type::on_effect_end>(origin);
+        target->m_game->queue_event<event_type::on_effect_end>(origin, origin_card_id);
     }
 
     void request_steal::on_resolve() {
         target->m_game->pop_request();
         effect_steal{}.on_play(origin_card_id, origin, target, card_id);
-        target->m_game->queue_event<event_type::on_effect_end>(origin);
+        target->m_game->queue_event<event_type::on_effect_end>(origin, origin_card_id);
     }
 
     void request_bandidos::on_pick(const pick_card_args &args) {

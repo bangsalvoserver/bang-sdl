@@ -487,22 +487,34 @@ namespace banggame {
     }
 
     void effect_squaw_destroy::on_play(int origin_card_id, player *origin, player *target, int card_id) {
+        std::ranges::find(
+            std::ranges::find(origin->m_game->m_discards | std::views::reverse, origin_card_id, &deck_card::id)->optionals,
+            effect_type::squaw, &effect_holder::enum_index)->get<effect_type::squaw>().args = card_id;
+
         effect_destroy e;
         e.escapable = escapable;
         e.on_play(origin_card_id, origin, target, card_id);
-        args = card_id;
     }
 
     void effect_squaw::on_play(int origin_card_id, player *origin) {
-        origin->m_game->queue_event<event_type::delayed_action>([=]{
-            auto it = std::ranges::find(origin->m_game->m_discards | std::views::reverse, origin_card_id, &deck_card::id);
-            auto &squaw_destroy = std::ranges::find(it->effects, effect_type::squaw_destroy, &effect_holder::enum_index)
-                ->get<effect_type::squaw_destroy>();
-            it = std::ranges::find(origin->m_game->m_discards | std::views::reverse, squaw_destroy.args, &deck_card::id);
+        int discarded_card_id = args;
+
+        auto it = std::ranges::find(origin->m_game->m_discards | std::views::reverse, discarded_card_id, &deck_card::id);
+        if (it != origin->m_game->m_discards.rend()) {
             origin->m_game->move_to(std::move(*it), card_pile_type::player_hand, true, origin);
             origin->m_game->m_discards.erase(it.base());
-            squaw_destroy.args = 0;
-        });
+        } else {
+            origin->m_game->add_event<event_type::post_discard_card>(origin_card_id, [=](player *target, int card_id) {
+                if (card_id == discarded_card_id) {
+                    origin->m_game->remove_events(origin_card_id);
+                    auto it = std::ranges::find(origin->m_game->m_discards | std::views::reverse, discarded_card_id, &deck_card::id);
+                    if (it != origin->m_game->m_discards.rend()) {
+                        origin->m_game->move_to(std::move(*it), card_pile_type::player_hand, true, origin);
+                        origin->m_game->m_discards.erase(it.base());
+                    }
+                }
+            });
+        }
     }
 
 }

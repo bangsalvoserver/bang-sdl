@@ -488,7 +488,7 @@ namespace banggame {
             }
         }
 
-        m_game->queue_event<event_type::on_effect_end>(this);
+        m_game->queue_event<event_type::on_effect_end>(this, card_id);
         if (is_virtual) {
             m_virtual.reset();
         }
@@ -512,7 +512,7 @@ namespace banggame {
             discard_card(c.id);
             add_gold(1);
             m_game->queue_event<event_type::on_play_beer>(this);
-            m_game->queue_event<event_type::on_effect_end>(this);
+            m_game->queue_event<event_type::on_effect_end>(this, args.card_id);
         } else if (bool(args.flags & play_card_flags::discard_black)) {
             if (m_num_drawn_cards < m_num_cards_to_draw) throw game_error("Devi pescare");
             if (args.targets.size() != 1
@@ -571,7 +571,7 @@ namespace banggame {
                     m_game->queue_request<request_type::add_cube>(0, nullptr, this);
                 }
                 m_game->queue_event<event_type::on_equip>(this, target, args.card_id);
-                m_game->queue_event<event_type::on_effect_end>(this);
+                m_game->queue_event<event_type::on_effect_end>(this, args.card_id);
                 break;
             }
             case card_color_type::green: {
@@ -582,7 +582,7 @@ namespace banggame {
                 m_hand.erase(card_it);
                 equip_card(std::move(removed));
                 m_game->queue_event<event_type::on_equip>(this, this, args.card_id);
-                m_game->queue_event<event_type::on_effect_end>(this);
+                m_game->queue_event<event_type::on_effect_end>(this, args.card_id);
                 m_game->add_public_update<game_update_type::tap_card>(removed.id, true);
                 break;
             }
@@ -595,7 +595,7 @@ namespace banggame {
                 m_hand.erase(card_it);
                 add_cubes(target->equip_card(std::move(removed)), 3);
                 m_game->queue_event<event_type::on_equip>(this, this, args.card_id);
-                m_game->queue_event<event_type::on_effect_end>(this);
+                m_game->queue_event<event_type::on_effect_end>(this, args.card_id);
             }
             }
         } else if (auto card_it = std::ranges::find(m_table, args.card_id, &deck_card::id); card_it != m_table.end()) {
@@ -643,7 +643,7 @@ namespace banggame {
                     while (m_game->m_shop_selection.size() < 3) {
                         m_game->draw_shop_card();
                     }
-                    m_game->queue_event<event_type::on_effect_end>(this);
+                    m_game->queue_event<event_type::on_effect_end>(this, args.card_id);
                     break;
                 }
             } else {
