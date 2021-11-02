@@ -85,6 +85,7 @@ namespace banggame {
         (fanning_target)
         (new_target)
         (cube_slot)
+        (can_repeat)
     )
 
     DEFINE_ENUM_IN_NS(banggame, card_pile_type,

@@ -2712,7 +2712,7 @@
             ],
             "optional": [
                 {
-                    "target": "cube_slot self card",
+                    "target": "cube_slot self card can_repeat",
                     "class": "red_ringo"
                 }
             ]

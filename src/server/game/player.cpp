@@ -392,6 +392,7 @@ namespace banggame {
                                 case target_type::cube_slot:
                                     return args.front().card_id == target->m_characters.front().id
                                         || target->find_card(args.front().card_id).color == card_color_type::orange;
+                                case target_type::can_repeat: return true;
                                 default: return false;
                                 }
                             });
