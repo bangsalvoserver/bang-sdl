@@ -58,7 +58,7 @@ server_message game_manager::pop_message() {
     return msg;
 }
 
-user *game_manager::find_user(const sdlnet::ip_address &addr) {
+game_user *game_manager::find_user(const sdlnet::ip_address &addr) {
     if (auto it = users.find(addr); it != users.end()) {
         return &it->second;
     } else {
@@ -66,7 +66,7 @@ user *game_manager::find_user(const sdlnet::ip_address &addr) {
     }
 }
 
-std::list<lobby>::iterator game_manager::find_lobby(const user *u) {
+std::list<lobby>::iterator game_manager::find_lobby(const game_user *u) {
     return std::ranges::find_if(m_lobbies, [&](const lobby &l) {
         return std::ranges::find(l.users, u, &lobby_user::user) != l.users.end();
     });
