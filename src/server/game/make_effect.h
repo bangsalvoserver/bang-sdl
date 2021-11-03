@@ -45,8 +45,8 @@ namespace banggame {
                     throw invalid_effect("Invalid target: " + json_effect["target"].asString());
                 }
             }
-            if (json_effect.isMember("escapable")) {
-                effect.escapable = json_effect["escapable"].asBool();
+            if (json_effect.isMember("escapable") && json_effect["escapable"].asBool()) {
+                effect.flags |= effect_flags::escapable;
             }
             ret.push_back(lut[enums::indexof(e)](effect));
         }

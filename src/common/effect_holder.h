@@ -78,6 +78,7 @@ namespace banggame {
         (frankie_canton, effect_frankie_canton)
         (red_ringo,     effect_red_ringo)
         (al_preacher,   effect_al_preacher)
+        (ms_abigail,    effect_ms_abigail)
     )
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, equip_type,
@@ -160,8 +161,12 @@ namespace banggame {
             return enums::visit(&card_effect::args, *this);
         };
 
-        bool escapable() const {
-            return enums::visit(&card_effect::escapable, *this);
+        effect_flags &flags() {
+            return enums::visit(&card_effect::flags, *this);
+        }
+
+        effect_flags flags() const {
+            return enums::visit(&card_effect::flags, *this);
         }
     };
 

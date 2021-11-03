@@ -11,16 +11,16 @@ namespace banggame {
     struct player;
 
     struct card_effect {
+        effect_flags flags = enums::flags_none<effect_flags>;
         target_type target = enums::flags_none<target_type>;
         int args = 0;
-        bool escapable = false;
     };
 
     struct request_base {
         int origin_card_id;
         player *origin;
         player *target;
-        bool escapable = false;
+        effect_flags flags = enums::flags_none<effect_flags>;
     };
     
     struct effect_bang : card_effect {
@@ -247,7 +247,7 @@ namespace banggame {
         void on_play(int origin_card_id, player *origin);
     };
 
-    struct effect_squaw_destroy : card_effect {
+    struct effect_squaw_destroy : effect_destroy {
         void on_play(int origin_card_id, player *origin, player *target, int card_id);
     };
 

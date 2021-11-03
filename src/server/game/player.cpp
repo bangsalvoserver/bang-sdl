@@ -153,6 +153,17 @@ namespace banggame {
             return card.color == card_color_type::orange && card.cubes.size() < 4;
         });
     }
+
+    bool player::can_escape(int card_id, effect_flags flags) const {
+        // hack per determinare se e' necessario attivare request di fuga
+        if (bool(flags & effect_flags::escapable)
+            && m_game->has_expansion(card_expansion_type::valleyofshadows)) return true;
+        auto it = std::ranges::find_if(m_characters, [](const auto &vec) {
+            return !vec.empty() && vec.front().enum_index() == effect_type::ms_abigail;
+        }, &character::responses);
+        return it != m_characters.end()
+            && it->responses.front().get<effect_type::ms_abigail>().can_escape(this, card_id, flags);
+    }
     
     void player::add_cubes(card &target, int ncubes) {
         for (;ncubes!=0 && !m_game->m_cubes.empty() && target.cubes.size() < 4; --ncubes) {
@@ -459,6 +470,7 @@ namespace banggame {
         auto effect_it = effects.begin();
         auto effect_end = effects.end();
         for (auto &t : targets) {
+            effect_it->flags() |= effect_flags::single_target & static_cast<effect_flags>(-(targets.size() == 1));
             enums::visit_indexed(util::overloaded{
                 [&](enums::enum_constant<play_card_target_type::target_none>) {
                     effect_it->on_play(card_id, this);
@@ -484,6 +496,7 @@ namespace banggame {
                     }
                 }
             }, t);
+            effect_it->flags() &= ~effect_flags::single_target;
             if (++effect_it == effect_end) {
                 effect_it = card_ptr->optionals.begin();
                 effect_end = card_ptr->optionals.end();

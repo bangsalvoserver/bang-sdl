@@ -167,9 +167,8 @@ namespace banggame {
         }
 
         template<request_type E>
-        auto &add_request(int origin_card_id, player *origin, player *target, bool escapable = false) {
-            auto &ret = m_requests.emplace_front(enums::enum_constant<E>{}, origin_card_id, origin, target).template get<E>();
-            ret.escapable = escapable;
+        auto &add_request(int origin_card_id, player *origin, player *target, effect_flags flags = enums::flags_none<effect_flags>) {
+            auto &ret = m_requests.emplace_front(enums::enum_constant<E>{}, origin_card_id, origin, target, flags).template get<E>();
 
             send_request_update();
 
@@ -185,9 +184,8 @@ namespace banggame {
         }
 
         template<request_type E>
-        auto &queue_request(int origin_card_id, player *origin, player *target, bool escapable = false) {
-            auto &ret = m_requests.emplace_back(enums::enum_constant<E>{}, origin_card_id, origin, target).template get<E>();
-            ret.escapable = escapable;
+        auto &queue_request(int origin_card_id, player *origin, player *target, effect_flags flags = enums::flags_none<effect_flags>) {
+            auto &ret = m_requests.emplace_back(enums::enum_constant<E>{}, origin_card_id, origin, target, flags).template get<E>();
 
             if (m_requests.size() == 1) {
                 send_request_update();

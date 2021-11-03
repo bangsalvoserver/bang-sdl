@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - 'alpha*'
+      - 'beta*'
+      - 'v*'
 
 env:
   BUILD_TYPE: Release
@@ -70,7 +72,7 @@ jobs:
           tag_name: ${{ github.ref }}
           release_name: ${{ github.ref }}
           draft: false
-          prerelease: true
+          prerelease: ${{contains(github.ref, 'alpha')}}
     
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1

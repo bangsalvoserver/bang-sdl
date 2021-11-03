@@ -2679,12 +2679,11 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Ms. Abigail",
             "image": "17_msabigail",
             "hp": 4,
             "expansion": "armedanddangerous",
-            "equip": [
+            "responses": [
                 {
                     "class": "ms_abigail"
                 }

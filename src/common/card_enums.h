@@ -88,6 +88,11 @@ namespace banggame {
         (can_repeat)
     )
 
+    DEFINE_ENUM_FLAGS_IN_NS(banggame, effect_flags,
+        (escapable)
+        (single_target)
+    )
+
     DEFINE_ENUM_IN_NS(banggame, card_pile_type,
         (player)
         (player_hand)

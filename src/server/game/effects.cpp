@@ -9,7 +9,7 @@ namespace banggame {
     using namespace enums::flag_operators;
 
     void effect_bang::on_play(int origin_card_id, player *origin, player *target) {
-        target->m_game->queue_request<request_type::bang>(origin_card_id, origin, target, escapable);
+        target->m_game->queue_request<request_type::bang>(origin_card_id, origin, target, flags);
     }
 
     void effect_bangcard::on_play(int origin_card_id, player *origin, player *target) {
@@ -73,11 +73,11 @@ namespace banggame {
     }
 
     void effect_indians::on_play(int origin_card_id, player *origin, player *target) {
-        target->m_game->queue_request<request_type::indians>(origin_card_id, origin, target, escapable);
+        target->m_game->queue_request<request_type::indians>(origin_card_id, origin, target, flags);
     }
 
     void effect_duel::on_play(int origin_card_id, player *origin, player *target) {
-        target->m_game->queue_request<request_type::duel>(origin_card_id, origin, target, escapable);
+        target->m_game->queue_request<request_type::duel>(origin_card_id, origin, target, flags);
     }
 
     bool effect_bangresponse::can_respond(player *origin) const {
@@ -160,8 +160,8 @@ namespace banggame {
     }
 
     void effect_destroy::on_play(int origin_card_id, player *origin, player *target, int card_id) {
-        if (escapable && origin != target && origin->m_game->has_expansion(card_expansion_type::valleyofshadows)) {
-            auto &req = target->m_game->queue_request<request_type::destroy>(origin_card_id, origin, target, true);
+        if (origin != target && target->can_escape(origin_card_id, flags)) {
+            auto &req = target->m_game->queue_request<request_type::destroy>(origin_card_id, origin, target, flags);
             req.card_id = card_id;
         } else {
             target->m_game->queue_event<event_type::on_discard_card>(origin, target, card_id);
@@ -172,8 +172,8 @@ namespace banggame {
     }
 
     void effect_steal::on_play(int origin_card_id, player *origin, player *target, int card_id) {
-        if (escapable && origin != target && origin->m_game->has_expansion(card_expansion_type::valleyofshadows)) {
-            auto &req = target->m_game->queue_request<request_type::steal>(origin_card_id, origin, target, true);
+        if (origin != target && target->can_escape(origin_card_id, flags)) {
+            auto &req = target->m_game->queue_request<request_type::steal>(origin_card_id, origin, target, flags);
             req.card_id = card_id;
         } else {
             target->m_game->queue_event<event_type::on_discard_card>(origin, target, card_id);
@@ -229,7 +229,7 @@ namespace banggame {
     }
 
     void effect_bandidos::on_play(int origin_card_id, player *origin, player *target) {
-        target->m_game->queue_request<request_type::bandidos>(origin_card_id, origin, target, escapable);
+        target->m_game->queue_request<request_type::bandidos>(origin_card_id, origin, target, flags);
     }
 
     void effect_tornado::on_play(int origin_card_id, player *origin, player *target) {
@@ -249,7 +249,7 @@ namespace banggame {
             next = origin->m_game->get_next_player(next);
             if (next == origin) return;
         } while (next->m_hand.empty());
-        origin->m_game->queue_request<request_type::poker>(origin_card_id, origin, next, escapable);
+        origin->m_game->queue_request<request_type::poker>(origin_card_id, origin, next, flags);
     }
 
     bool effect_saved::can_respond(player *origin) const {
@@ -274,7 +274,8 @@ namespace banggame {
     }
 
     bool effect_escape::can_respond(player *origin) const {
-        return !origin->m_game->m_requests.empty() && origin->m_game->top_request().escapable();
+        return !origin->m_game->m_requests.empty()
+            && bool(origin->m_game->top_request().flags() & effect_flags::escapable);
     }
 
     void effect_escape::on_play(int origin_card_id, player *origin) {
@@ -362,13 +363,13 @@ namespace banggame {
     }
 
     bool effect_pay_cube::can_play(int origin_card_id, player *origin, player *target, int card_id) const {
+        card *card = nullptr;
         if (card_id == target->m_characters.front().id) {
-            auto &card = target->m_characters.front();
-            return card.cubes.size() >= args;
+            card = &target->m_characters.front();
         } else {
-            auto &card = target->find_card(card_id);
-            return card.cubes.size() >= args;
+            card = &target->find_card(card_id);
         }
+        return card->cubes.size() >= std::max(1, args);
     }
 
     void effect_pay_cube::on_play(int origin_card_id, player *origin, player *target, int card_id) {
@@ -398,8 +399,8 @@ namespace banggame {
     }
     
     void effect_rust::on_play(int origin_card_id, player *origin, player *target) {
-        if (escapable && origin->m_game->has_expansion(card_expansion_type::valleyofshadows)) {
-            origin->m_game->queue_request<request_type::rust>(origin_card_id, origin, target).escapable = escapable;
+        if (target->can_escape(origin_card_id, flags)) {
+            origin->m_game->queue_request<request_type::rust>(origin_card_id, origin, target, flags);
         } else {
             target->m_game->queue_event<event_type::delayed_action>([=]{
                 target->move_cubes(target->m_characters.front(), origin->m_characters.front(), 1);
@@ -489,17 +490,15 @@ namespace banggame {
     }
 
     void effect_squaw_destroy::on_play(int origin_card_id, player *origin, player *target, int card_id) {
-        std::ranges::find(
-            std::ranges::find(origin->m_game->m_discards | std::views::reverse, origin_card_id, &deck_card::id)->optionals,
-            effect_type::squaw, &effect_holder::enum_index)->get<effect_type::squaw>().args = card_id;
+        args = card_id;
 
-        effect_destroy e;
-        e.escapable = escapable;
-        e.on_play(origin_card_id, origin, target, card_id);
+        effect_destroy::on_play(origin_card_id, origin, target, card_id);
     }
 
     void effect_squaw::on_play(int origin_card_id, player *origin) {
-        int discarded_card_id = args;
+        auto squaw_it = std::ranges::find(origin->m_game->m_discards | std::views::reverse, origin_card_id, &deck_card::id);
+        int discarded_card_id = std::ranges::find(squaw_it->effects,
+            effect_type::squaw_destroy, &effect_holder::enum_index)->get<effect_type::squaw_destroy>().args;
 
         auto it = std::ranges::find(origin->m_game->m_discards | std::views::reverse, discarded_card_id, &deck_card::id);
         if (it != origin->m_game->m_discards.rend()) {

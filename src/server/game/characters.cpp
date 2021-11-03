@@ -5,6 +5,8 @@
 #include "game.h"
 
 namespace banggame {
+    using namespace enums::flag_operators;
+
     void effect_slab_the_killer::on_equip(player *p, int card_id) {
         p->m_game->add_event<event_type::on_play_bang>(card_id, [p](player *target) {
             if (p == target) {
@@ -618,5 +620,31 @@ namespace banggame {
 
     void effect_red_ringo::on_play(int origin_card_id, player *origin, player *target, int card_id) {
         origin->move_cubes(origin->m_characters.front(), target->find_card(card_id), 1);
+    }
+
+    bool effect_ms_abigail::can_escape(const player *origin, int card_id, effect_flags flags) const {
+        if (!bool(flags & effect_flags::single_target)) return false;
+        auto card_it = std::ranges::find(origin->m_game->m_discards | std::views::reverse, card_id, &deck_card::id);
+        if (card_it != origin->m_game->m_discards.rend()) {
+            if (card_it->color != card_color_type::brown) return false;
+            switch (card_it->value) {
+            case card_value_type::value_J:
+            case card_value_type::value_Q:
+            case card_value_type::value_K:
+            case card_value_type::value_A:
+                return true;
+            default:
+                return false;
+            }
+        }
+        return false;
+    }
+
+    bool effect_ms_abigail::can_respond(player *origin) const {
+        return can_escape(origin, origin->m_game->top_request().origin_card_id(), origin->m_game->top_request().flags());
+    }
+
+    void effect_ms_abigail::on_play(int origin_card_id, player *origin) {
+        origin->m_game->pop_request();
     }
 }

@@ -91,6 +91,8 @@ namespace banggame {
         void drop_all_cubes(card &target);
 
         bool can_receive_cubes() const;
+
+        bool can_escape(int card_id, effect_flags flags) const;
         
         deck_card &add_to_hand(deck_card &&c);
         
