@@ -164,10 +164,16 @@ namespace banggame {
             auto &req = target->m_game->queue_request<request_type::destroy>(origin_card_id, origin, target, flags);
             req.card_id = card_id;
         } else {
-            target->m_game->queue_event<event_type::on_discard_card>(origin, target, card_id);
-            target->m_game->queue_event<event_type::delayed_action>([=]{
+            target->m_game->instant_event<event_type::on_discard_card>(origin, target, card_id);
+            auto effect_end_pos = std::ranges::find(target->m_game->m_pending_events, enums::indexof(event_type::on_effect_end), &event_args::index);
+            if (effect_end_pos == target->m_game->m_pending_events.end()) {
                 target->discard_card(card_id);
-            });
+            } else {
+                target->m_game->m_pending_events.emplace(effect_end_pos, std::in_place_index<enums::indexof(event_type::delayed_action)>,
+                [=]{
+                    target->discard_card(card_id);
+                });
+            }
         }
     }
 
@@ -176,10 +182,16 @@ namespace banggame {
             auto &req = target->m_game->queue_request<request_type::steal>(origin_card_id, origin, target, flags);
             req.card_id = card_id;
         } else {
-            target->m_game->queue_event<event_type::on_discard_card>(origin, target, card_id);
-            target->m_game->queue_event<event_type::delayed_action>([=]{
+            target->m_game->instant_event<event_type::on_discard_card>(origin, target, card_id);
+            auto effect_end_pos = std::ranges::find(target->m_game->m_pending_events, enums::indexof(event_type::on_effect_end), &event_args::index);
+            if (effect_end_pos == target->m_game->m_pending_events.end()) {
                 origin->steal_card(target, card_id);
-            });
+            } else {
+                target->m_game->m_pending_events.emplace(effect_end_pos, std::in_place_index<enums::indexof(event_type::delayed_action)>,
+                [=]{
+                    origin->steal_card(target, card_id);
+                });
+            }
         }
     }
 

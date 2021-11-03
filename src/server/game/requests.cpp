@@ -103,15 +103,13 @@ namespace banggame {
     }
 
     void request_destroy::on_resolve() {
-        target->m_game->pop_request();
         effect_destroy{}.on_play(origin_card_id, origin, target, card_id);
-        target->m_game->queue_event<event_type::on_effect_end>(origin, origin_card_id);
+        target->m_game->pop_request();
     }
 
     void request_steal::on_resolve() {
-        target->m_game->pop_request();
         effect_steal{}.on_play(origin_card_id, origin, target, card_id);
-        target->m_game->queue_event<event_type::on_effect_end>(origin, origin_card_id);
+        target->m_game->pop_request();
     }
 
     void request_bandidos::on_pick(const pick_card_args &args) {
