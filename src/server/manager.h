@@ -14,11 +14,11 @@
 
 #include "game/game.h"
 
-struct user : util::id_counter<user> {
+struct game_user : util::id_counter<game_user> {
     sdlnet::ip_address addr;
     std::string name;
 
-    user(sdlnet::ip_address addr, std::string name)
+    game_user(sdlnet::ip_address addr, std::string name)
         : addr(std::move(addr))
         , name(std::move(name)) {}
 };
@@ -26,13 +26,13 @@ struct user : util::id_counter<user> {
 class game_manager;
 
 struct lobby_user {
-    user *user;
+    game_user *user;
     banggame::player *controlling;
 };
 
 struct lobby : util::id_counter<lobby> {
     std::vector<lobby_user> users;
-    user *owner;
+    game_user *owner;
     std::string name;
     lobby_state state;
     banggame::card_expansion_type expansions;
@@ -83,8 +83,8 @@ public:
     void tick();
 
 private:
-    user *find_user(const sdlnet::ip_address &addr);
-    std::list<lobby>::iterator find_lobby(const user *u);
+    game_user *find_user(const sdlnet::ip_address &addr);
+    std::list<lobby>::iterator find_lobby(const game_user *u);
 
     void handle_message(MESSAGE_TAG(connect), const sdlnet::ip_address &addr, const connect_args &value);
     void handle_message(MESSAGE_TAG(lobby_list), const sdlnet::ip_address &addr);
@@ -97,7 +97,7 @@ private:
     void handle_message(MESSAGE_TAG(game_start), const sdlnet::ip_address &addr);
     void handle_message(MESSAGE_TAG(game_action), const sdlnet::ip_address &addr, const banggame::game_action &value);
 
-    std::map<sdlnet::ip_address, user> users;
+    std::map<sdlnet::ip_address, game_user> users;
     std::list<lobby> m_lobbies;
     std::list<server_message> m_out_queue;
 };

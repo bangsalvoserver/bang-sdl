@@ -5,14 +5,15 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(SDL2 REQUIRED SDL2 IMPORTED_TARGET)
+pkg_check_modules(SDL2 REQUIRED sdl2 IMPORTED_TARGET)
 pkg_check_modules(SDL2_net REQUIRED SDL2_net IMPORTED_TARGET)
 pkg_check_modules(SDL2_ttf REQUIRED SDL2_ttf IMPORTED_TARGET)
 pkg_check_modules(SDL2_image REQUIRED SDL2_image IMPORTED_TARGET)
 pkg_check_modules(SDL2_gfx REQUIRED SDL2_gfx IMPORTED_TARGET)
 
 find_package(Boost REQUIRED)
-find_package(jsoncpp REQUIRED)
+
+pkg_check_modules(jsoncpp REQUIRED jsoncpp IMPORTED_TARGET)
 
 set(bangclient_srcs
     src/client/main.cpp
@@ -48,7 +49,7 @@ include_directories(bangclient src)
 add_subdirectory(resources)
 
 add_executable(bangclient ${bangclient_srcs})
-target_link_libraries(bangclient PkgConfig::SDL2 PkgConfig::SDL2_net PkgConfig::SDL2_ttf PkgConfig::SDL2_image PkgConfig::SDL2_gfx jsoncpp_lib)
+target_link_libraries(bangclient PkgConfig::SDL2 PkgConfig::SDL2_net PkgConfig::SDL2_ttf PkgConfig::SDL2_image PkgConfig::SDL2_gfx PkgConfig::jsoncpp)
 target_link_libraries(bangclient resources_obj)
 add_dependencies(bangclient cards_pak)
 if(WIN32)
@@ -56,7 +57,7 @@ if(WIN32)
 endif()
 
 add_executable(bangserver ${bangserver_srcs})
-target_link_libraries(bangserver PkgConfig::SDL2_net jsoncpp_lib)
+target_link_libraries(bangserver PkgConfig::SDL2_net PkgConfig::jsoncpp)
 target_link_libraries(bangserver bang_cards)
 if(WIN32)
     target_link_options(bangserver PRIVATE -mconsole)
