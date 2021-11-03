@@ -35,6 +35,7 @@ namespace banggame {
         (on_play_hand_card, std::function<void(player *origin, int card_id)>)
         (post_discard_card, std::function<void(player *target, int card_id)>)
         (post_discard_orange_card, std::function<void(player *target, int card_id)>)
+        (on_play_card_end,  std::function<void(player *origin, int card_id)>)
         (on_effect_end,     std::function<void(player *origin, int card_id)>)
         (on_play_bang,      std::function<void(player *origin)>)
         (on_play_beer,      std::function<void(player *origin)>)

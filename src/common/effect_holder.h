@@ -61,7 +61,7 @@ namespace banggame {
         (flintlock,     effect_flintlock)
         (duck,          effect_duck)
         (squaw_destroy, effect_squaw_destroy)
-        (squaw,         effect_squaw)
+        (squaw_steal,   effect_squaw_steal)
         (bush,          effect_bush)
         (changewws,     effect_empty)
         (black_jack,    effect_black_jack)

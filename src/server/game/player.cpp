@@ -503,6 +503,7 @@ namespace banggame {
             }
         }
 
+        m_game->instant_event<event_type::on_play_card_end>(this, card_id);
         m_game->queue_event<event_type::on_effect_end>(this, card_id);
         if (is_virtual) {
             m_virtual.reset();

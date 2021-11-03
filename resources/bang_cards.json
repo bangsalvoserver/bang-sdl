@@ -1573,7 +1573,7 @@
                     "target": "cube_slot self"
                 },
                 {
-                    "class": "squaw"
+                    "class": "squaw_steal"
                 }
             ]
         },

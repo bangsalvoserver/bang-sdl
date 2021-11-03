@@ -247,11 +247,11 @@ namespace banggame {
         void on_play(int origin_card_id, player *origin);
     };
 
-    struct effect_squaw_destroy : effect_destroy {
+    struct effect_squaw_destroy : card_effect {
         void on_play(int origin_card_id, player *origin, player *target, int card_id);
     };
 
-    struct effect_squaw : card_effect {
+    struct effect_squaw_steal : card_effect {
         void on_play(int origin_card_id, player *origin);
     };
 

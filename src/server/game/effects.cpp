@@ -501,33 +501,38 @@ namespace banggame {
         origin->m_game->m_discards.erase(it.base());
     }
 
-    void effect_squaw_destroy::on_play(int origin_card_id, player *origin, player *target, int card_id) {
-        args = card_id;
+    struct squaw_handler {
+        int origin_card_id;
+        player *origin;
+        player *target;
+        int card_id;
+        effect_flags flags;
+        bool steal;
 
-        effect_destroy::on_play(origin_card_id, origin, target, card_id);
+        void operator()(player *p, int id) {
+            if (p == origin && id == origin_card_id) {
+                origin->m_game->remove_events(origin_card_id);
+                if (steal) {
+                    effect_steal e;
+                    e.flags = flags;
+                    e.on_play(origin_card_id, origin, target, card_id);
+                } else {
+                    effect_destroy e;
+                    e.flags = flags;
+                    e.on_play(origin_card_id, origin, target, card_id);
+                }
+            }
+        }
+    };
+
+    void effect_squaw_destroy::on_play(int origin_card_id, player *origin, player *target, int card_id) {
+        origin->m_game->add_event<event_type::on_play_card_end>(origin_card_id,
+            squaw_handler{origin_card_id, origin, target, card_id, flags, false});
     }
 
-    void effect_squaw::on_play(int origin_card_id, player *origin) {
-        auto squaw_it = std::ranges::find(origin->m_game->m_discards | std::views::reverse, origin_card_id, &deck_card::id);
-        int discarded_card_id = std::ranges::find(squaw_it->effects,
-            effect_type::squaw_destroy, &effect_holder::enum_index)->get<effect_type::squaw_destroy>().args;
-
-        auto it = std::ranges::find(origin->m_game->m_discards | std::views::reverse, discarded_card_id, &deck_card::id);
-        if (it != origin->m_game->m_discards.rend()) {
-            origin->m_game->move_to(std::move(*it), card_pile_type::player_hand, true, origin);
-            origin->m_game->m_discards.erase(it.base());
-        } else {
-            origin->m_game->add_event<event_type::post_discard_card>(origin_card_id, [=](player *target, int card_id) {
-                if (card_id == discarded_card_id) {
-                    origin->m_game->remove_events(origin_card_id);
-                    auto it = std::ranges::find(origin->m_game->m_discards | std::views::reverse, discarded_card_id, &deck_card::id);
-                    if (it != origin->m_game->m_discards.rend()) {
-                        origin->m_game->move_to(std::move(*it), card_pile_type::player_hand, true, origin);
-                        origin->m_game->m_discards.erase(it.base());
-                    }
-                }
-            });
-        }
+    void effect_squaw_steal::on_play(int origin_card_id, player *origin) {
+        origin->m_game->m_event_handlers.find(origin_card_id)->second
+            .get<event_type::on_play_card_end>().target<squaw_handler>()->steal = true;
     }
 
     void effect_bush::on_equip(player *origin, int card_id) {
