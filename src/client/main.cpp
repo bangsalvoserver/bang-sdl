@@ -10,6 +10,8 @@
 constexpr int window_width = 900;
 constexpr int window_height = 700;
 
+DECLARE_RESOURCE(bang_png)
+
 int main(int argc, char **argv) {
     sdl::initializer sdl_init(SDL_INIT_VIDEO);
     sdl::ttf_initializer sdl_ttf_init;
@@ -19,6 +21,9 @@ int main(int argc, char **argv) {
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
 
     sdl::window window("Bang!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, window_width, window_height, SDL_WINDOW_RESIZABLE);
+    sdl::surface window_icon(GET_RESOURCE(bang_png));
+    SDL_SetWindowIcon(window.get(), window_icon.get());
+
     sdl::renderer renderer(window, -1, SDL_RENDERER_ACCELERATED);
 
     game_manager mgr(std::string(SDL_GetPrefPath(nullptr, "bang-sdl")) + "config.json");
