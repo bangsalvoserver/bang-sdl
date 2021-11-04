@@ -32,7 +32,7 @@ namespace banggame {
 
     struct target_status {
         card_widget *m_playing_card = nullptr;
-        card_widget *m_modifier = nullptr;
+        std::vector<card_widget *> m_modifiers;
 
         std::vector<std::vector<target_pair>> m_targets;
         std::vector<cube_widget *> m_selected_cubes;
@@ -70,6 +70,7 @@ namespace banggame {
         void clear_targets();
     
     private:
+        void add_modifier(card_widget *card);
         bool verify_modifier(card_widget *card);
 
         void handle_auto_targets();

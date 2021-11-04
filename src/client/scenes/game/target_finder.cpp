@@ -15,8 +15,8 @@ void target_finder::add_action(Ts && ... args) {
 
 void target_finder::render(sdl::renderer &renderer) {
     renderer.set_draw_color(sdl::color{0xff, 0x0, 0x0, 0xff});
-    if (m_modifier) {
-        renderer.draw_rect(m_modifier->get_rect());
+    for (auto *card : m_modifiers) {
+        renderer.draw_rect(card->get_rect());
     }
     if (m_playing_card) {
         renderer.draw_rect(m_playing_card->get_rect());
@@ -41,7 +41,7 @@ void target_finder::on_click_pass_turn() {
 }
 
 void target_finder::on_click_resolve() {
-    if (!m_playing_card && !m_modifier) {
+    if (!m_playing_card && m_modifiers.empty()) {
         add_action<game_action_type::resolve>();
     } else if (m_playing_card && !bool(m_flags & play_card_flags::equipping) && !get_optional_targets().empty()) {
         if ((m_targets.size() - get_current_card_targets().size()) % get_optional_targets().size() == 0) {
@@ -128,10 +128,10 @@ void target_finder::on_click_table_card(player_view *player, card_view *card) {
         add_card_target(target_pair{player, card});
     } else if (m_game->m_playing_id == m_game->m_player_own_id) {
         if (!m_playing_card) {
-            if (player->id == m_game->m_player_own_id && !card->inactive && verify_modifier(card)) {
+            if (player->id == m_game->m_player_own_id && !card->inactive) {
                 if (card->modifier != card_modifier_type::none) {
-                    m_modifier = card;
-                } else {
+                    add_modifier(card);
+                } else if (verify_modifier(card)) {
                     m_playing_card = card;
                     handle_auto_targets();
                 }
@@ -168,11 +168,11 @@ void target_finder::on_click_hand_card(player_view *player, card_view *card) {
         add_card_target(target_pair{player, card});
     } else if (m_game->m_playing_id == m_game->m_player_own_id) {
         if (!m_playing_card) {
-            if (player->id == m_game->m_player_own_id && verify_modifier(card)) {
+            if (player->id == m_game->m_player_own_id) {
                 if (card->color == card_color_type::brown) {
                     if (card->modifier != card_modifier_type::none) {
-                        m_modifier = card;
-                    } else {
+                        add_modifier(card);
+                    } else if (verify_modifier(card)) {
                         m_playing_card = card;
                         handle_auto_targets();
                     }
@@ -180,7 +180,7 @@ void target_finder::on_click_hand_card(player_view *player, card_view *card) {
                     if (card->equip_targets.empty()
                         || card->equip_targets.front().target == enums::flags_none<target_type>
                         || bool(card->equip_targets.front().target & target_type::self)) {
-                        add_action<game_action_type::play_card>(card->id, 0, std::vector{
+                        add_action<game_action_type::play_card>(card->id, std::vector<int>{}, std::vector{
                             play_card_target{enums::enum_constant<play_card_target_type::target_player>{},
                             std::vector{target_player_id{player->id}}}
                         });
@@ -220,7 +220,7 @@ void target_finder::on_click_character(player_view *player, character_card *card
         if (!m_playing_card) {
             if (player->id == m_game->m_player_own_id && card->type != character_type::none) {
                 if (card->modifier != card_modifier_type::none) {
-                    m_modifier = card;
+                    add_modifier(card);
                 } else {
                     m_playing_card = card;
                     handle_auto_targets();
@@ -248,22 +248,30 @@ void target_finder::on_click_player(player_view *player) {
 }
 
 void target_finder::on_click_sell_beer() {
-    if (!m_modifier && !m_playing_card && m_game->m_playing_id == m_game->m_player_own_id) {
+    if (m_modifiers.empty() && !m_playing_card && m_game->m_playing_id == m_game->m_player_own_id) {
         m_flags ^= play_card_flags::sell_beer;
         m_flags &= ~(play_card_flags::discard_black);
     }
 }
 
 void target_finder::on_click_discard_black() {
-    if (!m_modifier && !m_playing_card && m_game->m_playing_id == m_game->m_player_own_id) {
+    if (m_modifiers.empty() && !m_playing_card && m_game->m_playing_id == m_game->m_player_own_id) {
         m_flags ^= play_card_flags::discard_black;
         m_flags &= ~(play_card_flags::sell_beer);
     }
 }
 
+void target_finder::add_modifier(card_widget *card) {
+    if (m_modifiers.empty() || std::ranges::find(m_modifiers, card->modifier, &card_widget::modifier) != m_modifiers.end()) {
+        if (std::ranges::find(m_modifiers, card) == m_modifiers.end()) {
+            m_modifiers.push_back(card);
+        }
+    }
+}
+
 bool target_finder::verify_modifier(card_widget *card) {
-    if (!m_modifier) return true;
-    switch (m_modifier->modifier) {
+    if (m_modifiers.empty()) return true;
+    switch (m_modifiers.front()->modifier) {
     case card_modifier_type::bangcard:
         return std::ranges::find(card->targets, effect_type::bangcard, &card_target_data::type) != card->targets.end();
     case card_modifier_type::discount:
@@ -281,8 +289,6 @@ std::vector<card_target_data> &target_finder::get_current_card_targets() {
         card = &*m_virtual;
     } else if (m_playing_card) {
         card = m_playing_card;
-    } else if (m_modifier) {
-        card = m_modifier;
     }
     assert(card != nullptr);
 
@@ -453,7 +459,8 @@ void target_finder::add_card_target(target_pair target) {
             || std::ranges::none_of(m_targets, [&](const auto &vec) {
                 return std::ranges::find(vec, target.card, &target_pair::card) != vec.end();
             }))
-            && target.card != m_playing_card && target.card != m_modifier)
+            && target.card != m_playing_card
+            && std::ranges::find(m_modifiers, target.card) == m_modifiers.end())
         {
             auto &l = index >= m_targets.size()
                 ? m_targets.emplace_back()
@@ -555,7 +562,9 @@ void target_finder::send_play_card() {
     } else {
         ret.card_id = m_playing_card ? m_playing_card->id : 0;
     }
-    ret.modifier_id = m_modifier ? m_modifier->id : 0;
+    for (card_widget *card : m_modifiers) {
+        ret.modifier_ids.push_back(card->id);
+    }
     ret.flags = m_flags;
 
     for (const auto &vec : m_targets) {

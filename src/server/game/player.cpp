@@ -236,20 +236,21 @@ namespace banggame {
             || origin->m_game->calc_distance(origin, target) <= distance;
     }
 
-    void player::verify_and_play_modifier(const card &c, int modifier_id) {
-        if (!modifier_id) return;
-        auto &mod_card = find_card(modifier_id);
-        if (mod_card.modifier != card_modifier_type::bangcard
-            || std::ranges::find(c.effects, effect_type::bangcard, &effect_holder::enum_index) == c.effects.end()) {
-            throw game_error("Azione non valida");
-        }
-        for (const auto &e : mod_card.effects) {
-            if (!e.can_play(modifier_id, this)) {
+    void player::verify_and_play_modifiers(const card &c, const std::vector<int> &modifier_ids) {
+        for (int id : modifier_ids) {
+            auto &mod_card = find_card(id);
+            if (mod_card.modifier != card_modifier_type::bangcard
+                || std::ranges::find(c.effects, effect_type::bangcard, &effect_holder::enum_index) == c.effects.end()) {
                 throw game_error("Azione non valida");
             }
+            for (const auto &e : mod_card.effects) {
+                if (!e.can_play(id, this)) {
+                    throw game_error("Azione non valida");
+                }
+            }
+            do_play_card(id, false, std::vector{mod_card.effects.size(),
+                play_card_target{enums::enum_constant<play_card_target_type::target_none>{}}});
         }
-        do_play_card(modifier_id, false, std::vector{mod_card.effects.size(),
-            play_card_target{enums::enum_constant<play_card_target_type::target_none>{}}});
     }
 
     void player::verify_equip_target(const card &c, const std::vector<play_card_target> &targets) {
@@ -547,7 +548,7 @@ namespace banggame {
             case character_type::active:
                 if (m_num_drawn_cards < m_num_cards_to_draw) throw game_error("Devi pescare");
                 verify_card_targets(*card_it, false, args.targets);
-                verify_and_play_modifier(*card_it, args.modifier_id);
+                verify_and_play_modifiers(*card_it, args.modifier_ids);
                 m_game->add_log(this, nullptr, std::string("giocato effetto di ") + card_it->name);
                 do_play_card(args.card_id, false, args.targets);
                 break;
@@ -564,14 +565,14 @@ namespace banggame {
             }
         } else if (m_virtual && args.card_id == m_virtual->first) {
             verify_card_targets(m_virtual->second, false, args.targets);
-            verify_and_play_modifier(*card_it, args.modifier_id);
+            verify_and_play_modifiers(*card_it, args.modifier_ids);
             do_play_card(args.card_id, false, args.targets);
         } else if (auto card_it = std::ranges::find(m_hand, args.card_id, &deck_card::id); card_it != m_hand.end()) {
             if (m_num_drawn_cards < m_num_cards_to_draw) throw game_error("Devi pescare");
             switch (card_it->color) {
             case card_color_type::brown:
                 verify_card_targets(*card_it, false, args.targets);
-                verify_and_play_modifier(*card_it, args.modifier_id);
+                verify_and_play_modifiers(*card_it, args.modifier_ids);
                 m_game->add_log(this, nullptr, std::string("giocato ") + card_it->name);
                 do_play_card(args.card_id, false, args.targets);
                 break;
@@ -618,25 +619,27 @@ namespace banggame {
             if (m_num_drawn_cards < m_num_cards_to_draw) throw game_error("Devi pescare");
             if (card_it->inactive) throw game_error("Carta non attiva in questo turno");
             verify_card_targets(*card_it, false, args.targets);
-            verify_and_play_modifier(*card_it, args.modifier_id);
+            verify_and_play_modifiers(*card_it, args.modifier_ids);
             m_game->add_log(this, nullptr, std::string("giocato ") + card_it->name + " da terra");
             do_play_card(args.card_id, false, args.targets);
         } else if (auto card_it = std::ranges::find(m_game->m_shop_selection, args.card_id, &deck_card::id); card_it != m_table.end()) {
             if (m_num_drawn_cards < m_num_cards_to_draw) throw game_error("Devi pescare");
             int discount = 0;
-            if (auto modifier_it = std::ranges::find(m_characters, args.modifier_id, &character::id); modifier_it != m_characters.end()) {
-                if (modifier_it->modifier == card_modifier_type::discount
-                    && modifier_it->usages < modifier_it->max_usages) {
-                    discount = 1;
-                } else {
-                    throw game_error("Azione non valida");
+            if (!args.modifier_ids.empty()) {
+                if (auto modifier_it = std::ranges::find(m_characters, args.modifier_ids.front(), &character::id); modifier_it != m_characters.end()) {
+                    if (modifier_it->modifier == card_modifier_type::discount
+                        && modifier_it->usages < modifier_it->max_usages) {
+                        discount = 1;
+                    } else {
+                        throw game_error("Azione non valida");
+                    }
                 }
             }
             if (m_gold >= card_it->buy_cost - discount) {
                 switch (card_it->color) {
                 case card_color_type::brown:
                     verify_card_targets(*card_it, false, args.targets);
-                    if (args.modifier_id) do_play_card(args.modifier_id, false, {});
+                    if (!args.modifier_ids.empty()) do_play_card(args.modifier_ids.front(), false, {});
                     add_gold(discount - card_it->buy_cost);
                     m_game->add_log(this, nullptr, std::string("comprato e giocato ") + card_it->name);
                     do_play_card(args.card_id, false, args.targets);
@@ -648,7 +651,7 @@ namespace banggame {
                 break;
                 case card_color_type::black:
                     verify_equip_target(*card_it, args.targets);
-                    if (args.modifier_id) do_play_card(args.modifier_id, false, {});
+                    if (!args.modifier_ids.empty()) do_play_card(args.modifier_ids.front(), false, {});
                     auto *target = m_game->get_player(args.targets.front().get<play_card_target_type::target_player>().front().player_id);
                     if (target->has_card_equipped(card_it->name)) throw game_error("Carta duplicata");
                     m_game->add_log(this, target, std::string("comprato e equipaggiato ") + card_it->name);
