@@ -128,6 +128,12 @@ void game_manager::handle_message(MESSAGE_TAG(lobby_list), const std::vector<lob
     }
 }
 
+void game_manager::handle_message(MESSAGE_TAG(lobby_update), const lobby_data &args) {
+    if (auto *s = dynamic_cast<lobby_list_scene *>(m_scene)) {
+        s->handle_lobby_update(args);
+    }
+}
+
 void game_manager::handle_message(MESSAGE_TAG(lobby_edited), const lobby_info &args) {
     if (auto *s = dynamic_cast<lobby_scene *>(m_scene)) {
         s->set_lobby_info(args);

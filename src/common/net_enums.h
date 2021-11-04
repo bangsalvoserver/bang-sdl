@@ -69,6 +69,7 @@ DEFINE_SERIALIZABLE(lobby_chat_args,
 DEFINE_ENUM_TYPES(server_message_type,
     (client_accepted)
     (lobby_list, std::vector<lobby_data>)
+    (lobby_update, lobby_data)
     (lobby_entered, lobby_entered_args)
     (lobby_players, std::vector<lobby_player_data>)
     (lobby_edited, lobby_info)

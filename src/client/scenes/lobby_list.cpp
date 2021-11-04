@@ -5,6 +5,7 @@
 
 lobby_line::lobby_line(lobby_list_scene *parent, const lobby_data &args)
     : parent(parent)
+    , m_id(args.lobby_id)
     , m_name_text(args.name)
     , m_players_text([&]{
         return std::to_string(args.num_players) + '/' + std::to_string(banggame::lobby_max_players);
@@ -36,15 +37,12 @@ lobby_list_scene::lobby_list_scene(game_manager *parent)
     , m_disconnect_btn("Disconnetti", [parent] {
         parent->disconnect();
     })
-    , m_refresh_btn("Aggiorna", [this] {
-        refresh();
-    })
 {
     m_lobby_name_box.set_value(parent->get_config().lobby_name);
     m_lobby_name_box.set_onenter([this] {
         do_make_lobby();
     });
-    refresh();
+    parent->add_message<client_message_type::lobby_list>();
 }
 
 void lobby_list_scene::resize(int width, int height) {
@@ -58,9 +56,6 @@ void lobby_list_scene::resize(int width, int height) {
 
     m_lobby_name_box.set_rect(sdl::rect{100, rect.y, width - 310, 25});
     m_make_lobby_btn.set_rect(sdl::rect{width - 200, rect.y, 100, 25});
-
-    rect.y += 40;
-    m_refresh_btn.set_rect(sdl::rect{100, rect.y, 100, 25});
 }
 
 void lobby_list_scene::render(sdl::renderer &renderer) {
@@ -68,14 +63,9 @@ void lobby_list_scene::render(sdl::renderer &renderer) {
         line.render(renderer);
     }
 
-    m_refresh_btn.render(renderer);
     m_lobby_name_box.render(renderer);
     m_make_lobby_btn.render(renderer);
     m_disconnect_btn.render(renderer);
-}
-
-void lobby_list_scene::refresh() {
-    parent->add_message<client_message_type::lobby_list>();
 }
 
 void lobby_list_scene::do_join(int lobby_id) {
@@ -95,5 +85,19 @@ void lobby_list_scene::set_lobby_list(const std::vector<lobby_data> &args) {
         m_lobby_lines.emplace_back(this, line);
     }
 
+    resize(parent->width(), parent->height());
+}
+
+void lobby_list_scene::handle_lobby_update(const lobby_data &args) {
+    auto it = std::ranges::find(m_lobby_lines, args.lobby_id, &lobby_line::id);
+    if (it != m_lobby_lines.end()) {
+        if (args.num_players == 0) {
+            m_lobby_lines.erase(it);
+        } else {
+            *it = lobby_line(this, args);
+        }
+    } else {
+        m_lobby_lines.emplace_back(this, args);
+    }
     resize(parent->width(), parent->height());
 }

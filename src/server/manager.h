@@ -86,6 +86,9 @@ private:
     game_user *find_user(const sdlnet::ip_address &addr);
     std::list<lobby>::iterator find_lobby(const game_user *u);
 
+    lobby_data make_lobby_data(const lobby &l);
+    void send_lobby_update(const lobby &l);
+
     void handle_message(MESSAGE_TAG(connect), const sdlnet::ip_address &addr, const connect_args &value);
     void handle_message(MESSAGE_TAG(lobby_list), const sdlnet::ip_address &addr);
     void handle_message(MESSAGE_TAG(lobby_make), const sdlnet::ip_address &addr, const lobby_info &value);

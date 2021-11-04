@@ -80,6 +80,7 @@ public:
 private:
     void handle_message(MESSAGE_TAG(client_accepted));
     void handle_message(MESSAGE_TAG(lobby_list), const std::vector<lobby_data> &args);
+    void handle_message(MESSAGE_TAG(lobby_update), const lobby_data &args);
     void handle_message(MESSAGE_TAG(lobby_edited), const lobby_info &args);
     void handle_message(MESSAGE_TAG(lobby_entered), const lobby_entered_args &args);
     void handle_message(MESSAGE_TAG(lobby_players), const std::vector<lobby_player_data> &args);

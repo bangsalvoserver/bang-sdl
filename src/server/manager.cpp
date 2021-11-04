@@ -78,15 +78,26 @@ void game_manager::handle_message(MESSAGE_TAG(connect), const sdlnet::ip_address
     }
 }
 
+lobby_data game_manager::make_lobby_data(const lobby &l) {
+    lobby_data obj;
+    obj.lobby_id = l.id;
+    obj.name = l.name;
+    obj.num_players = l.users.size();
+    obj.state = l.state;
+    return obj;
+}
+
+void game_manager::send_lobby_update(const lobby &l) {
+    auto msg = make_message<server_message_type::lobby_update>(make_lobby_data(l));
+    for (const auto &addr : users | std::views::keys) {
+        m_out_queue.emplace_back(addr, msg);
+    }
+}
+
 void game_manager::handle_message(MESSAGE_TAG(lobby_list), const sdlnet::ip_address &addr) {
     std::vector<lobby_data> vec;
     for (const auto &lobby : m_lobbies) {
-        lobby_data obj;
-        obj.lobby_id = lobby.id;
-        obj.name = lobby.name;
-        obj.num_players = lobby.users.size();
-        obj.state = lobby.state;
-        vec.push_back(obj);
+        vec.push_back(make_lobby_data(lobby));
     }
     send_message<server_message_type::lobby_list>(addr, std::move(vec));
 }
@@ -109,7 +120,7 @@ void game_manager::handle_message(MESSAGE_TAG(lobby_make), const sdlnet::ip_addr
     new_lobby.name = value.name;
     new_lobby.state = lobby_state::waiting;
     new_lobby.expansions = value.expansions;
-    m_lobbies.push_back(new_lobby);
+    send_lobby_update(m_lobbies.emplace_back(std::move(new_lobby)));
 
     send_message<server_message_type::lobby_entered>(addr, value, u->id, u->id);
 }
@@ -155,6 +166,7 @@ void game_manager::handle_message(MESSAGE_TAG(lobby_join), const sdlnet::ip_addr
 
     if (it->users.size() < lobby_max_players) {
         it->users.emplace_back(u, nullptr);
+        send_lobby_update(*it);
 
         for (auto &p : it->users) {
             if (p.user == u) {
@@ -216,6 +228,8 @@ void game_manager::handle_message(MESSAGE_TAG(lobby_leave), const sdlnet::ip_add
         auto player_it = std::ranges::find(lobby_it->users, u, &lobby_user::user);
         broadcast_message<server_message_type::lobby_left>(*lobby_it, player_it->user->id);
         lobby_it->users.erase(player_it);
+        send_lobby_update(*lobby_it);
+        
         if (lobby_it->users.empty()) {
             m_lobbies.erase(lobby_it);
         } else if (lobby_it->state == lobby_state::waiting && u == lobby_it->owner) {
@@ -321,10 +335,9 @@ void lobby::start_game() {
     game = {};
 
     game_options opts;
-    opts.nplayers = users.size();
     opts.expansions = expansions | banggame::card_expansion_type::base;
     
-    for (int i = 0; i < opts.nplayers; ++i) {
+    for (int i = 0; i < users.size(); ++i) {
         game.m_players.emplace_back(&game);
     }
 

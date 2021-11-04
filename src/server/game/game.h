@@ -18,7 +18,6 @@
 namespace banggame {
 
     struct game_options {
-        int nplayers = 0;
         card_expansion_type expansions = enums::flags_all<card_expansion_type>;
     };
 

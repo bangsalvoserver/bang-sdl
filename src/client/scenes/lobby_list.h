@@ -11,9 +11,15 @@ public:
 
     void set_rect(const sdl::rect &rect);
     void render(sdl::renderer &renderer);
+    
+    int id() const {
+        return m_id;
+    }
 
 private:
     class lobby_list_scene *parent;
+
+    int m_id;
 
     sdl::stattext m_name_text;
     sdl::stattext m_players_text;
@@ -30,8 +36,8 @@ public:
     void render(sdl::renderer &renderer) override;
 
     void set_lobby_list(const std::vector<lobby_data> &args);
+    void handle_lobby_update(const lobby_data &args);
 
-    void refresh();
     void do_join(int lobby_id);
     void do_make_lobby();
 
@@ -42,7 +48,6 @@ private:
     sdl::button m_make_lobby_btn;
 
     sdl::button m_disconnect_btn;
-    sdl::button m_refresh_btn;
 };
 
 #endif
