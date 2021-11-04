@@ -462,6 +462,7 @@ namespace banggame {
         };
 
         int initial_belltower = m_belltower;
+        int initial_mods_size = m_bang_mods.size();
         
         if (card_ptr->cost > 0) {
             add_gold(-card_ptr->cost);
@@ -512,6 +513,9 @@ namespace banggame {
         
         if (m_belltower == initial_belltower) {
             m_belltower = 0;
+        }
+        if (m_bang_mods.size() == initial_mods_size) {
+            m_bang_mods.clear();
         }
     }
 
