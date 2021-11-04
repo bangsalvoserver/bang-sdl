@@ -467,7 +467,6 @@ namespace banggame {
         };
 
         int initial_belltower = m_belltower;
-        int initial_mods_size = m_bang_mods.size();
         
         if (card_ptr->cost > 0) {
             add_gold(-card_ptr->cost);
@@ -485,7 +484,14 @@ namespace banggame {
                 [&](enums::enum_constant<play_card_target_type::target_player>, const std::vector<target_player_id> &args) {
                     for (const auto &target : args) {
                         auto *p = m_game->get_player(target.player_id);
-                        if (p != this && check_immunity(p)) continue;
+                        if (p != this && check_immunity(p)) {
+                            if (effect_it->is(effect_type::bangcard)) {
+                                request_bang req{card_id, this, p};
+                                apply_bang_mods(req);
+                                req.cleanup();
+                            }
+                            continue;
+                        }
                         m_current_card_targets.emplace(card_id, target.player_id);
                         effect_it->on_play(card_id, this, p);
                     }
@@ -518,9 +524,6 @@ namespace banggame {
         
         if (m_belltower == initial_belltower) {
             m_belltower = 0;
-        }
-        if (m_bang_mods.size() == initial_mods_size) {
-            m_bang_mods.clear();
         }
     }
 

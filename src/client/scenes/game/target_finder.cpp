@@ -404,6 +404,8 @@ constexpr auto is_none_target = [](const target_pair &pair) {
 };
 
 void target_finder::add_card_target(target_pair target) {
+    if (bool(m_flags & play_card_flags::equipping)) return;
+    
     auto num_targets = [&](target_type type) {
         int ret = 1;
         if (bool(type & target_type::everyone)) {
