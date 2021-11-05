@@ -149,27 +149,10 @@ namespace banggame {
     };
 
     template<request_type E> requires picking_request<E>
-    static bool is_valid_picking_pile_impl(card_pile_type pile) {
-        using list = typename enums::enum_type_t<E>::allowed_piles;
-        constexpr auto lut = []<card_pile_type ... Es>(pile_list<Es...>) {
-            return std::array { Es... };
-        }(list());
-        return std::ranges::find(lut, pile) != lut.end();
-    }
-
-    inline bool is_valid_picking_pile(request_type type, card_pile_type pile) {
-        constexpr auto lut = []<request_type ... Es>(enums::enum_sequence<Es...>) {
-            return std::array {
-                []()-> bool (*)(card_pile_type) {
-                    if constexpr (picking_request<Es>) {
-                        return is_valid_picking_pile_impl<Es>;
-                    } else {
-                        return nullptr;
-                    }
-                }() ...
-            };
-        }(enums::make_enum_sequence<request_type>());
-        return lut[enums::indexof(type)](pile);
+    static bool valid_picking_pile(card_pile_type pile) {
+        return [pile]<card_pile_type ... Es>(pile_list<Es...>) {
+            return ((pile == Es) || ...);
+        }(typename enums::enum_type_t<E>::allowed_piles());
     }
 
     template<request_type E> concept resolvable_request = requires (enums::enum_type_t<E> &req) {

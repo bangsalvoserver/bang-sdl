@@ -97,7 +97,14 @@ namespace banggame {
     }
 
     void effect_weapon::on_equip(player *target, int card_id) {
-        target->discard_weapon(card_id);
+        auto it = std::ranges::find_if(target->m_table, [card_id](const deck_card &c) {
+            return !c.equips.empty() && c.equips.front().is(equip_type::weapon) && c.id != card_id;
+        });
+        if (it != target->m_table.end()) {
+            target->drop_all_cubes(*it);
+            target->m_game->move_to(std::move(*it), card_pile_type::discard_pile).on_unequip(target);
+            target->m_table.erase(it);
+        }
         target->m_weapon_range = args;
     }
 

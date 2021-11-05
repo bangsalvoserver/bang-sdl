@@ -74,8 +74,6 @@ namespace banggame {
         deck_card &equip_card(deck_card &&target);
         bool has_card_equipped(const std::string &name) const;
 
-        void discard_weapon(int card_id);
-
         deck_card &random_hand_card();
 
         deck_card &find_card(int card_id);

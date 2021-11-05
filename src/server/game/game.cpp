@@ -512,7 +512,7 @@ namespace banggame {
         if (!m_requests.empty() && p == top_request().target()) {
             enums::visit_indexed([&]<request_type E>(enums::enum_constant<E>, auto &req) {
                 if constexpr (picking_request<E>) {
-                    if (is_valid_picking_pile_impl<E>(args.pile)) {
+                    if (valid_picking_pile<E>(args.pile)) {
                         auto req_copy = req;
                         req_copy.on_pick(args);
                     }

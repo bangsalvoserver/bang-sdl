@@ -14,17 +14,6 @@ namespace banggame {
     player::player(game *game)
         : m_game(game)
         , id(game->get_next_id()) {}
-    
-    void player::discard_weapon(int card_id) {
-        auto it = std::ranges::find_if(m_table, [card_id](const deck_card &c) {
-            return !c.equips.empty() && c.equips.front().is(equip_type::weapon) && c.id != card_id;
-        });
-        if (it != m_table.end()) {
-            drop_all_cubes(*it);
-            m_game->move_to(std::move(*it), card_pile_type::discard_pile).on_unequip(this);
-            m_table.erase(it);
-        }
-    }
 
     deck_card &player::equip_card(deck_card &&target) {
         target.on_equip(this);

@@ -200,14 +200,14 @@ void game_scene::handle_card_click(const sdl::point &mouse_pt) {
         return;
     }
     for (auto &p : m_players | std::views::values) {
-        for (auto &c : p.m_characters | std::views::reverse) {
-            if (sdl::point_in_rect(mouse_pt, c.get_rect())) {
-                m_target.on_click_character(&p, &c);
+        if (sdl::point_in_rect(mouse_pt, p.m_bounding_rect)) {
+            if (m_target.on_click_player(&p)) {
                 return;
             }
         }
-        if (sdl::point_in_rect(mouse_pt, p.m_bounding_rect)) {
-            if (m_target.on_click_player(&p)) {
+        for (auto &c : p.m_characters | std::views::reverse) {
+            if (sdl::point_in_rect(mouse_pt, c.get_rect())) {
+                m_target.on_click_character(&p, &c);
                 return;
             }
         }

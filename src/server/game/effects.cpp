@@ -473,8 +473,8 @@ namespace banggame {
     }
 
     void effect_bigfifty::on_play(int origin_card_id, player *p) {
+        p->m_game->disable_table_cards(p->id, true);
         p->add_bang_mod([p](request_bang &req) {
-            p->m_game->disable_table_cards(p->id, true);
             req.cleanup_function = [=]{
                 p->m_game->enable_table_cards(p->id);
             };

@@ -13,6 +13,21 @@ void target_finder::add_action(Ts && ... args) {
     m_game->parent->add_message<client_message_type::game_action>(enums::enum_constant<T>{}, std::forward<Ts>(args) ...);
 }
 
+static bool is_valid_picking_pile(request_type type, card_pile_type pile) {
+    constexpr auto lut = []<request_type ... Es>(enums::enum_sequence<Es...>) {
+        return std::array {
+            []()-> bool (*)(card_pile_type) {
+                if constexpr (picking_request<Es>) {
+                    return valid_picking_pile<Es>;
+                } else {
+                    return nullptr;
+                }
+            }() ...
+        };
+    }(enums::make_enum_sequence<request_type>());
+    return lut[enums::indexof(type)](pile);
+}
+
 template<typename ... Ts>
 bool target_finder::send_pick_card(card_pile_type pile, Ts && ... args) {
     if (is_valid_picking_pile(m_game->m_current_request.type, pile)) {
@@ -242,7 +257,7 @@ void target_finder::on_click_character(player_view *player, character_card *card
 }
 
 bool target_finder::on_click_player(player_view *player) {
-    m_flags &= ~(play_card_flags::sell_beer | play_card_flags::discard_black);
+    if (bool(m_flags & (play_card_flags::sell_beer | play_card_flags::discard_black))) return false;
 
     if (m_game->m_current_request.target_id == m_game->m_player_own_id && m_game->m_current_request.type != request_type::none) {
         if (is_picking_request(m_game->m_current_request.type)) {
