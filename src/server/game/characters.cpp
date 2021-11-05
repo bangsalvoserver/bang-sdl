@@ -57,17 +57,15 @@ namespace banggame {
     }
 
     void request_kit_carlson::on_pick(const pick_card_args &args) {
-        if (args.pile == card_pile_type::selection) {
-            target->add_to_hand(target->m_game->draw_from_temp(args.card_id));
-            if (target->m_game->m_selection.size() == 1) {
-                target->m_game->pop_request();
-                target->m_game->move_to(std::move(target->m_game->m_selection.front()), card_pile_type::main_deck, false);
-                target->m_game->m_selection.clear();
-                target->m_num_drawn_cards = target->m_num_cards_to_draw;
-            } else {
-                target->m_game->pop_request_noupdate();
-                target->m_game->queue_request<request_type::kit_carlson>(origin_card_id, target, target);
-            }
+        target->add_to_hand(target->m_game->draw_from_temp(args.card_id));
+        if (target->m_game->m_selection.size() == 1) {
+            target->m_game->pop_request();
+            target->m_game->move_to(std::move(target->m_game->m_selection.front()), card_pile_type::main_deck, false);
+            target->m_game->m_selection.clear();
+            target->m_num_drawn_cards = target->m_num_cards_to_draw;
+        } else {
+            target->m_game->pop_request_noupdate();
+            target->m_game->queue_request<request_type::kit_carlson>(origin_card_id, target, target);
         }
     }
 
@@ -81,24 +79,22 @@ namespace banggame {
     }
 
     void request_claus_the_saint::on_pick(const pick_card_args &args) {
-        if (args.pile == card_pile_type::selection) {
-            target->m_num_drawn_cards = target->m_num_cards_to_draw;
-            int index = target->m_game->num_alive() + target->m_num_cards_to_draw - target->m_game->m_selection.size();
-            auto p = target;
-            for(int i=0; i<index; ++i) {
-                p = target->m_game->get_next_player(p);
+        target->m_num_drawn_cards = target->m_num_cards_to_draw;
+        int index = target->m_game->num_alive() + target->m_num_cards_to_draw - target->m_game->m_selection.size();
+        auto p = target;
+        for(int i=0; i<index; ++i) {
+            p = target->m_game->get_next_player(p);
+        }
+        p->add_to_hand(target->m_game->draw_from_temp(args.card_id));
+        if (target->m_game->m_selection.size() == target->m_num_cards_to_draw) {
+            target->m_game->pop_request();
+            for (auto &c : target->m_game->m_selection) {
+                target->add_to_hand(std::move(c));
             }
-            p->add_to_hand(target->m_game->draw_from_temp(args.card_id));
-            if (target->m_game->m_selection.size() == target->m_num_cards_to_draw) {
-                target->m_game->pop_request();
-                for (auto &c : target->m_game->m_selection) {
-                    target->add_to_hand(std::move(c));
-                }
-                target->m_game->m_selection.clear();
-            } else {
-                target->m_game->pop_request_noupdate();
-                target->m_game->queue_request<request_type::claus_the_saint>(origin_card_id, target, target);
-            }
+            target->m_game->m_selection.clear();
+        } else {
+            target->m_game->pop_request_noupdate();
+            target->m_game->queue_request<request_type::claus_the_saint>(origin_card_id, target, target);
         }
     }
 
@@ -250,11 +246,9 @@ namespace banggame {
     }
 
     void request_vera_custer::on_pick(const pick_card_args &args) {
-        if (args.pile == card_pile_type::player_character) {
-            if (args.card_id != target->m_characters.front().id) {
-                target->m_game->pop_request();
-                vera_custer_copy_character(target, target->m_game->get_player(args.player_id)->find_character(args.card_id));
-            }
+        if (args.card_id != target->m_characters.front().id) {
+            target->m_game->pop_request();
+            vera_custer_copy_character(target, target->m_game->get_player(args.player_id)->find_character(args.card_id));
         }
     }
 
@@ -357,7 +351,7 @@ namespace banggame {
     }
 
     void request_youl_grinner::on_pick(const pick_card_args &args) {
-        if (args.pile == card_pile_type::player_hand && args.player_id == target->id) {
+        if (args.player_id == target->id) {
             target->m_game->pop_request();
             origin->steal_card(target, args.card_id);
             target->m_game->queue_event<event_type::on_effect_end>(origin, origin_card_id);
@@ -495,15 +489,13 @@ namespace banggame {
     }
 
     void request_dutch_will::on_pick(const pick_card_args &args) {
-        if (args.pile == card_pile_type::selection) {
-            target->add_to_hand(target->m_game->draw_from_temp(args.card_id));
-            if (target->m_game->m_selection.size() == 1) {
-                target->m_game->pop_request();
-                target->m_game->move_to(std::move(target->m_game->m_selection.front()), card_pile_type::discard_pile);
-                target->m_game->m_selection.clear();
-                target->add_gold(1);
-                target->m_num_drawn_cards = target->m_num_cards_to_draw;
-            }
+        target->add_to_hand(target->m_game->draw_from_temp(args.card_id));
+        if (target->m_game->m_selection.size() == 1) {
+            target->m_game->pop_request();
+            target->m_game->move_to(std::move(target->m_game->m_selection.front()), card_pile_type::discard_pile);
+            target->m_game->m_selection.clear();
+            target->add_gold(1);
+            target->m_num_drawn_cards = target->m_num_cards_to_draw;
         }
     }
 
@@ -547,24 +539,22 @@ namespace banggame {
     }
 
     void request_shop_choose_target::on_pick(const pick_card_args &args) {
-        if (args.pile == card_pile_type::player) {
-            auto card_it = std::ranges::find(target->m_game->m_shop_selection, origin_card_id, &card::id);
-            if (card_it == target->m_game->m_shop_selection.end()) return;
+        auto card_it = std::ranges::find(target->m_game->m_shop_selection, origin_card_id, &card::id);
+        if (card_it == target->m_game->m_shop_selection.end()) return;
 
-            auto *p = target->m_game->get_player(args.player_id);
-            if (!p) return;
+        auto *p = target->m_game->get_player(args.player_id);
+        if (!p) return;
 
-            target->m_game->pop_request();
-            if (card_it->color == card_color_type::black) {
-                p->equip_card(std::move(*card_it));
-            } else {
-                auto &moved = target->m_game->move_to(std::move(*card_it), card_pile_type::shop_discard);
-                for (auto &e : moved.effects) {
-                    e.on_play(origin_card_id, target, p);
-                }
+        target->m_game->pop_request();
+        if (card_it->color == card_color_type::black) {
+            p->equip_card(std::move(*card_it));
+        } else {
+            auto &moved = target->m_game->move_to(std::move(*card_it), card_pile_type::shop_discard);
+            for (auto &e : moved.effects) {
+                e.on_play(origin_card_id, target, p);
             }
-            target->m_game->m_shop_selection.erase(card_it);
         }
+        target->m_game->m_shop_selection.erase(card_it);
     }
 
     void effect_julie_cutter::on_equip(player *p, int card_id) {

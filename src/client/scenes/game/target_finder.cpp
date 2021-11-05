@@ -13,6 +13,15 @@ void target_finder::add_action(Ts && ... args) {
     m_game->parent->add_message<client_message_type::game_action>(enums::enum_constant<T>{}, std::forward<Ts>(args) ...);
 }
 
+template<typename ... Ts>
+bool target_finder::send_pick_card(card_pile_type pile, Ts && ... args) {
+    if (is_valid_picking_pile(m_game->m_current_request.type, pile)) {
+        add_action<game_action_type::pick_card>(pile, std::forward<Ts>(args) ...);
+        return true;
+    }
+    return false;
+}
+
 void target_finder::render(sdl::renderer &renderer) {
     renderer.set_draw_color(sdl::color{0xff, 0x0, 0x0, 0xff});
     for (auto *card : m_modifiers) {
@@ -27,7 +36,7 @@ void target_finder::render(sdl::renderer &renderer) {
             if (card) {
                 renderer.draw_rect(card->get_rect());
             } else if (player) {
-                renderer.draw_rect(player->m_role.get_rect());
+                renderer.draw_rect(player->m_bounding_rect);
             }
         }
     }
@@ -52,7 +61,7 @@ void target_finder::on_click_resolve() {
 
 void target_finder::on_click_main_deck() {
     if (m_game->m_current_request.target_id == m_game->m_player_own_id && is_picking_request(m_game->m_current_request.type)) {
-        add_action<game_action_type::pick_card>(card_pile_type::main_deck);
+        send_pick_card(card_pile_type::main_deck);
     } else if (m_game->m_playing_id == m_game->m_player_own_id) {
         auto *player = m_game->find_player(m_game->m_playing_id);
         if (auto it = std::ranges::find(player->m_characters, character_type::drawing_forced, &character_card::type); it != player->m_characters.end()) {
@@ -65,7 +74,7 @@ void target_finder::on_click_main_deck() {
 
 void target_finder::on_click_selection_card(card_view *card) {
     if (m_game->m_current_request.target_id == m_game->m_player_own_id && is_picking_request(m_game->m_current_request.type)) {
-        add_action<game_action_type::pick_card>(card_pile_type::selection, 0, card->id);
+        send_pick_card(card_pile_type::selection, 0, card->id);
     }
 }
 
@@ -108,7 +117,7 @@ void target_finder::on_click_table_card(player_view *player, card_view *card) {
         send_play_card();
     } else if (m_game->m_current_request.target_id == m_game->m_player_own_id && m_game->m_current_request.type != request_type::none) {
         if (is_picking_request(m_game->m_current_request.type)) {
-            add_action<game_action_type::pick_card>(card_pile_type::player_table, player->id, card->id);
+            send_pick_card(card_pile_type::player_table, player->id, card->id);
         } else if (!m_playing_card) {
             if (!card->inactive) {
                 m_playing_card = card;
@@ -150,7 +159,7 @@ void target_finder::on_click_hand_card(player_view *player, card_view *card) {
         send_play_card();
     } else if (m_game->m_current_request.target_id == m_game->m_player_own_id && m_game->m_current_request.type != request_type::none) {
         if (is_picking_request(m_game->m_current_request.type)) {
-            add_action<game_action_type::pick_card>(card_pile_type::player_hand, player->id, card->id);
+            send_pick_card(card_pile_type::player_hand, player->id, card->id);
         } else if (!m_playing_card) {
             m_playing_card = card;
             m_flags |= play_card_flags::response;
@@ -201,7 +210,7 @@ void target_finder::on_click_character(player_view *player, character_card *card
 
     if (m_game->m_current_request.target_id == m_game->m_player_own_id && m_game->m_current_request.type != request_type::none) {
         if (is_picking_request(m_game->m_current_request.type)) {
-            add_action<game_action_type::pick_card>(card_pile_type::player_character, player->id, card->id);
+            send_pick_card(card_pile_type::player_character, player->id, card->id);
         } else if (player->id == m_game->m_player_own_id) {
             if (!m_playing_card) {
                 m_playing_card = card;
@@ -232,19 +241,20 @@ void target_finder::on_click_character(player_view *player, character_card *card
     }
 }
 
-void target_finder::on_click_player(player_view *player) {
+bool target_finder::on_click_player(player_view *player) {
     m_flags &= ~(play_card_flags::sell_beer | play_card_flags::discard_black);
 
     if (m_game->m_current_request.target_id == m_game->m_player_own_id && m_game->m_current_request.type != request_type::none) {
         if (is_picking_request(m_game->m_current_request.type)) {
-            add_action<game_action_type::pick_card>(card_pile_type::player, player->id);
+            return send_pick_card(card_pile_type::player, player->id);
         } else if (m_playing_card) {
             m_flags |= play_card_flags::response;
-            add_player_targets(std::vector{target_pair{player}});
+            return add_player_targets(std::vector{target_pair{player}});
         }
     } else if (m_game->m_playing_id == m_game->m_player_own_id && m_playing_card) {
-        add_player_targets(std::vector{target_pair{player}});
+        return add_player_targets(std::vector{target_pair{player}});
     }
+    return false;
 }
 
 void target_finder::on_click_sell_beer() {
@@ -515,13 +525,14 @@ void target_finder::add_character_target(target_pair target) {
     }
 }
 
-void target_finder::add_player_targets(const std::vector<target_pair> &targets) {
+bool target_finder::add_player_targets(const std::vector<target_pair> &targets) {
     if (bool(m_flags & play_card_flags::equipping)) {
         auto &card_targets = m_playing_card->equip_targets;
         auto &cur_target = card_targets[m_targets.size()];
         if (bool(cur_target.target & (target_type::player | target_type::dead))) {
             m_targets.emplace_back(targets);
             send_play_card();
+            return true;
         }
     } else {
         auto &card_targets = get_current_card_targets();
@@ -536,9 +547,11 @@ void target_finder::add_player_targets(const std::vector<target_pair> &targets) 
             {
                 m_targets.emplace_back(targets);
                 handle_auto_targets();
+                return true;
             }
         }
     }
+    return false;
 }
 
 void target_finder::clear_targets() {

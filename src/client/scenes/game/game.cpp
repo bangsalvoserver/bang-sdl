@@ -206,9 +206,10 @@ void game_scene::handle_card_click(const sdl::point &mouse_pt) {
                 return;
             }
         }
-        if (sdl::point_in_rect(mouse_pt, p.m_role.get_rect())) {
-            m_target.on_click_player(&p);
-            return;
+        if (sdl::point_in_rect(mouse_pt, p.m_bounding_rect)) {
+            if (m_target.on_click_player(&p)) {
+                return;
+            }
         }
         if (card_view *card = find_clicked(p.table)) {
             m_target.on_click_table_card(&p, card);

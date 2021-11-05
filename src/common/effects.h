@@ -22,6 +22,8 @@ namespace banggame {
         player *target;
         effect_flags flags = enums::flags_none<effect_flags>;
     };
+
+    template<card_pile_type ... Es> using pile_list = enums::enum_sequence<Es ...>;
     
     struct effect_bang : card_effect {
         void on_play(int origin_card_id, player *origin, player *target);

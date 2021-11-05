@@ -28,6 +28,7 @@ namespace banggame {
     };
 
     struct request_kit_carlson : request_base {
+        using allowed_piles = pile_list<card_pile_type::selection>;
         void on_pick(const pick_card_args &args);
     };
 
@@ -36,6 +37,7 @@ namespace banggame {
     };
 
     struct request_claus_the_saint : request_base {
+        using allowed_piles = pile_list<card_pile_type::selection>;
         void on_pick(const pick_card_args &args);
     };
 
@@ -78,6 +80,7 @@ namespace banggame {
     };
 
     struct request_vera_custer : request_base {
+        using allowed_piles = pile_list<card_pile_type::player_character>;
         void on_pick(const pick_card_args &args);
     };
 
@@ -116,6 +119,7 @@ namespace banggame {
     };
 
     struct request_youl_grinner : request_base {
+        using allowed_piles = pile_list<card_pile_type::player_hand>;
         void on_pick(const pick_card_args &args);
     };
 
@@ -152,6 +156,7 @@ namespace banggame {
     };
 
     struct request_dutch_will : request_base {
+        using allowed_piles = pile_list<card_pile_type::selection>;
         void on_pick(const pick_card_args &args);
     };
 
@@ -160,6 +165,7 @@ namespace banggame {
     };
 
     struct request_shop_choose_target : request_base {
+        using allowed_piles = pile_list<card_pile_type::player>;
         void on_pick(const pick_card_args &args);
     };
 

@@ -7,7 +7,7 @@
 
 namespace banggame {
     void request_predraw::on_pick(const pick_card_args &args) {
-        if (args.pile == card_pile_type::player_table && args.player_id == target->id) {
+        if (args.player_id == target->id) {
             if (auto *check = target->get_if_top_predraw_check(args.card_id)) {
                 target->m_game->pop_request();
                 target->m_game->draw_check_then(target, check->check_fun);
@@ -16,36 +16,32 @@ namespace banggame {
     }
 
     void request_check::on_pick(const pick_card_args &args) {
-        if (args.pile == card_pile_type::selection) {
-            if (invert_pop_req) {
-                target->m_game->resolve_check(args.card_id);
-                target->m_game->pop_request();
-            } else {
-                target->m_game->pop_request();
-                target->m_game->resolve_check(args.card_id);
-            }
+        if (invert_pop_req) {
+            target->m_game->resolve_check(args.card_id);
+            target->m_game->pop_request();
+        } else {
+            target->m_game->pop_request();
+            target->m_game->resolve_check(args.card_id);
         }
     }
 
     void request_generalstore::on_pick(const pick_card_args &args) {
-        if (args.pile == card_pile_type::selection) {
-            auto next = target->m_game->get_next_player(target);
-            auto removed = target->m_game->draw_from_temp(args.card_id);
-            if (target->m_game->m_selection.size() == 1) {
-                target->add_to_hand(std::move(removed));
-                next->add_to_hand(std::move(target->m_game->m_selection.front()));
-                target->m_game->m_selection.clear();
-                target->m_game->pop_request();
-            } else {
-                target->m_game->pop_request_noupdate();
-                target->add_to_hand(std::move(removed));
-                target->m_game->queue_request<request_type::generalstore>(origin_card_id, origin, next);
-            }
+        auto next = target->m_game->get_next_player(target);
+        auto removed = target->m_game->draw_from_temp(args.card_id);
+        if (target->m_game->m_selection.size() == 1) {
+            target->add_to_hand(std::move(removed));
+            next->add_to_hand(std::move(target->m_game->m_selection.front()));
+            target->m_game->m_selection.clear();
+            target->m_game->pop_request();
+        } else {
+            target->m_game->pop_request_noupdate();
+            target->add_to_hand(std::move(removed));
+            target->m_game->queue_request<request_type::generalstore>(origin_card_id, origin, next);
         }
     }
 
     void request_discard::on_pick(const pick_card_args &args) {
-        if (args.pile == card_pile_type::player_hand && args.player_id == target->id) {
+        if (args.player_id == target->id) {
             target->m_game->pop_request();
             target->discard_card(args.card_id);
             target->m_game->queue_event<event_type::on_effect_end>(target, origin_card_id);
@@ -53,7 +49,7 @@ namespace banggame {
     }
 
     void request_discard_pass::on_pick(const pick_card_args &args) {
-        if (args.pile == card_pile_type::player_hand && args.player_id == target->id) {
+        if (args.player_id == target->id) {
             target->discard_card(args.card_id);
             target->m_game->instant_event<event_type::on_discard_pass>(target, args.card_id);
             if (target->m_game->has_expansion(card_expansion_type::armedanddangerous)) {
@@ -113,7 +109,7 @@ namespace banggame {
     }
 
     void request_bandidos::on_pick(const pick_card_args &args) {
-        if (args.pile == card_pile_type::player_hand && args.player_id == target->id) {
+        if (args.player_id == target->id) {
             auto &moved = target->discard_card(args.card_id);
             if (--target->m_game->top_request().get<request_type::bandidos>().num_cards == 0
                 || target->num_hand_cards() == 0) {
@@ -123,7 +119,7 @@ namespace banggame {
     }
 
     void request_tornado::on_pick(const pick_card_args &args) {
-        if (args.pile == card_pile_type::player_hand && args.player_id == target->id) {
+        if (args.player_id == target->id) {
             auto &moved = target->discard_card(args.card_id);
             target->m_game->draw_card_to(card_pile_type::player_hand, target);
             target->m_game->draw_card_to(card_pile_type::player_hand, target);
@@ -218,22 +214,20 @@ namespace banggame {
     }
 
     void request_move_bomb::on_pick(const pick_card_args &args) {
-        if (args.pile == card_pile_type::player) {
-            auto card_it = std::ranges::find(target->m_table, origin_card_id, &card::id);
-            player *p = target->m_game->get_player(args.player_id);
-            if (p && !p->immune_to(*card_it)) {
-                if (p == target) {
-                    target->m_game->pop_request();
-                } else if (!p->has_card_equipped(card_it->name)) {
-                    card_it->on_unequip(target);
-                    p->equip_card(std::move(*card_it));
-                    target->m_table.erase(card_it);
-                    target->m_game->pop_request();
-                }
-            } else {
-                target->discard_card(origin_card_id);
+        auto card_it = std::ranges::find(target->m_table, origin_card_id, &card::id);
+        player *p = target->m_game->get_player(args.player_id);
+        if (p && !p->immune_to(*card_it)) {
+            if (p == target) {
+                target->m_game->pop_request();
+            } else if (!p->has_card_equipped(card_it->name)) {
+                card_it->on_unequip(target);
+                p->equip_card(std::move(*card_it));
+                target->m_table.erase(card_it);
                 target->m_game->pop_request();
             }
+        } else {
+            target->discard_card(origin_card_id);
+            target->m_game->pop_request();
         }
     }
 

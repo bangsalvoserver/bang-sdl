@@ -58,7 +58,7 @@ namespace banggame {
         void on_click_table_card(player_view *player, card_view *card);
         void on_click_hand_card(player_view *player, card_view *card);
         void on_click_character(player_view *player, character_card *card);
-        void on_click_player(player_view *player);
+        bool on_click_player(player_view *player);
 
         void on_click_pass_turn();
         void on_click_resolve();
@@ -76,7 +76,7 @@ namespace banggame {
         void handle_auto_targets();
         void add_card_target(target_pair target);
         void add_character_target(target_pair target);
-        void add_player_targets( const std::vector<target_pair> &targets);
+        bool add_player_targets(const std::vector<target_pair> &targets);
 
         std::vector<card_target_data> &get_current_card_targets();
         std::vector<card_target_data> &get_optional_targets();
@@ -89,6 +89,9 @@ namespace banggame {
 
         template<game_action_type T, typename ... Ts>
         void add_action(Ts && ... args);
+
+        template<typename ... Ts>
+        bool send_pick_card(card_pile_type pile, Ts && ... args);
     };
 
 }
