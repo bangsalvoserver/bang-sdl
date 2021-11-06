@@ -24,8 +24,8 @@ namespace banggame {
         void clear_status() {
             m_status_text = sdl::stattext();
         }
-        void disable_restart() {
-            m_restart_btn.disable();
+        void enable_restart(bool value) {
+            m_restart_btn.set_enabled(value);
         }
         void disable_goldrush() {
             m_sell_beer_btn.disable();

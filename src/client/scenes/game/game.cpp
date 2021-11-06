@@ -14,14 +14,13 @@ game_scene::game_scene(class game_manager *parent)
 {
     std::random_device rd;
     rng.seed(rd());
+
+    m_ui.enable_restart(false);
 }
 
 void game_scene::init(const game_started_args &args) {
     m_expansions = args.expansions;
 
-    if (parent->get_user_own_id() != parent->get_lobby_owner_id()) {
-        m_ui.disable_restart();
-    }
     if (!bool(args.expansions & card_expansion_type::goldrush)) {
         m_ui.disable_goldrush();
     }
@@ -320,6 +319,10 @@ void game_scene::handle_update(UPDATE_TAG(game_over), const game_over_update &ar
     std::string msg = "Game Over. Winner: ";
     msg += enums::to_string(args.winner_role);
     m_ui.add_message(msg);
+    
+    if (parent->get_user_own_id() == parent->get_lobby_owner_id()) {
+        m_ui.enable_restart(true);
+    }
 }
 
 void game_scene::handle_update(UPDATE_TAG(deck_shuffled), const card_pile_type &pile) {
