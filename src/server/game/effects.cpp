@@ -161,8 +161,7 @@ namespace banggame {
 
     void effect_destroy::on_play(int origin_card_id, player *origin, player *target, int card_id) {
         if (origin != target && target->can_escape(origin_card_id, flags)) {
-            auto &req = target->m_game->queue_request<request_type::destroy>(origin_card_id, origin, target, flags);
-            req.card_id = card_id;
+            target->m_game->queue_request(request_destroy{origin_card_id, origin, target, flags, card_id});
         } else {
             target->m_game->instant_event<event_type::on_discard_card>(origin, target, card_id);
             auto effect_end_pos = std::ranges::find(target->m_game->m_pending_events, enums::indexof(event_type::on_effect_end), &event_args::index);
@@ -179,8 +178,7 @@ namespace banggame {
 
     void effect_steal::on_play(int origin_card_id, player *origin, player *target, int card_id) {
         if (origin != target && target->can_escape(origin_card_id, flags)) {
-            auto &req = target->m_game->queue_request<request_type::steal>(origin_card_id, origin, target, flags);
-            req.card_id = card_id;
+            target->m_game->queue_request(request_steal{origin_card_id, origin, target, flags, card_id});
         } else {
             target->m_game->instant_event<event_type::on_discard_card>(origin, target, card_id);
             auto effect_end_pos = std::ranges::find(target->m_game->m_pending_events, enums::indexof(event_type::on_effect_end), &event_args::index);
@@ -256,12 +254,31 @@ namespace banggame {
     }
 
     void effect_poker::on_play(int origin_card_id, player *origin) {
-        auto next = origin;
-        do {
-            next = origin->m_game->get_next_player(next);
-            if (next == origin) return;
-        } while (next->m_hand.empty());
-        origin->m_game->queue_request<request_type::poker>(origin_card_id, origin, next, flags);
+        auto target = origin;
+        while(true) {
+            target = origin->m_game->get_next_player(target);
+            if (target == origin) break;
+            if (!target->m_hand.empty()) {
+                origin->m_game->queue_request<request_type::poker>(origin_card_id, origin, target, flags);
+            }
+        };
+        origin->m_game->queue_event<event_type::delayed_action>([=]{
+            if (std::ranges::any_of(origin->m_game->m_selection, [](const deck_card &c) {
+                return c.value == card_value_type::value_A;
+            })) {
+                for (auto &c : target->m_game->m_selection) {
+                    origin->m_game->move_to(std::move(c), card_pile_type::discard_pile);
+                }
+                origin->m_game->m_selection.clear();
+            } else if (origin->m_game->m_selection.size() <= 2) {
+                for (auto &c : origin->m_game->m_selection) {
+                    origin->add_to_hand(std::move(c));
+                }
+                origin->m_game->m_selection.clear();
+            } else {
+                origin->m_game->queue_request<request_type::poker_draw>(origin_card_id, origin, origin);
+            }
+        });
     }
 
     bool effect_saved::can_respond(player *origin) const {
@@ -536,25 +553,25 @@ namespace banggame {
             .get<event_type::on_play_card_end>().target<squaw_handler>()->steal = true;
     }
 
-    void effect_bush::on_equip(player *origin, int card_id) {
-        origin->m_game->add_event<event_type::trigger_bush>(card_id, [=](card_suit_type suit, card_value_type value) {
-            auto &req = origin->m_game->add_request<request_type::bush>(card_id, origin, origin);
+    void effect_tumbleweed::on_equip(player *origin, int card_id) {
+        origin->m_game->add_event<event_type::trigger_tumbleweed>(card_id, [=](card_suit_type suit, card_value_type value) {
+            auto &req = origin->m_game->add_request<request_type::tumbleweed>(card_id, origin, origin);
             req.suit = suit;
             req.value = value;
             origin->m_game->m_current_check->no_auto_resolve = true;
         });
     }
 
-    bool effect_bush::can_respond(player *origin) const {
-        return origin->m_game->top_request_is(request_type::bush);
+    bool effect_tumbleweed::can_respond(player *origin) const {
+        return origin->m_game->top_request_is(request_type::tumbleweed);
     }
 
-    void effect_bush::on_play(int origin_card_id, player *origin) {
+    void effect_tumbleweed::on_play(int origin_card_id, player *origin) {
         origin->m_game->pop_request();
         origin->m_game->do_draw_check();
     }
 
-    void timer_bush::on_finished() {
+    void timer_tumbleweed::on_finished() {
         origin->m_game->pop_request();
         origin->m_game->m_current_check->function(suit, value);
         origin->m_game->m_current_check.reset();

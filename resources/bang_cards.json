@@ -1723,12 +1723,12 @@
             "offturn": true,
             "equip": [
                 {
-                    "class": "bush"
+                    "class": "tumbleweed"
                 }
             ],
             "responses": [
                 {
-                    "class": "bush"
+                    "class": "tumbleweed"
                 },
                 {
                     "class": "pay_cube"

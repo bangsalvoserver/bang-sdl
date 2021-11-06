@@ -16,12 +16,6 @@
 
 namespace banggame {
 
-    struct request_view {
-        request_type type = request_type::none;
-        int origin_id;
-        int target_id;
-    };
-
     class game_scene : public scene_base {
     public:
         game_scene(class game_manager *parent);
@@ -60,7 +54,7 @@ namespace banggame {
         void handle_update(UPDATE_TAG(player_remove_character), const player_remove_character_update &args);
         void handle_update(UPDATE_TAG(player_show_role), const player_show_role_update &args);
         void handle_update(UPDATE_TAG(switch_turn),      const switch_turn_update &args);
-        void handle_update(UPDATE_TAG(request_handle),   const request_handle_update &args);
+        void handle_update(UPDATE_TAG(request_handle),   const request_view &args);
         void handle_update(UPDATE_TAG(status_clear));
         
         void pop_update();

@@ -636,19 +636,34 @@ void game_scene::handle_update(UPDATE_TAG(switch_turn), const switch_turn_update
     pop_update();
 }
 
-void game_scene::handle_update(UPDATE_TAG(request_handle), const request_handle_update &args) {
-    m_current_request.type = args.type;
-    m_current_request.origin_id = args.origin_id;
-    m_current_request.target_id = args.target_id;
+void game_scene::handle_update(UPDATE_TAG(request_handle), const request_view &args) {
+    m_current_request = args;
 
-    if (is_timer_request(args.type)) {
-        std::string message_str = "Timer started: ";
+    using namespace enums::stream_operators;
+    
+    constexpr auto timer_lut = []<request_type ... Es>(enums::enum_sequence<Es ...>) {
+        return std::array{ timer_request<Es> ... };
+    }(enums::make_enum_sequence<request_type>());
+
+    if (timer_lut[enums::indexof(args.type)]) {
+        std::string message_str = "Timer: ";
         message_str.append(enums::to_string(args.type));
         m_ui.set_status(message_str);
     } else if (args.target_id == m_player_own_id) {
-        std::string message_str = "Respond to: ";
-        message_str.append(enums::to_string(args.type));
-        m_ui.set_status(message_str);
+        std::stringstream ss;
+        ss << "Rispondi a";
+        if (auto *card = find_card_widget(args.origin_card_id)) {
+            ss << " " << card->name;
+        }
+        if (auto *card = find_card(args.card_target_id)) {
+            if (card->pile == &find_player(args.target_id)->hand) {
+                ss << " dalla mano";
+            } else {
+                ss << " su " << card->name;
+            }
+        }
+        ss << " (request: " << args.type << ")";
+        m_ui.set_status(ss.str());
     } else {
         m_ui.clear_status();
     }

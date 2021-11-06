@@ -130,10 +130,13 @@ namespace banggame {
         (player_id, int)
     )
 
-    DEFINE_SERIALIZABLE(request_handle_update,
+    DEFINE_SERIALIZABLE(request_view,
         (type, request_type)
+        (origin_card_id, int)
         (origin_id, int)
         (target_id, int)
+        (card_target_id, int)
+        (flags, effect_flags)
     )
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, game_update_type,
@@ -154,7 +157,7 @@ namespace banggame {
         (player_remove_character, player_remove_character_update)
         (player_show_role, player_show_role_update)
         (switch_turn, switch_turn_update)
-        (request_handle, request_handle_update)
+        (request_handle, request_view)
         (status_clear)
     )
 

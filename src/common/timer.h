@@ -38,8 +38,8 @@ namespace banggame {
         void on_finished();
     };
 
-    struct timer_bush : timer_base {
-        timer_bush() {
+    struct timer_tumbleweed : timer_base {
+        timer_tumbleweed() {
             duration = 150;
         }
         

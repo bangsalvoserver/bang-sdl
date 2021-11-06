@@ -11,20 +11,6 @@ namespace banggame {
 
     class game_scene;
 
-    constexpr bool is_timer_request(request_type type) {
-        constexpr auto lut = []<request_type ... Es>(enums::enum_sequence<Es ...>) {
-            return std::array{ timer_request<Es> ... };
-        }(enums::make_enum_sequence<request_type>());
-        return lut[enums::indexof(type)];
-    }
-
-    constexpr bool is_picking_request(request_type type) {
-        constexpr auto lut = []<request_type ... Es>(enums::enum_sequence<Es ...>) {
-            return std::array{ picking_request<Es> ... };
-        }(enums::make_enum_sequence<request_type>());
-        return lut[enums::indexof(type)];
-    };
-
     struct target_pair {
         player_view *player;
         card_widget *card;
@@ -78,6 +64,8 @@ namespace banggame {
         void add_character_target(target_pair target);
         bool add_player_targets(const std::vector<target_pair> &targets);
 
+        bool is_escape_card(card_widget *card);
+
         std::vector<card_target_data> &get_current_card_targets();
         std::vector<card_target_data> &get_optional_targets();
         card_target_data &get_target_at(int index);
@@ -89,9 +77,6 @@ namespace banggame {
 
         template<game_action_type T, typename ... Ts>
         void add_action(Ts && ... args);
-
-        template<typename ... Ts>
-        bool send_pick_card(card_pile_type pile, Ts && ... args);
     };
 
 }

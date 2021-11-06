@@ -25,7 +25,7 @@ namespace banggame {
         (delayed_action,    std::function<void(std::function<void()>)>)
         (on_discard_pass,   std::function<void(player *origin, int card_id)>)
         (on_draw_check,     std::function<void(int card_id)>)
-        (trigger_bush,      std::function<void(card_suit_type, card_value_type)>)
+        (trigger_tumbleweed, std::function<void(card_suit_type, card_value_type)>)
         (on_discard_card,   std::function<void(player *origin, player *target, int card_id)>)
         (on_hit,            std::function<void(player *origin, player *target, int damage, bool is_bang)>)
         (on_missed,         std::function<void(player *origin, player *target, bool is_bang)>)
@@ -159,12 +159,7 @@ namespace banggame {
             return req.is(type) && (!target || req.target() == target);
         }
 
-        void send_request_update() {
-            const auto &req = top_request();
-            add_public_update<game_update_type::request_handle>(req.enum_index(),
-                req.origin() ? req.origin()->id : 0,
-                req.target() ? req.target()->id : 0);
-        }
+        void send_request_update();
 
         template<request_type E>
         auto &add_request(int origin_card_id, player *origin, player *target, effect_flags flags = enums::flags_none<effect_flags>) {

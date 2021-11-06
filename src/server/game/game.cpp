@@ -57,6 +57,17 @@ namespace banggame {
         }
     }
 
+    void game::send_request_update() {
+        const auto &req = top_request();
+        add_public_update<game_update_type::request_handle>(
+            req.enum_index(),
+            req.origin_card_id(),
+            req.origin() ? req.origin()->id : 0,
+            req.target() ? req.target()->id : 0,
+            req.card_target_id(),
+            req.flags());
+    }
+
     void game::send_character_update(const character &c, int player_id, int index) {
         player_character_update obj;
         obj.info = make_card_info(c);
@@ -339,7 +350,7 @@ namespace banggame {
             auto suit = moved.suit;
             auto value = moved.value;
             queue_event<event_type::on_draw_check>(moved.id);
-            instant_event<event_type::trigger_bush>(suit, value);
+            instant_event<event_type::trigger_tumbleweed>(suit, value);
             if (!m_current_check->no_auto_resolve) {
                 m_current_check->function(suit, value);
                 m_current_check.reset();
@@ -364,7 +375,7 @@ namespace banggame {
         auto suit = moved.suit;
         auto value = moved.value;
         queue_event<event_type::on_draw_check>(moved.id);
-        instant_event<event_type::trigger_bush>(suit, value);
+        instant_event<event_type::trigger_tumbleweed>(suit, value);
         if (!m_current_check->no_auto_resolve) {
             m_current_check->function(suit, value);
             m_current_check.reset();

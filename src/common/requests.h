@@ -50,12 +50,14 @@ namespace banggame {
         int card_id;
 
         void on_resolve();
+        int card_target_id() const { return card_id; }
     };
 
     struct request_steal : request_base {
         int card_id;
 
         void on_resolve();
+        int card_target_id() const { return card_id; }
     };
 
     struct request_death : request_base {
@@ -74,7 +76,11 @@ namespace banggame {
         void on_pick(const pick_card_args &args);
     };
 
-    struct request_poker : picking_request_allowing<card_pile_type::player_hand, card_pile_type::selection> {
+    struct request_poker : picking_request_allowing<card_pile_type::player_hand> {
+        void on_pick(const pick_card_args &args);
+    };
+
+    struct request_poker_draw : picking_request_allowing<card_pile_type::selection> {
         int num_cards = 2;
 
         void on_pick(const pick_card_args &args);
@@ -116,6 +122,7 @@ namespace banggame {
         (bandidos,      request_bandidos)
         (tornado,       request_tornado)
         (poker,         request_poker)
+        (poker_draw,    request_poker_draw)
         (saved,         request_saved)
         (add_cube,      request_add_cube)
         (move_bomb,     request_move_bomb)
@@ -130,7 +137,7 @@ namespace banggame {
         (lemonade_jim,  timer_lemonade_jim)
         (al_preacher,   timer_al_preacher)
         (damaging,      timer_damaging)
-        (bush,          timer_bush)
+        (tumbleweed,          timer_tumbleweed)
     )
 
     template<request_type E> concept picking_request = requires (enums::enum_type_t<E> &req, card_pile_type pile, const pick_card_args &args) {
@@ -170,6 +177,15 @@ namespace banggame {
 
         effect_flags flags() const {
             return enums::visit(&request_base::flags, *this);
+        }
+
+        int card_target_id() const {
+            return enums::visit([](const auto &req) {
+                if constexpr (requires { req.card_target_id(); }) {
+                    return req.card_target_id();
+                }
+                return 0;
+            }, *this);
         }
     };
 
