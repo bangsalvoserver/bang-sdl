@@ -72,9 +72,8 @@ namespace banggame {
         void on_unequip(player *target, int card_id);
     };
 
-    struct effect_vera_custer : card_effect {
+    struct effect_vera_custer : event_based_effect {
         void on_equip(player *target, int card_id);
-        void on_unequip(player *target, int card_id);
     };
 
     struct request_vera_custer : picking_request_allowing<card_pile_type::player_character> {

@@ -447,14 +447,15 @@ namespace banggame {
     }
 
     void game::player_death(player *target) {
+        target->m_dead = true;
+        target->m_hp = 0;
+
+        instant_event<event_type::on_player_death>(m_playing, target);
+
         for (auto &c : target->m_characters) {
             c.on_unequip(target);
         }
-        
-        target->m_dead = true;
-        target->m_hp = 0;
-        
-        instant_event<event_type::on_player_death>(m_playing, target);
+
         target->discard_all();
 
         add_public_update<game_update_type::player_hp>(target->id, 0, true);
