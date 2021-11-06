@@ -7,30 +7,25 @@
 
 namespace banggame {
 
-    struct request_predraw : request_base {
-        using allowed_piles = pile_list<card_pile_type::player_table>;
+    struct request_predraw : picking_request_allowing<card_pile_type::player_table> {
         void on_pick(const pick_card_args &args);
     };
 
-    struct request_check : request_base {
+    struct request_check : picking_request_allowing<card_pile_type::selection> {
         bool invert_pop_req = false;
         
-        using allowed_piles = pile_list<card_pile_type::selection>;
         void on_pick(const pick_card_args &args);
     };
 
-    struct request_generalstore : request_base {
-        using allowed_piles = pile_list<card_pile_type::selection>;
+    struct request_generalstore : picking_request_allowing<card_pile_type::selection> {
         void on_pick(const pick_card_args &args);
     };
 
-    struct request_discard : request_base {
-        using allowed_piles = pile_list<card_pile_type::player_hand>;
+    struct request_discard : picking_request_allowing<card_pile_type::player_hand> {
         void on_pick(const pick_card_args &args);
     };
 
-    struct request_discard_pass : request_base {
-        using allowed_piles = pile_list<card_pile_type::player_hand>;
+    struct request_discard_pass : picking_request_allowing<card_pile_type::player_hand> {
         void on_pick(const pick_card_args &args);
     };
 
@@ -69,40 +64,35 @@ namespace banggame {
         void on_resolve();
     };
 
-    struct request_bandidos : request_damaging {
+    struct request_bandidos : picking_request_allowing<card_pile_type::player_hand> {
         int num_cards = 2;
 
-        using allowed_piles = pile_list<card_pile_type::player_hand>;
         void on_pick(const pick_card_args &args);
     };
 
-    struct request_tornado : request_base {
-        using allowed_piles = pile_list<card_pile_type::player_hand>;
+    struct request_tornado : picking_request_allowing<card_pile_type::player_hand> {
         void on_pick(const pick_card_args &args);
     };
 
-    struct request_poker : request_base {
+    struct request_poker : picking_request_allowing<card_pile_type::player_hand, card_pile_type::selection> {
         int num_cards = 2;
-        using allowed_piles = pile_list<card_pile_type::player_hand, card_pile_type::selection>;
+
         void on_pick(const pick_card_args &args);
     };
 
-    struct request_saved : request_base {
+    struct request_saved : picking_request_allowing<card_pile_type::player_hand, card_pile_type::main_deck> {
         player *saved = nullptr;
 
-        using allowed_piles = pile_list<card_pile_type::player_hand, card_pile_type::main_deck>;
         void on_pick(const pick_card_args &args);
     };
 
-    struct request_add_cube : request_base {
+    struct request_add_cube : picking_request_allowing<card_pile_type::player_character, card_pile_type::player_table> {
         int ncubes = 1;
         
-        using allowed_piles = pile_list<card_pile_type::player_character, card_pile_type::player_table>;
         void on_pick(const pick_card_args &args);
     };
 
-    struct request_move_bomb : request_base {
-        using allowed_piles = pile_list<card_pile_type::player>;
+    struct request_move_bomb : picking_request_allowing<card_pile_type::player> {
         void on_pick(const pick_card_args &args);
     };
 
@@ -143,17 +133,10 @@ namespace banggame {
         (bush,          timer_bush)
     )
 
-    template<request_type E> concept picking_request = requires (enums::enum_type_t<E> &req, const pick_card_args &args) {
+    template<request_type E> concept picking_request = requires (enums::enum_type_t<E> &req, card_pile_type pile, const pick_card_args &args) {
+        { enums::enum_type_t<E>::valid_pile(pile) } -> std::convertible_to<bool>;
         req.on_pick(args);
-        typename enums::enum_type_t<E>::allowed_piles;
     };
-
-    template<request_type E> requires picking_request<E>
-    static bool valid_picking_pile(card_pile_type pile) {
-        return [pile]<card_pile_type ... Es>(pile_list<Es...>) {
-            return ((pile == Es) || ...);
-        }(typename enums::enum_type_t<E>::allowed_piles());
-    }
 
     template<request_type E> concept resolvable_request = requires (enums::enum_type_t<E> &req) {
         req.on_resolve();

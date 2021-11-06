@@ -18,7 +18,7 @@ static bool is_valid_picking_pile(request_type type, card_pile_type pile) {
         return std::array {
             []()-> bool (*)(card_pile_type) {
                 if constexpr (picking_request<Es>) {
-                    return valid_picking_pile<Es>;
+                    return enums::enum_type_t<Es>::valid_pile;
                 } else {
                     return nullptr;
                 }

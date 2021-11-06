@@ -27,8 +27,7 @@ namespace banggame {
         void on_play(int origin_card_id, player *target);
     };
 
-    struct request_kit_carlson : request_base {
-        using allowed_piles = pile_list<card_pile_type::selection>;
+    struct request_kit_carlson : picking_request_allowing<card_pile_type::selection> {
         void on_pick(const pick_card_args &args);
     };
 
@@ -36,8 +35,7 @@ namespace banggame {
         void on_play(int origin_card_id, player *target);
     };
 
-    struct request_claus_the_saint : request_base {
-        using allowed_piles = pile_list<card_pile_type::selection>;
+    struct request_claus_the_saint : picking_request_allowing<card_pile_type::selection> {
         void on_pick(const pick_card_args &args);
     };
 
@@ -79,8 +77,7 @@ namespace banggame {
         void on_unequip(player *target, int card_id);
     };
 
-    struct request_vera_custer : request_base {
-        using allowed_piles = pile_list<card_pile_type::player_character>;
+    struct request_vera_custer : picking_request_allowing<card_pile_type::player_character> {
         void on_pick(const pick_card_args &args);
     };
 
@@ -118,8 +115,7 @@ namespace banggame {
         void on_equip(player *target, int card_id);
     };
 
-    struct request_youl_grinner : request_base {
-        using allowed_piles = pile_list<card_pile_type::player_hand>;
+    struct request_youl_grinner : picking_request_allowing<card_pile_type::player_hand> {
         void on_pick(const pick_card_args &args);
     };
 
@@ -155,8 +151,7 @@ namespace banggame {
         void on_play(int origin_card_id, player *origin);
     };
 
-    struct request_dutch_will : request_base {
-        using allowed_piles = pile_list<card_pile_type::selection>;
+    struct request_dutch_will : picking_request_allowing<card_pile_type::selection> {
         void on_pick(const pick_card_args &args);
     };
 
@@ -164,8 +159,7 @@ namespace banggame {
         void on_play(int origin_card_id, player *origin);
     };
 
-    struct request_shop_choose_target : request_base {
-        using allowed_piles = pile_list<card_pile_type::player>;
+    struct request_shop_choose_target : picking_request_allowing<card_pile_type::player> {
         void on_pick(const pick_card_args &args);
     };
 

@@ -23,7 +23,12 @@ namespace banggame {
         effect_flags flags = enums::flags_none<effect_flags>;
     };
 
-    template<card_pile_type ... Es> using pile_list = enums::enum_sequence<Es ...>;
+    template<card_pile_type ... Es>
+    struct picking_request_allowing : request_base {
+        static bool valid_pile(card_pile_type pile) {
+            return ((pile == Es) || ...);
+        }
+    };
     
     struct effect_bang : card_effect {
         void on_play(int origin_card_id, player *origin, player *target);
