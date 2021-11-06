@@ -6,7 +6,7 @@
 DECLARE_RESOURCE(icon_checkbox_png)
 
 namespace sdl {
-    class checkbox : private event_handler {
+    class checkbox : public event_handler {
     private:
         button_style m_style;
 

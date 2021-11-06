@@ -67,6 +67,7 @@ public:
     int height() const noexcept { return m_height; }
 
     int get_user_own_id() const noexcept { return m_user_own_id; }
+    int get_lobby_owner_id() const noexcept { return m_lobby_owner_id; }
 
     std::string get_user_name(int id) const {
         auto it = m_user_names.find(id);
@@ -87,7 +88,7 @@ private:
     void handle_message(MESSAGE_TAG(lobby_joined), const lobby_player_data &args);
     void handle_message(MESSAGE_TAG(lobby_left), const lobby_left_args &args);
     void handle_message(MESSAGE_TAG(lobby_chat), const lobby_chat_args &args);
-    void handle_message(MESSAGE_TAG(game_started));
+    void handle_message(MESSAGE_TAG(game_started), const game_started_args &args);
     void handle_message(MESSAGE_TAG(game_error), const std::string &message);
     void handle_message(MESSAGE_TAG(game_update), const banggame::game_update &args);
 
@@ -105,6 +106,7 @@ private:
     int m_height;
 
     int m_user_own_id = 0;
+    int m_lobby_owner_id = 0;
 
     config m_config;
 };

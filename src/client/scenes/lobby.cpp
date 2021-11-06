@@ -28,13 +28,10 @@ lobby_scene::lobby_scene(game_manager *parent)
 
 void lobby_scene::init(const lobby_entered_args &args) {
     m_lobby_name_text.redraw(args.info.name);
-
-    m_owner_id = args.owner_id;
-    m_user_id = args.user_id;
     
     parent->add_message<client_message_type::lobby_players>();
     
-    if (m_owner_id == m_user_id) {
+    if (parent->get_lobby_owner_id() == parent->get_user_own_id()) {
         [this, expansions = args.info.expansions]
         <banggame::card_expansion_type ... Es>(enums::enum_sequence<Es ...>){
             (m_checkboxes.emplace_back(enums::enum_data_v<Es>, Es, expansions).set_ontoggle([this] {
@@ -42,6 +39,8 @@ void lobby_scene::init(const lobby_entered_args &args) {
             }), ...);
         }(card_expansions_with_label());
     } else {
+        m_start_btn.disable();
+
         [this, expansions = args.info.expansions]
         <banggame::card_expansion_type ... Es>(enums::enum_sequence<Es ...>){
             (m_checkboxes.emplace_back(enums::enum_data_v<Es>, Es, expansions).set_locked(true), ...);
@@ -84,10 +83,8 @@ void lobby_scene::render(sdl::renderer &renderer) {
         y += 40;
     }
 
-    if (m_owner_id && m_owner_id == m_user_id) {
-        m_start_btn.set_rect(sdl::rect{100, y, 100, 25});
-        m_start_btn.render(renderer);
-    }
+    m_start_btn.set_rect(sdl::rect{100, y, 100, 25});
+    m_start_btn.render(renderer);
     
     sdl::rect checkbox_rect{parent->width() / 2, 100, 0, 25};
     for (auto &box : m_checkboxes) {

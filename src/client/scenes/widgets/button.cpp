@@ -8,6 +8,8 @@ button::button(const std::string &label, button_callback_fun &&onclick, const bu
     , m_onclick(std::move(onclick)) {}
 
 void button::render(renderer &renderer) {
+    if (!enabled()) return;
+    
     renderer.set_draw_color([&]{
         if (toggled) return m_style.down_color;
         switch (m_state) {

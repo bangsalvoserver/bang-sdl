@@ -21,7 +21,7 @@ namespace sdl {
         4
     };
 
-    class textbox : private event_handler {
+    class textbox : public event_handler {
     private:
         textbox_style m_style;
 

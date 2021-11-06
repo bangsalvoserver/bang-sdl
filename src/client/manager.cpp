@@ -86,6 +86,7 @@ void game_manager::connect(const std::string &host) {
 }
 
 void game_manager::disconnect() {
+    m_user_names.clear();
     sock_set.erase(sock);
     sock.close();
     switch_scene<scene_type::connect>()->show_error("Disconnesso dal server");
@@ -150,7 +151,9 @@ void game_manager::handle_message(MESSAGE_TAG(lobby_players), const std::vector<
 }
 
 void game_manager::handle_message(MESSAGE_TAG(lobby_entered), const lobby_entered_args &args) {
+    m_lobby_owner_id = args.owner_id;
     m_user_own_id = args.user_id;
+
     switch_scene<scene_type::lobby>()->init(args);
 }
 
@@ -164,6 +167,7 @@ void game_manager::handle_message(MESSAGE_TAG(lobby_joined), const lobby_player_
 void game_manager::handle_message(MESSAGE_TAG(lobby_left), const lobby_left_args &args) {
     m_user_names.erase(args.user_id);
     if (args.user_id == m_user_own_id) {
+        m_user_names.clear();
         switch_scene<scene_type::lobby_list>();
     } else if (auto *s = dynamic_cast<lobby_scene *>(m_scene)) {
         s->remove_user(args);
@@ -182,8 +186,8 @@ void game_manager::handle_message(MESSAGE_TAG(lobby_chat), const lobby_chat_args
     }
 }
 
-void game_manager::handle_message(MESSAGE_TAG(game_started)) {
-    switch_scene<scene_type::game>();
+void game_manager::handle_message(MESSAGE_TAG(game_started), const game_started_args &args) {
+    switch_scene<scene_type::game>()->init(args);
 }
 
 void game_manager::handle_message(MESSAGE_TAG(game_error), const std::string &message) {

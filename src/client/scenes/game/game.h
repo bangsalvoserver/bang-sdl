@@ -29,6 +29,8 @@ namespace banggame {
         sdl::color bg_color() override {
             return {0x07, 0x63, 0x25, 0xff};
         }
+
+        void init(const game_started_args &args);
         
         void resize(int width, int height) override;
         void render(sdl::renderer &renderer) override;
@@ -89,6 +91,8 @@ namespace banggame {
         std::map<int, cube_widget> m_cubes;
 
         card_widget *m_overlay = nullptr;
+
+        card_expansion_type m_expansions;
         
         int m_player_own_id = 0;
         int m_playing_id = 0;

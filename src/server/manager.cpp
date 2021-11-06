@@ -184,7 +184,7 @@ void game_manager::handle_message(MESSAGE_TAG(lobby_join), const sdlnet::ip_addr
             }
             send_message<server_message_type::lobby_players>(addr, std::move(vec));
 
-            send_message<server_message_type::game_started>(addr);
+            send_message<server_message_type::game_started>(addr, it->game.m_options.expansions);
             for (const auto &u : it->users) {
                 if (u.controlling) {
                     send_message<server_message_type::game_update>(addr, enums::enum_constant<game_update_type::player_add>{},
@@ -276,7 +276,7 @@ void game_manager::handle_message(MESSAGE_TAG(game_start), const sdlnet::ip_addr
 
     it->state = lobby_state::playing;
 
-    broadcast_message<server_message_type::game_started>(*it);
+    broadcast_message<server_message_type::game_started>(*it, it->expansions | card_expansion_type::base);
 
     it->start_game();
 }

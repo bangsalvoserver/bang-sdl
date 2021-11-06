@@ -16,6 +16,17 @@ game_scene::game_scene(class game_manager *parent)
     rng.seed(rd());
 }
 
+void game_scene::init(const game_started_args &args) {
+    m_expansions = args.expansions;
+
+    if (parent->get_user_own_id() != parent->get_lobby_owner_id()) {
+        m_ui.disable_restart();
+    }
+    if (!bool(args.expansions & card_expansion_type::goldrush)) {
+        m_ui.disable_goldrush();
+    }
+}
+
 static sdl::point cube_pile_offset(auto &rng) {
     return {
         int(rng() % (2 * sizes::cube_pile_size)) - sizes::cube_pile_size,
@@ -168,6 +179,17 @@ void game_scene::handle_event(const sdl::event &event) {
     case SDL_MOUSEBUTTONUP:
         if (event.button.button == SDL_BUTTON_MIDDLE) {
             m_overlay = nullptr;
+        }
+        break;
+    case SDL_KEYDOWN:
+        if (sdl::event_handler::is_focused(nullptr)) {
+            switch(event.key.keysym.sym) {
+            case SDLK_a: m_target.on_click_pass_turn(); break;
+            case SDLK_s: m_target.on_click_resolve(); break;
+            case SDLK_d: m_target.on_click_sell_beer(); break;
+            case SDLK_f: m_target.on_click_discard_black(); break;
+            default: break;
+            }
         }
         break;
     }

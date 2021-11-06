@@ -273,6 +273,7 @@ bool target_finder::on_click_player(player_view *player) {
 }
 
 void target_finder::on_click_sell_beer() {
+    if (!bool(m_game->m_expansions & card_expansion_type::goldrush)) return;
     if (m_modifiers.empty() && !m_playing_card && m_game->m_playing_id == m_game->m_player_own_id) {
         m_flags ^= play_card_flags::sell_beer;
         m_flags &= ~(play_card_flags::discard_black);
@@ -280,6 +281,7 @@ void target_finder::on_click_sell_beer() {
 }
 
 void target_finder::on_click_discard_black() {
+    if (!bool(m_game->m_expansions & card_expansion_type::goldrush)) return;
     if (m_modifiers.empty() && !m_playing_card && m_game->m_playing_id == m_game->m_player_own_id) {
         m_flags ^= play_card_flags::discard_black;
         m_flags &= ~(play_card_flags::sell_beer);

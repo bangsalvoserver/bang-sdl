@@ -24,6 +24,13 @@ namespace banggame {
         void clear_status() {
             m_status_text = sdl::stattext();
         }
+        void disable_restart() {
+            m_restart_btn.disable();
+        }
+        void disable_goldrush() {
+            m_sell_beer_btn.disable();
+            m_discard_black_btn.disable();
+        }
 
     private:
         class game_scene *parent;

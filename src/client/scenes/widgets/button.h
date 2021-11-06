@@ -23,7 +23,7 @@ namespace sdl {
         {0x0, 0x0, 0x0, 0xff},
     };
 
-    class button : private event_handler {
+    class button : public event_handler {
     private:
         button_style m_style;
         stattext m_text;
