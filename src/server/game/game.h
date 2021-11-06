@@ -105,8 +105,8 @@ namespace banggame {
 
         std::vector<character> m_base_characters;
 
-        using table_card_disabler = std::pair<int, bool>;
-        std::vector<table_card_disabler> m_table_card_disablers;
+        int m_table_cards_disabled = 0;
+        int m_characters_disabled = 0;
 
         player *m_playing = nullptr;
         player *m_next_turn = nullptr;
@@ -252,11 +252,8 @@ namespace banggame {
 
         void resolve_check(int card_id);
 
-        void disable_table_cards(int player_id, bool disable_characters = false);
-        void enable_table_cards(int player_id);
-
-        bool table_cards_disabled(int player_id);
-        bool characters_disabled(int player_id);
+        void disable_table_cards(bool disable_characters = false);
+        void enable_table_cards(bool enable_characters = false);
 
         int num_alive() const {
             return std::ranges::count_if(m_players, &player::alive);

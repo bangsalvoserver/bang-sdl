@@ -686,7 +686,7 @@ namespace banggame {
         };
 
         if (auto card_it = std::ranges::find(m_characters, args.card_id, &character::id); card_it != m_characters.end()) {
-            if (m_game->characters_disabled(id)) throw game_error("I personaggi sono disabilitati");
+            if (m_game->m_characters_disabled > 0 && m_game->m_playing != this) throw game_error("I personaggi sono disabilitati");
             if (can_respond(*card_it)) {
                 verify_card_targets(*card_it, true, args.targets);
                 m_game->add_log(this, nullptr, std::string("risposto con l'effetto di ") + card_it->name);
@@ -699,7 +699,7 @@ namespace banggame {
                 do_play_card(args.card_id, true, args.targets);
             }
         } else if (auto card_it = std::ranges::find(m_table, args.card_id, &deck_card::id); card_it != m_table.end()) {
-            if (m_game->table_cards_disabled(id)) throw game_error("Le carte in gioco sono disabilitate");
+            if (m_game->m_table_cards_disabled > 0 && m_game->m_playing != this) throw game_error("Le carte in gioco sono disabilitate");
             if (card_it->inactive) throw game_error("Carta non attiva in questo turno");
             if (can_respond(*card_it)) {
                 verify_card_targets(*card_it, true, args.targets);

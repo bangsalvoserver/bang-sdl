@@ -179,12 +179,12 @@ namespace banggame {
     void effect_bellestar::on_equip(player *p, int card_id) {
         p->m_game->add_event<event_type::on_turn_start>(card_id, [p](player *target) {
             if (p == target) {
-                p->m_game->disable_table_cards(p->id);
+                p->m_game->disable_table_cards();
             }
         });
         p->m_game->add_event<event_type::on_turn_end>(card_id, [p](player *target) {
             if (p == target) {
-                p->m_game->enable_table_cards(p->id);
+                p->m_game->enable_table_cards();
             }
         });
         p->m_game->add_event<event_type::on_equip>(card_id, [p](player *origin, player *target, int card_id) {
@@ -195,7 +195,9 @@ namespace banggame {
     }
 
     void effect_bellestar::on_unequip(player *target, int card_id) {
-        target->m_game->enable_table_cards(target->id);
+        if (target == target->m_game->m_playing) {
+            target->m_game->enable_table_cards();
+        }
         target->m_game->remove_events(card_id);
     }
 

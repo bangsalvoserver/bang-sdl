@@ -474,16 +474,14 @@ namespace banggame {
         }
     }
 
-    void game::disable_table_cards(int player_id, bool disable_characters) {
-        auto it = std::ranges::find(m_table_card_disablers, player_id, &table_card_disabler::first);
-        if (it == m_table_card_disablers.end()) {
-            m_table_card_disablers.emplace_back(player_id, disable_characters);
+    void game::disable_table_cards(bool disable_characters) {
+        if (m_table_cards_disabled++ == 0) {
             for (auto &p : m_players) {
-                if (!p.alive() || p.id == player_id) continue;
+                if (!p.alive() || p.id == m_playing->id) continue;
                 for (auto &c : p.m_table) {
                     c.on_unequip(&p);
                 }
-                if (disable_characters) {
+                if (disable_characters && m_characters_disabled++ == 0) {
                     for (auto &c : p.m_characters) {
                         c.on_unequip(&p);
                     }
@@ -492,32 +490,20 @@ namespace banggame {
         }
     }
 
-    void game::enable_table_cards(int player_id) {
-        auto it = std::ranges::find(m_table_card_disablers, player_id, &table_card_disabler::first);
-        if (it != m_table_card_disablers.end()) {
-            m_table_card_disablers.erase(it);
+    void game::enable_table_cards(bool enable_characters) {
+        if (--m_table_cards_disabled == 0) {
             for (auto &p : m_players) {
-                if (!p.alive() || p.id == player_id) continue;
+                if (!p.alive() || p.id == m_playing->id) continue;
                 for (auto &c : p.m_table) {
                     c.on_equip(&p);
                 }
-                if (it->second) {
+                if (enable_characters && --m_characters_disabled == 0) {
                     for (auto &c : p.m_characters) {
                         c.on_equip(&p);
                     }
                 }
             }
         }
-    }
-
-    bool game::table_cards_disabled(int player_id) {
-        return !m_table_card_disablers.empty()
-            && std::ranges::find(m_table_card_disablers, player_id, &table_card_disabler::first) == m_table_card_disablers.end();
-    }
-
-    bool game::characters_disabled(int player_id) {
-        return table_cards_disabled(player_id)
-            && std::ranges::any_of(m_table_card_disablers, &table_card_disabler::second);
     }
 
     void game::handle_action(ACTION_TAG(pick_card), player *p, const pick_card_args &args) {
