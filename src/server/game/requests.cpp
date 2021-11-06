@@ -81,9 +81,9 @@ namespace banggame {
     }
 
     void request_bang::on_resolve() {
-        cleanup();
         target->m_game->pop_request();
         target->damage(origin_card_id, origin, bang_damage, is_bang_card);
+        cleanup();
     }
 
     void request_bang::cleanup() {
@@ -116,6 +116,11 @@ namespace banggame {
                 target->m_game->pop_request();
             }
         }
+    }
+
+    void request_bandidos::on_resolve() {
+        target->m_game->pop_request();
+        target->damage(origin_card_id, origin, 1);
     }
 
     void request_tornado::on_pick(const pick_card_args &args) {

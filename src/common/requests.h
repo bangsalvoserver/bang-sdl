@@ -70,6 +70,7 @@ namespace banggame {
         int num_cards = 2;
 
         void on_pick(const pick_card_args &args);
+        void on_resolve();
     };
 
     struct request_tornado : picking_request_allowing<card_pile_type::player_hand> {

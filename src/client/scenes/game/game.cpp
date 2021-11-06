@@ -646,9 +646,13 @@ void game_scene::handle_update(UPDATE_TAG(request_handle), const request_view &a
     }(enums::make_enum_sequence<request_type>());
 
     if (timer_lut[enums::indexof(args.type)]) {
-        std::string message_str = "Timer: ";
-        message_str.append(enums::to_string(args.type));
-        m_ui.set_status(message_str);
+        std::stringstream ss;
+        ss << "Timer per";
+        if (auto *card = find_card_widget(args.origin_card_id)) {
+            ss << " " << card->name;
+        }
+        ss << " (request: " << args.type << ")";
+        m_ui.set_status(ss.str());
     } else if (args.target_id == m_player_own_id) {
         std::stringstream ss;
         ss << "Rispondi a";
