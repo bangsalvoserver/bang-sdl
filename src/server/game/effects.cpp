@@ -469,10 +469,12 @@ namespace banggame {
 
     void effect_thunderer::on_play(int origin_card_id, player *origin) {
         origin->add_bang_mod([=](request_bang &req) {
-            int bang_id = origin->m_virtual ? origin->m_virtual->first : req.origin_card_id;
-            auto it = std::ranges::find(origin->m_game->m_discards | std::views::reverse, bang_id, &deck_card::id);
-            origin->add_to_hand(std::move(*it));
-            origin->m_game->m_discards.erase(it.base());
+            req.cleanup_function = [=]{
+                int bang_id = origin->m_virtual ? origin->m_virtual->first : req.origin_card_id;
+                auto it = std::ranges::find(origin->m_game->m_discards | std::views::reverse, bang_id, &deck_card::id);
+                origin->add_to_hand(std::move(*it));
+                origin->m_game->m_discards.erase(it.base());
+            };
         });
     }
 
