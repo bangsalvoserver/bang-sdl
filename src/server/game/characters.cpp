@@ -318,23 +318,24 @@ namespace banggame {
         });
     }
 
-    bool effect_teren_kill::can_respond(player *origin) const {
-        return origin->m_game->top_request_is(request_type::death, origin);
+    bool effect_teren_kill::can_respond(card *origin_card, player *origin) const {
+        if (origin->m_game->top_request_is(request_type::death, origin)) {
+            auto &req = origin->m_game->top_request().get<request_type::death>();
+            return std::ranges::find(req.draw_attempts, origin_card) == req.draw_attempts.end();
+        }
     }
 
     void effect_teren_kill::on_play(card *origin_card, player *origin) {
         auto &req = origin->m_game->top_request().get<request_type::death>();
-        if (std::ranges::find(req.draw_attempts, origin->id) == req.draw_attempts.end()) {
-            req.draw_attempts.push_back(origin->id);
-            origin->m_game->draw_check_then(origin, [origin](card_suit_type suit, card_value_type) {
-                if (suit != card_suit_type::spades) {
-                    origin->m_game->pop_request();
-                    origin->m_hp = 1;
-                    origin->m_game->add_public_update<game_update_type::player_hp>(origin->id, 1);
-                    origin->m_game->draw_card_to(card_pile_type::player_hand, origin);
-                }
-            });
-        }
+        req.draw_attempts.push_back(origin_card);
+        origin->m_game->draw_check_then(origin, [origin](card_suit_type suit, card_value_type) {
+            if (suit != card_suit_type::spades) {
+                origin->m_game->pop_request();
+                origin->m_hp = 1;
+                origin->m_game->add_public_update<game_update_type::player_hp>(origin->id, 1);
+                origin->m_game->draw_card_to(card_pile_type::player_hand, origin);
+            }
+        });
     }
 
     void effect_youl_grinner::on_equip(player *target, card *target_card) {
@@ -444,22 +445,22 @@ namespace banggame {
     void effect_lemonade_jim::on_equip(player *origin, card *target_card) {
         origin->m_game->add_event<event_type::on_play_beer>(target_card, [=](player *target) {
             if (origin != target) {
-                target->m_game->queue_request<request_type::lemonade_jim>(target_card, nullptr, origin).players.push_back(target->id);
+                target->m_game->queue_request<request_type::lemonade_jim>(target_card, nullptr, origin).players.push_back(origin);
             }
         });
     }
 
-    bool effect_lemonade_jim::can_respond(player *target) const {
+    bool effect_lemonade_jim::can_respond(card *origin_card, player *target) const {
         if (target->m_game->top_request_is(request_type::lemonade_jim, target)) {
             const auto &vec = target->m_game->top_request().get<request_type::lemonade_jim>().players;
-            return std::ranges::find(vec, target->id) == vec.end();
+            return std::ranges::find(vec, target) == vec.end();
         }
         return false;
     }
 
     void effect_lemonade_jim::on_play(card *origin_card, player *origin, player *target) {
         target->heal(1);
-        target->m_game->top_request().get<request_type::lemonade_jim>().players.push_back(target->id);
+        target->m_game->top_request().get<request_type::lemonade_jim>().players.push_back(target);
     }
     
     void effect_al_preacher::on_equip(player *p, card *target_card) {
@@ -472,16 +473,16 @@ namespace banggame {
         });
     }
 
-    bool effect_al_preacher::can_respond(player *target) const {
+    bool effect_al_preacher::can_respond(card *origin_card, player *target) const {
         if (target->m_game->top_request_is(request_type::al_preacher, target)) {
             const auto &vec = target->m_game->top_request().get<request_type::al_preacher>().players;
-            return std::ranges::find(vec, target->id) == vec.end();
+            return std::ranges::find(vec, target) == vec.end();
         }
         return false;
     }
 
     void effect_al_preacher::on_play(card *origin_card, player *target) {
-        target->m_game->top_request().get<request_type::al_preacher>().players.push_back(target->id);
+        target->m_game->top_request().get<request_type::al_preacher>().players.push_back(target);
     }
 
     void effect_dutch_will::on_play(card *origin_card, player *target) {
@@ -612,7 +613,7 @@ namespace banggame {
         }
     }
 
-    bool effect_ms_abigail::can_respond(player *origin) const {
+    bool effect_ms_abigail::can_respond(card *origin_card, player *origin) const {
         return can_escape(origin, origin->m_game->top_request().origin_card(), origin->m_game->top_request().flags());
     }
 

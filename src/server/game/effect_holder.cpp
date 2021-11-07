@@ -31,10 +31,10 @@ namespace banggame {
         }, *this);
     }
 
-    bool effect_holder::can_respond(player *target) const {
+    bool effect_holder::can_respond(card *origin_card, player *target) const {
         return enums::visit([=](const auto &value) {
-            if constexpr (requires { value.can_respond(target); }) {
-                return value.can_respond(target);
+            if constexpr (requires { value.can_respond(origin_card, target); }) {
+                return value.can_respond(origin_card, target);
             }
             return false;
         }, *this);

@@ -57,30 +57,30 @@ namespace banggame {
     };
 
     struct effect_bangresponse : card_effect {
-        bool can_respond(player *origin) const;
+        bool can_respond(card *origin_card, player *origin) const;
         void on_play(card *origin_card, player *origin);
     };
 
     struct effect_bangresponse_onturn : effect_bangresponse {
-        bool can_respond(player *origin) const;
+        bool can_respond(card *origin_card, player *origin) const;
     };
     
     struct effect_missed : card_effect {
-        bool can_respond(player *origin) const;
+        bool can_respond(card *origin_card, player *origin) const;
         void on_play(card *origin_card, player *origin);
     };
 
     struct effect_missedcard : effect_missed {
-        bool can_respond(player *origin) const;
+        bool can_respond(card *origin_card, player *origin) const;
     };
 
     struct effect_bangmissed : card_effect {
-        bool can_respond(player *origin) const;
+        bool can_respond(card *origin_card, player *origin) const;
         void on_play(card *origin_card, player *origin);
     };
     
     struct effect_barrel : card_effect {
-        bool can_respond(player *origin) const;
+        bool can_respond(card *origin_card, player *origin) const;
         void on_play(card *origin_card, player *target);
     };
 
@@ -102,7 +102,7 @@ namespace banggame {
     };
 
     struct effect_deathsave : card_effect {
-        bool can_respond(player *origin) const;
+        bool can_respond(card *origin_card, player *origin) const;
         void on_play(card *origin_card, player *origin);
     };
 
@@ -165,12 +165,12 @@ namespace banggame {
     };
 
     struct effect_saved : card_effect {
-        bool can_respond(player *origin) const;
+        bool can_respond(card *origin_card, player *origin) const;
         void on_play(card *origin_card, player *origin);
     };
 
     struct effect_escape : card_effect {
-        bool can_respond(player *origin) const;
+        bool can_respond(card *origin_card, player *origin) const;
         void on_play(card *origin_card, player *origin);
     };
 
@@ -191,7 +191,7 @@ namespace banggame {
     };
 
     struct effect_shopchoice : card_effect {
-        bool can_respond(player *origin) const;
+        bool can_respond(card *origin_card, player *origin) const;
         void on_play(card *origin_card, player *origin);
     };
 

@@ -173,7 +173,7 @@ namespace banggame {
     struct effect_holder : effect_base<effect_type> {
         using effect_base<effect_type>::effect_base;
 
-        bool can_respond(player *target) const;
+        bool can_respond(card *origin_card, player *target) const;
 
         bool can_play(card *origin_card, player *origin) const;
         void on_play(card *origin_card, player *origin);

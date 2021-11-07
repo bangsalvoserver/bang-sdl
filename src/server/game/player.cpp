@@ -650,9 +650,9 @@ namespace banggame {
     }
     
     void player::respond_card(const play_card_args &args) {
-        auto can_respond = [&](const card *c) {
+        auto can_respond = [&](card *c) {
             return std::ranges::any_of(c->responses, [&](const effect_holder &e) {
-                return e.can_respond(this);
+                return e.can_respond(c, this);
             });
         };
 

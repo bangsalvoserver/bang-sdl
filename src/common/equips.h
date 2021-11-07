@@ -97,7 +97,7 @@ namespace banggame {
     struct effect_tumbleweed : event_based_effect {
         void on_equip(player *target, card *target_card);
 
-        bool can_respond(player *origin) const;
+        bool can_respond(card *origin_card, player *origin) const;
         void on_play(card *origin_card, player *target);
     };
 

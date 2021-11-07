@@ -28,7 +28,7 @@ namespace banggame {
         });
     }
 
-    bool effect_missed::can_respond(player *origin) const {
+    bool effect_missed::can_respond(card *origin_card, player *origin) const {
         if (origin->m_game->top_request_is(request_type::bang, origin)) {
             auto &req = origin->m_game->top_request().get<request_type::bang>();
             return !req.unavoidable;
@@ -44,24 +44,27 @@ namespace banggame {
         }
     }
 
-    bool effect_missedcard::can_respond(player *origin) const {
-        return !origin->m_cant_play_missedcard && effect_missed().can_respond(origin);
+    bool effect_missedcard::can_respond(card *origin_card, player *origin) const {
+        return !origin->m_cant_play_missedcard
+            && effect_missed().can_respond(origin_card, origin);
     }
 
-    bool effect_barrel::can_respond(player *origin) const {
-        return effect_missed().can_respond(origin);
+    bool effect_barrel::can_respond(card *origin_card, player *origin) const {
+        if (effect_missed().can_respond(origin_card, origin)) {
+            auto &req = origin->m_game->top_request().get<request_type::bang>();
+            return std::ranges::find(req.barrels_used, origin_card) == std::ranges::end(req.barrels_used);
+        }
+        return false;
     }
 
     void effect_barrel::on_play(card *origin_card, player *target) {
         auto &req = target->m_game->top_request().get<request_type::bang>();
-        if (std::ranges::find(req.barrels_used, origin_card) == std::ranges::end(req.barrels_used)) {
-            req.barrels_used.push_back(origin_card);
-            target->m_game->draw_check_then(target, [=](card_suit_type suit, card_value_type) {
-                if (suit == card_suit_type::hearts) {
-                    effect_missed().on_play(origin_card, target);
-                }
-            });
-        }
+        req.barrels_used.push_back(origin_card);
+        target->m_game->draw_check_then(target, [=](card_suit_type suit, card_value_type) {
+            if (suit == card_suit_type::hearts) {
+                effect_missed().on_play(origin_card, target);
+            }
+        });
     }
 
     bool effect_banglimit::can_play(card *origin_card, player *origin) const {
@@ -80,7 +83,7 @@ namespace banggame {
         target->m_game->queue_request<request_type::duel>(origin_card, origin, target, flags);
     }
 
-    bool effect_bangresponse::can_respond(player *origin) const {
+    bool effect_bangresponse::can_respond(card *origin_card, player *origin) const {
         return origin->m_game->top_request_is(request_type::duel, origin)
             || origin->m_game->top_request_is(request_type::indians, origin);
     }
@@ -99,12 +102,14 @@ namespace banggame {
         }
     }
 
-    bool effect_bangresponse_onturn::can_respond(player *origin) const {
-        return effect_bangresponse::can_respond(origin) && origin == origin->m_game->m_playing;
+    bool effect_bangresponse_onturn::can_respond(card *origin_card, player *origin) const {
+        return effect_bangresponse::can_respond(origin_card, origin)
+            && origin == origin->m_game->m_playing;
     }
 
-    bool effect_bangmissed::can_respond(player *origin) const {
-        return effect_missed().can_respond(origin) || effect_bangresponse().can_respond(origin);
+    bool effect_bangmissed::can_respond(card *origin_card, player *origin) const {
+        return effect_missed().can_respond(origin_card, origin)
+            || effect_bangresponse().can_respond(origin_card, origin);
     }
 
     void effect_bangmissed::on_play(card *origin_card, player *target) {
@@ -145,7 +150,7 @@ namespace banggame {
         }
     }
 
-    bool effect_deathsave::can_respond(player *origin) const {
+    bool effect_deathsave::can_respond(card *origin_card, player *origin) const {
         if (origin->m_game->top_request_is(request_type::death, origin)) {
             auto &req = origin->m_game->top_request().get<request_type::death>();
             return req.draw_attempts.empty();
@@ -278,7 +283,7 @@ namespace banggame {
         });
     }
 
-    bool effect_saved::can_respond(player *origin) const {
+    bool effect_saved::can_respond(card *origin_card, player *origin) const {
         if (origin->m_game->top_request_is(request_type::damaging)) {
             auto &t = origin->m_game->top_request().get<request_type::damaging>();
             return t.target != origin;
@@ -299,7 +304,7 @@ namespace banggame {
         });
     }
 
-    bool effect_escape::can_respond(player *origin) const {
+    bool effect_escape::can_respond(card *origin_card, player *origin) const {
         return !origin->m_game->m_requests.empty()
             && bool(origin->m_game->top_request().flags() & effect_flags::escapable);
     }
@@ -364,7 +369,7 @@ namespace banggame {
         swap_shop_choice_in(origin_card, origin, effect_type::pardnerchoice);
     }
 
-    bool effect_shopchoice::can_respond(player *origin) const {
+    bool effect_shopchoice::can_respond(card *origin_card, player *origin) const {
         return origin->m_game->top_request_is(request_type::shopchoice, origin);
     }
 
@@ -546,7 +551,7 @@ namespace banggame {
         });
     }
 
-    bool effect_tumbleweed::can_respond(player *origin) const {
+    bool effect_tumbleweed::can_respond(card *origin_card, player *origin) const {
         return origin->m_game->top_request_is(request_type::tumbleweed);
     }
 

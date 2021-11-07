@@ -61,7 +61,7 @@ namespace banggame {
     };
 
     struct request_death : request_base {
-        std::vector<int> draw_attempts;
+        std::vector<card *> draw_attempts;
         
         void on_resolve();
     };
