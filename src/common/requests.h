@@ -8,25 +8,25 @@
 namespace banggame {
 
     struct request_predraw : picking_request_allowing<card_pile_type::player_table> {
-        void on_pick(const pick_card_args &args);
+        void on_pick(card_pile_type pile, player *target, card *target_card);
     };
 
     struct request_check : picking_request_allowing<card_pile_type::selection> {
         bool invert_pop_req = false;
         
-        void on_pick(const pick_card_args &args);
+        void on_pick(card_pile_type pile, player *target, card *target_card);
     };
 
     struct request_generalstore : picking_request_allowing<card_pile_type::selection> {
-        void on_pick(const pick_card_args &args);
+        void on_pick(card_pile_type pile, player *target, card *target_card);
     };
 
     struct request_discard : picking_request_allowing<card_pile_type::player_hand> {
-        void on_pick(const pick_card_args &args);
+        void on_pick(card_pile_type pile, player *target, card *target_card);
     };
 
     struct request_discard_pass : picking_request_allowing<card_pile_type::player_hand> {
-        void on_pick(const pick_card_args &args);
+        void on_pick(card_pile_type pile, player *target, card *target_card);
     };
 
     struct request_damaging : request_base {
@@ -34,7 +34,7 @@ namespace banggame {
     };
 
     struct request_bang : request_base {
-        std::vector<int> barrels_used;
+        std::vector<card *> barrels_used;
         int bang_strength = 1;
         int bang_damage = 1;
         bool unavoidable = false;
@@ -47,17 +47,17 @@ namespace banggame {
     };
 
     struct request_destroy : request_base {
-        int card_id;
+        card *m_target_card;
 
         void on_resolve();
-        int card_target_id() const { return card_id; }
+        card *target_card() const { return m_target_card; }
     };
 
     struct request_steal : request_base {
-        int card_id;
+        card *m_target_card;
 
         void on_resolve();
-        int card_target_id() const { return card_id; }
+        card *target_card() const { return m_target_card; }
     };
 
     struct request_death : request_base {
@@ -69,38 +69,38 @@ namespace banggame {
     struct request_bandidos : picking_request_allowing<card_pile_type::player_hand> {
         int num_cards = 2;
 
-        void on_pick(const pick_card_args &args);
+        void on_pick(card_pile_type pile, player *target, card *target_card);
         void on_resolve();
     };
 
     struct request_tornado : picking_request_allowing<card_pile_type::player_hand> {
-        void on_pick(const pick_card_args &args);
+        void on_pick(card_pile_type pile, player *target, card *target_card);
     };
 
     struct request_poker : picking_request_allowing<card_pile_type::player_hand> {
-        void on_pick(const pick_card_args &args);
+        void on_pick(card_pile_type pile, player *target, card *target_card);
     };
 
     struct request_poker_draw : picking_request_allowing<card_pile_type::selection> {
         int num_cards = 2;
 
-        void on_pick(const pick_card_args &args);
+        void on_pick(card_pile_type pile, player *target, card *target_card);
     };
 
     struct request_saved : picking_request_allowing<card_pile_type::player_hand, card_pile_type::main_deck> {
         player *saved = nullptr;
 
-        void on_pick(const pick_card_args &args);
+        void on_pick(card_pile_type pile, player *target, card *target_card);
     };
 
     struct request_add_cube : picking_request_allowing<card_pile_type::player_character, card_pile_type::player_table> {
         int ncubes = 1;
         
-        void on_pick(const pick_card_args &args);
+        void on_pick(card_pile_type pile, player *target, card *target_card);
     };
 
     struct request_move_bomb : picking_request_allowing<card_pile_type::player> {
-        void on_pick(const pick_card_args &args);
+        void on_pick(card_pile_type pile, player *target, card *target_card);
     };
 
     struct request_rust : request_base {
@@ -141,9 +141,10 @@ namespace banggame {
         (tumbleweed,          timer_tumbleweed)
     )
 
-    template<request_type E> concept picking_request = requires (enums::enum_type_t<E> &req, card_pile_type pile, const pick_card_args &args) {
+    template<request_type E> concept picking_request =
+        requires(enums::enum_type_t<E> &req, card_pile_type pile, player *target, card *target_card) {
         { enums::enum_type_t<E>::valid_pile(pile) } -> std::convertible_to<bool>;
-        req.on_pick(args);
+        req.on_pick(pile, target, target_card);
     };
 
     template<request_type E> concept resolvable_request = requires (enums::enum_type_t<E> &req) {
@@ -155,17 +156,17 @@ namespace banggame {
     struct request_holder : enums::enum_variant<request_type> {
         using enums::enum_variant<request_type>::enum_variant;
         
-        template<request_type E> request_holder(enums::enum_constant<E> tag, int origin_card_id, player *origin, player *target, effect_flags flags)
+        template<request_type E> request_holder(enums::enum_constant<E> tag, card *origin_card, player *origin, player *target, effect_flags flags)
             : enums::enum_variant<request_type>(tag) {
             auto &obj = get<E>();
-            obj.origin_card_id = origin_card_id;
+            obj.origin_card = origin_card;
             obj.origin = origin;
             obj.target = target;
             obj.flags = flags;
         }
 
-        int origin_card_id() const {
-            return enums::visit(&request_base::origin_card_id, *this);
+        card *origin_card() const {
+            return enums::visit(&request_base::origin_card, *this);
         }
 
         player *origin() const {
@@ -176,17 +177,17 @@ namespace banggame {
             return enums::visit(&request_base::target, *this);
         }
 
-        effect_flags flags() const {
-            return enums::visit(&request_base::flags, *this);
+        card *target_card() const {
+            return enums::visit([](const auto &req) -> card * {
+                if constexpr (requires { req.target_card(); }) {
+                    return req.target_card();
+                }
+                return nullptr;
+            }, *this);
         }
 
-        int card_target_id() const {
-            return enums::visit([](const auto &req) {
-                if constexpr (requires { req.card_target_id(); }) {
-                    return req.card_target_id();
-                }
-                return 0;
-            }, *this);
+        effect_flags flags() const {
+            return enums::visit(&request_base::flags, *this);
         }
     };
 
