@@ -613,8 +613,7 @@ void target_finder::send_play_card() {
             auto &subvec = ret.targets.emplace_back(enums::enum_constant<play_card_target_type::target_card>())
                 .get<play_card_target_type::target_card>();
             for (const auto &pair : vec) {
-                subvec.emplace_back(pair.player->id, pair.card->id,
-                    std::ranges::find(pair.player->hand, pair.card->id, &card_widget::id) != pair.player->hand.end());
+                subvec.emplace_back(pair.player->id, pair.card->id);
             }
         }
     }

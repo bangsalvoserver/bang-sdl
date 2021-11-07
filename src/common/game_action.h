@@ -12,7 +12,6 @@ namespace banggame {
     DEFINE_SERIALIZABLE(target_card_id,
         (player_id, int)
         (card_id, int)
-        (from_hand, bool)
     )
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, play_card_target_type,

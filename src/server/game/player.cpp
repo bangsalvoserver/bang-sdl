@@ -337,7 +337,7 @@ namespace banggame {
                             auto *target = m_game->get_player(arg.player_id);
                             auto *card = m_game->find_card(arg.card_id);
                             if (!e.can_play(card_ptr, this, target, card)) return false;
-                            if (arg.from_hand) return true;
+                            if (std::ranges::find(target->m_hand, card) != target->m_table.end()) return true;
                             return std::ranges::find(target->m_table, card) != target->m_table.end();
                         });
                     } else {
@@ -355,8 +355,8 @@ namespace banggame {
                                 case target_type::maxdistance: return player_in_range(this, target, e.args() + m_range_mod);
                                 case target_type::attacker: return !m_game->m_requests.empty() && m_game->top_request().origin() == target;
                                 case target_type::new_target: return is_new_target(m_current_card_targets, card_ptr, target);
-                                case target_type::table: return !args.front().from_hand;
-                                case target_type::hand: return args.front().from_hand;
+                                case target_type::table: return std::ranges::find(target->m_table, target_card) != target->m_table.end();
+                                case target_type::hand: return std::ranges::find(target->m_hand, target_card) != target->m_hand.end();
                                 case target_type::blue: return target_card->color == card_color_type::blue;
                                 case target_type::clubs: return target_card->suit == card_suit_type::clubs;
                                 case target_type::bang: 
@@ -456,7 +456,7 @@ namespace banggame {
                         auto *p = m_game->get_player(target.player_id);
                         if (p != this && check_immunity(p)) continue;
                         m_current_card_targets.emplace(card_ptr, p);
-                        if (target.from_hand && p != this) {
+                        if (p != this && std::ranges::find(p->m_hand, card_ptr) != p->m_hand.end()) {
                             effect_it->on_play(card_ptr, this, p, p->random_hand_card());
                         } else {
                             effect_it->on_play(card_ptr, this, p, m_game->find_card(target.card_id));
