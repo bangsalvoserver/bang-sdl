@@ -4,28 +4,28 @@
 
 namespace banggame {
 
-    bool effect_holder::can_play(int origin_card_id, player *origin) const {
+    bool effect_holder::can_play(card *origin_card, player *origin) const {
         return enums::visit([=](const auto &value) {
-            if constexpr (requires { value.can_play(origin_card_id, origin); }) {
-                return value.can_play(origin_card_id, origin);
+            if constexpr (requires { value.can_play(origin_card, origin); }) {
+                return value.can_play(origin_card, origin);
             }
             return true;
         }, *this);
     }
 
-    bool effect_holder::can_play(int origin_card_id, player *origin, player *target) const {
+    bool effect_holder::can_play(card *origin_card, player *origin, player *target) const {
         return enums::visit([=](const auto &value) {
-            if constexpr (requires { value.can_play(origin_card_id, origin, target); }) {
-                return value.can_play(origin_card_id, origin, target);
+            if constexpr (requires { value.can_play(origin_card, origin, target); }) {
+                return value.can_play(origin_card, origin, target);
             }
             return true;
         }, *this);
     }
 
-    bool effect_holder::can_play(int origin_card_id, player *origin, player *target, int card_id) const {
+    bool effect_holder::can_play(card *origin_card, player *origin, player *target, card *target_card) const {
         return enums::visit([=](const auto &value) {
-            if constexpr (requires { value.can_play(origin_card_id, origin, target, card_id); }) {
-                return value.can_play(origin_card_id, origin, target, card_id);
+            if constexpr (requires { value.can_play(origin_card, origin, target, target_card); }) {
+                return value.can_play(origin_card, origin, target, target_card);
             }
             return true;
         }, *this);
@@ -40,45 +40,45 @@ namespace banggame {
         }, *this);
     }
 
-    void effect_holder::on_play(int origin_card_id, player *origin) {
+    void effect_holder::on_play(card *origin_card, player *origin) {
         enums::visit([=](auto &value) {
-            if constexpr (requires { value.on_play(origin_card_id, origin); }) {
-                value.on_play(origin_card_id, origin);
+            if constexpr (requires { value.on_play(origin_card, origin); }) {
+                value.on_play(origin_card, origin);
             } else {
                 throw std::runtime_error("on_play(origin)");
             }
         }, *this);
     }
 
-    void effect_holder::on_play(int origin_card_id, player *origin, player *target) {
+    void effect_holder::on_play(card *origin_card, player *origin, player *target) {
         enums::visit([=](auto &value) {
-            if constexpr (requires { value.on_play(origin_card_id, origin, target); }) {
-                value.on_play(origin_card_id, origin, target);
+            if constexpr (requires { value.on_play(origin_card, origin, target); }) {
+                value.on_play(origin_card, origin, target);
             } else {
                 throw std::runtime_error("on_play(origin, target)");
             }
         }, *this);
     }
 
-    void effect_holder::on_play(int origin_card_id, player *origin, player *target, int card_id) {
+    void effect_holder::on_play(card *origin_card, player *origin, player *target, card *target_card) {
         enums::visit([=](auto &value) {
-            if constexpr (requires { value.on_play(origin_card_id, origin, target, card_id); }) {
-                value.on_play(origin_card_id, origin, target, card_id);
+            if constexpr (requires { value.on_play(origin_card, origin, target, target_card); }) {
+                value.on_play(origin_card, origin, target, target_card);
             } else {
-                throw std::runtime_error("on_play(origin, target, card_id)");
+                throw std::runtime_error("on_play(origin, target, card)");
             }
         }, *this);
     }
 
-    void equip_holder::on_equip(player *target, int card_id) {
+    void equip_holder::on_equip(player *target, card *target_card) {
         enums::visit([=](auto &value) {
-            value.on_equip(target, card_id);
+            value.on_equip(target, target_card);
         }, *this);
     }
 
-    void equip_holder::on_unequip(player *target, int card_id) {
+    void equip_holder::on_unequip(player *target, card *target_card) {
         enums::visit([=](auto &value) {
-            value.on_unequip(target, card_id);
+            value.on_unequip(target, target_card);
         }, *this);
     }
 

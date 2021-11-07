@@ -136,9 +136,9 @@ namespace banggame {
         template<typename ... Ts> struct all_is_effect<std::variant<Ts...>>
             : std::bool_constant<(is_effect<Ts> && ...)> {};
 
-        template<typename T> concept equippable = requires(T obj, player *p, int card_id) {
-            obj.on_equip(p, card_id);
-            obj.on_unequip(p, card_id);
+        template<typename T> concept equippable = requires(T obj, player *p, card *c) {
+            obj.on_equip(p, c);
+            obj.on_unequip(p, c);
         };
 
         template<typename Variant> struct all_equippable{};
@@ -175,14 +175,14 @@ namespace banggame {
 
         bool can_respond(player *target) const;
 
-        bool can_play(int origin_card_id, player *origin) const;
-        void on_play(int origin_card_id, player *origin);
+        bool can_play(card *origin_card, player *origin) const;
+        void on_play(card *origin_card, player *origin);
         
-        bool can_play(int origin_card_id, player *origin, player *target) const;
-        void on_play(int origin_card_id, player *origin, player *target);
+        bool can_play(card *origin_card, player *origin, player *target) const;
+        void on_play(card *origin_card, player *origin, player *target);
         
-        bool can_play(int origin_card_id, player *origin, player *target, int card_id) const;
-        void on_play(int origin_card_id, player *origin, player *target, int card_id);
+        bool can_play(card *origin_card, player *origin, player *target, card *target_card) const;
+        void on_play(card *origin_card, player *origin, player *target, card *target_card);
     };
 
     struct equip_holder : effect_base<equip_type> {
@@ -190,8 +190,8 @@ namespace banggame {
 
         static_assert(detail::all_equippable<enums::enum_variant_base<equip_type>>::value);
 
-        void on_equip(player *target, int card_id);
-        void on_unequip(player *target, int card_id);
+        void on_equip(player *target, card *target_card);
+        void on_unequip(player *target, card *target_card);
     };
 }
 

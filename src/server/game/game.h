@@ -23,19 +23,19 @@ namespace banggame {
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, event_type,
         (delayed_action,    std::function<void(std::function<void()>)>)
-        (on_discard_pass,   std::function<void(player *origin, int card_id)>)
-        (on_draw_check,     std::function<void(int card_id)>)
+        (on_discard_pass,   std::function<void(player *origin, card *target_card)>)
+        (on_draw_check,     std::function<void(card *target_card)>)
         (trigger_tumbleweed, std::function<void(card_suit_type, card_value_type)>)
-        (on_discard_card,   std::function<void(player *origin, player *target, int card_id)>)
+        (on_discard_card,   std::function<void(player *origin, player *target, card *target_card)>)
         (on_hit,            std::function<void(player *origin, player *target, int damage, bool is_bang)>)
         (on_missed,         std::function<void(player *origin, player *target, bool is_bang)>)
         (on_player_death,   std::function<void(player *origin, player *target)>)
-        (on_equip,          std::function<void(player *origin, player *target, int card_id)>)
-        (on_play_hand_card, std::function<void(player *origin, int card_id)>)
-        (post_discard_card, std::function<void(player *target, int card_id)>)
-        (post_discard_orange_card, std::function<void(player *target, int card_id)>)
-        (on_play_card_end,  std::function<void(player *origin, int card_id)>)
-        (on_effect_end,     std::function<void(player *origin, int card_id)>)
+        (on_equip,          std::function<void(player *origin, player *target, card *target_card)>)
+        (on_play_hand_card, std::function<void(player *origin, card *target_card)>)
+        (post_discard_card, std::function<void(player *target, card *target_card)>)
+        (post_discard_orange_card, std::function<void(player *target, card *target_card)>)
+        (on_play_card_end,  std::function<void(player *origin, card *target_card)>)
+        (on_effect_end,     std::function<void(player *origin, card *target_card)>)
         (on_play_bang,      std::function<void(player *origin)>)
         (on_play_beer,      std::function<void(player *origin)>)
         (on_turn_start,     std::function<void(player *origin)>)
@@ -88,22 +88,25 @@ namespace banggame {
             bool no_auto_resolve = false;
         };
         std::optional<draw_check_handler> m_current_check;
-        std::multimap<int, event_function> m_event_handlers;
+        std::multimap<card *, event_function> m_event_handlers;
         std::list<event_args> m_pending_events;
+
+        std::map<int, card> m_cards;
+        std::map<int, character> m_characters;
         
-        std::vector<deck_card> m_deck;
-        std::vector<deck_card> m_discards;
-        std::vector<deck_card> m_selection;
+        std::vector<card *> m_deck;
+        std::vector<card *> m_discards;
+        std::vector<card *> m_selection;
         std::vector<player> m_players;
 
-        std::vector<deck_card> m_shop_deck;
-        std::vector<deck_card> m_shop_discards;
-        std::vector<deck_card> m_shop_hidden;
-        std::vector<deck_card> m_shop_selection;
+        std::vector<card *> m_shop_deck;
+        std::vector<card *> m_shop_discards;
+        std::vector<card *> m_shop_hidden;
+        std::vector<card *> m_shop_selection;
 
         std::vector<int> m_cubes;
 
-        std::vector<character> m_base_characters;
+        std::vector<character *> m_base_characters;
 
         int m_table_cards_disabled = 0;
         int m_characters_disabled = 0;
@@ -118,6 +121,9 @@ namespace banggame {
         int get_next_id() {
             return ++m_id_counter;
         }
+
+        card *find_card(int card_id);
+        character *find_character(int card_id);
 
         std::default_random_engine rng;
 
@@ -139,7 +145,7 @@ namespace banggame {
 
         std::vector<game_update> get_game_state_updates();
 
-        void send_card_update(const deck_card &c, player *owner = nullptr, show_card_flags flags = enums::flags_none<show_card_flags>);
+        void send_card_update(const card &c, player *owner = nullptr, show_card_flags flags = enums::flags_none<show_card_flags>);
         void send_character_update(const character &c, int player_id, int index);
 
         void start_game(const game_options &options);
@@ -162,8 +168,8 @@ namespace banggame {
         void send_request_update();
 
         template<request_type E>
-        auto &add_request(int origin_card_id, player *origin, player *target, effect_flags flags = enums::flags_none<effect_flags>) {
-            auto &ret = m_requests.emplace_front(enums::enum_constant<E>{}, origin_card_id, origin, target, flags).template get<E>();
+        auto &add_request(card *origin_card, player *origin, player *target, effect_flags flags = enums::flags_none<effect_flags>) {
+            auto &ret = m_requests.emplace_front(enums::enum_constant<E>{}, origin_card, origin, target, flags).template get<E>();
 
             send_request_update();
 
@@ -179,8 +185,8 @@ namespace banggame {
         }
 
         template<request_type E>
-        auto &queue_request(int origin_card_id, player *origin, player *target, effect_flags flags = enums::flags_none<effect_flags>) {
-            auto &ret = m_requests.emplace_back(enums::enum_constant<E>{}, origin_card_id, origin, target, flags).template get<E>();
+        auto &queue_request(card *origin_card, player *origin, player *target, effect_flags flags = enums::flags_none<effect_flags>) {
+            auto &ret = m_requests.emplace_back(enums::enum_constant<E>{}, origin_card, origin, target, flags).template get<E>();
 
             if (m_requests.size() == 1) {
                 send_request_update();
@@ -204,14 +210,14 @@ namespace banggame {
         void tick();
 
         template<event_type E, typename Function>
-        void add_event(int card_id, Function &&fun) {
+        void add_event(card *target_card, Function &&fun) {
             m_event_handlers.emplace(std::piecewise_construct,
-                std::make_tuple(card_id),
+                std::make_tuple(target_card),
                 std::make_tuple(enums::enum_constant<E>{}, std::forward<Function>(fun)));
         }
 
-        void remove_events(int card_id) {
-            m_event_handlers.erase(card_id);
+        void remove_events(card *target_card) {
+            m_event_handlers.erase(target_card);
         }
         
         void handle_event(event_args &event);
@@ -239,18 +245,18 @@ namespace banggame {
             }
         }
 
-        deck_card &move_to(deck_card &&c, card_pile_type pile, bool known = true, player *owner = nullptr, show_card_flags flags = enums::flags_none<show_card_flags>);
-        deck_card &draw_card_to(card_pile_type pile, player *owner = nullptr, show_card_flags flags = enums::flags_none<show_card_flags>);
+        card *move_to(card *c, card_pile_type pile, bool known = true, player *owner = nullptr, show_card_flags flags = enums::flags_none<show_card_flags>);
+        card *draw_card_to(card_pile_type pile, player *owner = nullptr, show_card_flags flags = enums::flags_none<show_card_flags>);
 
-        deck_card draw_from_discards();
-        deck_card draw_from_temp(int card_id);
+        card *draw_from_discards();
+        card *draw_from_temp(card *card);
 
-        deck_card &draw_shop_card();
+        card *draw_shop_card();
 
         void draw_check_then(player *p, draw_check_function fun, bool force_one = false, bool invert_pop_req = false);
         void do_draw_check();
 
-        void resolve_check(int card_id);
+        void resolve_check(card *card);
 
         void disable_table_cards(bool disable_characters = false);
         void enable_table_cards(bool enable_characters = false);

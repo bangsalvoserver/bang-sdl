@@ -28,55 +28,40 @@ namespace banggame {
 
         int buy_cost = 0;
         int cost = 0;
+        
+        card_suit_type suit = card_suit_type::none;
+        card_value_type value = card_value_type::none;
+        card_color_type color = card_color_type::none;
+        bool inactive = false;
 
         std::vector<int> cubes;
 
         void on_equip(player *target) {
             for (auto &e : equips) {
-                e.on_equip(target, id);
+                e.on_equip(target, this);
             }
         }
 
         void on_unequip(player *target) {
             for (auto &e : equips) {
-                e.on_unequip(target, id);
+                e.on_unequip(target, this);
             }
         }
     };
 
-    struct deck_card : card {
-        card_suit_type suit = card_suit_type::none;
-        card_value_type value = card_value_type::none;
-        card_color_type color = card_color_type::none;
-        bool inactive = false;
-    };
-
-    struct character : deck_card {
+    struct character : card {
         character_type type = character_type::none;
         int max_hp;
     };
 
     struct all_cards_t {
-        std::vector<deck_card> deck;
+        std::vector<card> deck;
         std::vector<character> characters;
-        std::vector<deck_card> goldrush;
-        std::vector<deck_card> goldrush_choices;
+        std::vector<card> goldrush;
+        std::vector<card> goldrush_choices;
     };
 
     extern const all_cards_t all_cards;
-
-    template<typename Gen>
-    void shuffle_cards_and_ids(std::vector<deck_card> &cards, Gen &&gen) {
-        auto id_view = cards | std::views::transform(&banggame::deck_card::id);
-        std::vector<int> card_ids(id_view.begin(), id_view.end());
-        std::ranges::shuffle(card_ids, gen);
-        auto it = cards.begin();
-        for (int id : card_ids) {
-            it->id = id;
-            ++it;
-        }
-        std::ranges::shuffle(cards, gen);
-    }
 
 }
 
