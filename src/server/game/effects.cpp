@@ -446,13 +446,20 @@ namespace banggame {
         });
     }
 
+    static void erase_from_deck_or_discards(game *game, card *card) {
+        if (auto it = std::ranges::find(game->m_discards | std::views::reverse, card); it != game->m_discards.rend()) {
+            game->m_discards.erase(it.base());
+        } else if (auto it = std::ranges::find(game->m_deck, card); it != game->m_deck.end()) {
+            game->m_deck.erase(it);
+        }
+    }
+
     void effect_thunderer::on_play(card *origin_card, player *origin) {
         origin->add_bang_mod([=](request_bang &req) {
             req.cleanup_function = [=]{
-                card *bang_card = origin->m_virtual ? origin->m_virtual->corresponding_card : origin_card;
-                auto it = std::ranges::find(origin->m_game->m_discards | std::views::reverse, bang_card);
-                origin->add_to_hand(*it);
-                origin->m_game->m_discards.erase(it.base());
+                card *bang_card = origin->m_virtual ? origin->m_virtual->corresponding_card : req.origin_card;
+                origin->add_to_hand(bang_card);
+                erase_from_deck_or_discards(origin->m_game, bang_card);
             };
         });
     }
@@ -482,11 +489,8 @@ namespace banggame {
     void effect_flintlock::on_play(card *origin_card, player *p) {
         p->m_game->add_event<event_type::on_missed>(origin_card, [=](player *origin, player *target, bool is_bang) {
             if (origin == p) {
-                auto it = std::ranges::find(origin->m_game->m_discards | std::views::reverse, origin_card);
-                if (it != origin->m_game->m_discards.rend()) {
-                    origin->m_game->move_to(std::move(*it), card_pile_type::player_hand, true, origin);
-                    origin->m_game->m_discards.erase(it.base());
-                }
+                origin->m_game->move_to(origin_card, card_pile_type::player_hand, true, origin);
+                erase_from_deck_or_discards(origin->m_game, origin_card);
             }
         });
         p->m_game->top_request().get<request_type::bang>().cleanup_function = [=]{
@@ -495,9 +499,8 @@ namespace banggame {
     }
 
     void effect_duck::on_play(card *origin_card, player *origin) {
-        auto it = std::ranges::find(origin->m_game->m_discards | std::views::reverse, origin_card);
-        origin->m_game->move_to(std::move(*it), card_pile_type::player_hand, true, origin);
-        origin->m_game->m_discards.erase(it.base());
+        origin->m_game->move_to(origin_card, card_pile_type::player_hand, true, origin);
+        erase_from_deck_or_discards(origin->m_game, origin_card);
     }
 
     struct squaw_handler {

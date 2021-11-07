@@ -179,7 +179,7 @@ namespace banggame {
     }
 
     void request_move_bomb::on_pick(card_pile_type pile, player *target_player, card *target_card) {
-        if (!target_player->immune_to(*target_card)) {
+        if (!target_player->immune_to(*origin_card)) {
             if (target_player == target) {
                 target->m_game->pop_request();
             } else if (!target_player->has_card_equipped(target_card->name)) {
