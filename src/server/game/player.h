@@ -76,7 +76,7 @@ namespace banggame {
 
         explicit player(game *game);
 
-        card *equip_card(card *card);
+        void equip_card(card *card);
         bool has_card_equipped(const std::string &name) const;
 
         card *random_hand_card();
@@ -94,10 +94,13 @@ namespace banggame {
 
         bool can_escape(card *card, effect_flags flags) const;
         
-        card *add_to_hand(card *card);
+        void add_to_hand(card *card);
         
-        card *discard_card(card *card);
-        card *steal_card(player *target, card *card);
+        std::vector<card *>::iterator move_card_to(card *card, card_pile_type pile,
+            bool known = false, player *owner = nullptr, show_card_flags flags = enums::flags_none<show_card_flags>);
+
+        void discard_card(card *card);
+        void steal_card(player *target, card *card);
 
         int num_hand_cards() const {
             return m_hand.size();
@@ -122,10 +125,6 @@ namespace banggame {
 
         bool immune_to(const card &c) {
             return m_calumets > 0 && c.suit == card_suit_type::diamonds;
-        }
-
-        bool can_play_bang() const {
-            return m_infinite_bangs > 0 || m_bangs_played < m_bangs_per_turn;
         }
 
         void add_bang_mod(bang_modifier &&mod) {

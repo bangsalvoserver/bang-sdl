@@ -337,14 +337,17 @@ void lobby::start_game() {
     game_options opts;
     opts.expansions = expansions | banggame::card_expansion_type::base;
     
+    std::vector<player *> ids;
+    game.m_players.reserve(users.size());
     for (int i = 0; i < users.size(); ++i) {
-        game.m_players.emplace_back(&game);
+        ids.push_back(&game.m_players.emplace_back(&game));
     }
+    std::ranges::shuffle(ids, game.rng);
 
     auto it = users.begin();
-    for (auto &p : game.m_players) {
-        it->controlling = &p;
-        game.add_public_update<game_update_type::player_add>(p.id, it->user->id);
+    for (player *p : ids) {
+        it->controlling = p;
+        game.add_public_update<game_update_type::player_add>(p->id, it->user->id);
         ++it;
     }
 

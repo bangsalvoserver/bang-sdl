@@ -19,6 +19,7 @@ namespace banggame {
     DEFINE_ENUM_FLAGS_IN_NS(banggame, show_card_flags,
         (short_pause)
         (no_animation)
+        (show_everyone)
     )
 
     DEFINE_SERIALIZABLE(move_card_update,

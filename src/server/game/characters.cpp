@@ -57,11 +57,10 @@ namespace banggame {
     }
 
     void request_kit_carlson::on_pick(card_pile_type pile, player *target_player, card *target_card) {
-        target->add_to_hand(target->m_game->draw_from_temp(target_card));
+        target->add_to_hand(target_card);
         if (target->m_game->m_selection.size() == 1) {
             target->m_game->pop_request();
             target->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::main_deck, false);
-            target->m_game->m_selection.clear();
             target->m_num_drawn_cards = target->m_num_cards_to_draw;
         } else {
             target->m_game->pop_request_noupdate();
@@ -85,13 +84,12 @@ namespace banggame {
         for(int i=0; i<index; ++i) {
             p = target->m_game->get_next_player(p);
         }
-        p->add_to_hand(target->m_game->draw_from_temp(target_card));
+        p->add_to_hand(target_card);
         if (target->m_game->m_selection.size() == target->m_num_cards_to_draw) {
             target->m_game->pop_request();
-            for (auto *c : target->m_game->m_selection) {
-                target->add_to_hand(c);
+            while (!target->m_game->m_selection.empty()) {
+                target->add_to_hand(target->m_game->m_selection.front());
             }
-            target->m_game->m_selection.clear();
         } else {
             target->m_game->pop_request_noupdate();
             target->m_game->queue_request<request_type::claus_the_saint>(origin_card, target, target);
@@ -120,18 +118,17 @@ namespace banggame {
     void effect_vulture_sam::on_equip(player *p, card *target_card) {
         p->m_game->add_event<event_type::on_player_death>(target_card, [p](player *origin, player *target) {
             if (p != target) {
-                for (auto *c : target->m_table) {
-                    if (c->color != card_color_type::black) {
-                        p->steal_card(target, c);
+                for (auto it = target->m_table.begin(); it != target->m_table.end(); ) {
+                    card *target_card = *it;
+                    if (target_card->color != card_color_type::black) {
+                        it = target->move_card_to(target_card, card_pile_type::player_hand, true, p);
+                    } else {
+                        ++it;
                     }
                 }
-                std::erase_if(target->m_table, [](const card *c) {
-                    return c->color != card_color_type::black;
-                });
-                for (auto *c : target->m_hand) {
-                    p->add_to_hand(c);
+                while (!target->m_hand.empty()) {
+                    p->add_to_hand(target->m_hand.front());
                 }
-                target->m_hand.clear();
             }
         });
     }
@@ -245,7 +242,6 @@ namespace banggame {
         });
     }
 
-
     void request_vera_custer::on_pick(card_pile_type pile, player *target_player, card *target_card) {
         if (target_card != target->m_characters.front()) {
             target->m_game->pop_request();
@@ -297,11 +293,7 @@ namespace banggame {
     void effect_gary_looter::on_equip(player *p, card *target_card) {
         p->m_game->add_event<event_type::on_discard_pass>(target_card, [p](player *origin, card *discarded_card) {
             if (p != origin) {
-                auto it = std::ranges::find(p->m_game->m_discards | std::views::reverse, discarded_card);
-                if (it != p->m_game->m_discards.rend()) {
-                    p->add_to_hand(*it);
-                    p->m_game->m_discards.erase(it.base());
-                }
+                p->add_to_hand(discarded_card);
             }
         });
     }
@@ -309,25 +301,21 @@ namespace banggame {
     void effect_john_pain::on_equip(player *p, card *target_card) {
         p->m_game->add_event<event_type::on_draw_check>(target_card, [p](card *drawn_card) {
             if (p->m_hand.size() < 6) {
-                auto it = std::ranges::find(p->m_game->m_discards | std::views::reverse, drawn_card);
-                if (it != p->m_game->m_discards.rend()) {
-                    p->add_to_hand(std::move(*it));
-                    p->m_game->m_discards.erase(it.base());
-                }
+                p->add_to_hand(drawn_card);
             }
         });
     }
 
     bool effect_teren_kill::can_respond(card *origin_card, player *origin) const {
         if (origin->m_game->top_request_is(request_type::death, origin)) {
-            auto &req = origin->m_game->top_request().get<request_type::death>();
-            return std::ranges::find(req.draw_attempts, origin_card) == req.draw_attempts.end();
+            const auto &vec = origin->m_game->top_request().get<request_type::death>().draw_attempts;
+            return std::ranges::find(vec, origin_card) == vec.end();
         }
+        return false;
     }
 
     void effect_teren_kill::on_play(card *origin_card, player *origin) {
-        auto &req = origin->m_game->top_request().get<request_type::death>();
-        req.draw_attempts.push_back(origin_card);
+        origin->m_game->top_request().get<request_type::death>().draw_attempts.push_back(origin_card);
         origin->m_game->draw_check_then(origin, [origin](card_suit_type suit, card_value_type) {
             if (suit != card_suit_type::spades) {
                 origin->m_game->pop_request();
@@ -493,11 +481,10 @@ namespace banggame {
     }
 
     void request_dutch_will::on_pick(card_pile_type pile, player *target_player, card *target_card) {
-        target->add_to_hand(target->m_game->draw_from_temp(target_card));
+        target->add_to_hand(target_card);
         if (target->m_game->m_selection.size() == 1) {
             target->m_game->pop_request();
-            target->m_game->move_to(std::move(target->m_game->m_selection.front()), card_pile_type::discard_pile);
-            target->m_game->m_selection.clear();
+            target->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::discard_pile);
             target->add_gold(1);
             target->m_num_drawn_cards = target->m_num_cards_to_draw;
         }
@@ -515,8 +502,7 @@ namespace banggame {
         switch (card->color) {
         case card_color_type::black:
             if (std::ranges::all_of(card->equips, is_self_or_none, &equip_holder::target)) {
-                target->equip_card(std::move(card));
-                target->m_game->m_shop_selection.pop_back();
+                target->equip_card(card);
             } else {
                 target->m_game->queue_request<request_type::shop_choose_target>(card, nullptr, target);
             }
@@ -524,7 +510,6 @@ namespace banggame {
         case card_color_type::brown:
             if (std::ranges::all_of(card->effects, is_self_or_none, &effect_holder::target)) {
                 target->m_game->move_to(card, card_pile_type::shop_discard);
-                target->m_game->m_shop_selection.pop_back();
                 for (auto &e : card->effects) {
                     switch(e.target()) {
                     case target_type::self | target_type::player:
@@ -543,8 +528,6 @@ namespace banggame {
     }
 
     void request_shop_choose_target::on_pick(card_pile_type pile, player *target_player, card *target_card) {
-        target->m_game->m_shop_selection.erase(std::ranges::find(target->m_game->m_shop_selection, origin_card));
-
         target->m_game->pop_request();
         if (origin_card->color == card_color_type::black) {
             target_player->equip_card(origin_card);

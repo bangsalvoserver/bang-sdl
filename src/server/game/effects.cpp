@@ -68,7 +68,7 @@ namespace banggame {
     }
 
     bool effect_banglimit::can_play(card *origin_card, player *origin) const {
-        return origin->can_play_bang();
+        return origin->m_infinite_bangs > 0 || origin->m_bangs_played < origin->m_bangs_per_turn;
     }
 
     void effect_banglimit::on_play(card *origin_card, player *origin) {
@@ -199,7 +199,8 @@ namespace banggame {
     }
 
     void effect_virtual_destroy::on_play(card *origin_card, player *origin, player *target, card *target_card) {
-        target->m_virtual.emplace(target_card, *target->discard_card(target_card));
+        target->discard_card(target_card);
+        target->m_virtual.emplace(target_card, *target_card);
     }
 
     void effect_virtual_copy::on_play(card *origin_card, player *origin, player *target, card *target_card) {
@@ -268,15 +269,13 @@ namespace banggame {
         };
         origin->m_game->queue_event<event_type::delayed_action>([=]{
             if (std::ranges::find(origin->m_game->m_selection, card_value_type::value_A, &card::value) != origin->m_game->m_selection.end()) {
-                for (auto &c : target->m_game->m_selection) {
-                    origin->m_game->move_to(std::move(c), card_pile_type::discard_pile);
+                while (!target->m_game->m_selection.empty()) {
+                    origin->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::discard_pile);
                 }
-                origin->m_game->m_selection.clear();
             } else if (origin->m_game->m_selection.size() <= 2) {
-                for (auto &c : origin->m_game->m_selection) {
-                    origin->add_to_hand(std::move(c));
+                for (card *c : origin->m_game->m_selection) {
+                    origin->add_to_hand(c);
                 }
-                origin->m_game->m_selection.clear();
             } else {
                 origin->m_game->queue_request<request_type::poker_draw>(origin_card, origin, origin);
             }
@@ -342,17 +341,15 @@ namespace banggame {
     }
 
     static void swap_shop_choice_in(card *origin_card, player *origin, effect_type type) {
-        for (auto &c : origin->m_game->m_shop_selection) {
-            origin->m_game->move_to(std::move(c), card_pile_type::shop_hidden, true, nullptr, show_card_flags::no_animation);
+        while (!origin->m_game->m_shop_selection.empty()) {
+            origin->m_game->move_to(origin->m_game->m_shop_selection.front(), card_pile_type::shop_hidden, true, nullptr, show_card_flags::no_animation);
         }
-        origin->m_game->m_shop_selection.clear();
 
         auto &vec = origin->m_game->m_shop_hidden;
         for (auto it = vec.begin(); it != vec.end(); ) {
             auto *card = *it;
             if (!card->responses.empty() && card->responses.front().is(type)) {
-                origin->m_game->move_to(card, card_pile_type::shop_selection, true, nullptr, show_card_flags::no_animation);
-                it = vec.erase(it);
+                it = origin->m_game->move_to(card, card_pile_type::shop_selection, true, nullptr, show_card_flags::no_animation);
             } else {
                 ++it;
             }
@@ -375,17 +372,14 @@ namespace banggame {
 
     void effect_shopchoice::on_play(card *origin_card, player *origin) {
         int n_choice = origin->m_game->m_shop_selection.size();
-        for (auto &c : origin->m_game->m_shop_selection) {
-            origin->m_game->move_to(std::move(c), card_pile_type::shop_hidden, true, nullptr, show_card_flags::no_animation);
+        while (!origin->m_game->m_shop_selection.empty()) {
+            origin->m_game->move_to(origin->m_game->m_shop_selection.front(), card_pile_type::shop_hidden, true, nullptr, show_card_flags::no_animation);
         }
-        origin->m_game->m_shop_selection.clear();
 
-        auto end = origin->m_game->m_shop_hidden.end() - n_choice;
-        auto begin = end - 2;
-        for (auto it = begin; it != end; ++it) {
-            origin->m_game->move_to(std::move(*it), card_pile_type::shop_selection, true, nullptr, show_card_flags::no_animation);
+        auto it = origin->m_game->m_shop_hidden.end() - n_choice - 2;
+        for (int i=0; i<2; ++i) {
+            it = origin->m_game->move_to(*it, card_pile_type::shop_selection, true, nullptr, show_card_flags::no_animation);
         }
-        origin->m_game->m_shop_hidden.erase(begin, end);
         origin->m_game->pop_request();
         origin->m_game->queue_event<event_type::delayed_action>([m_game = origin->m_game]{
             while (m_game->m_shop_selection.size() < 3) {
@@ -451,20 +445,11 @@ namespace banggame {
         });
     }
 
-    static void erase_from_deck_or_discards(game *game, card *card) {
-        if (auto it = std::ranges::find(game->m_discards | std::views::reverse, card); it != game->m_discards.rend()) {
-            game->m_discards.erase(it.base());
-        } else if (auto it = std::ranges::find(game->m_deck, card); it != game->m_deck.end()) {
-            game->m_deck.erase(it);
-        }
-    }
-
     void effect_thunderer::on_play(card *origin_card, player *origin) {
         origin->add_bang_mod([=](request_bang &req) {
             req.cleanup_function = [=]{
                 card *bang_card = origin->m_virtual ? origin->m_virtual->corresponding_card : req.origin_card;
                 origin->add_to_hand(bang_card);
-                erase_from_deck_or_discards(origin->m_game, bang_card);
             };
         });
     }
@@ -494,8 +479,7 @@ namespace banggame {
     void effect_flintlock::on_play(card *origin_card, player *p) {
         p->m_game->add_event<event_type::on_missed>(origin_card, [=](player *origin, player *target, bool is_bang) {
             if (origin == p) {
-                origin->m_game->move_to(origin_card, card_pile_type::player_hand, true, origin);
-                erase_from_deck_or_discards(origin->m_game, origin_card);
+                origin->add_to_hand(origin_card);
             }
         });
         p->m_game->top_request().get<request_type::bang>().cleanup_function = [=]{
@@ -504,8 +488,7 @@ namespace banggame {
     }
 
     void effect_duck::on_play(card *origin_card, player *origin) {
-        origin->m_game->move_to(origin_card, card_pile_type::player_hand, true, origin);
-        erase_from_deck_or_discards(origin->m_game, origin_card);
+        origin->add_to_hand(origin_card);
     }
 
     struct squaw_handler {

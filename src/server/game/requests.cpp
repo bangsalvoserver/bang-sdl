@@ -27,15 +27,14 @@ namespace banggame {
 
     void request_generalstore::on_pick(card_pile_type pile, player *target_player, card *target_card) {
         auto next = target->m_game->get_next_player(target);
-        card *c = target->m_game->draw_from_temp(target_card);
         if (target->m_game->m_selection.size() == 1) {
-            target->add_to_hand(c);
+            target->add_to_hand(target_card);
             next->add_to_hand(target->m_game->m_selection.front());
             target->m_game->m_selection.clear();
             target->m_game->pop_request();
         } else {
             target->m_game->pop_request_noupdate();
-            target->add_to_hand(c);
+            target->add_to_hand(target_card);
             target->m_game->queue_request<request_type::generalstore>(origin_card, origin, next);
         }
     }
@@ -135,19 +134,17 @@ namespace banggame {
     void request_poker::on_pick(card_pile_type pile, player *target_player, card *target_card) {
         if (target == target_player) {
             target->m_game->move_to(target_card, card_pile_type::selection, true, origin);
-            target->m_hand.erase(std::ranges::find(target->m_hand, target_card));
             target->m_game->pop_request();
         }
     }
 
     void request_poker_draw::on_pick(card_pile_type pile, player *target_player, card *target_card) {
-        target->add_to_hand(target->m_game->draw_from_temp(target_card));
+        target->add_to_hand(target_card);
         if (--target->m_game->top_request().get<request_type::poker_draw>().num_cards == 0
             || target->m_game->m_selection.size() == 0) {
             for (auto *c : target->m_game->m_selection) {
                 target->m_game->move_to(c, card_pile_type::discard_pile);
             }
-            target->m_game->m_selection.clear();
             target->m_game->pop_request();
         }
     }
@@ -185,7 +182,6 @@ namespace banggame {
             } else if (!target_player->has_card_equipped(target_card->name)) {
                 target_card->on_unequip(target);
                 target_player->equip_card(target_card);
-                target->m_table.erase(std::ranges::find(target->m_table, origin_card));
                 target->m_game->pop_request();
             }
         } else {

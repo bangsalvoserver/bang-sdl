@@ -49,8 +49,6 @@ namespace banggame {
                 target->discard_card(target_card);
                 target->damage(target_card, nullptr, 3);
             } else {
-                auto it = std::ranges::find(target->m_table, target_card);
-
                 auto *p = target;
                 do {
                     p = p->m_game->get_next_player(p);
@@ -59,7 +57,6 @@ namespace banggame {
                 if (p != target) {
                     target_card->on_unequip(target);
                     p->equip_card(target_card);
-                    target->m_table.erase(it);
                 }
             }
             target->next_predraw_check(target_card);
@@ -101,9 +98,7 @@ namespace banggame {
             return !c->equips.empty() && c->equips.front().is(equip_type::weapon) && c != target_card;
         });
         if (it != target->m_table.end()) {
-            target->drop_all_cubes(*it);
-            target->m_game->move_to(*it, card_pile_type::discard_pile)->on_unequip(target);
-            target->m_table.erase(it);
+            target->discard_card(*it);
         }
         target->m_weapon_range = args;
     }
@@ -174,6 +169,8 @@ namespace banggame {
         target->m_game->add_public_update<game_update_type::player_hp>(target->id, 0, false);
         target->m_game->add_event<event_type::post_discard_card>(target_card, [=](player *e_target, card *e_card) {
             if (target_card == e_card && target == e_target) {
+                target->m_game->remove_events(target_card);
+                
                 for (character *c : target->m_characters) {
                     c->on_unequip(target);
                 }

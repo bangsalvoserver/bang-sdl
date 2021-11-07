@@ -117,6 +117,11 @@ namespace banggame {
         game_options m_options;
 
         int m_id_counter = 0;
+
+        game() {
+            std::random_device rd;
+            rng.seed(rd());
+        }
         
         int get_next_id() {
             return ++m_id_counter;
@@ -246,11 +251,10 @@ namespace banggame {
             }
         }
 
-        card *move_to(card *c, card_pile_type pile, bool known = true, player *owner = nullptr, show_card_flags flags = enums::flags_none<show_card_flags>);
+        std::vector<card *>::iterator move_to(card *c, card_pile_type pile, bool known = true, player *owner = nullptr, show_card_flags flags = enums::flags_none<show_card_flags>);
         card *draw_card_to(card_pile_type pile, player *owner = nullptr, show_card_flags flags = enums::flags_none<show_card_flags>);
 
         card *draw_from_discards();
-        card *draw_from_temp(card *card);
 
         card *draw_shop_card();
 

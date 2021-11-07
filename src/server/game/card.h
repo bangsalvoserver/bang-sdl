@@ -36,6 +36,8 @@ namespace banggame {
 
         std::vector<int> cubes;
 
+        std::vector<card *> *location = nullptr;
+
         void on_equip(player *target) {
             for (auto &e : equips) {
                 e.on_equip(target, this);
