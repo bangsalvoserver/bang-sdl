@@ -88,13 +88,6 @@ namespace banggame {
         throw game_error("server.find_card: id non trovato");
     }
 
-    character *game::find_character(int card_id) {
-        if (auto it = m_characters.find(card_id); it != m_characters.end()) {
-            return &it->second;
-        }
-        throw game_error("server.find_character: id non trovato");
-    }
-
     std::vector<game_update> game::get_game_state_updates() {
         std::vector<game_update> ret;
 
@@ -165,6 +158,10 @@ namespace banggame {
         return ret;
     }
 
+    void game::shuffle_cards_and_ids(std::vector<card *> &vec) {
+        std::ranges::shuffle(vec, rng);
+    }
+
     void game::start_game(const game_options &options) {
         m_options = options;
         
@@ -228,7 +225,7 @@ namespace banggame {
         }
         auto ids_view = m_deck | std::views::transform(&card::id);
         add_public_update<game_update_type::add_cards>(std::vector(ids_view.begin(), ids_view.end()), card_pile_type::main_deck);
-        std::ranges::shuffle(m_deck, rng);
+        shuffle_cards_and_ids(m_deck);
 
         if (has_expansion(card_expansion_type::goldrush)) {
             for (const auto &c : all_cards.goldrush) {
@@ -238,7 +235,7 @@ namespace banggame {
             }
             ids_view = m_shop_deck | std::views::transform(&card::id);
             add_public_update<game_update_type::add_cards>(std::vector(ids_view.begin(), ids_view.end()), card_pile_type::shop_deck);
-            std::ranges::shuffle(m_shop_deck, rng);
+            shuffle_cards_and_ids(m_shop_deck);
 
             for (const auto &c : all_cards.goldrush_choices) {
                 auto it = m_cards.emplace(get_next_id(), c).first;
@@ -327,7 +324,7 @@ namespace banggame {
             m_deck = std::move(m_discards);
             m_discards.clear();
             m_discards.emplace_back(std::move(top_discards));
-            std::ranges::shuffle(m_deck, rng);
+            shuffle_cards_and_ids(m_deck);
             add_public_update<game_update_type::deck_shuffled>(card_pile_type::main_deck);
         }
         return moved;
@@ -339,7 +336,7 @@ namespace banggame {
         if (m_shop_deck.empty()) {
             m_shop_deck = std::move(m_shop_discards);
             m_shop_discards.clear();
-            std::ranges::shuffle(m_shop_deck, rng);
+            shuffle_cards_and_ids(m_shop_deck);
             add_public_update<game_update_type::deck_shuffled>(card_pile_type::shop_deck);
         }
         return moved;

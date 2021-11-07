@@ -123,9 +123,10 @@ namespace banggame {
         }
 
         card *find_card(int card_id);
-        character *find_character(int card_id);
 
         std::default_random_engine rng;
+
+        void shuffle_cards_and_ids(std::vector<card *> &vec);
 
         template<game_update_type E, typename ... Ts>
         void add_private_update(player *p, Ts && ... args) {
