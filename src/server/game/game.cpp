@@ -487,33 +487,43 @@ namespace banggame {
         }
     }
 
-    void game::disable_table_cards(bool disable_characters) {
+    void game::disable_table_cards() {
         if (m_table_cards_disabled++ == 0) {
             for (auto &p : m_players) {
                 if (!p.alive() || p.id == m_playing->id) continue;
                 for (auto *c : p.m_table) {
                     c->on_unequip(&p);
                 }
-                if (disable_characters && m_characters_disabled++ == 0) {
-                    for (auto *c : p.m_characters) {
-                        c->on_unequip(&p);
-                    }
-                }
             }
         }
     }
 
-    void game::enable_table_cards(bool enable_characters) {
+    void game::enable_table_cards() {
         if (--m_table_cards_disabled == 0) {
             for (auto &p : m_players) {
                 if (!p.alive() || p.id == m_playing->id) continue;
                 for (auto *c : p.m_table) {
                     c->on_equip(&p);
                 }
-                if (enable_characters && --m_characters_disabled == 0) {
-                    for (auto *c : p.m_characters) {
-                        c->on_equip(&p);
-                    }
+            }
+        }
+    }
+    
+    void game::disable_characters() {
+        if (m_characters_disabled++ == 0) {
+            for (auto &p : m_players) {
+                for (auto *c : p.m_characters) {
+                    c->on_unequip(&p);
+                }
+            }
+        }
+    }
+    
+    void game::enable_characters() {
+        if (--m_characters_disabled == 0) {
+            for (auto &p : m_players) {
+                for (auto *c : p.m_characters) {
+                    c->on_equip(&p);
                 }
             }
         }

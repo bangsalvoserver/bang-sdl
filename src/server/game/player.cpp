@@ -407,16 +407,16 @@ namespace banggame {
                 [&](enums::enum_constant<play_card_target_type::target_player>, const std::vector<target_player_id> &args) {
                     for (const auto &target : args) {
                         auto *p = m_game->get_player(target.player_id);
+                        m_current_card_targets.emplace(card_ptr, p);
                         if (p != this && check_immunity(p)) {
                             if (effect_it->is(effect_type::bangcard)) {
                                 request_bang req{card_ptr, this, p};
                                 apply_bang_mods(req);
                                 req.cleanup();
                             }
-                            continue;
+                        } else {
+                            effect_it->on_play(card_ptr, this, p);
                         }
-                        m_current_card_targets.emplace(card_ptr, p);
-                        effect_it->on_play(card_ptr, this, p);
                     }
                 },
                 [&](enums::enum_constant<play_card_target_type::target_card>, const std::vector<target_card_id> &args) {
@@ -550,6 +550,7 @@ namespace banggame {
                 verify_equip_target(card_ptr, args.targets);
                 auto *target = m_game->get_player(args.targets.front().get<play_card_target_type::target_player>().front().player_id);
                 if (target->has_card_equipped(card_ptr->name)) throw game_error("Carta duplicata");
+                if (m_game->m_cubes.size() < 3) throw game_error("Non ci sono abbastanza cubetti");
                 m_game->add_log(this, target, std::string("equipaggiato ") + card_ptr->name);
                 target->equip_card(card_ptr);
                 add_cubes(card_ptr, 3);

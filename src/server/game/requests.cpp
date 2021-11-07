@@ -27,10 +27,9 @@ namespace banggame {
 
     void request_generalstore::on_pick(card_pile_type pile, player *target_player, card *target_card) {
         auto next = target->m_game->get_next_player(target);
-        if (target->m_game->m_selection.size() == 1) {
+        if (target->m_game->m_selection.size() == 2) {
             target->add_to_hand(target_card);
             next->add_to_hand(target->m_game->m_selection.front());
-            target->m_game->m_selection.clear();
             target->m_game->pop_request();
         } else {
             target->m_game->pop_request_noupdate();
@@ -179,9 +178,9 @@ namespace banggame {
         if (!target_player->immune_to(*origin_card)) {
             if (target_player == target) {
                 target->m_game->pop_request();
-            } else if (!target_player->has_card_equipped(target_card->name)) {
-                target_card->on_unequip(target);
-                target_player->equip_card(target_card);
+            } else if (!target_player->has_card_equipped(origin_card->name)) {
+                origin_card->on_unequip(target);
+                target_player->equip_card(origin_card);
                 target->m_game->pop_request();
             }
         } else {

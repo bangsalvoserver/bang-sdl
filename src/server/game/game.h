@@ -263,8 +263,11 @@ namespace banggame {
 
         void resolve_check(card *card);
 
-        void disable_table_cards(bool disable_characters = false);
-        void enable_table_cards(bool enable_characters = false);
+        void disable_table_cards();
+        void enable_table_cards();
+
+        void disable_characters();
+        void enable_characters();
 
         int num_alive() const {
             return std::ranges::count_if(m_players, &player::alive);
