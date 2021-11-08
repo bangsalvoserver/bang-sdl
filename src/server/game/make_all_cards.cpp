@@ -52,6 +52,9 @@ namespace banggame {
         if (json_card.isMember("modifier")) {
             out.modifier = enums::from_string<card_modifier_type>(json_card["modifier"].asString());
         }
+        if (json_card.isMember("testing")) {
+            out.testing = json_card["testing"].asBool();
+        }
     }
 
     const all_cards_t all_cards = [] {

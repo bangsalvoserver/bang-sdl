@@ -162,6 +162,20 @@ namespace banggame {
         std::ranges::shuffle(vec, rng);
     }
 
+    template<bool ToEnd, std::derived_from<card> T>
+    static void swap_testing(std::vector<T *> &vec) {
+        auto pos = [&]{
+            if constexpr (ToEnd) {
+                return vec.rbegin();
+            } else {
+                return vec.begin();
+            }
+        }();
+        for (auto &ptr : vec | std::views::filter(&T::testing)) {
+            std::swap(ptr, *pos++);
+        }
+    }
+
     void game::start_game(const game_options &options) {
         m_options = options;
         
@@ -177,6 +191,8 @@ namespace banggame {
         }
 
         std::ranges::shuffle(character_ptrs, rng);
+        swap_testing<false>(character_ptrs);
+
         auto character_it = character_ptrs.begin();
         
         std::array roles {
@@ -198,10 +214,6 @@ namespace banggame {
 
         auto role_it = m_players.size() > 3 ? roles.begin() : roles_3players.begin();
 
-#ifdef TESTING_CHARACTER
-        auto testing_char = std::ranges::find(character_ptrs, TESTING_CHARACTER, &character::image);
-        std::swap(*character_it, *testing_char);
-#endif
         std::ranges::shuffle(role_it, role_it + m_players.size(), rng);
         for (auto &p : m_players) {
             p.set_character_and_role(*character_it++, *role_it++);
@@ -229,6 +241,7 @@ namespace banggame {
         auto ids_view = m_deck | std::views::transform(&card::id);
         add_public_update<game_update_type::add_cards>(std::vector(ids_view.begin(), ids_view.end()), card_pile_type::main_deck);
         shuffle_cards_and_ids(m_deck);
+        swap_testing<true>(m_deck);
 
         if (has_expansion(card_expansion_type::goldrush)) {
             for (const auto &c : all_cards.goldrush) {
@@ -238,6 +251,7 @@ namespace banggame {
             ids_view = m_shop_deck | std::views::transform(&card::id);
             add_public_update<game_update_type::add_cards>(std::vector(ids_view.begin(), ids_view.end()), card_pile_type::shop_deck);
             shuffle_cards_and_ids(m_shop_deck);
+            swap_testing<true>(m_shop_deck);
 
             for (const auto &c : all_cards.goldrush_choices) {
                 add_card(m_shop_hidden, c);

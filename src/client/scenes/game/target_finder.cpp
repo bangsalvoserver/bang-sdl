@@ -434,16 +434,17 @@ constexpr auto is_none_target = [](const target_pair &pair) {
 void target_finder::add_card_target(target_pair target) {
     if (bool(m_flags & play_card_flags::equipping)) return;
     
-    auto num_targets = [&](target_type type) {
-        int ret = 1;
+    auto num_targets = [&](target_type type) -> int {
         if (bool(type & target_type::everyone)) {
-            ret = std::ranges::count_if(m_game->m_players | std::views::values, std::not_fn(&player_view::dead));
-            if (bool(type & target_type::notself)) {
-                --ret;
-            }
+            return std::ranges::count_if(m_game->m_players | std::views::values, [&](const player_view &p) {
+                if (p.id == m_game->m_player_own_id && bool(type & target_type::notself)) return false;
+                return !(p.table.empty() && p.hand.empty());
+            });
         }
-        return ret;
+        return 1;
     };
+
+    std::cout << "AAA" << std::endl;
 
     auto &card_targets = get_current_card_targets();
     int index = std::max(0, int(m_targets.size()) - 1);
@@ -453,6 +454,10 @@ void target_finder::add_card_target(target_pair target) {
         ++index;
         cur_target = get_target_at(index).target;
     }
+
+    std::cout << "index = " << index
+        // << ", cur_target = " << enums::flags_to_string(cur_target)
+        << ", num_targets = " << num_targets(cur_target) << std::endl;
 
     card_view *as_deck_card = target.card ? m_game->find_card(target.card->id) : nullptr;
     bool from_hand = std::ranges::find(target.player->hand, as_deck_card) != target.player->hand.end();
