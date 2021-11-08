@@ -335,14 +335,31 @@ std::vector<card_target_data> &target_finder::get_optional_targets() {
     }
 }
 
-card_target_data &target_finder::get_target_at(int index) {
+target_type target_finder::get_target_type(int index) {
     auto &targets = get_current_card_targets();
     if (index < targets.size()) {
-        return targets[index];
+        return targets[index].target;
     }
 
     auto &optionals = get_optional_targets();
-    return optionals[(index - targets.size()) % optionals.size()];
+    return optionals[(index - targets.size()) % optionals.size()].target;
+}
+
+int target_finder::num_targets_for(target_type type) {
+    if (bool(type & target_type::everyone)) {
+        return std::ranges::count_if(m_game->m_players | std::views::values, [&](const player_view &p) {
+            if (p.id == m_game->m_player_own_id && bool(type & target_type::notself)) return false;
+            return !bool(type & target_type::card) || !(p.table.empty() && p.hand.empty());
+        });
+    }
+    return 1;
+};
+
+int target_finder::get_target_index() {
+    if (m_targets.empty()) return 0;
+    int index = m_targets.size() - 1;
+    index += m_targets[index].size() >= num_targets_for(get_target_type(index));
+    return index;
 }
 
 void target_finder::handle_auto_targets() {
@@ -433,31 +450,9 @@ constexpr auto is_none_target = [](const target_pair &pair) {
 
 void target_finder::add_card_target(target_pair target) {
     if (bool(m_flags & play_card_flags::equipping)) return;
-    
-    auto num_targets = [&](target_type type) -> int {
-        if (bool(type & target_type::everyone)) {
-            return std::ranges::count_if(m_game->m_players | std::views::values, [&](const player_view &p) {
-                if (p.id == m_game->m_player_own_id && bool(type & target_type::notself)) return false;
-                return !(p.table.empty() && p.hand.empty());
-            });
-        }
-        return 1;
-    };
 
-    std::cout << "AAA" << std::endl;
-
-    auto &card_targets = get_current_card_targets();
-    int index = std::max(0, int(m_targets.size()) - 1);
-
-    auto cur_target = get_target_at(index).target;
-    if (!m_targets.empty() && m_targets[index].size() >= num_targets(cur_target)) {
-        ++index;
-        cur_target = get_target_at(index).target;
-    }
-
-    std::cout << "index = " << index
-        // << ", cur_target = " << enums::flags_to_string(cur_target)
-        << ", num_targets = " << num_targets(cur_target) << std::endl;
+    int index = get_target_index();
+    auto cur_target = get_target_type(index);
 
     card_view *as_deck_card = target.card ? m_game->find_card(target.card->id) : nullptr;
     bool from_hand = std::ranges::find(target.player->hand, as_deck_card) != target.player->hand.end();
@@ -501,7 +496,7 @@ void target_finder::add_card_target(target_pair target) {
                 ? m_targets.emplace_back()
                 : m_targets.back();
             l.push_back(target);
-            if (l.size() == num_targets(cur_target)) {
+            if (l.size() == num_targets_for(cur_target)) {
                 handle_auto_targets();
             }
         }
@@ -521,10 +516,9 @@ void target_finder::add_card_target(target_pair target) {
 void target_finder::add_character_target(target_pair target) {
     if (bool(m_flags & play_card_flags::equipping)) return;
     
-    auto &card_targets = get_current_card_targets();
-    auto &cur_target = get_target_at(m_targets.size());
-    if (!bool(cur_target.target & target_type::cube_slot)) return;
-    if (bool(cur_target.target & target_type::table)) return;
+    auto type = get_target_type(get_target_index());
+    if (!bool(type & target_type::cube_slot)) return;
+    if (bool(type & target_type::table)) return;
 
     character_card *card = nullptr;
     for (auto &p : m_game->m_players | std::views::values) {
@@ -535,7 +529,7 @@ void target_finder::add_character_target(target_pair target) {
     }
     if (!card) return;
 
-    if(bool(cur_target.target & target_type::card)) {
+    if(bool(type & target_type::card)) {
         m_targets.emplace_back(std::vector{target});
         handle_auto_targets();
     } else {
@@ -550,18 +544,16 @@ void target_finder::add_character_target(target_pair target) {
 
 bool target_finder::add_player_targets(const std::vector<target_pair> &targets) {
     if (bool(m_flags & play_card_flags::equipping)) {
-        auto &card_targets = m_playing_card->equip_targets;
-        auto &cur_target = card_targets[m_targets.size()];
-        if (bool(cur_target.target & (target_type::player | target_type::dead))) {
+        auto target = m_playing_card->equip_targets[m_targets.size()].target;
+        if (bool(target & (target_type::player | target_type::dead))) {
             m_targets.emplace_back(targets);
             send_play_card();
             return true;
         }
     } else {
-        auto &card_targets = get_current_card_targets();
-        auto &cur_target = get_target_at(m_targets.size());
-        if (bool(cur_target.target & (target_type::player | target_type::dead))) {
-            if (!bool(cur_target.target & target_type::new_target)
+        auto target = get_target_type(get_target_index());
+        if (bool(target & (target_type::player | target_type::dead))) {
+            if (!bool(target & target_type::new_target)
                 || std::ranges::none_of(m_targets, [&](const auto &vec) {
                     return std::ranges::any_of(vec, [&](const target_pair &pair) {
                         return std::ranges::find(targets, pair.player, &target_pair::player) != targets.end();

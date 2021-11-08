@@ -68,9 +68,12 @@ namespace banggame {
 
         std::vector<card_target_data> &get_current_card_targets();
         std::vector<card_target_data> &get_optional_targets();
-        card_target_data &get_target_at(int index);
 
         void send_play_card();
+
+        target_type get_target_type(int index);
+        int num_targets_for(target_type type);
+        int get_target_index();
         
     private:
         game_scene *m_game;

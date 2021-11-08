@@ -298,14 +298,15 @@ namespace banggame {
                 [&](enums::enum_constant<play_card_target_type::target_card>, const std::vector<target_card_id> &args) {
                     if (!bool(e.target() & (target_type::card | target_type::cube_slot))) return false;
                     if (bool(e.target() & target_type::everyone)) {
-                        if (!std::ranges::all_of(m_game->m_players | std::views::filter(&player::alive), [&](int player_id) {
-                            bool found = std::ranges::find(args, player_id, &target_card_id::player_id) != args.end();
+                        if (!std::ranges::all_of(m_game->m_players | std::views::filter(&player::alive), [&](const player &p) {
+                            bool found = std::ranges::find(args, p.id, &target_card_id::player_id) != args.end();
+                            if (p.m_hand.empty() && p.m_table.empty()) return !found;
                             if (bool(e.target() & target_type::notself)) {
-                                return (player_id == id) != found;
+                                return (p.id == id) != found;
                             } else {
                                 return found;
                             }
-                        }, &player::id)) return false;
+                        })) return false;
                         return std::ranges::all_of(args, [&](const target_card_id &arg) {
                             if (arg.player_id == id) return false;
                             auto *target = m_game->get_player(arg.player_id);
