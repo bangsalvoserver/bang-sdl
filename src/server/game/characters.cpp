@@ -277,7 +277,7 @@ namespace banggame {
     }
 
     void effect_henry_block::on_equip(player *p, card *target_card) {
-        p->m_game->add_event<event_type::on_discard_card>(target_card, [p](player *origin, player *target, card *target_card) {
+        p->m_game->add_event<event_type::on_discard_card>(target_card, [=](player *origin, player *target, card *discarded_card) {
             if (p == target && p != origin) {
                 p->m_game->queue_request<request_type::bang>(target_card, target, origin);
             }
@@ -414,7 +414,6 @@ namespace banggame {
 
             for (int i=1; i<target->m_characters.size(); ++i) {
                 target->m_characters[i]->on_unequip(target);
-                target->m_game->m_characters.erase(target->m_characters[i]->id);
             }
             target->m_characters.resize(1);
             greygory_deck_set_characters(target);

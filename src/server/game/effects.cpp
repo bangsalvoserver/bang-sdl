@@ -222,7 +222,7 @@ namespace banggame {
     }
 
     void effect_draw_discard::on_play(card *origin_card, player *origin, player *target) {
-        target->add_to_hand(target->m_game->draw_from_discards());
+        target->add_to_hand(target->m_game->m_discards.back());
     }
 
     void effect_draw_rest::on_play(card *origin_card, player *target) {

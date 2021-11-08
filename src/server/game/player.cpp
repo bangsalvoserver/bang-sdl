@@ -458,6 +458,14 @@ namespace banggame {
             modifiers.push_back(m_game->find_card(id));
         }
 
+        if (m_virtual && args.card_id == m_virtual->virtual_card.id) {
+            verify_modifiers(&m_virtual->virtual_card, modifiers);
+            verify_card_targets(&m_virtual->virtual_card, false, args.targets);
+            play_modifiers(modifiers);
+            do_play_card(&m_virtual->virtual_card, false, args.targets);
+            return;
+        }
+
         card *card_ptr = args.card_id ? m_game->find_card(args.card_id) : nullptr;
 
         if (bool(args.flags & play_card_flags::sell_beer)) {
@@ -488,11 +496,6 @@ namespace banggame {
             m_game->add_log(this, target_player, std::string("scartato ") + target_card->name);
             add_gold(-target_card->buy_cost - 1);
             target_player->discard_card(target_card);
-        } else if (m_virtual && args.card_id == m_virtual->virtual_card.id) {
-            verify_modifiers(&m_virtual->virtual_card, modifiers);
-            verify_card_targets(&m_virtual->virtual_card, false, args.targets);
-            play_modifiers(modifiers);
-            do_play_card(&m_virtual->virtual_card, false, args.targets);
         } else if (std::ranges::find(m_characters, card_ptr) != m_characters.end()) {
             switch (static_cast<character *>(card_ptr)->type) {
             case character_type::active:
@@ -671,7 +674,7 @@ namespace banggame {
     void player::play_virtual_card(card *corresponding_card, card virtual_card) {
         virtual_card_update obj;
         obj.virtual_id = m_game->get_next_id();
-        obj.card_id = virtual_card.id;
+        obj.card_id = corresponding_card->id;
         obj.color = virtual_card.color;
         obj.suit = virtual_card.suit;
         obj.value = virtual_card.value;

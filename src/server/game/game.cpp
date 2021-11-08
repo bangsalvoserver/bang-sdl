@@ -351,12 +351,6 @@ namespace banggame {
         }
         return drawn_card;
     }
-
-    card *game::draw_from_discards() {
-        card *c = m_discards.back();
-        m_discards.pop_back();
-        return c;
-    }
     
     void game::draw_check_then(player *p, draw_check_function fun, bool invert_pop_req) {
         m_current_check.emplace(std::move(fun), p, invert_pop_req);

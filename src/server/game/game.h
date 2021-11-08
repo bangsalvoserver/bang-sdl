@@ -253,8 +253,6 @@ namespace banggame {
         std::vector<card *>::iterator move_to(card *c, card_pile_type pile, bool known = true, player *owner = nullptr, show_card_flags flags = enums::flags_none<show_card_flags>);
         card *draw_card_to(card_pile_type pile, player *owner = nullptr, show_card_flags flags = enums::flags_none<show_card_flags>);
 
-        card *draw_from_discards();
-
         card *draw_shop_card();
 
         void draw_check_then(player *p, draw_check_function fun, bool invert_pop_req = false);
