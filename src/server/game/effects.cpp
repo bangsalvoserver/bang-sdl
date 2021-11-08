@@ -14,8 +14,8 @@ namespace banggame {
 
     void effect_bangcard::on_play(card *origin_card, player *origin, player *target) {
         target->m_game->queue_event<event_type::on_play_bang>(origin);
-        target->m_game->queue_event<event_type::delayed_action>([=]{
-            request_bang req{origin_card, origin, target};
+        target->m_game->queue_event<event_type::delayed_action>([=, flags = this->flags]{
+            request_bang req{origin_card, origin, target, flags};
             req.is_bang_card = true;
             origin->apply_bang_mods(req);
             origin->m_game->queue_request(std::move(req));
@@ -254,7 +254,7 @@ namespace banggame {
                 target->m_game->draw_card_to(card_pile_type::player_hand, target);
             });
         } else {
-            target->m_game->queue_request<request_type::tornado>(origin_card, origin, target);
+            target->m_game->queue_request<request_type::tornado>(origin_card, origin, target, flags);
         }
     }
 

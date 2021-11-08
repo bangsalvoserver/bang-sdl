@@ -400,12 +400,12 @@ namespace banggame {
         auto effect_it = effects.begin();
         auto effect_end = effects.end();
         for (auto &t : targets) {
-            effect_it->flags() |= effect_flags::single_target & static_cast<effect_flags>(-(targets.size() == 1));
             enums::visit_indexed(util::overloaded{
                 [&](enums::enum_constant<play_card_target_type::target_none>) {
                     effect_it->on_play(card_ptr, this);
                 },
                 [&](enums::enum_constant<play_card_target_type::target_player>, const std::vector<target_player_id> &args) {
+                    effect_it->flags() |= effect_flags::single_target & static_cast<effect_flags>(-(args.size() == 1));
                     for (const auto &target : args) {
                         auto *p = m_game->get_player(target.player_id);
                         m_current_card_targets.emplace(card_ptr, p);
@@ -419,8 +419,10 @@ namespace banggame {
                             effect_it->on_play(card_ptr, this, p);
                         }
                     }
+                    effect_it->flags() &= ~effect_flags::single_target;
                 },
                 [&](enums::enum_constant<play_card_target_type::target_card>, const std::vector<target_card_id> &args) {
+                    effect_it->flags() |= effect_flags::single_target & static_cast<effect_flags>(-(args.size() == 1));
                     for (const auto &target : args) {
                         auto *p = m_game->get_player(target.player_id);
                         if (p != this && check_immunity(p)) continue;
@@ -432,9 +434,9 @@ namespace banggame {
                             effect_it->on_play(card_ptr, this, p, target_card);
                         }
                     }
+                    effect_it->flags() &= ~effect_flags::single_target;
                 }
             }, t);
-            effect_it->flags() &= ~effect_flags::single_target;
             if (++effect_it == effect_end) {
                 effect_it = card_ptr->optionals.begin();
                 effect_end = card_ptr->optionals.end();
