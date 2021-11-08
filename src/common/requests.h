@@ -22,6 +22,8 @@ namespace banggame {
     };
 
     struct request_discard : picking_request_allowing<card_pile_type::player_hand> {
+        int ncards = 1;
+        
         void on_pick(card_pile_type pile, player *target, card *target_card);
     };
 

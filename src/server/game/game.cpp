@@ -470,6 +470,7 @@ namespace banggame {
         }
 
         target->discard_all();
+        target->add_gold(-target->m_gold);
 
         add_public_update<game_update_type::player_hp>(target->id, 0, true);
         add_public_update<game_update_type::player_show_role>(target->id, target->m_role);

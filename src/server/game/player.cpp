@@ -481,6 +481,7 @@ namespace banggame {
             const auto &l = args.targets.front().get<play_card_target_type::target_card>();
             if (l.size() != 1) throw game_error("Azione non valida");
             auto *target_player = m_game->get_player(l.front().player_id);
+            if (target_player == this) throw game_error("Non puoi scartare le tue carte nere");
             card *target_card = m_game->find_card(l.front().card_id);
             if (target_card->color != card_color_type::black) throw game_error("Azione non valida");
             if (m_gold < target_card->buy_cost + 1) throw game_error("Non hai abbastanza pepite");

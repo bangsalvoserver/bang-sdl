@@ -312,24 +312,17 @@ namespace banggame {
         origin->m_game->pop_request();
     }
 
-    struct rum_check_handler {
-        player *origin;
-
-        std::array<card_suit_type, 4> checks;
-        int count_checks;
-
-        void operator()(card_suit_type suit, card_value_type value) {
-            if (count_checks < 3) {
-                checks[count_checks++] = suit;
-                origin->m_game->draw_check_then(origin, std::move(*this), true);
-            } else {
-                origin->heal(std::distance(checks.begin(), std::unique(checks.begin(), checks.end())));
-            }
-        }
-    };
-
     void effect_rum::on_play(card *origin_card, player *origin) {
-        origin->m_game->draw_check_then(origin, rum_check_handler{origin}, true);
+        std::vector<card_suit_type> suits;
+        for (int i=0; i < 3 + origin->m_num_checks; ++i) {
+            suits.push_back(origin->m_game->draw_card_to(card_pile_type::selection)->suit);
+        }
+        while (!origin->m_game->m_selection.empty()) {
+            card *drawn_card = origin->m_game->m_selection.front();
+            origin->m_game->move_to(drawn_card, card_pile_type::discard_pile);
+            origin->m_game->queue_event<event_type::on_draw_check>(drawn_card);
+        }
+        origin->heal(std::distance(suits.begin(), std::unique(suits.begin(), suits.end())));
     }
 
     void effect_goldrush::on_play(card *origin_card, player *origin) {
@@ -458,7 +451,7 @@ namespace banggame {
         p->add_bang_mod([=](request_bang &req) {
             p->m_game->add_event<event_type::on_missed>(origin_card, [=](player *origin, player *target, bool is_bang) {
                 if (target && origin == p && is_bang && !target->m_hand.empty()) {
-                    target->m_game->queue_request<request_type::discard>(origin_card, origin, target);
+                    target->m_game->queue_request<request_type::discard>(origin_card, origin, target).ncards = origin->m_buntline_ncards;
                 }
             });
             req.cleanup_function = [=]{

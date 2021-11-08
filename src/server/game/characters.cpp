@@ -15,6 +15,12 @@ namespace banggame {
                 });
             }
         });
+        ++p->m_buntline_ncards;
+    }
+
+    void effect_slab_the_killer::on_unequip(player *p, card *target_card) {
+        event_based_effect::on_unequip(p, target_card);
+        --p->m_buntline_ncards;
     }
 
     void effect_black_jack::on_play(card *origin_card, player *target) {

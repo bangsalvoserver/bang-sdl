@@ -40,7 +40,10 @@ namespace banggame {
 
     void request_discard::on_pick(card_pile_type pile, player *target_player, card *target_card) {
         if (target_player == target) {
-            target->m_game->pop_request();
+            if (--target->m_game->top_request().get<request_type::discard>().ncards == 0) {
+                target->m_game->pop_request();
+            }
+
             target->discard_card(target_card);
             target->m_game->queue_event<event_type::on_effect_end>(target, origin_card);
         }

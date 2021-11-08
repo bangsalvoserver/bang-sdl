@@ -70,6 +70,8 @@ namespace banggame {
         card *m_last_played_card = nullptr;
 
         int m_gold = 0;
+
+        int m_buntline_ncards = 1;
         
         std::vector<int> m_max_cards_mods;
         std::multimap<card *, player *> m_current_card_targets;
