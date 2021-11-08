@@ -83,7 +83,6 @@ namespace banggame {
         struct draw_check_handler {
             draw_check_function function;
             player *origin = nullptr;
-            bool force_one = false;
             bool invert_pop_req = false;
             bool no_auto_resolve = false;
         };
@@ -258,7 +257,7 @@ namespace banggame {
 
         card *draw_shop_card();
 
-        void draw_check_then(player *p, draw_check_function fun, bool force_one = false, bool invert_pop_req = false);
+        void draw_check_then(player *p, draw_check_function fun, bool invert_pop_req = false);
         void do_draw_check();
 
         void resolve_check(card *card);

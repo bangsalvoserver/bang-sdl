@@ -322,7 +322,8 @@ namespace banggame {
             origin->m_game->move_to(drawn_card, card_pile_type::discard_pile);
             origin->m_game->queue_event<event_type::on_draw_check>(drawn_card);
         }
-        origin->heal(std::distance(suits.begin(), std::unique(suits.begin(), suits.end())));
+        std::sort(suits.begin(), suits.end());
+        origin->heal(std::unique(suits.begin(), suits.end()) - suits.begin());
     }
 
     void effect_goldrush::on_play(card *origin_card, player *origin) {

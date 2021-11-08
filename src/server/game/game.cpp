@@ -358,13 +358,13 @@ namespace banggame {
         return c;
     }
     
-    void game::draw_check_then(player *p, draw_check_function fun, bool force_one, bool invert_pop_req) {
-        m_current_check.emplace(std::move(fun), p, force_one, invert_pop_req);
+    void game::draw_check_then(player *p, draw_check_function fun, bool invert_pop_req) {
+        m_current_check.emplace(std::move(fun), p, invert_pop_req);
         do_draw_check();
     }
 
     void game::do_draw_check() {
-        if (m_current_check->force_one || m_current_check->origin->m_num_checks == 1) {
+        if (m_current_check->origin->m_num_checks == 1) {
             auto *c = draw_card_to(card_pile_type::discard_pile);
             queue_event<event_type::on_draw_check>(c);
             instant_event<event_type::trigger_tumbleweed>(c->suit, c->value);
