@@ -61,6 +61,21 @@ namespace sdl {
             }
         }
 
+        void render_cropped(renderer &renderer, const sdl::rect &crop_rect) {
+            if (m_tex) {
+                m_rect.x = crop_rect.x;
+                m_rect.y = crop_rect.y;
+                if (m_rect.w > crop_rect.w) {
+                    sdl::rect src_rect{m_rect.w - crop_rect.w, 0, crop_rect.w, m_rect.h};
+                    sdl::rect dst_rect{crop_rect.x, m_rect.y, crop_rect.w, m_rect.h};
+                    SDL_RenderCopy(renderer.get(), m_tex.get_texture(renderer), &src_rect, &dst_rect);
+                    m_rect.x -= src_rect.x;
+                } else {
+                    m_tex.render(renderer, m_rect);
+                }
+            }
+        }
+
         void set_rect(const rect &rect) {
             m_rect = rect;
         }

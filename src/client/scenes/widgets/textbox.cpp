@@ -15,7 +15,12 @@ void textbox::render(renderer &renderer) {
 
     if (m_tex) {
         m_tex.set_point(point{m_border_rect.x + m_style.margin, m_border_rect.y + m_style.margin});
-        m_tex.render(renderer);
+        m_tex.render_cropped(renderer, sdl::rect{
+            m_border_rect.x + m_style.margin,
+            m_border_rect.y + m_style.margin,
+            m_border_rect.w - 2 * m_style.margin,
+            m_border_rect.h
+        });
 
         linex = m_tex.get_rect().x + m_tex.get_rect().w;
     }
