@@ -273,8 +273,8 @@ namespace banggame {
                     origin->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::discard_pile);
                 }
             } else if (origin->m_game->m_selection.size() <= 2) {
-                for (card *c : origin->m_game->m_selection) {
-                    origin->add_to_hand(c);
+                while (!origin->m_game->m_selection.empty()) {
+                    origin->add_to_hand(origin->m_game->m_selection.front());
                 }
             } else {
                 origin->m_game->queue_request<request_type::poker_draw>(origin_card, origin, origin);
@@ -450,9 +450,14 @@ namespace banggame {
 
     void effect_buntlinespecial::on_play(card *origin_card, player *p) {
         p->add_bang_mod([=](request_bang &req) {
+            if (std::ranges::any_of(p->m_characters, [](const character *c) {
+                return std::ranges::find(c->equips, equip_type::slab_the_killer, &equip_holder::enum_index) != c->equips.end();
+            })) {
+                ++req.bang_strength;
+            }
             p->m_game->add_event<event_type::on_missed>(origin_card, [=](player *origin, player *target, bool is_bang) {
                 if (target && origin == p && is_bang && !target->m_hand.empty()) {
-                    target->m_game->queue_request<request_type::discard>(origin_card, origin, target).ncards = origin->m_buntline_ncards;
+                    target->m_game->queue_request<request_type::discard>(origin_card, origin, target);
                 }
             });
             req.cleanup_function = [=]{

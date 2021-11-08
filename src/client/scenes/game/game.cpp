@@ -269,12 +269,16 @@ void game_scene::find_overlay(const sdl::point &mouse_pt) {
         m_overlay = m_discard_pile.back();
         return;
     }
-    for (auto &[player_id, p] : m_players) {
+    for (auto &p : m_players | std::views::values) {
         for (auto &c : p.m_characters | std::views::reverse) {
             if (sdl::point_in_rect(mouse_pt, c.get_rect())) {
                 m_overlay = &c;
                 return;
             }
+        }
+        if (mouse_in_card(&p.m_role)) {
+            m_overlay = &p.m_role;
+            return;
         }
         if (m_overlay = find_clicked(p.table)) {
             return;

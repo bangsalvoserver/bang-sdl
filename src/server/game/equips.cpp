@@ -161,7 +161,7 @@ namespace banggame {
     }
 
     void effect_ghost::on_equip(player *target, card *target_card) {
-        for (card *c : target->m_characters) {
+        for (character *c : target->m_characters) {
             c->on_equip(target);
         }
 

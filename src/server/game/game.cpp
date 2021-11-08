@@ -382,12 +382,11 @@ namespace banggame {
     }
 
     void game::resolve_check(card *c) {
-        for (card *c : m_selection) {
-            move_to(c, card_pile_type::discard_pile);
-            queue_event<event_type::on_draw_check>(c);
+        while (!m_selection.empty()) {
+            card *drawn_card = m_selection.front();
+            move_to(drawn_card, card_pile_type::discard_pile);
+            queue_event<event_type::on_draw_check>(drawn_card);
         }
-        move_to(c, card_pile_type::discard_pile);
-        queue_event<event_type::on_draw_check>(c);
         instant_event<event_type::trigger_tumbleweed>(c->suit, c->value);
         if (!m_current_check->no_auto_resolve) {
             m_current_check->function(c->suit, c->value);
