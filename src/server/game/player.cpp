@@ -103,7 +103,7 @@ namespace banggame {
         });
     }
 
-    bool player::can_escape(card *origin_card, effect_flags flags) const {
+    bool player::can_escape(player *origin, card *origin_card, effect_flags flags) const {
         // hack per determinare se e' necessario attivare request di fuga
         if (bool(flags & effect_flags::escapable)
             && m_game->has_expansion(card_expansion_type::valleyofshadows)) return true;
@@ -111,7 +111,7 @@ namespace banggame {
             return !vec.empty() && vec.front().enum_index() == effect_type::ms_abigail;
         }, &character::responses);
         return it != m_characters.end()
-            && (*it)->responses.front().get<effect_type::ms_abigail>().can_escape(this, origin_card, flags);
+            && (*it)->responses.front().get<effect_type::ms_abigail>().can_escape(origin, origin_card, flags);
     }
     
     void player::add_cubes(card *target, int ncubes) {

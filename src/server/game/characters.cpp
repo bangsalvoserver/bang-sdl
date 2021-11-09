@@ -595,10 +595,11 @@ namespace banggame {
         origin->move_cubes(origin->m_characters.front(), target_card, 1);
     }
 
-    bool effect_ms_abigail::can_escape(const player *origin, card *target_card, effect_flags flags) const {
+    bool effect_ms_abigail::can_escape(player *origin, card *origin_card, effect_flags flags) const {
+        if (origin->m_virtual) origin_card = origin->m_virtual->corresponding_card;
         if (!bool(flags & effect_flags::single_target)) return false;
-        if (target_card->color != card_color_type::brown) return false;
-        switch (target_card->value) {
+        if (origin_card->color != card_color_type::brown) return false;
+        switch (origin_card->value) {
         case card_value_type::value_J:
         case card_value_type::value_Q:
         case card_value_type::value_K:
@@ -610,7 +611,11 @@ namespace banggame {
     }
 
     bool effect_ms_abigail::can_respond(card *origin_card, player *origin) const {
-        return can_escape(origin, origin->m_game->top_request().origin_card(), origin->m_game->top_request().flags());
+        if (!origin->m_game->m_requests.empty()) {
+            auto &req = origin->m_game->top_request();
+            return can_escape(req.origin(), req.origin_card(), req.flags());
+        }
+        return false;
     }
 
     void effect_ms_abigail::on_play(card *origin_card, player *origin) {

@@ -92,7 +92,7 @@ namespace banggame {
 
         bool can_receive_cubes() const;
 
-        bool can_escape(card *card, effect_flags flags) const;
+        bool can_escape(player *origin, card *origin_card, effect_flags flags) const;
         
         void add_to_hand(card *card);
         

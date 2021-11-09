@@ -224,7 +224,7 @@ void target_finder::on_click_character(player_view *player, character_card *card
     m_flags &= ~(play_card_flags::sell_beer | play_card_flags::discard_black);
 
     if (m_game->m_current_request.target_id == m_game->m_player_own_id && m_game->m_current_request.type != request_type::none) {
-        if (is_valid_picking_pile(m_game->m_current_request.type, card_pile_type::player_character) && !is_escape_card(card)) {
+        if (is_valid_picking_pile(m_game->m_current_request.type, card_pile_type::player_character)) {
             add_action<game_action_type::pick_card>(card_pile_type::player_character, player->id, card->id);
         } else if (player->id == m_game->m_player_own_id) {
             if (!m_playing_card) {

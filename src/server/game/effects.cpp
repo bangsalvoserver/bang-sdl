@@ -165,7 +165,7 @@ namespace banggame {
     }
 
     void effect_destroy::on_play(card *origin_card, player *origin, player *target, card *target_card) {
-        if (origin != target && target->can_escape(origin_card, flags)) {
+        if (origin != target && target->can_escape(origin, origin_card, flags)) {
             target->m_game->queue_request(request_destroy{origin_card, origin, target, flags, target_card});
         } else {
             target->m_game->instant_event<event_type::on_discard_card>(origin, target, target_card);
@@ -182,7 +182,7 @@ namespace banggame {
     }
 
     void effect_steal::on_play(card *origin_card, player *origin, player *target, card *target_card) {
-        if (origin != target && target->can_escape(origin_card, flags)) {
+        if (origin != target && target->can_escape(origin, origin_card, flags)) {
             target->m_game->queue_request(request_steal{origin_card, origin, target, flags, target_card});
         } else {
             target->m_game->instant_event<event_type::on_discard_card>(origin, target, target_card);
@@ -210,7 +210,9 @@ namespace banggame {
     }
 
     void effect_virtual_clear::on_play(card *origin_card, player *origin) {
-        origin->m_virtual.reset();
+        origin->m_game->queue_event<event_type::delayed_action>([=]{
+            origin->m_virtual.reset();
+        });
     }
 
     void effect_draw::on_play(card *origin_card, player *origin, player *target) {
@@ -260,6 +262,9 @@ namespace banggame {
 
     void effect_poker::on_play(card *origin_card, player *origin) {
         auto target = origin;
+        flags |= effect_flags::single_target & static_cast<effect_flags>(-(std::ranges::count_if(origin->m_game->m_players, [&](const player &p) {
+            return &p != origin && p.alive() && !p.m_hand.empty();
+        }) == 1));
         while(true) {
             target = origin->m_game->get_next_player(target);
             if (target == origin) break;
@@ -401,7 +406,7 @@ namespace banggame {
     }
     
     void effect_rust::on_play(card *origin_card, player *origin, player *target) {
-        if (target->can_escape(origin_card, flags)) {
+        if (target->can_escape(origin, origin_card, flags)) {
             origin->m_game->queue_request<request_type::rust>(origin_card, origin, target, flags);
         } else {
             target->m_game->queue_event<event_type::delayed_action>([=]{

@@ -191,7 +191,7 @@ namespace banggame {
     };
 
     struct effect_ms_abigail : card_effect {
-        bool can_escape(const player *origin, card *target_card, effect_flags flags) const;
+        bool can_escape(player *origin, card *origin_card, effect_flags flags) const;
 
         bool can_respond(card *origin_card, player *target) const;
         void on_play(card *origin_card, player *origin);
