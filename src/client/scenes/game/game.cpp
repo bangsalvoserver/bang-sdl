@@ -27,8 +27,8 @@ void game_scene::init(const game_started_args &args) {
 }
 
 static sdl::point cube_pile_offset(auto &rng) {
-    std::uniform_int_distribution<> dist{-sizes::cube_pile_size, sizes::cube_pile_size};
-    return {dist(rng), dist(rng)};
+    std::normal_distribution<float> dist{0, sizes::cube_pile_size};
+    return {int(dist(rng)), int(dist(rng))};
 }
 
 void game_scene::resize(int width, int height) {

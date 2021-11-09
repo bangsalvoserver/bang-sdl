@@ -183,7 +183,12 @@ namespace banggame {
     }
 
     void game::shuffle_cards_and_ids(std::vector<card *> &vec) {
-        std::ranges::shuffle(vec, rng);
+        for (size_t i = vec.size() - 1; i > 0; --i) {
+            card *a = vec[i];
+            card *b = vec[std::uniform_int_distribution<>{0, int(i)}(rng)];
+            std::swap(*a, *b);
+            std::swap(a->id, b->id);
+        }
     }
 
     template<bool ToEnd, std::derived_from<card> T>
