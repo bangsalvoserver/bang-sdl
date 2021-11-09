@@ -165,7 +165,7 @@ void game_manager::handle_message(MESSAGE_TAG(lobby_join), const sdlnet::ip_addr
     }
 
     if (it->users.size() < lobby_max_players) {
-        it->users.emplace_back(u, nullptr);
+        auto &new_user = it->users.emplace_back(u, nullptr);
         send_lobby_update(*it);
 
         for (auto &p : it->users) {
@@ -176,23 +176,32 @@ void game_manager::handle_message(MESSAGE_TAG(lobby_join), const sdlnet::ip_addr
             }
         }
         if (it->state != lobby_state::waiting) {
+            auto dc_player = std::ranges::find_if(it->game.m_players, [&](const player &p) {
+                return std::ranges::find(it->users, &p, &lobby_user::controlling) == it->users.end();
+            });
+            if (dc_player != it->game.m_players.end()) {
+                new_user.controlling = &*dc_player;
+            }
+
             std::vector<lobby_player_data> vec;
             for (const auto &l_u : it->users) {
-                if (l_u.user != u) {
-                    vec.emplace_back(l_u.user->id, l_u.user->name);
-                }
+                vec.emplace_back(l_u.user->id, l_u.user->name);
             }
             send_message<server_message_type::lobby_players>(addr, std::move(vec));
 
             send_message<server_message_type::game_started>(addr, it->game.m_options.expansions);
-            for (const auto &u : it->users) {
-                if (u.controlling) {
-                    send_message<server_message_type::game_update>(addr, enums::enum_constant<game_update_type::player_add>{},
-                        u.controlling->id, u.user->id);
-                }
+            for (const player &p : it->game.m_players) {
+                auto u_it = std::ranges::find(it->users, &p, &lobby_user::controlling);
+                send_message<server_message_type::game_update>(addr, enums::enum_constant<game_update_type::player_add>{},
+                    p.id, u_it == it->users.end() ? 0 : u_it->user->id);
             }
-            for (const auto &msg : it->game.get_game_state_updates()) {
+            for (const auto &msg : it->game.get_game_state_updates(new_user.controlling)) {
                 send_message<server_message_type::game_update>(addr, msg);
+            }
+
+            if (new_user.controlling) {
+                broadcast_message<server_message_type::game_update>(*it,
+                    enums::enum_constant<game_update_type::player_add>{}, new_user.controlling->id, u->id);
             }
         }
     }

@@ -26,7 +26,7 @@ public:
     
     void render(sdl::renderer &renderer) override;
 
-    void show_error(const std::string &message);
+    void show_error(const std::string &message) override;
 
     void do_connect(const std::string &address);
 

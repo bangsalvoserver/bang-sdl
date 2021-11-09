@@ -79,9 +79,7 @@ void game_manager::connect(const std::string &host) {
         connected_ip = host;
         add_message<client_message_type::connect>(m_config.user_name);
     } catch (const sdlnet::net_error &e) {
-        if (auto *s = dynamic_cast<connect_scene *>(m_scene)) {
-            s->show_error(e.what());
-        }
+        m_scene->show_error(e.what());
     }
 }
 
@@ -124,30 +122,22 @@ void game_manager::handle_message(MESSAGE_TAG(client_accepted)) {
 }
 
 void game_manager::handle_message(MESSAGE_TAG(lobby_list), const std::vector<lobby_data> &args) {
-    if (auto *s = dynamic_cast<lobby_list_scene *>(m_scene)) {
-        s->set_lobby_list(args);
-    }
+    m_scene->set_lobby_list(args);
 }
 
 void game_manager::handle_message(MESSAGE_TAG(lobby_update), const lobby_data &args) {
-    if (auto *s = dynamic_cast<lobby_list_scene *>(m_scene)) {
-        s->handle_lobby_update(args);
-    }
+    m_scene->handle_lobby_update(args);
 }
 
 void game_manager::handle_message(MESSAGE_TAG(lobby_edited), const lobby_info &args) {
-    if (auto *s = dynamic_cast<lobby_scene *>(m_scene)) {
-        s->set_lobby_info(args);
-    }
+    m_scene->set_lobby_info(args);
 }
 
 void game_manager::handle_message(MESSAGE_TAG(lobby_players), const std::vector<lobby_player_data> &args) {
     for (const auto &obj : args) {
         m_user_names.emplace(obj.user_id, obj.name);
     }
-    if (auto *s = dynamic_cast<lobby_scene *>(m_scene)) {
-        s->set_player_list(args);
-    }
+    m_scene->set_player_list(args);
 }
 
 void game_manager::handle_message(MESSAGE_TAG(lobby_entered), const lobby_entered_args &args) {
@@ -159,18 +149,16 @@ void game_manager::handle_message(MESSAGE_TAG(lobby_entered), const lobby_entere
 
 void game_manager::handle_message(MESSAGE_TAG(lobby_joined), const lobby_player_data &args) {
     m_user_names.emplace(args.user_id, args.name);
-    if (auto *s = dynamic_cast<lobby_scene *>(m_scene)) {
-        s->add_user(args);
-    }
+    m_scene->add_user(args);
 }
 
 void game_manager::handle_message(MESSAGE_TAG(lobby_left), const lobby_left_args &args) {
-    m_user_names.erase(args.user_id);
     if (args.user_id == m_user_own_id) {
         m_user_names.clear();
         switch_scene<scene_type::lobby_list>();
-    } else if (auto *s = dynamic_cast<lobby_scene *>(m_scene)) {
-        s->remove_user(args);
+    } else {
+        m_scene->remove_user(args);
+        m_user_names.erase(args.user_id);
     }
 }
 
@@ -179,11 +167,7 @@ void game_manager::handle_message(MESSAGE_TAG(lobby_chat), const lobby_chat_args
     msg += ": ";
     msg += args.message;
 
-    if (auto *s = dynamic_cast<lobby_scene *>(m_scene)) {
-        s->add_chat_message(msg);
-    } else if (auto *s = dynamic_cast<banggame::game_scene *>(m_scene)) {
-        s->add_chat_message(msg);
-    }
+    m_scene->add_chat_message(msg);
 }
 
 void game_manager::handle_message(MESSAGE_TAG(game_started), const game_started_args &args) {
@@ -191,13 +175,9 @@ void game_manager::handle_message(MESSAGE_TAG(game_started), const game_started_
 }
 
 void game_manager::handle_message(MESSAGE_TAG(game_error), const std::string &message) {
-    if (auto *s = dynamic_cast<banggame::game_scene *>(m_scene)) {
-        s->show_error(message);
-    }
+    m_scene->show_error(message);
 }
 
 void game_manager::handle_message(MESSAGE_TAG(game_update), const game_update &args) {
-    if (auto *s = dynamic_cast<banggame::game_scene *>(m_scene)) {
-        s->handle_update(args);
-    }
+    m_scene->handle_game_update(args);
 }

@@ -83,29 +83,29 @@ namespace banggame {
         throw game_error("server.find_card: id non trovato");
     }
 
-    std::vector<game_update> game::get_game_state_updates() {
+    std::vector<game_update> game::get_game_state_updates(player *owner) {
         std::vector<game_update> ret;
 
-        auto deck_card_ids = m_cards
-            | std::views::filter([](const auto &pair) {
-                return pair.second.expansion != card_expansion_type::goldrush;
-            }) | std::views::keys;
+        auto is_goldrush = [](const auto &pair) {
+            return pair.second.expansion == card_expansion_type::goldrush;
+        };
+
+        auto deck_card_ids = m_cards | std::views::filter(std::not_fn(is_goldrush)) | std::views::keys;
         ret.emplace_back(enums::enum_constant<game_update_type::add_cards>{},
             std::vector(deck_card_ids.begin(), deck_card_ids.end()), card_pile_type::main_deck);
 
-        auto shop_card_ids = m_cards
-            | std::views::filter([](const auto &pair) {
-                return pair.second.expansion == card_expansion_type::goldrush;
-            }) | std::views::keys;
-        ret.emplace_back(enums::enum_constant<game_update_type::add_cards>{},
-            std::vector(shop_card_ids.begin(), shop_card_ids.end()), card_pile_type::shop_deck);
+        auto shop_card_ids = m_cards | std::views::filter(is_goldrush) | std::views::keys;
+        if (!std::ranges::empty(shop_card_ids)) {
+            ret.emplace_back(enums::enum_constant<game_update_type::add_cards>{},
+                std::vector(shop_card_ids.begin(), shop_card_ids.end()), card_pile_type::shop_deck);
+        }
 
         auto move_cards = [&](std::vector<card *> &vec, bool known = true) {
             for (card *c : vec) {
                 ret.emplace_back(enums::enum_constant<game_update_type::move_card>{},
                     c->id, c->owner ? c->owner->id : 0, c->pile, show_card_flags::no_animation);
 
-                if (known) {
+                if (known || c->owner == owner) {
                     show_card_update obj;
                     obj.info = make_card_info(*c);
                     obj.suit = c->suit;
@@ -116,7 +116,7 @@ namespace banggame {
                     ret.emplace_back(enums::enum_constant<game_update_type::show_card>{}, std::move(obj));
 
                     for (int id : c->cubes) {
-                        ret.emplace_back(enums::enum_constant<game_update_type::move_cube>{}, id, c->id, true);
+                        ret.emplace_back(enums::enum_constant<game_update_type::move_cube>{}, id, c->id);
                     }
 
                     if (c->inactive) {
@@ -127,15 +127,13 @@ namespace banggame {
         };
 
         move_cards(m_discards);
-        move_cards(m_selection);
+        move_cards(m_selection, false);
         move_cards(m_shop_discards);
         move_cards(m_shop_selection);
         move_cards(m_shop_hidden);
         
-        if (has_expansion(card_expansion_type::armedanddangerous)) {
-            auto cube_ids = std::views::iota(1, 32);
-            std::vector cubes(cube_ids.begin(), cube_ids.end());
-            ret.emplace_back(enums::enum_constant<game_update_type::add_cubes>{}, cubes);
+        if (!m_cubes.empty()) {
+            ret.emplace_back(enums::enum_constant<game_update_type::add_cubes>{}, m_cubes);
         }
 
         for (auto &p : m_players) {
@@ -152,7 +150,7 @@ namespace banggame {
             }
 
             for (int id : p.m_characters.front()->cubes) {
-                ret.emplace_back(enums::enum_constant<game_update_type::move_cube>{}, id, p.m_characters.front()->id, true);
+                ret.emplace_back(enums::enum_constant<game_update_type::move_cube>{}, id, p.m_characters.front()->id);
             }
 
             ret.emplace_back(enums::enum_constant<game_update_type::player_hp>{}, p.id, p.m_hp, !p.alive(), true);

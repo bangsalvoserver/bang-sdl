@@ -140,6 +140,8 @@ namespace banggame {
 
     struct player_view {
         int id;
+
+        int user_id;
         
         explicit player_view(int id) : id(id) {}
 
@@ -168,6 +170,8 @@ namespace banggame {
         void set_hp_marker_position(float hp);
 
         void set_gold(int amount);
+
+        void set_username(const std::string &name);
 
         void render(sdl::renderer &renderer);
         void render_turn_indicator(sdl::renderer &renderer);

@@ -30,32 +30,36 @@ namespace banggame {
         void render(sdl::renderer &renderer) override;
         void handle_event(const sdl::event &event) override;
 
-        void handle_update(const game_update &update);
+        void handle_game_update(const game_update &update) override;
         
-        void add_chat_message(const std::string &message);
+        void add_chat_message(const std::string &message) override;
         
-        void show_error(const std::string &message);
+        void show_error(const std::string &message) override;
+
+        void add_user(const lobby_player_data &args) override;
+
+        void remove_user(const lobby_left_args &args) override;
 
     private:
-        void handle_update(UPDATE_TAG(game_over),        const game_over_update &args);
-        void handle_update(UPDATE_TAG(add_cards),        const add_cards_update &args);
-        void handle_update(UPDATE_TAG(move_card),        const move_card_update &args);
-        void handle_update(UPDATE_TAG(add_cubes),        const add_cubes_update &args);
-        void handle_update(UPDATE_TAG(move_cube),        const move_cube_update &args);
-        void handle_update(UPDATE_TAG(deck_shuffled),    const card_pile_type &pile);
-        void handle_update(UPDATE_TAG(virtual_card),     const virtual_card_update &args);
-        void handle_update(UPDATE_TAG(show_card),        const show_card_update &args);
-        void handle_update(UPDATE_TAG(hide_card),        const hide_card_update &args);
-        void handle_update(UPDATE_TAG(tap_card),         const tap_card_update &args);
-        void handle_update(UPDATE_TAG(player_add),       const player_user_update &args);
-        void handle_update(UPDATE_TAG(player_hp),        const player_hp_update &args);
-        void handle_update(UPDATE_TAG(player_gold),      const player_gold_update &args);
-        void handle_update(UPDATE_TAG(player_add_character), const player_character_update &args);
-        void handle_update(UPDATE_TAG(player_remove_character), const player_remove_character_update &args);
-        void handle_update(UPDATE_TAG(player_show_role), const player_show_role_update &args);
-        void handle_update(UPDATE_TAG(switch_turn),      const switch_turn_update &args);
-        void handle_update(UPDATE_TAG(request_handle),   const request_view &args);
-        void handle_update(UPDATE_TAG(status_clear));
+        void handle_game_update(UPDATE_TAG(game_over),        const game_over_update &args);
+        void handle_game_update(UPDATE_TAG(add_cards),        const add_cards_update &args);
+        void handle_game_update(UPDATE_TAG(move_card),        const move_card_update &args);
+        void handle_game_update(UPDATE_TAG(add_cubes),        const add_cubes_update &args);
+        void handle_game_update(UPDATE_TAG(move_cube),        const move_cube_update &args);
+        void handle_game_update(UPDATE_TAG(deck_shuffled),    const card_pile_type &pile);
+        void handle_game_update(UPDATE_TAG(virtual_card),     const virtual_card_update &args);
+        void handle_game_update(UPDATE_TAG(show_card),        const show_card_update &args);
+        void handle_game_update(UPDATE_TAG(hide_card),        const hide_card_update &args);
+        void handle_game_update(UPDATE_TAG(tap_card),         const tap_card_update &args);
+        void handle_game_update(UPDATE_TAG(player_add),       const player_user_update &args);
+        void handle_game_update(UPDATE_TAG(player_hp),        const player_hp_update &args);
+        void handle_game_update(UPDATE_TAG(player_gold),      const player_gold_update &args);
+        void handle_game_update(UPDATE_TAG(player_add_character), const player_character_update &args);
+        void handle_game_update(UPDATE_TAG(player_remove_character), const player_remove_character_update &args);
+        void handle_game_update(UPDATE_TAG(player_show_role), const player_show_role_update &args);
+        void handle_game_update(UPDATE_TAG(switch_turn),      const switch_turn_update &args);
+        void handle_game_update(UPDATE_TAG(request_handle),   const request_view &args);
+        void handle_game_update(UPDATE_TAG(status_clear));
         
         void pop_update();
 

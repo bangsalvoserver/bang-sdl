@@ -40,14 +40,14 @@ class lobby_scene : public scene_base {
 public:
     lobby_scene(class game_manager *parent);
     void init(const lobby_entered_args &args);
-    void set_lobby_info(const lobby_info &info);
+    void set_lobby_info(const lobby_info &info) override;
 
     void render(sdl::renderer &renderer) override;
 
-    void set_player_list(const std::vector<lobby_player_data> &args);
-    void add_user(const lobby_player_data &args);
-    void remove_user(const lobby_left_args &args);
-    void add_chat_message(const std::string &message);
+    void set_player_list(const std::vector<lobby_player_data> &args) override;
+    void add_user(const lobby_player_data &args) override;
+    void remove_user(const lobby_left_args &args) override;
+    void add_chat_message(const std::string &message) override;
 
     void send_lobby_edited();
 

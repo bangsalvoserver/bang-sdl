@@ -74,7 +74,7 @@ public:
         if (it != m_user_names.end()) {
             return it->second;
         } else {
-            return "(Disconnected)";
+            return "(Disconnesso)";
         }
     }
 

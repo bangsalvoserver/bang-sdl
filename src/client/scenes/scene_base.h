@@ -22,6 +22,24 @@ public:
     
     virtual void handle_event(const sdl::event &event) {}
 
+    virtual void show_error(const std::string &message) {}
+
+    virtual void set_lobby_list(const std::vector<lobby_data> &args) {}
+
+    virtual void set_lobby_info(const lobby_info &args) {}
+
+    virtual void handle_lobby_update(const lobby_data &args) {}
+
+    virtual void set_player_list(const std::vector<lobby_player_data> &args) {}
+
+    virtual void add_user(const lobby_player_data &args) {}
+
+    virtual void remove_user(const lobby_left_args &args) {}
+
+    virtual void add_chat_message(const std::string &message) {}
+
+    virtual void handle_game_update(const banggame::game_update &update) {}
+
 protected:
     class game_manager *parent;
 };

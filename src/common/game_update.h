@@ -36,7 +36,6 @@ namespace banggame {
     DEFINE_SERIALIZABLE(move_cube_update,
         (cube_id, int)
         (card_id, int)
-        (instant, bool)
     )
 
     DEFINE_SERIALIZABLE(target_data_base,

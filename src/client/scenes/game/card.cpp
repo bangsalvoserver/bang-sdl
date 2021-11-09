@@ -177,6 +177,11 @@ namespace banggame {
             table.pos.y += sizes::card_yoffset;
         }
 
+        set_username(m_username_text.get_value());
+    }
+
+    void player_view::set_username(const std::string &value) {
+        m_username_text.redraw(value);
         sdl::rect username_rect = m_username_text.get_rect();
         username_rect.x = m_role.get_pos().x - (username_rect.w) / 2;
         username_rect.y = m_bounding_rect.y + 20;

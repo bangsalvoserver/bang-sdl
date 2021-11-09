@@ -35,7 +35,7 @@ public:
     void resize(int width, int height) override;
     void render(sdl::renderer &renderer) override;
 
-    void set_lobby_list(const std::vector<lobby_data> &args);
+    void set_lobby_list(const std::vector<lobby_data> &args) override;
     void handle_lobby_update(const lobby_data &args);
 
     void do_join(int lobby_id);
