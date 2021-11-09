@@ -47,13 +47,8 @@ namespace banggame {
         if (!owner || bool(flags & show_card_flags::show_everyone)) {
             add_public_update<game_update_type::show_card>(obj);
         } else {
-            for (auto &p : m_players) {
-                if (&p == owner) {
-                    add_private_update<game_update_type::show_card>(&p, obj);
-                } else {
-                    add_private_update<game_update_type::hide_card>(&p, c.id, flags);
-                }
-            }
+            add_public_update<game_update_type::hide_card>(c.id, flags, owner->id);
+            add_private_update<game_update_type::show_card>(owner, obj);
         }
     }
 
@@ -91,69 +86,100 @@ namespace banggame {
     std::vector<game_update> game::get_game_state_updates() {
         std::vector<game_update> ret;
 
-        // auto add_cards = [&ret](std::vector<card> vec) {
-        //     auto pos = std::partition(vec.begin(), vec.end(), [](const card &c) { return c.expansion != card_expansion_type::goldrush; });
-        //     if (pos != vec.begin()) {
-        //         auto view = std::ranges::subrange(vec.begin(), pos) | std::views::transform(&card::id);
-        //         ret.emplace_back(enums::enum_constant<game_update_type::add_cards>{},
-        //             std::vector(view.begin(), view.end()), card_pile_type::main_deck);
-        //     }
-        //     if (pos != vec.end()) {
-        //         auto view = std::ranges::subrange(pos, vec.end()) | std::views::transform(&card::id);
-        //         ret.emplace_back(enums::enum_constant<game_update_type::add_cards>{}, std::vector(view.begin(), view.end()),
-        //             pos->color == card_color_type::none ? card_pile_type::shop_hidden : card_pile_type::shop_deck);
-        //     }
-        // };
+        auto deck_card_ids = m_cards
+            | std::views::filter([](const auto &pair) {
+                return pair.second.expansion != card_expansion_type::goldrush;
+            }) | std::views::keys;
+        ret.emplace_back(enums::enum_constant<game_update_type::add_cards>{},
+            std::vector(deck_card_ids.begin(), deck_card_ids.end()), card_pile_type::main_deck);
 
-        // auto add_cards_to = [&](const std::vector<card> &vec, card_pile_type pile, player *owner = nullptr) {
-        //     add_cards(vec);
-        //     for (const auto &card : vec) {
-        //         ret.emplace_back(enums::enum_constant<game_update_type::move_card>{},
-        //             card.id, owner ? owner->id : 0, pile, show_card_flags::no_animation);
-        //     }
-        // };
+        auto shop_card_ids = m_cards
+            | std::views::filter([](const auto &pair) {
+                return pair.second.expansion == card_expansion_type::goldrush;
+            }) | std::views::keys;
+        ret.emplace_back(enums::enum_constant<game_update_type::add_cards>{},
+            std::vector(shop_card_ids.begin(), shop_card_ids.end()), card_pile_type::shop_deck);
 
-        // auto add_cards_and_show = [&](const std::vector<card> &vec, card_pile_type pile, player *owner = nullptr) {
-        //     add_cards_to(vec, pile, owner);
+        auto move_cards = [&](std::vector<card *> &vec, bool known = true) {
+            for (card *c : vec) {
+                ret.emplace_back(enums::enum_constant<game_update_type::move_card>{},
+                    c->id, c->owner ? c->owner->id : 0, c->pile, show_card_flags::no_animation);
 
-        //     for (const auto &c : vec) {
-        //         show_card_update obj;
-        //         obj.info = make_card_info(c);
-        //         obj.suit = c.suit;
-        //         obj.value = c.value;
-        //         obj.color = c.color;
-        //         obj.flags = show_card_flags::no_animation;
+                if (known) {
+                    show_card_update obj;
+                    obj.info = make_card_info(*c);
+                    obj.suit = c->suit;
+                    obj.value = c->value;
+                    obj.color = c->color;
+                    obj.flags = show_card_flags::no_animation;
 
-        //         ret.emplace_back(enums::enum_constant<game_update_type::show_card>{}, std::move(obj));
-        //     }
-        // };
+                    ret.emplace_back(enums::enum_constant<game_update_type::show_card>{}, std::move(obj));
 
-        // add_cards(m_deck);
-        // add_cards_to(m_discards, card_pile_type::discard_pile);
+                    for (int id : c->cubes) {
+                        ret.emplace_back(enums::enum_constant<game_update_type::move_cube>{}, id, c->id, true);
+                    }
 
-        // add_cards(m_shop_deck);
-        // add_cards_to(m_shop_discards, card_pile_type::shop_discard);
-        // add_cards_and_show(m_shop_selection, card_pile_type::shop_selection);
-        // add_cards(m_shop_hidden);
+                    if (c->inactive) {
+                        ret.emplace_back(enums::enum_constant<game_update_type::tap_card>{}, c->id, true, true);
+                    }
+                }
+            }
+        };
 
-        // add_cards(m_selection);
+        move_cards(m_discards);
+        move_cards(m_selection);
+        move_cards(m_shop_discards);
+        move_cards(m_shop_selection);
+        move_cards(m_shop_hidden);
+        
+        if (has_expansion(card_expansion_type::armedanddangerous)) {
+            auto cube_ids = std::views::iota(1, 32);
+            std::vector cubes(cube_ids.begin(), cube_ids.end());
+            ret.emplace_back(enums::enum_constant<game_update_type::add_cubes>{}, cubes);
+        }
 
-        // for (auto &p : m_players) {
-        //     player_character_update obj;
-        //     obj.max_hp = p.m_max_hp;
-        //     obj.player_id = p.id;
-        //     obj.index = 0;
+        for (auto &p : m_players) {
+            player_character_update obj;
+            obj.max_hp = p.m_max_hp;
+            obj.player_id = p.id;
+            obj.index = 0;
 
-        //     for (const auto &c : p.m_characters) {
-        //         obj.type = c.type;
-        //         obj.info = make_card_info(c);
-        //         ret.emplace_back(enums::enum_constant<game_update_type::player_add_character>{}, obj);
-        //         ++obj.index;
-        //     }
+            for (character *c : p.m_characters) {
+                obj.type = c->type;
+                obj.info = make_card_info(*c);
+                ret.emplace_back(enums::enum_constant<game_update_type::player_add_character>{}, obj);
+                ++obj.index;
+            }
 
-        //     add_cards_to(p.m_hand, card_pile_type::player_hand, &p);
-        //     add_cards_and_show(p.m_table, card_pile_type::player_table, &p);
-        // }
+            for (int id : p.m_characters.front()->cubes) {
+                ret.emplace_back(enums::enum_constant<game_update_type::move_cube>{}, id, p.m_characters.front()->id, true);
+            }
+
+            ret.emplace_back(enums::enum_constant<game_update_type::player_hp>{}, p.id, p.m_hp, !p.alive(), true);
+            
+            if (p.m_gold != 0) {
+                ret.emplace_back(enums::enum_constant<game_update_type::player_gold>{}, p.m_gold);
+            }
+
+            if (p.m_role == player_role::sheriff || p.m_hp == 0 || m_players.size() < 4) {
+                ret.emplace_back(enums::enum_constant<game_update_type::player_show_role>{}, p.id, p.m_role, true);
+            }
+
+            move_cards(p.m_table);
+            move_cards(p.m_hand, false);
+        }
+
+        ret.emplace_back(enums::enum_constant<game_update_type::switch_turn>{}, m_playing->id);
+        if (!m_requests.empty()) {
+            auto &req = top_request();
+            ret.emplace_back(enums::enum_constant<game_update_type::request_handle>{},
+                req.enum_index(),
+                req.origin_card() ? req.origin_card()->id : 0,
+                req.origin() ? req.origin()->id : 0,
+                req.target() ? req.target()->id : 0,
+                req.target_card() ? req.target_card()->id : 0,
+                req.flags());
+        }
 
         return ret;
     }
@@ -225,17 +251,18 @@ namespace banggame {
             }
         }
 
-        auto add_card = [&](std::vector<card *> &vec, const card &c) {
+        auto add_card = [&](card_pile_type pile, const card &c) {
             auto it = m_cards.emplace(get_next_id(), c).first;
-            auto *new_card = vec.emplace_back(&it->second);
+            auto *new_card = get_pile(pile).emplace_back(&it->second);
             new_card->id = it->first;
-            new_card->location = &vec;
+            new_card->owner = nullptr;
+            new_card->pile = pile;
         };
 
         for (const auto &c : all_cards.deck) {
             if (m_players.size() <= 2 && c.discard_if_two_players) continue;
             if (bool(c.expansion & options.expansions)) {
-                add_card(m_deck, c);
+                add_card(card_pile_type::main_deck, c);
             }
         }
         auto ids_view = m_deck | std::views::transform(&card::id);
@@ -246,7 +273,7 @@ namespace banggame {
         if (has_expansion(card_expansion_type::goldrush)) {
             for (const auto &c : all_cards.goldrush) {
                 if (m_players.size() <= 2 && c.discard_if_two_players) continue;
-                add_card(m_shop_deck, c);
+                add_card(card_pile_type::shop_deck, c);
             }
             ids_view = m_shop_deck | std::views::transform(&card::id);
             add_public_update<game_update_type::add_cards>(std::vector(ids_view.begin(), ids_view.end()), card_pile_type::shop_deck);
@@ -254,7 +281,7 @@ namespace banggame {
             swap_testing<true>(m_shop_deck);
 
             for (const auto &c : all_cards.goldrush_choices) {
-                add_card(m_shop_hidden, c);
+                add_card(card_pile_type::shop_hidden, c);
             }
             ids_view = m_shop_hidden | std::views::transform(&card::id);
             add_public_update<game_update_type::add_cards>(std::vector(ids_view.begin(), ids_view.end()), card_pile_type::shop_hidden);
@@ -308,6 +335,21 @@ namespace banggame {
         }
     }
 
+    std::vector<card *> &game::get_pile(card_pile_type pile, player *owner) {
+        switch (pile) {
+        case card_pile_type::player_hand:       return owner->m_hand;
+        case card_pile_type::player_table:      return owner->m_table;
+        case card_pile_type::main_deck:         return m_deck;
+        case card_pile_type::discard_pile:      return m_discards;
+        case card_pile_type::selection:         return m_selection;
+        case card_pile_type::shop_deck:         return m_shop_deck;
+        case card_pile_type::shop_selection:    return m_shop_selection;
+        case card_pile_type::shop_discard:      return m_shop_discards;
+        case card_pile_type::shop_hidden:       return m_shop_hidden;
+        default: throw std::runtime_error("Pila non valida");
+        }
+    }
+
     std::vector<card *>::iterator game::move_to(card *c, card_pile_type pile, bool known, player *owner, show_card_flags flags) {
         if (known) {
             send_card_update(*c, owner, flags);
@@ -315,22 +357,11 @@ namespace banggame {
             add_public_update<game_update_type::hide_card>(c->id, flags);
         }
         add_public_update<game_update_type::move_card>(c->id, owner ? owner->id : 0, pile, flags);
-        auto ret = c->location->erase(std::ranges::find(*c->location, c));
-        c->location = &[this, pile, owner] () -> std::vector<card *>& {
-            switch (pile) {
-            case card_pile_type::player_hand:       return owner->m_hand;
-            case card_pile_type::player_table:      return owner->m_table;
-            case card_pile_type::main_deck:         return m_deck;
-            case card_pile_type::discard_pile:      return m_discards;
-            case card_pile_type::selection:         return m_selection;
-            case card_pile_type::shop_selection:    return m_shop_selection;
-            case card_pile_type::shop_discard:      return m_shop_discards;
-            case card_pile_type::shop_hidden:       return m_shop_hidden;
-            default: throw std::runtime_error("Pila non valida");
-            }
-        }();
-        c->location->emplace_back(c);
-        return ret;
+        auto &prev_pile = get_pile(c->pile, c->owner);
+        get_pile(pile, owner).emplace_back(c);
+        c->pile = pile;
+        c->owner = owner;
+        return prev_pile.erase(std::ranges::find(prev_pile, c));
     }
 
     card *game::draw_card_to(card_pile_type pile, player *owner, show_card_flags flags) {
@@ -341,7 +372,8 @@ namespace banggame {
             m_discards.resize(m_discards.size()-1);
             m_deck = std::move(m_discards);
             for (card *c : m_deck) {
-                c->location = &m_deck;
+                c->pile = card_pile_type::main_deck;
+                c->owner = nullptr;
             }
             m_discards.clear();
             m_discards.emplace_back(top_discards);
@@ -357,7 +389,8 @@ namespace banggame {
         if (m_shop_deck.empty()) {
             m_shop_deck = std::move(m_shop_discards);
             for (card *c : m_shop_deck) {
-                c->location = &m_shop_deck;
+                c->pile = card_pile_type::shop_deck;
+                c->owner = nullptr;
             }
             m_shop_discards.clear();
             shuffle_cards_and_ids(m_shop_deck);

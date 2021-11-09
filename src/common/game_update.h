@@ -36,6 +36,7 @@ namespace banggame {
     DEFINE_SERIALIZABLE(move_cube_update,
         (cube_id, int)
         (card_id, int)
+        (instant, bool)
     )
 
     DEFINE_SERIALIZABLE(target_data_base,
@@ -98,11 +99,13 @@ namespace banggame {
     DEFINE_SERIALIZABLE(hide_card_update,
         (card_id, int)
         (flags, show_card_flags)
+        (ignore_player_id, int)
     )
 
     DEFINE_SERIALIZABLE(tap_card_update,
         (card_id, int)
         (inactive, bool)
+        (instant, bool)
     )
 
     DEFINE_SERIALIZABLE(player_user_update,
@@ -114,6 +117,7 @@ namespace banggame {
         (player_id, int)
         (hp, int)
         (dead, bool)
+        (instant, bool)
     )
 
     DEFINE_SERIALIZABLE(player_gold_update,

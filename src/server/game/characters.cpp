@@ -207,6 +207,8 @@ namespace banggame {
             auto copy_it = target->m_game->m_characters.emplace(target->m_game->get_next_id(), *c).first;
             copy_it->second.id = copy_it->first;
             copy_it->second.usages = 0;
+            copy_it->second.pile = card_pile_type::player_character;
+            copy_it->second.owner = target;
 
             if (target->m_characters.size() == 2) {
                 target->m_characters.back()->on_unequip(target);
@@ -232,7 +234,10 @@ namespace banggame {
         p->m_game->add_event<event_type::on_turn_end>(target_card, [p](player *target) {
             if (p == target && p->m_characters.front()->usages == 0) {
                 if (p->m_characters.size() > 1) {
-                    p->m_characters.back()->on_unequip(p);
+                    auto *c = p->m_characters.back();
+                    c->on_unequip(p);
+                    c->pile = card_pile_type::none;
+                    c->owner = nullptr;
                     p->m_characters.pop_back();
                     p->m_game->add_public_update<game_update_type::player_remove_character>(p->id, 1);
                 }
@@ -403,6 +408,8 @@ namespace banggame {
         for (int i=0; i<2; ++i) {
             auto *c = target->m_characters.emplace_back(target->m_game->m_base_characters[i]);
             c->on_equip(target);
+            c->pile = card_pile_type::player_character;
+            c->owner = target;
             target->m_game->send_character_update(*c, target->id, i+1);
         }
     }
@@ -413,7 +420,10 @@ namespace banggame {
             ++usages;
 
             for (int i=1; i<target->m_characters.size(); ++i) {
-                target->m_characters[i]->on_unequip(target);
+                auto *c = target->m_characters[i];
+                c->on_unequip(target);
+                c->pile = card_pile_type::none;
+                c->owner = nullptr;
             }
             target->m_characters.resize(1);
             greygory_deck_set_characters(target);

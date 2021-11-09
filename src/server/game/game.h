@@ -250,6 +250,7 @@ namespace banggame {
             }
         }
 
+        std::vector<card *> &get_pile(card_pile_type pile, player *owner = nullptr);
         std::vector<card *>::iterator move_to(card *c, card_pile_type pile, bool known = true, player *owner = nullptr, show_card_flags flags = enums::flags_none<show_card_flags>);
         card *draw_card_to(card_pile_type pile, player *owner = nullptr, show_card_flags flags = enums::flags_none<show_card_flags>);
 

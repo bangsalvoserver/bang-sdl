@@ -456,7 +456,13 @@ void game_scene::handle_update(UPDATE_TAG(move_cube), const move_cube_update &ar
             diff.x += parent->width() / 2 + sizes::cube_pile_xoffset;
             diff.y += parent->height() / 2;
         }
-        m_animations.emplace_back(8, cube_move_animation(&cube, diff));
+        cube_move_animation anim(&cube, diff);
+        if (args.instant) {
+            anim.end();
+            pop_update();
+        } else {
+            m_animations.emplace_back(8, std::move(anim));
+        }
     } else {
         pop_update();
     }
@@ -502,7 +508,7 @@ void game_scene::handle_update(UPDATE_TAG(show_card), const show_card_update &ar
 void game_scene::handle_update(UPDATE_TAG(hide_card), const hide_card_update &args) {
     auto *card = find_card(args.card_id);
 
-    if (card && card->known) {
+    if (card && card->known && args.ignore_player_id != m_player_own_id) {
         card->known = false;
         if (bool(args.flags & show_card_flags::no_animation)) {
             card->flip_amt = 0.f;
@@ -523,7 +529,12 @@ void game_scene::handle_update(UPDATE_TAG(tap_card), const tap_card_update &args
     auto *card = find_card(args.card_id);
     if (card->inactive != args.inactive) {
         card->inactive = args.inactive;
-        m_animations.emplace_back(10, std::in_place_type<card_tap_animation>, card, args.inactive);
+        if (args.instant) {
+            card->rotation = card->inactive ? 90.f : 0.f;
+            pop_update();
+        } else {
+            m_animations.emplace_back(10, std::in_place_type<card_tap_animation>, card, args.inactive);
+        }
     } else {
         pop_update();
     }
@@ -563,10 +574,15 @@ void game_scene::handle_update(UPDATE_TAG(player_add), const player_user_update 
 
 void game_scene::handle_update(UPDATE_TAG(player_hp), const player_hp_update &args) {
     auto *player = find_player(args.player_id);
-    if (player->hp != args.hp && !args.dead) {
-        m_animations.emplace_back(20, std::in_place_type<player_hp_animation>, player, player->hp, args.hp);
-    } else {
+    if (args.instant) {
+        player->set_hp_marker_position(args.hp);
         pop_update();
+    } else {
+        if (player->hp != args.hp && !args.dead) {
+            m_animations.emplace_back(20, std::in_place_type<player_hp_animation>, player, player->hp, args.hp);
+        } else {
+            pop_update();
+        }
     }
     player->dead = args.dead;
     player->hp = args.hp;

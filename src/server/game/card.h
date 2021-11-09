@@ -10,6 +10,8 @@
 
 namespace banggame {
 
+    struct player;
+
     struct card {
         int id;
         card_expansion_type expansion;
@@ -36,7 +38,8 @@ namespace banggame {
 
         std::vector<int> cubes;
 
-        std::vector<card *> *location = nullptr;
+        card_pile_type pile = card_pile_type::none;
+        player *owner = nullptr;
         bool testing = false;
 
         void on_equip(player *target) {

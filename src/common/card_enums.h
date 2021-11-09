@@ -94,6 +94,7 @@ namespace banggame {
     )
 
     DEFINE_ENUM_IN_NS(banggame, card_pile_type,
+        (none)
         (player)
         (player_hand)
         (player_table)
