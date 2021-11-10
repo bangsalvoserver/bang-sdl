@@ -543,27 +543,41 @@ void target_finder::add_character_target(target_pair target) {
 }
 
 bool target_finder::add_player_targets(const std::vector<target_pair> &targets) {
+    auto verify_target = [&](target_type type) {
+        return std::ranges::all_of(targets, [&](player_view *target_player) {
+            return std::ranges::all_of(util::enum_flag_values(type), [&](target_type value){
+                switch(value) {
+                case target_type::player: return !target_player->dead;
+                case target_type::dead: return target_player->dead;
+                case target_type::self: return target_player->id == m_game->m_player_own_id;
+                case target_type::notself: return target_player->id != m_game->m_player_own_id;
+                case target_type::notsheriff: return target_player->m_role.role != player_role::sheriff;
+                case target_type::new_target:
+                    return std::ranges::none_of(m_targets, [&](const auto &vec) {
+                        return std::ranges::find(vec, target_player, &target_pair::player) != vec.end();
+                    });
+                case target_type::everyone:
+                case target_type::reachable:
+                case target_type::maxdistance:
+                case target_type::fanning_target:
+                    return true;
+                default:
+                    return false;
+                }
+            });
+        }, &target_pair::player);
+    };
     if (bool(m_flags & play_card_flags::equipping)) {
-        auto target = m_playing_card->equip_targets[m_targets.size()].target;
-        if (bool(target & (target_type::player | target_type::dead))) {
+        if (verify_target(m_playing_card->equip_targets[m_targets.size()].target)) {
             m_targets.emplace_back(targets);
             send_play_card();
             return true;
         }
     } else {
-        auto target = get_target_type(get_target_index());
-        if (bool(target & (target_type::player | target_type::dead))) {
-            if (!bool(target & target_type::new_target)
-                || std::ranges::none_of(m_targets, [&](const auto &vec) {
-                    return std::ranges::any_of(vec, [&](const target_pair &pair) {
-                        return std::ranges::find(targets, pair.player, &target_pair::player) != targets.end();
-                    });
-                }))
-            {
-                m_targets.emplace_back(targets);
-                handle_auto_targets();
-                return true;
-            }
+        if (verify_target(get_target_type(get_target_index()))) {
+            m_targets.emplace_back(targets);
+            handle_auto_targets();
+            return true;
         }
     }
     return false;
