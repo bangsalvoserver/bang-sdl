@@ -300,7 +300,9 @@ namespace banggame {
 
         if (has_expansion(card_expansion_type::highnoon)) {
             for (const auto &c : all_cards.highnoon) {
-                add_card(card_pile_type::scenario_deck, c);
+                if ((c.expansion & m_options.expansions) == c.expansion) {
+                    add_card(card_pile_type::scenario_deck, c);
+                }
             }
             last_scenario_cards.push_back(m_scenario_deck.back());
             m_scenario_deck.pop_back();
@@ -308,7 +310,9 @@ namespace banggame {
         
         if (has_expansion(card_expansion_type::fistfulofcards)) {
             for (const auto &c : all_cards.fistfulofcards) {
-                add_card(card_pile_type::scenario_deck, c);
+                if ((c.expansion & m_options.expansions) == c.expansion) {
+                    add_card(card_pile_type::scenario_deck, c);
+                }
             }
             last_scenario_cards.push_back(m_scenario_deck.back());
             m_scenario_deck.pop_back();

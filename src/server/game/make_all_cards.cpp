@@ -161,6 +161,9 @@ namespace banggame {
             card c;
             c.expansion = card_expansion_type::highnoon;
             if (json_card.isMember("disabled") && json_card["disabled"].asBool()) continue;
+            if (json_card.isMember("expansion")) {
+                c.expansion |= enums::flags_from_string<card_expansion_type>(json_card["expansion"].asString());
+            }
             make_all_effects(c, json_card);
             ret.highnoon.push_back(c);
         }
@@ -177,6 +180,9 @@ namespace banggame {
             card c;
             c.expansion = card_expansion_type::wildwestshow;
             if (json_card.isMember("disabled") && json_card["disabled"].asBool()) continue;
+            if (json_card.isMember("expansion")) {
+                c.expansion |= enums::flags_from_string<card_expansion_type>(json_card["expansion"].asString());
+            }
             make_all_effects(c, json_card);
             ret.wildwestshow.push_back(c);
         }

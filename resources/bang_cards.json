@@ -2885,6 +2885,16 @@
             "image": "05_sparatoria"
         },
         {
+            "name": "Manette",
+            "image": "05_manette",
+            "expansion": "thebullet"
+        },
+        {
+            "name": "Nuova Identit\u00e0",
+            "image": "05_nuovaidentita",
+            "expansion": "thebullet"
+        },
+        {
             "name": "Mezzogiorno di Fuoco",
             "image": "05_mezzogiornodifuoco"
         }
