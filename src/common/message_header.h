@@ -1,7 +1,7 @@
 #ifndef __MESSAGE_HEADER_H__
 #define __MESSAGE_HEADER_H__
 
-#include "utils/sdlnet.h"
+#include "common/sdlnet.h"
 
 struct message_header {
     enum message_type : uint32_t {

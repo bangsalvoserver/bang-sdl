@@ -3,7 +3,7 @@
 
 #include <list>
 
-#include "utils/sdl.h"
+#include "common/sdl.h"
 #include "textbox.h"
 #include "button.h"
 

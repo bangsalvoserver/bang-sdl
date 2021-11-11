@@ -1,7 +1,7 @@
 #ifndef __SCENE_BASE_H__
 #define __SCENE_BASE_H__
 
-#include "utils/sdl.h"
+#include "common/sdl.h"
 #include "common/net_enums.h"
 
 #include "widgets/button.h"

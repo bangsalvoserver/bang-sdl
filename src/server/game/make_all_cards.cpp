@@ -5,8 +5,8 @@
 
 #include <json/json.h>
 
-#include "utils/svstream.h"
-#include "utils/resource.h"
+#include "common/svstream.h"
+#include "common/resource.h"
 
 #include "common/effects.h"
 #include "make_effect.h"

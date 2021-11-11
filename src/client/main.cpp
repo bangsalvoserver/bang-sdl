@@ -1,7 +1,7 @@
 #include <iostream>
 
-#include "utils/sdl.h"
-#include "utils/sdlnet.h"
+#include "common/sdl.h"
+#include "common/sdlnet.h"
 
 #include "common/options.h"
 

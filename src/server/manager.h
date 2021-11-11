@@ -6,7 +6,7 @@
 
 #include <json/json.h>
 
-#include "utils/utils.h"
+#include "common/utils.h"
 
 #include "common/options.h"
 

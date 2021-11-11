@@ -4,7 +4,7 @@
 #include <fstream>
 #include <vector>
 
-#include "utils/json_serial.h"
+#include "common/json_serial.h"
 #include "common/card_enums.h"
 
 DEFINE_SERIALIZABLE(config_data,

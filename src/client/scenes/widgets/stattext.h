@@ -1,7 +1,7 @@
 #ifndef __STATTEXT_H__
 #define __STATTEXT_H__
 
-#include "utils/sdl.h"
+#include "common/sdl.h"
 
 #include <string>
 
