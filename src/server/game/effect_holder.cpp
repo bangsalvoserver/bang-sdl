@@ -4,8 +4,21 @@
 
 namespace banggame {
 
+    template<typename Holder, typename Function>
+    static auto visit_effect(Function &&fun, Holder &holder) {
+        using enum_type = typename Holder::enum_type;
+        constexpr auto lut = []<enum_type ... Es>(enums::enum_sequence<Es ...>) {
+            return std::array {
+                +[](Function &&fun, Holder &holder) {
+                    return fun(holder.template get<Es>());
+                } ...
+            };
+        }(enums::make_enum_sequence<enum_type>());
+        return lut[enums::indexof(holder.type)](std::move(fun), holder);
+    }
+
     bool effect_holder::can_play(card *origin_card, player *origin) const {
-        return enums::visit([=](const auto &value) {
+        return visit_effect([=](const auto &value) {
             if constexpr (requires { value.can_play(origin_card, origin); }) {
                 return value.can_play(origin_card, origin);
             }
@@ -14,7 +27,7 @@ namespace banggame {
     }
 
     bool effect_holder::can_play(card *origin_card, player *origin, player *target) const {
-        return enums::visit([=](const auto &value) {
+        return visit_effect([=](const auto &value) {
             if constexpr (requires { value.can_play(origin_card, origin, target); }) {
                 return value.can_play(origin_card, origin, target);
             }
@@ -23,7 +36,7 @@ namespace banggame {
     }
 
     bool effect_holder::can_play(card *origin_card, player *origin, player *target, card *target_card) const {
-        return enums::visit([=](const auto &value) {
+        return visit_effect([=](const auto &value) {
             if constexpr (requires { value.can_play(origin_card, origin, target, target_card); }) {
                 return value.can_play(origin_card, origin, target, target_card);
             }
@@ -32,7 +45,7 @@ namespace banggame {
     }
 
     bool effect_holder::can_respond(card *origin_card, player *target) const {
-        return enums::visit([=](const auto &value) {
+        return visit_effect([=](const auto &value) {
             if constexpr (requires { value.can_respond(origin_card, target); }) {
                 return value.can_respond(origin_card, target);
             }
@@ -41,7 +54,7 @@ namespace banggame {
     }
 
     void effect_holder::on_play(card *origin_card, player *origin) {
-        enums::visit([=](auto &value) {
+        visit_effect([=](auto &&value) {
             if constexpr (requires { value.on_play(origin_card, origin); }) {
                 value.on_play(origin_card, origin);
             } else {
@@ -51,7 +64,7 @@ namespace banggame {
     }
 
     void effect_holder::on_play(card *origin_card, player *origin, player *target) {
-        enums::visit([=](auto &value) {
+        visit_effect([=](auto &&value) {
             if constexpr (requires { value.on_play(origin_card, origin, target); }) {
                 value.on_play(origin_card, origin, target);
             } else {
@@ -61,7 +74,7 @@ namespace banggame {
     }
 
     void effect_holder::on_play(card *origin_card, player *origin, player *target, card *target_card) {
-        enums::visit([=](auto &value) {
+        visit_effect([=](auto &&value) {
             if constexpr (requires { value.on_play(origin_card, origin, target, target_card); }) {
                 value.on_play(origin_card, origin, target, target_card);
             } else {
@@ -71,13 +84,13 @@ namespace banggame {
     }
 
     void equip_holder::on_equip(player *target, card *target_card) {
-        enums::visit([=](auto &value) {
+        visit_effect([=](auto &&value) {
             value.on_equip(target, target_card);
         }, *this);
     }
 
     void equip_holder::on_unequip(player *target, card *target_card) {
-        enums::visit([=](auto &value) {
+        visit_effect([=](auto &&value) {
             value.on_unequip(target, target_card);
         }, *this);
     }

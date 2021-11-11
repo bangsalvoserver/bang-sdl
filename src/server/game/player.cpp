@@ -108,7 +108,7 @@ namespace banggame {
         if (bool(flags & effect_flags::escapable)
             && m_game->has_expansion(card_expansion_type::valleyofshadows)) return true;
         auto it = std::ranges::find_if(m_characters, [](const auto &vec) {
-            return !vec.empty() && vec.front().enum_index() == effect_type::ms_abigail;
+            return !vec.empty() && vec.front().type == effect_type::ms_abigail;
         }, &character::responses);
         return it != m_characters.end()
             && (*it)->responses.front().get<effect_type::ms_abigail>().can_escape(origin, origin_card, flags);
@@ -183,7 +183,7 @@ namespace banggame {
     void player::verify_modifiers(card *c, const std::vector<card *> &modifiers) {
         for (card *mod_card : modifiers) {
             if (mod_card->modifier != card_modifier_type::bangcard
-                || std::ranges::find(c->effects, effect_type::bangcard, &effect_holder::enum_index) == c->effects.end()) {
+                || std::ranges::find(c->effects, effect_type::bangcard, &effect_holder::type) == c->effects.end()) {
                 throw game_error("Azione non valida");
             }
             for (const auto &e : mod_card->effects) {
@@ -208,7 +208,7 @@ namespace banggame {
         if (c->equips.empty()) return;
         if (tgts.size() != 1) throw game_error("Azione non valida");
         player *target = m_game->get_player(tgts.front().player_id);
-        if (!std::ranges::all_of(util::enum_flag_values(c->equips.front().target()),
+        if (!std::ranges::all_of(util::enum_flag_values(c->equips.front().target),
             [&](target_type value) {
                 switch (value) {
                 case target_type::player: return target->alive();
@@ -217,7 +217,7 @@ namespace banggame {
                 case target_type::notself: return target->id != id;
                 case target_type::notsheriff: return target->m_role != player_role::sheriff;
                 case target_type::reachable: return player_in_range(this, target, m_weapon_range + m_range_mod);
-                case target_type::maxdistance: return player_in_range(this, target, c->equips.front().args() + m_range_mod);
+                case target_type::maxdistance: return player_in_range(this, target, c->equips.front().args + m_range_mod);
                 default: return false;
                 }
             })) throw game_error("Azione non valida");
@@ -248,13 +248,13 @@ namespace banggame {
             return enums::visit_indexed(util::overloaded{
                 [&](enums::enum_constant<play_card_target_type::target_none>) {
                     if (!e.can_play(card_ptr, this)) return false;
-                    return e.target() == enums::flags_none<target_type>;
+                    return e.target == enums::flags_none<target_type>;
                 },
                 [&](enums::enum_constant<play_card_target_type::target_player>, const std::vector<target_player_id> &args) {
-                    if (!bool(e.target() & (target_type::player | target_type::dead))) return false;
-                    if (bool(e.target() & target_type::everyone)) {
+                    if (!bool(e.target & (target_type::player | target_type::dead))) return false;
+                    if (bool(e.target & target_type::everyone)) {
                         std::vector<target_player_id> ids;
-                        if (bool(e.target() & target_type::notself)) {
+                        if (bool(e.target & target_type::notself)) {
                             for (auto *p = this;;) {
                                 p = m_game->get_next_player(p);
                                 if (p == this) break;
@@ -275,7 +275,7 @@ namespace banggame {
                     } else {
                         player *target = m_game->get_player(args.front().player_id);
                         if (!e.can_play(card_ptr, this, target)) return false;
-                        return std::ranges::all_of(util::enum_flag_values(e.target()),
+                        return std::ranges::all_of(util::enum_flag_values(e.target),
                             [&](target_type value) {
                                 switch (value) {
                                 case target_type::player: return target->alive();
@@ -284,7 +284,7 @@ namespace banggame {
                                 case target_type::notself: return target->id != id;
                                 case target_type::notsheriff: return target->m_role != player_role::sheriff;
                                 case target_type::reachable: return player_in_range(this, target, m_weapon_range + m_range_mod);
-                                case target_type::maxdistance: return player_in_range(this, target, e.args() + m_range_mod);
+                                case target_type::maxdistance: return player_in_range(this, target, e.args + m_range_mod);
                                 case target_type::attacker: return !m_game->m_requests.empty() && m_game->top_request().origin() == target;
                                 case target_type::new_target: return is_new_target(m_current_card_targets, card_ptr, target);
                                 case target_type::fanning_target: {
@@ -297,12 +297,12 @@ namespace banggame {
                     }
                 },
                 [&](enums::enum_constant<play_card_target_type::target_card>, const std::vector<target_card_id> &args) {
-                    if (!bool(e.target() & (target_type::card | target_type::cube_slot))) return false;
-                    if (bool(e.target() & target_type::everyone)) {
+                    if (!bool(e.target & (target_type::card | target_type::cube_slot))) return false;
+                    if (bool(e.target & target_type::everyone)) {
                         if (!std::ranges::all_of(m_game->m_players | std::views::filter(&player::alive), [&](const player &p) {
                             bool found = std::ranges::find(args, p.id, &target_card_id::player_id) != args.end();
                             if (p.m_hand.empty() && p.m_table.empty()) return !found;
-                            if (bool(e.target() & target_type::notself)) {
+                            if (bool(e.target & target_type::notself)) {
                                 return (p.id == id) != found;
                             } else {
                                 return found;
@@ -319,7 +319,7 @@ namespace banggame {
                         player *target = m_game->get_player(args.front().player_id);
                         card *target_card = m_game->find_card(args.front().card_id);
                         if (!e.can_play(card_ptr, this, target, target_card)) return false;
-                        return std::ranges::all_of(util::enum_flag_values(e.target()),
+                        return std::ranges::all_of(util::enum_flag_values(e.target),
                             [&](target_type value) {
                                 switch (value) {
                                 case target_type::card: return target->alive() && target_card->color != card_color_type::black;
@@ -327,7 +327,7 @@ namespace banggame {
                                 case target_type::notself: return target->id != id;
                                 case target_type::notsheriff: return target->m_role != player_role::sheriff;
                                 case target_type::reachable: return player_in_range(this, target, m_weapon_range + m_range_mod);
-                                case target_type::maxdistance: return player_in_range(this, target, e.args() + m_range_mod);
+                                case target_type::maxdistance: return player_in_range(this, target, e.args + m_range_mod);
                                 case target_type::attacker: return !m_game->m_requests.empty() && m_game->top_request().origin() == target;
                                 case target_type::new_target: return is_new_target(m_current_card_targets, card_ptr, target);
                                 case target_type::table: return target_card->pile == card_pile_type::player_table;
@@ -406,7 +406,7 @@ namespace banggame {
                     effect_it->on_play(card_ptr, this);
                 },
                 [&](enums::enum_constant<play_card_target_type::target_player>, const std::vector<target_player_id> &args) {
-                    effect_it->flags() |= effect_flags::single_target & static_cast<effect_flags>(-(args.size() == 1));
+                    effect_it->flags |= effect_flags::single_target & static_cast<effect_flags>(-(args.size() == 1));
                     for (const auto &target : args) {
                         auto *p = m_game->get_player(target.player_id);
                         m_current_card_targets.emplace(card_ptr, p);
@@ -420,10 +420,10 @@ namespace banggame {
                             effect_it->on_play(card_ptr, this, p);
                         }
                     }
-                    effect_it->flags() &= ~effect_flags::single_target;
+                    effect_it->flags &= ~effect_flags::single_target;
                 },
                 [&](enums::enum_constant<play_card_target_type::target_card>, const std::vector<target_card_id> &args) {
-                    effect_it->flags() |= effect_flags::single_target & static_cast<effect_flags>(-(args.size() == 1));
+                    effect_it->flags |= effect_flags::single_target & static_cast<effect_flags>(-(args.size() == 1));
                     for (const auto &target : args) {
                         auto *p = m_game->get_player(target.player_id);
                         if (p != this && check_immunity(p)) continue;
@@ -435,7 +435,7 @@ namespace banggame {
                             effect_it->on_play(card_ptr, this, p, target_card);
                         }
                     }
-                    effect_it->flags() &= ~effect_flags::single_target;
+                    effect_it->flags &= ~effect_flags::single_target;
                 }
             }, t);
             if (++effect_it == effect_end) {
@@ -678,9 +678,9 @@ namespace banggame {
         obj.value = virtual_card.value;
         for (const auto &value : virtual_card.effects) {
             card_target_data ctd;
-            ctd.type = value.enum_index();
-            ctd.target = value.target();
-            ctd.args = value.args();
+            ctd.type = value.type;
+            ctd.target = value.target;
+            ctd.args = value.args;
             obj.targets.emplace_back(std::move(ctd));
         }
 

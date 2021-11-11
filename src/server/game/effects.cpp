@@ -456,7 +456,7 @@ namespace banggame {
     void effect_buntlinespecial::on_play(card *origin_card, player *p) {
         p->add_bang_mod([=](request_bang &req) {
             if (std::ranges::any_of(p->m_characters, [](const character *c) {
-                return std::ranges::find(c->equips, equip_type::slab_the_killer, &equip_holder::enum_index) != c->equips.end();
+                return std::ranges::find(c->equips, equip_type::slab_the_killer, &equip_holder::type) != c->equips.end();
             })) {
                 ++req.bang_strength;
             }

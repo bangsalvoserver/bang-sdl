@@ -148,26 +148,22 @@ namespace banggame {
     }
 
     template<enums::reflected_enum E>
-    struct effect_base : enums::enum_variant<E> {
-        using enums::enum_variant<E>::enum_variant;
+    struct effect_base : card_effect {
+        using enum_type = E;
+        enum_type type;
 
+        effect_base(enum_type type) : type(type) {}
+
+        bool is(enum_type value) const { return type == value; }
+
+        template<enum_type Value> auto get() const {
+            if (type != Value) throw std::runtime_error("Tipo non valido");
+            enums::enum_type_t<Value> value;
+            static_cast<card_effect &>(value) = static_cast<const card_effect &>(*this);
+            return value;
+        }
+        
         static_assert(detail::all_is_effect<enums::enum_variant_base<E>>::value);
-
-        target_type target() const {
-            return enums::visit(&card_effect::target, *this);
-        }
-
-        int args() const {
-            return enums::visit(&card_effect::args, *this);
-        };
-
-        effect_flags &flags() {
-            return enums::visit(&card_effect::flags, *this);
-        }
-
-        effect_flags flags() const {
-            return enums::visit(&card_effect::flags, *this);
-        }
     };
 
     struct effect_holder : effect_base<effect_type> {

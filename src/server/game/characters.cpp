@@ -524,7 +524,7 @@ namespace banggame {
             if (std::ranges::all_of(card->effects, is_self_or_none, &effect_holder::target)) {
                 target->m_game->move_to(card, card_pile_type::shop_discard);
                 for (auto &e : card->effects) {
-                    switch(e.target()) {
+                    switch(e.target) {
                     case target_type::self | target_type::player:
                         e.on_play(card, target, target);
                         break;

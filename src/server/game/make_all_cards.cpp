@@ -9,11 +9,46 @@
 #include "common/resource.h"
 
 #include "common/effects.h"
-#include "make_effect.h"
 
 DECLARE_RESOURCE(bang_cards_json)
 
 namespace banggame {
+
+    struct invalid_effect : std::runtime_error {
+        using std::runtime_error::runtime_error;
+    };
+
+    template<typename Holder>
+    static std::vector<Holder> make_effects_from_json(const Json::Value &json_effects) {
+        using enum_type = typename Holder::enum_type;
+        using namespace enums::flag_operators;
+
+        std::vector<Holder> ret;
+        for (const auto &json_effect : json_effects) {
+            auto e = enums::from_string<enum_type>(json_effect["class"].asString());
+            if (e == enums::invalid_enum_v<enum_type>) {
+                throw invalid_effect("Invalid effect class: " + json_effect["class"].asString());
+            }
+
+            Holder effect{e};
+            if (json_effect.isMember("args")) {
+                effect.args = json_effect["args"].asInt();
+            }
+            if (json_effect.isMember("target")) {
+                effect.target = enums::flags_from_string<target_type>(json_effect["target"].asString());
+                if (effect.target != enums::flags_none<target_type>
+                    && !bool(effect.target & (target_type::card | target_type::player | target_type::dead | target_type::cube_slot))) {
+                    throw invalid_effect("Invalid target: " + json_effect["target"].asString());
+                }
+            }
+            if (json_effect.isMember("escapable") && json_effect["escapable"].asBool()) {
+                effect.flags |= effect_flags::escapable;
+            }
+            ret.push_back(effect);
+        }
+
+        return ret;
+    }
     
     static void make_all_effects(card &out, const Json::Value &json_card) {
         out.name = json_card["name"].asString();

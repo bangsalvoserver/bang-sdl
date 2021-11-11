@@ -14,9 +14,9 @@ namespace banggame {
         auto make_card_info_effects = []<typename T>(std::vector<T> &out, const auto &vec) {
             for (const auto &value : vec) {
                 T obj;
-                obj.type = value.enum_index();
-                obj.target = value.target();
-                obj.args = value.args();
+                obj.type = value.type;
+                obj.target = value.target;
+                obj.args = value.args;
                 out.push_back(std::move(obj));
             }
         };
