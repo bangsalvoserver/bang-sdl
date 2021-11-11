@@ -29,6 +29,7 @@ set(bangclient_srcs
     src/client/scenes/connect.cpp
     src/client/scenes/lobby_list.cpp
     src/client/scenes/lobby.cpp
+    src/client/tinyfd/tinyfiledialogs.c
 )
 
 set(bangserver_srcs

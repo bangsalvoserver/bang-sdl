@@ -139,24 +139,24 @@ namespace sdl {
     private:
         SDL_Renderer *m_value = nullptr;
     };
+    
+    #if SDL_BYTEORDER == SDL_BIG_ENDIAN
+        constexpr uint32_t rmask = 0xff000000;
+        constexpr uint32_t gmask = 0x00ff0000;
+        constexpr uint32_t bmask = 0x0000ff00;
+        constexpr uint32_t amask = 0x000000ff;
+    #else
+        constexpr uint32_t rmask = 0x000000ff;
+        constexpr uint32_t gmask = 0x0000ff00;
+        constexpr uint32_t bmask = 0x00ff0000;
+        constexpr uint32_t amask = 0xff000000;
+    #endif
 
     class surface {
     public:
         surface() = default;
 
         surface(int width, int height) {
-            #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-                constexpr uint32_t rmask = 0xff000000;
-                constexpr uint32_t gmask = 0x00ff0000;
-                constexpr uint32_t bmask = 0x0000ff00;
-                constexpr uint32_t amask = 0x000000ff;
-            #else
-                constexpr uint32_t rmask = 0x000000ff;
-                constexpr uint32_t gmask = 0x0000ff00;
-                constexpr uint32_t bmask = 0x00ff0000;
-                constexpr uint32_t amask = 0xff000000;
-            #endif
-
             m_value = SDL_CreateRGBSurface(0, width, height, 32, rmask, gmask, bmask, amask);
             
             if (!m_value) {

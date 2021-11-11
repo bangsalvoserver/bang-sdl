@@ -2,6 +2,7 @@
 #define __JSON_SERIAL_H__
 
 #include "enum_variant.h"
+#include "base64.h"
 
 #include <json/json.h>
 #include <vector>
@@ -51,6 +52,13 @@ namespace json {
                 ret.append(serializer<T>{}(obj));
             }
             return ret;
+        }
+    };
+
+    template<>
+    struct serializer<std::vector<std::byte>> {
+        Json::Value operator()(const std::vector<std::byte> &value) const {
+            return base64_encode(value.data(), value.size());
         }
     };
 
@@ -125,6 +133,13 @@ namespace json {
                 ret.push_back(deserializer<T>{}(obj));
             }
             return ret;
+        }
+    };
+
+    template<>
+    struct deserializer<std::vector<std::byte>> {
+        std::vector<std::byte> operator()(const Json::Value &value) const {
+            return base64_decode(value.asString());
         }
     };
 

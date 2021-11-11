@@ -302,8 +302,12 @@ void game_scene::remove_user(const lobby_left_args &args) {
     if (it != m_players.end()) {
         it->second.user_id = 0;
         it->second.set_username("(Disconnesso)");
+        it->second.set_profile_image(nullptr);
     }
-    m_ui.add_message(parent->get_user_name(args.user_id) + " si \u00e8 disconnesso");
+    user_info *info = parent->get_user_info(args.user_id);
+    if (info) {
+        m_ui.add_message(info->name + " si \u00e8 disconnesso");
+    }
 }
 
 void game_scene::pop_update() {
@@ -576,7 +580,13 @@ void game_scene::handle_game_update(UPDATE_TAG(player_add), const player_user_up
     auto &p = m_players.try_emplace(args.player_id, args.player_id).first->second;
 
     p.user_id = args.user_id;
-    p.set_username(parent->get_user_name(args.user_id));
+    if (user_info *info = parent->get_user_info(args.user_id)) {
+        p.set_username(info->name);
+        p.set_profile_image(&info->profile_image);
+    } else {
+        p.set_username("(Disconnesso)");
+        p.set_profile_image(nullptr);
+    }
 
     move_player_views();
     pop_update();

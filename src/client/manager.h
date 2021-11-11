@@ -22,6 +22,28 @@ DEFINE_ENUM_TYPES(scene_type,
 
 #define MESSAGE_TAG(name) enums::enum_constant<server_message_type::name>
 
+struct user_info {
+    std::string name;
+    sdl::texture profile_image;
+
+    user_info(std::string name, const std::vector<std::byte> &data)
+        : name(std::move(name))
+    {        
+        if (data.size() > 3) {
+            int w = static_cast<int>(data[0]);
+            int h = static_cast<int>(data[1]);
+            int bpp = static_cast<int>(data[2]);
+            if (data.size() >= 3 + w * h * bpp) {
+                SDL_Surface *surf = SDL_CreateRGBSurface(0, w, h, 8 * bpp, sdl::rmask, sdl::gmask, sdl::bmask, sdl::amask);
+                SDL_LockSurface(surf);
+                std::memcpy(surf->pixels, data.data() + 3, w * h * bpp);
+                SDL_UnlockSurface(surf);
+                profile_image = sdl::surface(surf);
+            }
+        }
+    }
+};
+
 class game_manager {
 public:
     game_manager(const std::string &config_filename);
@@ -69,12 +91,12 @@ public:
     int get_user_own_id() const noexcept { return m_user_own_id; }
     int get_lobby_owner_id() const noexcept { return m_lobby_owner_id; }
 
-    std::string get_user_name(int id) const {
-        auto it = m_user_names.find(id);
-        if (it != m_user_names.end()) {
-            return it->second;
+    user_info *get_user_info(int id) {
+        auto it = m_users.find(id);
+        if (it != m_users.end()) {
+            return &it->second;
         } else {
-            return "(Disconnesso)";
+            return nullptr;
         }
     }
 
@@ -100,7 +122,7 @@ private:
     sdlnet::socket_set sock_set{1};
     std::string connected_ip;
 
-    std::map<int, std::string> m_user_names;
+    std::map<int, user_info> m_users;
 
     int m_width;
     int m_height;

@@ -1,6 +1,7 @@
 #include "connect.h"
 
 #include "../manager.h"
+#include "../tinyfd/tinyfiledialogs.h"
 
 recent_server_line::recent_server_line(connect_scene *parent, const std::string &address)
     : parent(parent)
@@ -22,9 +23,13 @@ void recent_server_line::render(sdl::renderer &renderer) {
 connect_scene::connect_scene(game_manager *parent)
     : scene_base(parent)
     , m_username_label("Nome utente:")
+    , m_propic_label("Immagine profilo:")
     , m_address_label("Nuovo indirizzo:")
     , m_connect_btn("Connetti", [this]{
         do_connect(m_address_box.get_value());
+    })
+    , m_propic_browse_btn("Sfoglia...", [this]{
+        do_browse();
     })
     , m_error_text(sdl::text_style{
         {0xff, 0x0, 0x0, 0xff},
@@ -33,6 +38,7 @@ connect_scene::connect_scene(game_manager *parent)
     })
 {
     m_username_box.set_value(parent->get_config().user_name);
+    m_propic_box.set_value(parent->get_config().profile_image);
     m_address_box.set_onenter([this]{
         do_connect(m_address_box.get_value());
     });
@@ -49,7 +55,14 @@ void connect_scene::resize(int width, int height) {
     
     m_username_box.set_rect(sdl::rect{100 + label_rect.w + 10, 50, width - 210 - label_rect.w, 25});
 
-    sdl::rect rect{100, 100, width - 200, 25};
+    label_rect = m_propic_label.get_rect();
+    label_rect.x = 100;
+    label_rect.y = 100 + (25 - label_rect.h) / 2;
+    m_propic_label.set_rect(label_rect);
+    m_propic_box.set_rect(sdl::rect{100 + label_rect.w + 10, 100, width - 320 - label_rect.w, 25});
+    m_propic_browse_btn.set_rect(sdl::rect{width - 200, 100, 100, 25});
+
+    sdl::rect rect{100, 150, width - 200, 25};
     for (auto &line : m_recents) {
         line.set_rect(rect);
         rect.y += 50;
@@ -70,6 +83,10 @@ void connect_scene::resize(int width, int height) {
 void connect_scene::render(sdl::renderer &renderer) {
     m_username_label.render(renderer);
     m_username_box.render(renderer);
+
+    m_propic_label.render(renderer);
+    m_propic_box.render(renderer);
+    m_propic_browse_btn.render(renderer);
 
     for (auto &line : m_recents) {
         line.render(renderer);
@@ -92,6 +109,15 @@ void connect_scene::do_connect(const std::string &address) {
         show_error("Specificare un nome utente");
     } else {
         parent->get_config().user_name = m_username_box.get_value();
+        parent->get_config().profile_image = m_propic_box.get_value();
         parent->connect(address);
+    }
+}
+
+void connect_scene::do_browse() {
+    const char *filters[] = {"*.jpg", "*.png"};
+    const char *ret = tinyfd_openFileDialog("Bang!", parent->get_config().profile_image.c_str(), 2, filters, "File Immagine", 0);
+    if (ret) {
+        m_propic_box.set_value(parent->get_config().profile_image.assign(ret));
     }
 }

@@ -30,9 +30,15 @@ public:
 
     void do_connect(const std::string &address);
 
+    void do_browse();
+
 private:
     sdl::stattext m_username_label;
     sdl::textbox m_username_box;
+
+    sdl::stattext m_propic_label;
+    sdl::textbox m_propic_box;
+    sdl::button m_propic_browse_btn;
 
     sdl::stattext m_address_label;
     sdl::textbox m_address_box;

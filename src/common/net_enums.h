@@ -5,6 +5,7 @@
 
 DEFINE_SERIALIZABLE(connect_args,
     (user_name, std::string)
+    (profile_image, std::vector<std::byte>)
 )
 
 DEFINE_SERIALIZABLE(lobby_info,
@@ -49,6 +50,7 @@ DEFINE_SERIALIZABLE(lobby_data,
 DEFINE_SERIALIZABLE(lobby_player_data,
     (user_id, int)
     (name, std::string)
+    (profile_image, std::vector<std::byte>)
 )
 
 DEFINE_SERIALIZABLE(lobby_entered_args,

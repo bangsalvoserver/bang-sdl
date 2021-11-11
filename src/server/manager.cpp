@@ -73,7 +73,7 @@ std::list<lobby>::iterator game_manager::find_lobby(const game_user *u) {
 }
 
 void game_manager::handle_message(MESSAGE_TAG(connect), const sdlnet::ip_address &addr, const connect_args &args) {
-    if (users.try_emplace(addr, addr, args.user_name).second) {
+    if (users.try_emplace(addr, addr, args.user_name, args.profile_image).second) {
         send_message<server_message_type::client_accepted>(addr);
     }
 }
@@ -172,7 +172,7 @@ void game_manager::handle_message(MESSAGE_TAG(lobby_join), const sdlnet::ip_addr
             if (p.user == u) {
                 send_message<server_message_type::lobby_entered>(p.user->addr, lobby_info{it->name, it->expansions}, u->id, it->owner->id);
             } else {
-                send_message<server_message_type::lobby_joined>(p.user->addr, u->id, u->name);
+                send_message<server_message_type::lobby_joined>(p.user->addr, u->id, u->name, u->profile_image);
             }
         }
         if (it->state != lobby_state::waiting) {
@@ -185,7 +185,7 @@ void game_manager::handle_message(MESSAGE_TAG(lobby_join), const sdlnet::ip_addr
 
             std::vector<lobby_player_data> vec;
             for (const auto &l_u : it->users) {
-                vec.emplace_back(l_u.user->id, l_u.user->name);
+                vec.emplace_back(l_u.user->id, l_u.user->name, l_u.user->profile_image);
             }
             send_message<server_message_type::lobby_players>(addr, std::move(vec));
 
@@ -215,7 +215,7 @@ void game_manager::handle_message(MESSAGE_TAG(lobby_players), const sdlnet::ip_a
 
     std::vector<lobby_player_data> vec;
     for (const auto &u : it->users) {
-        vec.emplace_back(u.user->id, u.user->name);
+        vec.emplace_back(u.user->id, u.user->name, u.user->profile_image);
     }
 
     send_message<server_message_type::lobby_players>(addr, std::move(vec));

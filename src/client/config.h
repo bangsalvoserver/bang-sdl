@@ -10,6 +10,7 @@
 DEFINE_SERIALIZABLE(config_data,
     (recent_servers, std::vector<std::string>)
     (user_name, std::string)
+    (profile_image, std::string)
     (lobby_name, std::string)
     (expansions, banggame::card_expansion_type)
 )

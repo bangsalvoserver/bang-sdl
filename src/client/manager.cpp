@@ -77,14 +77,42 @@ void game_manager::connect(const std::string &host) {
         sock.open(sdlnet::ip_address(host, banggame::server_port));
         sock_set.add(sock);
         connected_ip = host;
-        add_message<client_message_type::connect>(m_config.user_name);
+
+        std::vector<std::byte> image_data;
+        if (!m_config.profile_image.empty()) {
+            try {
+                sdl::surface image{resource(m_config.profile_image)};
+                sdl::rect rect = image.get_rect();
+                int scale = 1;
+                if (rect.w > rect.h) {
+                    if (rect.w > sizes::propic_size) {
+                        image = sdl::scale_surface(image, rect.w / sizes::propic_size);
+                    }
+                } else {
+                    if (rect.h > sizes::propic_size) {
+                        image = sdl::scale_surface(image, rect.h / sizes::propic_size);
+                    }
+                }
+                size_t nbytes = image.get_rect().w * image.get_rect().h * image.get()->format->BytesPerPixel;
+                image_data.reserve(3 + nbytes);
+                image_data.push_back(static_cast<std::byte>(image.get_rect().w));
+                image_data.push_back(static_cast<std::byte>(image.get_rect().h));
+                image_data.push_back(static_cast<std::byte>(image.get()->format->BytesPerPixel));
+                image_data.insert(image_data.end(),
+                    static_cast<std::byte *>(image.get()->pixels),
+                    static_cast<std::byte *>(image.get()->pixels) + nbytes);
+            } catch (const std::runtime_error &e) {
+                // ignore
+            }
+        }
+        add_message<client_message_type::connect>(m_config.user_name, std::move(image_data));
     } catch (const sdlnet::net_error &e) {
         m_scene->show_error(e.what());
     }
 }
 
 void game_manager::disconnect() {
-    m_user_names.clear();
+    m_users.clear();
     sock_set.erase(sock);
     sock.close();
     switch_scene<scene_type::connect>()->show_error("Disconnesso dal server");
@@ -135,7 +163,7 @@ void game_manager::handle_message(MESSAGE_TAG(lobby_edited), const lobby_info &a
 
 void game_manager::handle_message(MESSAGE_TAG(lobby_players), const std::vector<lobby_player_data> &args) {
     for (const auto &obj : args) {
-        m_user_names.emplace(obj.user_id, obj.name);
+        m_users.try_emplace(obj.user_id, obj.name, obj.profile_image);
     }
     m_scene->set_player_list(args);
 }
@@ -148,26 +176,29 @@ void game_manager::handle_message(MESSAGE_TAG(lobby_entered), const lobby_entere
 }
 
 void game_manager::handle_message(MESSAGE_TAG(lobby_joined), const lobby_player_data &args) {
-    m_user_names.emplace(args.user_id, args.name);
+    m_users.try_emplace(args.user_id, args.name, args.profile_image);
     m_scene->add_user(args);
 }
 
 void game_manager::handle_message(MESSAGE_TAG(lobby_left), const lobby_left_args &args) {
     if (args.user_id == m_user_own_id) {
-        m_user_names.clear();
+        m_users.clear();
         switch_scene<scene_type::lobby_list>();
     } else {
         m_scene->remove_user(args);
-        m_user_names.erase(args.user_id);
+        m_users.erase(args.user_id);
     }
 }
 
 void game_manager::handle_message(MESSAGE_TAG(lobby_chat), const lobby_chat_args &args) {
-    std::string msg = get_user_name(args.user_id);
-    msg += ": ";
-    msg += args.message;
+    user_info *info = get_user_info(args.user_id);
+    if (info) {
+        std::string msg = info->name;
+        msg += ": ";
+        msg += args.message;
 
-    m_scene->add_chat_message(msg);
+        m_scene->add_chat_message(msg);
+    }
 }
 
 void game_manager::handle_message(MESSAGE_TAG(game_started), const game_started_args &args) {

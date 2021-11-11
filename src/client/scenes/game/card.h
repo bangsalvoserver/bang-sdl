@@ -162,6 +162,9 @@ namespace banggame {
         sdl::stattext m_username_text;
 
         sdl::stattext m_gold_text;
+
+        sdl::texture *m_profile_image = nullptr;
+        sdl::rect m_profile_rect;
         
         static inline sdl::texture m_gold_texture;
 
@@ -172,6 +175,7 @@ namespace banggame {
         void set_gold(int amount);
 
         void set_username(const std::string &name);
+        void set_profile_image(sdl::texture *image);
 
         void render(sdl::renderer &renderer);
         void render_turn_indicator(sdl::renderer &renderer);

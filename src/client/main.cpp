@@ -15,7 +15,7 @@ DECLARE_RESOURCE(bang_png)
 int main(int argc, char **argv) {
     sdl::initializer sdl_init(SDL_INIT_VIDEO);
     sdl::ttf_initializer sdl_ttf_init;
-    sdl::img_initializer sdl_img_init(IMG_INIT_PNG);
+    sdl::img_initializer sdl_img_init(IMG_INIT_PNG | IMG_INIT_JPG);
     sdlnet::initializer sdl_net_init;
 
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");

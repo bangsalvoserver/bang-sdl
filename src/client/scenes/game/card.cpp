@@ -178,6 +178,9 @@ namespace banggame {
         }
 
         set_username(m_username_text.get_value());
+        if (m_profile_image) {
+            set_profile_image(m_profile_image);
+        }
     }
 
     void player_view::set_username(const std::string &value) {
@@ -186,6 +189,28 @@ namespace banggame {
         username_rect.x = m_role.get_pos().x - (username_rect.w) / 2;
         username_rect.y = m_bounding_rect.y + 20;
         m_username_text.set_rect(username_rect);
+    }
+
+    void player_view::set_profile_image(sdl::texture *image) {
+        m_profile_image = image;
+        if (!image) return;
+
+        sdl::point profile_image_pos = sdl::point{
+            (m_role.get_rect().y + m_username_text.get_rect().y + m_username_text.get_rect().h) / 2,
+            m_role.get_pos().x
+        };
+
+        m_profile_rect = m_profile_image->get_rect();
+        if (m_profile_rect.w > m_profile_rect.h) {
+            m_profile_rect.h = m_profile_rect.h * sizes::propic_size / m_profile_rect.h;
+            m_profile_rect.w = sizes::propic_size;
+        } else {
+            m_profile_rect.w = m_profile_rect.w * sizes::propic_size / m_profile_rect.h;
+            m_profile_rect.h = sizes::propic_size;
+        }
+
+        m_profile_rect.x = m_role.get_pos().x - m_profile_rect.w / 2;
+        m_profile_rect.y = m_bounding_rect.y + 70 - m_profile_rect.h / 2;
     }
 
     void player_view::set_hp_marker_position(float hp) {
@@ -234,6 +259,10 @@ namespace banggame {
         }
 
         m_username_text.render(renderer);
+
+        if (m_profile_image && *m_profile_image) {
+            m_profile_image->render(renderer, m_profile_rect);
+        }
     }
 
     inline void draw_border(sdl::renderer &renderer, const sdl::rect &rect, int border, const sdl::color &color) {

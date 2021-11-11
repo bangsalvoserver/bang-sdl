@@ -37,6 +37,8 @@ namespace sizes {
     constexpr int player_ellipse_x_distance = 200;
     constexpr int player_ellipse_y_distance = 180;
 
+    constexpr int propic_size = 50;
+
     constexpr int status_text_y_distance = 300;
     constexpr int error_msg_y_distance = 275;
 }

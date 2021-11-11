@@ -17,10 +17,12 @@
 struct game_user : util::id_counter<game_user> {
     sdlnet::ip_address addr;
     std::string name;
+    std::vector<std::byte> profile_image;
 
-    game_user(sdlnet::ip_address addr, std::string name)
+    game_user(sdlnet::ip_address addr, std::string name, std::vector<std::byte> profile_image = {})
         : addr(std::move(addr))
-        , name(std::move(name)) {}
+        , name(std::move(name))
+        , profile_image(std::move(profile_image)) {}
 };
 
 class game_manager;
