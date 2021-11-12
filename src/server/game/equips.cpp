@@ -169,8 +169,6 @@ namespace banggame {
         target->m_game->add_public_update<game_update_type::player_hp>(target->id, 0, false);
         target->m_game->add_event<event_type::post_discard_card>(target_card, [=](player *e_target, card *e_card) {
             if (target_card == e_card && target == e_target) {
-                target->m_game->remove_events(target_card);
-                
                 for (character *c : target->m_characters) {
                     c->on_unequip(target);
                 }
@@ -182,6 +180,7 @@ namespace banggame {
                 target->discard_all();
 
                 target->m_game->check_game_over(target, true);
+                target->m_game->remove_events(target_card);
             }
         });
     }

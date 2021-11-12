@@ -388,15 +388,15 @@ namespace banggame {
     }
 
     bool effect_pay_cube::can_play(card *origin_card, player *origin, player *target, card *target_card) const {
-        return target_card->cubes.size() >= std::max(1, args);
+        return target_card->cubes.size() >= std::max<short>(1, args);
     }
 
     void effect_pay_cube::on_play(card *origin_card, player *origin, player *target, card *target_card) {
-        target->pay_cubes(target_card, std::max(1, args));
+        target->pay_cubes(target_card, std::max<short>(1, args));
     }
 
     void effect_add_cube::on_play(card *origin_card, player *origin, player *target, card *target_card) {
-        target->add_cubes(target_card, std::max(1, args));
+        target->add_cubes(target_card, std::max<short>(1, args));
     }
 
     void effect_reload::on_play(card *origin_card, player *origin) {
@@ -507,7 +507,6 @@ namespace banggame {
 
         void operator()(player *p, card *c) {
             if (p == origin && c == origin_card) {
-                origin->m_game->remove_events(origin_card);
                 if (steal) {
                     effect_steal e;
                     e.flags = flags;
@@ -517,6 +516,7 @@ namespace banggame {
                     e.flags = flags;
                     e.on_play(origin_card, origin, target, target_card);
                 }
+                origin->m_game->remove_events(origin_card);
             }
         }
     };

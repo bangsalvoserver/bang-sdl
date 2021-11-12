@@ -12,9 +12,9 @@ namespace banggame {
     struct card;
 
     struct card_effect {
-        effect_flags flags = enums::flags_none<effect_flags>;
         target_type target = enums::flags_none<target_type>;
-        int args = 0;
+        short args = 0;
+        effect_flags flags = enums::flags_none<effect_flags>;
     };
 
     struct request_base {
