@@ -104,7 +104,7 @@ namespace banggame {
 
         for (const auto &json_card : json_cards["cards"]) {
             card c;
-            c.expansion = enums::from_string<card_expansion_type>(json_card["expansion"].asString());
+            c.expansion = enums::flags_from_string<card_expansion_type>(json_card["expansion"].asString());
             if (c.expansion != enums::invalid_enum_v<card_expansion_type>) {
                 if (json_card.isMember("disabled") && json_card["disabled"].asBool()) continue;
                 make_all_effects(c, json_card);

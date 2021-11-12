@@ -1012,7 +1012,7 @@
                 "10P"
             ],
             "image": "07_fantasma",
-            "expansion": "valleyofshadows",
+            "expansion": "valleyofshadows ghostcards",
             "color": "blue",
             "discard_if_two_players": true,
             "equip": [
@@ -2848,7 +2848,14 @@
         },
         {
             "name": "Citt\u00e0 Fantasma",
-            "image": "05_cittafantasma"
+            "image": "05_cittafantasma",
+            "expansion": "ghostcards",
+            "discard_if_two_players": true,
+            "equip": [
+                {
+                    "class": "ghosttown"
+                }
+            ]
         },
         {
             "name": "Corsa all'Oro",

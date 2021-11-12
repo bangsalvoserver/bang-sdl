@@ -178,6 +178,7 @@ namespace banggame {
                 
                 target->m_game->instant_event<event_type::on_player_death>(nullptr, target);
                 target->discard_all();
+                target->add_gold(-target->m_gold);
 
                 target->m_game->check_game_over(target, true);
                 target->m_game->remove_events(target_card);

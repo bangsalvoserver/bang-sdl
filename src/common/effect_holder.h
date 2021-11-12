@@ -140,6 +140,7 @@ namespace banggame {
         (reverend,      effect_reverend)
         (hangover,      effect_hangover)
         (sermon,        effect_sermon)
+        (ghosttown,     effect_ghosttown)
     )
 
     namespace detail {

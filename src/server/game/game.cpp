@@ -264,12 +264,20 @@ namespace banggame {
 
         for (const auto &c : all_cards.deck) {
             if (m_players.size() <= 2 && c.discard_if_two_players) continue;
-            if (bool(c.expansion & options.expansions)) {
+            if ((c.expansion & options.expansions) == c.expansion) {
                 add_card(card_pile_type::main_deck, c);
             }
         }
-        auto ids_view = m_deck | std::views::transform(&card::id);
-        add_public_update<game_update_type::add_cards>(std::vector(ids_view.begin(), ids_view.end()), card_pile_type::main_deck);
+
+        auto make_id_vector = [](const auto &vec) {
+            std::vector<int> ret;
+            for (const card *obj : vec) {
+                ret.push_back(obj->id);
+            }
+            return ret;
+        };
+
+        add_public_update<game_update_type::add_cards>(make_id_vector(m_deck), card_pile_type::main_deck);
         shuffle_cards_and_ids(m_deck);
         swap_testing<true>(m_deck);
 
@@ -278,16 +286,14 @@ namespace banggame {
                 if (m_players.size() <= 2 && c.discard_if_two_players) continue;
                 add_card(card_pile_type::shop_deck, c);
             }
-            ids_view = m_shop_deck | std::views::transform(&card::id);
-            add_public_update<game_update_type::add_cards>(std::vector(ids_view.begin(), ids_view.end()), card_pile_type::shop_deck);
+            add_public_update<game_update_type::add_cards>(make_id_vector(m_shop_deck), card_pile_type::shop_deck);
             shuffle_cards_and_ids(m_shop_deck);
             swap_testing<true>(m_shop_deck);
 
             for (const auto &c : all_cards.goldrush_choices) {
                 add_card(card_pile_type::shop_hidden, c);
             }
-            ids_view = m_shop_hidden | std::views::transform(&card::id);
-            add_public_update<game_update_type::add_cards>(std::vector(ids_view.begin(), ids_view.end()), card_pile_type::shop_hidden);
+            add_public_update<game_update_type::add_cards>(make_id_vector(m_shop_hidden), card_pile_type::shop_hidden);
         }
 
         if (has_expansion(card_expansion_type::armedanddangerous)) {
@@ -300,6 +306,7 @@ namespace banggame {
 
         if (has_expansion(card_expansion_type::highnoon)) {
             for (const auto &c : all_cards.highnoon) {
+                if (m_players.size() <= 2 && c.discard_if_two_players) continue;
                 if ((c.expansion & m_options.expansions) == c.expansion) {
                     add_card(card_pile_type::scenario_deck, c);
                 }
@@ -310,6 +317,7 @@ namespace banggame {
         
         if (has_expansion(card_expansion_type::fistfulofcards)) {
             for (const auto &c : all_cards.fistfulofcards) {
+                if (m_players.size() <= 2 && c.discard_if_two_players) continue;
                 if ((c.expansion & m_options.expansions) == c.expansion) {
                     add_card(card_pile_type::scenario_deck, c);
                 }
@@ -320,12 +328,13 @@ namespace banggame {
 
         if (!m_scenario_deck.empty()) {
             shuffle_cards_and_ids(m_scenario_deck);
-            m_scenario_deck.resize(12);
+            if (m_scenario_deck.size() > 12) {
+                m_scenario_deck.resize(12);
+            }
             m_scenario_deck.push_back(last_scenario_cards[std::uniform_int_distribution<>(0, last_scenario_cards.size() - 1)(rng)]);
             std::swap(m_scenario_deck.back(), m_scenario_deck.front());
 
-            ids_view = m_scenario_deck | std::views::transform(&card::id);
-            add_public_update<game_update_type::add_cards>(std::vector(ids_view.begin(), ids_view.end()), card_pile_type::scenario_deck);
+            add_public_update<game_update_type::add_cards>(make_id_vector(m_scenario_deck), card_pile_type::scenario_deck);
 
             send_card_update(*m_scenario_deck.back(), nullptr, show_card_flags::no_animation);
         }

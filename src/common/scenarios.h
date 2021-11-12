@@ -10,6 +10,7 @@ namespace banggame {
         (reverend) // annulla birra
         (hangover) // annulla personaggio
         (sermon) // annulla bang
+        (ghosttown) // citta' fantasma
     )
 
     struct scenario_effect : card_effect {
@@ -68,6 +69,10 @@ namespace banggame {
     };
 
     struct effect_sermon : scenario_effect {
+        void on_equip(player *target, card *target_card);
+    };
+
+    struct effect_ghosttown : scenario_effect {
         void on_equip(player *target, card *target_card);
     };
 }

@@ -20,6 +20,10 @@ namespace banggame {
         m_game->move_to(target, card_pile_type::player_table, true, this, show_card_flags::show_everyone);
     }
 
+    bool player::alive() const {
+        return !m_dead || m_ghost || bool(m_game->m_scenario_flags & scenario_flags::ghosttown);
+    }
+
     bool player::has_card_equipped(const std::string &name) const {
         return std::ranges::find(m_table, name, &card::name) != m_table.end();
     }
@@ -58,7 +62,7 @@ namespace banggame {
     }
 
     void player::damage(card *origin_card, player *source, int value, bool is_bang) {
-        if (!m_ghost) {
+        if (!m_ghost && !(m_hp == 0 && bool(m_game->m_scenario_flags & scenario_flags::ghosttown))) {
             if (m_game->has_expansion(card_expansion_type::valleyofshadows)) {
                 auto &obj = m_game->queue_request<request_type::damaging>(origin_card, source, this);
                 obj.damage = value;
@@ -84,7 +88,7 @@ namespace banggame {
     }
 
     void player::heal(int value) {
-        if (!m_ghost) {
+        if (!m_ghost && !(m_hp == 0 && bool(m_game->m_scenario_flags & scenario_flags::ghosttown))) {
             m_hp = std::min(m_hp + value, m_max_hp);
             m_game->add_public_update<game_update_type::player_hp>(id, m_hp);
         }
@@ -212,7 +216,7 @@ namespace banggame {
             [&](target_type value) {
                 switch (value) {
                 case target_type::player: return target->alive();
-                case target_type::dead: return !target->alive();
+                case target_type::dead: return target->m_hp == 0;
                 case target_type::self: return target->id == id;
                 case target_type::notself: return target->id != id;
                 case target_type::notsheriff: return target->m_role != player_role::sheriff;
@@ -694,7 +698,9 @@ namespace banggame {
 
     void player::start_of_turn(bool repeated) {
         if (!repeated && this == m_game->m_first_player) {
-            m_game->draw_scenario_card();
+            m_game->queue_event<event_type::delayed_action>([&]{
+                m_game->draw_scenario_card();
+            });
         }
         
         m_game->m_ignore_next_turn = false;
@@ -703,6 +709,13 @@ namespace banggame {
         m_bangs_played = 0;
         m_num_drawn_cards = 0;
         ++m_bangs_per_turn;
+
+        if (!m_ghost && m_hp == 0 && bool(m_game->m_scenario_flags & scenario_flags::ghosttown)) {
+            ++m_num_cards_to_draw;
+            for (auto *c : m_characters) {
+                c->on_equip(this);
+            }
+        }
         
         for (character *c : m_characters) {
             c->usages = 0;
@@ -765,12 +778,25 @@ namespace banggame {
     void player::end_of_turn(player *next_player) {
         m_bangs_per_turn = 0;
 
-        for (card *c : m_table) {
-            if (c->inactive) {
-                c->inactive = false;
-                m_game->add_public_update<game_update_type::tap_card>(c->id, false);
+        if (!m_ghost && m_hp == 0 && bool(m_game->m_scenario_flags & scenario_flags::ghosttown)) {
+            --m_num_cards_to_draw;
+            m_game->queue_event<event_type::on_player_death>(nullptr, this);
+
+            for (auto *c : m_characters) {
+                c->on_unequip(this);
+            }
+
+            discard_all();
+            add_gold(-m_gold);
+        } else {
+            for (card *c : m_table) {
+                if (c->inactive) {
+                    c->inactive = false;
+                    m_game->add_public_update<game_update_type::tap_card>(c->id, false);
+                }
             }
         }
+        
         m_current_card_targets.clear();
         m_game->queue_event<event_type::on_turn_end>(this);
         if (m_game->num_alive() > 0) {

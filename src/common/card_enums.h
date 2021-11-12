@@ -40,6 +40,7 @@ namespace banggame {
         (armedanddangerous, "Armed & Dangerous")
         (highnoon,          "Mezzogiorno di Fuoco")
         (fistfulofcards,    "Per un Pugno di Carte")
+        (ghostcards,        "Carte Fantasma")
     )
 
     DEFINE_ENUM_IN_NS(banggame, card_color_type,

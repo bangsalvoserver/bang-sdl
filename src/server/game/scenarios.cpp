@@ -105,4 +105,8 @@ namespace banggame {
     void effect_sermon::on_equip(player *target, card *target_card) {
         target->m_game->m_scenario_flags |= scenario_flags::sermon;
     }
+
+    void effect_ghosttown::on_equip(player *target, card *target_card) {
+        target->m_game->m_scenario_flags |= scenario_flags::ghosttown;
+    }
 }
