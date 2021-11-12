@@ -10,6 +10,9 @@ int main(int argc, char **argv) {
 
     sdlnet::socket_set set(banggame::server_max_clients);
     sdlnet::tcp_server_socket server(banggame::server_port);
+
+    std::cout << "Server in ascolto su porta " << banggame::server_port << '\n';
+
     set.add(server);
 
     std::map<sdlnet::ip_address, sdlnet::tcp_peer_socket> clients;

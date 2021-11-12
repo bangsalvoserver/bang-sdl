@@ -296,6 +296,36 @@ namespace banggame {
             add_public_update<game_update_type::add_cubes>(m_cubes);
         }
 
+        std::vector<card *> last_scenario_cards;
+
+        if (has_expansion(card_expansion_type::highnoon)) {
+            for (const auto &c : all_cards.highnoon) {
+                add_card(card_pile_type::scenario_deck, c);
+            }
+            last_scenario_cards.push_back(m_scenario_deck.back());
+            m_scenario_deck.pop_back();
+        }
+        
+        if (has_expansion(card_expansion_type::fistfulofcards)) {
+            for (const auto &c : all_cards.fistfulofcards) {
+                add_card(card_pile_type::scenario_deck, c);
+            }
+            last_scenario_cards.push_back(m_scenario_deck.back());
+            m_scenario_deck.pop_back();
+        }
+
+        if (!m_scenario_deck.empty()) {
+            shuffle_cards_and_ids(m_scenario_deck);
+            m_scenario_deck.resize(12);
+            m_scenario_deck.push_back(last_scenario_cards[std::uniform_int_distribution<>(0, last_scenario_cards.size() - 1)(rng)]);
+            std::swap(m_scenario_deck.back(), m_scenario_deck.front());
+
+            ids_view = m_scenario_deck | std::views::transform(&card::id);
+            add_public_update<game_update_type::add_cards>(std::vector(ids_view.begin(), ids_view.end()), card_pile_type::scenario_deck);
+
+            send_card_update(*m_scenario_deck.back(), nullptr, show_card_flags::no_animation);
+        }
+
         int max_initial_cards = std::ranges::max(m_players | std::views::transform(&player::get_initial_cards));
         for (int i=0; i<max_initial_cards; ++i) {
             for (auto &p : m_players) {
@@ -318,7 +348,8 @@ namespace banggame {
         }
 
         queue_event<event_type::on_game_start>();
-        m_playing->start_of_turn();
+        m_first_player = m_playing;
+        m_first_player->start_of_turn(true);
     }
 
     void game::tick() {
@@ -349,6 +380,8 @@ namespace banggame {
         case card_pile_type::shop_selection:    return m_shop_selection;
         case card_pile_type::shop_discard:      return m_shop_discards;
         case card_pile_type::shop_hidden:       return m_shop_hidden;
+        case card_pile_type::scenario_deck:     return m_scenario_deck;
+        case card_pile_type::scenario_card:     return m_scenario_cards;
         default: throw std::runtime_error("Pila non valida");
         }
     }
@@ -400,6 +433,15 @@ namespace banggame {
             add_public_update<game_update_type::deck_shuffled>(card_pile_type::shop_deck);
         }
         return drawn_card;
+    }
+
+    void game::draw_scenario_card() {
+        if (m_scenario_deck.empty()) return;
+
+        if (m_scenario_deck.size() > 1) {
+            send_card_update(**(m_scenario_deck.rbegin() + 1), nullptr, show_card_flags::no_animation);
+        }
+        move_to(m_scenario_deck.back(), card_pile_type::scenario_card);
     }
     
     void game::draw_check_then(player *p, draw_check_function fun) {

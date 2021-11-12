@@ -103,6 +103,9 @@ namespace banggame {
         std::vector<card *> m_shop_hidden;
         std::vector<card *> m_shop_selection;
 
+        std::vector<card *> m_scenario_deck;
+        std::vector<card *> m_scenario_cards;
+
         std::vector<int> m_cubes;
 
         std::vector<character *> m_base_characters;
@@ -256,6 +259,8 @@ namespace banggame {
         card *draw_card_to(card_pile_type pile, player *owner = nullptr, show_card_flags flags = enums::flags_none<show_card_flags>);
 
         card *draw_shop_card();
+        
+        void draw_scenario_card();
 
         void draw_check_then(player *p, draw_check_function fun);
         void do_draw_check();

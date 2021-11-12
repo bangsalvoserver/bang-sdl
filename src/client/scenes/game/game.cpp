@@ -47,6 +47,8 @@ void game_scene::resize(int width, int height) {
         width / 2 + sizes::shop_xoffset - sizes::shop_selection_width / 2,
         height / 2};
 
+    m_scenario_card.pos = sdl::point{width / 2 + sizes::deck_xoffset + sizes::card_width + sizes::card_xoffset, height / 2};
+
     move_player_views();
 
     if (!m_animations.empty()) {
@@ -102,6 +104,14 @@ void game_scene::render(sdl::renderer &renderer) {
     }
 
     for (card_view *card : m_shop_selection) {
+        card->render(renderer);
+    }
+
+    for (card_view *card : m_scenario_deck | take_last<1>) {
+        card->render(renderer);
+    }
+
+    for (card_view *card : m_scenario_card | take_last<2>) {
         card->render(renderer);
     }
 
@@ -269,6 +279,14 @@ void game_scene::find_overlay(const sdl::point &mouse_pt) {
         m_overlay = m_discard_pile.back();
         return;
     }
+    if (!m_scenario_deck.empty() && mouse_in_card(m_scenario_deck.back())) {
+        m_overlay = m_scenario_deck.back();
+        return;
+    }
+    if (!m_scenario_card.empty() && mouse_in_card(m_scenario_card.back())) {
+        m_overlay = m_scenario_card.back();
+        return;
+    }
     for (auto &p : m_players | std::views::values) {
         for (auto &c : p.m_characters | std::views::reverse) {
             if (sdl::point_in_rect(mouse_pt, c.get_rect())) {
@@ -385,6 +403,8 @@ void game_scene::handle_game_update(UPDATE_TAG(add_cards), const add_cards_updat
         case card_pile_type::main_deck:         c.pile = &m_main_deck; c.texture_back = &textures_back::main_deck(); break;
         case card_pile_type::shop_deck:         c.pile = &m_shop_deck; c.texture_back = &textures_back::goldrush(); break;
         case card_pile_type::shop_hidden:       c.pile = &m_shop_hidden; break;
+        case card_pile_type::scenario_deck:     c.pile = &m_scenario_deck; break;
+        default: throw std::runtime_error("Pila non valida");
         }
         c.set_pos(c.pile->pos);
         c.pile->push_back(&c);
@@ -420,6 +440,7 @@ void game_scene::handle_game_update(UPDATE_TAG(move_card), const move_card_updat
         case card_pile_type::shop_selection:    return m_shop_selection;
         case card_pile_type::shop_discard:      return m_shop_discard;
         case card_pile_type::shop_hidden:       return m_shop_hidden;
+        case card_pile_type::scenario_card:        return m_scenario_card;
         default: throw std::runtime_error("Pila non valida");
         }
     }();
@@ -571,6 +592,17 @@ void game_scene::move_player_views() {
         if (++it == m_players.end()) it = m_players.begin();
         if (it == own_player) break;
     }
+
+    if (auto it = std::ranges::find(m_players, m_players.size() < 4 ? player_role::deputy : player_role::sheriff,
+        [](const auto &pair) { return pair.second.m_role.role; }); it != m_players.end()) {
+        auto player_rect = it->second.m_bounding_rect;
+        m_scenario_deck.pos.x = player_rect.x + player_rect.w + sizes::scenario_deck_xoff;
+        m_scenario_deck.pos.y = player_rect.y + player_rect.h / 2;
+
+        for (const auto &c : m_scenario_deck) {
+            c->set_pos(m_scenario_deck.pos);
+        }
+    }
 }
 
 void game_scene::handle_game_update(UPDATE_TAG(player_add), const player_user_update &args) {
@@ -660,6 +692,8 @@ void game_scene::handle_game_update(UPDATE_TAG(player_show_role), const player_s
             m_animations.emplace_back(10, std::in_place_type<card_flip_animation>, &p.m_role, false);
         }
     }
+
+    move_player_views();
 }
 
 void game_scene::handle_game_update(UPDATE_TAG(switch_turn), const switch_turn_update &args) {

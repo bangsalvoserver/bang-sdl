@@ -2869,11 +2869,6 @@
             "image": "05_maledizione"
         },
         {
-            "name": "Mezzogiorno di Fuoco",
-            "image": "05_mezzogiornodifuoco",
-            "last_card": 1
-        },
-        {
             "name": "Sbornia",
             "image": "05_sbornia"
         },
@@ -2888,6 +2883,10 @@
         {
             "name": "Sparatoria",
             "image": "05_sparatoria"
+        },
+        {
+            "name": "Mezzogiorno di Fuoco",
+            "image": "05_mezzogiornodifuoco"
         }
     ],
     "fistfulofcards": [
@@ -2928,11 +2927,6 @@
             "image": "05_minieraabbandonata"
         },
         {
-            "name": "Per un Pugno di Carte",
-            "image": "05_perunpugnodicarte",
-            "last_card": 1
-        },
-        {
             "name": "Peyote",
             "image": "05_peyote"
         },
@@ -2951,6 +2945,10 @@
         {
             "name": "Vendetta",
             "image": "05_vendetta"
+        },
+        {
+            "name": "Per un Pugno di Carte",
+            "image": "05_perunpugnodicarte"
         }
     ],
     "wildwestshow": [
@@ -2992,8 +2990,7 @@
         },
         {
             "name": "Wild West Show",
-            "image": "06_wildwestshow",
-            "last_card": 1
+            "image": "06_wildwestshow"
         }
     ],
     "goldrush": [

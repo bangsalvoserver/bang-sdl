@@ -692,6 +692,10 @@ namespace banggame {
     }
 
     void player::start_of_turn(bool repeated) {
+        if (!repeated && this == m_game->m_first_player) {
+            m_game->draw_scenario_card();
+        }
+        
         m_game->m_ignore_next_turn = false;
         m_game->m_playing = this;
 

@@ -157,6 +157,30 @@ namespace banggame {
             }
         }
 
+        for (const auto &json_card : json_cards["highnoon"]) {
+            card c;
+            c.expansion = card_expansion_type::highnoon;
+            if (json_card.isMember("disabled") && json_card["disabled"].asBool()) continue;
+            make_all_effects(c, json_card);
+            ret.highnoon.push_back(c);
+        }
+
+        for (const auto &json_card : json_cards["fistfulofcards"]) {
+            card c;
+            c.expansion = card_expansion_type::fistfulofcards;
+            if (json_card.isMember("disabled") && json_card["disabled"].asBool()) continue;
+            make_all_effects(c, json_card);
+            ret.fistfulofcards.push_back(c);
+        }
+
+        for (const auto &json_card : json_cards["wildwestshow"]) {
+            card c;
+            c.expansion = card_expansion_type::wildwestshow;
+            if (json_card.isMember("disabled") && json_card["disabled"].asBool()) continue;
+            make_all_effects(c, json_card);
+            ret.wildwestshow.push_back(c);
+        }
+
         return ret;
     }();
 
