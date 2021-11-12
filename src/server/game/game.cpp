@@ -264,12 +264,20 @@ namespace banggame {
 
         for (const auto &c : all_cards.deck) {
             if (m_players.size() <= 2 && c.discard_if_two_players) continue;
-            if (bool(c.expansion & options.expansions)) {
+            if ((c.expansion & options.expansions) == c.expansion) {
                 add_card(card_pile_type::main_deck, c);
             }
         }
-        auto ids_view = m_deck | std::views::transform(&card::id);
-        add_public_update<game_update_type::add_cards>(std::vector(ids_view.begin(), ids_view.end()), card_pile_type::main_deck);
+
+        auto make_id_vector = [](const auto &vec) {
+            std::vector<int> ret;
+            for (const card *obj : vec) {
+                ret.push_back(obj->id);
+            }
+            return ret;
+        };
+
+        add_public_update<game_update_type::add_cards>(make_id_vector(m_deck), card_pile_type::main_deck);
         shuffle_cards_and_ids(m_deck);
         swap_testing<true>(m_deck);
 
@@ -278,22 +286,57 @@ namespace banggame {
                 if (m_players.size() <= 2 && c.discard_if_two_players) continue;
                 add_card(card_pile_type::shop_deck, c);
             }
-            ids_view = m_shop_deck | std::views::transform(&card::id);
-            add_public_update<game_update_type::add_cards>(std::vector(ids_view.begin(), ids_view.end()), card_pile_type::shop_deck);
+            add_public_update<game_update_type::add_cards>(make_id_vector(m_shop_deck), card_pile_type::shop_deck);
             shuffle_cards_and_ids(m_shop_deck);
             swap_testing<true>(m_shop_deck);
 
             for (const auto &c : all_cards.goldrush_choices) {
                 add_card(card_pile_type::shop_hidden, c);
             }
-            ids_view = m_shop_hidden | std::views::transform(&card::id);
-            add_public_update<game_update_type::add_cards>(std::vector(ids_view.begin(), ids_view.end()), card_pile_type::shop_hidden);
+            add_public_update<game_update_type::add_cards>(make_id_vector(m_shop_hidden), card_pile_type::shop_hidden);
         }
 
         if (has_expansion(card_expansion_type::armedanddangerous)) {
             auto cube_ids = std::views::iota(1, 32);
             m_cubes.assign(cube_ids.begin(), cube_ids.end());
             add_public_update<game_update_type::add_cubes>(m_cubes);
+        }
+
+        std::vector<card *> last_scenario_cards;
+
+        if (has_expansion(card_expansion_type::highnoon)) {
+            for (const auto &c : all_cards.highnoon) {
+                if (m_players.size() <= 2 && c.discard_if_two_players) continue;
+                if ((c.expansion & m_options.expansions) == c.expansion) {
+                    add_card(card_pile_type::scenario_deck, c);
+                }
+            }
+            last_scenario_cards.push_back(m_scenario_deck.back());
+            m_scenario_deck.pop_back();
+        }
+        
+        if (has_expansion(card_expansion_type::fistfulofcards)) {
+            for (const auto &c : all_cards.fistfulofcards) {
+                if (m_players.size() <= 2 && c.discard_if_two_players) continue;
+                if ((c.expansion & m_options.expansions) == c.expansion) {
+                    add_card(card_pile_type::scenario_deck, c);
+                }
+            }
+            last_scenario_cards.push_back(m_scenario_deck.back());
+            m_scenario_deck.pop_back();
+        }
+
+        if (!m_scenario_deck.empty()) {
+            shuffle_cards_and_ids(m_scenario_deck);
+            if (m_scenario_deck.size() > 12) {
+                m_scenario_deck.resize(12);
+            }
+            m_scenario_deck.push_back(last_scenario_cards[std::uniform_int_distribution<>(0, last_scenario_cards.size() - 1)(rng)]);
+            std::swap(m_scenario_deck.back(), m_scenario_deck.front());
+
+            add_public_update<game_update_type::add_cards>(make_id_vector(m_scenario_deck), card_pile_type::scenario_deck);
+
+            send_card_update(*m_scenario_deck.back(), nullptr, show_card_flags::no_animation);
         }
 
         int max_initial_cards = std::ranges::max(m_players | std::views::transform(&player::get_initial_cards));
@@ -318,7 +361,8 @@ namespace banggame {
         }
 
         queue_event<event_type::on_game_start>();
-        m_playing->start_of_turn();
+        m_first_player = m_playing;
+        m_first_player->start_of_turn(true);
     }
 
     void game::tick() {
@@ -349,6 +393,8 @@ namespace banggame {
         case card_pile_type::shop_selection:    return m_shop_selection;
         case card_pile_type::shop_discard:      return m_shop_discards;
         case card_pile_type::shop_hidden:       return m_shop_hidden;
+        case card_pile_type::scenario_deck:     return m_scenario_deck;
+        case card_pile_type::scenario_card:     return m_scenario_cards;
         default: throw std::runtime_error("Pila non valida");
         }
     }
@@ -401,16 +447,30 @@ namespace banggame {
         }
         return drawn_card;
     }
+
+    void game::draw_scenario_card() {
+        if (m_scenario_deck.empty()) return;
+
+        if (m_scenario_deck.size() > 1) {
+            send_card_update(**(m_scenario_deck.rbegin() + 1), nullptr, show_card_flags::no_animation);
+        }
+        if (!m_scenario_cards.empty()) {
+            m_scenario_cards.back()->on_unequip(m_first_player);
+            m_scenario_flags = enums::flags_none<scenario_flags>;
+        }
+        move_to(m_scenario_deck.back(), card_pile_type::scenario_card);
+        m_scenario_cards.back()->on_equip(m_first_player);
+    }
     
     void game::draw_check_then(player *p, draw_check_function fun) {
         m_current_check.emplace(std::move(fun), p);
-        do_draw_check();
+        do_draw_check(p);
     }
 
-    void game::do_draw_check() {
+    void game::do_draw_check(player *p) {
         if (m_current_check->origin->m_num_checks == 1) {
             auto *c = draw_card_to(card_pile_type::discard_pile);
-            queue_event<event_type::on_draw_check>(c);
+            queue_event<event_type::on_draw_check>(p, c);
             card_suit_type suit = c->suit;
             card_value_type value = c->value;
             instant_event<event_type::apply_check_modifier>(suit, value);
@@ -427,11 +487,11 @@ namespace banggame {
         }
     }
 
-    void game::resolve_check(card *c) {
+    void game::resolve_check(player *p, card *c) {
         while (!m_selection.empty()) {
             card *drawn_card = m_selection.front();
             move_to(drawn_card, card_pile_type::discard_pile);
-            queue_event<event_type::on_draw_check>(drawn_card);
+            queue_event<event_type::on_draw_check>(p, drawn_card);
         }
         card_suit_type suit = c->suit;
         card_value_type value = c->value;
@@ -450,6 +510,28 @@ namespace banggame {
             }
         }, m_requests.front());
         m_requests.pop_front();
+    }
+
+    player *game::get_next_player(player *p) {
+        auto it = m_players.begin() + (p - m_players.data());
+        do {
+            if (++it == m_players.end()) it = m_players.begin();
+        } while(!it->alive());
+        return &*it;
+    }
+
+    player *game::get_next_in_turn(player *p) {
+        auto it = m_players.begin() + (p - m_players.data());
+        do {
+            if (bool(m_scenario_flags & scenario_flags::invert_rotation)) {
+                if (it == m_players.begin()) it = m_players.end();
+                --it;
+            } else {
+                ++it;
+                if (it == m_players.end()) it = m_players.begin();
+            }
+        } while(!it->alive());
+        return &*it;
     }
 
     void game::check_game_over(player *target, bool discarded_ghost) {
@@ -565,7 +647,8 @@ namespace banggame {
     void game::disable_characters() {
         if (m_characters_disabled++ == 0) {
             for (auto &p : m_players) {
-                if (!p.alive() || &p == m_playing) continue;
+                if (!p.alive()) continue;
+                if (!bool(m_scenario_flags & scenario_flags::hangover) && &p == m_playing) continue;
                 for (auto *c : p.m_characters) {
                     c->on_unequip(&p);
                 }
@@ -576,7 +659,8 @@ namespace banggame {
     void game::enable_characters() {
         if (--m_characters_disabled == 0) {
             for (auto &p : m_players) {
-                if (!p.alive() || &p == m_playing) continue;
+                if (!p.alive()) continue;
+                if (!bool(m_scenario_flags & scenario_flags::hangover) && &p == m_playing) continue;
                 for (auto *c : p.m_characters) {
                     c->on_equip(&p);
                 }
@@ -585,7 +669,8 @@ namespace banggame {
     }
 
     bool game::characters_disabled(player *p) const {
-        return m_characters_disabled > 0 && p != m_playing;
+        return bool(m_scenario_flags & scenario_flags::hangover)
+            || (m_characters_disabled > 0 && p != m_playing);
     }
 
     void game::handle_action(ACTION_TAG(pick_card), player *p, const pick_card_args &args) {

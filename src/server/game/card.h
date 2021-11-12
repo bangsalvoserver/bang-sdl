@@ -65,6 +65,9 @@ namespace banggame {
         std::vector<character> characters;
         std::vector<card> goldrush;
         std::vector<card> goldrush_choices;
+        std::vector<card> highnoon;
+        std::vector<card> fistfulofcards;
+        std::vector<card> wildwestshow;
     };
 
     extern const all_cards_t all_cards;

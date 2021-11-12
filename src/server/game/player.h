@@ -54,7 +54,7 @@ namespace banggame {
         bool m_ghost = false;
 
         int m_bangs_played = 0;
-        int m_bangs_per_turn = 1;
+        int m_bangs_per_turn = 0;
 
         std::list<bang_modifier> m_bang_mods;
 
@@ -114,7 +114,7 @@ namespace banggame {
             return m_max_cards_mods.empty() ? m_hp : std::ranges::min(m_max_cards_mods);
         }
 
-        bool alive() const { return !m_dead || m_ghost; }
+        bool alive() const;
 
         void damage(card *origin_card, player *source, int value, bool is_bang = false);
         void do_damage(card *origin_card, player *source, int value, bool is_bang = false);

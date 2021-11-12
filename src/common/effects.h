@@ -36,6 +36,7 @@ namespace banggame {
     };
 
     struct effect_bangcard : card_effect {
+        bool can_play(card *origin_card, player *origin, player *target) const;
         void on_play(card *origin_card, player *origin, player *target);
     };
 
@@ -98,6 +99,7 @@ namespace banggame {
     };
 
     struct effect_beer : card_effect {
+        bool can_play(card *origin_card, player *origin, player *target) const;
         void on_play(card *origin_card, player *origin, player *target);
     };
 

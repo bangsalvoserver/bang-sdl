@@ -24,7 +24,7 @@ namespace banggame {
     DEFINE_ENUM_TYPES_IN_NS(banggame, event_type,
         (delayed_action,    std::function<void(std::function<void()>)>)
         (on_discard_pass,   std::function<void(player *origin, card *target_card)>)
-        (on_draw_check,     std::function<void(card *target_card)>)
+        (on_draw_check,     std::function<void(player *origin, card *target_card)>)
         (trigger_tumbleweed, std::function<void(card_suit_type, card_value_type)>)
         (apply_check_modifier, std::function<void(card_suit_type &, card_value_type &)>)
         (on_discard_card,   std::function<void(player *origin, player *target, card *target_card)>)
@@ -102,6 +102,10 @@ namespace banggame {
         std::vector<card *> m_shop_discards;
         std::vector<card *> m_shop_hidden;
         std::vector<card *> m_shop_selection;
+
+        std::vector<card *> m_scenario_deck;
+        std::vector<card *> m_scenario_cards;
+        scenario_flags m_scenario_flags = enums::flags_none<scenario_flags>;
 
         std::vector<int> m_cubes;
 
@@ -256,11 +260,13 @@ namespace banggame {
         card *draw_card_to(card_pile_type pile, player *owner = nullptr, show_card_flags flags = enums::flags_none<show_card_flags>);
 
         card *draw_shop_card();
+        
+        void draw_scenario_card();
 
         void draw_check_then(player *p, draw_check_function fun);
-        void do_draw_check();
+        void do_draw_check(player *p);
 
-        void resolve_check(card *card);
+        void resolve_check(player *p, card *card);
 
         void disable_table_cards();
         void enable_table_cards();
@@ -274,13 +280,8 @@ namespace banggame {
             return std::ranges::count_if(m_players, &player::alive);
         }
 
-        player *get_next_player(player *p) {
-            auto it = m_players.begin() + (p - m_players.data());
-            do {
-                if (++it == m_players.end()) it = m_players.begin();
-            } while(!it->alive());
-            return &*it;
-        }
+        player *get_next_player(player *p);
+        player *get_next_in_turn(player *p);
 
         player *get_player(int id) {
             auto it = std::ranges::find(m_players, id, &player::id);

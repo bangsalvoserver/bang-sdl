@@ -82,6 +82,9 @@ namespace banggame {
         card_pile_view m_main_deck{0};
         card_pile_view m_discard_pile{0};
 
+        card_pile_view m_scenario_deck{0};
+        card_pile_view m_scenario_card{0};
+
         card_pile_view m_selection{sizes::selection_width};
 
         std::map<int, card_view> m_cards;

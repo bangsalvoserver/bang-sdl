@@ -1012,7 +1012,7 @@
                 "10P"
             ],
             "image": "07_fantasma",
-            "expansion": "valleyofshadows",
+            "expansion": "valleyofshadows ghostcards",
             "color": "blue",
             "discard_if_two_players": true,
             "equip": [
@@ -1604,6 +1604,7 @@
             "image": "17_bandoliera",
             "expansion": "armedanddangerous",
             "color": "orange",
+            "usages": 1,
             "effects": [
                 {
                     "class": "pay_cube",
@@ -2838,56 +2839,132 @@
     "highnoon": [
         {
             "name": "Benedizione",
-            "image": "05_benedizione"
+            "image": "05_benedizione",
+            "equip": [
+                {
+                    "class": "blessing"
+                }
+            ]
         },
         {
             "name": "Citt\u00e0 Fantasma",
-            "image": "05_cittafantasma"
+            "image": "05_cittafantasma",
+            "expansion": "ghostcards",
+            "discard_if_two_players": true,
+            "equip": [
+                {
+                    "class": "ghosttown"
+                }
+            ]
         },
         {
             "name": "Corsa all'Oro",
-            "image": "05_corsaalloro"
+            "image": "05_corsaalloro",
+            "equip": [
+                {
+                    "class": "invert_rotation"
+                }
+            ]
         },
         {
             "name": "I Dalton",
-            "image": "05_idalton"
+            "image": "05_idalton",
+            "equip": [
+                {
+                    "class": "thedaltons"
+                }
+            ]
         },
         {
             "name": "Il Dottore",
-            "image": "05_ildottore"
+            "image": "05_ildottore",
+            "equip": [
+                {
+                    "class": "thedoctor"
+                }
+            ]
         },
         {
             "name": "Il Reverendo",
-            "image": "05_ilreverendo"
+            "image": "05_ilreverendo",
+            "equip": [
+                {
+                    "class": "reverend"
+                }
+            ]
         },
         {
             "name": "Il Treno",
-            "image": "05_iltreno"
+            "image": "05_iltreno",
+            "equip": [
+                {
+                    "class": "trainarrival"
+                }
+            ]
         },
         {
             "name": "Maledizione",
-            "image": "05_maledizione"
+            "image": "05_maledizione",
+            "equip": [
+                {
+                    "class": "curse"
+                }
+            ]
+        },
+        {
+            "name": "Sbornia",
+            "image": "05_sbornia",
+            "equip": [
+                {
+                    "class": "hangover"
+                }
+            ]
+        },
+        {
+            "name": "Sermone",
+            "image": "05_sermone",
+            "equip": [
+                {
+                    "class": "sermon"
+                }
+            ]
+        },
+        {
+            "name": "Sete",
+            "image": "05_sete",
+            "equip": [
+                {
+                    "class": "thirst"
+                }
+            ]
+        },
+        {
+            "name": "Sparatoria",
+            "image": "05_sparatoria",
+            "equip": [
+                {
+                    "class": "shootout"
+                }
+            ]
+        },
+        {
+            "name": "Manette",
+            "image": "05_manette",
+            "expansion": "thebullet"
+        },
+        {
+            "name": "Nuova Identit\u00e0",
+            "image": "05_nuovaidentita",
+            "expansion": "thebullet"
         },
         {
             "name": "Mezzogiorno di Fuoco",
             "image": "05_mezzogiornodifuoco",
-            "last_card": 1
-        },
-        {
-            "name": "Sbornia",
-            "image": "05_sbornia"
-        },
-        {
-            "name": "Sermone",
-            "image": "05_sermone"
-        },
-        {
-            "name": "Sete",
-            "image": "05_sete"
-        },
-        {
-            "name": "Sparatoria",
-            "image": "05_sparatoria"
+            "equip": [
+                {
+                    "class": "highnoon"
+                }
+            ]
         }
     ],
     "fistfulofcards": [
@@ -2928,11 +3005,6 @@
             "image": "05_minieraabbandonata"
         },
         {
-            "name": "Per un Pugno di Carte",
-            "image": "05_perunpugnodicarte",
-            "last_card": 1
-        },
-        {
             "name": "Peyote",
             "image": "05_peyote"
         },
@@ -2951,6 +3023,10 @@
         {
             "name": "Vendetta",
             "image": "05_vendetta"
+        },
+        {
+            "name": "Per un Pugno di Carte",
+            "image": "05_perunpugnodicarte"
         }
     ],
     "wildwestshow": [
@@ -2992,8 +3068,7 @@
         },
         {
             "name": "Wild West Show",
-            "image": "06_wildwestshow",
-            "last_card": 1
+            "image": "06_wildwestshow"
         }
     ],
     "goldrush": [

@@ -36,7 +36,7 @@ namespace banggame {
             if (suit == card_suit_type::hearts) {
                 target->next_predraw_check(target_card);
             } else {
-                target->m_game->get_next_player(target)->start_of_turn();
+                target->m_game->get_next_in_turn(target)->start_of_turn();
             }
         });
     }
@@ -178,6 +178,7 @@ namespace banggame {
                 
                 target->m_game->instant_event<event_type::on_player_death>(nullptr, target);
                 target->discard_all();
+                target->add_gold(-target->m_gold);
 
                 target->m_game->check_game_over(target, true);
                 target->m_game->remove_events(target_card);

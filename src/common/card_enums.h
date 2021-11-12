@@ -38,6 +38,9 @@ namespace banggame {
         (wildwestshow,      "Wild West Show")
         (goldrush,          "Gold Rush")
         (armedanddangerous, "Armed & Dangerous")
+        (highnoon,          "Mezzogiorno di Fuoco")
+        (fistfulofcards,    "Per un Pugno di Carte")
+        (ghostcards,        "Carte Fantasma")
     )
 
     DEFINE_ENUM_IN_NS(banggame, card_color_type,
@@ -106,6 +109,8 @@ namespace banggame {
         (shop_discard)
         (shop_selection)
         (shop_hidden)
+        (scenario_deck)
+        (scenario_card)
     )
 
     DEFINE_ENUM_IN_NS(banggame, card_modifier_type,
