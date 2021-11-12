@@ -165,9 +165,9 @@ namespace banggame {
 
         void draw_from_deck();
 
-        void start_of_turn();
-        void pass_turn();
-        void end_of_turn();
+        void start_of_turn(bool repeated = false);
+        void pass_turn(player *next_player = nullptr);
+        void end_of_turn(player *next_player = nullptr);
 
         void play_virtual_card(card *corresponding_card, card virtual_card);
     };

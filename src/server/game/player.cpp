@@ -356,32 +356,33 @@ namespace banggame {
     }
 
     void player::do_play_card(card *card_ptr, bool is_response, const std::vector<play_card_target> &targets) {
-        if (card_ptr->pile == card_pile_type::player_hand) {
-            m_last_played_card = card_ptr;
-
-            m_game->move_to(card_ptr, card_pile_type::discard_pile);
-
-            m_game->queue_event<event_type::on_play_hand_card>(this, card_ptr);
-        } else if (card_ptr->pile == card_pile_type::player_table) {
-            m_last_played_card = card_ptr;
-
-            if (card_ptr->color == card_color_type::green) {
+        auto play_card_action = [this](card *card_ptr) {
+            switch (card_ptr->pile) {
+            case card_pile_type::player_hand:
                 m_game->move_to(card_ptr, card_pile_type::discard_pile);
+                m_game->queue_event<event_type::on_play_hand_card>(this, card_ptr);
+                break;
+            case card_pile_type::player_table:
+                if (card_ptr->color == card_color_type::green) {
+                    m_game->move_to(card_ptr, card_pile_type::discard_pile);
+                }
+                break;
+            case card_pile_type::shop_selection:
+                if (card_ptr->color == card_color_type::brown) {
+                    m_game->move_to(card_ptr, card_pile_type::shop_discard);
+                }
+                break;
             }
-        } else if (card_ptr->pile == card_pile_type::shop_selection) {
-            if (card_ptr->color == card_color_type::brown) {
-                m_last_played_card = card_ptr;
-
-                m_game->move_to(card_ptr, card_pile_type::shop_discard);
-            }
-        } else if (m_virtual && card_ptr == &m_virtual->virtual_card) {
-            m_last_played_card = nullptr;
-
-            m_game->move_to(m_virtual->corresponding_card, card_pile_type::discard_pile);
-            m_game->queue_event<event_type::on_play_hand_card>(this, m_virtual->corresponding_card);
-        }
+        };
 
         assert(card_ptr != nullptr);
+        if (m_virtual && card_ptr == &m_virtual->virtual_card) {
+            play_card_action(m_virtual->corresponding_card);
+            m_last_played_card = nullptr;
+        } else {
+            play_card_action(card_ptr);
+            m_last_played_card = card_ptr;
+        }
 
         if (card_ptr->max_usages != 0) {
             ++card_ptr->usages;
@@ -636,10 +637,10 @@ namespace banggame {
 
         switch (card_ptr->pile) {
         case card_pile_type::player_character:
-            if (m_game->m_characters_disabled > 0 && m_game->m_playing != this) throw game_error("I personaggi sono disabilitati");
+            if (m_game->characters_disabled(this)) throw game_error("I personaggi sono disabilitati");
             break;
         case card_pile_type::player_table:
-            if (m_game->m_table_cards_disabled > 0 && m_game->m_playing != this) throw game_error("Le carte in gioco sono disabilitate");
+            if (m_game->table_cards_disabled(this)) throw game_error("Le carte in gioco sono disabilitate");
             if (card_ptr->inactive) throw game_error("Carta non attiva in questo turno");
             break;
         case card_pile_type::shop_selection:
@@ -690,8 +691,8 @@ namespace banggame {
         m_game->add_private_update<game_update_type::virtual_card>(this, obj);
     }
 
-    void player::start_of_turn() {
-        m_game->m_next_turn = nullptr;
+    void player::start_of_turn(bool repeated) {
+        m_game->m_ignore_next_turn = false;
         m_game->m_playing = this;
 
         m_bangs_played = 0;
@@ -746,15 +747,15 @@ namespace banggame {
         });
     }
 
-    void player::pass_turn() {
+    void player::pass_turn(player *next_player) {
         if (num_hand_cards() > max_cards_end_of_turn()) {
             m_game->queue_request<request_type::discard_pass>(nullptr, this, this);
         } else {
-            end_of_turn();
+            end_of_turn(next_player);
         }
     }
 
-    void player::end_of_turn() {
+    void player::end_of_turn(player *next_player) {
         for (card *c : m_table) {
             if (c->inactive) {
                 c->inactive = false;
@@ -763,15 +764,14 @@ namespace banggame {
         }
         m_current_card_targets.clear();
         m_game->queue_event<event_type::on_turn_end>(this);
-        m_game->queue_event<event_type::delayed_action>([this]{
-            if (m_game->num_alive() > 0) {
-                if (m_game->m_next_turn) {
-                    m_game->m_next_turn->start_of_turn();
-                } else {
-                    m_game->get_next_player(this)->start_of_turn();
+        if (m_game->num_alive() > 0) {
+            if (!m_game->m_ignore_next_turn) {
+                if (!next_player) {
+                    next_player = m_game->get_next_player(this);
                 }
+                next_player->start_of_turn(next_player == this);
             }
-        });
+        }
     }
 
     void player::discard_all() {

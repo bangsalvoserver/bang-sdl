@@ -384,12 +384,15 @@ namespace banggame {
             if (p == target) {
                 int &usages = static_cast<character *>(target_card)->max_usages;
                 if (usages == 0) {
+                    p->m_game->m_ignore_next_turn = true;
                     p->m_game->draw_check_then(p, [&](card_suit_type suit, card_value_type) {
                         if (suit == card_suit_type::diamonds || suit == card_suit_type::hearts) {
                             ++usages;
-                            p->m_game->m_next_turn = p;
+                            p->start_of_turn(true);
+                        } else {
+                            p->m_game->get_next_player(p)->start_of_turn();
                         }
-                    }, true);
+                    });
                 } else {
                     usages = 0;
                 }

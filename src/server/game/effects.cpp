@@ -332,11 +332,13 @@ namespace banggame {
     }
 
     void effect_goldrush::on_play(card *origin_card, player *origin) {
-        origin->m_game->m_next_turn = origin;
-        origin->pass_turn();
-        origin->m_game->queue_event<event_type::delayed_action>([=] {
-            origin->heal(origin->m_max_hp);
+        origin->m_game->add_event<event_type::on_turn_end>(origin_card, [=](player *p) {
+            if (p == origin) {
+                origin->heal(origin->m_max_hp);
+                origin->m_game->remove_events(origin_card);
+            }
         });
+        origin->pass_turn(origin);
     }
 
     static void swap_shop_choice_in(card *origin_card, player *origin, effect_type type) {

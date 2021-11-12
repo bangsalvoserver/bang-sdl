@@ -26,6 +26,7 @@ namespace banggame {
         (on_discard_pass,   std::function<void(player *origin, card *target_card)>)
         (on_draw_check,     std::function<void(card *target_card)>)
         (trigger_tumbleweed, std::function<void(card_suit_type, card_value_type)>)
+        (apply_check_modifier, std::function<void(card_suit_type &, card_value_type &)>)
         (on_discard_card,   std::function<void(player *origin, player *target, card *target_card)>)
         (on_hit,            std::function<void(player *origin, player *target, int damage, bool is_bang)>)
         (on_missed,         std::function<void(player *origin, player *target, bool is_bang)>)
@@ -83,7 +84,6 @@ namespace banggame {
         struct draw_check_handler {
             draw_check_function function;
             player *origin = nullptr;
-            bool invert_pop_req = false;
             bool no_auto_resolve = false;
         };
         std::optional<draw_check_handler> m_current_check;
@@ -111,7 +111,8 @@ namespace banggame {
         int m_characters_disabled = 0;
 
         player *m_playing = nullptr;
-        player *m_next_turn = nullptr;
+        player *m_first_player = nullptr;
+        bool m_ignore_next_turn = false;
 
         game_options m_options;
 
@@ -256,16 +257,18 @@ namespace banggame {
 
         card *draw_shop_card();
 
-        void draw_check_then(player *p, draw_check_function fun, bool invert_pop_req = false);
+        void draw_check_then(player *p, draw_check_function fun);
         void do_draw_check();
 
         void resolve_check(card *card);
 
         void disable_table_cards();
         void enable_table_cards();
+        bool table_cards_disabled(player *p) const;
 
         void disable_characters();
         void enable_characters();
+        bool characters_disabled(player *p) const;
 
         int num_alive() const {
             return std::ranges::count_if(m_players, &player::alive);

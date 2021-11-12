@@ -402,8 +402,8 @@ namespace banggame {
         return drawn_card;
     }
     
-    void game::draw_check_then(player *p, draw_check_function fun, bool invert_pop_req) {
-        m_current_check.emplace(std::move(fun), p, invert_pop_req);
+    void game::draw_check_then(player *p, draw_check_function fun) {
+        m_current_check.emplace(std::move(fun), p);
         do_draw_check();
     }
 
@@ -411,17 +411,19 @@ namespace banggame {
         if (m_current_check->origin->m_num_checks == 1) {
             auto *c = draw_card_to(card_pile_type::discard_pile);
             queue_event<event_type::on_draw_check>(c);
-            instant_event<event_type::trigger_tumbleweed>(c->suit, c->value);
+            card_suit_type suit = c->suit;
+            card_value_type value = c->value;
+            instant_event<event_type::apply_check_modifier>(suit, value);
+            instant_event<event_type::trigger_tumbleweed>(suit, value);
             if (!m_current_check->no_auto_resolve) {
-                m_current_check->function(c->suit, c->value);
+                m_current_check->function(suit, value);
                 m_current_check.reset();
             }
         } else {
             for (int i=0; i<m_current_check->origin->m_num_checks; ++i) {
                 draw_card_to(card_pile_type::selection);
             }
-            add_request<request_type::check>(0, m_current_check->origin, m_current_check->origin)
-                .invert_pop_req = m_current_check->invert_pop_req;
+            add_request<request_type::check>(0, m_current_check->origin, m_current_check->origin);
         }
     }
 
@@ -431,9 +433,12 @@ namespace banggame {
             move_to(drawn_card, card_pile_type::discard_pile);
             queue_event<event_type::on_draw_check>(drawn_card);
         }
-        instant_event<event_type::trigger_tumbleweed>(c->suit, c->value);
+        card_suit_type suit = c->suit;
+        card_value_type value = c->value;
+        instant_event<event_type::apply_check_modifier>(suit, value);
+        instant_event<event_type::trigger_tumbleweed>(suit, value);
         if (!m_current_check->no_auto_resolve) {
-            m_current_check->function(c->suit, c->value);
+            m_current_check->function(suit, value);
             m_current_check.reset();
         }
     }
@@ -534,7 +539,7 @@ namespace banggame {
     void game::disable_table_cards() {
         if (m_table_cards_disabled++ == 0) {
             for (auto &p : m_players) {
-                if (!p.alive() || p.id == m_playing->id) continue;
+                if (!p.alive() || &p == m_playing) continue;
                 for (auto *c : p.m_table) {
                     c->on_unequip(&p);
                 }
@@ -545,17 +550,22 @@ namespace banggame {
     void game::enable_table_cards() {
         if (--m_table_cards_disabled == 0) {
             for (auto &p : m_players) {
-                if (!p.alive() || p.id == m_playing->id) continue;
+                if (!p.alive() || &p == m_playing) continue;
                 for (auto *c : p.m_table) {
                     c->on_equip(&p);
                 }
             }
         }
     }
+
+    bool game::table_cards_disabled(player *p) const {
+        return m_table_cards_disabled > 0 && p != m_playing;
+    }
     
     void game::disable_characters() {
         if (m_characters_disabled++ == 0) {
             for (auto &p : m_players) {
+                if (!p.alive() || &p == m_playing) continue;
                 for (auto *c : p.m_characters) {
                     c->on_unequip(&p);
                 }
@@ -566,11 +576,16 @@ namespace banggame {
     void game::enable_characters() {
         if (--m_characters_disabled == 0) {
             for (auto &p : m_players) {
+                if (!p.alive() || &p == m_playing) continue;
                 for (auto *c : p.m_characters) {
                     c->on_equip(&p);
                 }
             }
         }
+    }
+
+    bool game::characters_disabled(player *p) const {
+        return m_characters_disabled > 0 && p != m_playing;
     }
 
     void game::handle_action(ACTION_TAG(pick_card), player *p, const pick_card_args &args) {
