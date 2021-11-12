@@ -2838,7 +2838,12 @@
     "highnoon": [
         {
             "name": "Benedizione",
-            "image": "05_benedizione"
+            "image": "05_benedizione",
+            "equip": [
+                {
+                    "class": "blessing"
+                }
+            ]
         },
         {
             "name": "Citt\u00e0 Fantasma",
@@ -2850,11 +2855,21 @@
         },
         {
             "name": "I Dalton",
-            "image": "05_idalton"
+            "image": "05_idalton",
+            "equip": [
+                {
+                    "class": "thedaltons"
+                }
+            ]
         },
         {
             "name": "Il Dottore",
-            "image": "05_ildottore"
+            "image": "05_ildottore",
+            "equip": [
+                {
+                    "class": "thedoctor"
+                }
+            ]
         },
         {
             "name": "Il Reverendo",
@@ -2862,11 +2877,21 @@
         },
         {
             "name": "Il Treno",
-            "image": "05_iltreno"
+            "image": "05_iltreno",
+            "equip": [
+                {
+                    "class": "trainarrival"
+                }
+            ]
         },
         {
             "name": "Maledizione",
-            "image": "05_maledizione"
+            "image": "05_maledizione",
+            "equip": [
+                {
+                    "class": "curse"
+                }
+            ]
         },
         {
             "name": "Sbornia",
@@ -2878,7 +2903,12 @@
         },
         {
             "name": "Sete",
-            "image": "05_sete"
+            "image": "05_sete",
+            "equip": [
+                {
+                    "class": "thirst"
+                }
+            ]
         },
         {
             "name": "Sparatoria",
@@ -2896,7 +2926,12 @@
         },
         {
             "name": "Mezzogiorno di Fuoco",
-            "image": "05_mezzogiornodifuoco"
+            "image": "05_mezzogiornodifuoco",
+            "equip": [
+                {
+                    "class": "highnoon"
+                }
+            ]
         }
     ],
     "fistfulofcards": [

@@ -445,18 +445,22 @@ namespace banggame {
         if (m_scenario_deck.size() > 1) {
             send_card_update(**(m_scenario_deck.rbegin() + 1), nullptr, show_card_flags::no_animation);
         }
+        if (!m_scenario_cards.empty()) {
+            m_scenario_cards.back()->on_unequip(m_first_player);
+        }
         move_to(m_scenario_deck.back(), card_pile_type::scenario_card);
+        m_scenario_cards.back()->on_equip(m_first_player);
     }
     
     void game::draw_check_then(player *p, draw_check_function fun) {
         m_current_check.emplace(std::move(fun), p);
-        do_draw_check();
+        do_draw_check(p);
     }
 
-    void game::do_draw_check() {
+    void game::do_draw_check(player *p) {
         if (m_current_check->origin->m_num_checks == 1) {
             auto *c = draw_card_to(card_pile_type::discard_pile);
-            queue_event<event_type::on_draw_check>(c);
+            queue_event<event_type::on_draw_check>(p, c);
             card_suit_type suit = c->suit;
             card_value_type value = c->value;
             instant_event<event_type::apply_check_modifier>(suit, value);
@@ -473,11 +477,11 @@ namespace banggame {
         }
     }
 
-    void game::resolve_check(card *c) {
+    void game::resolve_check(player *p, card *c) {
         while (!m_selection.empty()) {
             card *drawn_card = m_selection.front();
             move_to(drawn_card, card_pile_type::discard_pile);
-            queue_event<event_type::on_draw_check>(drawn_card);
+            queue_event<event_type::on_draw_check>(p, drawn_card);
         }
         card_suit_type suit = c->suit;
         card_value_type value = c->value;

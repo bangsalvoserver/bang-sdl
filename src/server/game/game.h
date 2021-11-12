@@ -24,7 +24,7 @@ namespace banggame {
     DEFINE_ENUM_TYPES_IN_NS(banggame, event_type,
         (delayed_action,    std::function<void(std::function<void()>)>)
         (on_discard_pass,   std::function<void(player *origin, card *target_card)>)
-        (on_draw_check,     std::function<void(card *target_card)>)
+        (on_draw_check,     std::function<void(player *origin, card *target_card)>)
         (trigger_tumbleweed, std::function<void(card_suit_type, card_value_type)>)
         (apply_check_modifier, std::function<void(card_suit_type &, card_value_type &)>)
         (on_discard_card,   std::function<void(player *origin, player *target, card *target_card)>)
@@ -263,9 +263,9 @@ namespace banggame {
         void draw_scenario_card();
 
         void draw_check_then(player *p, draw_check_function fun);
-        void do_draw_check();
+        void do_draw_check(player *p);
 
-        void resolve_check(card *card);
+        void resolve_check(player *p, card *card);
 
         void disable_table_cards();
         void enable_table_cards();

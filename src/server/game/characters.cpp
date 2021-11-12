@@ -302,14 +302,28 @@ namespace banggame {
     void effect_gary_looter::on_equip(player *p, card *target_card) {
         p->m_game->add_event<event_type::on_discard_pass>(target_card, [p](player *origin, card *discarded_card) {
             if (p != origin) {
+                for (;origin != p; origin = origin->m_game->get_next_player(origin)) {
+                    if (std::ranges::any_of(origin->m_characters, [](const character *c) {
+                        return !c->equips.empty() && c->equips.front().is(equip_type::gary_looter);
+                    })) {
+                        return;
+                    }
+                }
                 p->add_to_hand(discarded_card);
             }
         });
     }
 
     void effect_john_pain::on_equip(player *p, card *target_card) {
-        p->m_game->add_event<event_type::on_draw_check>(target_card, [p](card *drawn_card) {
+        p->m_game->add_event<event_type::on_draw_check>(target_card, [p](player *origin, card *drawn_card) {
             if (p->m_hand.size() < 6) {
+                for (;origin != p; origin = origin->m_game->get_next_player(origin)) {
+                    if (std::ranges::any_of(origin->m_characters, [](const character *c) {
+                        return !c->equips.empty() && c->equips.front().is(equip_type::john_pain);
+                    })) {
+                        return;
+                    }
+                }
                 p->add_to_hand(drawn_card);
             }
         });

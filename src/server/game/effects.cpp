@@ -325,7 +325,7 @@ namespace banggame {
         while (!origin->m_game->m_selection.empty()) {
             card *drawn_card = origin->m_game->m_selection.front();
             origin->m_game->move_to(drawn_card, card_pile_type::discard_pile);
-            origin->m_game->queue_event<event_type::on_draw_check>(drawn_card);
+            origin->m_game->queue_event<event_type::on_draw_check>(origin, drawn_card);
         }
         std::sort(suits.begin(), suits.end());
         origin->heal(std::unique(suits.begin(), suits.end()) - suits.begin());
@@ -548,7 +548,7 @@ namespace banggame {
 
     void effect_tumbleweed::on_play(card *origin_card, player *origin) {
         origin->m_game->pop_request();
-        origin->m_game->do_draw_check();
+        origin->m_game->do_draw_check(origin);
     }
 
     void timer_tumbleweed::on_finished() {

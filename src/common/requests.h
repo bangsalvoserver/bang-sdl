@@ -135,10 +135,11 @@ namespace banggame {
         (youl_grinner,  request_youl_grinner)
         (dutch_will,    request_dutch_will)
         (shop_choose_target, request_shop_choose_target)
+        (thedaltons,    request_thedaltons)
         (lemonade_jim,  timer_lemonade_jim)
         (al_preacher,   timer_al_preacher)
         (damaging,      timer_damaging)
-        (tumbleweed,          timer_tumbleweed)
+        (tumbleweed,    timer_tumbleweed)
     )
 
     template<request_type E> concept picking_request =

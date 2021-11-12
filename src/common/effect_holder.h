@@ -6,6 +6,7 @@
 #include "effects.h"
 #include "equips.h"
 #include "characters.h"
+#include "scenarios.h"
 
 namespace banggame {
 
@@ -127,6 +128,13 @@ namespace banggame {
         (bloody_mary,   effect_bloody_mary)
         (red_ringo,     effect_red_ringo)
         (al_preacher,   effect_al_preacher)
+        (blessing,      effect_blessing)
+        (curse,         effect_curse)
+        (thedaltons,    effect_thedaltons)
+        (thedoctor,     effect_thedoctor)
+        (trainarrival,  effect_trainarrival)
+        (thirst,        effect_thirst)
+        (highnoon,      effect_highnoon)
     )
 
     namespace detail {

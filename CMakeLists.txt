@@ -43,6 +43,7 @@ set(bangserver_srcs
     src/server/game/make_all_cards.cpp
     src/server/game/player.cpp
     src/server/game/requests.cpp
+    src/server/game/scenarios.cpp
 )
 
 include_directories(bangclient src)

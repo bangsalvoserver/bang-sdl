@@ -17,7 +17,7 @@ namespace banggame {
 
     void request_check::on_pick(card_pile_type pile, player *target_player, card *target_card) {
         target->m_game->pop_request();
-        target->m_game->resolve_check(target_card);
+        target->m_game->resolve_check(target, target_card);
     }
 
     void request_generalstore::on_pick(card_pile_type pile, player *target_player, card *target_card) {
