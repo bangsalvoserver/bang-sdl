@@ -12,6 +12,10 @@ namespace banggame {
         target->m_game->queue_request<request_type::bang>(origin_card, origin, target, flags);
     }
 
+    bool effect_bangcard::can_play(card *origin_card, player *origin, player *target) const {
+        return !bool(origin->m_game->m_scenario_flags & scenario_flags::sermon);
+    }
+
     void effect_bangcard::on_play(card *origin_card, player *origin, player *target) {
         target->m_game->queue_event<event_type::on_play_bang>(origin);
         target->m_game->queue_event<event_type::delayed_action>([=, flags = this->flags]{
@@ -84,6 +88,8 @@ namespace banggame {
     }
 
     bool effect_bangresponse::can_respond(card *origin_card, player *origin) const {
+        if (bool(origin->m_game->m_scenario_flags & scenario_flags::sermon)
+            && origin == origin->m_game->m_playing) return false;
         return origin->m_game->top_request_is(request_type::duel, origin)
             || origin->m_game->top_request_is(request_type::indians, origin);
     }
@@ -141,6 +147,10 @@ namespace banggame {
 
     void effect_damage::on_play(card *origin_card, player *origin, player *target) {
         target->damage(origin_card, origin, 1);
+    }
+
+    bool effect_beer::can_play(card *origin_card, player *origin, player *target) const {
+        return !bool(origin->m_game->m_scenario_flags & scenario_flags::reverend);
     }
 
     void effect_beer::on_play(card *origin_card, player *origin, player *target) {
@@ -423,11 +433,11 @@ namespace banggame {
     }
 
     bool effect_bandolier::can_play(card *origin_card, player *origin) const {
-        return origin->m_bangs_played > 0 && origin->m_bangs_per_turn == 1;
+        return origin->m_bangs_played > 0;
     }
 
     void effect_bandolier::on_play(card *origin_card, player *origin) {
-        origin->m_bangs_per_turn = 2;
+        ++origin->m_bangs_per_turn;
     }
 
     bool effect_belltower::can_play(card *origin_card, player *origin) const {

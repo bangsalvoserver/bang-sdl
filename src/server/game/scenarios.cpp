@@ -4,6 +4,8 @@
 #include "game.h"
 
 namespace banggame {
+    using namespace enums::flag_operators;
+
     void effect_blessing::on_equip(player *target, card *target_card) {
         target->m_game->add_event<event_type::apply_check_modifier>(target_card, [](card_suit_type &suit, card_value_type &value) {
             suit = card_suit_type::hearts;
@@ -75,5 +77,32 @@ namespace banggame {
         target->m_game->add_event<event_type::on_turn_start>(target_card, [=](player *p) {
             p->damage(target_card, nullptr, 1);
         });
+    }
+
+    void effect_shootout::on_equip(player *target, card *target_card) {
+        for (auto &p : target->m_game->m_players) {
+            ++p.m_bangs_per_turn;
+        }
+    }
+
+    void effect_invert_rotation::on_equip(player *target, card *target_card) {
+        target->m_game->m_scenario_flags |= scenario_flags::invert_rotation;
+    }
+
+    void effect_reverend::on_equip(player *target, card *target_card) {
+        target->m_game->m_scenario_flags |= scenario_flags::reverend;
+    }
+
+    void effect_hangover::on_equip(player *target, card *target_card) {
+        target->m_game->m_scenario_flags |= scenario_flags::hangover;
+        target->m_game->disable_characters();
+    }
+
+    void effect_hangover::on_unequip(player *target, card *target_card) {
+        target->m_game->enable_characters();
+    }
+
+    void effect_sermon::on_equip(player *target, card *target_card) {
+        target->m_game->m_scenario_flags |= scenario_flags::sermon;
     }
 }

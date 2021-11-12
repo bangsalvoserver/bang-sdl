@@ -404,7 +404,7 @@ namespace banggame {
                             ++usages;
                             p->start_of_turn(true);
                         } else {
-                            p->m_game->get_next_player(p)->start_of_turn();
+                            p->m_game->get_next_in_turn(p)->start_of_turn();
                         }
                     });
                 } else {

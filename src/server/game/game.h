@@ -105,6 +105,7 @@ namespace banggame {
 
         std::vector<card *> m_scenario_deck;
         std::vector<card *> m_scenario_cards;
+        scenario_flags m_scenario_flags = enums::flags_none<scenario_flags>;
 
         std::vector<int> m_cubes;
 
@@ -279,13 +280,8 @@ namespace banggame {
             return std::ranges::count_if(m_players, &player::alive);
         }
 
-        player *get_next_player(player *p) {
-            auto it = m_players.begin() + (p - m_players.data());
-            do {
-                if (++it == m_players.end()) it = m_players.begin();
-            } while(!it->alive());
-            return &*it;
-        }
+        player *get_next_player(player *p);
+        player *get_next_in_turn(player *p);
 
         player *get_player(int id) {
             auto it = std::ranges::find(m_players, id, &player::id);

@@ -5,6 +5,13 @@
 #include "equips.h"
 
 namespace banggame {
+    DEFINE_ENUM_FLAGS_IN_NS(banggame, scenario_flags,
+        (invert_rotation) // inverti giro
+        (reverend) // annulla birra
+        (hangover) // annulla personaggio
+        (sermon) // annulla bang
+    )
+
     struct scenario_effect : card_effect {
         void on_unequip(player *target, card *target_card) {}
     };
@@ -40,6 +47,27 @@ namespace banggame {
     };
 
     struct effect_highnoon : event_based_effect {
+        void on_equip(player *target, card *target_card);
+    };
+
+    struct effect_shootout : scenario_effect {
+        void on_equip(player *target, card *target_card);
+    };
+
+    struct effect_invert_rotation : scenario_effect {
+        void on_equip(player *target, card *target_card);
+    };
+
+    struct effect_reverend : scenario_effect {
+        void on_equip(player *target, card *target_card);
+    };
+
+    struct effect_hangover : card_effect {
+        void on_equip(player *target, card *target_card);
+        void on_unequip(player *target, card *target_card);
+    };
+
+    struct effect_sermon : scenario_effect {
         void on_equip(player *target, card *target_card);
     };
 }

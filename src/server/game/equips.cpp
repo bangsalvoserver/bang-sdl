@@ -36,7 +36,7 @@ namespace banggame {
             if (suit == card_suit_type::hearts) {
                 target->next_predraw_check(target_card);
             } else {
-                target->m_game->get_next_player(target)->start_of_turn();
+                target->m_game->get_next_in_turn(target)->start_of_turn();
             }
         });
     }

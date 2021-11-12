@@ -503,6 +503,7 @@ namespace banggame {
                 switch (static_cast<character *>(card_ptr)->type) {
                 case character_type::active:
                     if (m_num_drawn_cards < m_num_cards_to_draw) throw game_error("Devi pescare");
+                    if (m_game->characters_disabled(this)) throw game_error("I personaggi sono disabilitati");
                     verify_modifiers(card_ptr, modifiers);
                     verify_card_targets(card_ptr, false, args.targets);
                     play_modifiers(modifiers);
@@ -700,8 +701,9 @@ namespace banggame {
         m_game->m_playing = this;
 
         m_bangs_played = 0;
-        m_bangs_per_turn = 1;
         m_num_drawn_cards = 0;
+        ++m_bangs_per_turn;
+        
         for (character *c : m_characters) {
             c->usages = 0;
         }
@@ -711,16 +713,17 @@ namespace banggame {
 
         m_current_card_targets.clear();
         
-        m_game->add_public_update<game_update_type::switch_turn>(id);
-
-        if (m_predraw_checks.empty()) {
-            m_game->queue_event<event_type::on_turn_start>(this);
-        } else {
-            for (auto &[card_id, obj] : m_predraw_checks) {
-                obj.resolved = false;
+        m_game->queue_event<event_type::delayed_action>([&]{
+            m_game->add_public_update<game_update_type::switch_turn>(id);
+            if (m_predraw_checks.empty()) {
+                m_game->queue_event<event_type::on_turn_start>(this);
+            } else {
+                for (auto &[card_id, obj] : m_predraw_checks) {
+                    obj.resolved = false;
+                }
+                m_game->queue_request<request_type::predraw>(0, this, this);
             }
-            m_game->queue_request<request_type::predraw>(0, this, this);
-        }
+        });
     }
 
     player::predraw_check *player::get_if_top_predraw_check(card *target_card) {
@@ -760,6 +763,8 @@ namespace banggame {
     }
 
     void player::end_of_turn(player *next_player) {
+        m_bangs_per_turn = 0;
+
         for (card *c : m_table) {
             if (c->inactive) {
                 c->inactive = false;
@@ -771,7 +776,7 @@ namespace banggame {
         if (m_game->num_alive() > 0) {
             if (!m_game->m_ignore_next_turn) {
                 if (!next_player) {
-                    next_player = m_game->get_next_player(this);
+                    next_player = m_game->get_next_in_turn(this);
                 }
                 next_player->start_of_turn(next_player == this);
             }

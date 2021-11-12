@@ -135,6 +135,11 @@ namespace banggame {
         (trainarrival,  effect_trainarrival)
         (thirst,        effect_thirst)
         (highnoon,      effect_highnoon)
+        (shootout,      effect_shootout)
+        (invert_rotation, effect_invert_rotation)
+        (reverend,      effect_reverend)
+        (hangover,      effect_hangover)
+        (sermon,        effect_sermon)
     )
 
     namespace detail {

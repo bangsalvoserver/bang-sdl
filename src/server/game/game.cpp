@@ -447,6 +447,7 @@ namespace banggame {
         }
         if (!m_scenario_cards.empty()) {
             m_scenario_cards.back()->on_unequip(m_first_player);
+            m_scenario_flags = enums::flags_none<scenario_flags>;
         }
         move_to(m_scenario_deck.back(), card_pile_type::scenario_card);
         m_scenario_cards.back()->on_equip(m_first_player);
@@ -500,6 +501,28 @@ namespace banggame {
             }
         }, m_requests.front());
         m_requests.pop_front();
+    }
+
+    player *game::get_next_player(player *p) {
+        auto it = m_players.begin() + (p - m_players.data());
+        do {
+            if (++it == m_players.end()) it = m_players.begin();
+        } while(!it->alive());
+        return &*it;
+    }
+
+    player *game::get_next_in_turn(player *p) {
+        auto it = m_players.begin() + (p - m_players.data());
+        do {
+            if (bool(m_scenario_flags & scenario_flags::invert_rotation)) {
+                if (it == m_players.begin()) it = m_players.end();
+                --it;
+            } else {
+                ++it;
+                if (it == m_players.end()) it = m_players.begin();
+            }
+        } while(!it->alive());
+        return &*it;
     }
 
     void game::check_game_over(player *target, bool discarded_ghost) {
@@ -615,7 +638,8 @@ namespace banggame {
     void game::disable_characters() {
         if (m_characters_disabled++ == 0) {
             for (auto &p : m_players) {
-                if (!p.alive() || &p == m_playing) continue;
+                if (!p.alive()) continue;
+                if (!bool(m_scenario_flags & scenario_flags::hangover) && &p == m_playing) continue;
                 for (auto *c : p.m_characters) {
                     c->on_unequip(&p);
                 }
@@ -626,7 +650,8 @@ namespace banggame {
     void game::enable_characters() {
         if (--m_characters_disabled == 0) {
             for (auto &p : m_players) {
-                if (!p.alive() || &p == m_playing) continue;
+                if (!p.alive()) continue;
+                if (!bool(m_scenario_flags & scenario_flags::hangover) && &p == m_playing) continue;
                 for (auto *c : p.m_characters) {
                     c->on_equip(&p);
                 }
@@ -635,7 +660,8 @@ namespace banggame {
     }
 
     bool game::characters_disabled(player *p) const {
-        return m_characters_disabled > 0 && p != m_playing;
+        return bool(m_scenario_flags & scenario_flags::hangover)
+            || (m_characters_disabled > 0 && p != m_playing);
     }
 
     void game::handle_action(ACTION_TAG(pick_card), player *p, const pick_card_args &args) {

@@ -54,7 +54,7 @@ namespace banggame {
         bool m_ghost = false;
 
         int m_bangs_played = 0;
-        int m_bangs_per_turn = 1;
+        int m_bangs_per_turn = 0;
 
         std::list<bang_modifier> m_bang_mods;
 

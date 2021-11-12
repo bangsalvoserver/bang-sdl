@@ -1604,6 +1604,7 @@
             "image": "17_bandoliera",
             "expansion": "armedanddangerous",
             "color": "orange",
+            "usages": 1,
             "effects": [
                 {
                     "class": "pay_cube",
@@ -2851,7 +2852,12 @@
         },
         {
             "name": "Corsa all'Oro",
-            "image": "05_corsaalloro"
+            "image": "05_corsaalloro",
+            "equip": [
+                {
+                    "class": "invert_rotation"
+                }
+            ]
         },
         {
             "name": "I Dalton",
@@ -2873,7 +2879,12 @@
         },
         {
             "name": "Il Reverendo",
-            "image": "05_ilreverendo"
+            "image": "05_ilreverendo",
+            "equip": [
+                {
+                    "class": "reverend"
+                }
+            ]
         },
         {
             "name": "Il Treno",
@@ -2895,11 +2906,21 @@
         },
         {
             "name": "Sbornia",
-            "image": "05_sbornia"
+            "image": "05_sbornia",
+            "equip": [
+                {
+                    "class": "hangover"
+                }
+            ]
         },
         {
             "name": "Sermone",
-            "image": "05_sermone"
+            "image": "05_sermone",
+            "equip": [
+                {
+                    "class": "sermon"
+                }
+            ]
         },
         {
             "name": "Sete",
@@ -2912,7 +2933,12 @@
         },
         {
             "name": "Sparatoria",
-            "image": "05_sparatoria"
+            "image": "05_sparatoria",
+            "equip": [
+                {
+                    "class": "shootout"
+                }
+            ]
         },
         {
             "name": "Manette",
