@@ -109,4 +109,25 @@ namespace banggame {
     void effect_ghosttown::on_equip(player *target, card *target_card) {
         target->m_game->m_scenario_flags |= scenario_flags::ghosttown;
     }
+
+    void effect_ambush::on_equip(player *target, card *target_card) {
+        target->m_game->m_scenario_flags |= scenario_flags::ambush;
+    }
+
+    void effect_lasso::on_equip(player *target, card *target_card) {
+        target->m_game->m_scenario_flags |= scenario_flags::lasso;
+        target->m_game->disable_table_cards();
+    }
+
+    void effect_lasso::on_unequip(player *target, card *target_card) {
+        target->m_game->enable_table_cards();
+    }
+
+    void effect_fistfulofcards::on_equip(player *target, card *target_card) {
+        target->m_game->add_event<event_type::on_turn_start>(target_card, [=](player *p) {
+            for (int i=0; i<p->m_hand.size(); ++i) {
+                p->m_game->queue_request<request_type::bang>(target_card, nullptr, p);
+            }
+        });
+    }
 }

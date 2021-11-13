@@ -523,15 +523,24 @@ namespace banggame {
     player *game::get_next_in_turn(player *p) {
         auto it = m_players.begin() + (p - m_players.data());
         do {
-            if (bool(m_scenario_flags & scenario_flags::invert_rotation)) {
+            if (has_scenario(scenario_flags::invert_rotation)) {
                 if (it == m_players.begin()) it = m_players.end();
                 --it;
             } else {
                 ++it;
                 if (it == m_players.end()) it = m_players.begin();
             }
-        } while(!it->alive());
+        } while(!it->alive() && !has_scenario(scenario_flags::ghosttown));
         return &*it;
+    }
+
+    int game::calc_distance(player *from, player *to) {
+        if (from == to) return 0;
+        if (has_scenario(scenario_flags::ambush)) return 1;
+        int d1=0, d2=0;
+        for (player *counter = from; counter != to; counter = get_next_player(counter), ++d1);
+        for (player *counter = to; counter != from; counter = get_next_player(counter), ++d2);
+        return std::min(d1, d2) + to->m_distance_mod;
     }
 
     void game::check_game_over(player *target, bool discarded_ghost) {
@@ -621,7 +630,8 @@ namespace banggame {
     void game::disable_table_cards() {
         if (m_table_cards_disabled++ == 0) {
             for (auto &p : m_players) {
-                if (!p.alive() || &p == m_playing) continue;
+                if (!p.alive()) continue;
+                if (!has_scenario(scenario_flags::lasso) && &p == m_playing) continue;
                 for (auto *c : p.m_table) {
                     c->on_unequip(&p);
                 }
@@ -632,7 +642,8 @@ namespace banggame {
     void game::enable_table_cards() {
         if (--m_table_cards_disabled == 0) {
             for (auto &p : m_players) {
-                if (!p.alive() || &p == m_playing) continue;
+                if (!p.alive()) continue;
+                if (!has_scenario(scenario_flags::lasso) && &p == m_playing) continue;
                 for (auto *c : p.m_table) {
                     c->on_equip(&p);
                 }
@@ -641,14 +652,15 @@ namespace banggame {
     }
 
     bool game::table_cards_disabled(player *p) const {
-        return m_table_cards_disabled > 0 && p != m_playing;
+        return has_scenario(scenario_flags::lasso)
+            || (m_table_cards_disabled > 0 && p != m_playing);
     }
     
     void game::disable_characters() {
         if (m_characters_disabled++ == 0) {
             for (auto &p : m_players) {
                 if (!p.alive()) continue;
-                if (!bool(m_scenario_flags & scenario_flags::hangover) && &p == m_playing) continue;
+                if (!has_scenario(scenario_flags::hangover) && &p == m_playing) continue;
                 for (auto *c : p.m_characters) {
                     c->on_unequip(&p);
                 }
@@ -660,7 +672,7 @@ namespace banggame {
         if (--m_characters_disabled == 0) {
             for (auto &p : m_players) {
                 if (!p.alive()) continue;
-                if (!bool(m_scenario_flags & scenario_flags::hangover) && &p == m_playing) continue;
+                if (!has_scenario(scenario_flags::hangover) && &p == m_playing) continue;
                 for (auto *c : p.m_characters) {
                     c->on_equip(&p);
                 }
@@ -669,7 +681,7 @@ namespace banggame {
     }
 
     bool game::characters_disabled(player *p) const {
-        return bool(m_scenario_flags & scenario_flags::hangover)
+        return has_scenario(scenario_flags::hangover)
             || (m_characters_disabled > 0 && p != m_playing);
     }
 

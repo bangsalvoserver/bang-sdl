@@ -2858,6 +2858,7 @@
             ]
         },
         {
+            "discard_if_two_players": true,
             "name": "Corsa all'Oro",
             "image": "05_corsaalloro",
             "equip": [
@@ -2948,11 +2949,13 @@
             ]
         },
         {
+            "disabled": true,
             "name": "Manette",
             "image": "05_manette",
             "expansion": "thebullet"
         },
         {
+            "disabled": true,
             "name": "Nuova Identit\u00e0",
             "image": "05_nuovaidentita",
             "expansion": "thebullet"
@@ -2969,64 +2972,102 @@
     ],
     "fistfulofcards": [
         {
+            "discard_if_two_players": true,
             "name": "Agguato",
-            "image": "05_agguato"
+            "image": "05_agguato",
+            "equip": [
+                {
+                    "class": "ambush"
+                }
+            ]
         },
         {
+            "disabled": true,
             "name": "Cecchino",
             "image": "05_cecchino"
         },
         {
+            "disabled": true,
             "name": "Dead Man",
             "image": "05_deadman"
         },
         {
+            "disabled": true,
             "name": "Fratelli di Sangue",
-            "image": "05_fratellidisangue"
+            "image": "05_fratellidisangue",
+            "effects": [
+                {
+                    "target": "self player",
+                    "class": "damage"
+                },
+                {
+                    "target": "notself player",
+                    "class": "heal"
+                }
+            ]
         },
         {
+            "disabled": true,
             "name": "Il Giudice",
             "image": "05_ilgiudice"
         },
         {
             "name": "Lazo",
-            "image": "05_lazo"
+            "image": "05_lazo",
+            "equip": [
+                {
+                    "class": "lasso"
+                }
+            ]
         },
         {
+            "disabled": true,
             "name": "Legge del West",
             "image": "05_leggedelwest"
         },
         {
+            "disabled": true,
             "name": "Liquore Forte",
             "image": "05_liquoreforte"
         },
         {
+            "disabled": true,
             "name": "Miniera Abbandonata",
             "image": "05_minieraabbandonata"
         },
         {
+            "disabled": true,
             "name": "Peyote",
             "image": "05_peyote"
         },
         {
+            "disabled": true,
             "name": "Ranch",
             "image": "05_ranch"
         },
         {
+            "disabled": true,
             "name": "Rimbalzo",
             "image": "05_rimbalzo"
         },
         {
+            "disabled": true,
             "name": "Roulette Russa",
             "image": "05_rouletterussa"
         },
         {
+            "disabled": true,
             "name": "Vendetta",
             "image": "05_vendetta"
         },
         {
             "name": "Per un Pugno di Carte",
-            "image": "05_perunpugnodicarte"
+            "image": "05_perunpugnodicarte",
+            "equip": [
+                {
+                    "class": "fistfulofcards"
+                }
+            ]
         }
     ],
     "wildwestshow": [

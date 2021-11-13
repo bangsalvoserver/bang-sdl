@@ -141,6 +141,9 @@ namespace banggame {
         (hangover,      effect_hangover)
         (sermon,        effect_sermon)
         (ghosttown,     effect_ghosttown)
+        (ambush,        effect_ambush)
+        (lasso,         effect_lasso)
+        (fistfulofcards, effect_fistfulofcards)
     )
 
     namespace detail {

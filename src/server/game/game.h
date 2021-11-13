@@ -165,6 +165,11 @@ namespace banggame {
             return bool(m_options.expansions & type);
         }
 
+        bool has_scenario(scenario_flags type) const {
+            using namespace enums::flag_operators;
+            return bool(m_scenario_flags & type);
+        }
+
         request_holder &top_request() {
             return m_requests.front();
         }
@@ -292,13 +297,7 @@ namespace banggame {
             }
         }
 
-        int calc_distance(player *from, player *to) {
-            if (from == to) return 0;
-            int d1=0, d2=0;
-            for (player *counter = from; counter != to; counter = get_next_player(counter), ++d1);
-            for (player *counter = to; counter != from; counter = get_next_player(counter), ++d2);
-            return std::min(d1, d2) + to->m_distance_mod;
-        }
+        int calc_distance(player *from, player *to);
 
         void check_game_over(player *target, bool discarded_ghost = false);
         void player_death(player *target);

@@ -11,6 +11,8 @@ namespace banggame {
         (hangover) // annulla personaggio
         (sermon) // annulla bang
         (ghosttown) // citta' fantasma
+        (ambush) // setta distanze a 1
+        (lasso) // annulla carte in gioco
     )
 
     struct scenario_effect : card_effect {
@@ -73,6 +75,19 @@ namespace banggame {
     };
 
     struct effect_ghosttown : scenario_effect {
+        void on_equip(player *target, card *target_card);
+    };
+
+    struct effect_ambush : scenario_effect {
+        void on_equip(player *target, card *target_card);
+    };
+
+    struct effect_lasso : card_effect {
+        void on_equip(player *target, card *target_card);
+        void on_unequip(player *target, card *target_card);
+    };
+
+    struct effect_fistfulofcards : event_based_effect {
         void on_equip(player *target, card *target_card);
     };
 }

@@ -16,12 +16,15 @@ namespace banggame {
         , id(game->get_next_id()) {}
 
     void player::equip_card(card *target) {
-        target->on_equip(this);
+        if (!m_game->table_cards_disabled(this)) {
+            target->on_equip(this);
+        }
         m_game->move_to(target, card_pile_type::player_table, true, this, show_card_flags::show_everyone);
     }
 
     bool player::alive() const {
-        return !m_dead || m_ghost || bool(m_game->m_scenario_flags & scenario_flags::ghosttown);
+        return !m_dead || m_ghost
+            || (m_game->m_playing == this && m_game->has_scenario(scenario_flags::ghosttown));
     }
 
     bool player::has_card_equipped(const std::string &name) const {
@@ -62,7 +65,7 @@ namespace banggame {
     }
 
     void player::damage(card *origin_card, player *source, int value, bool is_bang) {
-        if (!m_ghost && !(m_hp == 0 && bool(m_game->m_scenario_flags & scenario_flags::ghosttown))) {
+        if (!m_ghost && !(m_hp == 0 && m_game->has_scenario(scenario_flags::ghosttown))) {
             if (m_game->has_expansion(card_expansion_type::valleyofshadows)) {
                 auto &obj = m_game->queue_request<request_type::damaging>(origin_card, source, this);
                 obj.damage = value;
@@ -88,7 +91,7 @@ namespace banggame {
     }
 
     void player::heal(int value) {
-        if (!m_ghost && !(m_hp == 0 && bool(m_game->m_scenario_flags & scenario_flags::ghosttown))) {
+        if (!m_ghost && !(m_hp == 0 && m_game->has_scenario(scenario_flags::ghosttown))) {
             m_hp = std::min(m_hp + value, m_max_hp);
             m_game->add_public_update<game_update_type::player_hp>(id, m_hp);
         }
@@ -574,6 +577,7 @@ namespace banggame {
                 break;
             case card_pile_type::player_table:
                 if (m_num_drawn_cards < m_num_cards_to_draw) throw game_error("Devi pescare");
+                if (m_game->table_cards_disabled(this)) throw game_error("Le carte in gioco sono disabilitate");
                 if (card_ptr->inactive) throw game_error("Carta non attiva in questo turno");
                 verify_modifiers(card_ptr, modifiers);
                 verify_card_targets(card_ptr, false, args.targets);
@@ -710,7 +714,7 @@ namespace banggame {
         m_num_drawn_cards = 0;
         ++m_bangs_per_turn;
 
-        if (!m_ghost && m_hp == 0 && bool(m_game->m_scenario_flags & scenario_flags::ghosttown)) {
+        if (!m_ghost && m_hp == 0 && m_game->has_scenario(scenario_flags::ghosttown)) {
             ++m_num_cards_to_draw;
             for (auto *c : m_characters) {
                 c->on_equip(this);
@@ -778,7 +782,7 @@ namespace banggame {
     void player::end_of_turn(player *next_player) {
         m_bangs_per_turn = 0;
 
-        if (!m_ghost && m_hp == 0 && bool(m_game->m_scenario_flags & scenario_flags::ghosttown)) {
+        if (!m_ghost && m_hp == 0 && m_game->has_scenario(scenario_flags::ghosttown)) {
             --m_num_cards_to_draw;
             m_game->queue_event<event_type::on_player_death>(nullptr, this);
 
