@@ -114,6 +114,13 @@ namespace banggame {
         m_game->add_public_update<game_update_type::player_gold>(id, m_gold);
     }
 
+    bool player::immune_to(const card &c) {
+        card_suit_type suit = c.suit;
+        card_value_type value = c.value;
+        m_game->instant_event<event_type::apply_check_modifier>(suit, value);
+        return m_calumets > 0 && suit == card_suit_type::diamonds;
+    }
+
     bool player::can_receive_cubes() const {
         if (m_game->m_cubes.empty()) return false;
         if (m_characters.front()->cubes.size() < 4) return true;
@@ -201,6 +208,8 @@ namespace banggame {
 
     void player::verify_modifiers(card *c, const std::vector<card *> &modifiers) {
         for (card *mod_card : modifiers) {
+            if (mod_card->pile == card_pile_type::player_character && m_game->characters_disabled(this)) throw game_error("Personaggi disabilitati");
+            if (mod_card->pile == card_pile_type::player_table && m_game->table_cards_disabled(this)) throw game_error("Carte in gioco disabilitate");
             if (mod_card->modifier != card_modifier_type::bangcard
                 || std::ranges::find(c->effects, effect_type::bangcard, &effect_holder::type) == c->effects.end()) {
                 throw game_error("Azione non valida");
@@ -352,7 +361,12 @@ namespace banggame {
                                 case target_type::table: return target_card->pile == card_pile_type::player_table;
                                 case target_type::hand: return target_card->pile == card_pile_type::player_hand;
                                 case target_type::blue: return target_card->color == card_color_type::blue;
-                                case target_type::clubs: return target_card->suit == card_suit_type::clubs;
+                                case target_type::clubs: {
+                                    card_suit_type suit = target_card->suit;
+                                    card_value_type value = target_card->value;
+                                    m_game->instant_event<event_type::apply_check_modifier>(suit, value);
+                                    return suit == card_suit_type::clubs;
+                                }
                                 case target_type::bang: 
                                     return !target_card->effects.empty() && target_card->effects.front().is(effect_type::bangcard);
                                 case target_type::missed:
@@ -526,9 +540,6 @@ namespace banggame {
                         verify_card_targets(card_ptr, false, args.targets);
                         m_game->add_private_update<game_update_type::status_clear>(this);
                         m_game->add_log(this, nullptr, std::string("pescato con l'effetto di ") + card_ptr->name);
-                        if (m_num_drawn_cards >= m_num_cards_to_draw) {
-                            m_has_drawn = true;
-                        }
                     } else {
                         if (!m_has_drawn) throw game_error("Devi pescare");
                         verify_modifiers(card_ptr, modifiers);
@@ -682,7 +693,7 @@ namespace banggame {
         if (m_has_drawn) throw game_error("Non devi pescare adesso");
         int save_numcards = m_num_cards_to_draw;
         m_game->queue_event<event_type::on_draw_from_deck>(this);
-        if (m_num_drawn_cards < m_num_cards_to_draw) {
+        if (!m_has_drawn) {
             m_game->add_log(this, nullptr, "pescato dal mazzo");
             for (; m_num_drawn_cards<m_num_cards_to_draw; ++m_num_drawn_cards) {
                 m_game->draw_card_to(card_pile_type::player_hand, this);

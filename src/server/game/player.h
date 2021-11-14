@@ -124,9 +124,7 @@ namespace banggame {
 
         void add_gold(int amount);
 
-        bool immune_to(const card &c) {
-            return m_calumets > 0 && c.suit == card_suit_type::diamonds;
-        }
+        bool immune_to(const card &c);
 
         void add_bang_mod(bang_modifier &&mod) {
             m_bang_mods.push_back(std::move(mod));

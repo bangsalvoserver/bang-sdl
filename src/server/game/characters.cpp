@@ -24,7 +24,8 @@ namespace banggame {
     void effect_black_jack::on_equip(player *target, card *target_card) {
         target->m_game->add_event<event_type::on_draw_from_deck>(target_card, [target](player *origin) {
             if (origin == target) {
-                int ncards = target->m_num_drawn_cards = target->m_num_cards_to_draw;
+                target->m_has_drawn = true;
+                int ncards = target->m_num_cards_to_draw;
                 for (int i=0; i<ncards; ++i) {
                     if (i==1) {
                         auto *drawn_card = target->m_game->m_deck.back();
@@ -60,7 +61,7 @@ namespace banggame {
     void effect_kit_carlson::on_equip(player *target, card *target_card) {
         target->m_game->add_event<event_type::on_draw_from_deck>(target_card, [=](player *origin) {
             if (target == origin) {
-                target->m_num_drawn_cards = target->m_num_cards_to_draw;
+                target->m_has_drawn = true;
                 for (int i=0; i<=target->m_num_cards_to_draw; ++i) {
                     target->m_game->draw_card_to(card_pile_type::selection, target);
                 }
@@ -74,7 +75,7 @@ namespace banggame {
         if (target->m_game->m_selection.size() == 1) {
             target->m_game->pop_request();
             target->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::main_deck, false);
-            target->m_num_drawn_cards = target->m_num_cards_to_draw;
+            target->m_has_drawn = true;
         } else {
             target->m_game->pop_request_noupdate();
             target->m_game->queue_request<request_type::kit_carlson>(origin_card, target, target);
@@ -84,7 +85,7 @@ namespace banggame {
     void effect_claus_the_saint::on_equip(player *target, card *target_card) {
         target->m_game->add_event<event_type::on_draw_from_deck>(target_card, [=](player *origin) {
             if (origin == target) {
-                target->m_num_drawn_cards = target->m_num_cards_to_draw;
+                target->m_has_drawn = true;
                 int ncards = target->m_game->num_alive() + target->m_num_cards_to_draw - 1;
                 for (int i=0; i<ncards; ++i) {
                     target->m_game->draw_card_to(card_pile_type::selection, target);
@@ -95,7 +96,6 @@ namespace banggame {
     }
 
     void request_claus_the_saint::on_pick(card_pile_type pile, player *target_player, card *target_card) {
-        target->m_num_drawn_cards = target->m_num_cards_to_draw;
         int index = target->m_game->num_alive() + target->m_num_cards_to_draw - target->m_game->m_selection.size();
         auto p = target;
         for(int i=0; i<index; ++i) {
@@ -514,7 +514,7 @@ namespace banggame {
         target->m_game->add_event<event_type::on_draw_from_deck>(target_card, [=](player *origin) {
             if (origin == target) {
                 if (target->m_num_cards_to_draw > 1) {
-                    target->m_num_drawn_cards = target->m_num_cards_to_draw;
+                    target->m_has_drawn = true;
                     for (int i=0; i<target->m_num_cards_to_draw; ++i) {
                         target->m_game->draw_card_to(card_pile_type::selection, target);
                     }
@@ -530,7 +530,6 @@ namespace banggame {
             target->m_game->pop_request();
             target->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::discard_pile);
             target->add_gold(1);
-            target->m_num_drawn_cards = target->m_num_cards_to_draw;
         }
     }
 
