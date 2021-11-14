@@ -13,7 +13,7 @@ namespace banggame {
     }
 
     bool effect_bangcard::can_play(card *origin_card, player *origin, player *target) const {
-        return !bool(origin->m_game->m_scenario_flags & scenario_flags::sermon);
+        return !origin->m_game->has_scenario(scenario_flags::sermon);
     }
 
     void effect_bangcard::on_play(card *origin_card, player *origin, player *target) {
@@ -88,7 +88,7 @@ namespace banggame {
     }
 
     bool effect_bangresponse::can_respond(card *origin_card, player *origin) const {
-        if (bool(origin->m_game->m_scenario_flags & scenario_flags::sermon)
+        if (origin->m_game->has_scenario(scenario_flags::sermon)
             && origin == origin->m_game->m_playing) return false;
         return origin->m_game->top_request_is(request_type::duel, origin)
             || origin->m_game->top_request_is(request_type::indians, origin);
@@ -149,8 +149,12 @@ namespace banggame {
         target->damage(origin_card, origin, 1);
     }
 
+    bool effect_beer::can_respond(player *origin, card *origin_card) const {
+        return !origin->m_game->has_scenario(scenario_flags::reverend);
+    }
+
     bool effect_beer::can_play(card *origin_card, player *origin, player *target) const {
-        return !bool(origin->m_game->m_scenario_flags & scenario_flags::reverend);
+        return !origin->m_game->has_scenario(scenario_flags::reverend);
     }
 
     void effect_beer::on_play(card *origin_card, player *origin, player *target) {

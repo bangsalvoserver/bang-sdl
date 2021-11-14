@@ -604,8 +604,10 @@ namespace banggame {
 
         instant_event<event_type::on_player_death>(m_playing, target);
 
-        for (auto *c : target->m_characters) {
-            c->on_unequip(target);
+        if (!characters_disabled(target)) {
+            for (auto *c : target->m_characters) {
+                c->on_unequip(target);
+            }
         }
 
         target->discard_all();

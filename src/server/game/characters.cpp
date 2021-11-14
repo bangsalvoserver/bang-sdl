@@ -419,9 +419,7 @@ namespace banggame {
         std::ranges::shuffle(target->m_game->m_base_characters, target->m_game->rng);
         for (int i=0; i<2; ++i) {
             auto *c = target->m_characters.emplace_back(target->m_game->m_base_characters[i]);
-            if (!target->m_game->characters_disabled(target)) {
-                c->on_equip(target);
-            }
+            c->on_equip(target);
             c->pile = card_pile_type::player_character;
             c->owner = target;
             target->m_game->send_character_update(*c, target->id, i+1);

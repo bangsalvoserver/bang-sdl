@@ -100,6 +100,7 @@ namespace banggame {
 
     struct effect_beer : card_effect {
         bool can_play(card *origin_card, player *origin, player *target) const;
+        bool can_respond(player *origin, card *origin_card) const;
         void on_play(card *origin_card, player *origin, player *target);
     };
 

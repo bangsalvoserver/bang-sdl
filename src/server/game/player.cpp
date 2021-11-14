@@ -45,7 +45,9 @@ namespace banggame {
             drop_all_cubes(target_card);
             auto it = m_game->move_to(target_card, pile, known, owner, flags);
             m_game->queue_event<event_type::post_discard_card>(this, target_card);
-            target_card->on_unequip(this);
+            if (!m_game->table_cards_disabled(this)) {
+                target_card->on_unequip(this);
+            }
             return it;
         } else if (target_card->pile == card_pile_type::player_hand) {
             return m_game->move_to(target_card, pile, known, owner, flags);
@@ -143,7 +145,9 @@ namespace banggame {
             m_game->queue_event<event_type::delayed_action>([this, target]{
                 m_game->move_to(target, card_pile_type::discard_pile);
                 m_game->instant_event<event_type::post_discard_orange_card>(this, target);
-                target->on_unequip(this);
+                if (!m_game->table_cards_disabled(this)) {
+                    target->on_unequip(this);
+                }
             });
         }
     }
@@ -165,7 +169,9 @@ namespace banggame {
             m_game->queue_event<event_type::delayed_action>([this, origin]{
                 m_game->move_to(origin, card_pile_type::discard_pile);
                 m_game->instant_event<event_type::post_discard_orange_card>(this, origin);
-                origin->on_unequip(this);
+                if (!m_game->table_cards_disabled(this)) {
+                    origin->on_unequip(this);
+                }
             });
         }
     }
