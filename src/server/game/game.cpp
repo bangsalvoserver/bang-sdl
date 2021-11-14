@@ -66,7 +66,6 @@ namespace banggame {
     void game::send_character_update(const character &c, int player_id, int index) {
         player_character_update obj;
         obj.info = make_card_info(c);
-        obj.type = c.type;
         obj.max_hp = c.max_hp;
         obj.player_id = player_id;
         obj.index = index;
@@ -143,7 +142,6 @@ namespace banggame {
             obj.index = 0;
 
             for (character *c : p.m_characters) {
-                obj.type = c->type;
                 obj.info = make_card_info(*c);
                 ret.emplace_back(enums::enum_constant<game_update_type::player_add_character>{}, obj);
                 ++obj.index;
@@ -362,7 +360,7 @@ namespace banggame {
 
         queue_event<event_type::on_game_start>();
         m_first_player = m_playing;
-        m_first_player->start_of_turn(true);
+        m_first_player->start_of_turn();
     }
 
     void game::tick() {
@@ -711,13 +709,13 @@ namespace banggame {
     }
 
     void game::handle_action(ACTION_TAG(draw_from_deck), player *p) {
-        if (m_requests.empty() && m_playing == p && p->m_num_drawn_cards < p->m_num_cards_to_draw) {
+        if (m_requests.empty() && m_playing == p && !p->m_has_drawn) {
             p->draw_from_deck();
         }
     }
 
     void game::handle_action(ACTION_TAG(pass_turn), player *p) {
-        if (m_requests.empty() && m_playing == p && p->m_num_drawn_cards >= p->m_num_cards_to_draw) {
+        if (m_requests.empty() && m_playing == p && p->m_has_drawn) {
             p->pass_turn();
         }
     }

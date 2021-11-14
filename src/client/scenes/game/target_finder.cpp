@@ -71,11 +71,7 @@ void target_finder::on_click_main_deck() {
         add_action<game_action_type::pick_card>(card_pile_type::main_deck);
     } else if (m_game->m_playing_id == m_game->m_player_own_id) {
         auto *player = m_game->find_player(m_game->m_playing_id);
-        if (auto it = std::ranges::find(player->m_characters, character_type::drawing_forced, &character_card::type); it != player->m_characters.end()) {
-            on_click_character(m_game->find_player(m_game->m_playing_id), &*it);
-        } else {
-            add_action<game_action_type::draw_from_deck>();
-        }
+        add_action<game_action_type::draw_from_deck>();
     }
 }
 
@@ -242,7 +238,7 @@ void target_finder::on_click_character(player_view *player, character_card *card
         handle_auto_targets();
     } else if (m_game->m_playing_id == m_game->m_player_own_id) {
         if (!m_playing_card) {
-            if (player->id == m_game->m_player_own_id && card->type != character_type::none) {
+            if (player->id == m_game->m_player_own_id && !card->targets.empty()) {
                 if (card->modifier != card_modifier_type::none) {
                     add_modifier(card);
                 } else {

@@ -655,8 +655,6 @@ void game_scene::handle_game_update(UPDATE_TAG(player_add_character), const play
     auto &c = *std::next(p.m_characters.begin(), args.index);
 
     static_cast<card_info &>(c) = args.info;
-    c.type = args.type;
-
     c.make_texture_front();
 
     if (args.index == 0) {

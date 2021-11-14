@@ -1859,8 +1859,7 @@
             "image": "01_blackjack",
             "hp": 4,
             "expansion": "base",
-            "type": "drawing_forced",
-            "effects": [
+            "equip": [
                 {
                     "class": "black_jack"
                 }
@@ -1871,7 +1870,6 @@
             "image": "01_calamityjanet",
             "hp": 4,
             "expansion": "base",
-            "type": "active",
             "effects": [
                 {
                     "target": "self hand bangormissed card",
@@ -1917,7 +1915,7 @@
             "image": "01_jessejones",
             "hp": 4,
             "expansion": "base",
-            "type": "drawing",
+            "drawing": true,
             "effects": [
                 {
                     "target": "notself hand card",
@@ -1947,8 +1945,7 @@
             "image": "01_kitcarlson",
             "hp": 4,
             "expansion": "base",
-            "type": "drawing_forced",
-            "effects": [
+            "equip": [
                 {
                     "class": "kit_carlson"
                 }
@@ -1981,7 +1978,7 @@
             "image": "01_pedroramirez",
             "hp": 4,
             "expansion": "base",
-            "type": "drawing",
+            "drawing": true,
             "effects": [
                 {
                     "target": "player self",
@@ -2011,7 +2008,6 @@
             "image": "01_sidketchum",
             "hp": 4,
             "expansion": "base",
-            "type": "active",
             "effects": [
                 {
                     "target": "self hand card",
@@ -2094,8 +2090,7 @@
             "image": "02_clausthesaint",
             "hp": 3,
             "expansion": "thebullet",
-            "type": "drawing_forced",
-            "effects": [
+            "equip": [
                 {
                     "class": "claus_the_saint"
                 }
@@ -2117,7 +2112,6 @@
             "image": "02_unclewill",
             "hp": 4,
             "expansion": "thebullet",
-            "type": "active",
             "usages": 1,
             "effects": [
                 {
@@ -2156,8 +2150,7 @@
             "image": "03_bill_noface",
             "hp": 4,
             "expansion": "dodgecity",
-            "type": "drawing_forced",
-            "effects": [
+            "equip": [
                 {
                     "class": "bill_noface"
                 }
@@ -2168,7 +2161,6 @@
             "image": "03_chuck_wengam",
             "hp": 4,
             "expansion": "dodgecity",
-            "type": "active",
             "effects": [
                 {
                     "target": "player self",
@@ -2189,7 +2181,6 @@
             "image": "03_doc_holyday",
             "hp": 4,
             "expansion": "dodgecity",
-            "type": "active",
             "effects": [
                 {
                     "target": "self hand card",
@@ -2210,7 +2201,6 @@
             "image": "03_elena_fuente",
             "hp": 3,
             "expansion": "dodgecity",
-            "type": "active",
             "responses": [
                 {
                     "target": "self hand card",
@@ -2250,7 +2240,6 @@
             "image": "03_jose_delgado",
             "hp": 4,
             "expansion": "dodgecity",
-            "type": "active",
             "usages": 2,
             "effects": [
                 {
@@ -2283,7 +2272,7 @@
             "image": "03_pat_brennan",
             "hp": 4,
             "expansion": "dodgecity",
-            "type": "drawing",
+            "drawing": true,
             "effects": [
                 {
                     "target": "notself table card",
@@ -2344,7 +2333,6 @@
             "image": "07_blackflower",
             "hp": 4,
             "expansion": "valleyofshadows",
-            "type": "active",
             "usages": 1,
             "effects": [
                 {
@@ -2376,7 +2364,6 @@
             "image": "07_derspot",
             "hp": 4,
             "expansion": "valleyofshadows",
-            "type": "active",
             "usages": 1,
             "effects": [
                 {
@@ -2397,7 +2384,7 @@
             "image": "07_evelynshebang",
             "hp": 4,
             "expansion": "valleyofshadows",
-            "type": "drawing",
+            "drawing": true,
             "effects": [
                 {
                     "class": "draw_skip"
@@ -2483,7 +2470,6 @@
             "image": "06_flintwestwood",
             "hp": 4,
             "expansion": "wildwestshow",
-            "type": "active",
             "usages": 1,
             "effects": [
                 {
@@ -2515,7 +2501,7 @@
             "image": "06_greygorydeck",
             "hp": 4,
             "expansion": "wildwestshow",
-            "type": "drawing",
+            "drawing": true,
             "effects": [
                 {
                     "class": "greygory_deck"
@@ -2543,7 +2529,6 @@
             "image": "06_leevankliff",
             "hp": 4,
             "expansion": "wildwestshow",
-            "type": "active",
             "effects": [
                 {
                     "target": "self hand bang card",
@@ -2607,7 +2592,6 @@
             "image": "17_bassgreeves",
             "hp": 4,
             "expansion": "armedanddangerous",
-            "type": "active",
             "usages": 1,
             "effects": [
                 {
@@ -2637,7 +2621,6 @@
             "image": "17_frankiecanton",
             "hp": 4,
             "expansion": "armedanddangerous",
-            "type": "active",
             "usages": 1,
             "effects": [
                 {
@@ -2662,7 +2645,6 @@
             "image": "17_mexicalikid",
             "hp": 4,
             "expansion": "armedanddangerous",
-            "type": "active",
             "usages": 1,
             "effects": [
                 {
@@ -2695,7 +2677,6 @@
             "image": "17_redringo",
             "hp": 5,
             "expansion": "armedanddangerous",
-            "type": "active",
             "usages": 1,
             "equip": [
                 {
@@ -2731,8 +2712,7 @@
             "image": "04_dutch_will",
             "hp": 4,
             "expansion": "goldrush",
-            "type": "drawing_forced",
-            "effects": [
+            "equip": [
                 {
                     "class": "dutch_will"
                 }
@@ -2743,7 +2723,6 @@
             "image": "04_jacky_murieta",
             "hp": 4,
             "expansion": "goldrush",
-            "type": "active",
             "usages": 1,
             "cost": 2,
             "effects": [
@@ -2758,7 +2737,6 @@
             "image": "04_josh_mccloud",
             "hp": 4,
             "expansion": "goldrush",
-            "type": "active",
             "usages": 1,
             "cost": 2,
             "effects": [
@@ -2783,7 +2761,6 @@
             "image": "04_pretty_luzena",
             "hp": 4,
             "expansion": "goldrush",
-            "type": "active",
             "usages": 1,
             "modifier": "discount"
         },
@@ -2792,7 +2769,6 @@
             "image": "04_raddie_snake",
             "hp": 4,
             "expansion": "goldrush",
-            "type": "active",
             "usages": 2,
             "cost": 1,
             "effects": [

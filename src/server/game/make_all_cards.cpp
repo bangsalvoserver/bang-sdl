@@ -87,6 +87,9 @@ namespace banggame {
         if (json_card.isMember("modifier")) {
             out.modifier = enums::from_string<card_modifier_type>(json_card["modifier"].asString());
         }
+        if (json_card.isMember("drawing")) {
+            out.active_when_drawing = json_card["drawing"].asBool();
+        }
         if (json_card.isMember("testing")) {
             out.testing = json_card["testing"].asBool();
         }
@@ -132,9 +135,6 @@ namespace banggame {
             if (c.expansion != enums::invalid_enum_v<card_expansion_type>) {
                 if (json_character.isMember("disabled") && json_character["disabled"].asBool()) continue;
                 make_all_effects(c, json_character);
-                if (json_character.isMember("type")) {
-                    c.type = enums::from_string<character_type>(json_character["type"].asString());
-                }
                 c.max_hp = json_character["hp"].asInt();
                 ret.characters.push_back(c);
             }

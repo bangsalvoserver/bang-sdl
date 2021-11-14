@@ -21,28 +21,32 @@ namespace banggame {
         event_based_effect::on_unequip(p, target_card);
     }
 
-    void effect_black_jack::on_play(card *origin_card, player *target) {
-        int ncards = target->m_num_drawn_cards = target->m_num_cards_to_draw;
-        for (int i=0; i<ncards; ++i) {
-            if (i==1) {
-                auto *drawn_card = target->m_game->m_deck.back();
-                if (drawn_card->suit == card_suit_type::hearts || drawn_card->suit == card_suit_type::diamonds) {
-                    ++ncards;
+    void effect_black_jack::on_equip(player *target, card *target_card) {
+        target->m_game->add_event<event_type::on_draw_from_deck>(target_card, [target](player *origin) {
+            if (origin == target) {
+                int ncards = target->m_num_drawn_cards = target->m_num_cards_to_draw;
+                for (int i=0; i<ncards; ++i) {
+                    if (i==1) {
+                        auto *drawn_card = target->m_game->m_deck.back();
+                        if (drawn_card->suit == card_suit_type::hearts || drawn_card->suit == card_suit_type::diamonds) {
+                            ++ncards;
+                        }
+                        target->m_game->send_card_update(*drawn_card, nullptr, show_card_flags::short_pause);
+                        target->m_game->draw_card_to(card_pile_type::player_hand, target);
+                    } else {
+                        target->m_game->draw_card_to(card_pile_type::player_hand, target);
+                    }
                 }
-                target->m_game->send_card_update(*drawn_card, nullptr, show_card_flags::short_pause);
-                target->m_game->draw_card_to(card_pile_type::player_hand, target);
-            } else {
-                target->m_game->draw_card_to(card_pile_type::player_hand, target);
             }
-        }
+        });
     }
 
-    void effect_bill_noface::on_play(card *origin_card, player *target) {
-        target->m_num_drawn_cards = target->m_num_cards_to_draw;
-        int ncards = target->m_num_cards_to_draw - 1 + target->m_max_hp - target->m_hp;
-        for (int i=0; i<ncards; ++i) {
-            target->m_game->draw_card_to(card_pile_type::player_hand, target);
-        }
+    void effect_bill_noface::on_equip(player *target, card *target_card) {
+        target->m_game->add_event<event_type::on_draw_from_deck>(target_card, [target](player *origin) {
+            if (target == origin) {
+                target->m_num_cards_to_draw = target->m_num_cards_to_draw - 1 + target->m_max_hp - target->m_hp;
+            }
+        });
     }
 
     void effect_tequila_joe::on_equip(player *target, card *target_card) {
@@ -53,11 +57,16 @@ namespace banggame {
         --target->m_beer_strength;
     }
 
-    void effect_kit_carlson::on_play(card *origin_card, player *target) {
-        for (int i=0; i<=target->m_num_cards_to_draw; ++i) {
-            target->m_game->draw_card_to(card_pile_type::selection, target);
-        }
-        target->m_game->queue_request<request_type::kit_carlson>(origin_card, target, target);
+    void effect_kit_carlson::on_equip(player *target, card *target_card) {
+        target->m_game->add_event<event_type::on_draw_from_deck>(target_card, [=](player *origin) {
+            if (target == origin) {
+                target->m_num_drawn_cards = target->m_num_cards_to_draw;
+                for (int i=0; i<=target->m_num_cards_to_draw; ++i) {
+                    target->m_game->draw_card_to(card_pile_type::selection, target);
+                }
+                target->m_game->queue_request<request_type::kit_carlson>(target_card, target, target);
+            }
+        });
     }
 
     void request_kit_carlson::on_pick(card_pile_type pile, player *target_player, card *target_card) {
@@ -72,13 +81,17 @@ namespace banggame {
         }
     }
 
-    void effect_claus_the_saint::on_play(card *origin_card, player *target) {
-        target->m_num_drawn_cards = target->m_num_cards_to_draw;
-        int ncards = target->m_game->num_alive() + target->m_num_cards_to_draw - 1;
-        for (int i=0; i<ncards; ++i) {
-            target->m_game->draw_card_to(card_pile_type::selection, target);
-        }
-        target->m_game->queue_request<request_type::claus_the_saint>(origin_card, target, target);
+    void effect_claus_the_saint::on_equip(player *target, card *target_card) {
+        target->m_game->add_event<event_type::on_draw_from_deck>(target_card, [=](player *origin) {
+            if (origin == target) {
+                target->m_num_drawn_cards = target->m_num_cards_to_draw;
+                int ncards = target->m_game->num_alive() + target->m_num_cards_to_draw - 1;
+                for (int i=0; i<ncards; ++i) {
+                    target->m_game->draw_card_to(card_pile_type::selection, target);
+                }
+                target->m_game->queue_request<request_type::claus_the_saint>(target_card, target, target);
+            }
+        });
     }
 
     void request_claus_the_saint::on_pick(card_pile_type pile, player *target_player, card *target_card) {
@@ -256,8 +269,7 @@ namespace banggame {
     void effect_tuco_franziskaner::on_equip(player *p, card *target_card) {
         p->m_game->add_event<event_type::on_draw_from_deck>(target_card, [p](player *origin) {
             if (p == origin && std::ranges::find(p->m_table, card_color_type::blue, &card::color) == p->m_table.end()) {
-                p->m_game->draw_card_to(card_pile_type::player_hand, p);
-                p->m_game->draw_card_to(card_pile_type::player_hand, p);
+                p->m_num_cards_to_draw += 2;
             }
         });
     }
@@ -397,7 +409,7 @@ namespace banggame {
                     p->m_game->draw_check_then(p, [&](card_suit_type suit, card_value_type) {
                         if (suit == card_suit_type::diamonds || suit == card_suit_type::hearts) {
                             ++usages;
-                            p->start_of_turn(true);
+                            p->start_of_turn();
                         } else {
                             p->m_game->get_next_in_turn(p)->start_of_turn();
                         }
@@ -498,11 +510,18 @@ namespace banggame {
         target->m_game->top_request().get<request_type::al_preacher>().players.push_back(target);
     }
 
-    void effect_dutch_will::on_play(card *origin_card, player *target) {
-        for (int i=0; i<target->m_num_cards_to_draw; ++i) {
-            target->m_game->draw_card_to(card_pile_type::selection, target);
-        }
-        target->m_game->queue_request<request_type::dutch_will>(origin_card, target, target);
+    void effect_dutch_will::on_equip(player *target, card *target_card) {
+        target->m_game->add_event<event_type::on_draw_from_deck>(target_card, [=](player *origin) {
+            if (origin == target) {
+                if (target->m_num_cards_to_draw > 1) {
+                    target->m_num_drawn_cards = target->m_num_cards_to_draw;
+                    for (int i=0; i<target->m_num_cards_to_draw; ++i) {
+                        target->m_game->draw_card_to(card_pile_type::selection, target);
+                    }
+                    target->m_game->queue_request<request_type::dutch_will>(target_card, target, target);
+                }
+            }
+        });
     }
 
     void request_dutch_will::on_pick(card_pile_type pile, player *target_player, card *target_card) {

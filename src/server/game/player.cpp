@@ -16,6 +16,16 @@ namespace banggame {
         , id(game->get_next_id()) {}
 
     void player::equip_card(card *target) {
+        auto is_weapon = [](const card *c) {
+            return !c->equips.empty() && c->equips.front().is(equip_type::weapon);
+        };
+
+        if (is_weapon(target)) {
+            if (auto it = std::ranges::find_if(m_table, is_weapon); it != m_table.end()) {
+                discard_card(*it);
+            }
+        }
+
         if (!m_game->table_cards_disabled(this)) {
             target->on_equip(this);
         }
@@ -133,6 +143,18 @@ namespace banggame {
         }
     }
 
+    static void check_orange_card_empty(player *owner, card *target) {
+        if (target->cubes.empty() && target->pile != card_pile_type::player_character) {
+            owner->m_game->queue_event<event_type::delayed_action>([=]{
+                owner->m_game->move_to(target, card_pile_type::discard_pile);
+                owner->m_game->instant_event<event_type::post_discard_orange_card>(owner, target);
+                if (!owner->m_game->table_cards_disabled(owner)) {
+                    target->on_unequip(owner);
+                }
+            });
+        }
+    }
+
     void player::pay_cubes(card *target, int ncubes) {
         for (;ncubes!=0 && !target->cubes.empty(); --ncubes) {
             int cube = target->cubes.back();
@@ -141,15 +163,7 @@ namespace banggame {
             m_game->m_cubes.push_back(cube);
             m_game->add_public_update<game_update_type::move_cube>(cube, 0);
         }
-        if (target->cubes.empty() && target != m_characters.front()) {
-            m_game->queue_event<event_type::delayed_action>([this, target]{
-                m_game->move_to(target, card_pile_type::discard_pile);
-                m_game->instant_event<event_type::post_discard_orange_card>(this, target);
-                if (!m_game->table_cards_disabled(this)) {
-                    target->on_unequip(this);
-                }
-            });
-        }
+        check_orange_card_empty(this, target);
     }
 
     void player::move_cubes(card *origin, card *target, int ncubes) {
@@ -165,15 +179,7 @@ namespace banggame {
                 m_game->add_public_update<game_update_type::move_cube>(cube, 0);
             }
         }
-        if (origin->cubes.empty() && origin != m_characters.front()) {
-            m_game->queue_event<event_type::delayed_action>([this, origin]{
-                m_game->move_to(origin, card_pile_type::discard_pile);
-                m_game->instant_event<event_type::post_discard_orange_card>(this, origin);
-                if (!m_game->table_cards_disabled(this)) {
-                    origin->on_unequip(this);
-                }
-            });
-        }
+        check_orange_card_empty(this, origin);
     }
 
     void player::drop_all_cubes(card *target) {
@@ -482,7 +488,7 @@ namespace banggame {
             play_modifiers(modifiers);
             do_play_card(&m_virtual->virtual_card, false, args.targets);
         } else if (bool(args.flags & play_card_flags::sell_beer)) {
-            if (m_num_drawn_cards < m_num_cards_to_draw) throw game_error("Devi pescare");
+            if (!m_has_drawn) throw game_error("Devi pescare");
             if (!m_game->has_expansion(card_expansion_type::goldrush)
                 || args.targets.size() != 1
                 || !args.targets.front().is(play_card_target_type::target_card)) throw game_error("Azione non valida");
@@ -496,7 +502,7 @@ namespace banggame {
             m_game->queue_event<event_type::on_play_beer>(this);
             m_game->queue_event<event_type::on_effect_end>(this, target_card);
         } else if (bool(args.flags & play_card_flags::discard_black)) {
-            if (m_num_drawn_cards < m_num_cards_to_draw) throw game_error("Devi pescare");
+            if (!m_has_drawn) throw game_error("Devi pescare");
             if (args.targets.size() != 1
                 || !args.targets.front().is(play_card_target_type::target_card)) throw game_error("Azione non valida");
             const auto &l = args.targets.front().get<play_card_target_type::target_card>();
@@ -513,30 +519,28 @@ namespace banggame {
             card *card_ptr = m_game->find_card(args.card_id);
             switch(card_ptr->pile) {
             case card_pile_type::player_character:
-                switch (static_cast<character *>(card_ptr)->type) {
-                case character_type::active:
-                    if (m_num_drawn_cards < m_num_cards_to_draw) throw game_error("Devi pescare");
+                if (!card_ptr->effects.empty()) {
                     if (m_game->characters_disabled(this)) throw game_error("I personaggi sono disabilitati");
-                    verify_modifiers(card_ptr, modifiers);
-                    verify_card_targets(card_ptr, false, args.targets);
-                    play_modifiers(modifiers);
-                    m_game->add_log(this, nullptr, std::string("giocato effetto di ") + card_ptr->name);
+                    if (card_ptr->active_when_drawing) {
+                        if (m_has_drawn) throw game_error("Non devi pescare adesso");
+                        verify_card_targets(card_ptr, false, args.targets);
+                        m_game->add_private_update<game_update_type::status_clear>(this);
+                        m_game->add_log(this, nullptr, std::string("pescato con l'effetto di ") + card_ptr->name);
+                        if (m_num_drawn_cards >= m_num_cards_to_draw) {
+                            m_has_drawn = true;
+                        }
+                    } else {
+                        if (!m_has_drawn) throw game_error("Devi pescare");
+                        verify_modifiers(card_ptr, modifiers);
+                        verify_card_targets(card_ptr, false, args.targets);
+                        play_modifiers(modifiers);
+                        m_game->add_log(this, nullptr, std::string("giocato effetto di ") + card_ptr->name);
+                    }
                     do_play_card(card_ptr, false, args.targets);
-                    break;
-                case character_type::drawing:
-                case character_type::drawing_forced:
-                    if (m_num_drawn_cards >= m_num_cards_to_draw) throw game_error("Non devi pescare adesso");
-                    verify_card_targets(card_ptr, false, args.targets);
-                    m_game->add_private_update<game_update_type::status_clear>(this);
-                    m_game->add_log(this, nullptr, std::string("pescato con l'effetto di ") + card_ptr->name);
-                    do_play_card(card_ptr, false, args.targets);
-                    break;
-                default:
-                    break;
                 }
                 break;
             case card_pile_type::player_hand:
-                if (m_num_drawn_cards < m_num_cards_to_draw) throw game_error("Devi pescare");
+                if (!m_has_drawn) throw game_error("Devi pescare");
                 switch (card_ptr->color) {
                 case card_color_type::brown:
                     verify_modifiers(card_ptr, modifiers);
@@ -582,7 +586,7 @@ namespace banggame {
                 }
                 break;
             case card_pile_type::player_table:
-                if (m_num_drawn_cards < m_num_cards_to_draw) throw game_error("Devi pescare");
+                if (!m_has_drawn) throw game_error("Devi pescare");
                 if (m_game->table_cards_disabled(this)) throw game_error("Le carte in gioco sono disabilitate");
                 if (card_ptr->inactive) throw game_error("Carta non attiva in questo turno");
                 verify_modifiers(card_ptr, modifiers);
@@ -592,7 +596,7 @@ namespace banggame {
                 do_play_card(card_ptr, false, args.targets);
                 break;
             case card_pile_type::shop_selection: {
-                if (m_num_drawn_cards < m_num_cards_to_draw) throw game_error("Devi pescare");
+                if (!m_has_drawn) throw game_error("Devi pescare");
                 int discount = 0;
                 if (!modifiers.empty()) {
                     if (auto modifier_it = std::ranges::find(m_characters, modifiers.front()->id, &character::id); modifier_it != m_characters.end()) {
@@ -660,7 +664,7 @@ namespace banggame {
             break;
         case card_pile_type::shop_selection:
             // hack per bottiglia e complice
-            if (m_num_drawn_cards < m_num_cards_to_draw) throw game_error("Devi pescare");
+            if (!m_has_drawn) throw game_error("Devi pescare");
             break;
         case card_pile_type::player_hand:
             if (card_ptr->color != card_color_type::brown) return;
@@ -675,12 +679,18 @@ namespace banggame {
     }
 
     void player::draw_from_deck() {
-        if (std::ranges::find(m_characters, character_type::drawing_forced, &character::type) == m_characters.end()) {
+        if (m_has_drawn) throw game_error("Non devi pescare adesso");
+        int save_numcards = m_num_cards_to_draw;
+        m_game->queue_event<event_type::on_draw_from_deck>(this);
+        if (m_num_drawn_cards < m_num_cards_to_draw) {
+            m_game->add_log(this, nullptr, "pescato dal mazzo");
             for (; m_num_drawn_cards<m_num_cards_to_draw; ++m_num_drawn_cards) {
                 m_game->draw_card_to(card_pile_type::player_hand, this);
             }
-            m_game->add_log(this, nullptr, "pescato dal mazzo");
-            m_game->queue_event<event_type::on_draw_from_deck>(this);
+        }
+        m_num_cards_to_draw = save_numcards;
+        m_has_drawn = true;
+        if (m_game->m_requests.empty()) {
             m_game->add_private_update<game_update_type::status_clear>(this);
         }
     }
@@ -706,18 +716,18 @@ namespace banggame {
         m_game->add_private_update<game_update_type::virtual_card>(this, obj);
     }
 
-    void player::start_of_turn(bool repeated) {
-        if (!repeated && this == m_game->m_first_player) {
+    void player::start_of_turn() {
+        if (this != m_game->m_playing && this == m_game->m_first_player) {
             m_game->queue_event<event_type::delayed_action>([&]{
                 m_game->draw_scenario_card();
             });
         }
         
-        m_game->m_ignore_next_turn = false;
         m_game->m_playing = this;
 
         m_bangs_played = 0;
         m_num_drawn_cards = 0;
+        m_has_drawn = false;
         ++m_bangs_per_turn;
 
         if (!m_ghost && m_hp == 0 && m_game->has_scenario(scenario_flags::ghosttown)) {
@@ -788,33 +798,34 @@ namespace banggame {
     void player::end_of_turn(player *next_player) {
         m_bangs_per_turn = 0;
 
-        if (!m_ghost && m_hp == 0 && m_game->has_scenario(scenario_flags::ghosttown)) {
-            --m_num_cards_to_draw;
-            m_game->queue_event<event_type::on_player_death>(nullptr, this);
-
-            for (auto *c : m_characters) {
-                c->on_unequip(this);
-            }
-
-            discard_all();
-            add_gold(-m_gold);
-        } else {
-            for (card *c : m_table) {
-                if (c->inactive) {
-                    c->inactive = false;
-                    m_game->add_public_update<game_update_type::tap_card>(c->id, false);
-                }
+        for (card *c : m_table) {
+            if (c->inactive) {
+                c->inactive = false;
+                m_game->add_public_update<game_update_type::tap_card>(c->id, false);
             }
         }
         
         m_current_card_targets.clear();
-        m_game->queue_event<event_type::on_turn_end>(this);
+
+        m_game->m_ignore_next_turn = false;
+        m_game->instant_event<event_type::on_turn_end>(this);
         if (m_game->num_alive() > 0) {
             if (!m_game->m_ignore_next_turn) {
                 if (!next_player) {
+                    if (!m_ghost && m_hp == 0 && m_game->has_scenario(scenario_flags::ghosttown)) {
+                        --m_num_cards_to_draw;
+                        m_game->queue_event<event_type::on_player_death>(nullptr, this);
+
+                        for (auto *c : m_characters) {
+                            c->on_unequip(this);
+                        }
+
+                        discard_all();
+                        add_gold(-m_gold);
+                    }
                     next_player = m_game->get_next_in_turn(this);
                 }
-                next_player->start_of_turn(next_player == this);
+                next_player->start_of_turn();
             }
         }
     }

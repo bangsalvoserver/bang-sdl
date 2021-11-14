@@ -52,13 +52,6 @@ namespace banggame {
         (orange)
     )
 
-    DEFINE_ENUM_IN_NS(banggame, character_type,
-        (none)
-        (drawing)
-        (drawing_forced)
-        (active)
-    )
-
     DEFINE_ENUM_IN_NS(banggame, player_role,
         (unknown)
         (sheriff)

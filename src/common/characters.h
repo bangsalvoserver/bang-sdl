@@ -11,12 +11,12 @@ namespace banggame {
         void on_unequip(player *target, card *target_card);
     };
 
-    struct effect_black_jack : card_effect {
-        void on_play(card *origin_card, player *target);
+    struct effect_black_jack : event_based_effect {
+        void on_equip(player *target, card *target_card);
     };
 
-    struct effect_bill_noface : card_effect {
-        void on_play(card *origin_card, player *target);
+    struct effect_bill_noface : event_based_effect {
+        void on_equip(player *target, card *target_card);
     };
 
     struct effect_tequila_joe : card_effect {
@@ -24,16 +24,16 @@ namespace banggame {
         void on_unequip(player *target, card *target_card);
     };
 
-    struct effect_kit_carlson : card_effect {
-        void on_play(card *origin_card, player *target);
+    struct effect_kit_carlson : event_based_effect {
+        void on_equip(player *target, card *target_card);
     };
 
     struct request_kit_carlson : picking_request_allowing<card_pile_type::selection> {
         void on_pick(card_pile_type pile, player *target, card *target_card);
     };
 
-    struct effect_claus_the_saint : card_effect {
-        void on_play(card *origin_card, player *target);
+    struct effect_claus_the_saint : event_based_effect {
+        void on_equip(player *target, card *target_card);
     };
 
     struct request_claus_the_saint : picking_request_allowing<card_pile_type::selection> {
@@ -147,8 +147,8 @@ namespace banggame {
         void on_equip(player *target, card *target_card);
     };
 
-    struct effect_dutch_will : card_effect {
-        void on_play(card *origin_card, player *origin);
+    struct effect_dutch_will : event_based_effect {
+        void on_equip(player *target, card *target_card);
     };
 
     struct request_dutch_will : picking_request_allowing<card_pile_type::selection> {

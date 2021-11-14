@@ -35,6 +35,7 @@ namespace banggame {
         card_value_type value = card_value_type::none;
         card_color_type color = card_color_type::none;
         bool inactive = false;
+        bool active_when_drawing = false;
 
         std::vector<int> cubes;
 
@@ -56,7 +57,6 @@ namespace banggame {
     };
 
     struct character : card {
-        character_type type = character_type::none;
         int max_hp;
     };
 

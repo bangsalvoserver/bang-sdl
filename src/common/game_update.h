@@ -84,7 +84,6 @@ namespace banggame {
 
     DEFINE_SERIALIZABLE(player_character_update,
         (info, card_info)
-        (type, character_type)
         (max_hp, int)
         (player_id, int)
         (index, int)

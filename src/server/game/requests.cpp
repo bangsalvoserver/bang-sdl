@@ -57,7 +57,9 @@ namespace banggame {
             }
             if (target->num_hand_cards() <= target->max_cards_end_of_turn()) {
                 target->m_game->pop_request();
-                target->end_of_turn();
+                target->m_game->queue_event<event_type::delayed_action>([target = this->target]{
+                    target->end_of_turn();
+                });
             }
         }
     }

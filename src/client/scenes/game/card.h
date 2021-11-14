@@ -127,8 +127,6 @@ namespace banggame {
     };
 
     struct character_card : card_widget {
-        character_type type;
-
         void make_texture_front();
     };
 

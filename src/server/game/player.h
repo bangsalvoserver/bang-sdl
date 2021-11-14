@@ -66,6 +66,7 @@ namespace banggame {
         
         int m_num_cards_to_draw = 2;
         int m_num_drawn_cards = 0;
+        bool m_has_drawn = false;
 
         card *m_last_played_card = nullptr;
 
@@ -165,7 +166,7 @@ namespace banggame {
 
         void draw_from_deck();
 
-        void start_of_turn(bool repeated = false);
+        void start_of_turn();
         void pass_turn(player *next_player = nullptr);
         void end_of_turn(player *next_player = nullptr);
 

@@ -94,12 +94,6 @@ namespace banggame {
     }
 
     void effect_weapon::on_equip(player *target, card *target_card) {
-        auto it = std::ranges::find_if(target->m_table, [target_card](const card *c) {
-            return !c->equips.empty() && c->equips.front().is(equip_type::weapon) && c != target_card;
-        });
-        if (it != target->m_table.end()) {
-            target->discard_card(*it);
-        }
         target->m_weapon_range = args;
     }
 
@@ -142,9 +136,6 @@ namespace banggame {
     }
 
     void effect_pickaxe::on_equip(player *target, card *target_card) {
-        if (target->m_num_drawn_cards >= target->m_num_cards_to_draw) {
-            ++target->m_num_drawn_cards;
-        }
         ++target->m_num_cards_to_draw;
     }
 
