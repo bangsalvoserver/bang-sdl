@@ -775,6 +775,7 @@ namespace banggame {
 
         m_current_card_targets.clear();
         
+        m_game->queue_event<event_type::pre_turn_start>(this);
         m_game->queue_event<event_type::delayed_action>([&]{
             m_game->add_public_update<game_update_type::switch_turn>(id);
             if (m_predraw_checks.empty()) {

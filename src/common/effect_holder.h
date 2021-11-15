@@ -68,6 +68,7 @@ namespace banggame {
         (changewws,     effect_empty)
         (sniper,        effect_sniper)
         (ricochet,      effect_ricochet)
+        (peyotechoice,  effect_empty)
         (teren_kill,    effect_teren_kill)
         (flint_westwood, effect_flint_westwood)
         (lee_van_kliff, effect_lee_van_kliff)
@@ -147,6 +148,7 @@ namespace banggame {
         (ambush,        effect_ambush)
         (lasso,         effect_lasso)
         (judge,         effect_judge)
+        (peyote,        effect_peyote)
         (fistfulofcards, effect_fistfulofcards)
     )
 

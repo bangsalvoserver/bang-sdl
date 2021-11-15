@@ -96,6 +96,14 @@ namespace banggame {
     struct effect_judge : scenario_effect {
         void on_equip(player *target, card *target_card);
     };
+
+    struct effect_peyote : event_based_effect {
+        void on_equip(player *target, card *target_card);
+    };
+
+    struct request_peyote : picking_request_allowing<card_pile_type::selection> {
+        void on_pick(card_pile_type pile, player *target, card *target_card);
+    };
 }
 
 #endif

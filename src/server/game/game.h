@@ -39,6 +39,7 @@ namespace banggame {
         (on_effect_end,     std::function<void(player *origin, card *target_card)>)
         (on_play_bang,      std::function<void(player *origin)>)
         (on_play_beer,      std::function<void(player *origin)>)
+        (pre_turn_start,    std::function<void(player *origin)>)
         (on_turn_start,     std::function<void(player *origin)>)
         (on_turn_end,       std::function<void(player *origin)>)
         (on_draw_from_deck, std::function<void(player *origin)>)

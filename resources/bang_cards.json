@@ -2928,7 +2928,12 @@
             "disabled": true,
             "name": "Manette",
             "image": "05_manette",
-            "expansion": "thebullet"
+            "expansion": "thebullet",
+            "equip": [
+                {
+                    "class": "handcuffs"
+                }
+            ]
         },
         {
             "disabled": true,
@@ -3041,9 +3046,13 @@
             "image": "05_minieraabbandonata"
         },
         {
-            "disabled": true,
             "name": "Peyote",
-            "image": "05_peyote"
+            "image": "05_peyote",
+            "equip": [
+                {
+                    "class": "peyote"
+                }
+            ]
         },
         {
             "name": "Ranch",
@@ -3447,6 +3456,76 @@
                 {
                     "target": "card",
                     "class": "destroy"
+                }
+            ]
+        },
+        {
+            "disabled": true,
+            "expansion": "highnoon thebullet",
+            "name": "Manette: Dichiaro Cuori",
+            "image": "05_manette_hearts",
+            "responses": [
+                {
+                    "class": "handcuffschoice",
+                    "args": 1
+                }
+            ]
+        },
+        {
+            "disabled": true,
+            "expansion": "highnoon thebullet",
+            "name": "Manette: Dichiaro Quadri",
+            "image": "05_manette_diamonds",
+            "responses": [
+                {
+                    "class": "handcuffschoice",
+                    "args": 2
+                }
+            ]
+        },
+        {
+            "disabled": true,
+            "expansion": "highnoon thebullet",
+            "name": "Manette: Dichiaro Fiori",
+            "image": "05_manette_clubs",
+            "responses": [
+                {
+                    "class": "handcuffschoice",
+                    "args": 3
+                }
+            ]
+        },
+        {
+            "disabled": true,
+            "expansion": "highnoon thebullet",
+            "name": "Manette: Dichiaro Picche",
+            "image": "05_manette_spades",
+            "responses": [
+                {
+                    "class": "handcuffschoice",
+                    "args": 4
+                }
+            ]
+        },
+        {
+            "expansion": "fistfulofcards",
+            "name": "Peyote: Dichiaro Rosso",
+            "image": "05_peyote_rosso",
+            "responses": [
+                {
+                    "class": "peyotechoice",
+                    "args": 1
+                }
+            ]
+        },
+        {
+            "expansion": "fistfulofcards",
+            "name": "Peyote: Dichiaro Nero",
+            "image": "05_peyote_nero",
+            "responses": [
+                {
+                    "class": "peyotechoice",
+                    "args": 2
                 }
             ]
         }

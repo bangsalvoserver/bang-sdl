@@ -74,7 +74,7 @@ namespace banggame {
     }
 
     void effect_highnoon::on_equip(player *target, card *target_card) {
-        target->m_game->add_event<event_type::on_turn_start>(target_card, [=](player *p) {
+        target->m_game->add_event<event_type::pre_turn_start>(target_card, [=](player *p) {
             p->damage(target_card, nullptr, 1);
         });
     }
@@ -131,7 +131,7 @@ namespace banggame {
     }
 
     void effect_fistfulofcards::on_equip(player *target, card *target_card) {
-        target->m_game->add_event<event_type::on_turn_start>(target_card, [=](player *p) {
+        target->m_game->add_event<event_type::pre_turn_start>(target_card, [=](player *p) {
             for (int i=0; i<p->m_hand.size(); ++i) {
                 p->m_game->queue_request<request_type::bang>(target_card, nullptr, p);
             }
@@ -140,5 +140,41 @@ namespace banggame {
 
     void effect_judge::on_equip(player *target, card *target_card) {
         target->m_game->m_scenario_flags |= scenario_flags::judge;
+    }
+
+    void effect_peyote::on_equip(player *target, card *target_card) {
+        target->m_game->add_event<event_type::on_turn_start>(target_card, [=](player *p) {
+            auto &vec = p->m_game->m_hidden_deck;
+            for (auto it = vec.begin(); it != vec.end(); ) {
+                auto *card = *it;
+                if (!card->responses.empty() && card->responses.front().is(effect_type::peyotechoice)) {
+                    it = p->m_game->move_to(card, card_pile_type::selection, true, nullptr, show_card_flags::no_animation);
+                } else {
+                    ++it;
+                }
+            }
+
+            p->m_has_drawn = true;
+            p->m_game->queue_request<request_type::peyote>(target_card, nullptr, p);
+        });
+    }
+
+    void request_peyote::on_pick(card_pile_type pile, player *target_player, card *target_card) {
+        auto *drawn_card = target->m_game->m_deck.back();
+        target->m_game->send_card_update(*drawn_card, nullptr, show_card_flags::short_pause);
+
+        if ((target_card->responses.front().args == 1)
+            ? (drawn_card->suit == card_suit_type::hearts || drawn_card->suit == card_suit_type::diamonds)
+            : (drawn_card->suit == card_suit_type::clubs || drawn_card->suit == card_suit_type::spades))
+        {
+            target->m_game->draw_card_to(card_pile_type::player_hand, target);
+        } else {
+            target->m_game->draw_card_to(card_pile_type::discard_pile);
+
+            while (!target->m_game->m_selection.empty()) {
+                target->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::hidden_deck, true, nullptr, show_card_flags::no_animation);
+            }
+            target->m_game->pop_request();
+        }
     }
 }
