@@ -13,6 +13,7 @@ namespace banggame {
         (ghosttown) // citta' fantasma
         (ambush) // setta distanze a 1
         (lasso) // annulla carte in gioco
+        (judge) // non si puo' equipaggiare
     )
 
     struct scenario_effect : card_effect {
@@ -89,6 +90,10 @@ namespace banggame {
     };
 
     struct effect_fistfulofcards : event_based_effect {
+        void on_equip(player *target, card *target_card);
+    };
+
+    struct effect_judge : scenario_effect {
         void on_equip(player *target, card *target_card);
     };
 }

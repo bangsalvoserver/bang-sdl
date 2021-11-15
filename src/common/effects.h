@@ -125,6 +125,10 @@ namespace banggame {
         void on_play(card *origin_card, player *origin);
     };
 
+    struct effect_startofturn : effect_empty {
+        bool can_play(card *origin_card, player *origin) const;
+    };
+
     struct effect_draw : card_effect {
         void on_play(card *origin_card, player *origin, player *target);
     };
@@ -264,6 +268,14 @@ namespace banggame {
 
     struct effect_squaw_steal : card_effect {
         void on_play(card *origin_card, player *origin);
+    };
+
+    struct effect_sniper : card_effect {
+        void on_play(card *origin_card, player *origin, player *target);
+    };
+
+    struct effect_ricochet : card_effect {
+        void on_play(card *origin_card, player *origin, player *target, card *target_card);
     };
 
 }

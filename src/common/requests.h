@@ -107,6 +107,8 @@ namespace banggame {
         void on_resolve();
     };
 
+    struct request_ricochet : request_destroy {};
+
     DEFINE_ENUM_TYPES_IN_NS(banggame, request_type,
         (none,          request_base)
         (predraw,       request_predraw)
@@ -128,6 +130,7 @@ namespace banggame {
         (add_cube,      request_add_cube)
         (move_bomb,     request_move_bomb)
         (rust,          request_rust)
+        (ricochet,      request_ricochet)
         (shopchoice,    request_base)
         (kit_carlson,   request_kit_carlson)
         (claus_the_saint, request_claus_the_saint)

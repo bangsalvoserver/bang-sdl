@@ -252,6 +252,16 @@ void target_finder::on_click_character(player_view *player, character_card *card
     }
 }
 
+void target_finder::on_click_scenario_card(card_view *card) {
+    m_flags &= ~(play_card_flags::sell_beer | play_card_flags::discard_black);
+
+    if (m_game->m_playing_id == m_game->m_player_own_id
+        && !m_playing_card && !card->targets.empty()) {
+        m_playing_card = card;
+        handle_auto_targets();
+    }
+}
+
 bool target_finder::on_click_player(player_view *player) {
     if (bool(m_flags & (play_card_flags::sell_beer | play_card_flags::discard_black))) return false;
 

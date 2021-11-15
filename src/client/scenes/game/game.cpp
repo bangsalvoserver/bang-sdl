@@ -228,6 +228,10 @@ void game_scene::handle_card_click(const sdl::point &mouse_pt) {
         m_target.on_click_main_deck();
         return;
     }
+    if (!m_scenario_card.empty() && mouse_in_card(m_scenario_card.back())) {
+        m_target.on_click_scenario_card(m_scenario_card.back());
+        return;
+    }
     for (auto &p : m_players | std::views::values) {
         if (sdl::point_in_rect(mouse_pt, p.m_bounding_rect)) {
             if (m_target.on_click_player(&p)) {

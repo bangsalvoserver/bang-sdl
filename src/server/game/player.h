@@ -69,6 +69,7 @@ namespace banggame {
         bool m_has_drawn = false;
 
         card *m_last_played_card = nullptr;
+        bool m_start_of_turn = false;
 
         int m_gold = 0;
         

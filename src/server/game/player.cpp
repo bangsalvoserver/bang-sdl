@@ -561,6 +561,7 @@ namespace banggame {
                     do_play_card(card_ptr, false, args.targets);
                     break;
                 case card_color_type::blue: {
+                    if (m_game->has_scenario(scenario_flags::judge)) throw game_error("Non si possono equipaggiare carte");
                     verify_equip_target(card_ptr, args.targets);
                     auto *target = m_game->get_player(args.targets.front().get<play_card_target_type::target_player>().front().player_id);
                     if (target->has_card_equipped(card_ptr->name)) throw game_error("Carta duplicata");
@@ -574,6 +575,7 @@ namespace banggame {
                     break;
                 }
                 case card_color_type::green: {
+                    if (m_game->has_scenario(scenario_flags::judge)) throw game_error("Non si possono equipaggiare carte");
                     if (has_card_equipped(card_ptr->name)) throw game_error("Carta duplicata");
                     m_game->add_log(this, nullptr, std::string("equipaggiato ") + card_ptr->name);
                     card_ptr->inactive = true;
@@ -584,6 +586,7 @@ namespace banggame {
                     break;
                 }
                 case card_color_type::orange: {
+                    if (m_game->has_scenario(scenario_flags::judge)) throw game_error("Non si possono equipaggiare carte");
                     verify_equip_target(card_ptr, args.targets);
                     auto *target = m_game->get_player(args.targets.front().get<play_card_target_type::target_player>().front().player_id);
                     if (target->has_card_equipped(card_ptr->name)) throw game_error("Carta duplicata");
@@ -634,6 +637,7 @@ namespace banggame {
                         });
                     break;
                     case card_color_type::black:
+                        if (m_game->has_scenario(scenario_flags::judge)) throw game_error("Non si possono equipaggiare carte");
                         verify_equip_target(card_ptr, args.targets);
                         play_modifiers(modifiers);
                         auto *target = m_game->get_player(args.targets.front().get<play_card_target_type::target_player>().front().player_id);
@@ -652,10 +656,23 @@ namespace banggame {
                     throw game_error("Non hai abbastanza pepite");
                 }
             }
+            case card_pile_type::scenario_card: {
+                if (card_ptr->active_when_drawing == m_has_drawn) {
+                    if (card_ptr->active_when_drawing) {
+                        throw game_error("Non devi pescare adesso");
+                    } else {
+                        throw game_error("Devi pescare");
+                    }
+                }
+                verify_card_targets(card_ptr, false, args.targets);
+                do_play_card(card_ptr, false, args.targets);
+                break;
+            }
             default:
                 throw game_error("play_card: carta non valida");
             }
         }
+        m_start_of_turn = false;
     }
     
     void player::respond_card(const play_card_args &args) {
@@ -739,6 +756,7 @@ namespace banggame {
         m_bangs_played = 0;
         m_num_drawn_cards = 0;
         m_has_drawn = false;
+        m_start_of_turn = true;
         ++m_bangs_per_turn;
 
         if (!m_ghost && m_hp == 0 && m_game->has_scenario(scenario_flags::ghosttown)) {

@@ -2958,9 +2958,22 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Cecchino",
-            "image": "05_cecchino"
+            "image": "05_cecchino",
+            "effects": [
+                {
+                    "target": "self hand bang card",
+                    "class": "destroy"
+                },
+                {
+                    "target": "self hand bang card",
+                    "class": "destroy"
+                },
+                {
+                    "target": "player reachable notself",
+                    "class": "sniper"
+                }
+            ]
         },
         {
             "disabled": true,
@@ -2968,10 +2981,13 @@
             "image": "05_deadman"
         },
         {
-            "disabled": true,
             "name": "Fratelli di Sangue",
             "image": "05_fratellidisangue",
+            "drawing": true,
             "effects": [
+                {
+                    "class": "startofturn"
+                },
                 {
                     "target": "self player",
                     "class": "damage"
@@ -2983,9 +2999,13 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Il Giudice",
-            "image": "05_ilgiudice"
+            "image": "05_ilgiudice",
+            "equip": [
+                {
+                    "class": "judge"
+                }
+            ]
         },
         {
             "name": "Lazo",
@@ -3002,9 +3022,18 @@
             "image": "05_leggedelwest"
         },
         {
-            "disabled": true,
             "name": "Liquore Forte",
-            "image": "05_liquoreforte"
+            "image": "05_liquoreforte",
+            "drawing": true,
+            "effects": [
+                {
+                    "target": "self player",
+                    "class": "heal"
+                },
+                {
+                    "class": "draw_done"
+                }
+            ]
         },
         {
             "disabled": true,
@@ -3017,14 +3046,46 @@
             "image": "05_peyote"
         },
         {
-            "disabled": true,
             "name": "Ranch",
-            "image": "05_ranch"
+            "image": "05_ranch",
+            "effects": [
+                {
+                    "class": "startofturn"
+                },
+                {
+                    "target": "self hand card",
+                    "class": "destroy"
+                },
+                {
+                    "target": "self player",
+                    "class": "draw"
+                }
+            ],
+            "optional_repeatable": true,
+            "optional": [
+                {
+                    "target": "self hand card",
+                    "class": "destroy"
+                },
+                {
+                    "target": "self player",
+                    "class": "draw"
+                }
+            ]
         },
         {
-            "disabled": true,
             "name": "Rimbalzo",
-            "image": "05_rimbalzo"
+            "image": "05_rimbalzo",
+            "effects": [
+                {
+                    "target": "self hand bang card",
+                    "class": "destroy"
+                },
+                {
+                    "target": "notself table card",
+                    "class": "ricochet"
+                }
+            ]
         },
         {
             "disabled": true,

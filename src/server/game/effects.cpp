@@ -37,13 +37,17 @@ namespace banggame {
             auto &req = origin->m_game->top_request().get<request_type::bang>();
             return !req.unavoidable;
         }
-        return false;
+        return origin->m_game->top_request_is(request_type::ricochet, origin);
     }
 
     void effect_missed::on_play(card *origin_card, player *origin) {
-        auto &req = origin->m_game->top_request().get<request_type::bang>();
-        if (0 == --req.bang_strength) {
-            origin->m_game->instant_event<event_type::on_missed>(req.origin, req.target, req.is_bang_card);
+        if (origin->m_game->top_request_is(request_type::bang, origin)) {
+            auto &req = origin->m_game->top_request().get<request_type::bang>();
+            if (0 == --req.bang_strength) {
+                origin->m_game->instant_event<event_type::on_missed>(req.origin, req.target, req.is_bang_card);
+                origin->m_game->pop_request();
+            }
+        } else {
             origin->m_game->pop_request();
         }
     }
@@ -55,15 +59,20 @@ namespace banggame {
 
     bool effect_barrel::can_respond(card *origin_card, player *origin) const {
         if (effect_missed().can_respond(origin_card, origin)) {
-            auto &req = origin->m_game->top_request().get<request_type::bang>();
-            return std::ranges::find(req.barrels_used, origin_card) == std::ranges::end(req.barrels_used);
+            if (origin->m_game->top_request_is(request_type::bang, origin)) {
+                auto &req = origin->m_game->top_request().get<request_type::bang>();
+                return std::ranges::find(req.barrels_used, origin_card) == std::ranges::end(req.barrels_used);
+            } else {
+                return true;
+            }
         }
         return false;
     }
 
     void effect_barrel::on_play(card *origin_card, player *target) {
-        auto &req = target->m_game->top_request().get<request_type::bang>();
-        req.barrels_used.push_back(origin_card);
+        if (target->m_game->top_request_is(request_type::bang, target)) {
+            target->m_game->top_request().get<request_type::bang>().barrels_used.push_back(origin_card);
+        }
         target->m_game->draw_check_then(target, [=](card_suit_type suit, card_value_type) {
             if (suit == card_suit_type::hearts) {
                 effect_missed().on_play(origin_card, target);
@@ -227,6 +236,10 @@ namespace banggame {
         origin->m_game->queue_event<event_type::delayed_action>([=]{
             origin->m_virtual.reset();
         });
+    }
+
+    bool effect_startofturn::can_play(card *origin_card, player *origin) const {
+        return origin->m_start_of_turn;
     }
 
     void effect_draw::on_play(card *origin_card, player *origin, player *target) {
@@ -574,4 +587,11 @@ namespace banggame {
         origin->m_game->m_current_check.reset();
     }
 
+    void effect_sniper::on_play(card *origin_card, player *origin, player *target) {
+        target->m_game->queue_request<request_type::bang>(origin_card, origin, target, flags).bang_strength = 2;
+    }
+
+    void effect_ricochet::on_play(card *origin_card, player *origin, player *target, card *target_card) {
+        target->m_game->queue_request(request_ricochet{origin_card, origin, target, flags, target_card});
+    }
 }

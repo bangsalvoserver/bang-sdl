@@ -544,7 +544,9 @@ namespace banggame {
         auto *card = target->m_game->draw_shop_card();
         switch (card->color) {
         case card_color_type::black:
-            if (std::ranges::all_of(card->equips, is_self_or_none, &equip_holder::target)) {
+            if (target->m_game->has_scenario(scenario_flags::judge)) {
+                target->m_game->move_to(card, card_pile_type::shop_discard);
+            } else if (std::ranges::all_of(card->equips, is_self_or_none, &equip_holder::target)) {
                 target->equip_card(card);
             } else {
                 target->m_game->queue_request<request_type::shop_choose_target>(card, nullptr, target);
