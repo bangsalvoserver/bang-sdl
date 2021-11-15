@@ -373,10 +373,10 @@ namespace banggame {
 
     static void swap_shop_choice_in(card *origin_card, player *origin, effect_type type) {
         while (!origin->m_game->m_shop_selection.empty()) {
-            origin->m_game->move_to(origin->m_game->m_shop_selection.front(), card_pile_type::shop_hidden, true, nullptr, show_card_flags::no_animation);
+            origin->m_game->move_to(origin->m_game->m_shop_selection.front(), card_pile_type::hidden_deck, true, nullptr, show_card_flags::no_animation);
         }
 
-        auto &vec = origin->m_game->m_shop_hidden;
+        auto &vec = origin->m_game->m_hidden_deck;
         for (auto it = vec.begin(); it != vec.end(); ) {
             auto *card = *it;
             if (!card->responses.empty() && card->responses.front().is(type)) {
@@ -404,10 +404,10 @@ namespace banggame {
     void effect_shopchoice::on_play(card *origin_card, player *origin) {
         int n_choice = origin->m_game->m_shop_selection.size();
         while (!origin->m_game->m_shop_selection.empty()) {
-            origin->m_game->move_to(origin->m_game->m_shop_selection.front(), card_pile_type::shop_hidden, true, nullptr, show_card_flags::no_animation);
+            origin->m_game->move_to(origin->m_game->m_shop_selection.front(), card_pile_type::hidden_deck, true, nullptr, show_card_flags::no_animation);
         }
 
-        auto it = origin->m_game->m_shop_hidden.end() - n_choice - 2;
+        auto it = origin->m_game->m_hidden_deck.end() - n_choice - 2;
         for (int i=0; i<2; ++i) {
             it = origin->m_game->move_to(*it, card_pile_type::shop_selection, true, nullptr, show_card_flags::no_animation);
         }

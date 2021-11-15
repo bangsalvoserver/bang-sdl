@@ -129,7 +129,7 @@ namespace banggame {
         move_cards(m_selection, false);
         move_cards(m_shop_discards);
         move_cards(m_shop_selection);
-        move_cards(m_shop_hidden);
+        move_cards(m_hidden_deck);
         
         if (!m_cubes.empty()) {
             ret.emplace_back(enums::enum_constant<game_update_type::add_cubes>{}, m_cubes);
@@ -287,11 +287,6 @@ namespace banggame {
             add_public_update<game_update_type::add_cards>(make_id_vector(m_shop_deck), card_pile_type::shop_deck);
             shuffle_cards_and_ids(m_shop_deck);
             swap_testing<true>(m_shop_deck);
-
-            for (const auto &c : all_cards.goldrush_choices) {
-                add_card(card_pile_type::shop_hidden, c);
-            }
-            add_public_update<game_update_type::add_cards>(make_id_vector(m_shop_hidden), card_pile_type::shop_hidden);
         }
 
         if (has_expansion(card_expansion_type::armedanddangerous)) {
@@ -335,6 +330,16 @@ namespace banggame {
             add_public_update<game_update_type::add_cards>(make_id_vector(m_scenario_deck), card_pile_type::scenario_deck);
 
             send_card_update(*m_scenario_deck.back(), nullptr, show_card_flags::no_animation);
+        }
+
+        for (const auto &c : all_cards.hidden) {
+            if (m_players.size() <= 2 && c.discard_if_two_players) continue;
+            if ((c.expansion & m_options.expansions) == c.expansion) {
+                add_card(card_pile_type::hidden_deck, c);
+            }
+        }
+        if (!m_hidden_deck.empty()) {
+            add_public_update<game_update_type::add_cards>(make_id_vector(m_hidden_deck), card_pile_type::hidden_deck);
         }
 
         int max_initial_cards = std::ranges::max(m_players | std::views::transform(&player::get_initial_cards));
@@ -390,7 +395,7 @@ namespace banggame {
         case card_pile_type::shop_deck:         return m_shop_deck;
         case card_pile_type::shop_selection:    return m_shop_selection;
         case card_pile_type::shop_discard:      return m_shop_discards;
-        case card_pile_type::shop_hidden:       return m_shop_hidden;
+        case card_pile_type::hidden_deck:       return m_hidden_deck;
         case card_pile_type::scenario_deck:     return m_scenario_deck;
         case card_pile_type::scenario_card:     return m_scenario_cards;
         default: throw std::runtime_error("Pila non valida");

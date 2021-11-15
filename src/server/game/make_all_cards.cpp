@@ -148,12 +148,8 @@ namespace banggame {
             c.color = enums::from_string<card_color_type>(json_card["color"].asString());
             c.buy_cost = json_card["buy_cost"].asInt();
             int count = json_card["count"].asInt();
-            if (count == 0) {
-                ret.goldrush_choices.push_back(c);
-            } else {
-                for (int i=0; i<count; ++i) {
-                    ret.goldrush.push_back(c);
-                }
+            for (int i=0; i<count; ++i) {
+                ret.goldrush.push_back(c);
             }
         }
 
@@ -185,6 +181,14 @@ namespace banggame {
             }
             make_all_effects(c, json_card);
             ret.wildwestshow.push_back(c);
+        }
+
+        for (const auto &json_card : json_cards["hidden"]) {
+            if (json_card.isMember("disabled") && json_card["disabled"].asBool()) continue;
+            card c;
+            c.expansion = enums::flags_from_string<card_expansion_type>(json_card["expansion"].asString());
+            make_all_effects(c, json_card);
+            ret.hidden.push_back(c);
         }
 
         return ret;

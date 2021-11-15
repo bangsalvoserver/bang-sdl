@@ -39,7 +39,7 @@ void game_scene::resize(int width, int height) {
     
     m_selection.pos = sdl::point{width / 2, height / 2 + sizes::selection_yoffset};
 
-    m_shop_hidden.pos = m_shop_discard.pos = m_shop_deck.pos = sdl::point{
+    m_shop_discard.pos = m_shop_deck.pos = sdl::point{
         width / 2 + sizes::shop_xoffset - sizes::shop_selection_width - sizes::card_width,
         height / 2};
 
@@ -88,10 +88,6 @@ void game_scene::render(sdl::renderer &renderer) {
     }
 
     for (card_view *card : m_main_deck | take_last<2>) {
-        card->render(renderer);
-    }
-
-    for (card_view *card : m_shop_hidden | take_last<1>) {
         card->render(renderer);
     }
 
@@ -406,8 +402,8 @@ void game_scene::handle_game_update(UPDATE_TAG(add_cards), const add_cards_updat
         switch (args.pile) {
         case card_pile_type::main_deck:         c.pile = &m_main_deck; c.texture_back = &textures_back::main_deck(); break;
         case card_pile_type::shop_deck:         c.pile = &m_shop_deck; c.texture_back = &textures_back::goldrush(); break;
-        case card_pile_type::shop_hidden:       c.pile = &m_shop_hidden; break;
         case card_pile_type::scenario_deck:     c.pile = &m_scenario_deck; break;
+        case card_pile_type::hidden_deck:       c.pile = &m_hidden_deck; break;
         default: throw std::runtime_error("Pila non valida");
         }
         c.set_pos(c.pile->pos);
@@ -443,8 +439,8 @@ void game_scene::handle_game_update(UPDATE_TAG(move_card), const move_card_updat
         case card_pile_type::shop_deck:         return m_shop_deck;
         case card_pile_type::shop_selection:    return m_shop_selection;
         case card_pile_type::shop_discard:      return m_shop_discard;
-        case card_pile_type::shop_hidden:       return m_shop_hidden;
-        case card_pile_type::scenario_card:        return m_scenario_card;
+        case card_pile_type::hidden_deck:       return m_hidden_deck;
+        case card_pile_type::scenario_card:     return m_scenario_card;
         default: throw std::runtime_error("Pila non valida");
         }
     }();

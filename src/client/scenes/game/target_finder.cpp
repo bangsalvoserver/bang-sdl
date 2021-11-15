@@ -238,10 +238,10 @@ void target_finder::on_click_character(player_view *player, character_card *card
         handle_auto_targets();
     } else if (m_game->m_playing_id == m_game->m_player_own_id) {
         if (!m_playing_card) {
-            if (player->id == m_game->m_player_own_id && !card->targets.empty()) {
+            if (player->id == m_game->m_player_own_id) {
                 if (card->modifier != card_modifier_type::none) {
                     add_modifier(card);
-                } else {
+                } else if (!card->targets.empty()) {
                     m_playing_card = card;
                     handle_auto_targets();
                 }

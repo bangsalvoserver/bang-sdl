@@ -100,7 +100,7 @@ namespace banggame {
 
         std::vector<card *> m_shop_deck;
         std::vector<card *> m_shop_discards;
-        std::vector<card *> m_shop_hidden;
+        std::vector<card *> m_hidden_deck;
         std::vector<card *> m_shop_selection;
 
         std::vector<card *> m_scenario_deck;

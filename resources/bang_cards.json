@@ -3176,52 +3176,6 @@
             ]
         },
         {
-            "name": "Bottiglia come Panico!",
-            "count": 0,
-            "image": "04_bottiglia_panico",
-            "color": "none",
-            "responses": [
-                {
-                    "class": "bottlechoice"
-                },
-                {
-                    "target": "card maxdistance",
-                    "args": 1,
-                    "class": "steal"
-                }
-            ]
-        },
-        {
-            "name": "Bottiglia come Birra",
-            "count": 0,
-            "image": "04_bottiglia_birra",
-            "color": "none",
-            "responses": [
-                {
-                    "class": "bottlechoice"
-                },
-                {
-                    "target": "player self",
-                    "class": "heal"
-                }
-            ]
-        },
-        {
-            "name": "Bottiglia come Bang!",
-            "count": 0,
-            "image": "04_bottiglia_bang",
-            "color": "none",
-            "responses": [
-                {
-                    "class": "bottlechoice"
-                },
-                {
-                    "target": "player reachable notself",
-                    "class": "bang"
-                }
-            ]
-        },
-        {
             "name": "Calumet",
             "count": 1,
             "image": "04_calumet",
@@ -3255,50 +3209,6 @@
             "effects": [
                 {
                     "class": "pardner"
-                }
-            ]
-        },
-        {
-            "name": "Complice come Emporio",
-            "count": 0,
-            "image": "04_complice_emporio",
-            "color": "none",
-            "responses": [
-                {
-                    "class": "pardnerchoice"
-                },
-                {
-                    "class": "generalstore"
-                }
-            ]
-        },
-        {
-            "name": "Complice come Duello",
-            "count": 0,
-            "image": "04_complice_duello",
-            "color": "none",
-            "responses": [
-                {
-                    "class": "pardnerchoice"
-                },
-                {
-                    "target": "player notself",
-                    "class": "duel"
-                }
-            ]
-        },
-        {
-            "name": "Complice come Cat Balou",
-            "count": 0,
-            "image": "04_complice_catbalou",
-            "color": "none",
-            "responses": [
-                {
-                    "class": "pardnerchoice"
-                },
-                {
-                    "target": "card",
-                    "class": "destroy"
                 }
             ]
         },
@@ -3451,6 +3361,92 @@
                 },
                 {
                     "class": "deathsave"
+                }
+            ]
+        }
+    ],
+    "hidden": [
+        {
+            "expansion": "goldrush",
+            "name": "Bottiglia come Panico!",
+            "image": "04_bottiglia_panico",
+            "responses": [
+                {
+                    "class": "bottlechoice"
+                },
+                {
+                    "target": "card maxdistance",
+                    "args": 1,
+                    "class": "steal"
+                }
+            ]
+        },
+        {
+            "expansion": "goldrush",
+            "name": "Bottiglia come Birra",
+            "image": "04_bottiglia_birra",
+            "responses": [
+                {
+                    "class": "bottlechoice"
+                },
+                {
+                    "target": "player self",
+                    "class": "heal"
+                }
+            ]
+        },
+        {
+            "expansion": "goldrush",
+            "name": "Bottiglia come Bang!",
+            "image": "04_bottiglia_bang",
+            "responses": [
+                {
+                    "class": "bottlechoice"
+                },
+                {
+                    "target": "player reachable notself",
+                    "class": "bang"
+                }
+            ]
+        },
+        {
+            "expansion": "goldrush",
+            "name": "Complice come Emporio",
+            "image": "04_complice_emporio",
+            "responses": [
+                {
+                    "class": "pardnerchoice"
+                },
+                {
+                    "class": "generalstore"
+                }
+            ]
+        },
+        {
+            "expansion": "goldrush",
+            "name": "Complice come Duello",
+            "image": "04_complice_duello",
+            "responses": [
+                {
+                    "class": "pardnerchoice"
+                },
+                {
+                    "target": "player notself",
+                    "class": "duel"
+                }
+            ]
+        },
+        {
+            "expansion": "goldrush",
+            "name": "Complice come Cat Balou",
+            "image": "04_complice_catbalou",
+            "responses": [
+                {
+                    "class": "pardnerchoice"
+                },
+                {
+                    "target": "card",
+                    "class": "destroy"
                 }
             ]
         }

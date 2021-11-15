@@ -101,7 +101,7 @@ namespace banggame {
         (shop_deck)
         (shop_discard)
         (shop_selection)
-        (shop_hidden)
+        (hidden_deck)
         (scenario_deck)
         (scenario_card)
     )
