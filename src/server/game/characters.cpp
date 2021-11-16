@@ -29,7 +29,8 @@ namespace banggame {
                 for (int i=0; i<ncards; ++i) {
                     if (i==1) {
                         auto *drawn_card = target->m_game->m_deck.back();
-                        if (drawn_card->suit == card_suit_type::hearts || drawn_card->suit == card_suit_type::diamonds) {
+                        card_suit_type suit = target->get_card_suit(drawn_card);
+                        if (suit == card_suit_type::hearts || suit == card_suit_type::diamonds) {
                             ++ncards;
                         }
                         target->m_game->send_card_update(*drawn_card, nullptr, show_card_flags::short_pause);
@@ -277,8 +278,8 @@ namespace banggame {
     void effect_colorado_bill::on_equip(player *p, card *target_card) {
         p->m_game->add_event<event_type::on_play_bang>(target_card, [p](player *origin) {
             if (p == origin) {
-                origin->m_game->draw_check_then(origin, [=](card_suit_type suit, card_value_type) {
-                    if (suit == card_suit_type::spades) {
+                origin->m_game->draw_check_then(origin, [=](card *drawn_card) {
+                    if (p->get_card_suit(drawn_card) == card_suit_type::spades) {
                         origin->add_bang_mod([](request_bang &req) {
                             req.unavoidable = true;
                         });
@@ -346,8 +347,8 @@ namespace banggame {
 
     void effect_teren_kill::on_play(card *origin_card, player *origin) {
         origin->m_game->top_request().get<request_type::death>().draw_attempts.push_back(origin_card);
-        origin->m_game->draw_check_then(origin, [origin](card_suit_type suit, card_value_type) {
-            if (suit != card_suit_type::spades) {
+        origin->m_game->draw_check_then(origin, [origin](card *drawn_card) {
+            if (origin->get_card_suit(drawn_card) != card_suit_type::spades) {
                 origin->m_game->pop_request();
                 origin->m_hp = 1;
                 origin->m_game->add_public_update<game_update_type::player_hp>(origin->id, 1);
@@ -406,7 +407,8 @@ namespace banggame {
                 int &usages = static_cast<character *>(target_card)->max_usages;
                 if (usages == 0) {
                     p->m_game->m_ignore_next_turn = true;
-                    p->m_game->draw_check_then(p, [&](card_suit_type suit, card_value_type) {
+                    p->m_game->draw_check_then(p, [&](card *drawn_card) {
+                        card_suit_type suit = p->get_card_suit(drawn_card);
                         if (suit == card_suit_type::diamonds || suit == card_suit_type::hearts) {
                             ++usages;
                             p->start_of_turn();
@@ -587,7 +589,8 @@ namespace banggame {
     void effect_julie_cutter::on_equip(player *p, card *target_card) {
         p->m_game->add_event<event_type::on_hit>(target_card, [=](player *origin, player *target, int damage, bool is_bang) {
             if (origin && p == target) {
-                p->m_game->draw_check_then(target, [=](card_suit_type suit, card_value_type value) {
+                p->m_game->draw_check_then(target, [=](card *drawn_card) {
+                    card_suit_type suit = p->get_card_suit(drawn_card);
                     if (suit == card_suit_type::hearts || suit == card_suit_type::diamonds) {
                         p->m_game->queue_request<request_type::bang>(target_card, target, origin);
                     }
@@ -631,7 +634,7 @@ namespace banggame {
         if (origin->m_virtual) origin_card = origin->m_virtual->corresponding_card;
         if (!bool(flags & effect_flags::single_target)) return false;
         if (origin_card->color != card_color_type::brown) return false;
-        switch (origin_card->value) {
+        switch (origin->get_card_value(origin_card)) {
         case card_value_type::value_J:
         case card_value_type::value_Q:
         case card_value_type::value_K:

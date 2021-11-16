@@ -57,24 +57,27 @@ namespace banggame {
             && effect_missed().can_respond(origin_card, origin);
     }
 
+    static auto barrels_used(request_holder &holder) {
+        return enums::visit([](auto &req) -> std::vector<card *> * {
+            if constexpr (requires { req.barrels_used; }) {
+                return &req.barrels_used;
+            }
+            return nullptr;
+        }, holder);
+    };
+
     bool effect_barrel::can_respond(card *origin_card, player *origin) const {
         if (effect_missed().can_respond(origin_card, origin)) {
-            if (origin->m_game->top_request_is(request_type::bang, origin)) {
-                auto &req = origin->m_game->top_request().get<request_type::bang>();
-                return std::ranges::find(req.barrels_used, origin_card) == std::ranges::end(req.barrels_used);
-            } else {
-                return true;
-            }
+            auto *vec = barrels_used(origin->m_game->top_request());
+            return std::ranges::find(*vec, origin_card) == vec->end();
         }
         return false;
     }
 
     void effect_barrel::on_play(card *origin_card, player *target) {
-        if (target->m_game->top_request_is(request_type::bang, target)) {
-            target->m_game->top_request().get<request_type::bang>().barrels_used.push_back(origin_card);
-        }
-        target->m_game->draw_check_then(target, [=](card_suit_type suit, card_value_type) {
-            if (suit == card_suit_type::hearts) {
+        barrels_used(target->m_game->top_request())->push_back(origin_card);
+        target->m_game->draw_check_then(target, [=](card *drawn_card) {
+            if (target->get_card_suit(drawn_card) == card_suit_type::hearts) {
                 effect_missed().on_play(origin_card, target);
             }
         });
@@ -350,7 +353,7 @@ namespace banggame {
     void effect_rum::on_play(card *origin_card, player *origin) {
         std::vector<card_suit_type> suits;
         for (int i=0; i < 3 + origin->m_num_checks; ++i) {
-            suits.push_back(origin->m_game->draw_card_to(card_pile_type::selection)->suit);
+            suits.push_back(origin->get_card_suit(origin->m_game->draw_card_to(card_pile_type::selection)));
         }
         while (!origin->m_game->m_selection.empty()) {
             card *drawn_card = origin->m_game->m_selection.front();
@@ -470,7 +473,7 @@ namespace banggame {
 
     void effect_doublebarrel::on_play(card *origin_card, player *origin) {
         origin->add_bang_mod([=](request_bang &req) {
-            if (req.origin_card->suit == card_suit_type::diamonds) {
+            if (origin->get_card_suit(req.origin_card) == card_suit_type::diamonds) {
                 req.unavoidable = true;
             }
         });
@@ -564,10 +567,8 @@ namespace banggame {
     }
 
     void effect_tumbleweed::on_equip(player *origin, card *target_card) {
-        origin->m_game->add_event<event_type::trigger_tumbleweed>(target_card, [=](card_suit_type suit, card_value_type value) {
-            auto &req = origin->m_game->add_request<request_type::tumbleweed>(target_card, origin, origin);
-            req.suit = suit;
-            req.value = value;
+        origin->m_game->add_event<event_type::trigger_tumbleweed>(target_card, [=](card *drawn_card) {
+            origin->m_game->add_request<request_type::tumbleweed>(target_card, origin, origin).drawn_card = drawn_card;
             origin->m_game->m_current_check->no_auto_resolve = true;
         });
     }
@@ -583,7 +584,7 @@ namespace banggame {
 
     void timer_tumbleweed::on_finished() {
         origin->m_game->pop_request();
-        origin->m_game->m_current_check->function(suit, value);
+        origin->m_game->m_current_check->function(drawn_card);
         origin->m_game->m_current_check.reset();
     }
 

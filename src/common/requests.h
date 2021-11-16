@@ -107,7 +107,9 @@ namespace banggame {
         void on_resolve();
     };
 
-    struct request_ricochet : request_destroy {};
+    struct request_ricochet : request_destroy {
+        std::vector<card *> barrels_used;
+    };
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, request_type,
         (none,          request_base)

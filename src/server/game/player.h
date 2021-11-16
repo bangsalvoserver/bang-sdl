@@ -12,7 +12,7 @@ namespace banggame {
 
     struct game;
     
-    using draw_check_function = std::function<void(card_suit_type, card_value_type)>;
+    using draw_check_function = std::function<void(card *drawn_card)>;
     using bang_modifier = std::function<void(request_bang &req)>;
     
     struct virtual_card {
@@ -54,7 +54,7 @@ namespace banggame {
         bool m_ghost = false;
 
         int m_bangs_played = 0;
-        int m_bangs_per_turn = 0;
+        int m_bangs_per_turn = 1;
 
         std::list<bang_modifier> m_bang_mods;
 
@@ -125,7 +125,7 @@ namespace banggame {
 
         void add_gold(int amount);
 
-        bool immune_to(const card &c);
+        bool immune_to(card *c);
 
         void add_bang_mod(bang_modifier &&mod) {
             m_bang_mods.push_back(std::move(mod));
@@ -170,6 +170,9 @@ namespace banggame {
         void end_of_turn(player *next_player = nullptr);
 
         void play_virtual_card(card *corresponding_card, card virtual_card);
+
+        card_suit_type get_card_suit(card *drawn_card);
+        card_value_type get_card_value(card *drawn_card);
     };
 
 }

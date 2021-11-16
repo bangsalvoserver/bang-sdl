@@ -7,13 +7,13 @@ namespace banggame {
     using namespace enums::flag_operators;
 
     void effect_blessing::on_equip(player *target, card *target_card) {
-        target->m_game->add_event<event_type::apply_check_modifier>(target_card, [](card_suit_type &suit, card_value_type &value) {
+        target->m_game->add_event<event_type::apply_suit_modifier>(target_card, [](card_suit_type &suit) {
             suit = card_suit_type::hearts;
         });
     }
 
     void effect_curse::on_equip(player *target, card *target_card) {
-        target->m_game->add_event<event_type::apply_check_modifier>(target_card, [](card_suit_type &suit, card_value_type &value) {
+        target->m_game->add_event<event_type::apply_suit_modifier>(target_card, [](card_suit_type &suit) {
             suit = card_suit_type::spades;
         });
     }
@@ -80,15 +80,9 @@ namespace banggame {
     }
 
     void effect_shootout::on_equip(player *target, card *target_card) {
-        for (auto &p : target->m_game->m_players) {
-            ++p.m_bangs_per_turn;
-        }
-    }
-
-    void effect_shootout::on_unequip(player *target, card *target_card) {
-        for (auto &p : target->m_game->m_players) {
-            p.m_bangs_per_turn = 0;
-        }
+        target->m_game->add_event<event_type::on_turn_start>(target_card, [](player *p) {
+            ++p->m_bangs_per_turn;
+        });
     }
 
     void effect_invert_rotation::on_equip(player *target, card *target_card) {

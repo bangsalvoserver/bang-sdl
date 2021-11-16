@@ -54,9 +54,8 @@ namespace banggame {
         void on_equip(player *target, card *target_card);
     };
 
-    struct effect_shootout : card_effect {
+    struct effect_shootout : event_based_effect {
         void on_equip(player *target, card *target_card);
-        void on_unequip(player *target, card *target_card);
     };
 
     struct effect_invert_rotation : scenario_effect {

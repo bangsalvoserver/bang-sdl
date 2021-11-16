@@ -114,11 +114,8 @@ namespace banggame {
         m_game->add_public_update<game_update_type::player_gold>(id, m_gold);
     }
 
-    bool player::immune_to(const card &c) {
-        card_suit_type suit = c.suit;
-        card_value_type value = c.value;
-        m_game->instant_event<event_type::apply_check_modifier>(suit, value);
-        return m_calumets > 0 && suit == card_suit_type::diamonds;
+    bool player::immune_to(card *c) {
+        return m_calumets > 0 && get_card_suit(c) == card_suit_type::diamonds;
     }
 
     bool player::can_receive_cubes() const {
@@ -361,12 +358,7 @@ namespace banggame {
                                 case target_type::table: return target_card->pile == card_pile_type::player_table;
                                 case target_type::hand: return target_card->pile == card_pile_type::player_hand;
                                 case target_type::blue: return target_card->color == card_color_type::blue;
-                                case target_type::clubs: {
-                                    card_suit_type suit = target_card->suit;
-                                    card_value_type value = target_card->value;
-                                    m_game->instant_event<event_type::apply_check_modifier>(suit, value);
-                                    return suit == card_suit_type::clubs;
-                                }
+                                case target_type::clubs: return get_card_suit(target_card) == card_suit_type::clubs;
                                 case target_type::bang: 
                                     return !target_card->effects.empty() && target_card->effects.front().is(effect_type::bangcard);
                                 case target_type::missed:
@@ -422,7 +414,7 @@ namespace banggame {
         }
 
         auto check_immunity = [&](player *target) {
-            return target->immune_to(*(m_virtual ? m_virtual->corresponding_card : card_ptr));
+            return target->immune_to(m_virtual ? m_virtual->corresponding_card : card_ptr);
         };
 
         int initial_belltower = m_belltower;
@@ -744,6 +736,18 @@ namespace banggame {
         m_game->add_private_update<game_update_type::virtual_card>(this, obj);
     }
 
+    card_suit_type player::get_card_suit(card *drawn_card) {
+        card_suit_type suit = drawn_card->suit;
+        m_game->instant_event<event_type::apply_suit_modifier>(suit);
+        return suit;
+    }
+
+    card_value_type player::get_card_value(card *drawn_card) {
+        card_value_type value = drawn_card->value;
+        m_game->instant_event<event_type::apply_value_modifier>(value);
+        return value;
+    }
+
     void player::start_of_turn() {
         if (this != m_game->m_playing && this == m_game->m_first_player) {
             m_game->queue_event<event_type::delayed_action>([&]{
@@ -754,10 +758,10 @@ namespace banggame {
         m_game->m_playing = this;
 
         m_bangs_played = 0;
+        m_bangs_per_turn = 1;
         m_num_drawn_cards = 0;
         m_has_drawn = false;
         m_start_of_turn = true;
-        ++m_bangs_per_turn;
 
         if (!m_ghost && m_hp == 0 && m_game->has_scenario(scenario_flags::ghosttown)) {
             ++m_num_cards_to_draw;
@@ -826,8 +830,6 @@ namespace banggame {
     }
 
     void player::end_of_turn(player *next_player) {
-        m_bangs_per_turn = 0;
-
         for (card *c : m_table) {
             if (c->inactive) {
                 c->inactive = false;

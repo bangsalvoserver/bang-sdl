@@ -43,8 +43,7 @@ namespace banggame {
             duration = 150;
         }
         
-        card_suit_type suit;
-        card_value_type value;
+        card *drawn_card;
 
         void on_finished();
     };

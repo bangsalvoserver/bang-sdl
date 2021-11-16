@@ -31,9 +31,9 @@ namespace banggame {
     }
 
     void effect_jail::on_equip(player *target, card *target_card) {
-        target->add_predraw_check(target_card, 1, [=](card_suit_type suit, card_value_type) {
+        target->add_predraw_check(target_card, 1, [=](card *drawn_card) {
             target->discard_card(target_card);
-            if (suit == card_suit_type::hearts) {
+            if (target->get_card_suit(drawn_card) == card_suit_type::hearts) {
                 target->next_predraw_check(target_card);
             } else {
                 target->m_game->get_next_in_turn(target)->start_of_turn();
@@ -42,7 +42,9 @@ namespace banggame {
     }
 
     void effect_dynamite::on_equip(player *target, card *target_card) {
-        target->add_predraw_check(target_card, 2, [=](card_suit_type suit, card_value_type value) {
+        target->add_predraw_check(target_card, 2, [=](card *drawn_card) {
+            card_suit_type suit = target->get_card_suit(drawn_card);
+            card_value_type value = target->get_card_value(drawn_card);
             if (suit == card_suit_type::spades
                 && enums::indexof(value) >= enums::indexof(card_value_type::value_2)
                 && enums::indexof(value) <= enums::indexof(card_value_type::value_9)) {
@@ -64,8 +66,8 @@ namespace banggame {
     }
 
     void effect_snake::on_equip(player *target, card *target_card) {
-        target->add_predraw_check(target_card, 0, [=](card_suit_type suit, card_value_type value) {
-            if (suit == card_suit_type::spades) {
+        target->add_predraw_check(target_card, 0, [=](card *drawn_card) {
+            if (target->get_card_suit(drawn_card) == card_suit_type::spades) {
                 target->damage(target_card, nullptr, 1);
             }
             target->next_predraw_check(target_card);
@@ -73,7 +75,8 @@ namespace banggame {
     }
 
     void effect_bomb::on_equip(player *target, card *target_card) {
-        target->add_predraw_check(target_card, 0, [=](card_suit_type suit, card_value_type value) {
+        target->add_predraw_check(target_card, 0, [=](card *drawn_card) {
+            card_suit_type suit = target->get_card_suit(drawn_card);
             if (suit == card_suit_type::spades || suit == card_suit_type::clubs) {
                 target->pay_cubes(target_card, 2);
             } else {

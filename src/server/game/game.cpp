@@ -474,12 +474,9 @@ namespace banggame {
         if (m_current_check->origin->m_num_checks == 1) {
             auto *c = draw_card_to(card_pile_type::discard_pile);
             queue_event<event_type::on_draw_check>(p, c);
-            card_suit_type suit = c->suit;
-            card_value_type value = c->value;
-            instant_event<event_type::apply_check_modifier>(suit, value);
-            instant_event<event_type::trigger_tumbleweed>(suit, value);
+            instant_event<event_type::trigger_tumbleweed>(c);
             if (!m_current_check->no_auto_resolve) {
-                m_current_check->function(suit, value);
+                m_current_check->function(c);
                 m_current_check.reset();
             }
         } else {
@@ -496,12 +493,9 @@ namespace banggame {
             move_to(drawn_card, card_pile_type::discard_pile);
             queue_event<event_type::on_draw_check>(p, drawn_card);
         }
-        card_suit_type suit = c->suit;
-        card_value_type value = c->value;
-        instant_event<event_type::apply_check_modifier>(suit, value);
-        instant_event<event_type::trigger_tumbleweed>(suit, value);
+        instant_event<event_type::trigger_tumbleweed>(c);
         if (!m_current_check->no_auto_resolve) {
-            m_current_check->function(suit, value);
+            m_current_check->function(c);
             m_current_check.reset();
         }
     }
