@@ -34,10 +34,8 @@ namespace banggame {
                             ++ncards;
                         }
                         target->m_game->send_card_update(*drawn_card, nullptr, show_card_flags::short_pause);
-                        target->m_game->draw_card_to(card_pile_type::player_hand, target);
-                    } else {
-                        target->m_game->draw_card_to(card_pile_type::player_hand, target);
                     }
+                    target->m_game->draw_card_to(card_pile_type::player_hand, target);
                 }
             }
         });

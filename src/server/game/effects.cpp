@@ -262,10 +262,12 @@ namespace banggame {
             target->m_game->draw_card_to(card_pile_type::player_hand, target);
         }
         target->m_has_drawn = true;
+        target->m_game->queue_event<event_type::post_draw_cards>(target);
     }
 
     void effect_draw_done::on_play(card *origin_card, player *target) {
         target->m_has_drawn = true;
+        target->m_game->queue_event<event_type::post_draw_cards>(target);
     }
 
     bool effect_draw_skip::can_play(card *origin_card, player *target) const {
@@ -275,6 +277,7 @@ namespace banggame {
     void effect_draw_skip::on_play(card *origin_card, player *target) {
         if (++target->m_num_drawn_cards == target->m_num_cards_to_draw) {
             target->m_has_drawn = true;
+            target->m_game->queue_event<event_type::post_draw_cards>(target);
         }
     }
 

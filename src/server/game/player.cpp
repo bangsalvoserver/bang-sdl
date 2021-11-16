@@ -205,6 +205,11 @@ namespace banggame {
 
     void player::verify_modifiers(card *c, const std::vector<card *> &modifiers) {
         for (card *mod_card : modifiers) {
+            card_suit_type suit = get_card_suit(mod_card);
+            if (m_game->m_playing == this && m_declared_suit != card_suit_type::none && suit != card_suit_type::none && suit != m_declared_suit) {
+                throw game_error("Seme dichiarato diverso");
+            }
+
             if (mod_card->pile == card_pile_type::player_character && m_game->characters_disabled(this)) throw game_error("Personaggi disabilitati");
             if (mod_card->pile == card_pile_type::player_table && m_game->table_cards_disabled(this)) throw game_error("Carte in gioco disabilitate");
             if (mod_card->modifier != card_modifier_type::bangcard
@@ -227,6 +232,11 @@ namespace banggame {
     }
 
     void player::verify_equip_target(card *c, const std::vector<play_card_target> &targets) {
+        card_suit_type suit = get_card_suit(c);
+        if (m_game->m_playing == this && m_declared_suit != card_suit_type::none && suit != card_suit_type::none && suit != m_declared_suit) {
+            throw game_error("Seme dichiarato diverso");
+        }
+
         if (targets.size() != 1) throw game_error("Azione non valida");
         if (targets.front().enum_index() != play_card_target_type::target_player) throw game_error("Azione non valida");
         const auto &tgts = targets.front().get<play_card_target_type::target_player>();
@@ -254,6 +264,11 @@ namespace banggame {
     }
 
     void player::verify_card_targets(card *card_ptr, bool is_response, const std::vector<play_card_target> &targets) {
+        card_suit_type suit = get_card_suit(m_virtual ? m_virtual->corresponding_card : card_ptr);
+        if (m_game->m_playing == this && m_declared_suit != card_suit_type::none && suit != card_suit_type::none && suit != m_declared_suit) {
+            throw game_error("Seme dichiarato diverso");
+        }
+
         auto &effects = is_response ? card_ptr->responses : card_ptr->effects;
         if (card_ptr->cost > m_gold) throw game_error("Non hai abbastanza pepite");
         if (card_ptr->max_usages != 0 && card_ptr->usages >= card_ptr->max_usages) throw game_error("Azione non valida");
@@ -710,6 +725,7 @@ namespace banggame {
         }
         m_num_cards_to_draw = save_numcards;
         m_has_drawn = true;
+        m_game->queue_event<event_type::post_draw_cards>(this);
         if (m_game->m_requests.empty()) {
             m_game->add_private_update<game_update_type::status_clear>(this);
         }
@@ -762,6 +778,7 @@ namespace banggame {
         m_num_drawn_cards = 0;
         m_has_drawn = false;
         m_start_of_turn = true;
+        m_declared_suit = card_suit_type::none;
 
         if (!m_ghost && m_hp == 0 && m_game->has_scenario(scenario_flags::ghosttown)) {
             ++m_num_cards_to_draw;

@@ -71,6 +71,8 @@ namespace banggame {
         card *m_last_played_card = nullptr;
         bool m_start_of_turn = false;
 
+        card_suit_type m_declared_suit = card_suit_type::none;
+
         int m_gold = 0;
         
         std::vector<int> m_max_cards_mods;

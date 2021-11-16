@@ -134,6 +134,7 @@ namespace banggame {
         (rust,          request_rust)
         (ricochet,      request_ricochet)
         (peyote,        request_peyote)
+        (handcuffs,     request_handcuffs)
         (shopchoice,    request_base)
         (kit_carlson,   request_kit_carlson)
         (claus_the_saint, request_claus_the_saint)

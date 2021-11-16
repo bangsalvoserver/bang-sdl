@@ -2925,7 +2925,6 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Manette",
             "image": "05_manette",
             "expansion": "thebullet",
@@ -3459,7 +3458,6 @@
             ]
         },
         {
-            "disabled": true,
             "expansion": "highnoon thebullet",
             "name": "Manette: Dichiaro Cuori",
             "image": "05_manette_hearts",
@@ -3471,7 +3469,6 @@
             ]
         },
         {
-            "disabled": true,
             "expansion": "highnoon thebullet",
             "name": "Manette: Dichiaro Quadri",
             "image": "05_manette_diamonds",
@@ -3483,7 +3480,6 @@
             ]
         },
         {
-            "disabled": true,
             "expansion": "highnoon thebullet",
             "name": "Manette: Dichiaro Fiori",
             "image": "05_manette_clubs",
@@ -3495,7 +3491,6 @@
             ]
         },
         {
-            "disabled": true,
             "expansion": "highnoon thebullet",
             "name": "Manette: Dichiaro Picche",
             "image": "05_manette_spades",

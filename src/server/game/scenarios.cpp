@@ -171,4 +171,28 @@ namespace banggame {
             target->m_game->pop_request();
         }
     }
+
+    void effect_handcuffs::on_equip(player *target, card *target_card) {
+        target->m_game->add_event<event_type::post_draw_cards>(target_card, [=](player *origin) {
+            auto &vec = origin->m_game->m_hidden_deck;
+            for (auto it = vec.begin(); it != vec.end(); ) {
+                auto *card = *it;
+                if (!card->responses.empty() && card->responses.front().is(effect_type::handcuffschoice)) {
+                    it = origin->m_game->move_to(card, card_pile_type::selection, true, nullptr, show_card_flags::no_animation);
+                } else {
+                    ++it;
+                }
+            }
+            origin->m_game->queue_request<request_type::handcuffs>(target_card, nullptr, origin);
+        });
+    }
+
+    void request_handcuffs::on_pick(card_pile_type pile, player *target_player, card *target_card) {
+        target->m_declared_suit = static_cast<card_suit_type>(target_card->responses.front().args);
+
+        while (!target->m_game->m_selection.empty()) {
+            target->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::hidden_deck, true, nullptr, show_card_flags::no_animation);
+        }
+        target->m_game->pop_request();
+    }
 }
