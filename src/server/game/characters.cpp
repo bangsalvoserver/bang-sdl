@@ -61,9 +61,9 @@ namespace banggame {
 
     void effect_kit_carlson::on_equip(player *target, card *target_card) {
         target->m_game->add_event<event_type::on_draw_from_deck>(target_card, [=](player *origin) {
-            if (target == origin) {
+            if (target == origin && target->m_num_cards_to_draw < 3) {
                 target->m_has_drawn = true;
-                for (int i=0; i<=target->m_num_cards_to_draw; ++i) {
+                for (int i=0; i<3; ++i) {
                     target->m_game->draw_card_to(card_pile_type::selection, target);
                 }
                 target->m_game->queue_request<request_type::kit_carlson>(target_card, target, target);
@@ -73,13 +73,11 @@ namespace banggame {
 
     void request_kit_carlson::on_pick(card_pile_type pile, player *target_player, card *target_card) {
         target->add_to_hand(target_card);
-        if (target->m_game->m_selection.size() == 1) {
+        if (++target->m_num_drawn_cards >= target->m_num_cards_to_draw) {
+            while (!target->m_game->m_selection.empty()) {
+                target->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::main_deck, false);
+            }
             target->m_game->pop_request();
-            target->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::main_deck, false);
-            target->m_has_drawn = true;
-        } else {
-            target->m_game->pop_request_noupdate();
-            target->m_game->queue_request<request_type::kit_carlson>(origin_card, target, target);
         }
     }
 

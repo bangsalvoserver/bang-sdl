@@ -2953,7 +2953,6 @@
     ],
     "fistfulofcards": [
         {
-            "discard_if_two_players": true,
             "name": "Agguato",
             "image": "05_agguato",
             "equip": [
