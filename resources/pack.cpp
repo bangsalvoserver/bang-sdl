@@ -5,8 +5,8 @@
 
 struct file_table_item {
     std::string name;
-    int begin;
-    int size;
+    size_t begin;
+    size_t size;
 };
 
 int main(int argc, char **argv) {

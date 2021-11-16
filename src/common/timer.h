@@ -35,7 +35,10 @@ namespace banggame {
         int damage;
         bool is_bang;
 
+        std::function<void()> cleanup_function;
+
         void on_finished();
+        void cleanup();
     };
 
     struct timer_tumbleweed : timer_base {

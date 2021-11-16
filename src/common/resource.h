@@ -7,12 +7,14 @@
 
 struct resource_view {
     const char *data;
-    int length;
+    size_t length;
 };
 
 #define RESOURCE_NAME(name) __resource__##name
 #define RESOURCE_LENGTH(name) __resource__##name##_length
-#define DECLARE_RESOURCE(name) extern const char RESOURCE_NAME(name)[]; extern const int RESOURCE_LENGTH(name);
+#define DECLARE_RESOURCE(name) \
+extern const char RESOURCE_NAME(name)[]; \
+extern const unsigned long long int RESOURCE_LENGTH(name);
 #define GET_RESOURCE(name) resource_view{RESOURCE_NAME(name), RESOURCE_LENGTH(name)}
 
 struct resource : std::vector<char> {
@@ -27,7 +29,7 @@ struct resource : std::vector<char> {
     }
 
     operator resource_view() const noexcept {
-        return {data(), (int)size()};
+        return {data(), size()};
     }
 };
 

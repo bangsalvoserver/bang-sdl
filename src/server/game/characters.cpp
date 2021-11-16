@@ -460,7 +460,7 @@ namespace banggame {
     void effect_lemonade_jim::on_equip(player *origin, card *target_card) {
         origin->m_game->add_event<event_type::on_play_beer>(target_card, [=](player *target) {
             if (origin != target) {
-                target->m_game->queue_request<request_type::lemonade_jim>(target_card, nullptr, origin).players.push_back(origin);
+                target->m_game->queue_request<request_type::lemonade_jim>(target_card, nullptr, origin).players.push_back(target);
             }
         });
     }

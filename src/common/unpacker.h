@@ -22,8 +22,8 @@ public:
     unpacker(resource_view data) {
         struct packed_data {
             std::string name;
-            int pos;
-            int size;
+            size_t pos;
+            size_t size;
         };
 
         std::vector<packed_data> items;
@@ -38,8 +38,8 @@ public:
             item.name = std::string(pos, len);
             pos += len;
 
-            item.pos = read_data<int>(&pos);
-            item.size = read_data<int>(&pos);
+            item.pos = read_data<size_t>(&pos);
+            item.size = read_data<size_t>(&pos);
 
             items.push_back(item);
         }

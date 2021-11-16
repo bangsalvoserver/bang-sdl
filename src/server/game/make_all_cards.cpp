@@ -100,7 +100,8 @@ namespace banggame {
 
         all_cards_t ret;
 
-        util::isviewstream ss({RESOURCE_NAME(bang_cards_json), (size_t) RESOURCE_LENGTH(bang_cards_json)});
+        auto bang_cards_resource = GET_RESOURCE(bang_cards_json);
+        util::isviewstream ss({bang_cards_resource.data, (size_t) bang_cards_resource.length});
 
         Json::Value json_cards;
         ss >> json_cards;
