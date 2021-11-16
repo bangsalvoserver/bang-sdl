@@ -95,20 +95,23 @@ namespace banggame {
     }
 
     void request_claus_the_saint::on_pick(card_pile_type pile, player *target_player, card *target_card) {
-        int index = target->m_game->num_alive() + target->m_num_cards_to_draw - target->m_game->m_selection.size();
-        auto p = target;
-        for(int i=0; i<index; ++i) {
-            p = target->m_game->get_next_player(p);
-        }
-        p->add_to_hand(target_card);
-        if (target->m_game->m_selection.size() == target->m_num_cards_to_draw) {
-            target->m_game->pop_request();
-            while (!target->m_game->m_selection.empty()) {
-                target->add_to_hand(target->m_game->m_selection.front());
+        auto get_next_target = [&]{
+            int index = target->m_game->num_alive() - target->m_game->m_selection.size();
+            auto p = target;
+            for (int i=0; i<index; ++i) {
+                p = target->m_game->get_next_player(p);
             }
+            return p;
+        };
+        if (target->m_num_drawn_cards < target->m_num_cards_to_draw) {
+            ++target->m_num_drawn_cards;
+            target->add_to_hand(target_card);
         } else {
-            target->m_game->pop_request_noupdate();
-            target->m_game->queue_request<request_type::claus_the_saint>(origin_card, target, target);
+            get_next_target()->add_to_hand(target_card);
+        }
+        if (target->m_game->m_selection.size() == 1) {
+            get_next_target()->add_to_hand(target->m_game->m_selection.front());
+            target->m_game->pop_request();
         }
     }
 
