@@ -252,12 +252,6 @@ namespace banggame {
                 }
             }
         });
-        p->m_game->add_event<event_type::on_player_death>(target_card, [p](player *origin, player *target) {
-            if (p == target && target->m_characters.size() > 1) {
-                target->m_characters.pop_back();
-                target->m_game->add_public_update<game_update_type::player_remove_character>(target->id, 1);
-            }
-        });
     }
 
     void request_vera_custer::on_pick(card_pile_type pile, player *target_player, card *target_card) {
@@ -459,13 +453,6 @@ namespace banggame {
     void effect_greygory_deck::on_equip(player *p, card *target_card) {
         p->m_game->add_event<event_type::on_game_start>(target_card, [p] {
             greygory_deck_set_characters(p);
-        });
-        p->m_game->add_event<event_type::on_player_death>(target_card, [p](player *origin, player *target) {
-            if (p == target && target->m_characters.size() > 1) {
-                target->m_characters.resize(1);
-                target->m_game->add_public_update<game_update_type::player_remove_character>(target->id, 2);
-                target->m_game->add_public_update<game_update_type::player_remove_character>(target->id, 1);
-            }
         });
     }
 

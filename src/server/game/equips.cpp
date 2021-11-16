@@ -155,25 +155,20 @@ namespace banggame {
     }
 
     void effect_ghost::on_equip(player *target, card *target_card) {
-        for (character *c : target->m_characters) {
-            c->on_equip(target);
-        }
+        if (!target->alive()) {
+            if (!target->m_game->characters_disabled(target)) {
+                for (character *c : target->m_characters) {
+                    c->on_equip(target);
+                }
+            }
 
-        target->m_ghost = true;
-        target->m_game->add_public_update<game_update_type::player_hp>(target->id, 0, false);
+            target->m_ghost = true;
+            target->m_game->add_public_update<game_update_type::player_hp>(target->id, 0, false);
+        }
         target->m_game->add_event<event_type::post_discard_card>(target_card, [=](player *e_target, card *e_card) {
             if (target_card == e_card && target == e_target) {
-                for (character *c : target->m_characters) {
-                    c->on_unequip(target);
-                }
-                
                 target->m_ghost = false;
-                target->m_game->add_public_update<game_update_type::player_hp>(target->id, 0, true);
-                
-                target->m_game->instant_event<event_type::on_player_death>(nullptr, target);
-                target->discard_all();
-                target->add_gold(-target->m_gold);
-
+                target->m_game->player_death(target);
                 target->m_game->check_game_over(target, true);
                 target->m_game->remove_events(target_card);
             }

@@ -596,24 +596,27 @@ namespace banggame {
     }
 
     void game::player_death(player *target) {
-        target->m_dead = true;
-        target->m_hp = 0;
-
-        instant_event<event_type::on_player_death>(m_playing, target);
-
         if (!characters_disabled(target)) {
-            for (auto *c : target->m_characters) {
+            for (character *c : target->m_characters) {
                 c->on_unequip(target);
             }
         }
 
+        for (int i=target->m_characters.size()-1; i>=1; ++i) {
+            add_public_update<game_update_type::player_remove_character>(target->id, i);
+        }
+
+        target->m_characters.resize(1);
+        target->m_dead = true;
+        target->m_hp = 0;
+
+        instant_event<event_type::on_player_death>(m_playing, target);
+        
         target->discard_all();
         target->add_gold(-target->m_gold);
 
         add_public_update<game_update_type::player_hp>(target->id, 0, true);
         add_public_update<game_update_type::player_show_role>(target->id, target->m_role);
-
-        check_game_over(target);
     }
 
     void game::handle_event(event_args &event) {

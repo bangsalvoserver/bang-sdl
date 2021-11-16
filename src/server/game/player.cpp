@@ -846,14 +846,7 @@ namespace banggame {
                 if (!next_player) {
                     if (!m_ghost && m_hp == 0 && m_game->has_scenario(scenario_flags::ghosttown)) {
                         --m_num_cards_to_draw;
-                        m_game->queue_event<event_type::on_player_death>(nullptr, this);
-
-                        for (auto *c : m_characters) {
-                            c->on_unequip(this);
-                        }
-
-                        discard_all();
-                        add_gold(-m_gold);
+                        m_game->player_death(this);
                     }
                     next_player = m_game->get_next_in_turn(this);
                 }
