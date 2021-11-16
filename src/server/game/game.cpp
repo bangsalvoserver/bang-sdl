@@ -632,7 +632,6 @@ namespace banggame {
     void game::disable_table_cards() {
         if (m_table_cards_disabled++ == 0) {
             for (auto &p : m_players) {
-                if (!p.alive()) continue;
                 if (!has_scenario(scenario_flags::lasso) && &p == m_playing) continue;
                 for (auto *c : p.m_table) {
                     c->on_unequip(&p);
@@ -644,7 +643,6 @@ namespace banggame {
     void game::enable_table_cards() {
         if (--m_table_cards_disabled == 0) {
             for (auto &p : m_players) {
-                if (!p.alive()) continue;
                 if (!has_scenario(scenario_flags::lasso) && &p == m_playing) continue;
                 for (auto *c : p.m_table) {
                     c->on_equip(&p);

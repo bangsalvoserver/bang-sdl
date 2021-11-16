@@ -155,24 +155,28 @@ namespace banggame {
     }
 
     void effect_ghost::on_equip(player *target, card *target_card) {
-        if (!target->alive()) {
-            if (!target->m_game->characters_disabled(target)) {
+        if (target_card->pile == card_pile_type::player_hand) {
+            if (!target->m_game->characters_disabled(target) && !target->alive()) {
                 for (character *c : target->m_characters) {
                     c->on_equip(target);
                 }
             }
-
-            target->m_ghost = true;
-            target->m_game->add_public_update<game_update_type::player_hp>(target->id, 0, false);
+            target->m_game->add_event<event_type::post_discard_card>(target_card, [=](player *p, card *c) {
+                if (p == target && c == target_card) {
+                    target->m_ghost = false;
+                    target->m_game->player_death(target);
+                    target->m_game->check_game_over(target, true);
+                    target->m_game->remove_events(target_card);
+                }
+            });
         }
-        target->m_game->add_event<event_type::post_discard_card>(target_card, [=](player *e_target, card *e_card) {
-            if (target_card == e_card && target == e_target) {
-                target->m_ghost = false;
-                target->m_game->player_death(target);
-                target->m_game->check_game_over(target, true);
-                target->m_game->remove_events(target_card);
-            }
-        });
+        target->m_game->add_public_update<game_update_type::player_hp>(target->id, 0, false);
+        target->m_ghost = true;
+    }
+
+    void effect_ghost::on_unequip(player *target, card *target_card) {
+        target->m_game->add_public_update<game_update_type::player_hp>(target->id, 0, true);
+        target->m_ghost = false;
     }
 
     void effect_shotgun::on_equip(player *p, card *target_card) {
