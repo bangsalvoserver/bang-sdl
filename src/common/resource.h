@@ -23,10 +23,12 @@ struct resource : std::vector<char> {
         if (file.fail()) {
             throw std::runtime_error("Impossibile caricare la risorsa " + filename);
         }
-        reserve(file.tellg());
+        assign(file.tellg(), '\0');
         file.seekg(std::ios::beg);
-        assign(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>());
+        file.read(data(), size());
     }
+
+    resource() = default;
 
     operator resource_view() const noexcept {
         return {data(), size()};

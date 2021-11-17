@@ -4,7 +4,7 @@
 
 #include <SDL2/SDL.h>
 
-static const resource cards_pak_data(std::string(SDL_GetBasePath()) + "cards.pak");
+static std::ifstream cards_pak_data(std::string(SDL_GetBasePath()) + "cards.pak", std::ios::in | std::ios::binary);
 static const unpacker card_resources(cards_pak_data);
 
 namespace banggame {
