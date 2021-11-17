@@ -454,7 +454,12 @@ void game_scene::handle_game_update(UPDATE_TAG(move_card), const move_card_updat
     }
     if (bool(args.flags & show_card_flags::no_animation)) {
         anim.end();
-        pop_update();
+
+        if (bool(args.flags & show_card_flags::short_pause)) {
+            m_animations.emplace_back(20, std::in_place_type<pause_animation>);
+        } else {
+            pop_update();
+        }
     } else {
         m_animations.emplace_back(20, std::move(anim));
     }
