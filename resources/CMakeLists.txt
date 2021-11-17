@@ -20,8 +20,10 @@ function(compile_resources out_list)
     set(${out_list} ${ret} PARENT_SCOPE)
 endfunction()
 
-compile_resources(bang_cards bang_cards.json)
-add_library(bang_cards OBJECT ${bang_cards})
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+    compile_resources(bang_cards bang_cards.json)
+    add_library(bang_cards OBJECT ${bang_cards})
+endif()
 
 compile_resources(resources_obj arial.ttf icons/icon_checkbox.png icons/bang.png)
 add_library(resources_obj OBJECT ${resources_obj} icons/bang.rc)

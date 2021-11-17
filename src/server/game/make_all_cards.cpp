@@ -10,7 +10,16 @@
 
 #include "common/effects.h"
 
+#ifdef BANG_CARDS_JSON_LINKED
+
 DECLARE_RESOURCE(bang_cards_json)
+static const auto bang_cards_resource = GET_RESOURCE(bang_cards_json);
+
+#else
+
+static const resource bang_cards_resource(std::string(SDL_GetBasePath()) + "../resources/bang_cards.json");
+
+#endif
 
 namespace banggame {
 
@@ -100,8 +109,8 @@ namespace banggame {
 
         all_cards_t ret;
 
-        auto bang_cards_resource = GET_RESOURCE(bang_cards_json);
-        util::isviewstream ss({bang_cards_resource.data, (size_t) bang_cards_resource.length});
+        resource_view res = bang_cards_resource;
+        util::isviewstream ss({res.data, res.length});
 
         Json::Value json_cards;
         ss >> json_cards;

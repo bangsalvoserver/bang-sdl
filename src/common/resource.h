@@ -18,7 +18,7 @@ extern const unsigned long long int RESOURCE_LENGTH(name);
 #define GET_RESOURCE(name) resource_view{RESOURCE_NAME(name), RESOURCE_LENGTH(name)}
 
 struct resource : std::vector<char> {
-    resource(const std::string &filename) {
+    explicit resource(const std::string &filename) {
         std::ifstream file(filename, std::ios::in | std::ios::binary | std::ios::ate);
         if (file.fail()) {
             throw std::runtime_error("Impossibile caricare la risorsa " + filename);

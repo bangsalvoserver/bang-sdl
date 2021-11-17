@@ -29,6 +29,10 @@ int main(int argc, char **argv) {
     game_manager mgr(std::string(SDL_GetPrefPath(nullptr, "bang-sdl")) + "config.json");
     mgr.resize(window_width, window_height);
 
+    if (argc > 1) {
+        mgr.connect(argv[1]);
+    }
+
     sdl::event event;
     bool quit = false;
     while (!quit) {
