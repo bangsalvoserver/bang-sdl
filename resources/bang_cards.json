@@ -3095,9 +3095,13 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Roulette Russa",
-            "image": "05_rouletterussa"
+            "image": "05_rouletterussa",
+            "equip": [
+                {
+                    "class": "russianroulette"
+                }
+            ]
         },
         {
             "disabled": true,

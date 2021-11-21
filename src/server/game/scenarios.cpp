@@ -205,4 +205,21 @@ namespace banggame {
         target->m_game->move_to(vec.front(), card_pile_type::hidden_deck, true, nullptr, show_card_flags::no_animation);
         target->m_game->pop_request();
     }
+
+    void effect_russianroulette::on_equip(player *target, card *target_card) {
+        auto queue_russianroulette_request = [=](player *target) {
+            target->m_game->queue_request<request_type::bang>(target_card, nullptr, target).bang_damage = 2;
+        };
+        queue_russianroulette_request(target);
+        target->m_game->add_event<event_type::on_missed>(target_card, [=](card *origin_card, player *origin, player *target, bool is_bang) {
+            if (target_card == origin_card) {
+                queue_russianroulette_request(target->m_game->get_next_player(target));
+            }
+        });
+        target->m_game->add_event<event_type::on_hit>(target_card, [=](card *origin_card, player *origin, player *target, int damage, bool is_bang) {
+            if (target_card == origin_card) {
+                target->m_game->remove_events(target_card);
+            }
+        });
+    }
 }

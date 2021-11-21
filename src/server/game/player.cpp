@@ -99,7 +99,7 @@ namespace banggame {
                 origin->add_gold(value);
             }
         }
-        m_game->queue_event<event_type::on_hit>(origin, this, value, is_bang);
+        m_game->queue_event<event_type::on_hit>(origin_card, origin, this, value, is_bang);
     }
 
     void player::heal(int value) {

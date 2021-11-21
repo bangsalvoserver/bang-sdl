@@ -44,7 +44,7 @@ namespace banggame {
         if (origin->m_game->top_request_is(request_type::bang, origin)) {
             auto &req = origin->m_game->top_request().get<request_type::bang>();
             if (0 == --req.bang_strength) {
-                origin->m_game->instant_event<event_type::on_missed>(req.origin, req.target, req.is_bang_card);
+                origin->m_game->instant_event<event_type::on_missed>(req.origin_card, req.origin, req.target, req.is_bang_card);
                 origin->m_game->pop_request();
             }
         } else {
@@ -498,7 +498,7 @@ namespace banggame {
             })) {
                 ++req.bang_strength;
             }
-            p->m_game->add_event<event_type::on_missed>(origin_card, [=](player *origin, player *target, bool is_bang) {
+            p->m_game->add_event<event_type::on_missed>(origin_card, [=](card *origin_card, player *origin, player *target, bool is_bang) {
                 if (target && origin == p && is_bang && !target->m_hand.empty()) {
                     target->m_game->queue_request<request_type::discard>(origin_card, origin, target);
                 }
@@ -521,7 +521,7 @@ namespace banggame {
     }
 
     void effect_flintlock::on_play(card *origin_card, player *p) {
-        p->m_game->add_event<event_type::on_missed>(origin_card, [=](player *origin, player *target, bool is_bang) {
+        p->m_game->add_event<event_type::on_missed>(origin_card, [=](card *origin_card, player *origin, player *target, bool is_bang) {
             if (origin == p) {
                 origin->add_to_hand(origin_card);
             }

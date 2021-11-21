@@ -114,7 +114,7 @@ namespace banggame {
     }
 
     void effect_el_gringo::on_equip(player *p, card *target_card) {
-        p->m_game->add_event<event_type::on_hit>(target_card, [=](player *origin, player *target, int damage, bool is_bang) {
+        p->m_game->add_event<event_type::on_hit>(target_card, [=](card *origin_card, player *origin, player *target, int damage, bool is_bang) {
             if (origin && p == target && p->m_game->m_playing != p) {
                 while(damage-- && !origin->m_hand.empty()) {
                     target->steal_card(origin, origin->random_hand_card());
@@ -573,7 +573,7 @@ namespace banggame {
     }
 
     void effect_julie_cutter::on_equip(player *p, card *target_card) {
-        p->m_game->add_event<event_type::on_hit>(target_card, [=](player *origin, player *target, int damage, bool is_bang) {
+        p->m_game->add_event<event_type::on_hit>(target_card, [=](card *origin_card, player *origin, player *target, int damage, bool is_bang) {
             if (origin && p == target) {
                 p->m_game->draw_check_then(target, [=](card *drawn_card) {
                     card_suit_type suit = p->get_card_suit(drawn_card);
@@ -594,7 +594,7 @@ namespace banggame {
     }
 
     void effect_bloody_mary::on_equip(player *p, card *target_card) {
-        p->m_game->add_event<event_type::on_missed>(target_card, [=](player *origin, player *target, bool is_bang) {
+        p->m_game->add_event<event_type::on_missed>(target_card, [=](card *origin_card, player *origin, player *target, bool is_bang) {
             if (origin == p && is_bang) {
                 origin->m_game->draw_card_to(card_pile_type::player_hand, p);
             }

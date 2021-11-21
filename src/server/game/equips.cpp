@@ -113,7 +113,7 @@ namespace banggame {
     }
 
     void effect_boots::on_equip(player *p, card *target_card) {
-        p->m_game->add_event<event_type::on_hit>(target_card, [p](player *origin, player *target, int damage, bool is_bang){
+        p->m_game->add_event<event_type::on_hit>(target_card, [p](card *origin_card, player *origin, player *target, int damage, bool is_bang){
             if (p == target) {
                 while (damage--) {
                     target->m_game->draw_card_to(card_pile_type::player_hand, target);
@@ -131,7 +131,7 @@ namespace banggame {
     }
 
     void effect_luckycharm::on_equip(player *p, card *target_card) {
-        p->m_game->add_event<event_type::on_hit>(target_card, [p](player *origin, player *target, int damage, bool is_bang) {
+        p->m_game->add_event<event_type::on_hit>(target_card, [p](card *origin_card, player *origin, player *target, int damage, bool is_bang) {
             if (p == target) {
                 target->add_gold(damage);
             }
@@ -180,7 +180,7 @@ namespace banggame {
     }
 
     void effect_shotgun::on_equip(player *p, card *target_card) {
-        p->m_game->add_event<event_type::on_hit>(target_card, [=](player *origin, player *target, int damage, bool is_bang) {
+        p->m_game->add_event<event_type::on_hit>(target_card, [=](card *origin_card, player *origin, player *target, int damage, bool is_bang) {
             if (origin == p && target != p && !target->m_hand.empty() && is_bang) {
                 target->m_game->queue_request<request_type::discard>(target_card, origin, target);
             }
@@ -188,7 +188,7 @@ namespace banggame {
     }
 
     void effect_bounty::on_equip(player *p, card *target_card) {
-        p->m_game->add_event<event_type::on_hit>(target_card, [p](player *origin, player *target, int damage, bool is_bang) {
+        p->m_game->add_event<event_type::on_hit>(target_card, [p](card *origin_card, player *origin, player *target, int damage, bool is_bang) {
             if (origin && target == p && is_bang) {
                 origin->m_game->draw_card_to(card_pile_type::player_hand, origin);
             }

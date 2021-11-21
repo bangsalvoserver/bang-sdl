@@ -151,6 +151,7 @@ namespace banggame {
         (lasso,         effect_lasso)
         (judge,         effect_judge)
         (peyote,        effect_peyote)
+        (russianroulette, effect_russianroulette)
         (fistfulofcards, effect_fistfulofcards)
     )
 
