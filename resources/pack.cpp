@@ -5,8 +5,8 @@
 
 struct file_table_item {
     std::string name;
-    size_t begin;
-    size_t size;
+    uint64_t begin;
+    uint64_t size;
 };
 
 int main(int argc, char **argv) {
@@ -45,11 +45,11 @@ int main(int argc, char **argv) {
 
     std::ofstream ofs(argv[2], std::ofstream::out | std::ofstream::binary);
 
-    size_t nitems = items.size();
+    uint64_t nitems = items.size();
     ofs.write(reinterpret_cast<char *>(&nitems), sizeof(nitems));
 
     for (const auto &item : items) {
-        size_t len = item.name.size();
+        uint64_t len = item.name.size();
         ofs.write(reinterpret_cast<char *>(&len), sizeof(len));
         ofs.write(item.name.data(), item.name.size());
         ofs.write(reinterpret_cast<const char *>(&item.begin), sizeof(item.begin));

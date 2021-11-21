@@ -33,24 +33,24 @@ public:
     unpacker(resource_view data) {
         struct packed_data {
             std::string name;
-            size_t pos;
-            size_t size;
+            uint64_t pos;
+            uint64_t size;
         };
 
         std::vector<packed_data> items;
 
         const char *pos = data.data;
-        size_t nitems = read_data<size_t>(&pos);
+        uint64_t nitems = read_data<uint64_t>(&pos);
 
         for (; nitems!=0; --nitems) {
             packed_data item;
 
-            size_t len = read_data<size_t>(&pos);
+            uint64_t len = read_data<uint64_t>(&pos);
             item.name = std::string(pos, len);
             pos += len;
 
-            item.pos = read_data<size_t>(&pos);
-            item.size = read_data<size_t>(&pos);
+            item.pos = read_data<uint64_t>(&pos);
+            item.size = read_data<uint64_t>(&pos);
 
             items.push_back(item);
         }
@@ -77,8 +77,8 @@ private:
 template<> class unpacker<std::ifstream> {
 private:
     struct data_offset {
-        size_t pos;
-        size_t size;
+        uint64_t pos;
+        uint64_t size;
     };
     std::map<std::string, data_offset, std::less<>> m_data;
     std::ifstream &m_stream;
@@ -87,28 +87,28 @@ public:
     explicit unpacker(std::ifstream &ifs) : m_stream(ifs) {
         struct packed_data {
             std::string name;
-            size_t pos;
-            size_t size;
+            uint64_t pos;
+            uint64_t size;
         };
 
         std::vector<packed_data> items;
 
-        size_t nitems = read_data<size_t>(ifs);
+        uint64_t nitems = read_data<uint64_t>(ifs);
         for (; nitems!=0; --nitems) {
             packed_data item;
 
-            size_t len = read_data<size_t>(ifs);
+            uint64_t len = read_data<uint64_t>(ifs);
             item.name.assign(len, '\0');
             ifs.read(item.name.data(), len);
 
-            item.pos = read_data<size_t>(ifs);
-            item.size = read_data<size_t>(ifs);
+            item.pos = read_data<uint64_t>(ifs);
+            item.size = read_data<uint64_t>(ifs);
 
             items.push_back(item);
         }
 
         for (const auto &item : items) {
-            m_data.try_emplace(item.name, (size_t)ifs.tellg() + item.pos, item.size);
+            m_data.try_emplace(item.name, (uint64_t)ifs.tellg() + item.pos, item.size);
         }
     }
 
