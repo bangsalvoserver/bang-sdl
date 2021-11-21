@@ -627,7 +627,7 @@ namespace banggame {
             }
         }
 
-        for (int i=target->m_characters.size()-1; i>=1; ++i) {
+        for (int i=target->m_characters.size()-1; i>=1; --i) {
             add_public_update<game_update_type::player_remove_character>(target->id, i);
         }
 
