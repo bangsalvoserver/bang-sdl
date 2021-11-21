@@ -720,7 +720,7 @@ namespace banggame {
         if (!m_has_drawn) {
             m_game->add_log(this, nullptr, "pescato dal mazzo");
             for (; m_num_drawn_cards<m_num_cards_to_draw; ++m_num_drawn_cards) {
-                m_game->draw_card_to(card_pile_type::player_hand, this);
+                m_game->draw_phase_one_card_to(card_pile_type::player_hand, this);
             }
         }
         m_num_cards_to_draw = save_numcards;

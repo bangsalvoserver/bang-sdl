@@ -3039,9 +3039,13 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Miniera Abbandonata",
-            "image": "05_minieraabbandonata"
+            "image": "05_minieraabbandonata",
+            "equip": [
+                {
+                    "class": "abandonedmine"
+                }
+            ]
         },
         {
             "name": "Peyote",

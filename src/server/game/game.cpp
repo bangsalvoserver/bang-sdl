@@ -460,6 +460,16 @@ namespace banggame {
         return drawn_card;
     }
 
+    card *game::draw_phase_one_card_to(card_pile_type pile, player *owner, show_card_flags flags) {
+        if (!has_scenario(scenario_flags::abandonedmine) || m_discards.empty()) {
+            return draw_card_to(pile, owner, flags);
+        } else {
+            card *drawn_card = m_discards.back();
+            move_to(drawn_card, pile, true, owner, flags);
+            return drawn_card;
+        }
+    }
+
     card *game::draw_shop_card() {
         card *drawn_card = m_shop_deck.back();
         move_to(drawn_card, card_pile_type::shop_selection);

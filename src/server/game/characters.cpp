@@ -35,7 +35,7 @@ namespace banggame {
                         }
                         target->m_game->send_card_update(*drawn_card, nullptr, show_card_flags::short_pause);
                     }
-                    target->m_game->draw_card_to(card_pile_type::player_hand, target);
+                    target->m_game->draw_phase_one_card_to(card_pile_type::player_hand, target);
                 }
             }
         });
@@ -62,7 +62,7 @@ namespace banggame {
             if (target == origin && target->m_num_cards_to_draw < 3) {
                 target->m_has_drawn = true;
                 for (int i=0; i<3; ++i) {
-                    target->m_game->draw_card_to(card_pile_type::selection, target);
+                    target->m_game->draw_phase_one_card_to(card_pile_type::selection, target);
                 }
                 target->m_game->queue_request<request_type::kit_carlson>(target_card, target, target);
             }
@@ -85,7 +85,7 @@ namespace banggame {
                 target->m_has_drawn = true;
                 int ncards = target->m_game->num_alive() + target->m_num_cards_to_draw - 1;
                 for (int i=0; i<ncards; ++i) {
-                    target->m_game->draw_card_to(card_pile_type::selection, target);
+                    target->m_game->draw_phase_one_card_to(card_pile_type::selection, target);
                 }
                 target->m_game->queue_request<request_type::claus_the_saint>(target_card, target, target);
             }
@@ -504,7 +504,7 @@ namespace banggame {
                 if (target->m_num_cards_to_draw > 1) {
                     target->m_has_drawn = true;
                     for (int i=0; i<target->m_num_cards_to_draw; ++i) {
-                        target->m_game->draw_card_to(card_pile_type::selection, target);
+                        target->m_game->draw_phase_one_card_to(card_pile_type::selection, target);
                     }
                     target->m_game->queue_request<request_type::dutch_will>(target_card, target, target);
                 }

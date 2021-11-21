@@ -14,6 +14,7 @@ namespace banggame {
         (ambush) // setta distanze a 1
         (lasso) // annulla carte in gioco
         (judge) // non si puo' equipaggiare
+        (abandonedmine) // fase 1 : pesca dagli scarti, fase 3 : scarta coperto nel mazzo
     )
 
     struct scenario_effect : card_effect {
@@ -113,6 +114,10 @@ namespace banggame {
     };
     
     struct effect_russianroulette : scenario_effect {
+        void on_equip(player *target, card *target_card);
+    };
+
+    struct effect_abandonedmine : scenario_effect {
         void on_equip(player *target, card *target_card);
     };
 }

@@ -152,6 +152,7 @@ namespace banggame {
         (judge,         effect_judge)
         (peyote,        effect_peyote)
         (russianroulette, effect_russianroulette)
+        (abandonedmine, effect_abandonedmine)
         (fistfulofcards, effect_fistfulofcards)
     )
 

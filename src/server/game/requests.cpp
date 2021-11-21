@@ -46,7 +46,11 @@ namespace banggame {
 
     void request_discard_pass::on_pick(card_pile_type pile, player *target_player, card *target_card) {
         if (target_player == target) {
-            target->discard_card(target_card);
+            if (target->m_game->has_scenario(scenario_flags::abandonedmine)) {
+                target->move_card_to(target_card, card_pile_type::main_deck);
+            } else {
+                target->discard_card(target_card);
+            }
             target->m_game->instant_event<event_type::on_discard_pass>(target, target_card);
             if (target->m_game->has_expansion(card_expansion_type::armedanddangerous)) {
                 target->m_game->queue_event<event_type::delayed_action>([target = this->target]{
