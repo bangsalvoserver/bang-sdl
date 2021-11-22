@@ -258,8 +258,10 @@ namespace banggame {
     }
 
     void effect_draw_rest::on_play(card *origin_card, player *target) {
-        for (; target->m_num_drawn_cards<target->m_num_cards_to_draw; ++target->m_num_drawn_cards) {
-            target->m_game->draw_phase_one_card_to(card_pile_type::player_hand, target);
+        while (target->m_num_drawn_cards < target->m_num_cards_to_draw) {
+            ++target->m_num_drawn_cards;
+            card *drawn_card = target->m_game->draw_phase_one_card_to(card_pile_type::player_hand, target);
+            target->m_game->instant_event<event_type::on_card_drawn>(target, drawn_card);
         }
         target->m_has_drawn = true;
         target->m_game->queue_event<event_type::post_draw_cards>(target);
@@ -498,7 +500,7 @@ namespace banggame {
             })) {
                 ++req.bang_strength;
             }
-            p->m_game->add_event<event_type::on_missed>(origin_card, [=](card *origin_card, player *origin, player *target, bool is_bang) {
+            p->m_game->add_event<event_type::on_missed>(origin_card, [=](card *bang_card, player *origin, player *target, bool is_bang) {
                 if (target && origin == p && is_bang && !target->m_hand.empty()) {
                     target->m_game->queue_request<request_type::discard>(origin_card, origin, target);
                 }

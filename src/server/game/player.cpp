@@ -719,8 +719,10 @@ namespace banggame {
         m_game->queue_event<event_type::on_draw_from_deck>(this);
         if (!m_has_drawn) {
             m_game->add_log(this, nullptr, "pescato dal mazzo");
-            for (; m_num_drawn_cards<m_num_cards_to_draw; ++m_num_drawn_cards) {
-                m_game->draw_phase_one_card_to(card_pile_type::player_hand, this);
+            while (m_num_drawn_cards<m_num_cards_to_draw) {
+                ++m_num_drawn_cards;
+                card *drawn_card = m_game->draw_phase_one_card_to(card_pile_type::player_hand, this);
+                m_game->instant_event<event_type::on_card_drawn>(this, drawn_card);
             }
         }
         m_num_cards_to_draw = save_numcards;

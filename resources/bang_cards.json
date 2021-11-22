@@ -2502,6 +2502,7 @@
             "hp": 4,
             "expansion": "wildwestshow",
             "drawing": true,
+            "usages": 1,
             "effects": [
                 {
                     "class": "greygory_deck"
@@ -2737,7 +2738,6 @@
             "image": "04_josh_mccloud",
             "hp": 4,
             "expansion": "goldrush",
-            "usages": 1,
             "cost": 2,
             "effects": [
                 {
