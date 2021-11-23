@@ -7,6 +7,8 @@
 #include "widgets/button.h"
 #include "widgets/textbox.h"
 
+#include "../user_info.h"
+
 class scene_base {
 public:
     scene_base(class game_manager *parent) : parent(parent) {}
@@ -30,11 +32,11 @@ public:
 
     virtual void handle_lobby_update(const lobby_data &args) {}
 
-    virtual void set_player_list(const std::vector<lobby_player_data> &args) {}
+    virtual void clear_users() {}
 
-    virtual void add_user(const lobby_player_data &args) {}
+    virtual void add_user(int id, const user_info &args) {}
 
-    virtual void remove_user(const lobby_left_args &args) {}
+    virtual void remove_user(int id) {}
 
     virtual void add_chat_message(const std::string &message) {}
 

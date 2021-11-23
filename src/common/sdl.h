@@ -241,18 +241,18 @@ namespace sdl {
 
         const surface &get_surface() const { return m_surface; }
 
-        SDL_Texture *get_texture(sdl::renderer &renderer) {
+        SDL_Texture *get_texture(sdl::renderer &renderer) const {
             if (!m_texture) {
                 m_texture = SDL_CreateTextureFromSurface(renderer.get(), m_surface.get());
             }
             return m_texture;
         }
 
-        void render(sdl::renderer &renderer, const rect &rect) {
+        void render(sdl::renderer &renderer, const rect &rect) const {
             SDL_RenderCopy(renderer.get(), get_texture(renderer), nullptr, &rect);
         }
 
-        void render(sdl::renderer &renderer, const point &pt) {
+        void render(sdl::renderer &renderer, const point &pt) const {
             rect rect = get_rect();
             rect.x = pt.x;
             rect.y = pt.y;
@@ -265,7 +265,7 @@ namespace sdl {
     
     private:
         surface m_surface;
-        SDL_Texture *m_texture = nullptr;
+        mutable SDL_Texture *m_texture = nullptr;
     };
 
     class font {

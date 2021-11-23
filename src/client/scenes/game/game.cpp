@@ -311,18 +311,18 @@ void game_scene::handle_game_update(const game_update &update) {
     m_pending_updates.push_back(update);
 }
 
-void game_scene::add_user(const lobby_player_data &args) {
+void game_scene::add_user(int id, const user_info &args) {
     m_ui.add_message(args.name + " si \u00e8 connesso");
 }
 
-void game_scene::remove_user(const lobby_left_args &args) {
-    auto it = std::ranges::find(m_players, args.user_id, [](const auto &pair) { return pair.second.user_id; });
+void game_scene::remove_user(int id) {
+    auto it = std::ranges::find(m_players, id, [](const auto &pair) { return pair.second.user_id; });
     if (it != m_players.end()) {
         it->second.user_id = 0;
         it->second.set_username("(Disconnesso)");
         it->second.set_profile_image(nullptr);
     }
-    user_info *info = parent->get_user_info(args.user_id);
+    user_info *info = parent->get_user_info(id);
     if (info) {
         m_ui.add_message(info->name + " si \u00e8 disconnesso");
     }

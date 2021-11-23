@@ -23,7 +23,7 @@ struct expansion_box : sdl::checkbox {
 
 class lobby_player_item {
 public:
-    explicit lobby_player_item(const lobby_player_data &args);
+    explicit lobby_player_item(int id, const user_info &args);
 
     int user_id() const {
         return m_user_id;
@@ -33,6 +33,7 @@ public:
 
 private:
     sdl::stattext m_name_text;
+    const sdl::texture *m_profile_image = nullptr;
     int m_user_id;
 };
 
@@ -44,9 +45,9 @@ public:
 
     void render(sdl::renderer &renderer) override;
 
-    void set_player_list(const std::vector<lobby_player_data> &args) override;
-    void add_user(const lobby_player_data &args) override;
-    void remove_user(const lobby_left_args &args) override;
+    void clear_users() override;
+    void add_user(int id, const user_info &args) override;
+    void remove_user(int id) override;
     void add_chat_message(const std::string &message) override;
 
     void send_lobby_edited();

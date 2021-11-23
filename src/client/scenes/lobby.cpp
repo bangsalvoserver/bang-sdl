@@ -4,12 +4,29 @@
 
 using namespace enums::flag_operators;
 
-lobby_player_item::lobby_player_item(const lobby_player_data &args)
-    : m_name_text("> " + args.name)
-    , m_user_id(args.user_id) {}
+lobby_player_item::lobby_player_item(int id, const user_info &args)
+    : m_name_text(args.name)
+    , m_profile_image(&args.profile_image)
+    , m_user_id(id) {}
 
 void lobby_player_item::render(sdl::renderer &renderer, int x, int y) {
-    m_name_text.set_point(sdl::point{x, y});
+    if (m_profile_image && *m_profile_image) {
+        sdl::rect rect = m_profile_image->get_rect();
+        if (rect.w > rect.h) {
+            rect.h = rect.h * sizes::propic_size / rect.h;
+            rect.w = sizes::propic_size;
+        } else {
+            rect.w = rect.w * sizes::propic_size / rect.h;
+            rect.h = sizes::propic_size;
+        }
+
+        rect.x = x + (sizes::propic_size - rect.w) / 2;
+        rect.y = y + (sizes::propic_size - rect.h) / 2;
+        m_profile_image->render(renderer, rect);
+    }
+    m_name_text.set_point(sdl::point{
+        x + sizes::propic_size + 10,
+        y + (sizes::propic_size - m_name_text.get_rect().h) / 2});
     m_name_text.render(renderer);
 }
 
@@ -80,7 +97,7 @@ void lobby_scene::render(sdl::renderer &renderer) {
     int y = 100;
     for (auto &line : m_player_list) {
         line.render(renderer, 100, y);
-        y += 40;
+        y += sizes::propic_size + 10;
     }
 
     m_start_btn.set_rect(sdl::rect{100, y, 100, 25});
@@ -100,22 +117,19 @@ void lobby_scene::render(sdl::renderer &renderer) {
     m_chat.render(renderer);
 }
 
-void lobby_scene::set_player_list(const std::vector<lobby_player_data> &args) {
+void lobby_scene::clear_users() {
     m_player_list.clear();
-    for (const auto &arg : args) {
-        add_user(arg);
-    }
 }
 
-void lobby_scene::add_user(const lobby_player_data &args) {
-    m_player_list.emplace_back(args);
+void lobby_scene::add_user(int id, const user_info &args) {
+    m_player_list.emplace_back(id, args);
 }
 
-void lobby_scene::remove_user(const lobby_left_args &args) {
-    if (args.user_id == m_user_id) {
+void lobby_scene::remove_user(int id) {
+    if (id == m_user_id) {
         parent->switch_scene<scene_type::lobby_list>();
     } else {
-        auto it = std::ranges::find(m_player_list, args.user_id, &lobby_player_item::user_id);
+        auto it = std::ranges::find(m_player_list, id, &lobby_player_item::user_id);
         if (it != m_player_list.end()) {
             m_player_list.erase(it);
         }

@@ -72,40 +72,23 @@ void game_manager::update_net() {
     }
 }
 
+static std::vector<std::byte> load_profile_image(const std::string &filename) {
+    if (filename.empty()) return {};
+
+    try {
+        return encode_profile_image(sdl::surface(resource(filename)));
+    } catch (const std::runtime_error &e) {
+        return {};
+    }
+}
+
 void game_manager::connect(const std::string &host) {
     try {
         sock.open(sdlnet::ip_address(host, banggame::server_port));
         sock_set.add(sock);
         connected_ip = host;
 
-        std::vector<std::byte> image_data;
-        if (!m_config.profile_image.empty()) {
-            try {
-                sdl::surface image{resource(m_config.profile_image)};
-                sdl::rect rect = image.get_rect();
-                int scale = 1;
-                if (rect.w > rect.h) {
-                    if (rect.w > sizes::propic_size) {
-                        image = sdl::scale_surface(image, rect.w / sizes::propic_size);
-                    }
-                } else {
-                    if (rect.h > sizes::propic_size) {
-                        image = sdl::scale_surface(image, rect.h / sizes::propic_size);
-                    }
-                }
-                size_t nbytes = image.get_rect().w * image.get_rect().h * image.get()->format->BytesPerPixel;
-                image_data.reserve(3 + nbytes);
-                image_data.push_back(static_cast<std::byte>(image.get_rect().w));
-                image_data.push_back(static_cast<std::byte>(image.get_rect().h));
-                image_data.push_back(static_cast<std::byte>(image.get()->format->BytesPerPixel));
-                image_data.insert(image_data.end(),
-                    static_cast<std::byte *>(image.get()->pixels),
-                    static_cast<std::byte *>(image.get()->pixels) + nbytes);
-            } catch (const std::runtime_error &e) {
-                // ignore
-            }
-        }
-        add_message<client_message_type::connect>(m_config.user_name, std::move(image_data));
+        add_message<client_message_type::connect>(m_config.user_name, load_profile_image(m_config.profile_image));
     } catch (const sdlnet::net_error &e) {
         m_scene->show_error(e.what());
     }
@@ -162,10 +145,11 @@ void game_manager::handle_message(MESSAGE_TAG(lobby_edited), const lobby_info &a
 }
 
 void game_manager::handle_message(MESSAGE_TAG(lobby_players), const std::vector<lobby_player_data> &args) {
+    m_scene->clear_users();
     for (const auto &obj : args) {
-        m_users.try_emplace(obj.user_id, obj.name, obj.profile_image);
+        const auto &u = m_users.try_emplace(obj.user_id, obj.name, obj.profile_image).first->second;
+        m_scene->add_user(obj.user_id, u);
     }
-    m_scene->set_player_list(args);
 }
 
 void game_manager::handle_message(MESSAGE_TAG(lobby_entered), const lobby_entered_args &args) {
@@ -176,8 +160,8 @@ void game_manager::handle_message(MESSAGE_TAG(lobby_entered), const lobby_entere
 }
 
 void game_manager::handle_message(MESSAGE_TAG(lobby_joined), const lobby_player_data &args) {
-    m_users.try_emplace(args.user_id, args.name, args.profile_image);
-    m_scene->add_user(args);
+    const auto &u = m_users.try_emplace(args.user_id, args.name, args.profile_image).first->second;
+    m_scene->add_user(args.user_id, u);
 }
 
 void game_manager::handle_message(MESSAGE_TAG(lobby_left), const lobby_left_args &args) {
@@ -185,7 +169,7 @@ void game_manager::handle_message(MESSAGE_TAG(lobby_left), const lobby_left_args
         m_users.clear();
         switch_scene<scene_type::lobby_list>();
     } else {
-        m_scene->remove_user(args);
+        m_scene->remove_user(args.user_id);
         m_users.erase(args.user_id);
     }
 }

@@ -12,6 +12,7 @@
 #include "scenes/game/game.h"
 
 #include "config.h"
+#include "user_info.h"
 
 DEFINE_ENUM_TYPES(scene_type,
     (connect, connect_scene)
@@ -21,28 +22,6 @@ DEFINE_ENUM_TYPES(scene_type,
 )
 
 #define MESSAGE_TAG(name) enums::enum_constant<server_message_type::name>
-
-struct user_info {
-    std::string name;
-    sdl::texture profile_image;
-
-    user_info(std::string name, const std::vector<std::byte> &data)
-        : name(std::move(name))
-    {        
-        if (data.size() > 3) {
-            int w = static_cast<int>(data[0]);
-            int h = static_cast<int>(data[1]);
-            int bpp = static_cast<int>(data[2]);
-            if (data.size() >= 3 + w * h * bpp) {
-                SDL_Surface *surf = SDL_CreateRGBSurface(0, w, h, 8 * bpp, sdl::rmask, sdl::gmask, sdl::bmask, sdl::amask);
-                SDL_LockSurface(surf);
-                std::memcpy(surf->pixels, data.data() + 3, w * h * bpp);
-                SDL_UnlockSurface(surf);
-                profile_image = sdl::surface(surf);
-            }
-        }
-    }
-};
 
 class game_manager {
 public:

@@ -18,6 +18,7 @@ pkg_check_modules(jsoncpp REQUIRED jsoncpp IMPORTED_TARGET)
 set(bangclient_srcs
     src/client/main.cpp
     src/client/manager.cpp
+    src/client/user_info.cpp
     src/client/scenes/game/card.cpp
     src/client/scenes/game/game.cpp
     src/client/scenes/game/game_ui.cpp

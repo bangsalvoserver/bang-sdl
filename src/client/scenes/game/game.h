@@ -36,9 +36,9 @@ namespace banggame {
         
         void show_error(const std::string &message) override;
 
-        void add_user(const lobby_player_data &args) override;
+        void add_user(int id, const user_info &args) override;
 
-        void remove_user(const lobby_left_args &args) override;
+        void remove_user(int id) override;
 
     private:
         void handle_game_update(UPDATE_TAG(game_over),        const game_over_update &args);
