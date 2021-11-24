@@ -562,7 +562,8 @@ namespace banggame {
                 ++it;
                 if (it == m_players.end()) it = m_players.begin();
             }
-        } while(!it->alive() && !has_scenario(scenario_flags::ghosttown));
+        } while(!it->alive() && !has_scenario(scenario_flags::ghosttown)
+            && !(has_scenario(scenario_flags::deadman) && &*it == m_first_dead));
         return &*it;
     }
 
@@ -591,11 +592,11 @@ namespace banggame {
                 }
             } else if (!discarded_ghost) {
                 if (target->m_role == player_role::outlaw && killer->m_role == player_role::renegade) {
-                    return player_role::deputy;
-                } else if (target->m_role == player_role::renegade && killer->m_role == player_role::deputy) {
-                    return player_role::outlaw;
-                } else if (target->m_role == player_role::deputy && killer->m_role == player_role::outlaw) {
                     return player_role::renegade;
+                } else if (target->m_role == player_role::renegade && killer->m_role == player_role::deputy) {
+                    return player_role::deputy;
+                } else if (target->m_role == player_role::deputy && killer->m_role == player_role::outlaw) {
+                    return player_role::outlaw;
                 }
             }
             return player_role::unknown;
@@ -644,6 +645,8 @@ namespace banggame {
         target->m_characters.resize(1);
         target->m_dead = true;
         target->m_hp = 0;
+
+        if (!m_first_dead) m_first_dead = target;
 
         instant_event<event_type::on_player_death>(m_playing, target);
         

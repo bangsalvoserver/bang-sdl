@@ -2834,7 +2834,6 @@
             ]
         },
         {
-            "discard_if_two_players": true,
             "name": "Corsa all'Oro",
             "image": "05_corsaalloro",
             "equip": [
@@ -2979,9 +2978,15 @@
             ]
         },
         {
-            "disabled": true,
+            "discard_if_two_players": true,
             "name": "Dead Man",
-            "image": "05_deadman"
+            "image": "05_deadman",
+            "expansion": "ghostcards",
+            "equip": [
+                {
+                    "class": "deadman"
+                }
+            ]
         },
         {
             "name": "Fratelli di Sangue",

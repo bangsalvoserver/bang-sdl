@@ -153,6 +153,7 @@ namespace banggame {
         (peyote,        effect_peyote)
         (russianroulette, effect_russianroulette)
         (abandonedmine, effect_abandonedmine)
+        (deadman,       effect_deadman)
         (fistfulofcards, effect_fistfulofcards)
     )
 

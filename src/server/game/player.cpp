@@ -782,10 +782,20 @@ namespace banggame {
         m_start_of_turn = true;
         m_declared_suit = card_suit_type::none;
 
-        if (!m_ghost && m_hp == 0 && m_game->has_scenario(scenario_flags::ghosttown)) {
-            ++m_num_cards_to_draw;
-            for (auto *c : m_characters) {
-                c->on_equip(this);
+        if (!m_ghost && m_hp == 0) {
+            if (m_game->has_scenario(scenario_flags::ghosttown)) {
+                ++m_num_cards_to_draw;
+                for (auto *c : m_characters) {
+                    c->on_equip(this);
+                }
+            } else if (m_game->has_scenario(scenario_flags::deadman) && this == m_game->m_first_dead) {
+                m_dead = false;
+                m_game->add_public_update<game_update_type::player_hp>(id, m_hp = 2);
+                m_game->draw_card_to(card_pile_type::player_hand, this);
+                m_game->draw_card_to(card_pile_type::player_hand, this);
+                for (auto *c : m_characters) {
+                    c->on_equip(this);
+                }
             }
         }
         

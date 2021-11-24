@@ -15,6 +15,7 @@ namespace banggame {
         (lasso) // annulla carte in gioco
         (judge) // non si puo' equipaggiare
         (abandonedmine) // fase 1 : pesca dagli scarti, fase 3 : scarta coperto nel mazzo
+        (deadman) // il primo morto ritorna in vita con 2 carte e 2 hp nel suo turno
     )
 
     struct scenario_effect : card_effect {
@@ -118,6 +119,10 @@ namespace banggame {
     };
 
     struct effect_abandonedmine : scenario_effect {
+        void on_equip(player *target, card *target_card);
+    };
+
+    struct effect_deadman : scenario_effect {
         void on_equip(player *target, card *target_card);
     };
 }

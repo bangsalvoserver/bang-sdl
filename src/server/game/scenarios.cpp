@@ -226,4 +226,8 @@ namespace banggame {
     void effect_abandonedmine::on_equip(player *target, card *target_card) {
         target->m_game->m_scenario_flags |= scenario_flags::abandonedmine;
     }
+
+    void effect_deadman::on_equip(player *target, card *target_card) {
+        target->m_game->m_scenario_flags |= scenario_flags::deadman;
+    }
 }
