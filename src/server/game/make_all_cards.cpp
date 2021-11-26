@@ -73,32 +73,23 @@ namespace banggame {
             if (json_card.isMember("optional")) {
                 out.optionals = make_effects_from_json<effect_holder>(json_card["optional"]);
             }
+            if (json_card.isMember("equip")) {
+                out.equips = make_effects_from_json<equip_holder>(json_card["equip"]);
+            }
         } catch (const invalid_effect &e) {
             throw std::runtime_error(out.name + ": " + e.what());
         }
-        if (json_card.isMember("equip")) {
-            out.equips = make_effects_from_json<equip_holder>(json_card["equip"]);
+        if (json_card.isMember("modifier")) {
+            out.modifier = enums::from_string<card_modifier_type>(json_card["modifier"].asString());
         }
         if (json_card.isMember("usages")) {
             out.max_usages = json_card["usages"].asInt();
-        }
-        if (json_card.isMember("offturn")) {
-            out.playable_offturn = json_card["offturn"].asBool();
         }
         if (json_card.isMember("cost")) {
             out.cost = json_card["cost"].asInt();
         }
         if (json_card.isMember("discard_if_two_players")) {
             out.discard_if_two_players = json_card["discard_if_two_players"].asBool();
-        }
-        if (json_card.isMember("optional_repeatable")) {
-            out.optional_repeatable = json_card["optional_repeatable"].asBool();
-        }
-        if (json_card.isMember("modifier")) {
-            out.modifier = enums::from_string<card_modifier_type>(json_card["modifier"].asString());
-        }
-        if (json_card.isMember("drawing")) {
-            out.active_when_drawing = json_card["drawing"].asBool();
         }
         if (json_card.isMember("testing")) {
             out.testing = json_card["testing"].asBool();

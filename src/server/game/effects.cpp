@@ -249,6 +249,29 @@ namespace banggame {
         target->m_game->draw_card_to(card_pile_type::player_hand, target);
     }
 
+    struct draw_atend_handler {
+        player *origin;
+        int ncards = 1;
+
+        void operator()(player *target, card *origin_card) {
+            if (origin == target) {
+                for (int i=0; i<ncards; ++i) {
+                    target->m_game->draw_card_to(card_pile_type::player_hand, target);
+                }
+                target->m_game->remove_events(origin_card);
+            }
+        }
+    };
+
+    void effect_draw_atend::on_play(card *origin_card, player *origin, player *target) {
+        auto it = origin->m_game->m_event_handlers.find(origin_card);
+        if (it == origin->m_game->m_event_handlers.end()) {
+            origin->m_game->add_event<event_type::on_play_card_end>(origin_card, draw_atend_handler{target});
+        } else {
+            ++it->second.get<event_type::on_play_card_end>().target<draw_atend_handler>()->ncards;
+        }
+    }
+
     bool effect_draw_discard::can_play(card *origin_card, player *origin, player *target) const {
         return ! target->m_game->m_discards.empty();
     }

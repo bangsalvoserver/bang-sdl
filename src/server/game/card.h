@@ -24,9 +24,7 @@ namespace banggame {
         std::string image;
         int usages = 0;
         int max_usages = 0;
-        bool playable_offturn = false;
         bool discard_if_two_players = false;
-        bool optional_repeatable = false;
 
         int buy_cost = 0;
         int cost = 0;
@@ -35,7 +33,6 @@ namespace banggame {
         card_value_type value = card_value_type::none;
         card_color_type color = card_color_type::none;
         bool inactive = false;
-        bool active_when_drawing = false;
 
         std::vector<int> cubes;
 

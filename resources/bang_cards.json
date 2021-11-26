@@ -1200,8 +1200,10 @@
             "image": "07_salvo",
             "expansion": "valleyofshadows",
             "color": "brown",
-            "offturn": true,
             "responses": [
+                {
+                    "class": "offturn"
+                },
                 {
                     "class": "saved"
                 }
@@ -1326,7 +1328,6 @@
                     "class": "changewws"
                 }
             ],
-            "optional_repeatable": true,
             "optional": [
                 {
                     "class": "pay_cube",
@@ -1339,6 +1340,9 @@
                 {
                     "target": "player self",
                     "class": "draw"
+                },
+                {
+                    "class": "repeatable"
                 }
             ]
         },
@@ -1372,7 +1376,6 @@
                     "class": "heal"
                 }
             ],
-            "optional_repeatable": true,
             "optional": [
                 {
                     "class": "pay_cube",
@@ -1389,6 +1392,9 @@
                 {
                     "target": "player self",
                     "class": "heal"
+                },
+                {
+                    "class": "repeatable"
                 }
             ]
         },
@@ -1407,7 +1413,6 @@
                     "escapable": true
                 }
             ],
-            "optional_repeatable": true,
             "optional": [
                 {
                     "class": "pay_cube",
@@ -1417,6 +1422,9 @@
                     "target": "player reachable notself new_target",
                     "class": "bang",
                     "escapable": true
+                },
+                {
+                    "class": "repeatable"
                 }
             ]
         },
@@ -1464,7 +1472,6 @@
                     "escapable": true
                 }
             ],
-            "optional_repeatable": true,
             "optional": [
                 {
                     "class": "pay_cube",
@@ -1474,6 +1481,9 @@
                     "target": "player notself new_target",
                     "class": "indians",
                     "escapable": true
+                },
+                {
+                    "class": "repeatable"
                 }
             ]
         },
@@ -1721,13 +1731,15 @@
             "image": "17_cespuglio",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "offturn": true,
             "equip": [
                 {
                     "class": "tumbleweed"
                 }
             ],
             "responses": [
+                {
+                    "class": "offturn"
+                },
                 {
                     "class": "tumbleweed"
                 },
@@ -1915,8 +1927,10 @@
             "image": "01_jessejones",
             "hp": 4,
             "expansion": "base",
-            "drawing": true,
             "effects": [
+                {
+                    "class": "drawing"
+                },
                 {
                     "target": "notself hand card",
                     "class": "steal"
@@ -1978,8 +1992,10 @@
             "image": "01_pedroramirez",
             "hp": 4,
             "expansion": "base",
-            "drawing": true,
             "effects": [
+                {
+                    "class": "drawing"
+                },
                 {
                     "target": "player self",
                     "class": "draw_discard"
@@ -2272,8 +2288,10 @@
             "image": "03_pat_brennan",
             "hp": 4,
             "expansion": "dodgecity",
-            "drawing": true,
             "effects": [
+                {
+                    "class": "drawing"
+                },
                 {
                     "target": "notself table card",
                     "class": "steal"
@@ -2384,8 +2402,10 @@
             "image": "07_evelynshebang",
             "hp": 4,
             "expansion": "valleyofshadows",
-            "drawing": true,
             "effects": [
+                {
+                    "class": "drawing"
+                },
                 {
                     "class": "draw_skip"
                 },
@@ -2411,13 +2431,15 @@
             "image": "07_lemonadejim",
             "hp": 4,
             "expansion": "valleyofshadows",
-            "offturn": true,
             "equip": [
                 {
                     "class": "lemonade_jim"
                 }
             ],
             "responses": [
+                {
+                    "class": "offturn"
+                },
                 {
                     "target": "self hand card",
                     "class": "destroy"
@@ -2501,9 +2523,11 @@
             "image": "06_greygorydeck",
             "hp": 4,
             "expansion": "wildwestshow",
-            "drawing": true,
             "usages": 1,
             "effects": [
+                {
+                    "class": "drawing"
+                },
                 {
                     "class": "greygory_deck"
                 }
@@ -2564,13 +2588,15 @@
             "image": "17_alpreacher",
             "hp": 4,
             "expansion": "armedanddangerous",
-            "offturn": true,
             "equip": [
                 {
                     "class": "al_preacher"
                 }
             ],
             "responses": [
+                {
+                    "class": "offturn"
+                },
                 {
                     "class": "al_preacher"
                 },
@@ -2991,8 +3017,10 @@
         {
             "name": "Fratelli di Sangue",
             "image": "05_fratellidisangue",
-            "drawing": true,
             "effects": [
+                {
+                    "class": "drawing"
+                },
                 {
                     "class": "startofturn"
                 },
@@ -3032,8 +3060,10 @@
         {
             "name": "Liquore Forte",
             "image": "05_liquoreforte",
-            "drawing": true,
             "effects": [
+                {
+                    "class": "drawing"
+                },
                 {
                     "target": "self player",
                     "class": "heal"
@@ -3074,10 +3104,9 @@
                 },
                 {
                     "target": "self player",
-                    "class": "draw"
+                    "class": "draw_atend"
                 }
             ],
-            "optional_repeatable": true,
             "optional": [
                 {
                     "target": "self hand card",
@@ -3085,7 +3114,10 @@
                 },
                 {
                     "target": "self player",
-                    "class": "draw"
+                    "class": "draw_atend"
+                },
+                {
+                    "class": "repeatable"
                 }
             ]
         },

@@ -274,7 +274,7 @@ namespace banggame {
         if (card_ptr->max_usages != 0 && card_ptr->usages >= card_ptr->max_usages) throw game_error("Azione non valida");
 
         int diff = targets.size() - effects.size();
-        if (card_ptr->optional_repeatable) {
+        if (!card_ptr->optionals.empty() && card_ptr->optionals.back().is(effect_type::repeatable)) {
             if (diff % card_ptr->optionals.size() != 0) throw game_error("Target non validi");
         } else {
             if (diff != 0 && diff != card_ptr->optionals.size()) throw game_error("Target non validi");
@@ -542,7 +542,7 @@ namespace banggame {
             case card_pile_type::player_character:
                 if (!card_ptr->effects.empty()) {
                     if (m_game->characters_disabled(this)) throw game_error("I personaggi sono disabilitati");
-                    if (card_ptr->active_when_drawing) {
+                    if (!card_ptr->effects.empty() && card_ptr->effects.front().is(effect_type::drawing)) {
                         if (m_has_drawn) throw game_error("Non devi pescare adesso");
                         verify_card_targets(card_ptr, false, args.targets);
                         m_game->add_private_update<game_update_type::status_clear>(this);
@@ -664,8 +664,9 @@ namespace banggame {
                 }
             }
             case card_pile_type::scenario_card: {
-                if (card_ptr->active_when_drawing == m_has_drawn) {
-                    if (card_ptr->active_when_drawing) {
+                bool active_when_drawing = !card_ptr->effects.empty() && card_ptr->effects.front().is(effect_type::drawing);
+                if (active_when_drawing == m_has_drawn) {
+                    if (active_when_drawing) {
                         throw game_error("Non devi pescare adesso");
                     } else {
                         throw game_error("Devi pescare");

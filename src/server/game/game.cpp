@@ -26,9 +26,7 @@ namespace banggame {
         info.id = c.id;
         info.name = c.name;
         info.image = c.image;
-        info.playable_offturn = c.playable_offturn;
         info.modifier = c.modifier;
-        info.optional_repeatable = c.optional_repeatable;
         make_card_info_effects(info.targets, c.effects);
         make_card_info_effects(info.response_targets, c.responses);
         make_card_info_effects(info.optional_targets, c.optionals);

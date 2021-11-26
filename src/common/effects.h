@@ -133,6 +133,10 @@ namespace banggame {
         void on_play(card *origin_card, player *origin, player *target);
     };
 
+    struct effect_draw_atend : card_effect {
+        void on_play(card *origin_card, player *origin, player *target);
+    };
+
     struct effect_draw_discard : card_effect {
         bool can_play(card *origin_card, player *origin, player *target) const;
         void on_play(card *origin_card, player *origin, player *target);

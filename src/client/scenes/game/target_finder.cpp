@@ -132,7 +132,7 @@ void target_finder::on_click_table_card(player_view *player, card_view *card) {
             m_flags |= play_card_flags::response;
             add_card_target(target_pair{player, card});
         }
-    } else if (!m_playing_card && card->playable_offturn && !card->inactive) {
+    } else if (!m_playing_card && !card->response_targets.empty() && card->response_targets.front().type == effect_type::offturn && !card->inactive) {
         m_playing_card = card;
         m_flags |= play_card_flags::response | play_card_flags::offturn;
         handle_auto_targets();
@@ -179,7 +179,7 @@ void target_finder::on_click_hand_card(player_view *player, card_view *card) {
             m_flags |= play_card_flags::response;
             add_card_target(target_pair{player, card});
         }
-    } else if (!m_playing_card && card->playable_offturn && card->color == card_color_type::brown) {
+    } else if (!m_playing_card && !card->response_targets.empty() && card->response_targets.front().type == effect_type::offturn && card->color == card_color_type::brown) {
         m_playing_card = card;
         m_flags |= play_card_flags::response | play_card_flags::offturn;
         handle_auto_targets();
@@ -232,7 +232,7 @@ void target_finder::on_click_character(player_view *player, character_card *card
                 add_character_target(target_pair{player, card});
             }
         }
-    } else if (card->playable_offturn && !m_playing_card && player->id == m_game->m_player_own_id) {
+    } else if (!card->response_targets.empty() && card->response_targets.front().type == effect_type::offturn && !m_playing_card && player->id == m_game->m_player_own_id) {
         m_playing_card = card;
         m_flags |= play_card_flags::response | play_card_flags::offturn;
         handle_auto_targets();
@@ -419,7 +419,7 @@ void target_finder::handle_auto_targets() {
 
     auto &targets = get_current_card_targets();
     auto &optionals = get_optional_targets();
-    bool repeatable = m_virtual ? m_virtual->optional_repeatable : m_playing_card->optional_repeatable;
+    bool repeatable = !optionals.empty() && optionals.back().type == effect_type::repeatable;
     if (targets.empty()) {
         clear_targets();
     } else {
