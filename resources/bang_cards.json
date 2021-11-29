@@ -1318,11 +1318,11 @@
             "effects": [
                 {
                     "target": "player self",
-                    "class": "draw"
+                    "class": "draw_atend"
                 },
                 {
                     "target": "player self",
-                    "class": "draw"
+                    "class": "draw_atend"
                 },
                 {
                     "class": "changewws"
@@ -1339,7 +1339,7 @@
                 },
                 {
                     "target": "player self",
-                    "class": "draw"
+                    "class": "draw_atend"
                 },
                 {
                     "class": "repeatable"
