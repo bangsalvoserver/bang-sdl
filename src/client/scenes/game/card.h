@@ -13,11 +13,27 @@
 
 namespace banggame {
 
-    namespace textures_back {
-        sdl::texture &main_deck();
-        sdl::texture &character();
-        sdl::texture &role();
-        sdl::texture &goldrush();
+    struct card_textures {
+    private:
+        static inline sdl::surface s_card_mask;
+
+        static inline sdl::texture s_main_deck;
+        static inline sdl::texture s_character;
+        static inline sdl::texture s_role;
+        static inline sdl::texture s_goldrush;
+
+        static inline int s_counter = 0;
+
+    public:
+        card_textures();
+        ~card_textures();
+
+        static sdl::surface apply_card_mask(const sdl::surface &source);
+        
+        static const sdl::texture &main_deck() { return s_main_deck; }
+        static const sdl::texture &character() { return s_character; }
+        static const sdl::texture &role() { return s_role; }
+        static const sdl::texture &goldrush() { return s_goldrush; }
     };
 
     struct card_widget;
@@ -98,7 +114,7 @@ namespace banggame {
         sdl::texture texture_front;
         sdl::texture texture_front_scaled;
 
-        sdl::texture *texture_back = nullptr;
+        const sdl::texture *texture_back = nullptr;
 
         void set_texture_front(sdl::texture &&tex) {
             texture_front = std::move(tex);
@@ -110,7 +126,7 @@ namespace banggame {
         sdl::point m_pos;
         sdl::rect m_rect;
         
-        void do_render(sdl::renderer &renderer, sdl::texture &front);
+        void do_render(sdl::renderer &renderer, const sdl::texture &front);
     };
 
     struct card_view : card_widget {

@@ -207,7 +207,7 @@ void game_scene::handle_card_click(const sdl::point &mouse_pt) {
         return (it == pile.rend()) ? nullptr : *it;
     };
 
-    sdl::rect main_deck_rect = textures_back::main_deck().get_rect();
+    sdl::rect main_deck_rect = card_textures::main_deck().get_rect();
     sdl::scale_rect(main_deck_rect, sizes::card_width);
     main_deck_rect.x = m_main_deck.pos.x - main_deck_rect.w / 2;
     main_deck_rect.y = m_main_deck.pos.y - main_deck_rect.h / 2;
@@ -264,7 +264,7 @@ void game_scene::find_overlay(const sdl::point &mouse_pt) {
         return (it == pile.rend()) ? nullptr : *it;
     };
 
-    sdl::rect main_deck_rect = textures_back::main_deck().get_rect();
+    sdl::rect main_deck_rect = card_textures::main_deck().get_rect();
     sdl::scale_rect(main_deck_rect, sizes::card_width);
     main_deck_rect.x = m_main_deck.pos.x - main_deck_rect.w / 2;
     main_deck_rect.y = m_main_deck.pos.y - main_deck_rect.h / 2;
@@ -400,8 +400,8 @@ void game_scene::handle_game_update(UPDATE_TAG(add_cards), const add_cards_updat
         auto &c = m_cards[id];
         c.id = id;
         switch (args.pile) {
-        case card_pile_type::main_deck:         c.pile = &m_main_deck; c.texture_back = &textures_back::main_deck(); break;
-        case card_pile_type::shop_deck:         c.pile = &m_shop_deck; c.texture_back = &textures_back::goldrush(); break;
+        case card_pile_type::main_deck:         c.pile = &m_main_deck; c.texture_back = &card_textures::main_deck(); break;
+        case card_pile_type::shop_deck:         c.pile = &m_shop_deck; c.texture_back = &card_textures::goldrush(); break;
         case card_pile_type::scenario_deck:     c.pile = &m_scenario_deck; break;
         case card_pile_type::hidden_deck:       c.pile = &m_hidden_deck; break;
         default: throw std::runtime_error("Pila non valida");
@@ -651,7 +651,7 @@ void game_scene::handle_game_update(UPDATE_TAG(player_gold), const player_gold_u
 
 void game_scene::handle_game_update(UPDATE_TAG(player_add_character), const player_character_update &args) {
     auto &p = *find_player(args.player_id);
-    p.m_role.texture_back = &textures_back::role();
+    p.m_role.texture_back = &card_textures::role();
 
     while (args.index >= p.m_characters.size()) {
         auto &last_pos = p.m_characters.back().get_pos();

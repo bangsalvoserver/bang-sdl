@@ -16,7 +16,7 @@
 
 namespace banggame {
 
-    class game_scene : public scene_base {
+    class game_scene : public scene_base, private card_textures {
     public:
         game_scene(class game_manager *parent);
 
