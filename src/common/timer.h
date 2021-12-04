@@ -43,12 +43,13 @@ namespace banggame {
 
     struct timer_tumbleweed : timer_base {
         timer_tumbleweed() {
-            duration = 150;
+            duration = 200;
         }
         
         card *drawn_card;
 
         void on_finished();
+        void on_resolve() { on_finished(); }
     };
 
 }
