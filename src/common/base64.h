@@ -3,7 +3,7 @@
 #ifndef __BASE64_H__
 #define __BASE64_H__
 
-#include <iostream>
+#include <vector>
 
 static const std::string base64_chars =
              "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -12,11 +12,11 @@ static const std::string base64_chars =
 
 using BYTE = uint8_t;
 
-static inline bool is_base64(BYTE c) {
+inline bool is_base64(BYTE c) {
   return (isalnum(c) || (c == '+') || (c == '/'));
 }
 
-static std::string base64_encode(const std::byte *buf, unsigned int bufLen) {
+inline std::string base64_encode(const std::byte *buf, unsigned int bufLen) {
   std::string ret;
   int i = 0;
   int j = 0;
@@ -57,7 +57,7 @@ static std::string base64_encode(const std::byte *buf, unsigned int bufLen) {
   return ret;
 }
 
-static std::vector<std::byte> base64_decode(std::string const& encoded_string) {
+inline std::vector<std::byte> base64_decode(std::string const& encoded_string) {
   int in_len = encoded_string.size();
   int i = 0;
   int j = 0;

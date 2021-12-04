@@ -178,7 +178,7 @@ namespace banggame {
 
     void player_view::set_profile_image(sdl::texture *image) {
         m_profile_image = image;
-        if (!image) return;
+        if (!image ||!*image) return;
 
         sdl::point profile_image_pos = sdl::point{
             (m_role.get_rect().y + m_username_text.get_rect().y + m_username_text.get_rect().h) / 2,
@@ -187,7 +187,7 @@ namespace banggame {
 
         m_profile_rect = m_profile_image->get_rect();
         if (m_profile_rect.w > m_profile_rect.h) {
-            m_profile_rect.h = m_profile_rect.h * sizes::propic_size / m_profile_rect.h;
+            m_profile_rect.h = m_profile_rect.h * sizes::propic_size / m_profile_rect.w;
             m_profile_rect.w = sizes::propic_size;
         } else {
             m_profile_rect.w = m_profile_rect.w * sizes::propic_size / m_profile_rect.h;

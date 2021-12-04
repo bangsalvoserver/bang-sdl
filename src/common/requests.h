@@ -33,6 +33,10 @@ namespace banggame {
         void on_resolve();
     };
 
+    struct request_duel : request_damaging {
+        player *respond_to = nullptr;
+    };
+
     struct request_bang : request_base {
         std::vector<card *> barrels_used;
         int bang_strength = 1;
@@ -119,7 +123,7 @@ namespace banggame {
         (discard,       request_discard)
         (discard_pass,  request_discard_pass)
         (bang,          request_bang)
-        (duel,          request_damaging)
+        (duel,          request_duel)
         (indians,       request_damaging)
         (destroy,       request_destroy)
         (steal,         request_steal)

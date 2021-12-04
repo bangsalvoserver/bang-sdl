@@ -96,7 +96,7 @@ namespace banggame {
     }
 
     void effect_duel::on_play(card *origin_card, player *origin, player *target) {
-        target->m_game->queue_request<request_type::duel>(origin_card, origin, target, flags);
+        target->m_game->queue_request<request_type::duel>(origin_card, origin, target, flags).respond_to = origin;
     }
 
     bool effect_bangresponse::can_respond(card *origin_card, player *origin) const {
@@ -109,10 +109,13 @@ namespace banggame {
     void effect_bangresponse::on_play(card *origin_card, player *target) {
         switch (target->m_game->top_request().enum_index()) {
         case request_type::duel: {
-            card *origin_card = target->m_game->top_request().origin_card();
-            player *origin = target->m_game->top_request().origin();
+            auto &req = target->m_game->top_request().get<request_type::duel>();
+            card *origin_card = req.origin_card;
+            player *origin = req.origin;
+            player *respond_to = req.respond_to;
+            player *target = req.target;
             target->m_game->pop_request_noupdate();
-            target->m_game->queue_request<request_type::duel>(origin_card, target, origin);
+            target->m_game->queue_request<request_type::duel>(origin_card, origin, respond_to).respond_to = target;
             break;
         }
         case request_type::indians:
