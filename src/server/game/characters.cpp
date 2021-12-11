@@ -269,9 +269,9 @@ namespace banggame {
     }
 
     void effect_colorado_bill::on_equip(player *p, card *target_card) {
-        p->m_game->add_event<event_type::on_play_bang>(target_card, [p](player *origin) {
+        p->m_game->add_event<event_type::on_play_bang>(target_card, [=](player *origin) {
             if (p == origin) {
-                origin->m_game->draw_check_then(origin, [=](card *drawn_card) {
+                origin->m_game->draw_check_then(origin, target_card, [=](card *drawn_card) {
                     if (p->get_card_suit(drawn_card) == card_suit_type::spades) {
                         origin->add_bang_mod([](request_bang &req) {
                             req.unavoidable = true;
@@ -340,7 +340,7 @@ namespace banggame {
 
     void effect_teren_kill::on_play(card *origin_card, player *origin) {
         origin->m_game->top_request().get<request_type::death>().draw_attempts.push_back(origin_card);
-        origin->m_game->draw_check_then(origin, [origin](card *drawn_card) {
+        origin->m_game->draw_check_then(origin, origin_card, [origin](card *drawn_card) {
             if (origin->get_card_suit(drawn_card) != card_suit_type::spades) {
                 origin->m_game->pop_request();
                 origin->m_hp = 1;
@@ -399,7 +399,7 @@ namespace banggame {
             if (p == target) {
                 if (target_card->max_usages == 0) {
                     p->m_game->m_ignore_next_turn = true;
-                    p->m_game->draw_check_then(p, [&](card *drawn_card) {
+                    p->m_game->draw_check_then(p, target_card, [&](card *drawn_card) {
                         card_suit_type suit = p->get_card_suit(drawn_card);
                         if (suit == card_suit_type::diamonds || suit == card_suit_type::hearts) {
                             ++target_card->max_usages;
@@ -570,7 +570,7 @@ namespace banggame {
     void effect_julie_cutter::on_equip(player *p, card *target_card) {
         p->m_game->add_event<event_type::on_hit>(target_card, [=](card *origin_card, player *origin, player *target, int damage, bool is_bang) {
             if (origin && p == target) {
-                p->m_game->draw_check_then(target, [=](card *drawn_card) {
+                p->m_game->draw_check_then(target, target_card, [=](card *drawn_card) {
                     card_suit_type suit = p->get_card_suit(drawn_card);
                     if (suit == card_suit_type::hearts || suit == card_suit_type::diamonds) {
                         p->m_game->queue_request<request_type::bang>(target_card, target, origin);

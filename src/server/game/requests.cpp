@@ -10,7 +10,7 @@ namespace banggame {
         if (target_player == target) {
             if (auto *check = target->get_if_top_predraw_check(target_card)) {
                 target->m_game->pop_request();
-                target->m_game->draw_check_then(target, check->check_fun);
+                target->m_game->draw_check_then(target, target_card, check->check_fun);
             }
         }
     }

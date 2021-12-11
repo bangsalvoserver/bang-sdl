@@ -498,16 +498,16 @@ namespace banggame {
         m_scenario_cards.back()->on_equip(m_first_player);
     }
     
-    void game::draw_check_then(player *p, draw_check_function fun) {
-        m_current_check.emplace(std::move(fun), p);
-        do_draw_check(p);
+    void game::draw_check_then(player *origin, card *origin_card, draw_check_function fun) {
+        m_current_check.emplace(std::move(fun), origin, origin_card);
+        do_draw_check();
     }
 
-    void game::do_draw_check(player *p) {
+    void game::do_draw_check() {
         if (m_current_check->origin->m_num_checks == 1) {
             auto *c = draw_card_to(card_pile_type::discard_pile);
-            queue_event<event_type::on_draw_check>(p, c);
-            instant_event<event_type::trigger_tumbleweed>(c);
+            queue_event<event_type::on_draw_check>(m_current_check->origin, c);
+            instant_event<event_type::trigger_tumbleweed>(m_current_check->origin_card, c);
             if (!m_current_check->no_auto_resolve) {
                 m_current_check->function(c);
                 m_current_check.reset();
@@ -526,7 +526,7 @@ namespace banggame {
             move_to(drawn_card, card_pile_type::discard_pile);
             queue_event<event_type::on_draw_check>(p, drawn_card);
         }
-        instant_event<event_type::trigger_tumbleweed>(c);
+        instant_event<event_type::trigger_tumbleweed>(m_current_check->origin_card, c);
         if (!m_current_check->no_auto_resolve) {
             m_current_check->function(c);
             m_current_check.reset();

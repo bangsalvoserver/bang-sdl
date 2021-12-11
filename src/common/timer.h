@@ -42,14 +42,24 @@ namespace banggame {
     };
 
     struct timer_tumbleweed : timer_base {
-        timer_tumbleweed() {
-            duration = 200;
+        timer_tumbleweed(card *origin_card, player *origin, card *drawn_card, card *target_card) {
+            request_base::origin_card = origin_card;
+            request_base::origin = origin;
+            request_base::target = target;
+
+            timer_base::duration = 200;
+            
+            timer_tumbleweed::m_target_card = target_card;
+            timer_tumbleweed::drawn_card = drawn_card;
         }
         
+        card *m_target_card;
         card *drawn_card;
 
         void on_finished();
         void on_resolve() { on_finished(); }
+
+        card *target_card() const { return m_target_card; }
     };
 
 }

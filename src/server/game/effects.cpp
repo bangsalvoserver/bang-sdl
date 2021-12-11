@@ -76,7 +76,7 @@ namespace banggame {
 
     void effect_barrel::on_play(card *origin_card, player *target) {
         barrels_used(target->m_game->top_request())->push_back(origin_card);
-        target->m_game->draw_check_then(target, [=](card *drawn_card) {
+        target->m_game->draw_check_then(target, origin_card, [=](card *drawn_card) {
             if (target->get_card_suit(drawn_card) == card_suit_type::hearts) {
                 effect_missed().on_play(origin_card, target);
             }
@@ -598,8 +598,8 @@ namespace banggame {
     }
 
     void effect_tumbleweed::on_equip(player *origin, card *target_card) {
-        origin->m_game->add_event<event_type::trigger_tumbleweed>(target_card, [=](card *drawn_card) {
-            origin->m_game->add_request<request_type::tumbleweed>(target_card, origin, origin).drawn_card = drawn_card;
+        origin->m_game->add_event<event_type::trigger_tumbleweed>(target_card, [=](card *origin_card, card *drawn_card) {
+            origin->m_game->add_request(timer_tumbleweed{target_card, origin, drawn_card, origin_card});
             origin->m_game->m_current_check->no_auto_resolve = true;
         });
     }
@@ -610,7 +610,7 @@ namespace banggame {
 
     void effect_tumbleweed::on_play(card *origin_card, player *origin) {
         origin->m_game->pop_request();
-        origin->m_game->do_draw_check(origin);
+        origin->m_game->do_draw_check();
     }
 
     void timer_tumbleweed::on_finished() {

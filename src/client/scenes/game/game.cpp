@@ -719,25 +719,23 @@ void game_scene::handle_game_update(UPDATE_TAG(request_handle), const request_vi
         return std::array{ timer_request<Es> ... };
     }(enums::make_enum_sequence<request_type>());
 
+    std::stringstream ss;
     if (timer_lut[enums::indexof(args.type)]) {
-        std::stringstream ss;
         ss << "Timer per";
-        if (auto *card = find_card_widget(args.origin_card_id)) {
-            ss << " " << card->name;
-        }
-        ss << " (request: " << args.type << ")";
-        m_ui.set_status(ss.str());
     } else if (args.target_id == m_player_own_id) {
-        std::stringstream ss;
         ss << "Rispondi a";
+    }
+
+    if (!ss.str().empty()) {
         if (auto *card = find_card_widget(args.origin_card_id)) {
             ss << " " << card->name;
         }
-        if (auto *card = find_card(args.card_target_id)) {
-            if (card->pile == &find_player(args.target_id)->hand) {
+        if (auto *w = find_card_widget(args.card_target_id)) {
+            auto *card = find_card(args.card_target_id);
+            if (card && card->pile == &find_player(args.target_id)->hand) {
                 ss << " dalla mano";
             } else {
-                ss << " su " << card->name;
+                ss << " su " << w->name;
             }
         }
         ss << " (request: " << args.type << ")";

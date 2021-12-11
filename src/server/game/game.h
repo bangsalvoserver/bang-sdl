@@ -25,7 +25,7 @@ namespace banggame {
         (delayed_action,    std::function<void(std::function<void()>)>)
         (on_discard_pass,   std::function<void(player *origin, card *target_card)>)
         (on_draw_check,     std::function<void(player *origin, card *target_card)>)
-        (trigger_tumbleweed, std::function<void(card *drawn_card)>)
+        (trigger_tumbleweed, std::function<void(card *origin_card, card *drawn_card)>)
         (apply_suit_modifier, std::function<void(card_suit_type &)>)
         (apply_value_modifier, std::function<void(card_value_type &)>)
         (on_discard_card,   std::function<void(player *origin, player *target, card *target_card)>)
@@ -88,6 +88,7 @@ namespace banggame {
         struct draw_check_handler {
             draw_check_function function;
             player *origin = nullptr;
+            card *origin_card = nullptr;
             bool no_auto_resolve = false;
         };
         std::optional<draw_check_handler> m_current_check;
@@ -188,21 +189,27 @@ namespace banggame {
 
         void send_request_update();
 
-        template<request_type E>
-        auto &add_request(card *origin_card, player *origin, player *target, effect_flags flags = enums::flags_none<effect_flags>) {
-            auto &ret = m_requests.emplace_front(enums::enum_constant<E>{}, origin_card, origin, target, flags).template get<E>();
-
+        auto &add_request(auto &&req) {
+            auto &ret = m_requests.emplace_front(std::move(req));
             send_request_update();
-
             return ret;
         }
 
-        void queue_request(auto &&req) {
+        template<request_type E>
+        auto &add_request(card *origin_card, player *origin, player *target, effect_flags flags = enums::flags_none<effect_flags>) {
+            auto &ret = m_requests.emplace_front(enums::enum_constant<E>{}, origin_card, origin, target, flags).template get<E>();
+            send_request_update();
+            return ret;
+        }
+
+        auto &queue_request(auto &&req) {
             auto &ret = m_requests.emplace_back(std::move(req));
 
             if (m_requests.size() == 1) {
                 send_request_update();
             }
+
+            return ret;
         }
 
         template<request_type E>
@@ -275,8 +282,8 @@ namespace banggame {
         
         void draw_scenario_card();
 
-        void draw_check_then(player *p, draw_check_function fun);
-        void do_draw_check(player *p);
+        void draw_check_then(player *origin, card *origin_card, draw_check_function fun);
+        void do_draw_check();
 
         void resolve_check(player *p, card *card);
 
