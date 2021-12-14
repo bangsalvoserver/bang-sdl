@@ -132,13 +132,6 @@ void target_finder::on_click_table_card(player_view *player, card_view *card) {
             m_flags |= play_card_flags::response;
             add_card_target(target_pair{player, card});
         }
-    } else if (!m_playing_card && !card->response_targets.empty() && card->response_targets.front().type == effect_type::offturn && !card->inactive) {
-        m_playing_card = card;
-        m_flags |= play_card_flags::response | play_card_flags::offturn;
-        handle_auto_targets();
-    } else if (bool(m_flags & play_card_flags::offturn)) {
-        m_flags |= play_card_flags::response;
-        add_card_target(target_pair{player, card});
     } else if (m_game->m_playing_id == m_game->m_player_own_id) {
         if (!m_playing_card) {
             if (player->id == m_game->m_player_own_id && !card->inactive) {
@@ -183,9 +176,6 @@ void target_finder::on_click_hand_card(player_view *player, card_view *card) {
         m_playing_card = card;
         m_flags |= play_card_flags::response | play_card_flags::offturn;
         handle_auto_targets();
-    } else if (bool(m_flags & play_card_flags::offturn)) {
-        m_flags |= play_card_flags::response;
-        add_card_target(target_pair{player, card});
     } else if (m_game->m_playing_id == m_game->m_player_own_id) {
         if (!m_playing_card) {
             if (player->id == m_game->m_player_own_id) {
@@ -232,10 +222,6 @@ void target_finder::on_click_character(player_view *player, character_card *card
                 add_character_target(target_pair{player, card});
             }
         }
-    } else if (!card->response_targets.empty() && card->response_targets.front().type == effect_type::offturn && !m_playing_card && player->id == m_game->m_player_own_id) {
-        m_playing_card = card;
-        m_flags |= play_card_flags::response | play_card_flags::offturn;
-        handle_auto_targets();
     } else if (m_game->m_playing_id == m_game->m_player_own_id) {
         if (!m_playing_card) {
             if (player->id == m_game->m_player_own_id) {

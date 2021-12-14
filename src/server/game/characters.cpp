@@ -473,7 +473,7 @@ namespace banggame {
         p->m_game->add_event<event_type::on_equip>(target_card, [=](player *origin, player *target, card *equipped_card) {
             if (p != origin) {
                 if (equipped_card->color == card_color_type::blue || equipped_card->color == card_color_type::orange) {
-                    p->m_game->queue_request<request_type::al_preacher>(target_card, nullptr, p);
+                    p->m_game->queue_request<request_type::al_preacher>(target_card, nullptr, p).players.push_back(p);
                 }
             }
         });
@@ -581,7 +581,7 @@ namespace banggame {
     }
 
     bool effect_frankie_canton::can_play(card *origin_card, player *origin, player *target, card *target_card) const {
-        return !target_card->cubes.empty();
+        return origin_card != origin->m_characters.front() && !target_card->cubes.empty();
     }
 
     void effect_frankie_canton::on_play(card *origin_card, player *origin, player *target, card *target_card) {
@@ -612,6 +612,7 @@ namespace banggame {
     }
 
     bool effect_ms_abigail::can_escape(player *origin, card *origin_card, effect_flags flags) const {
+        if (!origin) return false;
         if (origin->m_virtual) origin_card = origin->m_virtual->corresponding_card;
         if (!bool(flags & effect_flags::single_target)) return false;
         if (origin_card->color != card_color_type::brown) return false;

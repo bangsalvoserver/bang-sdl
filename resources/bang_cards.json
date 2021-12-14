@@ -1738,9 +1738,6 @@
             ],
             "responses": [
                 {
-                    "class": "offturn"
-                },
-                {
                     "class": "tumbleweed"
                 },
                 {
@@ -2438,9 +2435,6 @@
             ],
             "responses": [
                 {
-                    "class": "offturn"
-                },
-                {
                     "target": "self hand card",
                     "class": "destroy"
                 },
@@ -2594,9 +2588,6 @@
                 }
             ],
             "responses": [
-                {
-                    "class": "offturn"
-                },
                 {
                     "class": "al_preacher"
                 },

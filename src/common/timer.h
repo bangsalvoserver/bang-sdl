@@ -45,7 +45,7 @@ namespace banggame {
         timer_tumbleweed(card *origin_card, player *origin, card *drawn_card, card *target_card) {
             request_base::origin_card = origin_card;
             request_base::origin = origin;
-            request_base::target = target;
+            request_base::target = origin;
 
             timer_base::duration = 200;
             
