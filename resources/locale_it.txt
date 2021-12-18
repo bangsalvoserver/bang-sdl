@@ -26,8 +26,31 @@ STATUS_YOUR_TURN                    Tocca a te
 STATUS_TIMER_FOR                    Timer per
 STATUS_RESPOND_TO                   Rispondi a
 STATUS_FROM_HAND                    dalla mano
-STATUS_ON_CARD                      su
+STATUS_ON_CARD                      su %s
 banggame::player_role::sheriff      Sceriffo
 banggame::player_role::deputy       Vice
 banggame::player_role::outlaw       Fuorilegge
 banggame::player_role::renegade     Rinnegato
+lobby_state::waiting                In attesa
+lobby_state::playing                In gioco
+lobby_state::finished               Finita
+ERROR_PLAYER_IN_LOBBY               Giocatore già in una lobby
+ERROR_PLAYER_NOT_IN_LOBBY           Giocatore non in una lobby
+ERROR_PLAYER_NOT_LOBBY_OWNER        Non proprietario della lobby
+ERROR_LOBBY_NOT_WAITING             Lobby non in attesa
+ERROR_LOBBY_NOT_PLAYING             Lobby non in gioco
+ERROR_PLAYER_DOES_NOT_OWN_CARD      Carta non tua
+ERROR_CARD_NOT_FOUND                Carta non trovata
+ERROR_WRONG_DECLARED_SEED           Seme dichiarato diverso
+ERROR_INVALID_ACTION                Azione non valida
+ERROR_NOT_ENOUGH_GOLD               Non hai abbastanza pepite
+ERROR_NOT_ENOUGH_CUBES              Non ci sono abbastanza cubetti
+ERROR_INVALID_TARGETS               Target non validi
+ERROR_PLAYER_MUST_DRAW              Devi pescare
+ERROR_PLAYER_MUST_NOT_DRAW          Non devi pescare adesso
+ERROR_CANT_DISCARD_OWN_BLACK        Non puoi scartare le tue carte nere
+ERROR_CHARACTERS_ARE_DISABLED       I personaggi sono disabilitati
+ERROR_TABLE_CARDS_ARE_DISABLED      Le carte in gioco sono disabilitate
+ERROR_CARD_INACTIVE                 Carta non attiva in questo turno
+ERROR_CANT_EQUIP_CARDS              Non si possono equipaggiare carte
+ERROR_DUPLICATED_CARD               Carta duplicata

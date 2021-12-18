@@ -11,7 +11,7 @@
 #include "card.h"
 #include "player.h"
 
-#include "common/game_update.h"
+#include "common/net_enums.h"
 #include "common/requests.h"
 #include "common/timer.h"
 
@@ -68,9 +68,28 @@ namespace banggame {
 
     using event_args = detail::function_argument_tuple_variant<event_type>;
 
-    struct game_error : std::runtime_error {
-        using std::runtime_error::runtime_error;
+    struct localized_tag{};
+
+    struct game_error : std::exception, game_error_args {
+        template<typename ... Ts>
+        game_error(std::string message, Ts && ... args)
+            : game_error_args{std::move(message), {std::forward<Ts>(args) ... }, false} {}
+
+        template<typename ... Ts>
+        game_error(localized_tag, Ts && ... args)
+            : game_error(std::forward<Ts>(args) ... ) {
+            localized = true;
+        }
+
+        const char *what() const noexcept override {
+            return message.c_str();
+        }
     };
+
+    template<typename ... Ts>
+    game_error localized_game_error(Ts && ... args) {
+        return game_error(localized_tag{}, std::forward<Ts>(args) ...);
+    }
 
     struct game_log {
         player *origin;

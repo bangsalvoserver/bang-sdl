@@ -26,8 +26,31 @@ STATUS_YOUR_TURN                    Your turn
 STATUS_TIMER_FOR                    Timer for
 STATUS_RESPOND_TO                   Respond to
 STATUS_FROM_HAND                    from hand
-STATUS_ON_CARD                      on
+STATUS_ON_CARD                      on %s
 banggame::player_role::sheriff      Sheriff
 banggame::player_role::deputy       Deputy
 banggame::player_role::outlaw       Outlaw
 banggame::player_role::renegade     Renegade
+lobby_state::waiting                Waiting
+lobby_state::playing                Playing
+lobby_state::finished               Finished
+ERROR_PLAYER_IN_LOBBY               Player already in a lobby
+ERROR_PLAYER_NOT_IN_LOBBY           Player not in a lobby
+ERROR_PLAYER_NOT_LOBBY_OWNER        Not owner of lobby
+ERROR_LOBBY_NOT_WAITING             Lobby not waiting
+ERROR_LOBBY_NOT_PLAYING             Lobby not playing
+ERROR_PLAYER_DOES_NOT_OWN_CARD      Card is not yours
+ERROR_CARD_NOT_FOUND                Card not found
+ERROR_WRONG_DECLARED_SEED           Wrong declared seed
+ERROR_INVALID_ACTION                Invalid action
+ERROR_NOT_ENOUGH_GOLD               Not enough gold nuggets
+ERROR_NOT_ENOUGH_CUBES              Not enough cubes
+ERROR_INVALID_TARGETS               Invalid targets
+ERROR_PLAYER_MUST_DRAW              You must draw
+ERROR_PLAYER_MUST_NOT_DRAW          You must not draw now
+ERROR_CANT_DISCARD_OWN_BLACK        You can't discard your own black cards
+ERROR_CHARACTERS_ARE_DISABLED       Characters are disabled
+ERROR_TABLE_CARDS_ARE_DISABLED      Table cards are disabled
+ERROR_CARD_INACTIVE                 Card inactive in this turn
+ERROR_CANT_EQUIP_CARDS              You can't equip cards
+ERROR_DUPLICATED_CARD               Duplicated card

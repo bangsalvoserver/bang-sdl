@@ -91,7 +91,7 @@ private:
     void handle_message(MESSAGE_TAG(lobby_left), const lobby_left_args &args);
     void handle_message(MESSAGE_TAG(lobby_chat), const lobby_chat_args &args);
     void handle_message(MESSAGE_TAG(game_started), const game_started_args &args);
-    void handle_message(MESSAGE_TAG(game_error), const std::string &message);
+    void handle_message(MESSAGE_TAG(game_error), const game_error_args &args);
     void handle_message(MESSAGE_TAG(game_update), const banggame::game_update &args);
 
     scene_base *m_scene = nullptr;

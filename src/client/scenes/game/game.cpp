@@ -733,7 +733,7 @@ void game_scene::handle_game_update(UPDATE_TAG(request_handle), const request_vi
             if (card && card->pile == &find_player(args.target_id)->hand) {
                 ss << ' ' << _("STATUS_FROM_HAND");
             } else {
-                ss << ' ' << _("STATUS_ON_CARD") << ' ';
+                ss << ' ' << _("STATUS_ON_CARD", w->name);
             }
         }
         ss << " (request: " << args.type << ")";

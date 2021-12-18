@@ -77,7 +77,7 @@ namespace banggame {
         } else if (auto it = m_characters.find(card_id); it != m_characters.end()) {
             return &it->second;
         }
-        throw game_error("server.find_card: id non trovato");
+        throw game_error("server.find_card: ID not found");
     }
 
     static auto make_id_vector(const auto &vec) {
@@ -421,7 +421,7 @@ namespace banggame {
         case card_pile_type::hidden_deck:       return m_hidden_deck;
         case card_pile_type::scenario_deck:     return m_scenario_deck;
         case card_pile_type::scenario_card:     return m_scenario_cards;
-        default: throw std::runtime_error("Pila non valida");
+        default: throw std::runtime_error("Invalid Pile");
         }
     }
 

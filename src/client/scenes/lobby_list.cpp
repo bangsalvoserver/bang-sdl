@@ -10,7 +10,7 @@ lobby_line::lobby_line(lobby_list_scene *parent, const lobby_data &args)
     , m_players_text([&]{
         return std::to_string(args.num_players) + '/' + std::to_string(banggame::lobby_max_players);
     }())
-    , m_state_text(std::string(enums::to_string(args.state)))
+    , m_state_text(_(args.state))
     , m_join_btn(_("BUTTON_JOIN"), [parent, args] {
         parent->do_join(args.lobby_id);
     }) {}

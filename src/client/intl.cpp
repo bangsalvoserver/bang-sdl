@@ -8,15 +8,10 @@ DECLARE_RESOURCE(locale_en_txt)
 DECLARE_RESOURCE(locale_it_txt)
 
 namespace intl {
-    DEFINE_ENUM_IN_NS(intl, language,
-        (english)
-        (italian)
+    DEFINE_ENUM_DATA_IN_NS(intl, language,
+        (english, +[]{ return GET_RESOURCE(locale_en_txt); })
+        (italian, +[]{ return GET_RESOURCE(locale_it_txt); })
     )
-
-    template<language Lang> static const resource_view get_res_locale() = delete;
-
-    template<> const resource_view get_res_locale<language::english>() { return GET_RESOURCE(locale_en_txt); }
-    template<> const resource_view get_res_locale<language::italian>() { return GET_RESOURCE(locale_it_txt); }
 }
 
 #ifdef WIN32
@@ -34,10 +29,16 @@ namespace intl {
 }
 
 #else
+#include <locale>
 
 namespace intl {
     language get_system_language() {
-        return language::english;
+        std::string lang = std::locale("").name();
+        if (lang.starts_with("it_IT")) {
+            return language::italian;
+        } else {
+            return language::english;
+        }
     }
 }
 
@@ -51,13 +52,7 @@ namespace intl {
     static const auto strings = []{
         std::map<std::string, std::string, std::less<>> strings;
 
-        constexpr auto lut = []<language ... Es>(enums::enum_sequence<Es...>) {
-            return std::array {
-                get_res_locale<Es> ...
-            };
-        }(enums::make_enum_sequence<language>());
-
-        auto stream = resource_stream(lut[enums::indexof(get_system_language())]());
+        auto stream = resource_stream(enums::get_data(get_system_language())());
 
         std::string line;
         while (std::getline(stream, line)) {

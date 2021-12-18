@@ -31,7 +31,7 @@ void game_manager::parse_message(const sdlnet::ip_address &addr, const std::stri
             lut[enums::indexof(msg)](*this, addr, json_value["value"]);
         }
     } catch (const game_error &e) {
-        send_message<server_message_type::game_error>(addr, e.what());
+        send_message<server_message_type::game_error>(addr, e);
     } catch (const Json::Exception &e) {
         std::cerr << addr.ip_string() << ": Errore Json (" << e.what() << ")\n";
     } catch (const std::exception &e) {
@@ -110,7 +110,7 @@ void game_manager::handle_message(MESSAGE_TAG(lobby_make), const sdlnet::ip_addr
 
     auto it = find_lobby(u);
     if (it != m_lobbies.end()) {
-        throw game_error("Giocatore gia' in una lobby");
+        throw localized_game_error("ERROR_PLAYER_IN_LOBBY");
     }
 
     lobby new_lobby;
@@ -133,15 +133,15 @@ void game_manager::handle_message(MESSAGE_TAG(lobby_edit), const sdlnet::ip_addr
 
     auto it = find_lobby(u);
     if (it == m_lobbies.end()) {
-        throw game_error("Giocatore non in una lobby");
+        throw localized_game_error("ERROR_PLAYER_NOT_IN_LOBBY");
     }
 
     if (it->owner != u) {
-        throw game_error("Non proprietario della lobby");
+        throw localized_game_error("ERROR_PLAYER_NOT_LOBBY_OWNER");
     }
 
     if (it->state != lobby_state::waiting) {
-        throw game_error("Lobby non in attesa");
+        throw localized_game_error("ERROR_LOBBY_NOT_WAITING");
     }
 
     it->name = args.name;
@@ -161,7 +161,7 @@ void game_manager::handle_message(MESSAGE_TAG(lobby_join), const sdlnet::ip_addr
 
     auto it = std::ranges::find(m_lobbies, value.lobby_id, &lobby::id);
     if (it == m_lobbies.end()) {
-        throw game_error("Id Lobby non valido");
+        throw game_error("Invalid Lobby ID");
     }
 
     if (it->users.size() < lobby_max_players) {
@@ -210,7 +210,7 @@ void game_manager::handle_message(MESSAGE_TAG(lobby_join), const sdlnet::ip_addr
 void game_manager::handle_message(MESSAGE_TAG(lobby_players), const sdlnet::ip_address &addr) {
     auto it = find_lobby(find_user(addr));
     if (it == m_lobbies.end()) {
-        throw game_error("Giocatore non in una lobby");
+        throw localized_game_error("ERROR_PLAYER_NOT_IN_LOBBY");
     }
 
     std::vector<lobby_player_data> vec;
@@ -258,7 +258,7 @@ void game_manager::handle_message(MESSAGE_TAG(lobby_chat), const sdlnet::ip_addr
 
     auto it = find_lobby(u);
     if (it == m_lobbies.end()) {
-        throw game_error("Giocatore non in una lobby");
+        throw localized_game_error("ERROR_PLAYER_NOT_IN_LOBBY");
     }
 
     broadcast_message<server_message_type::lobby_chat>(*it, u->id, value.message);
@@ -272,15 +272,15 @@ void game_manager::handle_message(MESSAGE_TAG(game_start), const sdlnet::ip_addr
 
     auto it = find_lobby(u);
     if (it == m_lobbies.end()) {
-        throw game_error("Giocatore non in una lobby");
+        throw localized_game_error("ERROR_PLAYER_NOT_IN_LOBBY");
     }
 
     if (u != it->owner) {
-        throw game_error("Non proprietario della lobby");
+        throw localized_game_error("ERROR_PLAYER_NOT_LOBBY_OWNER");
     }
 
     if (it->state == lobby_state::playing) {
-        throw game_error("Lobby non in attesa");
+        throw localized_game_error("ERROR_LOBBY_NOT_WAITING");
     }
 
     it->state = lobby_state::playing;
@@ -298,11 +298,11 @@ void game_manager::handle_message(MESSAGE_TAG(game_action), const sdlnet::ip_add
 
     auto it = find_lobby(u);
     if (it == m_lobbies.end()) {
-        throw game_error("Giocatore non in una lobby");
+        throw localized_game_error("ERROR_PLAYER_NOT_IN_LOBBY");
     }
 
     if (it->state != lobby_state::playing) {
-        throw game_error("Lobby non in gioco");
+        throw localized_game_error("ERROR_LOBBY_NOT_PLAYING");
     }
 
     auto *controlling = std::ranges::find(it->users, u, &lobby_user::user)->controlling;
