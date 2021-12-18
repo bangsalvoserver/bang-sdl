@@ -6,7 +6,7 @@
 recent_server_line::recent_server_line(connect_scene *parent, const std::string &address)
     : parent(parent)
     , m_address_text(address)
-    , m_connect_btn("Connetti", [parent, &address]{
+    , m_connect_btn(_("BUTTON_CONNECT"), [parent, &address]{
         parent->do_connect(address);
     }) {}
 
@@ -22,13 +22,13 @@ void recent_server_line::render(sdl::renderer &renderer) {
 
 connect_scene::connect_scene(game_manager *parent)
     : scene_base(parent)
-    , m_username_label("Nome utente:")
-    , m_propic_label("Immagine profilo:")
-    , m_address_label("Nuovo indirizzo:")
-    , m_connect_btn("Connetti", [this]{
+    , m_username_label(_("LABEL_USERNAME"))
+    , m_propic_label(_("LABEL_PROFILE_PICTURE"))
+    , m_address_label(_("LABEL_NEW_ADDRESS"))
+    , m_connect_btn(_("BUTTON_CONNECT"), [this]{
         do_connect(m_address_box.get_value());
     })
-    , m_propic_browse_btn("Sfoglia...", [this]{
+    , m_propic_browse_btn(_("BUTTON_BROWSE"), [this]{
         do_browse();
     })
     , m_error_text(sdl::text_style{
@@ -106,7 +106,7 @@ void connect_scene::show_error(const std::string &error) {
 
 void connect_scene::do_connect(const std::string &address) {
     if (m_username_box.get_value().empty()) {
-        show_error("Specificare un nome utente");
+        show_error(_("ERROR_NO_USERNAME"));
     } else {
         parent->get_config().user_name = m_username_box.get_value();
         parent->get_config().profile_image = m_propic_box.get_value();
@@ -116,7 +116,7 @@ void connect_scene::do_connect(const std::string &address) {
 
 void connect_scene::do_browse() {
     const char *filters[] = {"*.jpg", "*.png"};
-    const char *ret = tinyfd_openFileDialog("Bang!", parent->get_config().profile_image.c_str(), 2, filters, "File Immagine", 0);
+    const char *ret = tinyfd_openFileDialog(_("BANG_TITLE").c_str(), parent->get_config().profile_image.c_str(), 2, filters, _("DIALOG_IMAGE_FILES").c_str(), 0);
     if (ret) {
         m_propic_box.set_value(parent->get_config().profile_image.assign(ret));
     }

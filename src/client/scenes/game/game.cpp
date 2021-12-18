@@ -312,19 +312,19 @@ void game_scene::handle_game_update(const game_update &update) {
 }
 
 void game_scene::add_user(int id, const user_info &args) {
-    m_ui.add_message(args.name + " si \u00e8 connesso");
+    m_ui.add_message(_("GAME_USER_CONNECTED", args.name));
 }
 
 void game_scene::remove_user(int id) {
     auto it = std::ranges::find(m_players, id, [](const auto &pair) { return pair.second.user_id; });
     if (it != m_players.end()) {
         it->second.user_id = 0;
-        it->second.set_username("(Disconnesso)");
+        it->second.set_username(_("USERNAME_DISCONNECTED"));
         it->second.set_profile_image(nullptr);
     }
     user_info *info = parent->get_user_info(id);
     if (info) {
-        m_ui.add_message(info->name + " si \u00e8 disconnesso");
+        m_ui.add_message(_("GAME_USER_DISCONNECTED", info->name));
     }
 }
 
@@ -339,7 +339,7 @@ void game_scene::pop_update() {
             }, update);
         }
     } catch (const std::exception &error) {
-        std::cerr << "Errore: " << error.what() << '\n';
+        std::cerr << "Error: " << error.what() << '\n';
         parent->disconnect();
     }
 }
@@ -353,9 +353,7 @@ void game_scene::show_error(const std::string &message) {
 }
 
 void game_scene::handle_game_update(UPDATE_TAG(game_over), const game_over_update &args) {
-    std::string msg = "Game Over. Winner: ";
-    msg += enums::to_string(args.winner_role);
-    m_ui.add_message(msg);
+    m_ui.add_message(_("STATUS_GAME_OVER", _(args.winner_role)));
     
     if (parent->get_user_own_id() == parent->get_lobby_owner_id()) {
         m_ui.enable_restart(true);
@@ -404,7 +402,7 @@ void game_scene::handle_game_update(UPDATE_TAG(add_cards), const add_cards_updat
         case card_pile_type::shop_deck:         c.pile = &m_shop_deck; c.texture_back = &card_textures::goldrush(); break;
         case card_pile_type::scenario_deck:     c.pile = &m_scenario_deck; break;
         case card_pile_type::hidden_deck:       c.pile = &m_hidden_deck; break;
-        default: throw std::runtime_error("Pila non valida");
+        default: throw std::runtime_error("Invalid pile");
         }
         c.set_pos(c.pile->pos);
         c.pile->push_back(&c);
@@ -441,7 +439,7 @@ void game_scene::handle_game_update(UPDATE_TAG(move_card), const move_card_updat
         case card_pile_type::shop_discard:      return m_shop_discard;
         case card_pile_type::hidden_deck:       return m_hidden_deck;
         case card_pile_type::scenario_card:     return m_scenario_card;
-        default: throw std::runtime_error("Pila non valida");
+        default: throw std::runtime_error("Invalid pile");
         }
     }();
     card->pile->push_back(card);
@@ -621,7 +619,7 @@ void game_scene::handle_game_update(UPDATE_TAG(player_add), const player_user_up
         p.set_username(info->name);
         p.set_profile_image(&info->profile_image);
     } else {
-        p.set_username("(Disconnesso)");
+        p.set_username(_("USERNAME_DISCONNECTED"));
         p.set_profile_image(nullptr);
     }
 
@@ -704,7 +702,7 @@ void game_scene::handle_game_update(UPDATE_TAG(switch_turn), const switch_turn_u
     m_target.clear_targets();
 
     if (m_playing_id == m_player_own_id && m_current_request.type == request_type::none) {
-        m_ui.set_status("Your turn");
+        m_ui.set_status(_("STATUS_YOUR_TURN"));
     }
 
     pop_update();
@@ -721,21 +719,21 @@ void game_scene::handle_game_update(UPDATE_TAG(request_handle), const request_vi
 
     std::stringstream ss;
     if (timer_lut[enums::indexof(args.type)]) {
-        ss << "Timer per";
+        ss << _("STATUS_TIMER_FOR");
     } else if (args.target_id == m_player_own_id) {
-        ss << "Rispondi a";
+        ss << _("STATUS_RESPOND_TO");
     }
 
     if (!ss.str().empty()) {
         if (auto *card = find_card_widget(args.origin_card_id)) {
-            ss << " " << card->name;
+            ss << ' ' << card->name;
         }
         if (auto *w = find_card_widget(args.card_target_id)) {
             auto *card = find_card(args.card_target_id);
             if (card && card->pile == &find_player(args.target_id)->hand) {
-                ss << " dalla mano";
+                ss << ' ' << _("STATUS_FROM_HAND");
             } else {
-                ss << " su " << w->name;
+                ss << ' ' << _("STATUS_ON_CARD") << ' ';
             }
         }
         ss << " (request: " << args.type << ")";

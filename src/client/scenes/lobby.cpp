@@ -35,10 +35,10 @@ using card_expansions_with_label = enums::filter_enum_sequence<has_label, enums:
 
 lobby_scene::lobby_scene(game_manager *parent)
     : scene_base(parent)
-    , m_leave_btn("Esci", [parent]{
+    , m_leave_btn(_("BUTTON_EXIT"), [parent]{
         parent->add_message<client_message_type::lobby_leave>();
     })
-    , m_start_btn("Avvia", [parent]{
+    , m_start_btn(_("BUTTON_START"), [parent]{
         parent->add_message<client_message_type::game_start>();
     })
     , m_chat(parent) {}

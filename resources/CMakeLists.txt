@@ -28,6 +28,9 @@ endif()
 compile_resources(resources_obj arial.ttf icons/icon_checkbox.png icons/bang.png)
 add_library(resources_obj OBJECT ${resources_obj} icons/bang.rc)
 
+compile_resources(locales_obj locale_it.txt locale_en.txt)
+add_library(locales_obj OBJECT ${locales_obj})
+
 add_executable(packer pack.cpp)
 file(GLOB_RECURSE card_files "${CMAKE_CURRENT_SOURCE_DIR}/cards/*.png")
 add_custom_command(

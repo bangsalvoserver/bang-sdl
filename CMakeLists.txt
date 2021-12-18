@@ -16,6 +16,7 @@ find_package(Boost REQUIRED)
 pkg_check_modules(jsoncpp REQUIRED jsoncpp IMPORTED_TARGET)
 
 set(bangclient_srcs
+    src/client/intl.cpp
     src/client/main.cpp
     src/client/manager.cpp
     src/client/user_info.cpp
@@ -52,7 +53,7 @@ add_subdirectory(resources)
 
 add_executable(bangclient ${bangclient_srcs})
 target_link_libraries(bangclient PkgConfig::SDL2 PkgConfig::SDL2_net PkgConfig::SDL2_ttf PkgConfig::SDL2_image PkgConfig::SDL2_gfx PkgConfig::jsoncpp)
-target_link_libraries(bangclient resources_obj)
+target_link_libraries(bangclient resources_obj locales_obj)
 add_dependencies(bangclient cards_pak)
 if(WIN32)
     target_link_options(bangclient PRIVATE -mconsole)

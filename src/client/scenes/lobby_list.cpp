@@ -11,7 +11,7 @@ lobby_line::lobby_line(lobby_list_scene *parent, const lobby_data &args)
         return std::to_string(args.num_players) + '/' + std::to_string(banggame::lobby_max_players);
     }())
     , m_state_text(std::string(enums::to_string(args.state)))
-    , m_join_btn("Entra", [parent, args] {
+    , m_join_btn(_("BUTTON_JOIN"), [parent, args] {
         parent->do_join(args.lobby_id);
     }) {}
 
@@ -31,10 +31,10 @@ void lobby_line::render(sdl::renderer &renderer) {
 
 lobby_list_scene::lobby_list_scene(game_manager *parent)
     : scene_base(parent)
-    , m_make_lobby_btn("Crea lobby", [this] {
+    , m_make_lobby_btn(_("BUTTON_MAKE_LOBBY"), [this] {
         do_make_lobby();
     })
-    , m_disconnect_btn("Disconnetti", [parent] {
+    , m_disconnect_btn(_("BUTTON_DISCONNECT"), [parent] {
         parent->disconnect();
     })
 {

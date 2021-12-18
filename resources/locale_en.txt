@@ -1,0 +1,33 @@
+BANG_TITLE                          Bang!
+BUTTON_CONNECT                      Connect
+BUTTON_BROWSE                       Browse....
+BUTTON_JOIN                         Join
+BUTTON_MAKE_LOBBY                   Make lobby
+BUTTON_START                        Start
+BUTTON_EXIT                         Exit
+BUTTON_DISCONNECT                   Disconnect
+BUTTON_SEND                         Send
+LABEL_USERNAME                      User name:
+LABEL_PROFILE_PICTURE               Profile picture:
+LABEL_NEW_ADDRESS                   New address:
+ERROR_NO_USERNAME                   Specify the user name
+ERROR_DISCONNECTED                  Disconnected from the server
+DIALOG_IMAGE_FILES                  Image Files
+GAME_PASS                           Pass turn
+GAME_RESOLVE                        Resolve
+GAME_SELL_BEER                      Sell beer
+GAME_DISCARD_BLACK                  Discard black
+GAME_RESTART                        Restart
+GAME_USER_CONNECTED                 %s connected
+GAME_USER_DISCONNECTED              %s disconnected
+USERNAME_DISCONNECTED               (Disconnected)
+STATUS_GAME_OVER                    Game Over. Winner: %s
+STATUS_YOUR_TURN                    Your turn
+STATUS_TIMER_FOR                    Timer for
+STATUS_RESPOND_TO                   Respond to
+STATUS_FROM_HAND                    from hand
+STATUS_ON_CARD                      on
+banggame::player_role::sheriff      Sheriff
+banggame::player_role::deputy       Deputy
+banggame::player_role::outlaw       Outlaw
+banggame::player_role::renegade     Renegade

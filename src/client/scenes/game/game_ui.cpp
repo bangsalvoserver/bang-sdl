@@ -9,22 +9,22 @@ using namespace enums::flag_operators;
 game_ui::game_ui(game_scene *parent)
     : parent(parent)
     , m_chat(parent->parent)
-    , m_pass_btn("Passa", [&target = parent->m_target] {
+    , m_pass_btn(_("GAME_PASS"), [&target = parent->m_target] {
         target.on_click_pass_turn();
     })
-    , m_resolve_btn("Risolvi", [&target = parent->m_target] {
+    , m_resolve_btn(_("GAME_RESOLVE"), [&target = parent->m_target] {
         target.on_click_resolve();
     })
-    , m_sell_beer_btn("Vendi birra", [&target = parent->m_target] {
+    , m_sell_beer_btn(_("GAME_SELL_BEER"), [&target = parent->m_target] {
         target.on_click_sell_beer();
     })
-    , m_discard_black_btn("Scarta nera", [&target = parent->m_target] {
+    , m_discard_black_btn(_("GAME_DISCARD_BLACK"), [&target = parent->m_target] {
         target.on_click_discard_black();
     })
-    , m_leave_btn("Esci", [&mgr = *parent->parent] {
+    , m_leave_btn(_("BUTTON_EXIT"), [&mgr = *parent->parent] {
         mgr.add_message<client_message_type::lobby_leave>();
     })
-    , m_restart_btn("Riavvia", [&mgr = *parent->parent] {
+    , m_restart_btn(_("GAME_RESTART"), [&mgr = *parent->parent] {
         mgr.add_message<client_message_type::game_start>();
     }) {}
 

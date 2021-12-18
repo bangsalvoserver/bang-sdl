@@ -13,6 +13,7 @@
 
 #include "config.h"
 #include "user_info.h"
+#include "intl.h"
 
 DEFINE_ENUM_TYPES(scene_type,
     (connect, connect_scene)

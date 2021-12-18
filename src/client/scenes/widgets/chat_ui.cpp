@@ -4,7 +4,7 @@
 
 chat_ui::chat_ui(game_manager *parent)
     : parent(parent)
-    , m_send_btn("Invia", [this] {
+    , m_send_btn(_("BUTTON_SEND"), [this] {
         send_chat_message();
     })
 {

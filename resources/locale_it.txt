@@ -1,0 +1,33 @@
+BANG_TITLE                          Bang!
+BUTTON_CONNECT                      Connetti
+BUTTON_BROWSE                       Sfoglia....
+BUTTON_JOIN                         Entra
+BUTTON_MAKE_LOBBY                   Crea lobby
+BUTTON_START                        Avvia
+BUTTON_EXIT                         Esci
+BUTTON_DISCONNECT                   Disconnetti
+BUTTON_SEND                         Invia
+LABEL_USERNAME                      Nomer utente:
+LABEL_PROFILE_PICTURE               Immagine profilo:
+LABEL_NEW_ADDRESS                   Nuovo indirizzo:
+ERROR_NO_USERNAME                   Specificare un nome utente
+ERROR_DISCONNECTED                  Disconnesso dal server
+DIALOG_IMAGE_FILES                  File Immagine
+GAME_PASS                           Passa
+GAME_RESOLVE                        Risolvi
+GAME_SELL_BEER                      Vendi birra
+GAME_DISCARD_BLACK                  Scarta nera
+GAME_RESTART                        Riavvia
+GAME_USER_CONNECTED                 %s si è connesso
+GAME_USER_DISCONNECTED              %s si è disconnesso
+USERNAME_DISCONNECTED               (Disconnesso)
+STATUS_GAME_OVER                    Game Over. Vincitore: %s
+STATUS_YOUR_TURN                    Tocca a te
+STATUS_TIMER_FOR                    Timer per
+STATUS_RESPOND_TO                   Rispondi a
+STATUS_FROM_HAND                    dalla mano
+STATUS_ON_CARD                      su
+banggame::player_role::sheriff      Sceriffo
+banggame::player_role::deputy       Vice
+banggame::player_role::outlaw       Fuorilegge
+banggame::player_role::renegade     Rinnegato

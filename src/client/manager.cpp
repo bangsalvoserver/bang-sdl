@@ -53,9 +53,9 @@ void game_manager::update_net() {
         } catch (sdlnet::socket_disconnected) {
             disconnect();
         } catch (const Json::Exception &e) {
-            std::cerr << "Errore Json (" << e.what() << ")\n";
+            std::cerr << "Json Error (" << e.what() << ")\n";
         } catch (const std::exception &error) {
-            std::cerr << "Errore (" << error.what() << ")\n";
+            std::cerr << "Error (" << error.what() << ")\n";
         }
     }
     if (sock.isopen()) {
@@ -98,7 +98,7 @@ void game_manager::disconnect() {
     m_users.clear();
     sock_set.erase(sock);
     sock.close();
-    switch_scene<scene_type::connect>()->show_error("Disconnesso dal server");
+    switch_scene<scene_type::connect>()->show_error(_("ERROR_DISONNECTED"));
 }
 
 
