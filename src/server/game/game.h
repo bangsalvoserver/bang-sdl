@@ -91,17 +91,10 @@ namespace banggame {
         return game_error(localized_tag{}, std::forward<Ts>(args) ...);
     }
 
-    struct game_log {
-        player *origin;
-        player *target;
-        std::string message;
-    };
-
     #define ACTION_TAG(name) enums::enum_constant<game_action_type::name>
 
     struct game {
         std::list<std::pair<player *, game_update>> m_updates;
-        std::list<game_log> m_logs;
 
         std::list<request_holder> m_requests;
         struct draw_check_handler {
@@ -175,9 +168,7 @@ namespace banggame {
             add_private_update<E>(nullptr, args ...);
         }
 
-        void add_log(player *origin, player *target, std::string message) {
-            m_logs.emplace_back(origin, target, std::move(message));
-        }
+        void add_log(std::string message, card *origin_card, player *origin, player *target = nullptr, card *target_card = nullptr);
 
         std::vector<game_update> get_game_state_updates(player *owner);
 

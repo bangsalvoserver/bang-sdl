@@ -41,7 +41,7 @@ ERROR_LOBBY_NOT_WAITING             Lobby not waiting
 ERROR_LOBBY_NOT_PLAYING             Lobby not playing
 ERROR_PLAYER_DOES_NOT_OWN_CARD      Card is not yours
 ERROR_CARD_NOT_FOUND                Card not found
-ERROR_WRONG_DECLARED_SEED           Wrong declared seed
+ERROR_WRONG_DECLARED_SUIT           Wrong declared suit
 ERROR_INVALID_ACTION                Invalid action
 ERROR_NOT_ENOUGH_GOLD               Not enough gold nuggets
 ERROR_NOT_ENOUGH_CUBES              Not enough cubes
@@ -54,3 +54,16 @@ ERROR_TABLE_CARDS_ARE_DISABLED      Table cards are disabled
 ERROR_CARD_INACTIVE                 Card inactive in this turn
 ERROR_CANT_EQUIP_CARDS              You can't equip cards
 ERROR_DUPLICATED_CARD               Duplicated card
+LOG_SOLD_BEER                       {1} sold {3}
+LOG_DISCARDED_BLACK                 {1} forced {2} to discard {3}
+LOG_DRAWN_WITH_CHARACTER            {1} drew using {0}
+LOG_PLAYED_CHARACTER                {1} played {0}'s effect
+LOG_PLAYED_CARD                     {1} played {0}
+LOG_PLAYED_TABLE_CARD               {1} played {0} from the table
+LOG_EQUIPPED_CARD                   {1} equipped {0}
+LOG_EQUIPPED_CARD_TO                {1} equipped {0} on {2}
+LOG_BOUGHT_CARD                     {1} bought and played {0}
+LOG_BOUGHT_EQUIP                    {1} bought and equipped {0}
+LOG_BOUGHT_EQUIP_TO                 {1} bought and equipped {0} to {2}
+LOG_RESPONDED_WITH_CARD             {1} responded with {0}
+LOG_DRAWN_FROM_DECK                 {1} drew from the deck

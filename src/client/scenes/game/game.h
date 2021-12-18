@@ -42,6 +42,7 @@ namespace banggame {
 
     private:
         void handle_game_update(UPDATE_TAG(game_over),        const game_over_update &args);
+        void handle_game_update(UPDATE_TAG(game_log),         const game_log_update &args);
         void handle_game_update(UPDATE_TAG(add_cards),        const add_cards_update &args);
         void handle_game_update(UPDATE_TAG(move_card),        const move_card_update &args);
         void handle_game_update(UPDATE_TAG(add_cubes),        const add_cubes_update &args);

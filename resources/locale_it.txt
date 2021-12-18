@@ -41,7 +41,7 @@ ERROR_LOBBY_NOT_WAITING             Lobby non in attesa
 ERROR_LOBBY_NOT_PLAYING             Lobby non in gioco
 ERROR_PLAYER_DOES_NOT_OWN_CARD      Carta non tua
 ERROR_CARD_NOT_FOUND                Carta non trovata
-ERROR_WRONG_DECLARED_SEED           Seme dichiarato diverso
+ERROR_WRONG_DECLARED_SUIT           Seme dichiarato diverso
 ERROR_INVALID_ACTION                Azione non valida
 ERROR_NOT_ENOUGH_GOLD               Non hai abbastanza pepite
 ERROR_NOT_ENOUGH_CUBES              Non ci sono abbastanza cubetti
@@ -54,3 +54,16 @@ ERROR_TABLE_CARDS_ARE_DISABLED      Le carte in gioco sono disabilitate
 ERROR_CARD_INACTIVE                 Carta non attiva in questo turno
 ERROR_CANT_EQUIP_CARDS              Non si possono equipaggiare carte
 ERROR_DUPLICATED_CARD               Carta duplicata
+LOG_SOLD_BEER                       {1} ha venduto {3}
+LOG_DISCARDED_BLACK                 {1} ha scartato {3} a {2}
+LOG_DRAWN_WITH_CHARACTER            {1} ha pescato usando {0}
+LOG_PLAYED_CHARACTER                {1} ha giocato l'effetto di {0}
+LOG_PLAYED_CARD                     {1} ha giocato {0}
+LOG_PLAYED_TABLE_CARD               {1} ha giocato {0} da terra
+LOG_EQUIPPED_CARD                   {1} ha equipaggiato {0}
+LOG_EQUIPPED_CARD_TO                {1} ha equipaggiato {0} a {2}
+LOG_BOUGHT_CARD                     {1} ha comprato e giocato {0}
+LOG_BOUGHT_EQUIP                    {1} ha comprato ed equipaggiato {0}
+LOG_BOUGHT_EQUIP_TO                 {1} ha comprato ed equipaggiato {0} a {2}
+LOG_RESPONDED_WITH_CARD             {1} ha risposto con {0}
+LOG_DRAWN_FROM_DECK                 {1} ha pescato dal mazzo

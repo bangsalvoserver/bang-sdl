@@ -10,6 +10,16 @@ namespace banggame {
 
     using namespace enums::flag_operators;
 
+    void game::add_log(std::string message, card *origin_card, player *origin, player *target, card *target_card) {
+        add_public_update<game_update_type::game_log>(
+            std::move(message),
+            origin_card ? origin_card->id : 0,
+            origin ? origin->id : 0,
+            target ? target->id : 0,
+            target_card ? target_card->id : 0
+        );
+    }
+
     static card_info make_card_info(const card &c) {
         auto make_card_info_effects = []<typename T>(std::vector<T> &out, const auto &vec) {
             for (const auto &value : vec) {

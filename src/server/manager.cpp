@@ -326,18 +326,6 @@ void lobby::send_updates(game_manager &mgr) {
         }
         game.m_updates.pop_front();
     }
-    for (const auto &log : game.m_logs) {
-        std::cout << "In lobby " << id << ": ";
-        if (log.origin) {
-            std::cout << std::ranges::find(users, log.origin, &lobby_user::controlling)->user->name << " ha ";
-        }
-        std::cout << log.message;
-        if (log.target && log.target != log.origin) {
-            std::cout << " a " << std::ranges::find(users, log.target, &lobby_user::controlling)->user->name;
-        }
-        std::cout << '\n';
-    }
-    game.m_logs.clear();
 }
 
 void lobby::start_game() {

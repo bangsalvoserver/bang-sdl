@@ -360,6 +360,17 @@ void game_scene::handle_game_update(UPDATE_TAG(game_over), const game_over_updat
     }
 }
 
+void game_scene::handle_game_update(UPDATE_TAG(game_log), const game_log_update &args) {
+    std::cout << _(args.message,
+        args.origin_card_id ? find_card_widget(args.origin_card_id)->name : "-",
+        args.origin_id ? find_player(args.origin_id)->m_username_text.get_value() : "-",
+        args.target_id ? find_player(args.target_id)->m_username_text.get_value() : "-",
+        args.card_target_id ? find_card_widget(args.card_target_id)->name : "-"
+    ) << '\n';
+
+    pop_update();
+}
+
 void game_scene::handle_game_update(UPDATE_TAG(deck_shuffled), const card_pile_type &pile) {
     switch (pile) {
     case card_pile_type::main_deck: {
