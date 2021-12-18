@@ -581,7 +581,7 @@ namespace banggame {
     }
 
     bool effect_frankie_canton::can_play(card *origin_card, player *origin, player *target, card *target_card) const {
-        return origin_card != origin->m_characters.front() && !target_card->cubes.empty();
+        return target_card != origin->m_characters.front() && !target_card->cubes.empty();
     }
 
     void effect_frankie_canton::on_play(card *origin_card, player *origin, player *target, card *target_card) {

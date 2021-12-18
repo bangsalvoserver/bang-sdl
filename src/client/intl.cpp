@@ -73,4 +73,19 @@ namespace intl {
             return it->second;
         }
     }
+
+    std::string format(const std::string &format_str, const std::vector<std::string> &args) {
+        using ctx = fmt::format_context;
+        std::vector<fmt::basic_format_arg<ctx>> fmt_args;
+        fmt_args.reserve(args.size());
+        for (const auto &a : args) {
+            fmt_args.push_back(fmt::detail::make_arg<ctx>(a));
+        }
+
+        try {
+            return fmt::vformat(format_str, fmt::basic_format_args<ctx>(fmt_args.data(), fmt_args.size()));
+        } catch (const fmt::format_error &err) {
+            return format_str;
+        }
+    }
 }

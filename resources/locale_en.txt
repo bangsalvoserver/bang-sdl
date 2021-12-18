@@ -18,15 +18,15 @@ GAME_RESOLVE                        Resolve
 GAME_SELL_BEER                      Sell beer
 GAME_DISCARD_BLACK                  Discard black
 GAME_RESTART                        Restart
-GAME_USER_CONNECTED                 %s connected
-GAME_USER_DISCONNECTED              %s disconnected
+GAME_USER_CONNECTED                 {} connected
+GAME_USER_DISCONNECTED              {} disconnected
 USERNAME_DISCONNECTED               (Disconnected)
-STATUS_GAME_OVER                    Game Over. Winner: %s
+STATUS_GAME_OVER                    Game Over. Winner: {}
 STATUS_YOUR_TURN                    Your turn
 STATUS_TIMER_FOR                    Timer for
 STATUS_RESPOND_TO                   Respond to
 STATUS_FROM_HAND                    from hand
-STATUS_ON_CARD                      on %s
+STATUS_ON_CARD                      on {}
 banggame::player_role::sheriff      Sheriff
 banggame::player_role::deputy       Deputy
 banggame::player_role::outlaw       Outlaw

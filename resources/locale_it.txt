@@ -18,22 +18,22 @@ GAME_RESOLVE                        Risolvi
 GAME_SELL_BEER                      Vendi birra
 GAME_DISCARD_BLACK                  Scarta nera
 GAME_RESTART                        Riavvia
-GAME_USER_CONNECTED                 %s si è connesso
-GAME_USER_DISCONNECTED              %s si è disconnesso
+GAME_USER_CONNECTED                 {} si è connesso
+GAME_USER_DISCONNECTED              {} si è disconnesso
 USERNAME_DISCONNECTED               (Disconnesso)
-STATUS_GAME_OVER                    Game Over. Vincitore: %s
+STATUS_GAME_OVER                    Game Over. Vincitore: {}
 STATUS_YOUR_TURN                    Tocca a te
 STATUS_TIMER_FOR                    Timer per
 STATUS_RESPOND_TO                   Rispondi a
 STATUS_FROM_HAND                    dalla mano
-STATUS_ON_CARD                      su %s
+STATUS_ON_CARD                      su {}
 banggame::player_role::sheriff      Sceriffo
 banggame::player_role::deputy       Vice
 banggame::player_role::outlaw       Fuorilegge
 banggame::player_role::renegade     Rinnegato
 lobby_state::waiting                In attesa
 lobby_state::playing                In gioco
-lobby_state::finished               Finita
+lobby_state::finished               Partita finita
 ERROR_PLAYER_IN_LOBBY               Giocatore già in una lobby
 ERROR_PLAYER_NOT_IN_LOBBY           Giocatore non in una lobby
 ERROR_PLAYER_NOT_LOBBY_OWNER        Non proprietario della lobby

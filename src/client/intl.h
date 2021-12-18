@@ -2,7 +2,7 @@
 #define __INTL_H__
 
 #include <string>
-#include <cstdio>
+#include <fmt/format.h>
 #include "common/enums.h"
 
 namespace intl {
@@ -12,26 +12,16 @@ namespace intl {
         return translate(enums::full_name(value));
     }
 
-    inline const auto &conv_string(const auto &val) {
-        return val;
-    }
-
-    inline const char *conv_string(const std::string &val) {
-        return val.c_str();
-    }
-
-    template<typename T, typename ... Ts>
-    std::string translate_format(const T &str, const Ts & ... args) {
-        std::string format_str = translate(str);
-        std::string buffer(format_str.size() + 100, '\0');
-        int len = std::snprintf(buffer.data(), buffer.size(), format_str.c_str(), conv_string(args) ...);
-        if (len > 0) {
-            buffer.resize(len);
-        } else {
-            buffer = format_str;
+    template<typename ... Ts>
+    std::string format(const std::string &format_str, const Ts & ... args) {
+        try {
+            return fmt::vformat(format_str, fmt::make_format_args(args ... ));
+        } catch (const fmt::format_error &err) {
+            return format_str;
         }
-        return buffer;
     }
+
+    std::string format(const std::string &format_str, const std::vector<std::string> &args);
 }
 
 std::string _(const auto &str) {
@@ -40,7 +30,7 @@ std::string _(const auto &str) {
 
 template<typename T, typename ... Ts>
 std::string _(const T &str, const Ts & ... args) {
-    return intl::translate_format(str, args ...);
+    return intl::format(intl::translate(str), args ...);
 }
 
 #endif

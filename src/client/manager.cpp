@@ -190,19 +190,7 @@ void game_manager::handle_message(MESSAGE_TAG(game_started), const game_started_
 }
 
 void game_manager::handle_message(MESSAGE_TAG(game_error), const game_error_args &args) {
-    constexpr size_t max_args = 2;
-
-    constexpr auto lut = []<size_t ... Is>(std::index_sequence<Is ...>){
-        return std::array {
-            +[](const game_error_args &args) {
-                return [&]<size_t ... Js>(std::index_sequence<Js ...>) {
-                    return _(args.message, args.args[Js] ...);
-                }(std::make_index_sequence<Is>());
-            } ...
-        };
-    }(std::make_index_sequence<max_args + 1>());
-
-    m_scene->show_error(args.localized && args.args.size() <= max_args ? lut[args.args.size()](args) : args.message);
+    m_scene->show_error(intl::format(args.localized ? intl::translate(args.message) : args.message, args.args));
 }
 
 void game_manager::handle_message(MESSAGE_TAG(game_update), const game_update &args) {
