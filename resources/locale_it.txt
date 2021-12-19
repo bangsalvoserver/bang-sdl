@@ -54,6 +54,8 @@ ERROR_TABLE_CARDS_ARE_DISABLED      Le carte in gioco sono disabilitate
 ERROR_CARD_INACTIVE                 Carta non attiva in questo turno
 ERROR_CANT_EQUIP_CARDS              Non si possono equipaggiare carte
 ERROR_DUPLICATED_CARD               Carta duplicata
+LOG_UNKNOWN_CARD                    (carta sconosciuta)
+LOG_GAME_START                      La partita è iniziata
 LOG_SOLD_BEER                       {1} ha venduto {3}
 LOG_DISCARDED_BLACK                 {1} ha scartato {3} a {2}
 LOG_DRAWN_WITH_CHARACTER            {1} ha pescato usando {0}
@@ -67,3 +69,8 @@ LOG_BOUGHT_EQUIP                    {1} ha comprato ed equipaggiato {0}
 LOG_BOUGHT_EQUIP_TO                 {1} ha comprato ed equipaggiato {0} a {2}
 LOG_RESPONDED_WITH_CARD             {1} ha risposto con {0}
 LOG_DRAWN_FROM_DECK                 {1} ha pescato dal mazzo
+LOG_PICKED_CARD                     {1} ha scelto {3}
+LOG_PICKED_PLAYER                   {1} ha scelto {2}
+LOG_PICKED_DECK                     {1} ha scelto il mazzo
+LOG_TAKEN_DAMAGE                    {1} ha preso danno per {0}
+LOG_PLAYER_DIED                     {1} è morto

@@ -91,6 +91,7 @@ namespace banggame {
     void player::do_damage(card *origin_card, player *origin, int value, bool is_bang) {
         m_hp -= value;
         m_game->add_public_update<game_update_type::player_hp>(id, m_hp);
+        m_game->add_log("LOG_TAKEN_DAMAGE", origin_card, origin);
         if (m_hp <= 0) {
             m_game->add_request<request_type::death>(origin_card, origin, this);
         }

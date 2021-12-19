@@ -190,19 +190,9 @@ namespace banggame {
     void request_handcuffs::on_pick(card_pile_type pile, player *target_player, card *target_card) {
         target->m_declared_suit = static_cast<card_suit_type>(target_card->responses.front().args);
 
-        auto &vec = target->m_game->m_selection;
-        for (auto it = vec.begin(); it != vec.end();) {
-            if (*it != target_card) {
-                show_card_flags flags = show_card_flags::no_animation;
-                if (vec.size() == 2) {
-                    flags |= show_card_flags::short_pause;
-                }
-                it = target->m_game->move_to(*it, card_pile_type::hidden_deck, true, nullptr, flags);
-            } else {
-                ++it;
-            }
+        while (!target->m_game->m_selection.empty()) {
+            target->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::hidden_deck, true, nullptr, show_card_flags::no_animation);
         }
-        target->m_game->move_to(vec.front(), card_pile_type::hidden_deck, true, nullptr, show_card_flags::no_animation);
         target->m_game->pop_request();
     }
 

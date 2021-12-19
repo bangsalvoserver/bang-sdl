@@ -569,7 +569,7 @@ namespace banggame {
 
     void effect_julie_cutter::on_equip(player *p, card *target_card) {
         p->m_game->add_event<event_type::on_hit>(target_card, [=](card *origin_card, player *origin, player *target, int damage, bool is_bang) {
-            if (origin && p == target) {
+            if (origin && p == target && origin != target) {
                 p->m_game->draw_check_then(target, target_card, [=](card *drawn_card) {
                     card_suit_type suit = p->get_card_suit(drawn_card);
                     if (suit == card_suit_type::hearts || suit == card_suit_type::diamonds) {

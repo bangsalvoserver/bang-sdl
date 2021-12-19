@@ -397,6 +397,7 @@ namespace banggame {
         }
 
         queue_event<event_type::on_game_start>();
+        add_log("STATUS_GAME_START", nullptr, nullptr);
         m_first_player = m_playing;
         m_first_player->start_of_turn();
     }
@@ -660,6 +661,7 @@ namespace banggame {
         
         target->discard_all();
         target->add_gold(-target->m_gold);
+        add_log("LOG_PLAYER_DIED", nullptr, target);
 
         add_public_update<game_update_type::player_hp>(target->id, 0, true);
         add_public_update<game_update_type::player_show_role>(target->id, target->m_role);
@@ -736,10 +738,15 @@ namespace banggame {
             enums::visit_indexed([&]<request_type E>(enums::enum_constant<E>, auto &req) {
                 if constexpr (picking_request<E>) {
                     if (req.valid_pile(args.pile)) {
+                        player *target_player = args.player_id ? get_player(args.player_id) : nullptr;
+                        card *target_card = args.card_id ? find_card(args.card_id) : nullptr;
+                        switch (args.pile) {
+                        case card_pile_type::main_deck: add_log("LOG_PICKED_DECK", nullptr, p); break;
+                        case card_pile_type::player: add_log("LOG_PICKED_PLAYER", nullptr, p, target_player); break;
+                        default: add_log("LOG_PICKED_CARD", nullptr, p, nullptr, target_card); break;
+                        }
                         auto req_copy = req;
-                        req_copy.on_pick(args.pile,
-                            args.player_id ? get_player(args.player_id) : nullptr,
-                            args.card_id ? find_card(args.card_id) : nullptr);
+                        req_copy.on_pick(args.pile, target_player, target_card);
                     }
                 }
             }, top_request());

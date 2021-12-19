@@ -361,11 +361,17 @@ void game_scene::handle_game_update(UPDATE_TAG(game_over), const game_over_updat
 }
 
 void game_scene::handle_game_update(UPDATE_TAG(game_log), const game_log_update &args) {
+    auto get_card_name = [&](int id) -> std::string {
+        if (!id) return "-";
+        auto *c = find_card_widget(id);
+        if (!c) return _("UNKNOWN_CARD");
+        return c->name;
+    };
     std::cout << _(args.message,
-        args.origin_card_id ? find_card_widget(args.origin_card_id)->name : "-",
+        get_card_name(args.origin_card_id),
         args.origin_id ? find_player(args.origin_id)->m_username_text.get_value() : "-",
         args.target_id ? find_player(args.target_id)->m_username_text.get_value() : "-",
-        args.card_target_id ? find_card_widget(args.card_target_id)->name : "-"
+        get_card_name(args.target_card_id)
     ) << '\n';
 
     pop_update();
@@ -739,8 +745,8 @@ void game_scene::handle_game_update(UPDATE_TAG(request_handle), const request_vi
         if (auto *card = find_card_widget(args.origin_card_id)) {
             ss << ' ' << card->name;
         }
-        if (auto *w = find_card_widget(args.card_target_id)) {
-            auto *card = find_card(args.card_target_id);
+        if (auto *w = find_card_widget(args.target_card_id)) {
+            auto *card = find_card(args.target_card_id);
             if (card && card->pile == &find_player(args.target_id)->hand) {
                 ss << ' ' << _("STATUS_FROM_HAND");
             } else {
