@@ -397,7 +397,7 @@ namespace banggame {
         }
 
         queue_event<event_type::on_game_start>();
-        add_log("STATUS_GAME_START", nullptr, nullptr);
+        add_log("LOG_GAME_START", nullptr, nullptr);
         m_first_player = m_playing;
         m_first_player->start_of_turn();
     }

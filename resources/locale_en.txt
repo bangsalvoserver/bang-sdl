@@ -54,8 +54,9 @@ ERROR_TABLE_CARDS_ARE_DISABLED      Table cards are disabled
 ERROR_CARD_INACTIVE                 Card inactive in this turn
 ERROR_CANT_EQUIP_CARDS              You can't equip cards
 ERROR_DUPLICATED_CARD               Duplicated card
-LOG_UNKNOWN_CARD                    (unknown card)
+UNKNOWN_CARD                        (unknown card)
 LOG_GAME_START                      Game started
+LOG_TURN_START                      It's {1}'s turn
 LOG_SOLD_BEER                       {1} sold {3}
 LOG_DISCARDED_BLACK                 {1} forced {2} to discard {3}
 LOG_DRAWN_WITH_CHARACTER            {1} drew using {0}

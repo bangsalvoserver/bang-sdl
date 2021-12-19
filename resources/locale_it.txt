@@ -54,8 +54,9 @@ ERROR_TABLE_CARDS_ARE_DISABLED      Le carte in gioco sono disabilitate
 ERROR_CARD_INACTIVE                 Carta non attiva in questo turno
 ERROR_CANT_EQUIP_CARDS              Non si possono equipaggiare carte
 ERROR_DUPLICATED_CARD               Carta duplicata
-LOG_UNKNOWN_CARD                    (carta sconosciuta)
+UNKNOWN_CARD                        (carta sconosciuta)
 LOG_GAME_START                      La partita è iniziata
+LOG_TURN_START                      È il turno di {1}
 LOG_SOLD_BEER                       {1} ha venduto {3}
 LOG_DISCARDED_BLACK                 {1} ha scartato {3} a {2}
 LOG_DRAWN_WITH_CHARACTER            {1} ha pescato usando {0}

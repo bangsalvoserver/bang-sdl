@@ -2435,12 +2435,15 @@
             ],
             "responses": [
                 {
+                    "class": "lemonade_jim"
+                },
+                {
                     "target": "self hand card",
                     "class": "destroy"
                 },
                 {
                     "target": "player self",
-                    "class": "lemonade_jim"
+                    "class": "heal"
                 }
             ]
         },

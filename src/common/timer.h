@@ -8,23 +8,7 @@ namespace banggame {
     struct player;
 
     struct timer_base : request_base {
-        int duration;
-    };
-
-    struct timer_lemonade_jim : timer_base {
-        timer_lemonade_jim() {
-            duration = 200;
-        }
-
-        std::vector<player *> players;
-    };
-
-    struct timer_al_preacher : timer_base {
-        timer_al_preacher() {
-            duration = 200;
-        }
-
-        std::vector<player *> players;
+        int duration = 200;
     };
 
     struct timer_damaging : timer_base {
@@ -46,8 +30,6 @@ namespace banggame {
             request_base::origin_card = origin_card;
             request_base::origin = origin;
             request_base::target = origin;
-
-            timer_base::duration = 200;
             
             timer_tumbleweed::m_target_card = target_card;
             timer_tumbleweed::drawn_card = drawn_card;

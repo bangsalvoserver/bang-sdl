@@ -451,44 +451,40 @@ namespace banggame {
     void effect_lemonade_jim::on_equip(player *origin, card *target_card) {
         origin->m_game->add_event<event_type::on_play_beer>(target_card, [=](player *target) {
             if (origin != target) {
-                target->m_game->queue_request<request_type::lemonade_jim>(target_card, nullptr, origin).players.push_back(target);
-            }
-        });
-    }
-
-    bool effect_lemonade_jim::can_respond(card *origin_card, player *target) const {
-        if (target->m_game->top_request_is(request_type::lemonade_jim, target)) {
-            const auto &vec = target->m_game->top_request().get<request_type::lemonade_jim>().players;
-            return std::ranges::find(vec, target) == vec.end();
-        }
-        return false;
-    }
-
-    void effect_lemonade_jim::on_play(card *origin_card, player *origin, player *target) {
-        target->heal(1);
-        target->m_game->top_request().get<request_type::lemonade_jim>().players.push_back(target);
-    }
-    
-    void effect_al_preacher::on_equip(player *p, card *target_card) {
-        p->m_game->add_event<event_type::on_equip>(target_card, [=](player *origin, player *target, card *equipped_card) {
-            if (p != origin) {
-                if (equipped_card->color == card_color_type::blue || equipped_card->color == card_color_type::orange) {
-                    p->m_game->queue_request<request_type::al_preacher>(target_card, nullptr, p).players.push_back(p);
+                if (!origin->m_hand.empty() && origin->m_hp < origin->m_max_hp) {
+                    target->m_game->queue_request<request_type::lemonade_jim>(target_card, target, origin);
                 }
             }
         });
     }
 
-    bool effect_al_preacher::can_respond(card *origin_card, player *target) const {
-        if (target->m_game->top_request_is(request_type::al_preacher, target)) {
-            const auto &vec = target->m_game->top_request().get<request_type::al_preacher>().players;
-            return std::ranges::find(vec, target) == vec.end();
-        }
-        return false;
+    bool effect_lemonade_jim::can_respond(card *origin_card, player *origin) const {
+        return origin->m_game->top_request_is(request_type::lemonade_jim, origin);
     }
 
-    void effect_al_preacher::on_play(card *origin_card, player *target) {
-        target->m_game->top_request().get<request_type::al_preacher>().players.push_back(target);
+    void effect_lemonade_jim::on_play(card *origin_card, player *origin) {
+        origin->m_game->pop_request();
+    }
+    
+    void effect_al_preacher::on_equip(player *p, card *target_card) {
+        p->m_game->add_event<event_type::on_equip>(target_card, [=](player *origin, player *target, card *equipped_card) {
+            if (p != origin && (equipped_card->color == card_color_type::blue || equipped_card->color == card_color_type::orange)) {
+                int ncubes = p->m_characters.front()->cubes.size();
+                ncubes += std::transform_reduce(p->m_table.begin(), p->m_table.end(), 0,
+                    std::plus(), [](const card *c) { return c->cubes.size(); });
+                if (ncubes >= 2) {
+                    p->m_game->queue_request<request_type::al_preacher>(target_card, origin, p);
+                }
+            }
+        });
+    }
+
+    bool effect_al_preacher::can_respond(card *origin_card, player *origin) const {
+        return origin->m_game->top_request_is(request_type::al_preacher, origin);
+    }
+
+    void effect_al_preacher::on_play(card *origin_card, player *origin) {
+        origin->m_game->pop_request();
     }
 
     void effect_dutch_will::on_equip(player *target, card *target_card) {

@@ -94,6 +94,9 @@ namespace banggame {
         float rotation = 0.f;
 
         bool animating = false;
+        
+        bool known = false;
+        card_pile_view *pile = nullptr;
 
         void set_pos(const sdl::point &pos);
         const sdl::point &get_pos() const {
@@ -130,10 +133,7 @@ namespace banggame {
     };
 
     struct card_view : card_widget {
-        bool known = false;
         bool inactive = false;
-
-        card_pile_view *pile = nullptr;
 
         card_suit_type suit;
         card_value_type value;

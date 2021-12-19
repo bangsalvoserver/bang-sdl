@@ -364,7 +364,7 @@ void game_scene::handle_game_update(UPDATE_TAG(game_log), const game_log_update 
     auto get_card_name = [&](int id) -> std::string {
         if (!id) return "-";
         auto *c = find_card_widget(id);
-        if (!c) return _("UNKNOWN_CARD");
+        if (!c || !c->known) return _("UNKNOWN_CARD");
         return c->name;
     };
     std::cout << _(args.message,
@@ -675,6 +675,7 @@ void game_scene::handle_game_update(UPDATE_TAG(player_add_character), const play
     auto &c = *std::next(p.m_characters.begin(), args.index);
 
     static_cast<card_info &>(c) = args.info;
+    c.known = true;
     c.make_texture_front();
 
     if (args.index == 0) {
@@ -745,12 +746,11 @@ void game_scene::handle_game_update(UPDATE_TAG(request_handle), const request_vi
         if (auto *card = find_card_widget(args.origin_card_id)) {
             ss << ' ' << card->name;
         }
-        if (auto *w = find_card_widget(args.target_card_id)) {
-            auto *card = find_card(args.target_card_id);
-            if (card && card->pile == &find_player(args.target_id)->hand) {
+        if (auto *card = find_card_widget(args.target_card_id)) {
+            if (card->pile == &find_player(args.target_id)->hand) {
                 ss << ' ' << _("STATUS_FROM_HAND");
             } else {
-                ss << ' ' << _("STATUS_ON_CARD", w->name);
+                ss << ' ' << _("STATUS_ON_CARD", card->name);
             }
         }
         ss << " (request: " << args.type << ")";
