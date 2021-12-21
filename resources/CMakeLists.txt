@@ -1,10 +1,10 @@
-function(compile_resources out_list)
+function(compile_resources target_name)
     foreach(file IN LISTS ARGN)
         get_filename_component(varname "${file}" NAME)
         string(MAKE_C_IDENTIFIER "${varname}" varname)
 
         set(resource_c_file "${CMAKE_CURRENT_BINARY_DIR}/${file}.c")
-        list(APPEND ret "${resource_c_file}")
+        list(APPEND out_list "${resource_c_file}")
 
         add_custom_command(
             OUTPUT "${resource_c_file}"
@@ -17,25 +17,23 @@ function(compile_resources out_list)
             VERBATIM
         )
     endforeach()
-    set(${out_list} ${ret} PARENT_SCOPE)
+    add_library(${target_name} OBJECT ${out_list})
 endfunction()
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
     compile_resources(bang_cards bang_cards.json)
-    add_library(bang_cards OBJECT ${bang_cards})
 endif()
 
 compile_resources(resources_obj arial.ttf icons/icon_checkbox.png icons/bang.png)
-add_library(resources_obj OBJECT ${resources_obj} icons/bang.rc)
 
 add_executable(compile_locale compile_locale.cpp)
-function(compile_locales out_list)
+function(compile_locales target_name)
     foreach(file IN LISTS ARGN)
         get_filename_component(varname "${file}" NAME)
         string(MAKE_C_IDENTIFIER "${varname}" varname)
 
         set(locale_h_file "${CMAKE_CURRENT_BINARY_DIR}/locales/${file}.h")
-        list(APPEND ret "${locale_h_file}")
+        list(APPEND out_list "${locale_h_file}")
 
         add_custom_command(
             OUTPUT "${locale_h_file}"
@@ -47,11 +45,10 @@ function(compile_locales out_list)
             VERBATIM
         )
     endforeach()
-    set(${out_list} ${ret} PARENT_SCOPE)
+    add_library(${target_name} INTERFACE ${out_list})
 endfunction()
 
 compile_locales(locale_headers locale_it.txt locale_en.txt)
-add_library(locale_headers INTERFACE ${locale_headers})
 target_include_directories(locale_headers INTERFACE "${CMAKE_CURRENT_BINARY_DIR}")
 
 add_executable(packer pack.cpp)
