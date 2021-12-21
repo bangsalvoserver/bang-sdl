@@ -7,7 +7,7 @@ BUTTON_START                        Avvia
 BUTTON_EXIT                         Esci
 BUTTON_DISCONNECT                   Disconnetti
 BUTTON_SEND                         Invia
-LABEL_USERNAME                      Nomer utente:
+LABEL_USERNAME                      Nome utente:
 LABEL_PROFILE_PICTURE               Immagine profilo:
 LABEL_NEW_ADDRESS                   Nuovo indirizzo:
 ERROR_NO_USERNAME                   Specificare un nome utente

@@ -53,7 +53,7 @@ add_subdirectory(resources)
 
 add_executable(bangclient ${bangclient_srcs})
 target_link_libraries(bangclient PkgConfig::SDL2 PkgConfig::SDL2_net PkgConfig::SDL2_ttf PkgConfig::SDL2_image PkgConfig::SDL2_gfx PkgConfig::jsoncpp)
-target_link_libraries(bangclient resources_obj locales_obj)
+target_link_libraries(bangclient resources_obj locale_headers)
 
 find_package(fmt REQUIRED)
 if (TARGET fmt::fmt-header-only)

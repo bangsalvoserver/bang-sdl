@@ -28,8 +28,31 @@ endif()
 compile_resources(resources_obj arial.ttf icons/icon_checkbox.png icons/bang.png)
 add_library(resources_obj OBJECT ${resources_obj} icons/bang.rc)
 
-compile_resources(locales_obj locale_it.txt locale_en.txt)
-add_library(locales_obj OBJECT ${locales_obj})
+add_executable(compile_locale compile_locale.cpp)
+function(compile_locales out_list)
+    foreach(file IN LISTS ARGN)
+        get_filename_component(varname "${file}" NAME)
+        string(MAKE_C_IDENTIFIER "${varname}" varname)
+
+        set(locale_h_file "${CMAKE_CURRENT_BINARY_DIR}/locales/${file}.h")
+        list(APPEND ret "${locale_h_file}")
+
+        add_custom_command(
+            OUTPUT "${locale_h_file}"
+            COMMAND compile_locale
+                "${CMAKE_CURRENT_SOURCE_DIR}/${file}"
+                "${locale_h_file}"
+                "${varname}"
+            DEPENDS "${file}" compile_locale
+            VERBATIM
+        )
+    endforeach()
+    set(${out_list} ${ret} PARENT_SCOPE)
+endfunction()
+
+compile_locales(locale_headers locale_it.txt locale_en.txt)
+add_library(locale_headers INTERFACE ${locale_headers})
+target_include_directories(locale_headers INTERFACE "${CMAKE_CURRENT_BINARY_DIR}")
 
 add_executable(packer pack.cpp)
 file(GLOB_RECURSE card_files "${CMAKE_CURRENT_SOURCE_DIR}/cards/*.png")
@@ -39,7 +62,7 @@ add_custom_command(
         "${CMAKE_CURRENT_SOURCE_DIR}/cards/"
         "${CMAKE_BINARY_DIR}/cards.pak"
         -q
-    DEPENDS ${card_files}
+    DEPENDS ${card_files} packer
     VERBATIM
 )
 add_custom_target(cards_pak DEPENDS "${CMAKE_BINARY_DIR}/cards.pak")
