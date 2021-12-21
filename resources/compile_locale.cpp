@@ -5,7 +5,7 @@
 #include <map>
 
 int main(int argc, char **argv) {
-    if (argc < 3) {
+    if (argc < 4) {
         std::cerr << "Usage: " << argv[0] << " input_file output_file identifier_name\n";
         return 1;
     }
@@ -41,11 +41,10 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    ofs << "#pragma once\n";
-    ofs << "#include <string>\n";
-    ofs << "#include \"common/static_map.h\"\n\n";
-
-    ofs << "constexpr auto " << identifier_name << " = util::static_map<std::string_view, std::string_view>({\n";
+    ofs << "// Auto generated file.\n"
+        "#include <string>\n"
+        "#include \"common/static_map.h\"\n\n"
+        "constexpr auto " << identifier_name << " = util::static_map<std::string_view, std::string_view>({\n";
     
     for (const auto &[key, value] : strings) {
         ofs << "\t{" << std::quoted(key) << ", " << std::quoted(value) << "},\n";

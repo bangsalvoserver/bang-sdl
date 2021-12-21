@@ -28,9 +28,12 @@ compile_resources(resources_obj arial.ttf icons/icon_checkbox.png icons/bang.png
 
 add_executable(compile_locale compile_locale.cpp)
 function(compile_locales target_name)
+    string(APPEND all_locales_content "// Auto generated file.\n")
+    string(APPEND all_locales_content "#ifndef __LOCALES_H__\n")
+    string(APPEND all_locales_content "#define __LOCALES_H__\n\n")
     foreach(file IN LISTS ARGN)
-        get_filename_component(varname "${file}" NAME)
-        string(MAKE_C_IDENTIFIER "${varname}" varname)
+        get_filename_component(basename "${file}" NAME)
+        string(MAKE_C_IDENTIFIER "${basename}" varname)
 
         set(locale_h_file "${CMAKE_CURRENT_BINARY_DIR}/locales/${file}.h")
         list(APPEND out_list "${locale_h_file}")
@@ -44,8 +47,12 @@ function(compile_locales target_name)
             DEPENDS "${file}" compile_locale
             VERBATIM
         )
+        string(APPEND all_locales_content "#include \"${basename}.h\"\n")
     endforeach()
-    add_library(${target_name} INTERFACE ${out_list})
+    set(all_locales_header "${CMAKE_CURRENT_BINARY_DIR}/locales/locales.h")
+    string(APPEND all_locales_content "\n#endif")
+    file(WRITE "${all_locales_header}" "${all_locales_content}")
+    add_library(${target_name} INTERFACE ${out_list} ${all_locales_header})
 endfunction()
 
 compile_locales(locale_headers locale_it.txt locale_en.txt)

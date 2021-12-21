@@ -1,7 +1,6 @@
 #include "intl.h"
 
-#include "locales/locale_en.txt.h"
-#include "locales/locale_it.txt.h"
+#include "locales/locales.h"
 
 namespace intl {
     DEFINE_ENUM_DATA_IN_NS(intl, language,
@@ -16,10 +15,10 @@ namespace intl {
 namespace intl {
     language get_system_language() {
         LANGID lang = GetUserDefaultUILanguage();
-        if (lang == 1040) {
-            return language::italian;
-        } else {
-            return language::english;
+        switch(PRIMARYLANGID(lang)) {
+        case LANG_ITALIAN:  return language::italian;
+        case LANG_ENGLISH:
+        default:            return language::english;
         }
     }
 }
