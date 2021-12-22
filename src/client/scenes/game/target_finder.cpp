@@ -14,18 +14,14 @@ void target_finder::add_action(Ts && ... args) {
 }
 
 static bool is_valid_picking_pile(request_type type, card_pile_type pile) {
-    constexpr auto lut = []<request_type ... Es>(enums::enum_sequence<Es...>) {
-        return std::array {
-            +[](card_pile_type pile) {
-                if constexpr (picking_request<Es>) {
-                    return enums::enum_type_t<Es>::valid_pile(pile);
-                } else {
-                    return false;
-                }
-            } ...
-        };
-    }(enums::make_enum_sequence<request_type>());
-    return lut[enums::indexof(type)](pile);
+    return enums::visit_enum([&](auto enum_const) {
+        constexpr request_type E = decltype(enum_const)::value;
+        if constexpr (picking_request<E>) {
+            return enums::enum_type_t<E>::valid_pile(pile);
+        } else {
+            return false;
+        }
+    }, type);
 }
 
 void target_finder::render(sdl::renderer &renderer) {

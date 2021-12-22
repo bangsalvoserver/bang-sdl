@@ -64,23 +64,17 @@ namespace enums {
     };
     template<typename T, typename Variant> constexpr auto enum_variant_indexof_v = enum_variant_indexof<T, Variant>::value;
 
-    template<typename RetType, reflected_enum auto E, typename Visitor, typename Variant>
-    RetType do_visit_fun(Visitor &visitor, Variant &v) {
-        if constexpr (has_type<E>) {
-            return std::invoke(visitor, enum_constant<E>{}, v.template get<E>());
-        } else {
-            return std::invoke(visitor, enum_constant<E>{});
-        }
-    }
-
     template<typename RetType, reflected_enum T, typename Visitor, typename Variant>
     requires std::same_as<std::remove_const_t<Variant>, enum_variant<T>>
     RetType do_visit(Visitor &&visitor, Variant &v) {
-        constexpr auto lut = []<T ... Es>(enum_sequence<Es ...>) {
-            return std::array{ do_visit_fun<RetType, Es, Visitor, Variant> ...};
-        }(make_enum_sequence<T>());
-
-        return lut[indexof(v.enum_index())](visitor, v);
+        return visit_enum<RetType>([&](auto enum_const) {
+            constexpr T E = decltype(enum_const)::value;
+            if constexpr (has_type<E>) {
+                return std::invoke(visitor, enum_const, v.template get<E>());
+            } else {
+                return std::invoke(visitor, enum_const);
+            }
+        }, v.enum_index());
     }
 
     template<typename RetType, typename Visitor, reflected_enum T>

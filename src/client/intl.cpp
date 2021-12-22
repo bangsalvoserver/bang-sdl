@@ -43,20 +43,15 @@ namespace intl {
     static const language current_language = get_system_language();
 
     std::string translate(std::string_view str) {
-        constexpr auto lut = []<language ... Es>(enums::enum_sequence<Es...>) {
-            return std::array {
-                +[](std::string_view str) {
-                    constexpr auto strings = enums::enum_data_v<Es>;
-                    auto it = strings.find(str);
-                    if (it == strings.end()) {
-                        return str;
-                    } else {
-                        return it->second;
-                    }
-                } ...
-            };
-        }(enums::make_enum_sequence<language>());
-        return std::string(lut[enums::indexof(current_language)](str));
+        return std::string(enums::visit_enum([&](auto enum_const) {
+            constexpr auto strings = enums::enum_data_v<decltype(enum_const)::value>;
+            auto it = strings.find(str);
+            if (it == strings.end()) {
+                return str;
+            } else {
+                return it->second;
+            }
+        }, current_language));
     }
 
     std::string format(const std::string &format_str, const std::vector<std::string> &args) {

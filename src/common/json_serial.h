@@ -157,19 +157,14 @@ namespace json {
     template<enums::reflected_enum T>
     struct deserializer<enums::enum_variant<T>> {
         enums::enum_variant<T> operator()(const Json::Value &value) const {
-            constexpr auto lut = []<T ... Es>(enums::enum_sequence<Es ...>) {
-                return std::array { +[](const Json::Value &value) {
-                    constexpr T E = Es;
-                    if constexpr (enums::has_type<E>) {
-                        return enums::enum_variant<T>(enums::enum_constant<E>{},
-                            deserializer<enums::enum_type_t<E>>{}(value));
-                    } else {
-                        return enums::enum_variant<T>(enums::enum_constant<E>{});
-                    }
-                } ... };
-            }(enums::make_enum_sequence<T>());
-            T type = deserializer<T>{}(value["type"]);
-            return lut[enums::indexof(type)](value["value"]);
+            return enums::visit_enum([&](auto enum_const) {
+                constexpr T E = decltype(enum_const)::value;
+                if constexpr (enums::has_type<E>) {
+                    return enums::enum_variant<T>(enum_const, deserializer<enums::enum_type_t<E>>{}(value["value"]));
+                } else {
+                    return enums::enum_variant<T>(enum_const);
+                }
+            }, deserializer<T>{}(value["type"]));
         }
     };
 

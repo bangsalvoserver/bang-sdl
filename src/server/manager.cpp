@@ -9,17 +9,6 @@ using namespace banggame;
 using namespace enums::flag_operators;
 
 void game_manager::parse_message(const sdlnet::ip_address &addr, const std::string &str) {
-    constexpr auto lut = []<client_message_type ... Es>(enums::enum_sequence<Es...>) {
-        return std::array{ +[](game_manager &mgr, const sdlnet::ip_address &addr, const Json::Value &value) {
-            constexpr client_message_type E = Es;
-            if constexpr (enums::has_type<E>) {
-                mgr.handle_message(enums::enum_constant<E>{}, addr, json::deserialize<enums::enum_type_t<E>>(value));
-            } else {
-                mgr.handle_message(enums::enum_constant<E>{}, addr);
-            }
-        } ... };
-    }(enums::make_enum_sequence<client_message_type>());
-
     std::stringstream ss(str);
 
     try {
@@ -28,7 +17,14 @@ void game_manager::parse_message(const sdlnet::ip_address &addr, const std::stri
 
         auto msg = enums::from_string<client_message_type>(json_value["type"].asString());
         if (msg != enums::invalid_enum_v<client_message_type>) {
-            lut[enums::indexof(msg)](*this, addr, json_value["value"]);
+            enums::visit_enum([&](auto enum_const) {
+                constexpr client_message_type E = decltype(enum_const)::value;
+                if constexpr (enums::has_type<E>) {
+                    handle_message(enum_const, addr, json::deserialize<enums::enum_type_t<E>>(json_value["value"]));
+                } else {
+                    handle_message(enum_const, addr);
+                }
+            }, msg);
         }
     } catch (const game_error &e) {
         send_message<server_message_type::game_error>(addr, e);

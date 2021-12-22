@@ -7,14 +7,9 @@ namespace banggame {
     template<typename Holder, typename Function>
     static auto visit_effect(Function &&fun, Holder &holder) {
         using enum_type = typename Holder::enum_type;
-        constexpr auto lut = []<enum_type ... Es>(enums::enum_sequence<Es ...>) {
-            return std::array {
-                +[](Function &&fun, Holder &holder) {
-                    return fun(holder.template get<Es>());
-                } ...
-            };
-        }(enums::make_enum_sequence<enum_type>());
-        return lut[enums::indexof(holder.type)](std::move(fun), holder);
+        return enums::visit_enum([&](auto enum_const) {
+            return fun(holder.template get<decltype(enum_const)::value>());
+        }, holder.type);
     }
 
     bool effect_holder::can_play(card *origin_card, player *origin) const {

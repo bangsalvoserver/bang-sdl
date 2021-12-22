@@ -20,17 +20,6 @@ game_manager::~game_manager() {
 }
 
 void game_manager::update_net() {
-    constexpr auto lut = []<server_message_type ... Es>(enums::enum_sequence<Es...>) {
-        return std::array{ +[](game_manager &mgr, const Json::Value &value) {
-            constexpr server_message_type E = Es;
-            if constexpr (enums::has_type<E>) {
-                mgr.handle_message(enums::enum_constant<E>{}, json::deserialize<enums::enum_type_t<E>>(value));
-            } else {
-                mgr.handle_message(enums::enum_constant<E>{});
-            }
-        } ... };
-    }(enums::make_enum_sequence<server_message_type>());
-
     while (sock.isopen() && sock_set.check(0)) {
         try {
             auto header = recv_message_header(sock);
@@ -43,7 +32,14 @@ void game_manager::update_net() {
 
                 auto msg = enums::from_string<server_message_type>(json_value["type"].asString());
                 if (msg != enums::invalid_enum_v<server_message_type>) {
-                    lut[enums::indexof(msg)](*this, json_value["value"]);
+                    enums::visit_enum([&](auto enum_const) {
+                        constexpr server_message_type E = decltype(enum_const)::value;
+                        if constexpr (enums::has_type<E>) {
+                            handle_message(enum_const, json::deserialize<enums::enum_type_t<E>>(json_value["value"]));
+                        } else {
+                            handle_message(enum_const);
+                        }
+                    }, msg);
                 }
                 break;
             }

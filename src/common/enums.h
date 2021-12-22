@@ -33,7 +33,9 @@ namespace enums {
 
     template<reflected_enum T> constexpr size_t size_v = enum_values_v<T>.size();
 
-    template<reflected_enum auto Value> struct enum_constant {};
+    template<reflected_enum auto Value> struct enum_constant {
+        static constexpr auto value = Value;
+    };
     template<reflected_enum auto Value> constexpr enum_constant<Value> enum_tag;
 
     template<reflected_enum auto ... Values> using enum_sequence = util::type_list<enum_constant<Values>...>;
@@ -204,6 +206,20 @@ namespace enums {
             }
         }
         return ret;
+    }
+    
+    template<typename RetType, typename Function, reflected_enum T> RetType visit_enum(Function &&fun, T value) {
+        constexpr auto lut = []<T ... Values>(enum_sequence<Values...>) {
+            return std::array{ +[](Function &&fun) {
+                return fun(enum_constant<Values>{});
+            } ... };
+        }(make_enum_sequence<T>());
+        return lut[indexof(value)](std::forward<Function>(fun));
+    }
+
+    template<typename Function, reflected_enum T> decltype(auto) visit_enum(Function &&fun, T value) {
+        using result_type = std::invoke_result_t<Function, enums::enum_constant<enums::enum_values_v<T>[0]>>;
+        return visit_enum<result_type>(fun, value);
     }
 
     inline namespace stream_operators {
