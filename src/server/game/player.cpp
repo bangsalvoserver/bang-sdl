@@ -603,14 +603,18 @@ namespace banggame {
                     auto *target = m_game->get_player(args.targets.front().get<play_card_target_type::target_player>().front().player_id);
                     if (target->has_card_equipped(card_ptr->name)) throw localized_game_error("ERROR_DUPLICATED_CARD");
                     if (m_game->m_cubes.size() < 3) throw localized_game_error("ERROR_NOT_ENOUGH_CUBES");
-                    target->equip_card(card_ptr);
-                    if (this == target) {
-                        m_game->add_log("LOG_EQUIPPED_CARD", card_ptr, this);
+                    if (target->immune_to(card_ptr)) {
+                        discard_card(card_ptr);
                     } else {
-                        m_game->add_log("LOG_EQUIPPED_CARD_TO", card_ptr, this, target);
+                        target->equip_card(card_ptr);
+                        add_cubes(card_ptr, 3);
+                        m_game->queue_event<event_type::on_equip>(this, target, card_ptr);
+                        if (this == target) {
+                            m_game->add_log("LOG_EQUIPPED_CARD", card_ptr, this);
+                        } else {
+                            m_game->add_log("LOG_EQUIPPED_CARD_TO", card_ptr, this, target);
+                        }
                     }
-                    add_cubes(card_ptr, 3);
-                    m_game->queue_event<event_type::on_equip>(this, target, card_ptr);
                     m_game->queue_event<event_type::on_effect_end>(this, card_ptr);
                 }
                 }
