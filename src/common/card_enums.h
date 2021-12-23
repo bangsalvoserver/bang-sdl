@@ -32,15 +32,15 @@ namespace banggame {
     
     DEFINE_ENUM_FLAGS_DATA_IN_NS(banggame, card_expansion_type,
         (base)
-        (thebullet,         "La Pallottola")
-        (dodgecity,         "Dodge City")
-        (valleyofshadows,   "Valley of Shadows")
-        (wildwestshow,      "Wild West Show")
-        (goldrush,          "Gold Rush")
-        (armedanddangerous, "Armed & Dangerous")
-        (highnoon,          "Mezzogiorno di Fuoco")
-        (fistfulofcards,    "Per un Pugno di Carte")
-        (ghostcards,        "Carte Fantasma")
+        (thebullet)
+        (dodgecity)
+        (valleyofshadows)
+        (wildwestshow)
+        (goldrush)
+        (armedanddangerous)
+        (highnoon)
+        (fistfulofcards)
+        (ghostcards)
     )
 
     DEFINE_ENUM_IN_NS(banggame, card_color_type,

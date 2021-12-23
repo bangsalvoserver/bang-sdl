@@ -98,6 +98,9 @@ namespace banggame {
         bool known = false;
         card_pile_view *pile = nullptr;
 
+        card_suit_type suit = card_suit_type::none;
+        card_value_type value = card_value_type::none;
+
         void set_pos(const sdl::point &pos);
         const sdl::point &get_pos() const {
             return m_pos;
@@ -135,8 +138,6 @@ namespace banggame {
     struct card_view : card_widget {
         bool inactive = false;
 
-        card_suit_type suit;
-        card_value_type value;
         card_color_type color;
 
         void make_texture_front();

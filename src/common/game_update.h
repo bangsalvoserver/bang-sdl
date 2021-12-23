@@ -17,6 +17,7 @@ namespace banggame {
         (origin_id, int)
         (target_id, int)
         (target_card_id, int)
+        (custom_value, int)
     )
 
     DEFINE_SERIALIZABLE(add_cards_update,

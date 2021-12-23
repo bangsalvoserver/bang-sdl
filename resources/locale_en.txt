@@ -31,6 +31,19 @@ banggame::player_role::sheriff      Sheriff
 banggame::player_role::deputy       Deputy
 banggame::player_role::outlaw       Outlaw
 banggame::player_role::renegade     Renegade
+banggame::card_expansion_type::thebullet            The Bullet
+banggame::card_expansion_type::dodgecity            Dodge City
+banggame::card_expansion_type::valleyofshadows      Valley of Shadows
+banggame::card_expansion_type::wildwestshow         Wild West Show
+banggame::card_expansion_type::goldrush             Gold Rush
+banggame::card_expansion_type::armedanddangerous    Armed & Dangerous
+banggame::card_expansion_type::highnoon             High Noon
+banggame::card_expansion_type::fistfulofcards       Fistful of Cards
+banggame::card_expansion_type::ghostcards           Ghost Cards
+banggame::card_suit_type::hearts    Hearts
+banggame::card_suit_type::diamonds  Diamonds
+banggame::card_suit_type::clubs     Clubs
+banggame::card_suit_type::spades    Spades
 lobby_state::waiting                Waiting
 lobby_state::playing                Playing
 lobby_state::finished               Finished
@@ -55,23 +68,23 @@ ERROR_CARD_INACTIVE                 Card inactive in this turn
 ERROR_CANT_EQUIP_CARDS              You can't equip cards
 ERROR_DUPLICATED_CARD               Duplicated card
 UNKNOWN_CARD                        (unknown card)
+CARD_SUIT                           {0} of {1}
 LOG_GAME_START                      Game started
 LOG_TURN_START                      It's {1}'s turn
-LOG_SOLD_BEER                       {1} sold {3}
-LOG_DISCARDED_BLACK                 {1} forced {2} to discard {3}
-LOG_DRAWN_WITH_CHARACTER            {1} drew using {0}
-LOG_PLAYED_CHARACTER                {1} played {0}'s effect
-LOG_PLAYED_CARD                     {1} played {0}
-LOG_PLAYED_TABLE_CARD               {1} played {0} from the table
-LOG_EQUIPPED_CARD                   {1} equipped {0}
-LOG_EQUIPPED_CARD_TO                {1} equipped {0} on {2}
-LOG_BOUGHT_CARD                     {1} bought and played {0}
-LOG_BOUGHT_EQUIP                    {1} bought and equipped {0}
-LOG_BOUGHT_EQUIP_TO                 {1} bought and equipped {0} to {2}
-LOG_RESPONDED_WITH_CARD             {1} responded with {0}
-LOG_DRAWN_FROM_DECK                 {1} drew from the deck
-LOG_PICKED_CARD                     {1} picked {3}
-LOG_PICKED_PLAYER                   {1} picked {2}
-LOG_PICKED_DECK                     {1} picked the deck
-LOG_TAKEN_DAMAGE                    {1} Took damage for {0}
+LOG_SOLD_BEER                       {1} sells {3}
+LOG_DISCARDED_BLACK                 {1} forces {2} to discard {3}
+LOG_DRAWN_WITH_CHARACTER            {1} draws using {0}
+LOG_PLAYED_CHARACTER                {1} plays {0}'s effect
+LOG_PLAYED_CARD                     {1} plays {0}
+LOG_PLAYED_TABLE_CARD               {1} plays {0} from the table
+LOG_EQUIPPED_CARD                   {1} equips {0}
+LOG_EQUIPPED_CARD_TO                {1} equips {0} on {2}
+LOG_BOUGHT_CARD                     {1} buys and plays {0}
+LOG_BOUGHT_EQUIP                    {1} buys and equips {0}
+LOG_BOUGHT_EQUIP_TO                 {1} buys and equips {0} to {2}
+LOG_RESPONDED_WITH_CARD             {1} responds with {0}
+LOG_DRAWN_FROM_DECK                 {1} draws from the deck
+LOG_CHECK_DREW_CARD                 {1} "draws" {3} for {0}
+LOG_TAKEN_DAMAGE                    {1} takes 1 damage for {0}
+LOG_TAKEN_DAMAGE_PLURAL             {1} takes {4} damage for {0}
 LOG_PLAYER_DIED                     {1} died

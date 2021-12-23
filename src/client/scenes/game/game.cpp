@@ -365,13 +365,18 @@ void game_scene::handle_game_update(UPDATE_TAG(game_log), const game_log_update 
         if (!id) return "-";
         auto *c = find_card_widget(id);
         if (!c || !c->known) return _("UNKNOWN_CARD");
-        return c->name;
+        if (c->value != card_value_type::none && c->suit != card_suit_type::none) {
+            return intl::format("{} ({})", c->name, _("CARD_SUIT", enums::get_data(c->value), _(c->suit)));
+        } else {
+            return c->name;
+        }
     };
     std::cout << _(args.message,
         get_card_name(args.origin_card_id),
         args.origin_id ? find_player(args.origin_id)->m_username_text.get_value() : "-",
         args.target_id ? find_player(args.target_id)->m_username_text.get_value() : "-",
-        get_card_name(args.target_card_id)
+        get_card_name(args.target_card_id),
+        args.custom_value
     ) << '\n';
 
     pop_update();

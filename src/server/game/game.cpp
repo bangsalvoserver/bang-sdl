@@ -10,13 +10,14 @@ namespace banggame {
 
     using namespace enums::flag_operators;
 
-    void game::add_log(std::string message, card *origin_card, player *origin, player *target, card *target_card) {
+    void game::add_log(std::string message, card *origin_card, player *origin, player *target, card *target_card, int custom_value) {
         add_public_update<game_update_type::game_log>(
             std::move(message),
             origin_card ? origin_card->id : 0,
             origin ? origin->id : 0,
             target ? target->id : 0,
-            target_card ? target_card->id : 0
+            target_card ? target_card->id : 0,
+            custom_value
         );
     }
 
@@ -520,6 +521,7 @@ namespace banggame {
             queue_event<event_type::on_draw_check>(m_current_check->origin, c);
             instant_event<event_type::trigger_tumbleweed>(m_current_check->origin_card, c);
             if (!m_current_check->no_auto_resolve) {
+                add_log("LOG_CHECK_DREW_CARD", m_current_check->origin_card, m_current_check->origin, nullptr, c);
                 m_current_check->function(c);
                 m_current_check.reset();
             }
@@ -539,6 +541,7 @@ namespace banggame {
         }
         instant_event<event_type::trigger_tumbleweed>(m_current_check->origin_card, c);
         if (!m_current_check->no_auto_resolve) {
+            add_log("LOG_CHECK_DREW_CARD", m_current_check->origin_card, m_current_check->origin, nullptr, c);
             m_current_check->function(c);
             m_current_check.reset();
         }
@@ -740,11 +743,6 @@ namespace banggame {
                     if (req.valid_pile(args.pile)) {
                         player *target_player = args.player_id ? get_player(args.player_id) : nullptr;
                         card *target_card = args.card_id ? find_card(args.card_id) : nullptr;
-                        switch (args.pile) {
-                        case card_pile_type::main_deck: add_log("LOG_PICKED_DECK", nullptr, p); break;
-                        case card_pile_type::player: add_log("LOG_PICKED_PLAYER", nullptr, p, target_player); break;
-                        default: add_log("LOG_PICKED_CARD", nullptr, p, nullptr, target_card); break;
-                        }
                         auto req_copy = req;
                         req_copy.on_pick(args.pile, target_player, target_card);
                     }

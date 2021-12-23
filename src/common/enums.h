@@ -210,7 +210,7 @@ namespace enums {
     
     template<typename RetType, typename Function, reflected_enum T> RetType visit_enum(Function &&fun, T value) {
         constexpr auto lut = []<T ... Values>(enum_sequence<Values...>) {
-            return std::array{ +[](Function &&fun) {
+            return std::array{ +[](Function &&fun) -> RetType {
                 return fun(enum_constant<Values>{});
             } ... };
         }(make_enum_sequence<T>());

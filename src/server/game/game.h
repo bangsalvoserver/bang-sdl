@@ -41,6 +41,7 @@ namespace banggame {
         (on_card_drawn,     std::function<void(player *origin, card *target_card)>)
         (on_play_bang,      std::function<void(player *origin)>)
         (on_play_beer,      std::function<void(player *origin)>)
+        (on_play_beer_heal, std::function<void(player *origin)>)
         (pre_turn_start,    std::function<void(player *origin)>)
         (on_turn_start,     std::function<void(player *origin)>)
         (on_turn_end,       std::function<void(player *origin)>)
@@ -168,7 +169,7 @@ namespace banggame {
             add_private_update<E>(nullptr, args ...);
         }
 
-        void add_log(std::string message, card *origin_card, player *origin, player *target = nullptr, card *target_card = nullptr);
+        void add_log(std::string message, card *origin_card, player *origin, player *target = nullptr, card *target_card = nullptr, int custom_value = 0);
 
         std::vector<game_update> get_game_state_updates(player *owner);
 

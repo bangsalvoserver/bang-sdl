@@ -175,7 +175,8 @@ namespace banggame {
     void effect_beer::on_play(card *origin_card, player *origin, player *target) {
         target->m_game->queue_event<event_type::on_play_beer>(target);
         if (target->m_game->m_players.size() <= 2 || target->m_game->num_alive() > 2) {
-            target->heal(target->m_beer_strength);
+            target->heal(1);
+            target->m_game->instant_event<event_type::on_play_beer_heal>(target);
         }
     }
 

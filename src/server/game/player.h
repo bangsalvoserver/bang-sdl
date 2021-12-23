@@ -60,8 +60,6 @@ namespace banggame {
 
         bool m_cant_play_missedcard = false;
 
-        int m_beer_strength = 1;
-
         int m_num_checks = 1;
         
         int m_num_cards_to_draw = 2;

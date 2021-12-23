@@ -47,11 +47,11 @@ namespace banggame {
     }
 
     void effect_tequila_joe::on_equip(player *target, card *target_card) {
-        ++target->m_beer_strength;
-    }
-
-    void effect_tequila_joe::on_unequip(player *target, card *target_card) {
-        --target->m_beer_strength;
+        target->m_game->add_event<event_type::on_play_beer_heal>(target_card, [target](player *origin) {
+            if (target == origin) {
+                target->heal(1);
+            }
+        });
     }
 
     void effect_kit_carlson::on_equip(player *target, card *target_card) {

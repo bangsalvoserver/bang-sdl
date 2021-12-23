@@ -94,7 +94,7 @@ void game_manager::disconnect() {
     m_users.clear();
     sock_set.erase(sock);
     sock.close();
-    switch_scene<scene_type::connect>()->show_error(_("ERROR_DISONNECTED"));
+    switch_scene<scene_type::connect>()->show_error(_("ERROR_DISCONNECTED"));
 }
 
 

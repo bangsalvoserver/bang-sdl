@@ -91,7 +91,7 @@ namespace banggame {
     void player::do_damage(card *origin_card, player *origin, int value, bool is_bang) {
         m_hp -= value;
         m_game->add_public_update<game_update_type::player_hp>(id, m_hp);
-        m_game->add_log("LOG_TAKEN_DAMAGE", origin_card, origin);
+        m_game->add_log(value == 1 ? "LOG_TAKEN_DAMAGE" : "LOG_TAKEN_DAMAGE_PLURAL", origin_card, this, nullptr, nullptr, value);
         if (m_hp <= 0) {
             m_game->add_request<request_type::death>(origin_card, origin, this);
         }
@@ -397,21 +397,27 @@ namespace banggame {
     }
 
     void player::do_play_card(card *card_ptr, bool is_response, const std::vector<play_card_target> &targets) {
-        auto play_card_action = [this](card *card_ptr) {
+        auto play_card_action = [this, is_response](card *card_ptr) {
             switch (card_ptr->pile) {
             case card_pile_type::player_hand:
                 m_game->move_to(card_ptr, card_pile_type::discard_pile);
                 m_game->queue_event<event_type::on_play_hand_card>(this, card_ptr);
+                [[fallthrough]];
+            case card_pile_type::scenario_card:
+            case card_pile_type::player_character:
+                m_game->add_log(is_response ? "LOG_RESPONDED_WITH_CARD" : "LOG_PLAYED_CARD", card_ptr, this);
                 break;
             case card_pile_type::player_table:
                 if (card_ptr->color == card_color_type::green) {
                     m_game->move_to(card_ptr, card_pile_type::discard_pile);
                 }
+                m_game->add_log(is_response ? "LOG_RESPONDED_WITH_CARD" : "LOG_PLAYED_TABLE_CARD", card_ptr, this);
                 break;
             case card_pile_type::shop_selection:
                 if (card_ptr->color == card_color_type::brown) {
                     m_game->move_to(card_ptr, card_pile_type::shop_discard);
                 }
+                m_game->add_log(is_response ? "LOG_PLAYED_CARD" : "LOG_BOUGHT_CARD", card_ptr, this);
                 break;
             }
         };
@@ -552,8 +558,8 @@ namespace banggame {
                         if (!m_has_drawn) throw localized_game_error("ERROR_PLAYER_MUST_DRAW");
                         verify_modifiers(card_ptr, modifiers);
                         verify_card_targets(card_ptr, false, args.targets);
-                        play_modifiers(modifiers);
                         m_game->add_log("LOG_PLAYED_CHARACTER", card_ptr, this);
+                        play_modifiers(modifiers);
                     }
                     do_play_card(card_ptr, false, args.targets);
                 }
@@ -566,7 +572,6 @@ namespace banggame {
                     verify_card_targets(card_ptr, false, args.targets);
                     play_modifiers(modifiers);
                     do_play_card(card_ptr, false, args.targets);
-                    m_game->add_log("LOG_PLAYED_CARD", card_ptr, this);
                     break;
                 case card_color_type::blue: {
                     if (m_game->has_scenario(scenario_flags::judge)) throw localized_game_error("ERROR_CANT_EQUIP_CARDS");
@@ -627,7 +632,6 @@ namespace banggame {
                 verify_card_targets(card_ptr, false, args.targets);
                 play_modifiers(modifiers);
                 do_play_card(card_ptr, false, args.targets);
-                m_game->add_log("LOG_PLAYED_TABLE_CARD", card_ptr, this);
                 break;
             case card_pile_type::shop_selection: {
                 if (!m_has_drawn) throw localized_game_error("ERROR_PLAYER_MUST_DRAW");
@@ -649,7 +653,6 @@ namespace banggame {
                         play_modifiers(modifiers);
                         add_gold(discount - card_ptr->buy_cost);
                         do_play_card(card_ptr, false, args.targets);
-                        m_game->add_log("LOG_BOUGHT_CARD", card_ptr, this);
                         m_game->queue_event<event_type::delayed_action>([this]{
                             while (m_game->m_shop_selection.size() < 3) {
                                 m_game->draw_shop_card();
@@ -728,7 +731,6 @@ namespace banggame {
         
         verify_card_targets(card_ptr, true, args.targets);
         do_play_card(card_ptr, true, args.targets);
-        m_game->add_log("LOG_RESPONDED_WITH_CARD", card_ptr, this);
     }
 
     void player::draw_from_deck() {

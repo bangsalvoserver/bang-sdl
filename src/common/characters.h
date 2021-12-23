@@ -19,9 +19,8 @@ namespace banggame {
         void on_equip(player *target, card *target_card);
     };
 
-    struct effect_tequila_joe : card_effect {
+    struct effect_tequila_joe : event_based_effect {
         void on_equip(player *target, card *target_card);
-        void on_unequip(player *target, card *target_card);
     };
 
     struct effect_kit_carlson : event_based_effect {
