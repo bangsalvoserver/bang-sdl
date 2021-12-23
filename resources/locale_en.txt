@@ -23,10 +23,41 @@ GAME_USER_DISCONNECTED              {} disconnected
 USERNAME_DISCONNECTED               (Disconnected)
 STATUS_GAME_OVER                    Game Over. Winner: {}
 STATUS_YOUR_TURN                    Your turn
-STATUS_TIMER_FOR                    Timer for
-STATUS_RESPOND_TO                   Respond to
-STATUS_FROM_HAND                    from hand
-STATUS_ON_CARD                      on {}
+STATUS_CARD_FROM_HAND               card from hand
+banggame::request_type::predraw         "Draw" a card before drawing
+banggame::request_type::check           Choose what card to "draw"
+banggame::request_type::generalstore    Draw a card from the general store
+banggame::request_type::discard         Discard a card for {0}
+banggame::request_type::discard_Pass    Discard a card before passing the turn
+banggame::request_type::bang            {0} ... Respond with Mancato or Resolve
+banggame::request_type::duel            {0} ... Respond with Bang or Resolve
+banggame::request_type::indians         {0} ... Respond with Bang or Resolve
+banggame::request_type::destroy         {0} su {1} ... Respond with Fuga or Resolve
+banggame::request_type::steal           {0} su {1} ... Respond with Fuga or Resolve
+banggame::request_type::death           You're about to die. Play Birra or Resolve
+banggame::request_type::bandidos        {0} ... Discard two cards or Resolve
+banggame::request_type::tornado         {0} ... Discard a card to draw two
+banggame::request_type::poker           {0} ... Discard a card
+banggame::request_type::poker_draw      {0} ... Choose which cards to draw
+banggame::request_type::saved           {0} ... Choose whether to draw from the deck or from the saved player
+banggame::request_type::add_cube        Chose which card to put a cube onto
+banggame::request_type::move_bomb       Choose which player to move {0} onto
+banggame::request_type::rust            {0} ... Respond with Fuga or Resolve
+banggame::request_type::ricochet        {0} ... Respond with Mancato or Resolve
+banggame::request_type::peyote          {0} ... Declare Red or Black
+banggame::request_type::handcuffs       {0} ... Declare a Suit
+banggame::request_type::shopchoice      Choose how to play {0}
+banggame::request_type::kit_carlson     {0} ... Choose which cards to draw
+banggame::request_type::claus_the_saint {0} ... Choose two cards to draw and the others to gift in turn.
+banggame::request_type::vera_custer     {0} ... Choose which character to copy
+banggame::request_type::youl_grinner    Give {0} a card
+banggame::request_type::dutch_will      {0} ... Choose which card to draw
+banggame::request_type::shop_choose_target Choose who to play {0} to
+banggame::request_type::thedaltons      {0} ... Discard a blue card
+banggame::request_type::lemonade_jim    {2} can play the effect of {0}
+banggame::request_type::al_preacher     {2} can play the effect of {0}
+banggame::request_type::damaging        {2} takes damage for {0}
+banggame::request_type::tumbleweed      {2} can play {0} to repeat "draw" for {1}
 banggame::player_role::sheriff      Sheriff
 banggame::player_role::deputy       Deputy
 banggame::player_role::outlaw       Outlaw
@@ -39,11 +70,7 @@ banggame::card_expansion_type::goldrush             Gold Rush
 banggame::card_expansion_type::armedanddangerous    Armed & Dangerous
 banggame::card_expansion_type::highnoon             High Noon
 banggame::card_expansion_type::fistfulofcards       Fistful of Cards
-banggame::card_expansion_type::ghostcards           Ghost Cards
-banggame::card_suit_type::hearts    Hearts
-banggame::card_suit_type::diamonds  Diamonds
-banggame::card_suit_type::clubs     Clubs
-banggame::card_suit_type::spades    Spades
+banggame::card_expansion_type::ghostcards           Ghost cards
 lobby_state::waiting                Waiting
 lobby_state::playing                Playing
 lobby_state::finished               Finished
@@ -68,7 +95,6 @@ ERROR_CARD_INACTIVE                 Card inactive in this turn
 ERROR_CANT_EQUIP_CARDS              You can't equip cards
 ERROR_DUPLICATED_CARD               Duplicated card
 UNKNOWN_CARD                        (unknown card)
-CARD_SUIT                           {0} of {1}
 LOG_GAME_START                      Game started
 LOG_TURN_START                      It's {1}'s turn
 LOG_SOLD_BEER                       {1} sells {3}

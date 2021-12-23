@@ -404,7 +404,6 @@ namespace banggame {
                 m_game->queue_event<event_type::on_play_hand_card>(this, card_ptr);
                 [[fallthrough]];
             case card_pile_type::scenario_card:
-            case card_pile_type::player_character:
                 m_game->add_log(is_response ? "LOG_RESPONDED_WITH_CARD" : "LOG_PLAYED_CARD", card_ptr, this);
                 break;
             case card_pile_type::player_table:
@@ -713,6 +712,7 @@ namespace banggame {
         switch (card_ptr->pile) {
         case card_pile_type::player_character:
             if (m_game->characters_disabled(this)) throw localized_game_error("ERROR_CHARACTERS_ARE_DISABLED");
+            m_game->add_log("LOG_RESPONDED_WITH_CARD", card_ptr, this);
             break;
         case card_pile_type::player_table:
             if (m_game->table_cards_disabled(this)) throw localized_game_error("ERROR_TABLE_CARDS_ARE_DISABLED");

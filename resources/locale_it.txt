@@ -23,10 +23,41 @@ GAME_USER_DISCONNECTED              {} si è disconnesso
 USERNAME_DISCONNECTED               (Disconnesso)
 STATUS_GAME_OVER                    Game Over. Vincitore: {}
 STATUS_YOUR_TURN                    Tocca a te
-STATUS_TIMER_FOR                    Timer per
-STATUS_RESPOND_TO                   Rispondi a
-STATUS_FROM_HAND                    dalla mano
-STATUS_ON_CARD                      su {}
+STATUS_CARD_FROM_HAND               carta dalla mano
+banggame::request_type::predraw         Estrai prima di pescare
+banggame::request_type::check           Scegli quale carta estrarre
+banggame::request_type::generalstore    Pesca una carta dall'emporio
+banggame::request_type::discard         Scarta una carta per {0}
+banggame::request_type::discard_Pass    Scarta una carta prima di passare il turno
+banggame::request_type::bang            {0} ... Rispondi con Mancato o Risolvi
+banggame::request_type::duel            {0} ... Rispondi con Bang o Risolvi
+banggame::request_type::indians         {0} ... Rispondi con Bang o Risolvi
+banggame::request_type::destroy         {0} su {1} ... Rispondi con Fuga o Risolvi
+banggame::request_type::steal           {0} su {1} ... Rispondi con Fuga o Risolvi
+banggame::request_type::death           Stai per morire. Gioca Birra o Risolvi
+banggame::request_type::bandidos        {0} ... Scarta due carte o Risolvi
+banggame::request_type::tornado         {0} ... Scarta una carta per pescarne due
+banggame::request_type::poker           {0} ... Scarta una carta
+banggame::request_type::poker_draw      {0} ... Scegli quali carte pescare
+banggame::request_type::saved           {0} ... Scegli se pescare dal mazzo o dal giocatore salvato
+banggame::request_type::add_cube        Scegli su quale carta mettere un cubetto
+banggame::request_type::move_bomb       Scegli su cui spostare {0}
+banggame::request_type::rust            {0} ... Rispondi con Fuga o Risolvi
+banggame::request_type::ricochet        {0} ... Rispondi con Mancato o Risolvi
+banggame::request_type::peyote          {0} ... Dichiara Rosso o Nero
+banggame::request_type::handcuffs       {0} ... Dichiara un seme
+banggame::request_type::shopchoice      Scegli come giocare {0}
+banggame::request_type::kit_carlson     {0} ... Scegli quali carte pescare
+banggame::request_type::claus_the_saint {0} ... Scegli due carte da pescare e quali da regalare a giro
+banggame::request_type::vera_custer     {0} ... Scegli quale personaggio copiare
+banggame::request_type::youl_grinner    Dai una carta a {0}
+banggame::request_type::dutch_will      {0} ... Scegli quale carta pescare
+banggame::request_type::shop_choose_target Scegli a chi giocare {0}
+banggame::request_type::thedaltons      {0} ... Scarta una carta blu
+banggame::request_type::lemonade_jim    {2} può giocare l'effetto di {0}
+banggame::request_type::al_preacher     {2} può giocare l'effetto di {0}
+banggame::request_type::damaging        {2} prende danno per {0}
+banggame::request_type::tumbleweed      {2} può giocare {0} per ripetere estrazione per {1}
 banggame::player_role::sheriff      Sceriffo
 banggame::player_role::deputy       Vice
 banggame::player_role::outlaw       Fuorilegge
@@ -40,10 +71,6 @@ banggame::card_expansion_type::armedanddangerous    Armed & Dangerous
 banggame::card_expansion_type::highnoon             Mezzogiorno di Fuoco
 banggame::card_expansion_type::fistfulofcards       Per un Pugno di Carte
 banggame::card_expansion_type::ghostcards           Carte Fantasma
-banggame::card_suit_type::hearts    Cuori
-banggame::card_suit_type::diamonds  Quadri
-banggame::card_suit_type::clubs     Fiori
-banggame::card_suit_type::spades    Picche
 lobby_state::waiting                In attesa
 lobby_state::playing                In gioco
 lobby_state::finished               Partita finita
@@ -68,7 +95,6 @@ ERROR_CARD_INACTIVE                 Carta non attiva in questo turno
 ERROR_CANT_EQUIP_CARDS              Non si possono equipaggiare carte
 ERROR_DUPLICATED_CARD               Carta duplicata
 UNKNOWN_CARD                        (carta sconosciuta)
-CARD_SUIT                           {0} di {1}
 LOG_GAME_START                      La partita è iniziata
 LOG_TURN_START                      È il turno di {1}
 LOG_SOLD_BEER                       {1} vende {3}

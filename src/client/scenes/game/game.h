@@ -129,6 +129,8 @@ namespace banggame {
             return nullptr;
         }
 
+        std::string get_card_name(card_widget *card);
+
         friend class game_ui;
         friend class target_finder;
     };

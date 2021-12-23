@@ -360,22 +360,21 @@ void game_scene::handle_game_update(UPDATE_TAG(game_over), const game_over_updat
     }
 }
 
+std::string game_scene::get_card_name(card_widget *card) {
+    if (!card || !card->known) return _("UNKNOWN_CARD");
+    if (card->value != card_value_type::none && card->suit != card_suit_type::none) {
+        return intl::format("{} ({}{})", card->name, enums::get_data(card->value), enums::get_data(card->suit).symbol);
+    } else {
+        return card->name;
+    }
+}
+
 void game_scene::handle_game_update(UPDATE_TAG(game_log), const game_log_update &args) {
-    auto get_card_name = [&](int id) -> std::string {
-        if (!id) return "-";
-        auto *c = find_card_widget(id);
-        if (!c || !c->known) return _("UNKNOWN_CARD");
-        if (c->value != card_value_type::none && c->suit != card_suit_type::none) {
-            return intl::format("{} ({})", c->name, _("CARD_SUIT", enums::get_data(c->value), _(c->suit)));
-        } else {
-            return c->name;
-        }
-    };
     std::cout << _(args.message,
-        get_card_name(args.origin_card_id),
+        args.origin_card_id ? get_card_name(find_card_widget(args.origin_card_id)) : "-",
         args.origin_id ? find_player(args.origin_id)->m_username_text.get_value() : "-",
         args.target_id ? find_player(args.target_id)->m_username_text.get_value() : "-",
-        get_card_name(args.target_card_id),
+        args.target_card_id ? get_card_name(find_card_widget(args.target_card_id)) : "-",
         args.custom_value
     ) << '\n';
 
@@ -740,26 +739,17 @@ void game_scene::handle_game_update(UPDATE_TAG(request_handle), const request_vi
         return std::array{ timer_request<Es> ... };
     }(enums::make_enum_sequence<request_type>());
 
-    std::stringstream ss;
-    if (timer_lut[enums::indexof(args.type)]) {
-        ss << _("STATUS_TIMER_FOR");
-    } else if (args.target_id == m_player_own_id) {
-        ss << _("STATUS_RESPOND_TO");
-    }
-
-    if (!ss.str().empty()) {
-        if (auto *card = find_card_widget(args.origin_card_id)) {
-            ss << ' ' << card->name;
-        }
-        if (auto *card = find_card_widget(args.target_card_id)) {
-            if (card->pile == &find_player(args.target_id)->hand) {
-                ss << ' ' << _("STATUS_FROM_HAND");
-            } else {
-                ss << ' ' << _("STATUS_ON_CARD", card->name);
-            }
-        }
-        ss << " (request: " << args.type << ")";
-        m_ui.set_status(ss.str());
+    if (timer_lut[enums::indexof(args.type)] || args.target_id == m_player_own_id) {
+        auto *origin_card = find_card_widget(args.origin_card_id);
+        auto *target_card = find_card_widget(args.target_card_id);
+        auto *target_player = find_player(args.target_id);
+        m_ui.set_status(_(args.type,
+            origin_card ? get_card_name(origin_card) : "-",
+            target_card ? target_card->pile == &target_player->hand
+                ? _("STATUS_CARD_FROM_HAND")
+                : get_card_name(target_card)
+            : "-",
+            target_player->m_username_text.get_value()));
     } else {
         m_ui.clear_status();
     }

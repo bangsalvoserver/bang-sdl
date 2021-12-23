@@ -115,7 +115,7 @@ namespace banggame {
                     std::string_view str = json_sign.asString();
                     c.suit = *std::ranges::find_if(enums::enum_values_v<card_suit_type>,
                         [&](card_suit_type e) {
-                            return str.ends_with(enums::get_data(e));
+                            return str.ends_with(enums::get_data(e).letter);
                         }
                     );
                     c.value = *std::ranges::find_if(enums::enum_values_v<card_value_type>,

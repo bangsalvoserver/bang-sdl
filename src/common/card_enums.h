@@ -5,12 +5,17 @@
 
 namespace banggame {
 
+    struct card_suit_symbol {
+        std::string_view letter;
+        std::string_view symbol;
+    };
+
     DEFINE_ENUM_DATA_IN_NS(banggame, card_suit_type,
-        (none,      "-")
-        (hearts,    "C")
-        (diamonds,  "Q")
-        (clubs,     "F")
-        (spades,    "P")
+        (none,      card_suit_symbol{"-", "-"})
+        (hearts,    card_suit_symbol{"C", "\u2665"})
+        (diamonds,  card_suit_symbol{"Q", "\u2666"})
+        (clubs,     card_suit_symbol{"F", "\u2663"})
+        (spades,    card_suit_symbol{"P", "\u2660"})
     )
 
     DEFINE_ENUM_DATA_IN_NS(banggame, card_value_type,
