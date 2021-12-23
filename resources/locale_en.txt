@@ -28,12 +28,12 @@ banggame::request_type::predraw         "Draw" a card before drawing
 banggame::request_type::check           Choose what card to "draw"
 banggame::request_type::generalstore    Draw a card from the general store
 banggame::request_type::discard         Discard a card for {0}
-banggame::request_type::discard_Pass    Discard a card before passing the turn
+banggame::request_type::discard_pass    Discard a card before passing the turn
 banggame::request_type::bang            {0} ... Respond with Mancato or Resolve
 banggame::request_type::duel            {0} ... Respond with Bang or Resolve
 banggame::request_type::indians         {0} ... Respond with Bang or Resolve
-banggame::request_type::destroy         {0} su {1} ... Respond with Fuga or Resolve
-banggame::request_type::steal           {0} su {1} ... Respond with Fuga or Resolve
+banggame::request_type::destroy         {0} to discard {1} ... Respond with Fuga or Resolve
+banggame::request_type::steal           {0} to steal {1} ... Respond with Fuga or Resolve
 banggame::request_type::death           You're about to die. Play Birra or Resolve
 banggame::request_type::bandidos        {0} ... Discard two cards or Resolve
 banggame::request_type::tornado         {0} ... Discard a card to draw two
@@ -43,7 +43,7 @@ banggame::request_type::saved           {0} ... Choose whether to draw from the 
 banggame::request_type::add_cube        Chose which card to put a cube onto
 banggame::request_type::move_bomb       Choose which player to move {0} onto
 banggame::request_type::rust            {0} ... Respond with Fuga or Resolve
-banggame::request_type::ricochet        {0} ... Respond with Mancato or Resolve
+banggame::request_type::ricochet        {0} on {1} ... Respond with Mancato or Resolve
 banggame::request_type::peyote          {0} ... Declare Red or Black
 banggame::request_type::handcuffs       {0} ... Declare a Suit
 banggame::request_type::shopchoice      Choose how to play {0}

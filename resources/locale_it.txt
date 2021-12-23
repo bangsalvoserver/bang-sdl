@@ -28,12 +28,12 @@ banggame::request_type::predraw         Estrai prima di pescare
 banggame::request_type::check           Scegli quale carta estrarre
 banggame::request_type::generalstore    Pesca una carta dall'emporio
 banggame::request_type::discard         Scarta una carta per {0}
-banggame::request_type::discard_Pass    Scarta una carta prima di passare il turno
+banggame::request_type::discard_pass    Scarta una carta prima di passare il turno
 banggame::request_type::bang            {0} ... Rispondi con Mancato o Risolvi
 banggame::request_type::duel            {0} ... Rispondi con Bang o Risolvi
 banggame::request_type::indians         {0} ... Rispondi con Bang o Risolvi
-banggame::request_type::destroy         {0} su {1} ... Rispondi con Fuga o Risolvi
-banggame::request_type::steal           {0} su {1} ... Rispondi con Fuga o Risolvi
+banggame::request_type::destroy         {0} per scartare {1} ... Rispondi con Fuga o Risolvi
+banggame::request_type::steal           {0} per rubare {1} ... Rispondi con Fuga o Risolvi
 banggame::request_type::death           Stai per morire. Gioca Birra o Risolvi
 banggame::request_type::bandidos        {0} ... Scarta due carte o Risolvi
 banggame::request_type::tornado         {0} ... Scarta una carta per pescarne due
@@ -43,7 +43,7 @@ banggame::request_type::saved           {0} ... Scegli se pescare dal mazzo o da
 banggame::request_type::add_cube        Scegli su quale carta mettere un cubetto
 banggame::request_type::move_bomb       Scegli su cui spostare {0}
 banggame::request_type::rust            {0} ... Rispondi con Fuga o Risolvi
-banggame::request_type::ricochet        {0} ... Rispondi con Mancato o Risolvi
+banggame::request_type::ricochet        {0} su {1} ... Rispondi con Mancato o Risolvi
 banggame::request_type::peyote          {0} ... Dichiara Rosso o Nero
 banggame::request_type::handcuffs       {0} ... Dichiara un seme
 banggame::request_type::shopchoice      Scegli come giocare {0}
