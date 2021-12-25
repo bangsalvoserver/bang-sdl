@@ -310,6 +310,14 @@ namespace banggame {
         }
     }
 
+    bool effect_backfire::can_play(card *origin_card, player *origin) const {
+        return !origin->m_game->m_requests.empty() && origin->m_game->top_request().origin();
+    }
+
+    void effect_backfire::on_play(card *origin_card, player *origin) {
+        origin->m_game->queue_request<request_type::bang>(origin_card, origin, origin->m_game->top_request().origin(), flags);
+    }
+
     void effect_bandidos::on_play(card *origin_card, player *origin, player *target) {
         target->m_game->queue_request<request_type::bandidos>(origin_card, origin, target, flags);
     }

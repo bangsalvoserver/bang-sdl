@@ -133,8 +133,6 @@ namespace banggame {
 
     DEFINE_SERIALIZABLE(request_view,
         (type, request_type)
-        (origin_card_id, int)
-        (origin_id, int)
         (target_id, int)
         (flags, effect_flags)
         (status_text, game_formatted_string)

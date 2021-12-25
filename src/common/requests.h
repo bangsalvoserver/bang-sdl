@@ -257,7 +257,6 @@ namespace banggame {
     };
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, request_type,
-        (none,          request_base)
         (predraw,       request_predraw)
         (check,         request_check)
         (generalstore,  request_generalstore)
@@ -325,14 +324,14 @@ namespace banggame {
             return enums::visit(&request_base::target, *this);
         }
 
+        effect_flags flags() const {
+            return enums::visit(&request_base::flags, *this);
+        }
+
         game_formatted_string status_text() const {
             return enums::visit([](const auto &req) {
                 return req.status_text();
             }, *this);
-        }
-
-        effect_flags flags() const {
-            return enums::visit(&request_base::flags, *this);
         }
     };
 

@@ -54,8 +54,6 @@ namespace banggame {
         const auto &req = top_request();
         add_public_update<game_update_type::request_handle>(
             req.enum_index(),
-            req.origin_card() ? req.origin_card()->id : 0,
-            req.origin() ? req.origin()->id : 0,
             req.target() ? req.target()->id : 0,
             req.flags(),
             req.status_text());
@@ -201,8 +199,6 @@ namespace banggame {
             auto &req = top_request();
             ret.emplace_back(enums::enum_constant<game_update_type::request_handle>{},
                 req.enum_index(),
-                req.origin_card() ? req.origin_card()->id : 0,
-                req.origin() ? req.origin()->id : 0,
                 req.target() ? req.target()->id : 0,
                 req.flags(),
                 req.status_text());

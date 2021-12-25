@@ -324,7 +324,6 @@ namespace banggame {
                                 case target_type::notsheriff: return target->m_role != player_role::sheriff;
                                 case target_type::reachable: return player_in_range(this, target, m_weapon_range + m_range_mod);
                                 case target_type::maxdistance: return player_in_range(this, target, e.args + m_range_mod);
-                                case target_type::attacker: return !m_game->m_requests.empty() && m_game->top_request().origin() == target;
                                 case target_type::new_target: return is_new_target(m_current_card_targets, card_ptr, target);
                                 case target_type::fanning_target: {
                                     player *prev_target = m_game->get_player(targets.front().get<play_card_target_type::target_player>().front().player_id);
@@ -367,7 +366,6 @@ namespace banggame {
                                 case target_type::notsheriff: return target->m_role != player_role::sheriff;
                                 case target_type::reachable: return player_in_range(this, target, m_weapon_range + m_range_mod);
                                 case target_type::maxdistance: return player_in_range(this, target, e.args + m_range_mod);
-                                case target_type::attacker: return !m_game->m_requests.empty() && m_game->top_request().origin() == target;
                                 case target_type::new_target: return is_new_target(m_current_card_targets, card_ptr, target);
                                 case target_type::table: return target_card->pile == card_pile_type::player_table;
                                 case target_type::hand: return target_card->pile == card_pile_type::player_hand;

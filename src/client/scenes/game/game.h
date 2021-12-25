@@ -102,7 +102,7 @@ namespace banggame {
         
         std::default_random_engine rng;
 
-        request_view m_current_request;
+        std::optional<request_view> m_current_request;
 
         card_view *find_card(int id) {
             if (auto it = m_cards.find(id); it != m_cards.end()) {

@@ -121,7 +121,7 @@ void game_scene::render(sdl::renderer &renderer) {
         if (player_id == m_playing_id) {
             p.render_turn_indicator(renderer);
         }
-        if (m_current_request.type != request_type::none && m_current_request.target_id == player_id) {
+        if (m_current_request && m_current_request->target_id == player_id) {
             p.render_request_indicator(renderer);
         }
 
@@ -742,7 +742,7 @@ void game_scene::handle_game_update(UPDATE_TAG(switch_turn), const switch_turn_u
     m_playing_id = args.player_id;
     m_target.clear_targets();
 
-    if (m_playing_id == m_player_own_id && m_current_request.type == request_type::none) {
+    if (m_playing_id == m_player_own_id && !m_current_request) {
         m_ui.set_status(_("STATUS_YOUR_TURN"));
     }
 
@@ -764,8 +764,7 @@ void game_scene::handle_game_update(UPDATE_TAG(request_handle), const request_vi
 }
 
 void game_scene::handle_game_update(UPDATE_TAG(status_clear)) {
-    m_current_request.type = request_type::none;
-    m_current_request.origin_id = 0;
+    m_current_request.reset();
 
     m_ui.clear_status();
 

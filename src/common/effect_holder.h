@@ -40,6 +40,7 @@ namespace banggame {
         (draw_done,     effect_draw_done)
         (generalstore,  effect_generalstore)
         (deathsave,     effect_deathsave)
+        (backfire,      effect_backfire)
         (bandidos,      effect_bandidos)
         (aim,           effect_aim)
         (poker,         effect_poker)

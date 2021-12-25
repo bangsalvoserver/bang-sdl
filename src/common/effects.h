@@ -23,10 +23,6 @@ namespace banggame {
         player *origin = nullptr;
         player *target = nullptr;
         effect_flags flags = no_effect_flags;
-
-        game_formatted_string status_text() const {
-            return {};
-        }
     };
 
     template<card_pile_type ... Es>
@@ -167,6 +163,11 @@ namespace banggame {
     };
 
     struct effect_generalstore : card_effect {
+        void on_play(card *origin_card, player *origin);
+    };
+
+    struct effect_backfire : card_effect {
+        bool can_play(card *origin_card, player *origin) const;
         void on_play(card *origin_card, player *origin);
     };
 

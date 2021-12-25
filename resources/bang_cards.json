@@ -1186,8 +1186,7 @@
                     "class": "missed"
                 },
                 {
-                    "target": "player attacker",
-                    "class": "bang",
+                    "class": "backfire",
                     "escapable": true
                 }
             ]
