@@ -94,6 +94,8 @@ namespace banggame {
         (single_target)
     )
 
+    constexpr auto no_effect_flags = enums::flags_none<effect_flags>;
+
     DEFINE_ENUM_IN_NS(banggame, card_pile_type,
         (none)
         (player)

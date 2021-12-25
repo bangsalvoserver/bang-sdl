@@ -72,12 +72,6 @@ DEFINE_SERIALIZABLE(game_started_args,
     (expansions, banggame::card_expansion_type)
 )
 
-DEFINE_SERIALIZABLE(game_error_args,
-    (message, std::string)
-    (args, std::vector<std::string>)
-    (localized, bool)
-)
-
 DEFINE_ENUM_TYPES(server_message_type,
     (client_accepted)
     (lobby_list, std::vector<lobby_data>)
@@ -89,7 +83,6 @@ DEFINE_ENUM_TYPES(server_message_type,
     (lobby_left, lobby_left_args)
     (lobby_chat, lobby_chat_args)
     (game_started, game_started_args)
-    (game_error, game_error_args)
     (game_update, game_update)
 )
 

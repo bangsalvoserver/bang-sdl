@@ -24,8 +24,10 @@ USERNAME_DISCONNECTED               (Disconnected)
 STATUS_GAME_OVER                    Game Over. Winner: {}
 STATUS_YOUR_TURN                    Your turn
 STATUS_CARD_FROM_HAND               card from hand
-banggame::request_type::predraw         "Draw" a card before drawing
-banggame::request_type::check           Choose what card to "draw"
+STATUS_UNKNOWN_CARD                 (unknown card)
+STATUS_UNKNOWN_PLAYER               (unknown player)
+banggame::request_type::predraw         "Draw!" a card before drawing
+banggame::request_type::check           Choose which card to "draw!", for {0}
 banggame::request_type::generalstore    Draw a card from the general store
 banggame::request_type::discard         Discard a card for {0}
 banggame::request_type::discard_pass    Discard a card before passing the turn
@@ -40,7 +42,7 @@ banggame::request_type::tornado         {0} ... Discard a card to draw two
 banggame::request_type::poker           {0} ... Discard a card
 banggame::request_type::poker_draw      {0} ... Choose which cards to draw
 banggame::request_type::saved           {0} ... Choose whether to draw from the deck or from the saved player
-banggame::request_type::add_cube        Chose which card to put a cube onto
+banggame::request_type::add_cube        Choose which card to put a cube onto, for {0}
 banggame::request_type::move_bomb       Choose which player to move {0} onto
 banggame::request_type::rust            {0} ... Respond with Fuga or Resolve
 banggame::request_type::ricochet        {0} on {1} ... Respond with Mancato or Resolve
@@ -56,8 +58,8 @@ banggame::request_type::shop_choose_target Choose who to play {0} to
 banggame::request_type::thedaltons      {0} ... Discard a blue card
 banggame::request_type::lemonade_jim    {2} can play the effect of {0}
 banggame::request_type::al_preacher     {2} can play the effect of {0}
-banggame::request_type::damaging        {2} takes damage for {0}
-banggame::request_type::tumbleweed      {2} can play {0} to repeat "draw" for {1}
+banggame::request_type::damaging        {3} takes damage for {0}
+banggame::request_type::tumbleweed      {2} can play {0} to repeat "draw!" for {1}
 banggame::player_role::sheriff      Sheriff
 banggame::player_role::deputy       Deputy
 banggame::player_role::outlaw       Outlaw
@@ -94,7 +96,6 @@ ERROR_TABLE_CARDS_ARE_DISABLED      Table cards are disabled
 ERROR_CARD_INACTIVE                 Card inactive in this turn
 ERROR_CANT_EQUIP_CARDS              You can't equip cards
 ERROR_DUPLICATED_CARD               Duplicated card
-UNKNOWN_CARD                        (unknown card)
 LOG_GAME_START                      Game started
 LOG_TURN_START                      It's {1}'s turn
 LOG_SOLD_BEER                       {1} sells {3}
@@ -110,7 +111,7 @@ LOG_BOUGHT_EQUIP                    {1} buys and equips {0}
 LOG_BOUGHT_EQUIP_TO                 {1} buys and equips {0} to {2}
 LOG_RESPONDED_WITH_CARD             {1} responds with {0}
 LOG_DRAWN_FROM_DECK                 {1} draws from the deck
-LOG_CHECK_DREW_CARD                 {1} "draws" {3} for {0}
+LOG_CHECK_DREW_CARD                 {1} "draws!" {3} for {0}
 LOG_TAKEN_DAMAGE                    {1} takes 1 damage for {0}
 LOG_TAKEN_DAMAGE_PLURAL             {1} takes {4} damage for {0}
 LOG_PLAYER_DIED                     {1} died

@@ -1,4 +1,5 @@
 #include "common/effect_holder.h"
+#include "formatter.h"
 
 #include <stdexcept>
 
@@ -87,6 +88,27 @@ namespace banggame {
     void equip_holder::on_unequip(player *target, card *target_card) {
         visit_effect([=](auto &&value) {
             value.on_unequip(target, target_card);
+        }, *this);
+    }
+
+    game_formatted_string request_holder::status_text() const {
+        return enums::visit_indexed([]<request_type E>(enums::enum_constant<E>, const auto &req) {
+            if constexpr (requires { req.status_text(); }) {
+                return req.status_text();
+            } else {
+                return make_formatted_string(
+                    std::string(enums::full_name(E)),
+                    req.origin_card,
+                    [&]() -> card * {
+                        if constexpr (requires { req.target_card; }) {
+                            return req.target_card;
+                        }
+                        return nullptr;
+                    }(),
+                    req.target,
+                    req.origin
+                );
+            }
         }, *this);
     }
 

@@ -87,6 +87,18 @@ namespace json {
         }
     };
 
+    template<typename ... Ts>
+    struct serializer<std::variant<Ts ...>> {
+        Json::Value operator()(const std::variant<Ts ...> &value) const {
+            Json::Value ret = Json::objectValue;
+            ret["index"] = value.index();
+            ret["value"] = std::visit([](const auto &value) {
+                return serializer<std::decay_t<decltype(value)>>{}(value);
+            }, value);
+            return ret;
+        }
+    };
+
     template<typename T>
     Json::Value serialize(const T &value) {
         return serializer<T>{}(value);
@@ -165,6 +177,19 @@ namespace json {
                     return enums::enum_variant<T>(enum_const);
                 }
             }, deserializer<T>{}(value["type"]));
+        }
+    };
+
+    template<typename ... Ts>
+    struct deserializer<std::variant<Ts ...>> {
+        using variant_type = std::variant<Ts ...>;
+        variant_type operator()(const Json::Value &value) const {
+            constexpr auto lut = []<size_t ... Is>(std::index_sequence<Is...>){
+                return std::array{ +[](const Json::Value &value) -> variant_type {
+                    return deserializer<std::variant_alternative_t<Is, variant_type>>{}(value);
+                } ... };
+            }(std::make_index_sequence<sizeof...(Ts)>());
+            return lut[value["index"].asInt()](value["value"]);
         }
     };
 

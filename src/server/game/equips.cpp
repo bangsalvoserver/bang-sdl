@@ -80,7 +80,7 @@ namespace banggame {
             if (suit == card_suit_type::spades || suit == card_suit_type::clubs) {
                 target->pay_cubes(target_card, 2);
             } else {
-                target->m_game->add_request<request_type::move_bomb>(target_card, nullptr, target);
+                target->m_game->add_request<request_type::move_bomb>(target_card, target);
             }
             target->next_predraw_check(target_card);
         });

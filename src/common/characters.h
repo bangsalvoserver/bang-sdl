@@ -28,6 +28,11 @@ namespace banggame {
     };
 
     struct request_kit_carlson : picking_request_allowing<card_pile_type::selection> {
+        request_kit_carlson(card *origin_card, player *target) {
+            request_base::origin_card = origin_card;
+            request_base::target = target;
+        }
+
         void on_pick(card_pile_type pile, player *target, card *target_card);
     };
 
@@ -36,6 +41,11 @@ namespace banggame {
     };
 
     struct request_claus_the_saint : picking_request_allowing<card_pile_type::selection> {
+        request_claus_the_saint(card *origin_card, player *target) {
+            request_base::origin_card = origin_card;
+            request_base::target = target;
+        }
+
         void on_pick(card_pile_type pile, player *target, card *target_card);
     };
 
@@ -77,6 +87,11 @@ namespace banggame {
     };
 
     struct request_vera_custer : picking_request_allowing<card_pile_type::player_character> {
+        request_vera_custer(card *origin_card, player *target) {
+            request_base::origin_card = origin_card;
+            request_base::target = target;
+        }
+        
         void on_pick(card_pile_type pile, player *target, card *target_card);
     };
 
@@ -115,6 +130,12 @@ namespace banggame {
     };
 
     struct request_youl_grinner : picking_request_allowing<card_pile_type::player_hand> {
+        request_youl_grinner(card *origin_card, player *origin, player *target) {
+            request_base::origin_card = origin_card;
+            request_base::origin = origin;
+            request_base::target = target;
+        }
+
         void on_pick(card_pile_type pile, player *target, card *target_card);
     };
 
@@ -151,6 +172,11 @@ namespace banggame {
     };
 
     struct request_dutch_will : picking_request_allowing<card_pile_type::selection> {
+        request_dutch_will(card *origin_card, player *target) {
+            request_base::origin_card = origin_card;
+            request_base::target = target;
+        }
+
         void on_pick(card_pile_type pile, player *target, card *target_card);
     };
 
@@ -159,6 +185,11 @@ namespace banggame {
     };
 
     struct request_shop_choose_target : picking_request_allowing<card_pile_type::player> {
+        request_shop_choose_target(card *origin_card, player *target) {
+            request_base::origin_card = origin_card;
+            request_base::target = target;
+        }
+        
         void on_pick(card_pile_type pile, player *target, card *target_card);
     };
 

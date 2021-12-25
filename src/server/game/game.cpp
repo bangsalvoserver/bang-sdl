@@ -10,17 +10,6 @@ namespace banggame {
 
     using namespace enums::flag_operators;
 
-    void game::add_log(std::string message, card *origin_card, player *origin, player *target, card *target_card, int custom_value) {
-        add_public_update<game_update_type::game_log>(
-            std::move(message),
-            origin_card ? origin_card->id : 0,
-            origin ? origin->id : 0,
-            target ? target->id : 0,
-            target_card ? target_card->id : 0,
-            custom_value
-        );
-    }
-
     static card_info make_card_info(const card &c) {
         auto make_card_info_effects = []<typename T>(std::vector<T> &out, const auto &vec) {
             for (const auto &value : vec) {
@@ -68,8 +57,8 @@ namespace banggame {
             req.origin_card() ? req.origin_card()->id : 0,
             req.origin() ? req.origin()->id : 0,
             req.target() ? req.target()->id : 0,
-            req.target_card() ? req.target_card()->id : 0,
-            req.flags());
+            req.flags(),
+            req.status_text());
     }
 
     void game::send_character_update(const character &c, int player_id, int index) {
@@ -88,7 +77,7 @@ namespace banggame {
         } else if (auto it = m_characters.find(card_id); it != m_characters.end()) {
             return &it->second;
         }
-        throw game_error("server.find_card: ID not found");
+        throw game_error("server.find_card: ID not found"_unloc);
     }
 
     static auto make_id_vector(const auto &vec) {
@@ -215,8 +204,8 @@ namespace banggame {
                 req.origin_card() ? req.origin_card()->id : 0,
                 req.origin() ? req.origin()->id : 0,
                 req.target() ? req.target()->id : 0,
-                req.target_card() ? req.target_card()->id : 0,
-                req.flags());
+                req.flags(),
+                req.status_text());
         }
 
         return ret;
@@ -529,7 +518,7 @@ namespace banggame {
             for (int i=0; i<m_current_check->origin->m_num_checks; ++i) {
                 draw_card_to(card_pile_type::selection);
             }
-            add_request<request_type::check>(0, m_current_check->origin, m_current_check->origin);
+            add_request<request_type::check>(m_current_check->origin_card, m_current_check->origin);
         }
     }
 

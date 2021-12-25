@@ -25,7 +25,6 @@ namespace banggame {
         (virtual_copy,  effect_virtual_copy)
         (virtual_clear, effect_virtual_clear)
         (startofturn,   effect_startofturn)
-        (offturn,       effect_empty)
         (repeatable,    effect_empty)
         (drawing,       effect_empty)
         (steal,         effect_steal)

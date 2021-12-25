@@ -14,14 +14,14 @@ namespace banggame {
     struct card_effect {
         target_type target = enums::flags_none<target_type>;
         short args = 0;
-        effect_flags flags = enums::flags_none<effect_flags>;
+        effect_flags flags = no_effect_flags;
     };
 
     struct request_base {
-        card *origin_card;
-        player *origin;
-        player *target;
-        effect_flags flags = enums::flags_none<effect_flags>;
+        card *origin_card = nullptr;
+        player *origin = nullptr;
+        player *target = nullptr;
+        effect_flags flags = no_effect_flags;
     };
 
     template<card_pile_type ... Es>

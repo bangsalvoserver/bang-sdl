@@ -1202,9 +1202,6 @@
             "color": "brown",
             "responses": [
                 {
-                    "class": "offturn"
-                },
-                {
                     "class": "saved"
                 }
             ]

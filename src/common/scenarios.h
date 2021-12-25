@@ -35,6 +35,11 @@ namespace banggame {
     };
 
     struct request_thedaltons : picking_request_allowing<card_pile_type::player_table> {
+        request_thedaltons(card *origin_card, player *target) {
+            request_base::origin_card = origin_card;
+            request_base::target = target;
+        }
+
         void on_pick(card_pile_type pile, player *target, card *target_card);
     };
 
@@ -103,6 +108,11 @@ namespace banggame {
     };
 
     struct request_peyote : picking_request_allowing<card_pile_type::selection> {
+        request_peyote(card *origin_card, player *target) {
+            request_base::origin_card = origin_card;
+            request_base::target = target;
+        }
+
         void on_pick(card_pile_type pile, player *target, card *target_card);
     };
 
@@ -111,6 +121,11 @@ namespace banggame {
     };
 
     struct request_handcuffs : picking_request_allowing<card_pile_type::selection> {
+        request_handcuffs(card *origin_card, player *target) {
+            request_base::origin_card = origin_card;
+            request_base::target = target;
+        }
+
         void on_pick(card_pile_type pile, player *target, card *target_card);
     };
     

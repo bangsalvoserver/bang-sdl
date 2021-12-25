@@ -96,7 +96,7 @@ namespace banggame {
     }
 
     void effect_duel::on_play(card *origin_card, player *origin, player *target) {
-        target->m_game->queue_request<request_type::duel>(origin_card, origin, target, flags).respond_to = origin;
+        target->m_game->queue_request<request_type::duel>(origin_card, origin, target, origin, flags);
     }
 
     bool effect_bangresponse::can_respond(card *origin_card, player *origin) const {
@@ -115,7 +115,7 @@ namespace banggame {
             player *respond_to = req.respond_to;
             player *target = req.target;
             target->m_game->pop_request_noupdate();
-            target->m_game->queue_request<request_type::duel>(origin_card, origin, respond_to).respond_to = target;
+            target->m_game->queue_request<request_type::duel>(origin_card, origin, respond_to, target);
             break;
         }
         case request_type::indians:
@@ -196,7 +196,7 @@ namespace banggame {
 
     void effect_destroy::on_play(card *origin_card, player *origin, player *target, card *target_card) {
         if (origin != target && target->can_escape(origin, origin_card, flags)) {
-            target->m_game->queue_request(request_destroy{origin_card, origin, target, flags, target_card});
+            target->m_game->queue_request<request_type::destroy>(origin_card, origin, target, target_card, flags);
         } else {
             target->m_game->instant_event<event_type::on_discard_card>(origin, target, target_card);
             auto effect_end_pos = std::ranges::find(target->m_game->m_pending_events, enums::indexof(event_type::on_effect_end), &event_args::index);
@@ -213,7 +213,7 @@ namespace banggame {
 
     void effect_steal::on_play(card *origin_card, player *origin, player *target, card *target_card) {
         if (origin != target && target->can_escape(origin, origin_card, flags)) {
-            target->m_game->queue_request(request_steal{origin_card, origin, target, flags, target_card});
+            target->m_game->queue_request<request_type::steal>(origin_card, origin, target, target_card, flags);
         } else {
             target->m_game->instant_event<event_type::on_discard_card>(origin, target, target_card);
             auto effect_end_pos = std::ranges::find(target->m_game->m_pending_events, enums::indexof(event_type::on_effect_end), &event_args::index);
@@ -347,28 +347,28 @@ namespace banggame {
                     origin->add_to_hand(origin->m_game->m_selection.front());
                 }
             } else {
-                origin->m_game->queue_request<request_type::poker_draw>(origin_card, origin, origin);
+                origin->m_game->queue_request<request_type::poker_draw>(origin_card, origin);
             }
         });
     }
 
     bool effect_saved::can_respond(card *origin_card, player *origin) const {
         if (origin->m_game->top_request_is(request_type::damaging)) {
-            auto &t = origin->m_game->top_request().get<request_type::damaging>();
-            return t.target != origin;
+            auto &req = origin->m_game->top_request().get<request_type::damaging>();
+            return req.origin != origin;
         }
         return false;
     }
 
     void effect_saved::on_play(card *origin_card, player *origin) {
-        auto &timer = origin->m_game->top_request().get<request_type::damaging>();
-        player *saved = timer.target;
-        if (0 == --timer.damage) {
+        auto &req = origin->m_game->top_request().get<request_type::damaging>();
+        player *saved = req.origin;
+        if (0 == --req.damage) {
             origin->m_game->pop_request();
         }
         origin->m_game->queue_event<event_type::delayed_action>([=]{
             if (saved->alive()) {
-                origin->m_game->queue_request<request_type::saved>(origin_card, origin, origin).saved = saved;
+                origin->m_game->queue_request<request_type::saved>(origin_card, origin, saved);
             }
         });
     }
@@ -468,7 +468,7 @@ namespace banggame {
 
     void effect_reload::on_play(card *origin_card, player *origin) {
         if (origin->can_receive_cubes()) {
-            origin->m_game->queue_request<request_type::add_cube>(origin_card, nullptr, origin).ncubes = 3;
+            origin->m_game->queue_request<request_type::add_cube>(origin_card, origin, 3);
         }
     }
     
@@ -600,7 +600,7 @@ namespace banggame {
 
     void effect_tumbleweed::on_equip(player *origin, card *target_card) {
         origin->m_game->add_event<event_type::trigger_tumbleweed>(target_card, [=](card *origin_card, card *drawn_card) {
-            origin->m_game->add_request(timer_tumbleweed{target_card, origin, drawn_card, origin_card});
+            origin->m_game->add_request<request_type::tumbleweed>(target_card, origin, drawn_card, origin_card);
             origin->m_game->m_current_check->no_auto_resolve = true;
         });
     }
@@ -621,10 +621,12 @@ namespace banggame {
     }
 
     void effect_sniper::on_play(card *origin_card, player *origin, player *target) {
-        target->m_game->queue_request<request_type::bang>(origin_card, origin, target, flags).bang_strength = 2;
+        request_bang req{origin_card, origin, target, flags};
+        req.bang_strength = 2;
+        target->m_game->queue_request(std::move(req));
     }
 
     void effect_ricochet::on_play(card *origin_card, player *origin, player *target, card *target_card) {
-        target->m_game->queue_request(request_ricochet{origin_card, origin, target, flags, target_card});
+        target->m_game->queue_request<request_type::ricochet>(origin_card, origin, target, target_card, flags);
     }
 }

@@ -185,10 +185,6 @@ void game_manager::handle_message(MESSAGE_TAG(game_started), const game_started_
     switch_scene<scene_type::game>()->init(args);
 }
 
-void game_manager::handle_message(MESSAGE_TAG(game_error), const game_error_args &args) {
-    m_scene->show_error(intl::format(args.localized ? intl::translate(args.message) : args.message, args.args));
-}
-
 void game_manager::handle_message(MESSAGE_TAG(game_update), const game_update &args) {
     m_scene->handle_game_update(args);
 }

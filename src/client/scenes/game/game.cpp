@@ -360,24 +360,43 @@ void game_scene::handle_game_update(UPDATE_TAG(game_over), const game_over_updat
     }
 }
 
-std::string game_scene::get_card_name(card_widget *card) {
-    if (!card || !card->known) return _("UNKNOWN_CARD");
-    if (card->value != card_value_type::none && card->suit != card_suit_type::none) {
-        return intl::format("{} ({}{})", card->name, enums::get_data(card->value), enums::get_data(card->suit).symbol);
-    } else {
-        return card->name;
-    }
+std::string game_scene::evaluate_format_string(const game_formatted_string &str) {
+    auto view = str.format_args | std::views::transform([&](const game_format_arg &arg) {
+        return std::visit(util::overloaded{
+            [](int value) { return std::to_string(value); },
+            [](const std::string &value) { return value; },
+            [&](card_format_id value) {
+                player_view *owner = value.player_id ? find_player(value.player_id) : nullptr;
+                card_widget *card = value.card_id ? find_card_widget(value.card_id) : nullptr;
+                if (card && card->known) {
+                    if (owner && card->pile == &owner->hand) {
+                        return _("STATUS_CARD_FROM_HAND");
+                    } else if (card->value != card_value_type::none && card->suit != card_suit_type::none) {
+                        return intl::format("{} ({}{})", card->name, enums::get_data(card->value), enums::get_data(card->suit).symbol);
+                    } else {
+                        return card->name;
+                    }
+                } else {
+                    return _("STATUS_UNKNOWN_CARD");
+                }
+            },
+            [&](player_format_id value) {
+                return value.player_id
+                    ? find_player(value.player_id)->m_username_text.get_value()
+                    : _("STATUS_UNKNOWN_PLAYER");
+            }
+        }, arg);
+    });
+    return intl::format(str.localized ? intl::translate(str.format_str) : str.format_str, std::vector(view.begin(), view.end()));
 }
 
-void game_scene::handle_game_update(UPDATE_TAG(game_log), const game_log_update &args) {
-    std::cout << _(args.message,
-        args.origin_card_id ? get_card_name(find_card_widget(args.origin_card_id)) : "-",
-        args.origin_id ? find_player(args.origin_id)->m_username_text.get_value() : "-",
-        args.target_id ? find_player(args.target_id)->m_username_text.get_value() : "-",
-        args.target_card_id ? get_card_name(find_card_widget(args.target_card_id)) : "-",
-        args.custom_value
-    ) << '\n';
+void game_scene::handle_game_update(UPDATE_TAG(game_error), const game_formatted_string &args) {
+    show_error(evaluate_format_string(args));
+    pop_update();
+}
 
+void game_scene::handle_game_update(UPDATE_TAG(game_log), const game_formatted_string &args) {
+    std::cout << evaluate_format_string(args) << '\n';
     pop_update();
 }
 
@@ -734,22 +753,9 @@ void game_scene::handle_game_update(UPDATE_TAG(request_handle), const request_vi
     m_current_request = args;
 
     using namespace enums::stream_operators;
-    
-    constexpr auto timer_lut = []<request_type ... Es>(enums::enum_sequence<Es ...>) {
-        return std::array{ timer_request<Es> ... };
-    }(enums::make_enum_sequence<request_type>());
 
-    if (timer_lut[enums::indexof(args.type)] || args.target_id == m_player_own_id) {
-        auto *origin_card = find_card_widget(args.origin_card_id);
-        auto *target_card = find_card_widget(args.target_card_id);
-        auto *target_player = find_player(args.target_id);
-        m_ui.set_status(_(args.type,
-            origin_card ? get_card_name(origin_card) : "-",
-            target_card ? target_card->pile == &target_player->hand
-                ? _("STATUS_CARD_FROM_HAND")
-                : get_card_name(target_card)
-            : "-",
-            target_player->m_username_text.get_value()));
+    if (!args.target_id || args.target_id == m_player_own_id) {
+        m_ui.set_status(evaluate_format_string(args.status_text));
     } else {
         m_ui.clear_status();
     }

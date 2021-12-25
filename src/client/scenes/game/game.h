@@ -42,7 +42,8 @@ namespace banggame {
 
     private:
         void handle_game_update(UPDATE_TAG(game_over),        const game_over_update &args);
-        void handle_game_update(UPDATE_TAG(game_log),         const game_log_update &args);
+        void handle_game_update(UPDATE_TAG(game_error),       const game_formatted_string &args);
+        void handle_game_update(UPDATE_TAG(game_log),         const game_formatted_string &args);
         void handle_game_update(UPDATE_TAG(add_cards),        const add_cards_update &args);
         void handle_game_update(UPDATE_TAG(move_card),        const move_card_update &args);
         void handle_game_update(UPDATE_TAG(add_cubes),        const add_cubes_update &args);
@@ -129,7 +130,7 @@ namespace banggame {
             return nullptr;
         }
 
-        std::string get_card_name(card_widget *card);
+        std::string evaluate_format_string(const game_formatted_string &str);
 
         friend class game_ui;
         friend class target_finder;

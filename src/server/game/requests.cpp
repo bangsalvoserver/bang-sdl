@@ -55,7 +55,7 @@ namespace banggame {
             if (target->m_game->has_expansion(card_expansion_type::armedanddangerous)) {
                 target->m_game->queue_event<event_type::delayed_action>([target = this->target]{
                     if (target->can_receive_cubes()) {
-                        target->m_game->queue_request<request_type::add_cube>(0, nullptr, target);
+                        target->m_game->queue_request<request_type::add_cube>(nullptr, target);
                     }
                 });
             }
@@ -74,12 +74,12 @@ namespace banggame {
     }
     
     void timer_damaging::on_finished() {
-        if (target->m_hp <= damage) {
-            target->m_game->pop_request_noupdate();
+        if (origin->m_hp <= damage) {
+            origin->m_game->pop_request_noupdate();
         } else {
-            target->m_game->pop_request();
+            origin->m_game->pop_request();
         }
-        target->do_damage(origin_card, origin, damage, is_bang);
+        origin->do_damage(origin_card, source, damage, is_bang);
         cleanup();
     }
 
@@ -115,12 +115,12 @@ namespace banggame {
     }
 
     void request_destroy::on_resolve() {
-        effect_destroy{}.on_play(origin_card, origin, target, m_target_card);
+        effect_destroy{}.on_play(origin_card, origin, target, target_card);
         target->m_game->pop_request();
     }
 
     void request_steal::on_resolve() {
-        effect_steal{}.on_play(origin_card, origin, target, m_target_card);
+        effect_steal{}.on_play(origin_card, origin, target, target_card);
         target->m_game->pop_request();
     }
 

@@ -157,7 +157,9 @@ void target_finder::on_click_hand_card(player_view *player, card_view *card) {
     if (bool(m_flags & play_card_flags::sell_beer) && player->id == m_game->m_player_own_id) {
         m_targets.emplace_back(std::vector{target_pair{player, card}});
         send_play_card();
-    } else if (m_game->m_current_request.target_id == m_game->m_player_own_id && m_game->m_current_request.type != request_type::none) {
+    } else if (m_game->m_current_request.type != request_type::none
+        && (m_game->m_current_request.target_id == 0
+        || m_game->m_current_request.target_id == m_game->m_player_own_id)) {
         if (is_valid_picking_pile(m_game->m_current_request.type, card_pile_type::player_hand) && !is_escape_card(card)) {
             add_action<game_action_type::pick_card>(card_pile_type::player_hand, player->id, card->id);
         } else if (!m_playing_card) {
@@ -168,10 +170,6 @@ void target_finder::on_click_hand_card(player_view *player, card_view *card) {
             m_flags |= play_card_flags::response;
             add_card_target(target_pair{player, card});
         }
-    } else if (!m_playing_card && !card->response_targets.empty() && card->response_targets.front().type == effect_type::offturn && card->color == card_color_type::brown) {
-        m_playing_card = card;
-        m_flags |= play_card_flags::response | play_card_flags::offturn;
-        handle_auto_targets();
     } else if (m_game->m_playing_id == m_game->m_player_own_id) {
         if (!m_playing_card) {
             if (player->id == m_game->m_player_own_id) {

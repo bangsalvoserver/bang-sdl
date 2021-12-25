@@ -14,6 +14,7 @@
 #include "common/net_enums.h"
 #include "common/requests.h"
 #include "common/timer.h"
+#include "formatter.h"
 
 namespace banggame {
 
@@ -69,28 +70,14 @@ namespace banggame {
 
     using event_args = detail::function_argument_tuple_variant<event_type>;
 
-    struct localized_tag{};
-
-    struct game_error : std::exception, game_error_args {
-        template<typename ... Ts>
-        game_error(std::string message, Ts && ... args)
-            : game_error_args{std::move(message), {std::forward<Ts>(args) ... }, false} {}
-
-        template<typename ... Ts>
-        game_error(localized_tag, Ts && ... args)
-            : game_error(std::forward<Ts>(args) ... ) {
-            localized = true;
-        }
+    struct game_error : std::exception, game_formatted_string {
+        template<typename ... Ts> game_error(Ts && ... args)
+            : game_formatted_string(make_formatted_string(std::forward<Ts>(args) ...)) {}
 
         const char *what() const noexcept override {
-            return message.c_str();
+            return format_str.c_str();
         }
     };
-
-    template<typename ... Ts>
-    game_error localized_game_error(Ts && ... args) {
-        return game_error(localized_tag{}, std::forward<Ts>(args) ...);
-    }
 
     #define ACTION_TAG(name) enums::enum_constant<game_action_type::name>
 
@@ -169,7 +156,10 @@ namespace banggame {
             add_private_update<E>(nullptr, args ...);
         }
 
-        void add_log(std::string message, card *origin_card, player *origin, player *target = nullptr, card *target_card = nullptr, int custom_value = 0);
+        template<typename ... Ts>
+        void add_log(Ts && ... args) {
+            add_public_update<game_update_type::game_log>(make_formatted_string(std::forward<Ts>(args) ...));
+        }
 
         std::vector<game_update> get_game_state_updates(player *owner);
 
@@ -200,38 +190,32 @@ namespace banggame {
 
         void send_request_update();
 
-        auto &add_request(auto &&req) {
+        void add_request(auto &&req) {
             auto &ret = m_requests.emplace_front(std::move(req));
             send_request_update();
-            return ret;
         }
 
-        template<request_type E>
-        auto &add_request(card *origin_card, player *origin, player *target, effect_flags flags = enums::flags_none<effect_flags>) {
-            auto &ret = m_requests.emplace_front(enums::enum_constant<E>{}, origin_card, origin, target, flags).template get<E>();
+        template<request_type E, typename ... Ts>
+        void add_request(Ts && ... args) {
+            auto &ret = m_requests.emplace_front(enums::enum_constant<E>{}, std::forward<Ts>(args) ...).template get<E>();
             send_request_update();
-            return ret;
         }
 
-        auto &queue_request(auto &&req) {
+        void queue_request(auto &&req) {
             auto &ret = m_requests.emplace_back(std::move(req));
 
             if (m_requests.size() == 1) {
                 send_request_update();
             }
-
-            return ret;
         }
 
-        template<request_type E>
-        auto &queue_request(card *origin_card, player *origin, player *target, effect_flags flags = enums::flags_none<effect_flags>) {
-            auto &ret = m_requests.emplace_back(enums::enum_constant<E>{}, origin_card, origin, target, flags).template get<E>();
+        template<request_type E, typename ... Ts>
+        void queue_request(Ts && ... args) {
+            auto &ret = m_requests.emplace_back(enums::enum_constant<E>{}, std::forward<Ts>(args) ...);
 
             if (m_requests.size() == 1) {
                 send_request_update();
             }
-
-            return ret;
         }
 
         void pop_request() {

@@ -61,7 +61,7 @@ namespace banggame {
                 for (int i=0; i<3; ++i) {
                     target->m_game->draw_phase_one_card_to(card_pile_type::selection, target);
                 }
-                target->m_game->queue_request<request_type::kit_carlson>(target_card, target, target);
+                target->m_game->queue_request<request_type::kit_carlson>(target_card, target);
             }
         });
     }
@@ -86,7 +86,7 @@ namespace banggame {
                 for (int i=0; i<ncards; ++i) {
                     target->m_game->draw_phase_one_card_to(card_pile_type::selection, target);
                 }
-                target->m_game->queue_request<request_type::claus_the_saint>(target_card, target, target);
+                target->m_game->queue_request<request_type::claus_the_saint>(target_card, target);
             }
         });
     }
@@ -235,7 +235,7 @@ namespace banggame {
                 if (p->m_game->num_alive() == 2 && p->m_game->get_next_player(p)->m_characters.size() == 1) {
                     vera_custer_copy_character(p, p->m_game->get_next_player(p)->m_characters.front());
                 } else if (p->m_game->num_alive() > 2) {
-                    p->m_game->queue_request<request_type::vera_custer>(target_card, target, target);
+                    p->m_game->queue_request<request_type::vera_custer>(target_card, target);
                 }
             }
         });
@@ -495,7 +495,7 @@ namespace banggame {
                     for (int i=0; i<target->m_num_cards_to_draw; ++i) {
                         target->m_game->draw_phase_one_card_to(card_pile_type::selection, target);
                     }
-                    target->m_game->queue_request<request_type::dutch_will>(target_card, target, target);
+                    target->m_game->queue_request<request_type::dutch_will>(target_card, target);
                 }
             }
         });
@@ -528,7 +528,7 @@ namespace banggame {
             } else if (std::ranges::all_of(card->equips, is_self_or_none, &equip_holder::target)) {
                 target->equip_card(card);
             } else {
-                target->m_game->queue_request<request_type::shop_choose_target>(card, nullptr, target);
+                target->m_game->queue_request<request_type::shop_choose_target>(card, target);
             }
             break;
         case card_color_type::brown:
@@ -545,7 +545,7 @@ namespace banggame {
                     }
                 }
             } else {
-                target->m_game->queue_request<request_type::shop_choose_target>(card, nullptr, target);
+                target->m_game->queue_request<request_type::shop_choose_target>(card, target);
             }
             break;
         }

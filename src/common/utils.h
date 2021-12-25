@@ -4,6 +4,7 @@
 #include "enum_variant.h"
 #include "sdlnet.h"
 #include "svstream.h"
+#include "json_serial.h"
 
 #include <iostream>
 #include <ranges>

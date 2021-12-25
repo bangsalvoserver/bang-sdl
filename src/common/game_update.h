@@ -11,15 +11,6 @@ namespace banggame {
         (winner_role, player_role)
     )
 
-    DEFINE_SERIALIZABLE(game_log_update,
-        (message, std::string)
-        (origin_card_id, int)
-        (origin_id, int)
-        (target_id, int)
-        (target_card_id, int)
-        (custom_value, int)
-    )
-
     DEFINE_SERIALIZABLE(add_cards_update,
         (card_ids, std::vector<int>)
         (pile, card_pile_type)
@@ -145,13 +136,14 @@ namespace banggame {
         (origin_card_id, int)
         (origin_id, int)
         (target_id, int)
-        (target_card_id, int)
         (flags, effect_flags)
+        (status_text, game_formatted_string)
     )
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, game_update_type,
         (game_over, game_over_update)
-        (game_log, game_log_update)
+        (game_error, game_formatted_string)
+        (game_log, game_formatted_string)
         (add_cards, add_cards_update)
         (move_card, move_card_update)
         (add_cubes, add_cubes_update)

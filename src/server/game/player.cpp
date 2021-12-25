@@ -46,7 +46,7 @@ namespace banggame {
     }
 
     std::vector<card *>::iterator player::move_card_to(card *target_card, card_pile_type pile, bool known, player *owner, show_card_flags flags) {
-        if (target_card->owner != this) throw localized_game_error("ERROR_PLAYER_DOES_NOT_OWN_CARD");
+        if (target_card->owner != this) throw game_error("ERROR_PLAYER_DOES_NOT_OWN_CARD");
         if (target_card->pile == card_pile_type::player_table) {
             if (target_card->inactive) {
                 target_card->inactive = false;
@@ -62,7 +62,7 @@ namespace banggame {
         } else if (target_card->pile == card_pile_type::player_hand) {
             return m_game->move_to(target_card, pile, known, owner, flags);
         } else {
-            throw localized_game_error("ERROR_CARD_NOT_FOUND");
+            throw game_error("ERROR_CARD_NOT_FOUND");
         }
     }
 
@@ -79,9 +79,7 @@ namespace banggame {
     void player::damage(card *origin_card, player *source, int value, bool is_bang) {
         if (!m_ghost && !(m_hp == 0 && m_game->has_scenario(scenario_flags::ghosttown))) {
             if (m_game->has_expansion(card_expansion_type::valleyofshadows)) {
-                auto &obj = m_game->queue_request<request_type::damaging>(origin_card, source, this);
-                obj.damage = value;
-                obj.is_bang = is_bang;
+                m_game->queue_request<request_type::damaging>(origin_card, source, this, value, is_bang);
             } else {
                 do_damage(origin_card, source, value, is_bang);
             }
@@ -208,18 +206,18 @@ namespace banggame {
         for (card *mod_card : modifiers) {
             card_suit_type suit = get_card_suit(mod_card);
             if (m_game->m_playing == this && m_declared_suit != card_suit_type::none && suit != card_suit_type::none && suit != m_declared_suit) {
-                throw localized_game_error("ERROR_WRONG_DECLARED_SUIT");
+                throw game_error("ERROR_WRONG_DECLARED_SUIT");
             }
 
-            if (mod_card->pile == card_pile_type::player_character && m_game->characters_disabled(this)) throw localized_game_error("ERROR_CHARACTERS_DISABLED");
-            if (mod_card->pile == card_pile_type::player_table && m_game->table_cards_disabled(this)) throw localized_game_error("ERROR_TABLE_CARDS_DISABLED");
+            if (mod_card->pile == card_pile_type::player_character && m_game->characters_disabled(this)) throw game_error("ERROR_CHARACTERS_DISABLED");
+            if (mod_card->pile == card_pile_type::player_table && m_game->table_cards_disabled(this)) throw game_error("ERROR_TABLE_CARDS_DISABLED");
             if (mod_card->modifier != card_modifier_type::bangcard
                 || std::ranges::find(c->effects, effect_type::bangcard, &effect_holder::type) == c->effects.end()) {
-                throw localized_game_error("ERROR_INVALID_ACTION");
+                throw game_error("ERROR_INVALID_ACTION");
             }
             for (const auto &e : mod_card->effects) {
                 if (!e.can_play(mod_card, this)) {
-                    throw localized_game_error("ERROR_INVALID_ACTION");
+                    throw game_error("ERROR_INVALID_ACTION");
                 }
             }
         }
@@ -235,14 +233,14 @@ namespace banggame {
     void player::verify_equip_target(card *c, const std::vector<play_card_target> &targets) {
         card_suit_type suit = get_card_suit(c);
         if (m_game->m_playing == this && m_declared_suit != card_suit_type::none && suit != card_suit_type::none && suit != m_declared_suit) {
-            throw localized_game_error("ERROR_WRONG_DECLARED_SUIT");
+            throw game_error("ERROR_WRONG_DECLARED_SUIT");
         }
 
-        if (targets.size() != 1) throw localized_game_error("ERROR_INVALID_ACTION");
-        if (targets.front().enum_index() != play_card_target_type::target_player) throw localized_game_error("ERROR_INVALID_ACTION");
+        if (targets.size() != 1) throw game_error("ERROR_INVALID_ACTION");
+        if (targets.front().enum_index() != play_card_target_type::target_player) throw game_error("ERROR_INVALID_ACTION");
         const auto &tgts = targets.front().get<play_card_target_type::target_player>();
         if (c->equips.empty()) return;
-        if (tgts.size() != 1) throw localized_game_error("ERROR_INVALID_ACTION");
+        if (tgts.size() != 1) throw game_error("ERROR_INVALID_ACTION");
         player *target = m_game->get_player(tgts.front().player_id);
         if (!std::ranges::all_of(util::enum_flag_values(c->equips.front().target),
             [&](target_type value) {
@@ -256,7 +254,7 @@ namespace banggame {
                 case target_type::maxdistance: return player_in_range(this, target, c->equips.front().args + m_range_mod);
                 default: return false;
                 }
-            })) throw localized_game_error("ERROR_INVALID_ACTION");
+            })) throw game_error("ERROR_INVALID_ACTION");
     }
 
     static bool is_new_target(const std::multimap<card *, player *> &targets, card *c, player *p) {
@@ -267,18 +265,18 @@ namespace banggame {
     void player::verify_card_targets(card *card_ptr, bool is_response, const std::vector<play_card_target> &targets) {
         card_suit_type suit = get_card_suit(m_virtual ? m_virtual->corresponding_card : card_ptr);
         if (m_game->m_playing == this && m_declared_suit != card_suit_type::none && suit != card_suit_type::none && suit != m_declared_suit) {
-            throw localized_game_error("ERROR_WRONG_DECLARED_SUIT");
+            throw game_error("ERROR_WRONG_DECLARED_SUIT");
         }
 
         auto &effects = is_response ? card_ptr->responses : card_ptr->effects;
-        if (card_ptr->cost > m_gold) throw localized_game_error("ERROR_NOT_ENOUGH_GOLD");
-        if (card_ptr->max_usages != 0 && card_ptr->usages >= card_ptr->max_usages) throw localized_game_error("ERROR_INVALID_ACTION");
+        if (card_ptr->cost > m_gold) throw game_error("ERROR_NOT_ENOUGH_GOLD");
+        if (card_ptr->max_usages != 0 && card_ptr->usages >= card_ptr->max_usages) throw game_error("ERROR_INVALID_ACTION");
 
         int diff = targets.size() - effects.size();
         if (!card_ptr->optionals.empty() && card_ptr->optionals.back().is(effect_type::repeatable)) {
-            if (diff % card_ptr->optionals.size() != 0) throw localized_game_error("ERROR_INVALID_TARGETS");
+            if (diff % card_ptr->optionals.size() != 0) throw game_error("ERROR_INVALID_TARGETS");
         } else {
-            if (diff != 0 && diff != card_ptr->optionals.size()) throw localized_game_error("ERROR_INVALID_TARGETS");
+            if (diff != 0 && diff != card_ptr->optionals.size()) throw game_error("ERROR_INVALID_TARGETS");
         }
         if (!std::ranges::all_of(targets, [&, it = effects.begin(), end = effects.end()] (const play_card_target &target) mutable {
             const effect_holder &e = *it++;
@@ -393,7 +391,7 @@ namespace banggame {
                     }
                 }
             }, target);
-        })) throw localized_game_error("ERROR_INVALID_ACTION");
+        })) throw game_error("ERROR_INVALID_ACTION");
     }
 
     void player::do_play_card(card *card_ptr, bool is_response, const std::vector<play_card_target> &targets) {
@@ -515,30 +513,30 @@ namespace banggame {
             play_modifiers(modifiers);
             do_play_card(&m_virtual->virtual_card, false, args.targets);
         } else if (bool(args.flags & play_card_flags::sell_beer)) {
-            if (!m_has_drawn) throw localized_game_error("ERROR_PLAYER_MUST_DRAW");
+            if (!m_has_drawn) throw game_error("ERROR_PLAYER_MUST_DRAW");
             if (!m_game->has_expansion(card_expansion_type::goldrush)
                 || args.targets.size() != 1
-                || !args.targets.front().is(play_card_target_type::target_card)) throw localized_game_error("ERROR_INVALID_ACTION");
+                || !args.targets.front().is(play_card_target_type::target_card)) throw game_error("ERROR_INVALID_ACTION");
             const auto &l = args.targets.front().get<play_card_target_type::target_card>();
-            if (l.size() != 1) throw localized_game_error("ERROR_INVALID_ACTION");
+            if (l.size() != 1) throw game_error("ERROR_INVALID_ACTION");
             card *target_card = m_game->find_card(l.front().card_id);
-            if (target_card->effects.empty() || !target_card->effects.front().is(effect_type::beer)) throw localized_game_error("ERROR_INVALID_ACTION");
+            if (target_card->effects.empty() || !target_card->effects.front().is(effect_type::beer)) throw game_error("ERROR_INVALID_ACTION");
             discard_card(target_card);
             add_gold(1);
             m_game->add_log("LOG_SOLD_BEER", nullptr, this, nullptr, target_card);
             m_game->queue_event<event_type::on_play_beer>(this);
             m_game->queue_event<event_type::on_effect_end>(this, target_card);
         } else if (bool(args.flags & play_card_flags::discard_black)) {
-            if (!m_has_drawn) throw localized_game_error("ERROR_PLAYER_MUST_DRAW");
+            if (!m_has_drawn) throw game_error("ERROR_PLAYER_MUST_DRAW");
             if (args.targets.size() != 1
-                || !args.targets.front().is(play_card_target_type::target_card)) throw localized_game_error("ERROR_INVALID_ACTION");
+                || !args.targets.front().is(play_card_target_type::target_card)) throw game_error("ERROR_INVALID_ACTION");
             const auto &l = args.targets.front().get<play_card_target_type::target_card>();
-            if (l.size() != 1) throw localized_game_error("ERROR_INVALID_ACTION");
+            if (l.size() != 1) throw game_error("ERROR_INVALID_ACTION");
             auto *target_player = m_game->get_player(l.front().player_id);
-            if (target_player == this) throw localized_game_error("ERROR_CANT_DISCARD_OWN_BLACK");
+            if (target_player == this) throw game_error("ERROR_CANT_DISCARD_OWN_BLACK");
             card *target_card = m_game->find_card(l.front().card_id);
-            if (target_card->color != card_color_type::black) throw localized_game_error("ERROR_INVALID_ACTION");
-            if (m_gold < target_card->buy_cost + 1) throw localized_game_error("ERROR_NOT_ENOUGH_GOLD");
+            if (target_card->color != card_color_type::black) throw game_error("ERROR_INVALID_ACTION");
+            if (m_gold < target_card->buy_cost + 1) throw game_error("ERROR_NOT_ENOUGH_GOLD");
             add_gold(-target_card->buy_cost - 1);
             target_player->discard_card(target_card);
             m_game->add_log("LOG_DISCARDED_BLACK", nullptr, this, target_player, target_card);
@@ -547,14 +545,14 @@ namespace banggame {
             switch(card_ptr->pile) {
             case card_pile_type::player_character:
                 if (!card_ptr->effects.empty()) {
-                    if (m_game->characters_disabled(this)) throw localized_game_error("ERROR_CHARACTERS_ARE_DISABLED");
+                    if (m_game->characters_disabled(this)) throw game_error("ERROR_CHARACTERS_ARE_DISABLED");
                     if (!card_ptr->effects.empty() && card_ptr->effects.front().is(effect_type::drawing)) {
-                        if (m_has_drawn) throw localized_game_error("ERROR_PLAYER_MUST_NOT_DRAW");
+                        if (m_has_drawn) throw game_error("ERROR_PLAYER_MUST_NOT_DRAW");
                         verify_card_targets(card_ptr, false, args.targets);
                         m_game->add_private_update<game_update_type::status_clear>(this);
                         m_game->add_log("LOG_DRAWN_WITH_CHARACTER", card_ptr, this);
                     } else {
-                        if (!m_has_drawn) throw localized_game_error("ERROR_PLAYER_MUST_DRAW");
+                        if (!m_has_drawn) throw game_error("ERROR_PLAYER_MUST_DRAW");
                         verify_modifiers(card_ptr, modifiers);
                         verify_card_targets(card_ptr, false, args.targets);
                         m_game->add_log("LOG_PLAYED_CHARACTER", card_ptr, this);
@@ -564,7 +562,7 @@ namespace banggame {
                 }
                 break;
             case card_pile_type::player_hand:
-                if (!m_has_drawn) throw localized_game_error("ERROR_PLAYER_MUST_DRAW");
+                if (!m_has_drawn) throw game_error("ERROR_PLAYER_MUST_DRAW");
                 switch (card_ptr->color) {
                 case card_color_type::brown:
                     verify_modifiers(card_ptr, modifiers);
@@ -573,10 +571,10 @@ namespace banggame {
                     do_play_card(card_ptr, false, args.targets);
                     break;
                 case card_color_type::blue: {
-                    if (m_game->has_scenario(scenario_flags::judge)) throw localized_game_error("ERROR_CANT_EQUIP_CARDS");
+                    if (m_game->has_scenario(scenario_flags::judge)) throw game_error("ERROR_CANT_EQUIP_CARDS");
                     verify_equip_target(card_ptr, args.targets);
                     auto *target = m_game->get_player(args.targets.front().get<play_card_target_type::target_player>().front().player_id);
-                    if (target->has_card_equipped(card_ptr->name)) throw localized_game_error("ERROR_DUPLICATED_CARD");
+                    if (target->has_card_equipped(card_ptr->name)) throw game_error("ERROR_DUPLICATED_CARD");
                     target->equip_card(card_ptr);
                     if (this == target) {
                         m_game->add_log("LOG_EQUIPPED_CARD", card_ptr, this);
@@ -584,15 +582,15 @@ namespace banggame {
                         m_game->add_log("LOG_EQUIPPED_CARD_TO", card_ptr, this, target);
                     }
                     if (m_game->has_expansion(card_expansion_type::armedanddangerous) && can_receive_cubes()) {
-                        m_game->queue_request<request_type::add_cube>(0, nullptr, this);
+                        m_game->queue_request<request_type::add_cube>(card_ptr, this);
                     }
                     m_game->queue_event<event_type::on_equip>(this, target, card_ptr);
                     m_game->queue_event<event_type::on_effect_end>(this, card_ptr);
                     break;
                 }
                 case card_color_type::green: {
-                    if (m_game->has_scenario(scenario_flags::judge)) throw localized_game_error("ERROR_CANT_EQUIP_CARDS");
-                    if (has_card_equipped(card_ptr->name)) throw localized_game_error("ERROR_DUPLICATED_CARD");
+                    if (m_game->has_scenario(scenario_flags::judge)) throw game_error("ERROR_CANT_EQUIP_CARDS");
+                    if (has_card_equipped(card_ptr->name)) throw game_error("ERROR_DUPLICATED_CARD");
                     card_ptr->inactive = true;
                     equip_card(card_ptr);
                     m_game->add_log("LOG_EQUIPPED_CARD", card_ptr, this);
@@ -602,11 +600,11 @@ namespace banggame {
                     break;
                 }
                 case card_color_type::orange: {
-                    if (m_game->has_scenario(scenario_flags::judge)) throw localized_game_error("ERROR_CANT_EQUIP_CARDS");
+                    if (m_game->has_scenario(scenario_flags::judge)) throw game_error("ERROR_CANT_EQUIP_CARDS");
                     verify_equip_target(card_ptr, args.targets);
                     auto *target = m_game->get_player(args.targets.front().get<play_card_target_type::target_player>().front().player_id);
-                    if (target->has_card_equipped(card_ptr->name)) throw localized_game_error("ERROR_DUPLICATED_CARD");
-                    if (m_game->m_cubes.size() < 3) throw localized_game_error("ERROR_NOT_ENOUGH_CUBES");
+                    if (target->has_card_equipped(card_ptr->name)) throw game_error("ERROR_DUPLICATED_CARD");
+                    if (m_game->m_cubes.size() < 3) throw game_error("ERROR_NOT_ENOUGH_CUBES");
                     if (target->immune_to(card_ptr)) {
                         discard_card(card_ptr);
                     } else {
@@ -624,16 +622,16 @@ namespace banggame {
                 }
                 break;
             case card_pile_type::player_table:
-                if (!m_has_drawn) throw localized_game_error("ERROR_PLAYER_MUST_DRAW");
-                if (m_game->table_cards_disabled(this)) throw localized_game_error("ERROR_TABLE_CARDS_ARE_DISABLED");
-                if (card_ptr->inactive) throw localized_game_error("ERROR_CARD_INACTIVE");
+                if (!m_has_drawn) throw game_error("ERROR_PLAYER_MUST_DRAW");
+                if (m_game->table_cards_disabled(this)) throw game_error("ERROR_TABLE_CARDS_ARE_DISABLED");
+                if (card_ptr->inactive) throw game_error("ERROR_CARD_INACTIVE");
                 verify_modifiers(card_ptr, modifiers);
                 verify_card_targets(card_ptr, false, args.targets);
                 play_modifiers(modifiers);
                 do_play_card(card_ptr, false, args.targets);
                 break;
             case card_pile_type::shop_selection: {
-                if (!m_has_drawn) throw localized_game_error("ERROR_PLAYER_MUST_DRAW");
+                if (!m_has_drawn) throw game_error("ERROR_PLAYER_MUST_DRAW");
                 int discount = 0;
                 if (!modifiers.empty()) {
                     if (auto modifier_it = std::ranges::find(m_characters, modifiers.front()->id, &character::id); modifier_it != m_characters.end()) {
@@ -641,7 +639,7 @@ namespace banggame {
                             && (*modifier_it)->usages < (*modifier_it)->max_usages) {
                             discount = 1;
                         } else {
-                            throw localized_game_error("ERROR_INVALID_ACTION");
+                            throw game_error("ERROR_INVALID_ACTION");
                         }
                     }
                 }
@@ -659,11 +657,11 @@ namespace banggame {
                         });
                     break;
                     case card_color_type::black:
-                        if (m_game->has_scenario(scenario_flags::judge)) throw localized_game_error("ERROR_CANT_EQUIP_CARDS");
+                        if (m_game->has_scenario(scenario_flags::judge)) throw game_error("ERROR_CANT_EQUIP_CARDS");
                         verify_equip_target(card_ptr, args.targets);
                         play_modifiers(modifiers);
                         auto *target = m_game->get_player(args.targets.front().get<play_card_target_type::target_player>().front().player_id);
-                        if (target->has_card_equipped(card_ptr->name)) throw localized_game_error("ERROR_DUPLICATED_CARD");
+                        if (target->has_card_equipped(card_ptr->name)) throw game_error("ERROR_DUPLICATED_CARD");
                         add_gold(discount - card_ptr->buy_cost);
                         target->equip_card(card_ptr);
                         if (this == target) {
@@ -679,16 +677,16 @@ namespace banggame {
                     }
                     break;
                 } else {
-                    throw localized_game_error("ERROR_NOT_ENOUGH_GOLD");
+                    throw game_error("ERROR_NOT_ENOUGH_GOLD");
                 }
             }
             case card_pile_type::scenario_card: {
                 bool active_when_drawing = !card_ptr->effects.empty() && card_ptr->effects.front().is(effect_type::drawing);
                 if (active_when_drawing == m_has_drawn) {
                     if (active_when_drawing) {
-                        throw localized_game_error("ERROR_PLAYER_MUST_NOT_DRAW");
+                        throw game_error("ERROR_PLAYER_MUST_NOT_DRAW");
                     } else {
-                        throw localized_game_error("ERROR_PLAYER_MUST_DRAW");
+                        throw game_error("ERROR_PLAYER_MUST_DRAW");
                     }
                 }
                 verify_card_targets(card_ptr, false, args.targets);
@@ -696,7 +694,7 @@ namespace banggame {
                 break;
             }
             default:
-                throw game_error("play_card: invalid card");
+                throw game_error("play_card: invalid card"_unloc);
             }
         }
         m_start_of_turn = false;
@@ -711,22 +709,22 @@ namespace banggame {
 
         switch (card_ptr->pile) {
         case card_pile_type::player_character:
-            if (m_game->characters_disabled(this)) throw localized_game_error("ERROR_CHARACTERS_ARE_DISABLED");
+            if (m_game->characters_disabled(this)) throw game_error("ERROR_CHARACTERS_ARE_DISABLED");
             m_game->add_log("LOG_RESPONDED_WITH_CARD", card_ptr, this);
             break;
         case card_pile_type::player_table:
-            if (m_game->table_cards_disabled(this)) throw localized_game_error("ERROR_TABLE_CARDS_ARE_DISABLED");
-            if (card_ptr->inactive) throw localized_game_error("ERROR_CARD_INACTIVE");
+            if (m_game->table_cards_disabled(this)) throw game_error("ERROR_TABLE_CARDS_ARE_DISABLED");
+            if (card_ptr->inactive) throw game_error("ERROR_CARD_INACTIVE");
             break;
         case card_pile_type::shop_selection:
             // hack per bottiglia e complice
-            if (!m_has_drawn) throw localized_game_error("ERROR_PLAYER_MUST_DRAW");
+            if (!m_has_drawn) throw game_error("ERROR_PLAYER_MUST_DRAW");
             break;
         case card_pile_type::player_hand:
             if (card_ptr->color != card_color_type::brown) return;
             break;
         default:
-            throw game_error("respond_card: invalid card");
+            throw game_error("respond_card: invalid card"_unloc);
         }
         
         verify_card_targets(card_ptr, true, args.targets);
@@ -734,7 +732,7 @@ namespace banggame {
     }
 
     void player::draw_from_deck() {
-        if (m_has_drawn) throw localized_game_error("ERROR_PLAYER_MUST_NOT_DRAW");
+        if (m_has_drawn) throw game_error("ERROR_PLAYER_MUST_NOT_DRAW");
         int save_numcards = m_num_cards_to_draw;
         m_game->queue_event<event_type::on_draw_from_deck>(this);
         if (!m_has_drawn) {
@@ -838,7 +836,7 @@ namespace banggame {
                 for (auto &[card_id, obj] : m_predraw_checks) {
                     obj.resolved = false;
                 }
-                m_game->queue_request<request_type::predraw>(0, this, this);
+                m_game->queue_request<request_type::predraw>(this);
             }
         });
     }
@@ -866,14 +864,14 @@ namespace banggame {
             if (std::ranges::all_of(m_predraw_checks | std::views::values, &predraw_check::resolved)) {
                 m_game->queue_event<event_type::on_turn_start>(this);
             } else {
-                m_game->queue_request<request_type::predraw>(nullptr, this, this);
+                m_game->queue_request<request_type::predraw>(this);
             }
         });
     }
 
     void player::pass_turn(player *next_player) {
         if (num_hand_cards() > max_cards_end_of_turn()) {
-            m_game->queue_request<request_type::discard_pass>(nullptr, this, this);
+            m_game->queue_request<request_type::discard_pass>(this);
         } else {
             end_of_turn(next_player);
         }

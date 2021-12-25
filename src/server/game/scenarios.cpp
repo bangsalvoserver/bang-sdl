@@ -22,7 +22,7 @@ namespace banggame {
         player *p = target;
         while(true) {
             if (std::ranges::find(p->m_table, card_color_type::blue, &card::color) != p->m_table.end()) {
-                p->m_game->queue_request<request_type::thedaltons>(target_card, nullptr, p);
+                p->m_game->queue_request<request_type::thedaltons>(target_card, p);
             }
 
             p = target->m_game->get_next_player(p);
@@ -149,7 +149,7 @@ namespace banggame {
             }
 
             p->m_has_drawn = true;
-            p->m_game->queue_request<request_type::peyote>(target_card, nullptr, p);
+            p->m_game->queue_request<request_type::peyote>(target_card, p);
         });
     }
 
@@ -183,7 +183,7 @@ namespace banggame {
                     ++it;
                 }
             }
-            origin->m_game->queue_request<request_type::handcuffs>(target_card, nullptr, origin);
+            origin->m_game->queue_request<request_type::handcuffs>(target_card, origin);
         });
     }
 
@@ -198,7 +198,9 @@ namespace banggame {
 
     void effect_russianroulette::on_equip(player *target, card *target_card) {
         auto queue_russianroulette_request = [=](player *target) {
-            target->m_game->queue_request<request_type::bang>(target_card, nullptr, target).bang_damage = 2;
+            request_bang req{target_card, nullptr, target};
+            req.bang_damage = 2;
+            target->m_game->queue_request(std::move(req));
         };
         queue_russianroulette_request(target);
         target->m_game->add_event<event_type::on_missed>(target_card, [=](card *origin_card, player *origin, player *target, bool is_bang) {
