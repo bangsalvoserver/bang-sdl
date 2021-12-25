@@ -89,7 +89,7 @@ namespace banggame {
     void player::do_damage(card *origin_card, player *origin, int value, bool is_bang) {
         m_hp -= value;
         m_game->add_public_update<game_update_type::player_hp>(id, m_hp);
-        m_game->add_log(value == 1 ? "LOG_TAKEN_DAMAGE" : "LOG_TAKEN_DAMAGE_PLURAL", origin_card, this, nullptr, nullptr, value);
+        m_game->add_log(value == 1 ? "LOG_TAKEN_DAMAGE" : "LOG_TAKEN_DAMAGE_PLURAL", origin_card, this, value);
         if (m_hp <= 0) {
             m_game->add_request<request_type::death>(origin_card, origin, this);
         }
@@ -523,7 +523,7 @@ namespace banggame {
             if (target_card->effects.empty() || !target_card->effects.front().is(effect_type::beer)) throw game_error("ERROR_INVALID_ACTION");
             discard_card(target_card);
             add_gold(1);
-            m_game->add_log("LOG_SOLD_BEER", nullptr, this, nullptr, target_card);
+            m_game->add_log("LOG_SOLD_BEER", this, target_card);
             m_game->queue_event<event_type::on_play_beer>(this);
             m_game->queue_event<event_type::on_effect_end>(this, target_card);
         } else if (bool(args.flags & play_card_flags::discard_black)) {
@@ -539,7 +539,7 @@ namespace banggame {
             if (m_gold < target_card->buy_cost + 1) throw game_error("ERROR_NOT_ENOUGH_GOLD");
             add_gold(-target_card->buy_cost - 1);
             target_player->discard_card(target_card);
-            m_game->add_log("LOG_DISCARDED_BLACK", nullptr, this, target_player, target_card);
+            m_game->add_log("LOG_DISCARDED_BLACK", this, target_player, target_card);
         } else {
             card *card_ptr = m_game->find_card(args.card_id);
             switch(card_ptr->pile) {
@@ -741,7 +741,7 @@ namespace banggame {
                 card *drawn_card = m_game->draw_phase_one_card_to(card_pile_type::player_hand, this);
                 m_game->instant_event<event_type::on_card_drawn>(this, drawn_card);
             }
-            m_game->add_log("LOG_DRAWN_FROM_DECK", nullptr, this);
+            m_game->add_log("LOG_DRAWN_FROM_DECK", this);
         }
         m_num_cards_to_draw = save_numcards;
         m_has_drawn = true;
@@ -827,7 +827,7 @@ namespace banggame {
         m_current_card_targets.clear();
         
         m_game->add_public_update<game_update_type::switch_turn>(id);
-        m_game->add_log("LOG_TURN_START", nullptr, this);
+        m_game->add_log("LOG_TURN_START", this);
         m_game->queue_event<event_type::pre_turn_start>(this);
         m_game->queue_event<event_type::delayed_action>([&]{
             if (m_predraw_checks.empty()) {

@@ -37,6 +37,10 @@ namespace banggame {
         }
     }
 
+    game_formatted_string request_thedaltons::status_text() const {
+        return make_formatted_string("STATUS_THEDALTONS", origin_card);
+    }
+
     void effect_thedoctor::on_equip(player *target, card *target_card) {
         int min_hp = std::ranges::min(target->m_game->m_players
             | std::views::filter(&player::alive)
@@ -172,6 +176,10 @@ namespace banggame {
         }
     }
 
+    game_formatted_string request_peyote::status_text() const {
+        return make_formatted_string("STATUS_PEYOTE", origin_card);
+    }
+
     void effect_handcuffs::on_equip(player *target, card *target_card) {
         target->m_game->add_event<event_type::post_draw_cards>(target_card, [=](player *origin) {
             auto &vec = origin->m_game->m_hidden_deck;
@@ -194,6 +202,10 @@ namespace banggame {
             target->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::hidden_deck, true, nullptr, show_card_flags::no_animation);
         }
         target->m_game->pop_request();
+    }
+
+    game_formatted_string request_handcuffs::status_text() const {
+        return make_formatted_string("STATUS_HANDCUFFS", origin_card);
     }
 
     void effect_russianroulette::on_equip(player *target, card *target_card) {

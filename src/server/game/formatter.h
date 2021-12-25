@@ -1,7 +1,6 @@
 #ifndef __FORMATTER_H__
 #define __FORMATTER_H__
 
-#include "common/format_str.h"
 #include "player.h"
 
 namespace banggame{
@@ -20,7 +19,6 @@ namespace banggame{
             !std::is_same_v<std::decay_t<T>, unlocalized_string>,
             std::forward<T>(message),
             std::vector<game_format_arg>{util::overloaded{
-                [](std::nullptr_t) { return "-"; },
                 [](int value) { return value; },
                 [](std::string value) { return value; },
                 [](card *value) {

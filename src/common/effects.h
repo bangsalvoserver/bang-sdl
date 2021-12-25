@@ -1,8 +1,9 @@
 #ifndef __EFFECTS_H__
 #define __EFFECTS_H__
 
-#include "common/card_enums.h"
+#include "card_enums.h"
 #include "game_action.h"
+#include "format_str.h"
 
 #include <ranges>
 
@@ -22,6 +23,10 @@ namespace banggame {
         player *origin = nullptr;
         player *target = nullptr;
         effect_flags flags = no_effect_flags;
+
+        game_formatted_string status_text() const {
+            return {};
+        }
     };
 
     template<card_pile_type ... Es>

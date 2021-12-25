@@ -26,40 +26,42 @@ STATUS_YOUR_TURN                    Your turn
 STATUS_CARD_FROM_HAND               card from hand
 STATUS_UNKNOWN_CARD                 (unknown card)
 STATUS_UNKNOWN_PLAYER               (unknown player)
-banggame::request_type::predraw         "Draw!" a card before drawing
-banggame::request_type::check           Choose which card to "draw!", for {0}
-banggame::request_type::generalstore    Draw a card from the general store
-banggame::request_type::discard         Discard a card for {0}
-banggame::request_type::discard_pass    Discard a card before passing the turn
-banggame::request_type::bang            {0} ... Respond with Mancato or Resolve
-banggame::request_type::duel            {0} ... Respond with Bang or Resolve
-banggame::request_type::indians         {0} ... Respond with Bang or Resolve
-banggame::request_type::destroy         {0} to discard {1} ... Respond with Fuga or Resolve
-banggame::request_type::steal           {0} to steal {1} ... Respond with Fuga or Resolve
-banggame::request_type::death           You're about to die. Play Birra or Resolve
-banggame::request_type::bandidos        {0} ... Discard two cards or Resolve
-banggame::request_type::tornado         {0} ... Discard a card to draw two
-banggame::request_type::poker           {0} ... Discard a card
-banggame::request_type::poker_draw      {0} ... Choose which cards to draw
-banggame::request_type::saved           {0} ... Choose whether to draw from the deck or from the saved player
-banggame::request_type::add_cube        Choose which card to put a cube onto, for {0}
-banggame::request_type::move_bomb       Choose which player to move {0} onto
-banggame::request_type::rust            {0} ... Respond with Fuga or Resolve
-banggame::request_type::ricochet        {0} on {1} ... Respond with Mancato or Resolve
-banggame::request_type::peyote          {0} ... Declare Red or Black
-banggame::request_type::handcuffs       {0} ... Declare a Suit
-banggame::request_type::shopchoice      Choose how to play {0}
-banggame::request_type::kit_carlson     {0} ... Choose which cards to draw
-banggame::request_type::claus_the_saint {0} ... Choose two cards to draw and the others to gift in turn.
-banggame::request_type::vera_custer     {0} ... Choose which character to copy
-banggame::request_type::youl_grinner    Give {0} a card
-banggame::request_type::dutch_will      {0} ... Choose which card to draw
-banggame::request_type::shop_choose_target Choose who to play {0} to
-banggame::request_type::thedaltons      {0} ... Discard a blue card
-banggame::request_type::lemonade_jim    {2} can play the effect of {0}
-banggame::request_type::al_preacher     {2} can play the effect of {0}
-banggame::request_type::damaging        {3} takes damage for {0}
-banggame::request_type::tumbleweed      {2} can play {0} to repeat "draw!" for {1}
+STATUS_PREDRAW                      "Draw!" a card before drawing
+STATUS_CHECK                        Choose which card to "draw!" for {0}
+STATUS_GENERALSTORE                 Draw a card from the general store
+STATUS_DISCARD                      Discard a card for {0}
+STATUS_DISCARD_PASS                 Discard a card before passing the turn
+STATUS_BANG                         {0} ... Respond with Mancato or Resolve
+STATUS_BANG_MULTIPLE_MISSED         {0} ... Respond with {1} Mancato or Resolve
+STATUS_INDIANS                      {0} ... Respond with Bang or Resolve
+STATUS_DUEL                         {0} ... Respond with Bang or Resolve
+STATUS_DESTROY                      {0} to discard {1} ... Respond with Fuga or Resolve
+STATUS_STEAL                        {0} to steal {1} ... Respond with Fuga or Resolve
+STATUS_DEATH                        You're about to die. Play Birra or Resolve
+STATUS_BANDIDOS                     {0} ... Discard two cards or Resolve
+STATUS_TORNADO                      {0} ... Discard a card to draw two
+STATUS_POKER                        {0} ... Discard a card
+STATUS_POKER_DRAW                   {0} ... Choose which cards to draw
+STATUS_SAVED                        {0} ... Choose whether to draw from the deck or from the hand of {1}
+STATUS_ADD_CUBE                     Choose which card to put a cube onto
+STATUS_ADD_CUBE_FOR                 Choose which card to put a cube onto, for {0}
+STATUS_MOVE_BOMB                    Choose which player to move {0} onto
+STATUS_RUST                         {0} ... Respond with Fuga or Resolve
+STATUS_RICOCHET                     {0} on {1} ... Respond with Mancato or Resolve
+STATUS_PEYOTE                       {0} ... Declare Red or Black
+STATUS_HANDCUFFS                    {0} ... Declare a Suit
+STATUS_SHOPCHOICE                   Choose how to play {0}
+STATUS_KIT_CARLSON                  {0} ... Choose which cards to draw
+STATUS_CLAUS_THE_SAINT              {0} ... Choose two cards to draw and the others to gift in turn.
+STATUS_VERA_CUSTER                  {0} ... Choose which character to copy
+STATUS_YOUL_GRINNER                 Give {0} a card
+STATUS_DUTCH_WILL                   {0} ... Choose which card to draw
+STATUS_SHOP_CHOOSE_TARGET           Choose who to play {0} to
+STATUS_THEDALTONS                   {0} ... Discard a blue card
+STATUS_CAN_PLAY_CARD                You can play {0}
+STATUS_DAMAGING                     {0} takes 1 damage for {0}
+STATUS_DAMAGING_PLURAL              {0} takes {2} damage for {0}
+STATUS_CAN_PLAY_TUMBLEWEED          {0} "draws!" {3} for {2} ... You can play {1}
 banggame::player_role::sheriff      Sheriff
 banggame::player_role::deputy       Deputy
 banggame::player_role::outlaw       Outlaw
@@ -97,9 +99,9 @@ ERROR_CARD_INACTIVE                 Card inactive in this turn
 ERROR_CANT_EQUIP_CARDS              You can't equip cards
 ERROR_DUPLICATED_CARD               Duplicated card
 LOG_GAME_START                      Game started
-LOG_TURN_START                      It's {1}'s turn
-LOG_SOLD_BEER                       {1} sells {3}
-LOG_DISCARDED_BLACK                 {1} forces {2} to discard {3}
+LOG_TURN_START                      It's {0}'s turn
+LOG_SOLD_BEER                       {0} sells {1}
+LOG_DISCARDED_BLACK                 {0} forces {1} to discard {2}
 LOG_DRAWN_WITH_CHARACTER            {1} draws using {0}
 LOG_PLAYED_CHARACTER                {1} plays {0}'s effect
 LOG_PLAYED_CARD                     {1} plays {0}
@@ -110,8 +112,8 @@ LOG_BOUGHT_CARD                     {1} buys and plays {0}
 LOG_BOUGHT_EQUIP                    {1} buys and equips {0}
 LOG_BOUGHT_EQUIP_TO                 {1} buys and equips {0} to {2}
 LOG_RESPONDED_WITH_CARD             {1} responds with {0}
-LOG_DRAWN_FROM_DECK                 {1} draws from the deck
-LOG_CHECK_DREW_CARD                 {1} "draws!" {3} for {0}
+LOG_DRAWN_FROM_DECK                 {0} draws from the deck
+LOG_CHECK_DREW_CARD                 {1} "draws!" {2} for {0}
 LOG_TAKEN_DAMAGE                    {1} takes 1 damage for {0}
-LOG_TAKEN_DAMAGE_PLURAL             {1} takes {4} damage for {0}
-LOG_PLAYER_DIED                     {1} died
+LOG_TAKEN_DAMAGE_PLURAL             {1} takes {2} damage for {0}
+LOG_PLAYER_DIED                     {0} died

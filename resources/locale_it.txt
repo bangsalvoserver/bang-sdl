@@ -26,40 +26,42 @@ STATUS_YOUR_TURN                    Tocca a te
 STATUS_CARD_FROM_HAND               carta dalla mano
 STATUS_UNKNOWN_CARD                 (carta sconosciuta)
 STATUS_UNKNOWN_PLAYER               (giocatore sconosciuto)
-banggame::request_type::predraw         Estrai prima di pescare
-banggame::request_type::check           Scegli quale carta estrarre per {0}
-banggame::request_type::generalstore    Pesca una carta dall'emporio
-banggame::request_type::discard         Scarta una carta per {0}
-banggame::request_type::discard_pass    Scarta una carta prima di passare il turno
-banggame::request_type::bang            {0} ... Rispondi con Mancato o Risolvi
-banggame::request_type::duel            {0} ... Rispondi con Bang o Risolvi
-banggame::request_type::indians         {0} ... Rispondi con Bang o Risolvi
-banggame::request_type::destroy         {0} per scartare {1} ... Rispondi con Fuga o Risolvi
-banggame::request_type::steal           {0} per rubare {1} ... Rispondi con Fuga o Risolvi
-banggame::request_type::death           Stai per morire. Gioca Birra o Risolvi
-banggame::request_type::bandidos        {0} ... Scarta due carte o Risolvi
-banggame::request_type::tornado         {0} ... Scarta una carta per pescarne due
-banggame::request_type::poker           {0} ... Scarta una carta
-banggame::request_type::poker_draw      {0} ... Scegli quali carte pescare
-banggame::request_type::saved           {0} ... Scegli se pescare dal mazzo o dal giocatore salvato
-banggame::request_type::add_cube        Scegli su quale carta mettere un cubetto, per {0}
-banggame::request_type::move_bomb       Scegli su cui spostare {0}
-banggame::request_type::rust            {0} ... Rispondi con Fuga o Risolvi
-banggame::request_type::ricochet        {0} su {1} ... Rispondi con Mancato o Risolvi
-banggame::request_type::peyote          {0} ... Dichiara Rosso o Nero
-banggame::request_type::handcuffs       {0} ... Dichiara un seme
-banggame::request_type::shopchoice      Scegli come giocare {0}
-banggame::request_type::kit_carlson     {0} ... Scegli quali carte pescare
-banggame::request_type::claus_the_saint {0} ... Scegli due carte da pescare e quali da regalare a giro
-banggame::request_type::vera_custer     {0} ... Scegli quale personaggio copiare
-banggame::request_type::youl_grinner    Dai una carta a {0}
-banggame::request_type::dutch_will      {0} ... Scegli quale carta pescare
-banggame::request_type::shop_choose_target Scegli a chi giocare {0}
-banggame::request_type::thedaltons      {0} ... Scarta una carta blu
-banggame::request_type::lemonade_jim    {2} può giocare l'effetto di {0}
-banggame::request_type::al_preacher     {2} può giocare l'effetto di {0}
-banggame::request_type::damaging        {3} prende danno per {0}
-banggame::request_type::tumbleweed      {2} può giocare {0} per ripetere estrazione per {1}
+STATUS_PREDRAW                      Estrai prima di pescare
+STATUS_CHECK                        Scegli quale carta estrarre per {0}
+STATUS_GENERALSTORE                 Pesca una carta dall'emporio
+STATUS_DISCARD                      Scarta una carta per {0}
+STATUS_DISCARD_PASS                 Scarta una carta prima di passare il turno
+STATUS_BANG                         {0} ... Rispondi con Mancato o Risolvi
+STATUS_BANG_MULTIPLE_MISSED         {0} ... Rispondi con {1} Mancato o Risolvi
+STATUS_INDIANS                      {0} ... Rispondi con Bang o Risolvi
+STATUS_DUEL                         {0} ... Rispondi con Bang o Risolvi
+STATUS_DESTROY                      {0} per scartare {1} ... Rispondi con Fuga o Risolvi
+STATUS_STEAL                        {0} per rubare {1} ... Rispondi con Fuga o Risolvi
+STATUS_DEATH                        Stai per morire. Gioca Birra o Risolvi
+STATUS_BANDIDOS                     {0} ... Scarta due carte o Risolvi
+STATUS_TORNADO                      {0} ... Scarta una carta per pescarne due
+STATUS_POKER                        {0} ... Scarta una carta
+STATUS_POKER_DRAW                   {0} ... Scegli quali carte pescare
+STATUS_SAVED                        {0} ... Scegli se pescare dal mazzo o dalla mano di {1}
+STATUS_ADD_CUBE                     Scegli su quale carta mettere un cubetto
+STATUS_ADD_CUBE_FOR                 Scegli su quale carta mettere un cubetto, per {0}
+STATUS_MOVE_BOMB                    Scegli su cui spostare {0}
+STATUS_RUST                         {0} ... Rispondi con Fuga o Risolvi
+STATUS_RICOCHET                     {0} su {1} ... Rispondi con Mancato o Risolvi
+STATUS_PEYOTE                       {0} ... Dichiara Rosso o Nero
+STATUS_HANDCUFFS                    {0} ... Dichiara un seme
+STATUS_SHOPCHOICE                   Scegli come giocare {0}
+STATUS_KIT_CARLSON                  {0} ... Scegli quali carte pescare
+STATUS_CLAUS_THE_SAINT              {0} ... Scegli due carte da pescare e quali da regalare a giro
+STATUS_VERA_CUSTER                  {0} ... Scegli quale personaggio copiare
+STATUS_YOUL_GRINNER                 Dai una carta a {0}
+STATUS_DUTCH_WILL                   {0} ... Scegli quale carta pescare
+STATUS_SHOP_CHOOSE_TARGET           Scegli a chi giocare {0}
+STATUS_THEDALTONS                   {0} ... Scarta una carta blu
+STATUS_CAN_PLAY_CARD                Puoi giocare {0}
+STATUS_DAMAGING                     {0} prende un danno per {1}
+STATUS_DAMAGING_PLURAL              {0} prende {2} danni per {1}
+STATUS_CAN_PLAY_TUMBLEWEED          {0} estrae {3} per {2} ... Puoi giocare {1}
 banggame::player_role::sheriff      Sceriffo
 banggame::player_role::deputy       Vice
 banggame::player_role::outlaw       Fuorilegge
@@ -97,9 +99,9 @@ ERROR_CARD_INACTIVE                 Carta non attiva in questo turno
 ERROR_CANT_EQUIP_CARDS              Non si possono equipaggiare carte
 ERROR_DUPLICATED_CARD               Carta duplicata
 LOG_GAME_START                      La partita è iniziata
-LOG_TURN_START                      È il turno di {1}
-LOG_SOLD_BEER                       {1} vende {3}
-LOG_DISCARDED_BLACK                 {1} scarta {3} a {2}
+LOG_TURN_START                      È il turno di {0}
+LOG_SOLD_BEER                       {0} vende {1}
+LOG_DISCARDED_BLACK                 {0} scarta {2} a {1}
 LOG_DRAWN_WITH_CHARACTER            {1} pesca usando {0}
 LOG_PLAYED_CHARACTER                {1} gioca l'effetto di {0}
 LOG_PLAYED_CARD                     {1} gioca {0}
@@ -110,8 +112,8 @@ LOG_BOUGHT_CARD                     {1} compra e gioca {0}
 LOG_BOUGHT_EQUIP                    {1} compra ed equipaggia {0}
 LOG_BOUGHT_EQUIP_TO                 {1} compra ed equipaggia {0} a {2}
 LOG_RESPONDED_WITH_CARD             {1} risponde con {0}
-LOG_DRAWN_FROM_DECK                 {1} pesca dal mazzo
-LOG_CHECK_DREW_CARD                 {1} estrae {3} per {0}
+LOG_DRAWN_FROM_DECK                 {0} pesca dal mazzo
+LOG_CHECK_DREW_CARD                 {1} estrae {2} per {0}
 LOG_TAKEN_DAMAGE                    {1} prende 1 danno per {0}
-LOG_TAKEN_DAMAGE_PLURAL             {1} prende {4} danni per {0}
-LOG_PLAYER_DIED                     {1} è morto
+LOG_TAKEN_DAMAGE_PLURAL             {1} prende {2} danni per {0}
+LOG_PLAYER_DIED                     {0} è morto

@@ -41,6 +41,7 @@ namespace banggame {
         }
 
         void on_pick(card_pile_type pile, player *target, card *target_card);
+        game_formatted_string status_text() const;
     };
 
     struct effect_thedoctor : scenario_effect {
@@ -114,6 +115,7 @@ namespace banggame {
         }
 
         void on_pick(card_pile_type pile, player *target, card *target_card);
+        game_formatted_string status_text() const;
     };
 
     struct effect_handcuffs : event_based_effect {
@@ -127,6 +129,16 @@ namespace banggame {
         }
 
         void on_pick(card_pile_type pile, player *target, card *target_card);
+        game_formatted_string status_text() const;
+    };
+
+    struct request_shopchoice : request_base {
+        request_shopchoice(card *origin_card, player *target) {
+            request_base::origin_card = origin_card;
+            request_base::target = target;
+        }
+        
+        game_formatted_string status_text() const;
     };
     
     struct effect_russianroulette : scenario_effect {

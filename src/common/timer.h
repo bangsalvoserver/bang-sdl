@@ -18,9 +18,19 @@ namespace banggame {
         int duration;
     };
 
+    struct timer_lemonade_jim : timer_base {
+        using timer_base::timer_base;
+        game_formatted_string status_text() const;
+    };
+
+    struct timer_al_preacher : timer_base {
+        using timer_base::timer_base;
+        game_formatted_string status_text() const;
+    };
+
     struct timer_damaging : timer_base {
         timer_damaging(card *origin_card, player *source, player *target, int damage, bool is_bang)
-            : timer_base(origin_card, target, nullptr, 100)
+            : timer_base(origin_card, target, nullptr, 140)
             , damage(damage)
             , is_bang(is_bang)
             , source(source) {}
@@ -33,6 +43,7 @@ namespace banggame {
 
         void on_finished();
         void cleanup();
+        game_formatted_string status_text() const;
     };
 
     struct timer_tumbleweed : timer_base {
@@ -46,6 +57,7 @@ namespace banggame {
 
         void on_finished();
         void on_resolve() { on_finished(); }
+        game_formatted_string status_text() const;
     };
 
 }

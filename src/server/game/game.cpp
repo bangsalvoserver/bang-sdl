@@ -387,7 +387,7 @@ namespace banggame {
         }
 
         queue_event<event_type::on_game_start>();
-        add_log("LOG_GAME_START", nullptr, nullptr);
+        add_log("LOG_GAME_START");
         m_first_player = m_playing;
         m_first_player->start_of_turn();
     }
@@ -510,7 +510,7 @@ namespace banggame {
             queue_event<event_type::on_draw_check>(m_current_check->origin, c);
             instant_event<event_type::trigger_tumbleweed>(m_current_check->origin_card, c);
             if (!m_current_check->no_auto_resolve) {
-                add_log("LOG_CHECK_DREW_CARD", m_current_check->origin_card, m_current_check->origin, nullptr, c);
+                add_log("LOG_CHECK_DREW_CARD", m_current_check->origin_card, m_current_check->origin, c);
                 m_current_check->function(c);
                 m_current_check.reset();
             }
@@ -530,7 +530,7 @@ namespace banggame {
         }
         instant_event<event_type::trigger_tumbleweed>(m_current_check->origin_card, c);
         if (!m_current_check->no_auto_resolve) {
-            add_log("LOG_CHECK_DREW_CARD", m_current_check->origin_card, m_current_check->origin, nullptr, c);
+            add_log("LOG_CHECK_DREW_CARD", m_current_check->origin_card, m_current_check->origin, c);
             m_current_check->function(c);
             m_current_check.reset();
         }
@@ -653,7 +653,7 @@ namespace banggame {
         
         target->discard_all();
         target->add_gold(-target->m_gold);
-        add_log("LOG_PLAYER_DIED", nullptr, target);
+        add_log("LOG_PLAYER_DIED", target);
 
         add_public_update<game_update_type::player_hp>(target->id, 0, true);
         add_public_update<game_update_type::player_show_role>(target->id, target->m_role);

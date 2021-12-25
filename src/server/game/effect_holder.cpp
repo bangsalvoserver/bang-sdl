@@ -91,25 +91,4 @@ namespace banggame {
         }, *this);
     }
 
-    game_formatted_string request_holder::status_text() const {
-        return enums::visit_indexed([]<request_type E>(enums::enum_constant<E>, const auto &req) {
-            if constexpr (requires { req.status_text(); }) {
-                return req.status_text();
-            } else {
-                return make_formatted_string(
-                    std::string(enums::full_name(E)),
-                    req.origin_card,
-                    [&]() -> card * {
-                        if constexpr (requires { req.target_card; }) {
-                            return req.target_card;
-                        }
-                        return nullptr;
-                    }(),
-                    req.target,
-                    req.origin
-                );
-            }
-        }, *this);
-    }
-
 }

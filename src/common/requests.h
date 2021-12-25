@@ -3,7 +3,6 @@
 
 #include "effect_holder.h"
 #include "characters.h"
-#include "format_str.h"
 #include "timer.h"
 
 namespace banggame {
@@ -14,6 +13,7 @@ namespace banggame {
         }
         
         void on_pick(card_pile_type pile, player *target, card *target_card);
+        game_formatted_string status_text() const;
     };
 
     struct request_check : picking_request_allowing<card_pile_type::selection> {
@@ -23,6 +23,7 @@ namespace banggame {
         }
 
         void on_pick(card_pile_type pile, player *target, card *target_card);
+        game_formatted_string status_text() const;
     };
 
     struct request_generalstore : picking_request_allowing<card_pile_type::selection> {
@@ -33,6 +34,7 @@ namespace banggame {
         }
 
         void on_pick(card_pile_type pile, player *target, card *target_card);
+        game_formatted_string status_text() const;
     };
 
     struct request_discard : picking_request_allowing<card_pile_type::player_hand> {
@@ -44,6 +46,7 @@ namespace banggame {
         int ncards = 1;
         
         void on_pick(card_pile_type pile, player *target, card *target_card);
+        game_formatted_string status_text() const;
     };
 
     struct request_discard_pass : picking_request_allowing<card_pile_type::player_hand> {
@@ -52,10 +55,11 @@ namespace banggame {
         }
 
         void on_pick(card_pile_type pile, player *target, card *target_card);
+        game_formatted_string status_text() const;
     };
 
-    struct request_damaging : request_base {
-        request_damaging(card *origin_card, player *origin, player *target, effect_flags flags = no_effect_flags) {
+    struct request_indians : request_base {
+        request_indians(card *origin_card, player *origin, player *target, effect_flags flags = no_effect_flags) {
             request_base::origin_card = origin_card;
             request_base::origin = origin;
             request_base::target = target;
@@ -63,14 +67,22 @@ namespace banggame {
         }
 
         void on_resolve();
+        game_formatted_string status_text() const;
     };
 
-    struct request_duel : request_damaging {
-        request_duel(card *origin_card, player *origin, player *target, player *respond_to, effect_flags flags = no_effect_flags)
-            : request_damaging(origin_card, origin, target, flags)
-            , respond_to(respond_to) {}
+    struct request_duel : request_base {
+        request_duel(card *origin_card, player *origin, player *target, player *respond_to, effect_flags flags = no_effect_flags) {
+            request_base::origin_card = origin_card;
+            request_base::origin = origin;
+            request_base::target = target;
+            request_base::flags = flags;
+
+            request_duel::respond_to = respond_to;
+        }
 
         player *respond_to = nullptr;
+        void on_resolve();
+        game_formatted_string status_text() const;
     };
 
     struct request_bang : request_base {
@@ -91,6 +103,7 @@ namespace banggame {
 
         void on_resolve();
         void cleanup();
+        game_formatted_string status_text() const;
     };
 
     struct request_destroy : request_base {
@@ -105,6 +118,7 @@ namespace banggame {
         card *target_card;
 
         void on_resolve();
+        game_formatted_string status_text() const;
     };
 
     struct request_steal : request_base {
@@ -120,6 +134,7 @@ namespace banggame {
         card *target_card;
 
         void on_resolve();
+        game_formatted_string status_text() const;
     };
 
     struct request_death : request_base {
@@ -132,6 +147,7 @@ namespace banggame {
         std::vector<card *> draw_attempts;
         
         void on_resolve();
+        game_formatted_string status_text() const;
     };
 
     struct request_bandidos : picking_request_allowing<card_pile_type::player_hand> {
@@ -146,6 +162,7 @@ namespace banggame {
 
         void on_pick(card_pile_type pile, player *target, card *target_card);
         void on_resolve();
+        game_formatted_string status_text() const;
     };
 
     struct request_tornado : picking_request_allowing<card_pile_type::player_hand> {
@@ -157,6 +174,7 @@ namespace banggame {
         }
         
         void on_pick(card_pile_type pile, player *target, card *target_card);
+        game_formatted_string status_text() const;
     };
 
     struct request_poker : picking_request_allowing<card_pile_type::player_hand> {
@@ -168,6 +186,7 @@ namespace banggame {
         }
 
         void on_pick(card_pile_type pile, player *target, card *target_card);
+        game_formatted_string status_text() const;
     };
 
     struct request_poker_draw : picking_request_allowing<card_pile_type::selection> {
@@ -179,6 +198,7 @@ namespace banggame {
         int num_cards = 2;
 
         void on_pick(card_pile_type pile, player *target, card *target_card);
+        game_formatted_string status_text() const;
     };
 
     struct request_saved : picking_request_allowing<card_pile_type::player_hand, card_pile_type::main_deck> {
@@ -191,6 +211,7 @@ namespace banggame {
         player *saved = nullptr;
 
         void on_pick(card_pile_type pile, player *target, card *target_card);
+        game_formatted_string status_text() const;
     };
 
     struct request_add_cube : picking_request_allowing<card_pile_type::player_character, card_pile_type::player_table> {
@@ -203,6 +224,7 @@ namespace banggame {
         int ncubes = 1;
         
         void on_pick(card_pile_type pile, player *target, card *target_card);
+        game_formatted_string status_text() const;
     };
 
     struct request_move_bomb : picking_request_allowing<card_pile_type::player> {
@@ -212,6 +234,7 @@ namespace banggame {
         }
 
         void on_pick(card_pile_type pile, player *target, card *target_card);
+        game_formatted_string status_text() const;
     };
 
     struct request_rust : request_base {
@@ -223,12 +246,14 @@ namespace banggame {
         }
 
         void on_resolve();
+        game_formatted_string status_text() const;
     };
 
     struct request_ricochet : request_destroy {
         using request_destroy::request_destroy;
 
         std::vector<card *> barrels_used;
+        game_formatted_string status_text() const;
     };
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, request_type,
@@ -240,7 +265,7 @@ namespace banggame {
         (discard_pass,  request_discard_pass)
         (bang,          request_bang)
         (duel,          request_duel)
-        (indians,       request_damaging)
+        (indians,       request_indians)
         (destroy,       request_destroy)
         (steal,         request_steal)
         (death,         request_death)
@@ -255,7 +280,7 @@ namespace banggame {
         (ricochet,      request_ricochet)
         (peyote,        request_peyote)
         (handcuffs,     request_handcuffs)
-        (shopchoice,    request_base)
+        (shopchoice,    request_shopchoice)
         (kit_carlson,   request_kit_carlson)
         (claus_the_saint, request_claus_the_saint)
         (vera_custer,   request_vera_custer)
@@ -263,8 +288,8 @@ namespace banggame {
         (dutch_will,    request_dutch_will)
         (shop_choose_target, request_shop_choose_target)
         (thedaltons,    request_thedaltons)
-        (lemonade_jim,  timer_base)
-        (al_preacher,   timer_base)
+        (lemonade_jim,  timer_lemonade_jim)
+        (al_preacher,   timer_al_preacher)
         (damaging,      timer_damaging)
         (tumbleweed,    timer_tumbleweed)
     )
@@ -300,7 +325,11 @@ namespace banggame {
             return enums::visit(&request_base::target, *this);
         }
 
-        game_formatted_string status_text() const;
+        game_formatted_string status_text() const {
+            return enums::visit([](const auto &req) {
+                return req.status_text();
+            }, *this);
+        }
 
         effect_flags flags() const {
             return enums::visit(&request_base::flags, *this);

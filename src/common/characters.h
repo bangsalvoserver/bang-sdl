@@ -34,6 +34,7 @@ namespace banggame {
         }
 
         void on_pick(card_pile_type pile, player *target, card *target_card);
+        game_formatted_string status_text() const;
     };
 
     struct effect_claus_the_saint : event_based_effect {
@@ -47,6 +48,7 @@ namespace banggame {
         }
 
         void on_pick(card_pile_type pile, player *target, card *target_card);
+        game_formatted_string status_text() const;
     };
 
     struct effect_el_gringo : event_based_effect {
@@ -93,6 +95,7 @@ namespace banggame {
         }
         
         void on_pick(card_pile_type pile, player *target, card *target_card);
+        game_formatted_string status_text() const;
     };
 
     struct effect_tuco_franziskaner : event_based_effect {
@@ -137,6 +140,7 @@ namespace banggame {
         }
 
         void on_pick(card_pile_type pile, player *target, card *target_card);
+        game_formatted_string status_text() const;
     };
 
     struct effect_flint_westwood : card_effect {
@@ -178,6 +182,7 @@ namespace banggame {
         }
 
         void on_pick(card_pile_type pile, player *target, card *target_card);
+        game_formatted_string status_text() const;
     };
 
     struct effect_josh_mccloud : card_effect {
@@ -191,6 +196,7 @@ namespace banggame {
         }
         
         void on_pick(card_pile_type pile, player *target, card *target_card);
+        game_formatted_string status_text() const;
     };
 
     struct effect_julie_cutter : event_based_effect {

@@ -421,7 +421,7 @@ namespace banggame {
             }
         }
 
-        origin->m_game->queue_request<request_type::shopchoice>(origin_card, nullptr, origin);
+        origin->m_game->queue_request<request_type::shopchoice>(origin_card, origin);
     }
 
     void effect_bottle::on_play(card *origin_card, player *origin) {
@@ -615,9 +615,9 @@ namespace banggame {
     }
 
     void timer_tumbleweed::on_finished() {
-        origin->m_game->pop_request();
-        origin->m_game->m_current_check->function(drawn_card);
-        origin->m_game->m_current_check.reset();
+        target->m_game->pop_request();
+        target->m_game->m_current_check->function(drawn_card);
+        target->m_game->m_current_check.reset();
     }
 
     void effect_sniper::on_play(card *origin_card, player *origin, player *target) {
