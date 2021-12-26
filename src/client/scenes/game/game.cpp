@@ -361,7 +361,8 @@ void game_scene::handle_game_update(UPDATE_TAG(game_over), const game_over_updat
 }
 
 std::string game_scene::evaluate_format_string(const game_formatted_string &str) {
-    auto view = str.format_args | std::views::transform([&](const game_format_arg &arg) {
+    return intl::format(str.localized ? intl::translate(str.format_str) : str.format_str,
+        str.format_args | std::views::transform([&](const game_format_arg &arg) {
         return std::visit(util::overloaded{
             [](int value) { return std::to_string(value); },
             [](const std::string &value) { return value; },
@@ -386,8 +387,7 @@ std::string game_scene::evaluate_format_string(const game_formatted_string &str)
                     : _("STATUS_UNKNOWN_PLAYER");
             }
         }, arg);
-    });
-    return intl::format(str.localized ? intl::translate(str.format_str) : str.format_str, std::vector(view.begin(), view.end()));
+    }));
 }
 
 void game_scene::handle_game_update(UPDATE_TAG(game_error), const game_formatted_string &args) {

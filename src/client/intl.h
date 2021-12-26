@@ -2,7 +2,9 @@
 #define __INTL_H__
 
 #include <string>
+#include <ranges>
 #include <fmt/format.h>
+#include <fmt/args.h>
 #include "common/enums.h"
 
 namespace intl {
@@ -21,7 +23,19 @@ namespace intl {
         }
     }
 
-    std::string format(const std::string &format_str, const std::vector<std::string> &args);
+    template<std::ranges::input_range R> requires std::convertible_to<std::ranges::range_value_t<R>, std::string>
+    std::string format(const std::string &format_str, R &&args) {
+        fmt::dynamic_format_arg_store<fmt::format_context> fmt_args;
+        for (const std::string &arg : args) {
+            fmt_args.push_back(arg);
+        }
+
+        try {
+            return fmt::vformat(format_str, fmt_args);
+        } catch (const fmt::format_error &err) {
+            return format_str;
+        }
+    }
 }
 
 std::string _(const auto &str) {
