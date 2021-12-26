@@ -75,7 +75,7 @@ namespace banggame {
         } else if (auto it = m_characters.find(card_id); it != m_characters.end()) {
             return &it->second;
         }
-        throw game_error("server.find_card: ID not found"_unloc);
+        throw game_error("server.find_card: ID not found"_nonloc);
     }
 
     static auto make_id_vector(const auto &vec) {

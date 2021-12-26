@@ -71,8 +71,7 @@ namespace banggame {
     using event_args = detail::function_argument_tuple_variant<event_type>;
 
     struct game_error : std::exception, game_formatted_string {
-        template<typename ... Ts> game_error(Ts && ... args)
-            : game_formatted_string(make_formatted_string(std::forward<Ts>(args) ...)) {}
+        using game_formatted_string::game_formatted_string;
 
         const char *what() const noexcept override {
             return format_str.c_str();
@@ -158,7 +157,7 @@ namespace banggame {
 
         template<typename ... Ts>
         void add_log(Ts && ... args) {
-            add_public_update<game_update_type::game_log>(make_formatted_string(std::forward<Ts>(args) ...));
+            add_public_update<game_update_type::game_log>(std::forward<Ts>(args) ...);
         }
 
         std::vector<game_update> get_game_state_updates(player *owner);

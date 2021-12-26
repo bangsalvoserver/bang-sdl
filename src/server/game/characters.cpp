@@ -79,7 +79,7 @@ namespace banggame {
     }
 
     game_formatted_string request_kit_carlson::status_text() const {
-        return make_formatted_string("STATUS_KIT_CARLSON", origin_card);
+        return {"STATUS_KIT_CARLSON", origin_card};
     }
 
     void effect_claus_the_saint::on_equip(player *target, card *target_card) {
@@ -118,7 +118,7 @@ namespace banggame {
     }
 
     game_formatted_string request_claus_the_saint::status_text() const {
-        return make_formatted_string("STATUS_CLAUS_THE_SAINT", origin_card);
+        return {"STATUS_CLAUS_THE_SAINT", origin_card};
     }
 
     void effect_el_gringo::on_equip(player *p, card *target_card) {
@@ -269,7 +269,7 @@ namespace banggame {
     }
 
     game_formatted_string request_vera_custer::status_text() const {
-        return make_formatted_string("STATUS_VERA_CUSTER", origin_card);
+        return {"STATUS_VERA_CUSTER", origin_card};
     }
 
     void effect_tuco_franziskaner::on_equip(player *p, card *target_card) {
@@ -383,7 +383,7 @@ namespace banggame {
     }
 
     game_formatted_string request_youl_grinner::status_text() const {
-        return make_formatted_string("STATUS_YOUL_GRINNER", origin_card);
+        return {"STATUS_YOUL_GRINNER", origin_card};
     }
 
     void effect_flint_westwood::on_play(card *origin_card, player *origin, player *target, card *target_card) {
@@ -529,7 +529,7 @@ namespace banggame {
     }
 
     game_formatted_string request_dutch_will::status_text() const {
-        return make_formatted_string("STATUS_DUTCH_WILL", origin_card);
+        return {"STATUS_DUTCH_WILL", origin_card};
     }
 
     void effect_josh_mccloud::on_play(card *origin_card, player *target) {
@@ -584,7 +584,7 @@ namespace banggame {
     }
 
     game_formatted_string request_shop_choose_target::status_text() const {
-        return make_formatted_string("STATUS_SHOP_CHOOSE_TARGET", origin_card);
+        return {"STATUS_SHOP_CHOOSE_TARGET", origin_card};
     }
 
     void effect_julie_cutter::on_equip(player *p, card *target_card) {

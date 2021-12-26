@@ -38,7 +38,7 @@ namespace banggame {
     }
 
     game_formatted_string request_thedaltons::status_text() const {
-        return make_formatted_string("STATUS_THEDALTONS", origin_card);
+        return {"STATUS_THEDALTONS", origin_card};
     }
 
     void effect_thedoctor::on_equip(player *target, card *target_card) {
@@ -177,7 +177,7 @@ namespace banggame {
     }
 
     game_formatted_string request_peyote::status_text() const {
-        return make_formatted_string("STATUS_PEYOTE", origin_card);
+        return {"STATUS_PEYOTE", origin_card};
     }
 
     void effect_handcuffs::on_equip(player *target, card *target_card) {
@@ -205,7 +205,7 @@ namespace banggame {
     }
 
     game_formatted_string request_handcuffs::status_text() const {
-        return make_formatted_string("STATUS_HANDCUFFS", origin_card);
+        return {"STATUS_HANDCUFFS", origin_card};
     }
 
     void effect_russianroulette::on_equip(player *target, card *target_card) {

@@ -38,17 +38,16 @@ namespace banggame {
         (card_id, int)
     )
 
-    DEFINE_SERIALIZABLE(target_data_base,
+    DEFINE_SERIALIZABLE(card_target_data,
+        (type, effect_type)
         (target, target_type)
         (args, int)
     )
 
-    DEFINE_SERIALIZABLE_INHERITS(card_target_data, target_data_base,
-        (type, effect_type)
-    )
-
-    DEFINE_SERIALIZABLE_INHERITS(equip_target_data, target_data_base,
+    DEFINE_SERIALIZABLE(equip_target_data,
         (type, equip_type)
+        (target, target_type)
+        (args, int)
     )
 
     DEFINE_SERIALIZABLE(virtual_card_update,

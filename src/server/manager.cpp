@@ -157,7 +157,7 @@ void game_manager::handle_message(MESSAGE_TAG(lobby_join), const sdlnet::ip_addr
 
     auto it = std::ranges::find(m_lobbies, value.lobby_id, &lobby::id);
     if (it == m_lobbies.end()) {
-        throw game_error("Invalid Lobby ID"_unloc);
+        throw game_error("Invalid Lobby ID"_nonloc);
     }
 
     if (it->users.size() < lobby_max_players) {

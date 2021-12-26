@@ -692,7 +692,7 @@ namespace banggame {
                 break;
             }
             default:
-                throw game_error("play_card: invalid card"_unloc);
+                throw game_error("play_card: invalid card"_nonloc);
             }
         }
         m_start_of_turn = false;
@@ -722,7 +722,7 @@ namespace banggame {
             if (card_ptr->color != card_color_type::brown) return;
             break;
         default:
-            throw game_error("respond_card: invalid card"_unloc);
+            throw game_error("respond_card: invalid card"_nonloc);
         }
         
         verify_card_targets(card_ptr, true, args.targets);

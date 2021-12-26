@@ -16,7 +16,7 @@ namespace banggame {
     }
 
     game_formatted_string request_predraw::status_text() const {
-        return make_formatted_string("STATUS_PREDRAW");
+        return "STATUS_PREDRAW";
     }
 
     void request_check::on_pick(card_pile_type pile, player *target_player, card *target_card) {
@@ -35,7 +35,7 @@ namespace banggame {
     }
 
     game_formatted_string request_check::status_text() const {
-        return make_formatted_string("STATUS_CHECK", origin_card);
+        return {"STATUS_CHECK", origin_card};
     }
 
     void request_generalstore::on_pick(card_pile_type pile, player *target_player, card *target_card) {
@@ -52,7 +52,7 @@ namespace banggame {
     }
 
     game_formatted_string request_generalstore::status_text() const {
-        return make_formatted_string("STATUS_GENERALSTORE");
+        return "STATUS_GENERALSTORE";
     }
 
     void request_discard::on_pick(card_pile_type pile, player *target_player, card *target_card) {
@@ -67,7 +67,7 @@ namespace banggame {
     }
 
     game_formatted_string request_discard::status_text() const {
-        return make_formatted_string("STATUS_DISCARD", origin_card);
+        return {"STATUS_DISCARD", origin_card};
     }
 
     void request_discard_pass::on_pick(card_pile_type pile, player *target_player, card *target_card) {
@@ -95,7 +95,7 @@ namespace banggame {
     }
 
     game_formatted_string request_discard_pass::status_text() const {
-        return make_formatted_string("STATUS_DISCARD_PASS");
+        return "STATUS_DISCARD_PASS";
     }
 
     void request_indians::on_resolve() {
@@ -104,7 +104,7 @@ namespace banggame {
     }
 
     game_formatted_string request_indians::status_text() const {
-        return make_formatted_string("STATUS_INDIANS", origin_card);
+        return {"STATUS_INDIANS", origin_card};
     }
 
     void request_duel::on_resolve() {
@@ -113,7 +113,7 @@ namespace banggame {
     }
 
     game_formatted_string request_duel::status_text() const {
-        return make_formatted_string("STATUS_DUEL", origin_card);
+        return {"STATUS_DUEL", origin_card};
     }
     
     void timer_damaging::on_finished() {
@@ -134,7 +134,7 @@ namespace banggame {
     }
 
     game_formatted_string timer_damaging::status_text() const {
-        return make_formatted_string(damage > 1 ? "STATUS_DAMAGING_PLURAL" : "STATUS_DAMAGING", origin, origin_card, damage);
+        return {damage > 1 ? "STATUS_DAMAGING_PLURAL" : "STATUS_DAMAGING", origin, origin_card, damage};
     }
 
     void request_bang::on_resolve() {
@@ -157,9 +157,9 @@ namespace banggame {
 
     game_formatted_string request_bang::status_text() const {
         if (bang_strength > 1) {
-            return make_formatted_string("STATUS_BANG_MULTIPLE_MISSED", origin_card, bang_strength);
+            return {"STATUS_BANG_MULTIPLE_MISSED", origin_card, bang_strength};
         } else {
-            return make_formatted_string("STATUS_BANG", origin_card);
+            return {"STATUS_BANG", origin_card};
         }
     }
 
@@ -170,7 +170,7 @@ namespace banggame {
     }
 
     game_formatted_string request_death::status_text() const {
-        return make_formatted_string("STATUS_DEATH");
+        return "STATUS_DEATH";
     }
 
     void request_destroy::on_resolve() {
@@ -179,11 +179,11 @@ namespace banggame {
     }
 
     game_formatted_string request_destroy::status_text() const {
-        return make_formatted_string("STATUS_DESTROY", origin_card, target_card);
+        return {"STATUS_DESTROY", origin_card, target_card};
     }
 
     game_formatted_string request_ricochet::status_text() const {
-        return make_formatted_string("STATUS_RICOCHET", origin_card, target_card);
+        return {"STATUS_RICOCHET", origin_card, target_card};
     }
 
     void request_steal::on_resolve() {
@@ -192,7 +192,7 @@ namespace banggame {
     }
 
     game_formatted_string request_steal::status_text() const {
-        return make_formatted_string("STATUS_STEAL", origin_card, target_card);
+        return {"STATUS_STEAL", origin_card, target_card};
     }
 
     void request_bandidos::on_pick(card_pile_type pile, player *target_player, card *target_card) {
@@ -211,7 +211,7 @@ namespace banggame {
     }
 
     game_formatted_string request_bandidos::status_text() const {
-        return make_formatted_string("STATUS_BANDIDOS", origin_card);
+        return {"STATUS_BANDIDOS", origin_card};
     }
 
     void request_tornado::on_pick(card_pile_type pile, player *target_player, card *target_card) {
@@ -224,7 +224,7 @@ namespace banggame {
     }
 
     game_formatted_string request_tornado::status_text() const {
-        return make_formatted_string("STATUS_TORNADO", origin_card);
+        return {"STATUS_TORNADO", origin_card};
     }
 
     void request_poker::on_pick(card_pile_type pile, player *target_player, card *target_card) {
@@ -235,7 +235,7 @@ namespace banggame {
     }
 
     game_formatted_string request_poker::status_text() const {
-        return make_formatted_string("STATUS_POKER", origin_card);
+        return {"STATUS_POKER", origin_card};
     }
 
     void request_poker_draw::on_pick(card_pile_type pile, player *target_player, card *target_card) {
@@ -250,7 +250,7 @@ namespace banggame {
     }
 
     game_formatted_string request_poker_draw::status_text() const {
-        return make_formatted_string("STATUS_POKER_DRAW", origin_card);
+        return {"STATUS_POKER_DRAW", origin_card};
     }
 
     void request_saved::on_pick(card_pile_type pile, player *target_player, card *target_card) {
@@ -267,7 +267,7 @@ namespace banggame {
     }
 
     game_formatted_string request_saved::status_text() const {
-        return make_formatted_string("STATUS_SAVED", origin_card, saved);
+        return {"STATUS_SAVED", origin_card, saved};
     }
 
     void request_add_cube::on_pick(card_pile_type pile, player *target_player, card *target_card) {
@@ -285,9 +285,9 @@ namespace banggame {
 
     game_formatted_string request_add_cube::status_text() const {
         if (origin_card) {
-            return make_formatted_string("STATUS_ADD_CUBE_FOR", origin_card);
+            return {"STATUS_ADD_CUBE_FOR", origin_card};
         } else {
-            return make_formatted_string("STATUS_ADD_CUBE");
+            return "STATUS_ADD_CUBE";
         }
     }
 
@@ -307,7 +307,7 @@ namespace banggame {
     }
 
     game_formatted_string request_move_bomb::status_text() const {
-        return make_formatted_string("STATUS_MOVE_BOMB", origin_card);
+        return {"STATUS_MOVE_BOMB", origin_card};
     }
 
     void request_rust::on_resolve() {
@@ -317,22 +317,22 @@ namespace banggame {
     }
 
     game_formatted_string request_rust::status_text() const {
-        return make_formatted_string("STATUS_RUST", origin_card);
+        return {"STATUS_RUST", origin_card};
     }
 
     game_formatted_string request_shopchoice::status_text() const {
-        return make_formatted_string("STATUS_SHOPCHOICE", origin_card);
+        return {"STATUS_SHOPCHOICE", origin_card};
     }
 
     game_formatted_string timer_lemonade_jim::status_text() const {
-        return make_formatted_string("STATUS_CAN_PLAY_CARD", origin_card);
+        return {"STATUS_CAN_PLAY_CARD", origin_card};
     }
 
     game_formatted_string timer_al_preacher::status_text() const {
-        return make_formatted_string("STATUS_CAN_PLAY_CARD", origin_card);
+        return {"STATUS_CAN_PLAY_CARD", origin_card};
     }
 
     game_formatted_string timer_tumbleweed::status_text() const {
-        return make_formatted_string("STATUS_CAN_PLAY_TUMBLEWEED", target->m_game->m_current_check->origin, origin_card, target_card, drawn_card);
+        return {"STATUS_CAN_PLAY_TUMBLEWEED", target->m_game->m_current_check->origin, origin_card, target_card, drawn_card};
     }
 }

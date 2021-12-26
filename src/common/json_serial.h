@@ -93,7 +93,7 @@ namespace json {
             Json::Value ret = Json::objectValue;
             ret["index"] = value.index();
             ret["value"] = std::visit([](const auto &value) {
-                return serializer<std::decay_t<decltype(value)>>{}(value);
+                return serializer<std::remove_cvref_t<decltype(value)>>{}(value);
             }, value);
             return ret;
         }
@@ -209,39 +209,22 @@ namespace json {
     ret.ENUM_ELEMENT_NAME(tuple) = json::deserialize<ENUM_TUPLE_TAIL(tuple)>(value[BOOST_PP_STRINGIZE(ENUM_ELEMENT_NAME(tuple))]);
 
 #define DO_DEFINE_SERIALIZABLE(structName, tupleSeq) \
-    struct structName { \
-        BOOST_PP_SEQ_FOR_EACH(DEFINE_STRUCT_FIELD, structName, tupleSeq) \
-        Json::Value serialize() const { \
-            Json::Value ret = Json::objectValue; \
-            BOOST_PP_SEQ_FOR_EACH(JSON_WRITE_FIELD, structName, tupleSeq) \
-            return ret; \
-        } \
-        static structName deserialize(const Json::Value &value) { \
-            structName ret; \
-            BOOST_PP_SEQ_FOR_EACH(JSON_READ_FIELD, structName, tupleSeq) \
-            return ret; \
-        } \
-    };
+    BOOST_PP_SEQ_FOR_EACH(DEFINE_STRUCT_FIELD, structName, tupleSeq) \
+    Json::Value serialize() const { \
+        Json::Value ret = Json::objectValue; \
+        BOOST_PP_SEQ_FOR_EACH(JSON_WRITE_FIELD, structName, tupleSeq) \
+        return ret; \
+    } \
+    static structName deserialize(const Json::Value &value) { \
+        structName ret; \
+        BOOST_PP_SEQ_FOR_EACH(JSON_READ_FIELD, structName, tupleSeq) \
+        return ret; \
+    }
 
-#define DEFINE_SERIALIZABLE(structName, seq) DO_DEFINE_SERIALIZABLE(structName, ADD_PARENTHESES(seq))
+#define SERIALIZABLE_DATA(structName, seq) \
+    DO_DEFINE_SERIALIZABLE(structName, ADD_PARENTHESES(seq))
 
-#define DO_DEFINE_SERIALIZABLE_INHERITS(structName, baseName, tupleSeq) \
-    struct structName : baseName { \
-        static_assert(json::serializable<baseName>); \
-        BOOST_PP_SEQ_FOR_EACH(DEFINE_STRUCT_FIELD, structName, tupleSeq) \
-        Json::Value serialize() const { \
-            Json::Value ret = baseName::serialize(); \
-            BOOST_PP_SEQ_FOR_EACH(JSON_WRITE_FIELD, structName, tupleSeq) \
-            return ret; \
-        } \
-        static structName deserialize(const Json::Value &value) { \
-            structName ret; \
-            static_cast<baseName &>(ret) = baseName::deserialize(value); \
-            BOOST_PP_SEQ_FOR_EACH(JSON_READ_FIELD, structName, tupleSeq) \
-            return ret; \
-        } \
-    };
-
-#define DEFINE_SERIALIZABLE_INHERITS(structName, baseName, seq) DO_DEFINE_SERIALIZABLE_INHERITS(structName, baseName, ADD_PARENTHESES(seq))
+#define DEFINE_SERIALIZABLE(structName, seq) \
+    struct structName { SERIALIZABLE_DATA(structName, seq) };
 
 #endif
