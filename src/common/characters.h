@@ -27,11 +27,9 @@ namespace banggame {
         void on_equip(player *target, card *target_card);
     };
 
-    struct request_kit_carlson : picking_request_allowing<card_pile_type::selection> {
-        request_kit_carlson(card *origin_card, player *target) {
-            request_base::origin_card = origin_card;
-            request_base::target = target;
-        }
+    struct request_kit_carlson : request_base, allowed_piles<card_pile_type::selection> {
+        request_kit_carlson(card *origin_card, player *target)
+            : request_base(origin_card, nullptr, target) {}
 
         void on_pick(card_pile_type pile, player *target, card *target_card);
         game_formatted_string status_text() const;
@@ -41,11 +39,9 @@ namespace banggame {
         void on_equip(player *target, card *target_card);
     };
 
-    struct request_claus_the_saint : picking_request_allowing<card_pile_type::selection> {
-        request_claus_the_saint(card *origin_card, player *target) {
-            request_base::origin_card = origin_card;
-            request_base::target = target;
-        }
+    struct request_claus_the_saint : request_base, allowed_piles<card_pile_type::selection> {
+        request_claus_the_saint(card *origin_card, player *target)
+            : request_base(origin_card, nullptr, target) {}
 
         void on_pick(card_pile_type pile, player *target, card *target_card);
         game_formatted_string status_text() const;
@@ -88,11 +84,9 @@ namespace banggame {
         void on_equip(player *target, card *target_card);
     };
 
-    struct request_vera_custer : picking_request_allowing<card_pile_type::player_character> {
-        request_vera_custer(card *origin_card, player *target) {
-            request_base::origin_card = origin_card;
-            request_base::target = target;
-        }
+    struct request_vera_custer : request_base, allowed_piles<card_pile_type::player_character> {
+        request_vera_custer(card *origin_card, player *target)
+            : request_base(origin_card, nullptr, target) {}
         
         void on_pick(card_pile_type pile, player *target, card *target_card);
         game_formatted_string status_text() const;
@@ -132,12 +126,9 @@ namespace banggame {
         void on_equip(player *target, card *target_card);
     };
 
-    struct request_youl_grinner : picking_request_allowing<card_pile_type::player_hand> {
-        request_youl_grinner(card *origin_card, player *origin, player *target) {
-            request_base::origin_card = origin_card;
-            request_base::origin = origin;
-            request_base::target = target;
-        }
+    struct request_youl_grinner : request_base, allowed_piles<card_pile_type::player_hand> {
+        request_youl_grinner(card *origin_card, player *origin, player *target)
+            : request_base(origin_card, origin, target) {}
 
         void on_pick(card_pile_type pile, player *target, card *target_card);
         game_formatted_string status_text() const;
@@ -175,11 +166,9 @@ namespace banggame {
         void on_equip(player *target, card *target_card);
     };
 
-    struct request_dutch_will : picking_request_allowing<card_pile_type::selection> {
-        request_dutch_will(card *origin_card, player *target) {
-            request_base::origin_card = origin_card;
-            request_base::target = target;
-        }
+    struct request_dutch_will : request_base, allowed_piles<card_pile_type::selection> {
+        request_dutch_will(card *origin_card, player *target)
+            : request_base(origin_card, nullptr, target) {}
 
         void on_pick(card_pile_type pile, player *target, card *target_card);
         game_formatted_string status_text() const;
@@ -189,11 +178,9 @@ namespace banggame {
         void on_play(card *origin_card, player *origin);
     };
 
-    struct request_shop_choose_target : picking_request_allowing<card_pile_type::player> {
-        request_shop_choose_target(card *origin_card, player *target) {
-            request_base::origin_card = origin_card;
-            request_base::target = target;
-        }
+    struct request_shop_choose_target : request_base, allowed_piles<card_pile_type::player> {
+        request_shop_choose_target(card *origin_card, player *target)
+            : request_base(origin_card, nullptr, target) {}
         
         void on_pick(card_pile_type pile, player *target, card *target_card);
         game_formatted_string status_text() const;

@@ -518,20 +518,6 @@ namespace banggame {
         }
     }
 
-    void game::resolve_check(player *p, card *c) {
-        while (!m_selection.empty()) {
-            card *drawn_card = m_selection.front();
-            move_to(drawn_card, card_pile_type::discard_pile);
-            queue_event<event_type::on_draw_check>(p, drawn_card);
-        }
-        instant_event<event_type::trigger_tumbleweed>(m_current_check->origin_card, c);
-        if (!m_current_check->no_auto_resolve) {
-            add_log("LOG_CHECK_DREW_CARD", m_current_check->origin_card, m_current_check->origin, c);
-            m_current_check->function(c);
-            m_current_check.reset();
-        }
-    }
-
     void game::pop_request_noupdate() {
         enums::visit([](auto &value) {
             if constexpr (requires { value.cleanup(); }) {

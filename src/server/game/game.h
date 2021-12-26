@@ -280,8 +280,6 @@ namespace banggame {
         void draw_check_then(player *origin, card *origin_card, draw_check_function fun);
         void do_draw_check();
 
-        void resolve_check(player *p, card *card);
-
         void disable_table_cards();
         void enable_table_cards();
         bool table_cards_disabled(player *p) const;

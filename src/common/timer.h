@@ -9,11 +9,8 @@ namespace banggame {
 
     struct timer_base : request_base {
         timer_base(card *origin_card, player *origin, player *target, int duration = 200)
-            : duration(duration) {
-            request_base::origin_card = origin_card;
-            request_base::origin = origin;
-            request_base::target = target;
-        }
+            : request_base(origin_card, origin, target)
+            , duration(duration) {}
 
         int duration;
     };

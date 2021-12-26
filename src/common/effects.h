@@ -19,14 +19,17 @@ namespace banggame {
     };
 
     struct request_base {
-        card *origin_card = nullptr;
-        player *origin = nullptr;
-        player *target = nullptr;
-        effect_flags flags = no_effect_flags;
+        request_base(card *origin_card, player *origin, player *target, effect_flags flags = no_effect_flags)
+            : origin_card(origin_card), origin(origin), target(target), flags(flags) {}
+
+        card *origin_card;
+        player *origin;
+        player *target;
+        effect_flags flags;
     };
 
     template<card_pile_type ... Es>
-    struct picking_request_allowing : request_base {
+    struct allowed_piles {
         static bool valid_pile(card_pile_type pile) {
             return ((pile == Es) || ...);
         }

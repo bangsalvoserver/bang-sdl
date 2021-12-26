@@ -1183,11 +1183,11 @@
             "color": "brown",
             "responses": [
                 {
-                    "class": "missed"
-                },
-                {
                     "class": "backfire",
                     "escapable": true
+                },
+                {
+                    "class": "missed"
                 }
             ]
         },

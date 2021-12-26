@@ -34,11 +34,9 @@ namespace banggame {
         void on_equip(player *target, card *target_card);
     };
 
-    struct request_thedaltons : picking_request_allowing<card_pile_type::player_table> {
-        request_thedaltons(card *origin_card, player *target) {
-            request_base::origin_card = origin_card;
-            request_base::target = target;
-        }
+    struct request_thedaltons : request_base, allowed_piles<card_pile_type::player_table> {
+        request_thedaltons(card *origin_card, player *target)
+            : request_base(origin_card, nullptr, target) {}
 
         void on_pick(card_pile_type pile, player *target, card *target_card);
         game_formatted_string status_text() const;
@@ -108,11 +106,9 @@ namespace banggame {
         void on_equip(player *target, card *target_card);
     };
 
-    struct request_peyote : picking_request_allowing<card_pile_type::selection> {
-        request_peyote(card *origin_card, player *target) {
-            request_base::origin_card = origin_card;
-            request_base::target = target;
-        }
+    struct request_peyote : request_base, allowed_piles<card_pile_type::selection> {
+        request_peyote(card *origin_card, player *target)
+            : request_base(origin_card, nullptr, target) {}
 
         void on_pick(card_pile_type pile, player *target, card *target_card);
         game_formatted_string status_text() const;
@@ -122,21 +118,17 @@ namespace banggame {
         void on_equip(player *target, card *target_card);
     };
 
-    struct request_handcuffs : picking_request_allowing<card_pile_type::selection> {
-        request_handcuffs(card *origin_card, player *target) {
-            request_base::origin_card = origin_card;
-            request_base::target = target;
-        }
+    struct request_handcuffs : request_base, allowed_piles<card_pile_type::selection> {
+        request_handcuffs(card *origin_card, player *target)
+            : request_base(origin_card, nullptr, target) {}
 
         void on_pick(card_pile_type pile, player *target, card *target_card);
         game_formatted_string status_text() const;
     };
 
     struct request_shopchoice : request_base {
-        request_shopchoice(card *origin_card, player *target) {
-            request_base::origin_card = origin_card;
-            request_base::target = target;
-        }
+        request_shopchoice(card *origin_card, player *target)
+            : request_base(origin_card, nullptr, target) {}
         
         game_formatted_string status_text() const;
     };
