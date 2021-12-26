@@ -154,6 +154,8 @@ namespace banggame {
 
         void set_character_and_role(character *c, player_role role);
 
+        void set_last_played_card(card *c);
+
         void verify_modifiers(card *c, const std::vector<card *> &modifiers);
         void play_modifiers(const std::vector<card *> &modifiers);
         void verify_equip_target(card *c, const std::vector<play_card_target> &targets);
@@ -168,8 +170,6 @@ namespace banggame {
         void start_of_turn();
         void pass_turn(player *next_player = nullptr);
         void end_of_turn(player *next_player = nullptr);
-
-        void play_virtual_card(card *corresponding_card, card virtual_card);
 
         card_suit_type get_card_suit(card *drawn_card);
         card_value_type get_card_value(card *drawn_card);

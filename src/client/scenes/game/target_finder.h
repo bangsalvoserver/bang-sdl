@@ -24,8 +24,6 @@ namespace banggame {
         std::vector<cube_widget *> m_selected_cubes;
 
         play_card_flags m_flags = enums::flags_none<play_card_flags>;
-
-        std::optional<card_view> m_virtual;
     };
 
     class target_finder : private target_status {
@@ -51,8 +49,6 @@ namespace banggame {
         void on_click_resolve();
         void on_click_sell_beer();
         void on_click_discard_black();
-
-        void handle_virtual_card(const virtual_card_update &args);
 
         void clear_targets();
     

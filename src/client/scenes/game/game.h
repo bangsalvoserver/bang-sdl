@@ -49,10 +49,10 @@ namespace banggame {
         void handle_game_update(UPDATE_TAG(add_cubes),        const add_cubes_update &args);
         void handle_game_update(UPDATE_TAG(move_cube),        const move_cube_update &args);
         void handle_game_update(UPDATE_TAG(deck_shuffled),    const card_pile_type &pile);
-        void handle_game_update(UPDATE_TAG(virtual_card),     const virtual_card_update &args);
         void handle_game_update(UPDATE_TAG(show_card),        const show_card_update &args);
         void handle_game_update(UPDATE_TAG(hide_card),        const hide_card_update &args);
         void handle_game_update(UPDATE_TAG(tap_card),         const tap_card_update &args);
+        void handle_game_update(UPDATE_TAG(last_played_card), const last_played_card_id &args);
         void handle_game_update(UPDATE_TAG(player_add),       const player_user_update &args);
         void handle_game_update(UPDATE_TAG(player_hp),        const player_hp_update &args);
         void handle_game_update(UPDATE_TAG(player_gold),      const player_gold_update &args);
@@ -103,6 +103,7 @@ namespace banggame {
         std::default_random_engine rng;
 
         std::optional<request_view> m_current_request;
+        card_widget *m_last_played_card = nullptr;
 
         card_view *find_card(int id) {
             if (auto it = m_cards.find(id); it != m_cards.end()) {

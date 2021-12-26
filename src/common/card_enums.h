@@ -116,6 +116,7 @@ namespace banggame {
         (none)
         (bangcard)
         (discount)
+        (leevankliff)
     )
 
 }

@@ -394,22 +394,6 @@ namespace banggame {
         target->steal_card(origin, origin->m_virtual->corresponding_card);
     }
 
-    bool effect_lee_van_kliff::can_play(card *origin_card, player *origin, player *target, card *target_card) const {
-        return origin->m_last_played_card
-            && origin->m_last_played_card->color == card_color_type::brown
-            && origin->m_last_played_card->expansion != card_expansion_type::goldrush;
-    }
-
-    void effect_lee_van_kliff::on_play(card *origin_card, player *origin, player *target, card *target_card) {
-        auto copy = *origin->m_last_played_card;
-        copy.suit = card_suit_type::none;
-        copy.value = card_value_type::none;
-        std::erase_if(copy.effects, [](const effect_holder &e) {
-            return e.is(effect_type::banglimit);
-        });
-        origin->play_virtual_card(target_card, std::move(copy));
-    }
-
     void effect_don_bell::on_equip(player *p, card *target_card) {
         p->m_game->add_event<event_type::on_turn_end>(target_card, [=](player *target) {
             if (p == target) {

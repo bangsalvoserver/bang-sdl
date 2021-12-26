@@ -76,7 +76,6 @@ namespace banggame {
         (handcuffschoice, effect_empty)
         (teren_kill,    effect_teren_kill)
         (flint_westwood, effect_flint_westwood)
-        (lee_van_kliff, effect_lee_van_kliff)
         (greygory_deck, effect_greygory_deck)
         (lemonade_jim,  effect_lemonade_jim)
         (josh_mccloud,  effect_josh_mccloud)

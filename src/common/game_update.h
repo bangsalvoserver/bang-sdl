@@ -50,15 +50,6 @@ namespace banggame {
         (args, int)
     )
 
-    DEFINE_SERIALIZABLE(virtual_card_update,
-        (card_id, int)
-        (virtual_id, int)
-        (suit, card_suit_type)
-        (value, card_value_type)
-        (color, card_color_type)
-        (targets, std::vector<card_target_data>)
-    )
-
     DEFINE_SERIALIZABLE(card_info,
         (id, int)
         (expansion, card_expansion_type)
@@ -101,6 +92,10 @@ namespace banggame {
         (card_id, int)
         (inactive, bool)
         (instant, bool)
+    )
+
+    DEFINE_SERIALIZABLE(last_played_card_id,
+        (card_id, int)
     )
 
     DEFINE_SERIALIZABLE(player_user_update,
@@ -146,10 +141,10 @@ namespace banggame {
         (add_cubes, add_cubes_update)
         (move_cube, move_cube_update)
         (deck_shuffled, card_pile_type)
-        (virtual_card, virtual_card_update)
         (show_card, show_card_update)
         (hide_card, hide_card_update)
         (tap_card, tap_card_update)
+        (last_played_card, last_played_card_id)
         (player_add, player_user_update)
         (player_hp, player_hp_update)
         (player_gold, player_gold_update)

@@ -545,10 +545,6 @@ void game_scene::handle_game_update(UPDATE_TAG(move_cube), const move_cube_updat
     }
 }
 
-void game_scene::handle_game_update(UPDATE_TAG(virtual_card), const virtual_card_update &args) {
-    m_target.handle_virtual_card(args);
-}
-
 void game_scene::handle_game_update(UPDATE_TAG(show_card), const show_card_update &args) {
     auto *card = find_card(args.info.id);
 
@@ -615,6 +611,11 @@ void game_scene::handle_game_update(UPDATE_TAG(tap_card), const tap_card_update 
     } else {
         pop_update();
     }
+}
+
+void game_scene::handle_game_update(UPDATE_TAG(last_played_card), const last_played_card_id &args) {
+    m_last_played_card = find_card_widget(args.card_id);
+    pop_update();
 }
 
 void game_scene::move_player_views() {

@@ -289,6 +289,9 @@ bool target_finder::verify_modifier(card_widget *card) {
     switch (m_modifiers.front()->modifier) {
     case card_modifier_type::bangcard:
         return std::ranges::find(card->targets, effect_type::bangcard, &card_target_data::type) != card->targets.end();
+    case card_modifier_type::leevankliff:
+        return !card->targets.empty() && card->targets.front().type == effect_type::bangcard
+            && m_game->m_last_played_card;
     case card_modifier_type::discount:
         return card->expansion == card_expansion_type::goldrush;
     default:
@@ -300,9 +303,9 @@ std::vector<card_target_data> &target_finder::get_current_card_targets() {
     assert(!bool(m_flags & play_card_flags::equipping));
 
     card_widget *card = nullptr;
-    if (m_virtual) {
-        card = &*m_virtual;
-    } else if (m_playing_card) {
+    if (m_game->m_last_played_card && !m_modifiers.empty() && m_modifiers.front()->modifier == card_modifier_type::leevankliff) {
+        card = m_game->m_last_played_card;
+    } else {
         card = m_playing_card;
     }
     assert(card != nullptr);
@@ -315,8 +318,8 @@ std::vector<card_target_data> &target_finder::get_current_card_targets() {
 }
 
 std::vector<card_target_data> &target_finder::get_optional_targets() {
-    if (m_virtual) {
-        return m_virtual->optional_targets;
+    if (m_game->m_last_played_card && !m_modifiers.empty() && m_modifiers.front()->modifier == card_modifier_type::leevankliff) {
+        return m_game->m_last_played_card->optional_targets;
     } else {
         return m_playing_card->optional_targets;
     }
@@ -571,25 +574,9 @@ void target_finder::clear_targets() {
     static_cast<target_status &>(*this) = {};
 }
 
-void target_finder::handle_virtual_card(const virtual_card_update &args) {
-    auto &c = m_virtual.emplace();
-    c.id = args.virtual_id;
-    c.suit = args.suit;
-    c.value = args.value;
-    c.color = args.color;
-    c.targets = args.targets;
-
-    m_playing_card = m_game->find_card_widget(args.card_id);
-    handle_auto_targets();
-}
-
 void target_finder::send_play_card() {
     play_card_args ret;
-    if (m_virtual) {
-        ret.card_id = m_virtual->id;
-    } else {
-        ret.card_id = m_playing_card ? m_playing_card->id : 0;
-    }
+    ret.card_id = m_playing_card ? m_playing_card->id : 0;
     for (card_widget *card : m_modifiers) {
         ret.modifier_ids.push_back(card->id);
     }

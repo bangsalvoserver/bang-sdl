@@ -138,11 +138,6 @@ namespace banggame {
         void on_play(card *origin_card, player *origin, player *target, card *target_card);
     };
 
-    struct effect_lee_van_kliff : card_effect {
-        bool can_play(card *origin_card, player *origin, player *target, card *target_card) const;
-        void on_play(card *origin_card, player *origin, player *target, card *target_card);
-    };
-
     struct effect_don_bell : event_based_effect {
         void on_equip(player *origin, card *target_card);
     };

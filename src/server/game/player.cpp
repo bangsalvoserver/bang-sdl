@@ -202,6 +202,11 @@ namespace banggame {
             || origin->m_game->calc_distance(origin, target) <= distance;
     }
 
+    void player::set_last_played_card(card *c) {
+        m_last_played_card = c;
+        m_game->add_private_update<game_update_type::last_played_card>(this, c ? c->id : 0);
+    }
+
     void player::verify_modifiers(card *c, const std::vector<card *> &modifiers) {
         for (card *mod_card : modifiers) {
             card_suit_type suit = get_card_suit(mod_card);
@@ -418,13 +423,7 @@ namespace banggame {
         };
 
         assert(card_ptr != nullptr);
-        if (m_virtual && card_ptr == &m_virtual->virtual_card) {
-            play_card_action(m_virtual->corresponding_card);
-            m_last_played_card = nullptr;
-        } else {
-            play_card_action(card_ptr);
-            m_last_played_card = card_ptr;
-        }
+        play_card_action(card_ptr);
 
         if (card_ptr->max_usages != 0) {
             ++card_ptr->usages;
@@ -505,12 +504,7 @@ namespace banggame {
             modifiers.push_back(m_game->find_card(id));
         }
 
-        if (m_virtual && args.card_id == m_virtual->virtual_card.id) {
-            verify_modifiers(&m_virtual->virtual_card, modifiers);
-            verify_card_targets(&m_virtual->virtual_card, false, args.targets);
-            play_modifiers(modifiers);
-            do_play_card(&m_virtual->virtual_card, false, args.targets);
-        } else if (bool(args.flags & play_card_flags::sell_beer)) {
+        if (bool(args.flags & play_card_flags::sell_beer)) {
             if (!m_has_drawn) throw game_error("ERROR_PLAYER_MUST_DRAW");
             if (!m_game->has_expansion(card_expansion_type::goldrush)
                 || args.targets.size() != 1
@@ -540,7 +534,21 @@ namespace banggame {
             m_game->add_log("LOG_DISCARDED_BLACK", this, target_player, target_card);
         } else {
             card *card_ptr = m_game->find_card(args.card_id);
-            switch(card_ptr->pile) {
+            if (!modifiers.empty() && modifiers.front()->modifier == card_modifier_type::leevankliff) {
+                // Hack per usare il raii eliminare il limite di bang
+                // quando lee van kliff gioca l'effetto del personaggio su una carta bang.
+                // Se le funzioni di verifica throwano viene chiamato il distruttore
+                struct banglimit_remover {
+                    int &num;
+                    banglimit_remover(int &num) : num(num) { ++num; }
+                    ~banglimit_remover() { --num; }
+                } _banglimit_remover{m_infinite_bangs};
+                verify_card_targets(m_last_played_card, false, args.targets);
+                m_game->move_to(card_ptr, card_pile_type::discard_pile);
+                m_game->queue_event<event_type::on_play_hand_card>(this, card_ptr);
+                do_play_card(m_last_played_card, false, args.targets);
+                set_last_played_card(nullptr);
+            } else switch(card_ptr->pile) {
             case card_pile_type::player_character:
                 if (!card_ptr->effects.empty()) {
                     if (m_game->characters_disabled(this)) throw game_error("ERROR_CHARACTERS_ARE_DISABLED");
@@ -557,6 +565,7 @@ namespace banggame {
                         play_modifiers(modifiers);
                     }
                     do_play_card(card_ptr, false, args.targets);
+                    set_last_played_card(nullptr);
                 }
                 break;
             case card_pile_type::player_hand:
@@ -567,6 +576,7 @@ namespace banggame {
                     verify_card_targets(card_ptr, false, args.targets);
                     play_modifiers(modifiers);
                     do_play_card(card_ptr, false, args.targets);
+                    set_last_played_card(card_ptr);
                     break;
                 case card_color_type::blue: {
                     if (m_game->has_scenario(scenario_flags::judge)) throw game_error("ERROR_CANT_EQUIP_CARDS");
@@ -574,6 +584,7 @@ namespace banggame {
                     auto *target = m_game->get_player(args.targets.front().get<play_card_target_type::target_player>().front().player_id);
                     if (target->has_card_equipped(card_ptr->name)) throw game_error("ERROR_DUPLICATED_CARD");
                     target->equip_card(card_ptr);
+                    set_last_played_card(nullptr);
                     if (this == target) {
                         m_game->add_log("LOG_EQUIPPED_CARD", card_ptr, this);
                     } else {
@@ -591,6 +602,7 @@ namespace banggame {
                     if (has_card_equipped(card_ptr->name)) throw game_error("ERROR_DUPLICATED_CARD");
                     card_ptr->inactive = true;
                     equip_card(card_ptr);
+                    set_last_played_card(nullptr);
                     m_game->add_log("LOG_EQUIPPED_CARD", card_ptr, this);
                     m_game->queue_event<event_type::on_equip>(this, this, card_ptr);
                     m_game->queue_event<event_type::on_effect_end>(this, card_ptr);
@@ -615,6 +627,7 @@ namespace banggame {
                             m_game->add_log("LOG_EQUIPPED_CARD_TO", card_ptr, this, target);
                         }
                     }
+                    set_last_played_card(nullptr);
                     m_game->queue_event<event_type::on_effect_end>(this, card_ptr);
                 }
                 }
@@ -627,6 +640,7 @@ namespace banggame {
                 verify_card_targets(card_ptr, false, args.targets);
                 play_modifiers(modifiers);
                 do_play_card(card_ptr, false, args.targets);
+                set_last_played_card(nullptr);
                 break;
             case card_pile_type::shop_selection: {
                 if (!m_has_drawn) throw game_error("ERROR_PLAYER_MUST_DRAW");
@@ -648,6 +662,7 @@ namespace banggame {
                         play_modifiers(modifiers);
                         add_gold(discount - card_ptr->buy_cost);
                         do_play_card(card_ptr, false, args.targets);
+                        set_last_played_card(card_ptr);
                         m_game->queue_event<event_type::delayed_action>([this]{
                             while (m_game->m_shop_selection.size() < 3) {
                                 m_game->draw_shop_card();
@@ -662,6 +677,7 @@ namespace banggame {
                         if (target->has_card_equipped(card_ptr->name)) throw game_error("ERROR_DUPLICATED_CARD");
                         add_gold(discount - card_ptr->buy_cost);
                         target->equip_card(card_ptr);
+                        set_last_played_card(nullptr);
                         if (this == target) {
                             m_game->add_log("LOG_BOUGHT_EQUIP", card_ptr, this);
                         } else {
@@ -689,6 +705,7 @@ namespace banggame {
                 }
                 verify_card_targets(card_ptr, false, args.targets);
                 do_play_card(card_ptr, false, args.targets);
+                set_last_played_card(nullptr);
                 break;
             }
             default:
@@ -727,6 +744,7 @@ namespace banggame {
         
         verify_card_targets(card_ptr, true, args.targets);
         do_play_card(card_ptr, true, args.targets);
+        set_last_played_card(nullptr);
     }
 
     void player::draw_from_deck() {
@@ -747,27 +765,6 @@ namespace banggame {
         if (m_game->m_requests.empty()) {
             m_game->add_private_update<game_update_type::status_clear>(this);
         }
-    }
-
-    void player::play_virtual_card(card *corresponding_card, card virtual_card) {
-        virtual_card_update obj;
-        obj.virtual_id = m_game->get_next_id();
-        obj.card_id = corresponding_card->id;
-        obj.color = virtual_card.color;
-        obj.suit = virtual_card.suit;
-        obj.value = virtual_card.value;
-        for (const auto &value : virtual_card.effects) {
-            card_target_data ctd;
-            ctd.type = value.type;
-            ctd.target = value.target;
-            ctd.args = value.args;
-            obj.targets.emplace_back(std::move(ctd));
-        }
-
-        virtual_card.id = obj.virtual_id;
-        m_virtual.emplace(corresponding_card, std::move(virtual_card));
-
-        m_game->add_private_update<game_update_type::virtual_card>(this, obj);
     }
 
     card_suit_type player::get_card_suit(card *drawn_card) {

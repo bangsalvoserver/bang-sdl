@@ -2547,12 +2547,7 @@
             "image": "06_leevankliff",
             "hp": 4,
             "expansion": "wildwestshow",
-            "effects": [
-                {
-                    "target": "self hand bang card",
-                    "class": "lee_van_kliff"
-                }
-            ]
+            "modifier": "leevankliff"
         },
         {
             "name": "Teren Kill",
