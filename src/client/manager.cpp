@@ -5,6 +5,7 @@
 
 #include "common/options.h"
 #include "common/message_header.h"
+#include "common/binary_serial.h"
 
 using namespace banggame;
 
@@ -23,45 +24,24 @@ void game_manager::update_net() {
     while (sock.isopen() && sock_set.check(0)) {
         try {
             auto header = recv_message_header(sock);
-            auto str = recv_message_string(sock, header.length);
-            switch (header.type) {
-            case message_header::json: {
-                util::isviewstream ss(str);
-                Json::Value json_value;
-                ss >> json_value;
-
-                auto msg = enums::from_string<server_message_type>(json_value["type"].asString());
-                if (msg != enums::invalid_enum_v<server_message_type>) {
-                    enums::visit_enum([&](auto enum_const) {
-                        constexpr server_message_type E = decltype(enum_const)::value;
-                        if constexpr (enums::has_type<E>) {
-                            handle_message(enum_const, json::deserialize<enums::enum_type_t<E>>(json_value["value"]));
-                        } else {
-                            handle_message(enum_const);
-                        }
-                    }, msg);
-                }
-                break;
-            }
-            default:
-                break;
-            }
+            auto msg_bytes = recv_message_bytes(sock, header.length);
+            enums::visit_indexed([&](auto && ... args) {
+                handle_message(std::forward<decltype(args)>(args)...);
+            }, binary::deserialize<server_message>(msg_bytes));
         } catch (sdlnet::socket_disconnected) {
             disconnect();
-        } catch (const Json::Exception &e) {
-            std::cerr << "Json Error (" << e.what() << ")\n";
+        } catch (const binary::read_error &error) {
+            std::cerr << "Serialization error\n";
         } catch (const std::exception &error) {
             std::cerr << "Error (" << error.what() << ")\n";
         }
     }
     if (sock.isopen()) {
         while (!m_out_queue.empty()) {
-            std::stringstream ss;
-            ss << m_out_queue.front();
-            std::string str = ss.str();
+            auto message_bytes = binary::serialize(m_out_queue.front());
 
-            send_message_header(sock, message_header{message_header::json, (uint32_t)str.size()});
-            send_message_string(sock, str);
+            send_message_header(sock, message_header{(uint32_t)message_bytes.size()});
+            send_message_bytes(sock, message_bytes);
             
             m_out_queue.pop_front();
         }

@@ -44,28 +44,23 @@ struct lobby : util::id_counter<lobby> {
     void send_updates(game_manager &mgr);
 };
 
-struct server_message {
+struct server_message_pair {
     sdlnet::ip_address addr;
-    Json::Value value;
+    server_message value;
 };
 
 template<server_message_type E, typename ... Ts>
-Json::Value make_message(Ts && ... args) {
-    Json::Value ret = Json::objectValue;
-    ret["type"] = std::string(enums::to_string(E));
-    if constexpr (enums::has_type<E>) {
-        ret["value"] = json::serialize(enums::enum_type_t<E>{std::forward<Ts>(args) ... });
-    }
-    return ret;
+server_message make_message(Ts && ... args) {
+    return {enums::enum_constant<E>{}, std::forward<Ts>(args) ...};
 }
 
 #define MESSAGE_TAG(name) enums::enum_constant<client_message_type::name>
 
 class game_manager {
 public:
-    void parse_message(const sdlnet::ip_address &addr, const std::string &str);
+    void parse_message(const sdlnet::ip_address &addr, const std::vector<std::byte> &msg);
     int pending_messages();
-    server_message pop_message();
+    server_message_pair pop_message();
 
     void client_disconnected(const sdlnet::ip_address &addr);
 
@@ -104,7 +99,7 @@ private:
 
     std::map<sdlnet::ip_address, game_user> users;
     std::list<lobby> m_lobbies;
-    std::list<server_message> m_out_queue;
+    std::list<server_message_pair> m_out_queue;
 };
 
 #endif

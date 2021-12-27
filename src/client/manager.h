@@ -37,12 +37,7 @@ public:
 
     template<client_message_type E, typename ... Ts>
     void add_message(Ts && ... args) {
-        Json::Value message = Json::objectValue;
-        message["type"] = json::serialize(E);
-        if constexpr (enums::has_type<E>) {
-            message["value"] = json::serialize(enums::enum_type_t<E>{ std::forward<Ts>(args) ... });
-        }
-        m_out_queue.emplace_back(std::move(message));
+        m_out_queue.emplace_back(enums::enum_constant<E>{}, std::forward<Ts>(args) ...);
     }
 
     void update_net();
@@ -95,7 +90,7 @@ private:
 
     scene_base *m_scene = nullptr;
 
-    std::list<Json::Value> m_out_queue;
+    std::list<client_message> m_out_queue;
 
     sdlnet::tcp_socket sock;
     sdlnet::socket_set sock_set{1};

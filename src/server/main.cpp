@@ -4,6 +4,7 @@
 
 #include "manager.h"
 #include "common/message_header.h"
+#include "common/binary_serial.h"
 
 int main(int argc, char **argv) {
     sdlnet::initializer init;
@@ -26,14 +27,7 @@ int main(int argc, char **argv) {
                 try {
                     if (set.ready(it->second)) {
                         auto header = recv_message_header(it->second);
-                        auto str = recv_message_string(it->second, header.length);
-                        switch (header.type) {
-                        case message_header::json:
-                            mgr.parse_message(it->first, str);
-                            break;
-                        default:
-                            break;
-                        }
+                        mgr.parse_message(it->first, recv_message_bytes(it->second, header.length));
                     }
                     ++it;
                 } catch (sdlnet::socket_disconnected) {
@@ -57,12 +51,10 @@ int main(int argc, char **argv) {
             auto it = clients.find(msg.addr);
             if (it != clients.end()) {
                 try {
-                    std::stringstream ss;
-                    ss << msg.value;
-                    std::string str = ss.str();
+                    auto message_bytes = binary::serialize(msg.value);
 
-                    send_message_header(it->second, message_header{message_header::json, (uint32_t)str.size()});
-                    send_message_string(it->second, str);
+                    send_message_header(it->second, message_header{(uint32_t)message_bytes.size()});
+                    send_message_bytes(it->second, message_bytes);
                 } catch (sdlnet::socket_disconnected) {
                     mgr.client_disconnected(it->first);
                     std::cout << it->first.ip_string() << " Disconnected\n";

@@ -34,6 +34,8 @@ DEFINE_ENUM_TYPES(client_message_type,
     (game_action, game_action)
 )
 
+using client_message = enums::enum_variant<client_message_type>;
+
 DEFINE_ENUM(lobby_state,
     (waiting)
     (playing)
@@ -85,5 +87,7 @@ DEFINE_ENUM_TYPES(server_message_type,
     (game_started, game_started_args)
     (game_update, game_update)
 )
+
+using server_message = enums::enum_variant<server_message_type>;
 
 #endif

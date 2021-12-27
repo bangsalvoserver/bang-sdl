@@ -4,34 +4,23 @@
 #include <stdexcept>
 
 #include "common/net_enums.h"
+#include "common/binary_serial.h"
 
 using namespace banggame;
 using namespace enums::flag_operators;
 
-void game_manager::parse_message(const sdlnet::ip_address &addr, const std::string &str) {
-    std::stringstream ss(str);
-
+void game_manager::parse_message(const sdlnet::ip_address &addr, const std::vector<std::byte> &bytes) {
     try {
-        Json::Value json_value;
-        ss >> json_value;
-
-        auto msg = enums::from_string<client_message_type>(json_value["type"].asString());
-        if (msg != enums::invalid_enum_v<client_message_type>) {
-            enums::visit_enum([&](auto enum_const) {
-                constexpr client_message_type E = decltype(enum_const)::value;
-                if constexpr (enums::has_type<E>) {
-                    handle_message(enum_const, addr, json::deserialize<enums::enum_type_t<E>>(json_value["value"]));
-                } else {
-                    handle_message(enum_const, addr);
-                }
-            }, msg);
-        }
+        auto msg = binary::deserialize<client_message>(bytes);
+        enums::visit_indexed([&](auto enum_const, auto && ... args) {
+            return handle_message(enum_const, addr, std::forward<decltype(args)>(args) ...);
+        }, msg);
     } catch (const game_error &e) {
         send_message<server_message_type::game_update>(addr, enums::enum_constant<game_update_type::game_error>(), e);
-    } catch (const Json::Exception &e) {
-        std::cerr << addr.ip_string() << ": Errore Json (" << e.what() << ")\n";
+    } catch (const binary::read_error &e) {
+        std::cerr << addr.ip_string() << ": Serialization Error\n";
     } catch (const std::exception &e) {
-        std::cerr << addr.ip_string() << ": Errore (" << e.what() << ")\n";
+        std::cerr << addr.ip_string() << ": Error (" << e.what() << ")\n";
     }
 }
 
@@ -48,7 +37,7 @@ int game_manager::pending_messages() {
     return m_out_queue.size();
 }
 
-server_message game_manager::pop_message() {
+server_message_pair game_manager::pop_message() {
     auto msg = std::move(m_out_queue.front());
     m_out_queue.pop_front();
     return msg;

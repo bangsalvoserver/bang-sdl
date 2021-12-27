@@ -1,7 +1,7 @@
 #ifndef __GAME_ACTION_H__
 #define __GAME_ACTION_H__
 
-#include "common/json_serial.h"
+#include "common/reflector.h"
 #include "card_enums.h"
 
 namespace banggame {
