@@ -59,8 +59,8 @@ STATUS_DUTCH_WILL                   {0} ... Choose which card to draw
 STATUS_SHOP_CHOOSE_TARGET           Choose who to play {0} to
 STATUS_THEDALTONS                   {0} ... Discard a blue card
 STATUS_CAN_PLAY_CARD                You can play {0}
-STATUS_DAMAGING                     {0} takes 1 damage for {0}
-STATUS_DAMAGING_PLURAL              {0} takes {2} damage for {0}
+STATUS_DAMAGING                     {0} takes 1 damage for {1}
+STATUS_DAMAGING_PLURAL              {0} takes {2} damage for {1}
 STATUS_CAN_PLAY_TUMBLEWEED          {0} "draws!" {3} for {2} ... You can play {1}
 banggame::player_role::sheriff      Sheriff
 banggame::player_role::deputy       Deputy
