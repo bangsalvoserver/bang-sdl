@@ -2,6 +2,7 @@
 #define __JSON_SERIAL_H__
 
 #include "enum_variant.h"
+#include "reflector.h"
 #include "base64.h"
 
 #include <json/json.h>
@@ -11,22 +12,32 @@
 
 namespace json {
 
-    template<typename T>
-    concept serializable = requires(T obj) {
-        { obj.serialize() } -> std::convertible_to<Json::Value>;
-    };
+    template<typename T> struct serializer {};
 
     template<typename T>
-    struct serializer {
+    concept serializable = requires(T value) {
+        serializer<T>{}(value);
+    };
+
+    template<std::convertible_to<Json::Value> T>
+    struct serializer<T> {
         Json::Value operator()(const T &value) const {
             return Json::Value(value);
         }
     };
 
-    template<serializable T>
+    template<reflector::reflectable T>
     struct serializer<T> {
         Json::Value operator()(const T &value) const {
-            return value.serialize();
+            Json::Value ret;
+            [&]<size_t ... I>(std::index_sequence<I ...>) {
+                ([&]{
+                    const auto field_data = reflector::get_field_data<I>(value);
+                    const auto &field = field_data.get();
+                    ret[field_data.name()] = serializer<std::remove_cvref_t<decltype(field)>>{}(field);
+                }(), ...);
+            }(std::make_index_sequence<reflector::num_fields<T>>());
+            return ret;
         }
     };
 
@@ -44,7 +55,7 @@ namespace json {
         }
     };
 
-    template<typename T>
+    template<serializable T>
     struct serializer<std::vector<T>> {
         Json::Value operator()(const std::vector<T> &value) const {
             Json::Value ret = Json::arrayValue;
@@ -62,7 +73,7 @@ namespace json {
         }
     };
 
-    template<typename T>
+    template<serializable T>
     struct serializer<std::map<std::string, T>> {
         Json::Value operator()(const std::map<std::string, T> &value) const {
             Json::Value ret = Json::objectValue;
@@ -87,7 +98,7 @@ namespace json {
         }
     };
 
-    template<typename ... Ts>
+    template<serializable ... Ts>
     struct serializer<std::variant<Ts ...>> {
         Json::Value operator()(const std::variant<Ts ...> &value) const {
             Json::Value ret = Json::objectValue;
@@ -99,27 +110,37 @@ namespace json {
         }
     };
 
-    template<typename T>
+    template<serializable T>
     Json::Value serialize(const T &value) {
         return serializer<T>{}(value);
     }
 
-    template<typename T>
-    concept deserializable = requires(Json::Value obj) {
-        { T::deserialize(obj) } -> std::convertible_to<T>;
-    };
+    template<typename T> struct deserializer {};
 
     template<typename T>
-    struct deserializer {
+    concept deserializable = requires(Json::Value value) {
+        deserializer<T>{}(value);
+    };
+
+    template<std::convertible_to<Json::Value> T>
+    struct deserializer<T> {
         T operator()(const Json::Value &value) const {
             return value.as<T>();
         }
     };
 
-    template<deserializable T>
+    template<reflector::reflectable T> requires std::is_default_constructible_v<T>
     struct deserializer<T> {
         T operator()(const Json::Value &value) const {
-            return T::deserialize(value);
+            T ret;
+            [&]<size_t ... I>(std::index_sequence<I ...>) {
+                ([&]{
+                    auto field_data = reflector::get_field_data<I>(ret);
+                    auto &field = field_data.get();
+                    field = deserializer<std::remove_cvref_t<decltype(field)>>{}(value[field_data.name()]);
+                }(), ...);
+            }(std::make_index_sequence<reflector::num_fields<T>>());
+            return ret;
         }
     };
 
@@ -137,7 +158,7 @@ namespace json {
         }
     };
 
-    template<typename T>
+    template<deserializable T>
     struct deserializer<std::vector<T>> {
         std::vector<T> operator()(const Json::Value &value) const {
             std::vector<T> ret;
@@ -155,7 +176,7 @@ namespace json {
         }
     };
 
-    template<typename T>
+    template<deserializable T>
     struct deserializer<std::map<std::string, T>> {
         T operator()(const Json::Value &value) const {
             std::map<std::string, T> ret;
@@ -180,7 +201,7 @@ namespace json {
         }
     };
 
-    template<typename ... Ts>
+    template<deserializable ... Ts>
     struct deserializer<std::variant<Ts ...>> {
         using variant_type = std::variant<Ts ...>;
         variant_type operator()(const Json::Value &value) const {
@@ -193,38 +214,10 @@ namespace json {
         }
     };
 
-    template<typename T>
+    template<deserializable T>
     T deserialize(const Json::Value &value) {
         return deserializer<T>{}(value);
     }
 }
-
-#define DEFINE_STRUCT_FIELD(r, structName, tuple) \
-    ENUM_TUPLE_TAIL(tuple) ENUM_ELEMENT_NAME(tuple){};
-
-#define JSON_WRITE_FIELD(r, structName, tuple) \
-    ret[BOOST_PP_STRINGIZE(ENUM_ELEMENT_NAME(tuple))] = json::serialize(ENUM_ELEMENT_NAME(tuple));
-
-#define JSON_READ_FIELD(r, structName, tuple) \
-    ret.ENUM_ELEMENT_NAME(tuple) = json::deserialize<ENUM_TUPLE_TAIL(tuple)>(value[BOOST_PP_STRINGIZE(ENUM_ELEMENT_NAME(tuple))]);
-
-#define DO_DEFINE_SERIALIZABLE(structName, tupleSeq) \
-    BOOST_PP_SEQ_FOR_EACH(DEFINE_STRUCT_FIELD, structName, tupleSeq) \
-    Json::Value serialize() const { \
-        Json::Value ret = Json::objectValue; \
-        BOOST_PP_SEQ_FOR_EACH(JSON_WRITE_FIELD, structName, tupleSeq) \
-        return ret; \
-    } \
-    static structName deserialize(const Json::Value &value) { \
-        structName ret; \
-        BOOST_PP_SEQ_FOR_EACH(JSON_READ_FIELD, structName, tupleSeq) \
-        return ret; \
-    }
-
-#define SERIALIZABLE_DATA(structName, seq) \
-    DO_DEFINE_SERIALIZABLE(structName, ADD_PARENTHESES(seq))
-
-#define DEFINE_SERIALIZABLE(structName, seq) \
-    struct structName { SERIALIZABLE_DATA(structName, seq) };
 
 #endif

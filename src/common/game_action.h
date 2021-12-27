@@ -6,13 +6,14 @@
 
 namespace banggame {
 
-    DEFINE_SERIALIZABLE(target_player_id,
-        (player_id, int)
-    )
-    DEFINE_SERIALIZABLE(target_card_id,
-        (player_id, int)
-        (card_id, int)
-    )
+    struct target_player_id {REFLECTABLE(
+        (int) player_id
+    )};
+
+    struct target_card_id {REFLECTABLE(
+        (int) player_id,
+        (int) card_id
+    )};
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, play_card_target_type,
         (target_none)
@@ -22,11 +23,11 @@ namespace banggame {
 
     using play_card_target = enums::enum_variant<play_card_target_type>;
 
-    DEFINE_SERIALIZABLE(pick_card_args,
-        (pile, card_pile_type)
-        (player_id, int)
-        (card_id, int)
-    )
+    struct pick_card_args {REFLECTABLE(
+        (card_pile_type) pile,
+        (int) player_id,
+        (int) card_id
+    )};
 
     DEFINE_ENUM_FLAGS_IN_NS(banggame, play_card_flags,
         (response)
@@ -35,12 +36,12 @@ namespace banggame {
         (discard_black)
     )
 
-    DEFINE_SERIALIZABLE(play_card_args,
-        (card_id, int)
-        (modifier_ids, std::vector<int>)
-        (targets, std::vector<play_card_target>)
-        (flags, play_card_flags)
-    )
+    struct play_card_args {REFLECTABLE(
+        (int) card_id,
+        (std::vector<int>) modifier_ids,
+        (std::vector<play_card_target>) targets,
+        (play_card_flags) flags
+    )};
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, game_action_type,
         (pick_card, pick_card_args)

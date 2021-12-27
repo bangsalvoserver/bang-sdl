@@ -7,14 +7,14 @@
 
 namespace banggame {
 
-    DEFINE_SERIALIZABLE(game_over_update,
-        (winner_role, player_role)
-    )
+    struct game_over_update {REFLECTABLE(
+        (player_role) winner_role
+    )};
 
-    DEFINE_SERIALIZABLE(add_cards_update,
-        (card_ids, std::vector<int>)
-        (pile, card_pile_type)
-    )
+    struct add_cards_update {REFLECTABLE(
+        (std::vector<int>) card_ids,
+        (card_pile_type) pile
+    )};
 
     DEFINE_ENUM_FLAGS_IN_NS(banggame, show_card_flags,
         (short_pause)
@@ -22,115 +22,115 @@ namespace banggame {
         (show_everyone)
     )
 
-    DEFINE_SERIALIZABLE(move_card_update,
-        (card_id, int)
-        (player_id, int)
-        (pile, card_pile_type)
-        (flags, show_card_flags)
-    )
+    struct move_card_update {REFLECTABLE(
+        (int) card_id,
+        (int) player_id,
+        (card_pile_type) pile,
+        (show_card_flags) flags
+    )};
 
-    DEFINE_SERIALIZABLE(add_cubes_update,
-        (cubes, std::vector<int>)
-    )
+    struct add_cubes_update {REFLECTABLE(
+        (std::vector<int>) cubes
+    )};
 
-    DEFINE_SERIALIZABLE(move_cube_update,
-        (cube_id, int)
-        (card_id, int)
-    )
+    struct move_cube_update {REFLECTABLE(
+        (int) cube_id,
+        (int) card_id
+    )};
 
-    DEFINE_SERIALIZABLE(card_target_data,
-        (type, effect_type)
-        (target, target_type)
-        (args, int)
-    )
+    struct card_target_data {REFLECTABLE(
+        (effect_type) type,
+        (target_type) target,
+        (int) args
+    )};
 
-    DEFINE_SERIALIZABLE(equip_target_data,
-        (type, equip_type)
-        (target, target_type)
-        (args, int)
-    )
+    struct equip_target_data {REFLECTABLE(
+        (equip_type) type,
+        (target_type) target,
+        (int) args
+    )};
 
-    DEFINE_SERIALIZABLE(card_info,
-        (id, int)
-        (expansion, card_expansion_type)
-        (name, std::string)
-        (image, std::string)
-        (targets, std::vector<card_target_data>)
-        (response_targets, std::vector<card_target_data>)
-        (optional_targets, std::vector<card_target_data>)
-        (equip_targets, std::vector<equip_target_data>)
-        (modifier, card_modifier_type)
-    )
+    struct card_info {REFLECTABLE(
+        (int) id,
+        (card_expansion_type) expansion,
+        (std::string) name,
+        (std::string) image,
+        (std::vector<card_target_data>) targets,
+        (std::vector<card_target_data>) response_targets,
+        (std::vector<card_target_data>) optional_targets,
+        (std::vector<equip_target_data>) equip_targets,
+        (card_modifier_type) modifier
+    )};
 
-    DEFINE_SERIALIZABLE(show_card_update,
-        (info, card_info)
-        (suit, card_suit_type)
-        (value, card_value_type)
-        (color, card_color_type)
-        (flags, show_card_flags)
-    )
+    struct show_card_update {REFLECTABLE(
+        (card_info) info,
+        (card_suit_type) suit,
+        (card_value_type) value,
+        (card_color_type) color,
+        (show_card_flags) flags
+    )};
 
-    DEFINE_SERIALIZABLE(player_character_update,
-        (info, card_info)
-        (max_hp, int)
-        (player_id, int)
-        (index, int)
-    )
+    struct player_character_update {REFLECTABLE(
+        (card_info) info,
+        (int) max_hp,
+        (int) player_id,
+        (int) index
+    )};
 
-    DEFINE_SERIALIZABLE(player_remove_character_update,
-        (player_id, int)
-        (index, int)
-    )
+    struct player_remove_character_update {REFLECTABLE(
+        (int) player_id,
+        (int) index
+    )};
 
-    DEFINE_SERIALIZABLE(hide_card_update,
-        (card_id, int)
-        (flags, show_card_flags)
-        (ignore_player_id, int)
-    )
+    struct hide_card_update {REFLECTABLE(
+        (int) card_id,
+        (show_card_flags) flags,
+        (int) ignore_player_id
+    )};
 
-    DEFINE_SERIALIZABLE(tap_card_update,
-        (card_id, int)
-        (inactive, bool)
-        (instant, bool)
-    )
+    struct tap_card_update {REFLECTABLE(
+        (int) card_id,
+        (bool) inactive,
+        (bool) instant
+    )};
 
-    DEFINE_SERIALIZABLE(last_played_card_id,
-        (card_id, int)
-    )
+    struct last_played_card_id {REFLECTABLE(
+        (int) card_id
+    )};
 
-    DEFINE_SERIALIZABLE(player_user_update,
-        (player_id, int)
-        (user_id, int)
-    )
+    struct player_user_update {REFLECTABLE(
+        (int) player_id,
+        (int) user_id
+    )};
 
-    DEFINE_SERIALIZABLE(player_hp_update,
-        (player_id, int)
-        (hp, int)
-        (dead, bool)
-        (instant, bool)
-    )
+    struct player_hp_update {REFLECTABLE(
+        (int) player_id,
+        (int) hp,
+        (bool) dead,
+        (bool) instant
+    )};
 
-    DEFINE_SERIALIZABLE(player_gold_update,
-        (player_id, int)
-        (gold, int)
-    )
+    struct player_gold_update {REFLECTABLE(
+        (int) player_id,
+        (int) gold
+    )};
 
-    DEFINE_SERIALIZABLE(player_show_role_update,
-        (player_id, int)
-        (role, player_role)
-        (instant, bool)
-    )
+    struct player_show_role_update {REFLECTABLE(
+        (int) player_id,
+        (player_role) role,
+        (bool) instant
+    )};
 
-    DEFINE_SERIALIZABLE(switch_turn_update,
-        (player_id, int)
-    )
+    struct switch_turn_update {REFLECTABLE(
+        (int) player_id
+    )};
 
-    DEFINE_SERIALIZABLE(request_view,
-        (type, request_type)
-        (target_id, int)
-        (flags, effect_flags)
-        (status_text, game_formatted_string)
-    )
+    struct request_view {REFLECTABLE(
+        (request_type) type,
+        (int) target_id,
+        (effect_flags) flags,
+        (game_formatted_string) status_text
+    )};
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, game_update_type,
         (game_over, game_over_update)

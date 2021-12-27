@@ -5,22 +5,22 @@
 
 namespace banggame {
 
-    DEFINE_SERIALIZABLE(card_format_id,
-        (player_id, int)
-        (card_id, int)
-    )
+    struct card_format_id {REFLECTABLE(
+        (int) player_id,
+        (int) card_id
+    )};
 
-    DEFINE_SERIALIZABLE(player_format_id,
-        (player_id, int)
-    )
+    struct player_format_id {REFLECTABLE(
+        (int) player_id
+    )};
 
     using game_format_arg = std::variant<int, std::string, card_format_id, player_format_id>;
     
     struct game_formatted_string {
-        SERIALIZABLE_DATA(game_formatted_string,
-            (localized, bool)
-            (format_str, std::string)
-            (format_args, std::vector<game_format_arg>)
+        REFLECTABLE(
+            (bool) localized,
+            (std::string) format_str,
+            (std::vector<game_format_arg>) format_args
         )
 
         game_formatted_string() = default;
