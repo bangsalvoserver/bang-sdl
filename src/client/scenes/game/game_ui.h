@@ -40,7 +40,7 @@ namespace banggame {
         sdl::stattext m_status_text;
 
         sdl::stattext m_error_text;
-        int m_error_timeout;
+        int m_error_timeout = 0;
 
         sdl::button m_pass_btn;
         sdl::button m_resolve_btn;

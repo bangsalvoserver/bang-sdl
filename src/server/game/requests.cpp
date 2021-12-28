@@ -202,7 +202,7 @@ namespace banggame {
     }
 
     game_formatted_string request_destroy::status_text() const {
-        return {"STATUS_DESTROY", origin_card, target_card};
+        return {"STATUS_DESTROY", origin_card, with_owner{target_card}};
     }
 
     game_formatted_string request_ricochet::status_text() const {
@@ -215,7 +215,7 @@ namespace banggame {
     }
 
     game_formatted_string request_steal::status_text() const {
-        return {"STATUS_STEAL", origin_card, target_card};
+        return {"STATUS_STEAL", origin_card, with_owner{target_card}};
     }
 
     void request_bandidos::on_pick(card_pile_type pile, player *target_player, card *target_card) {

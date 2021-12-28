@@ -38,12 +38,11 @@ namespace sizes {
     constexpr int request_target_indicator_border = 9;
 
     constexpr int player_ellipse_x_distance = 200;
-    constexpr int player_ellipse_y_distance = 170;
+    constexpr int player_ellipse_y_distance = 180;
 
     constexpr int propic_size = 50;
 
-    constexpr int status_text_y_distance = 280;
-    constexpr int error_msg_y_distance = 260;
+    constexpr int status_text_y_distance = 50;
 }
 
 #endif

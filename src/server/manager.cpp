@@ -300,16 +300,18 @@ void game_manager::handle_message(MESSAGE_TAG(game_action), const sdlnet::ip_add
 void lobby::send_updates(game_manager &mgr) {
     while (!game.m_updates.empty()) {
         const auto &data = game.m_updates.front();
-        if (data.second.is(game_update_type::game_over)) {
-            state = lobby_state::finished;
-        }
         if (data.first) {
             const auto &addr = std::ranges::find(users, data.first, &lobby_user::controlling)->user->addr;
             mgr.send_message<server_message_type::game_update>(addr, data.second);
         } else {
             mgr.broadcast_message<server_message_type::game_update>(*this, data.second);
         }
-        game.m_updates.pop_front();
+        if (data.second.is(game_update_type::game_over)) {
+            state = lobby_state::finished;
+            game.m_updates.clear();
+        } else {
+            game.m_updates.pop_front();
+        }
     }
 }
 

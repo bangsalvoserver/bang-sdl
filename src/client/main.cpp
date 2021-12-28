@@ -25,6 +25,7 @@ int main(int argc, char **argv) {
     SDL_SetWindowIcon(window.get(), window_icon.get());
 
     sdl::renderer renderer(window, -1, SDL_RENDERER_ACCELERATED);
+    SDL_SetRenderDrawBlendMode(renderer.get(), SDL_BLENDMODE_BLEND);
 
     game_manager mgr(std::string(SDL_GetPrefPath(nullptr, "bang-sdl")) + "config.json");
     mgr.resize(window_width, window_height);

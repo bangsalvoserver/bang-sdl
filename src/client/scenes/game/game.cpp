@@ -356,7 +356,7 @@ void game_scene::show_error(const std::string &message) {
 }
 
 void game_scene::handle_game_update(UPDATE_TAG(game_over), const game_over_update &args) {
-    m_ui.add_message(_("STATUS_GAME_OVER", _(args.winner_role)));
+    m_ui.set_status(_("STATUS_GAME_OVER", _(args.winner_role)));
     
     if (parent->get_user_own_id() == parent->get_lobby_owner_id()) {
         m_ui.enable_restart(true);

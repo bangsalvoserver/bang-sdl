@@ -51,19 +51,23 @@ void game_ui::render(sdl::renderer &renderer) {
     m_leave_btn.render(renderer);
     m_restart_btn.render(renderer);
 
-    sdl::rect status_rect = m_status_text.get_rect();
-    status_rect.x = (parent->parent->width() - status_rect.w) / 2;
-    status_rect.y = (parent->parent->height() - status_rect.h) - sizes::status_text_y_distance;
-    m_status_text.set_rect(status_rect);
-    m_status_text.render(renderer);
+    auto draw_status = [&](sdl::stattext &text) {
+        if (text.get_value().empty()) return;
+
+        sdl::rect rect = text.get_rect();
+        rect.x = (parent->parent->width() - rect.w) / 2;
+        rect.y = (parent->parent->height() - rect.h) - sizes::status_text_y_distance;
+        renderer.set_draw_color(sdl::color{0xff, 0xff, 0xff, 0x80});
+        renderer.fill_rect(sdl::rect{rect.x - 5, rect.y - 2, rect.w + 10, rect.h + 4});
+        text.set_rect(rect);
+        text.render(renderer);
+    };
 
     if (m_error_timeout > 0) {
-        sdl::rect error_rect = m_error_text.get_rect();
-        error_rect.x = (parent->parent->width() - error_rect.w) / 2;
-        error_rect.y = (parent->parent->height() - error_rect.h) - sizes::error_msg_y_distance;
-        m_error_text.set_rect(error_rect);
-        m_error_text.render(renderer);
+        draw_status(m_error_text);
         --m_error_timeout;
+    } else {
+        draw_status(m_status_text);
     }
 }
 
