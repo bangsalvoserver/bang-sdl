@@ -176,14 +176,12 @@ namespace banggame {
     }
 
     void effect_johnny_kisch::on_equip(player *p, card *target_card) {
-        p->m_game->add_event<event_type::on_equip>(target_card, [p](player *origin, player *target, card *equipped_card) {
+        p->m_game->add_event<event_type::on_equip>(target_card, [=](player *origin, player *target, card *equipped_card) {
             if (p == origin) {
-                const auto &name = equipped_card->name;
                 for (auto &other : p->m_game->m_players) {
-                    if (other.id == target->id) continue;
-                    auto it = std::ranges::find(other.m_table, name, &card::name);
-                    if (it != other.m_table.end()) {
-                        other.discard_card(*it);
+                    if (&other == target) continue;
+                    if (card *card = other.find_equipped_card(equipped_card)) {
+                        other.discard_card(card);
                     }
                 }
             }
