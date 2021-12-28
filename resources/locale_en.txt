@@ -27,6 +27,7 @@ STATUS_CARD_FROM_HAND               card from hand
 STATUS_UNKNOWN_CARD                 (unknown card)
 STATUS_UNKNOWN_PLAYER               (unknown player)
 STATUS_PREDRAW                      "Draw!" a card before drawing
+STATUS_PREDRAW_FOR                  "Draw!" for {}
 STATUS_CHECK                        Choose which card to "draw!" for {0}
 STATUS_GENERALSTORE                 Draw a card from the general store
 STATUS_DISCARD                      Discard a card for {0}

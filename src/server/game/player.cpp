@@ -842,20 +842,6 @@ namespace banggame {
         });
     }
 
-    player::predraw_check *player::get_if_top_predraw_check(card *target_card) {
-        int top_priority = std::ranges::max(m_predraw_checks
-            | std::views::values
-            | std::views::filter(std::not_fn(&predraw_check::resolved))
-            | std::views::transform(&predraw_check::priority));
-        auto it = m_predraw_checks.find(target_card);
-        if (it != m_predraw_checks.end()
-            && !it->second.resolved
-            && it->second.priority == top_priority) {
-            return &it->second;
-        }
-        return nullptr;
-    }
-
     void player::next_predraw_check(card *target_card) {
         m_game->queue_event<event_type::delayed_action>([this, target_card]{
             if (auto it = m_predraw_checks.find(target_card); it != m_predraw_checks.end()) {

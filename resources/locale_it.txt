@@ -27,6 +27,7 @@ STATUS_CARD_FROM_HAND               carta dalla mano
 STATUS_UNKNOWN_CARD                 (carta sconosciuta)
 STATUS_UNKNOWN_PLAYER               (giocatore sconosciuto)
 STATUS_PREDRAW                      Estrai prima di pescare
+STATUS_PREDRAW_FOR                  Estrai per {}
 STATUS_CHECK                        Scegli quale carta estrarre per {0}
 STATUS_GENERALSTORE                 Pesca una carta dall'emporio
 STATUS_DISCARD                      Scarta una carta per {0}

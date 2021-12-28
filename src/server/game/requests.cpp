@@ -8,15 +8,38 @@
 namespace banggame {
     void request_predraw::on_pick(card_pile_type pile, player *target_player, card *target_card) {
         if (target_player == target) {
-            if (auto *check = target->get_if_top_predraw_check(target_card)) {
+            int top_priority = std::ranges::max(target->m_predraw_checks
+                | std::views::values
+                | std::views::filter(std::not_fn(&player::predraw_check::resolved))
+                | std::views::transform(&player::predraw_check::priority));
+            auto it = target->m_predraw_checks.find(target_card);
+            if (it != target->m_predraw_checks.end()
+                && !it->second.resolved
+                && it->second.priority == top_priority) {
                 target->m_game->pop_request();
-                target->m_game->draw_check_then(target, target_card, check->check_fun);
+                target->m_game->draw_check_then(target, target_card, it->second.check_fun);
             }
         }
     }
 
     game_formatted_string request_predraw::status_text() const {
-        return "STATUS_PREDRAW";
+        using predraw_check_pair = decltype(player::m_predraw_checks)::value_type;
+        auto unresolved = target->m_predraw_checks
+            | std::views::filter([](const predraw_check_pair &pair) {
+                return !pair.second.resolved;
+            });
+        auto top_priority = unresolved
+            | std::views::filter([value = std::ranges::max(unresolved
+                | std::views::values
+                | std::views::transform(&player::predraw_check::priority))]
+            (const predraw_check_pair &pair) {
+                return pair.second.priority == value;
+            });
+        if (std::ranges::distance(top_priority) == 1) {
+            return {"STATUS_PREDRAW_FOR", top_priority.begin()->first};
+        } else {
+            return "STATUS_PREDRAW";
+        }
     }
 
     void request_check::on_pick(card_pile_type pile, player *target_player, card *target_card) {

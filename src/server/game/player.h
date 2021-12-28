@@ -148,8 +148,6 @@ namespace banggame {
             m_predraw_checks.erase(target_card);
         }
 
-        predraw_check *get_if_top_predraw_check(card *target_card);
-
         void next_predraw_check(card *target_card);
 
         void set_character_and_role(character *c, player_role role);
