@@ -52,8 +52,9 @@ namespace banggame {
 
     void game::send_request_update() {
         const auto &req = top_request();
-        add_public_update<game_update_type::request_handle>(
+        add_public_update<game_update_type::request_status>(
             req.enum_index(),
+            req.origin() ? req.origin()->id : 0,
             req.target() ? req.target()->id : 0,
             req.flags(),
             req.status_text());
@@ -197,8 +198,9 @@ namespace banggame {
         ret.emplace_back(enums::enum_constant<game_update_type::switch_turn>{}, m_playing->id);
         if (!m_requests.empty()) {
             auto &req = top_request();
-            ret.emplace_back(enums::enum_constant<game_update_type::request_handle>{},
+            ret.emplace_back(enums::enum_constant<game_update_type::request_status>{},
                 req.enum_index(),
+                req.origin() ? req.origin()->id : 0,
                 req.target() ? req.target()->id : 0,
                 req.flags(),
                 req.status_text());

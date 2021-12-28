@@ -16,6 +16,8 @@ namespace binary {
 
     using byte_vector = std::vector<std::byte>;
 
+    constexpr size_t default_packet_size = 1024;
+
     template<typename T>
     concept serializable = requires(T value, byte_vector &out) {
         serializer<T>{}(value, out);
@@ -128,6 +130,7 @@ namespace binary {
     template<serializable T>
     byte_vector serialize(const T &value) {
         byte_vector ret;
+        ret.reserve(default_packet_size);
         serializer<T>{}(value, ret);
         return ret;
     }

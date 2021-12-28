@@ -7,10 +7,9 @@
 #include <json/json.h>
 
 #include "common/utils.h"
-
 #include "common/options.h"
-
 #include "common/net_enums.h"
+#include "common/binary_serial.h"
 
 #include "game/game.h"
 
@@ -46,12 +45,12 @@ struct lobby : util::id_counter<lobby> {
 
 struct server_message_pair {
     sdlnet::ip_address addr;
-    server_message value;
+    std::vector<std::byte> value;
 };
 
 template<server_message_type E, typename ... Ts>
-server_message make_message(Ts && ... args) {
-    return {enums::enum_constant<E>{}, std::forward<Ts>(args) ...};
+std::vector<std::byte> make_message(Ts && ... args) {
+    return binary::serialize(server_message{enums::enum_constant<E>{}, std::forward<Ts>(args) ...});
 }
 
 #define MESSAGE_TAG(name) enums::enum_constant<client_message_type::name>

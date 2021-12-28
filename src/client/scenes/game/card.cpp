@@ -264,7 +264,11 @@ namespace banggame {
         draw_border(renderer, m_bounding_rect, sizes::turn_indicator_border, sdl::color{0xff, 0x0, 0x0, 0xff});
     }
 
-    void player_view::render_request_indicator(sdl::renderer &renderer) {
-        draw_border(renderer, m_bounding_rect, sizes::request_indicator_border, sdl::color{0x0, 0x0, 0xff, 0xff});
+    void player_view::render_request_origin_indicator(sdl::renderer &renderer) {
+        draw_border(renderer, m_bounding_rect, sizes::request_origin_indicator_border, sdl::color{0xff, 0x80, 0x0, 0xff});
+    }
+
+    void player_view::render_request_target_indicator(sdl::renderer &renderer) {
+        draw_border(renderer, m_bounding_rect, sizes::request_target_indicator_border, sdl::color{0x0, 0x0, 0xff, 0xff});
     }
 }

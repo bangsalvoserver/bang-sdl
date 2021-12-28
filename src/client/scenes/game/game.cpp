@@ -121,8 +121,11 @@ void game_scene::render(sdl::renderer &renderer) {
         if (player_id == m_playing_id) {
             p.render_turn_indicator(renderer);
         }
+        if (m_current_request && m_current_request->origin_id == player_id) {
+            p.render_request_origin_indicator(renderer);
+        }
         if (m_current_request && m_current_request->target_id == player_id) {
-            p.render_request_indicator(renderer);
+            p.render_request_target_indicator(renderer);
         }
 
         p.render(renderer);
@@ -750,10 +753,8 @@ void game_scene::handle_game_update(UPDATE_TAG(switch_turn), const switch_turn_u
     pop_update();
 }
 
-void game_scene::handle_game_update(UPDATE_TAG(request_handle), const request_view &args) {
+void game_scene::handle_game_update(UPDATE_TAG(request_status), const request_status_args &args) {
     m_current_request = args;
-
-    using namespace enums::stream_operators;
 
     if (!args.target_id || args.target_id == m_player_own_id) {
         m_ui.set_status(evaluate_format_string(args.status_text));

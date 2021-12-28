@@ -33,16 +33,17 @@ namespace sizes {
 
     constexpr int scenario_deck_xoff = 40;
 
-    constexpr int turn_indicator_border = 5;
-    constexpr int request_indicator_border = 10;
+    constexpr int turn_indicator_border = 3;
+    constexpr int request_origin_indicator_border = 6;
+    constexpr int request_target_indicator_border = 9;
 
     constexpr int player_ellipse_x_distance = 200;
-    constexpr int player_ellipse_y_distance = 180;
+    constexpr int player_ellipse_y_distance = 170;
 
     constexpr int propic_size = 50;
 
-    constexpr int status_text_y_distance = 300;
-    constexpr int error_msg_y_distance = 275;
+    constexpr int status_text_y_distance = 280;
+    constexpr int error_msg_y_distance = 260;
 }
 
 #endif

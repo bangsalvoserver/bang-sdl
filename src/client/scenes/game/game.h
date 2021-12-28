@@ -60,7 +60,7 @@ namespace banggame {
         void handle_game_update(UPDATE_TAG(player_remove_character), const player_remove_character_update &args);
         void handle_game_update(UPDATE_TAG(player_show_role), const player_show_role_update &args);
         void handle_game_update(UPDATE_TAG(switch_turn),      const switch_turn_update &args);
-        void handle_game_update(UPDATE_TAG(request_handle),   const request_view &args);
+        void handle_game_update(UPDATE_TAG(request_status),   const request_status_args &args);
         void handle_game_update(UPDATE_TAG(status_clear));
         
         void pop_update();
@@ -102,7 +102,7 @@ namespace banggame {
         
         std::default_random_engine rng;
 
-        std::optional<request_view> m_current_request;
+        std::optional<request_status_args> m_current_request;
         card_widget *m_last_played_card = nullptr;
 
         card_view *find_card(int id) {

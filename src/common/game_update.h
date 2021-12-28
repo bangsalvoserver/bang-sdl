@@ -125,8 +125,9 @@ namespace banggame {
         (int) player_id
     )};
 
-    struct request_view {REFLECTABLE(
+    struct request_status_args {REFLECTABLE(
         (request_type) type,
+        (int) origin_id,
         (int) target_id,
         (effect_flags) flags,
         (game_formatted_string) status_text
@@ -152,7 +153,7 @@ namespace banggame {
         (player_remove_character, player_remove_character_update)
         (player_show_role, player_show_role_update)
         (switch_turn, switch_turn_update)
-        (request_handle, request_view)
+        (request_status, request_status_args)
         (status_clear)
     )
 

@@ -38,6 +38,4 @@ public:
     }
 };
 
-static_assert(reflector::reflectable<config>);
-
 #endif

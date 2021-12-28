@@ -194,7 +194,8 @@ namespace banggame {
 
         void render(sdl::renderer &renderer);
         void render_turn_indicator(sdl::renderer &renderer);
-        void render_request_indicator(sdl::renderer &renderer);
+        void render_request_origin_indicator(sdl::renderer &renderer);
+        void render_request_target_indicator(sdl::renderer &renderer);
     };
 }
 

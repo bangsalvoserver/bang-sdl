@@ -51,10 +51,8 @@ int main(int argc, char **argv) {
             auto it = clients.find(msg.addr);
             if (it != clients.end()) {
                 try {
-                    auto message_bytes = binary::serialize(msg.value);
-
-                    send_message_header(it->second, message_header{(uint32_t)message_bytes.size()});
-                    send_message_bytes(it->second, message_bytes);
+                    send_message_header(it->second, message_header{(uint32_t)msg.value.size()});
+                    send_message_bytes(it->second, msg.value);
                 } catch (sdlnet::socket_disconnected) {
                     mgr.client_disconnected(it->first);
                     std::cout << it->first.ip_string() << " Disconnected\n";
