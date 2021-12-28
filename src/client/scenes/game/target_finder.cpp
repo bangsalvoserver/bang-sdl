@@ -507,23 +507,20 @@ void target_finder::add_character_target(target_pair target) {
     if (!bool(type & target_type::cube_slot)) return;
     if (bool(type & target_type::table)) return;
 
-    character_card *card = nullptr;
-    for (auto &p : m_game->m_players | std::views::values) {
-        if (&p.m_characters.front() == target.card) {
-            card = &p.m_characters.front();
-            break;
-        }
+    if (std::ranges::find(target.player->m_characters, target.card, [](const character_card &c) { return &c; }) != target.player->m_characters.end()) {
+        target.card = &target.player->m_characters.front();
+    } else {
+        return;
     }
-    if (!card) return;
 
     if(bool(type & target_type::card)) {
         m_targets.emplace_back(std::vector{target});
         handle_auto_targets();
     } else {
-        int ncubes = std::ranges::count(m_selected_cubes, card, &cube_widget::owner);
-        if (ncubes < card->cubes.size()) {
+        int ncubes = std::ranges::count(m_selected_cubes, target.card, &cube_widget::owner);
+        if (ncubes < target.card->cubes.size()) {
             m_targets.emplace_back(std::vector{target});
-            m_selected_cubes.push_back(*(card->cubes.rbegin() + ncubes));
+            m_selected_cubes.push_back(*(target.card->cubes.rbegin() + ncubes));
             handle_auto_targets();
         }
     }

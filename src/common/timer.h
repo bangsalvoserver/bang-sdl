@@ -53,7 +53,6 @@ namespace banggame {
         card *drawn_card;
 
         void on_finished();
-        void on_resolve() { on_finished(); }
         game_formatted_string status_text() const;
     };
 

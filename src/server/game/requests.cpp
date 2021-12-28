@@ -271,15 +271,14 @@ namespace banggame {
     }
 
     void request_add_cube::on_pick(card_pile_type pile, player *target_player, card *target_card) {
-        if (target_player == target
-            && ((pile == card_pile_type::player_table && target_card->color == card_color_type::orange)
-            || (pile == card_pile_type::player_character && target_card == target->m_characters.front()))
-            && target_card->cubes.size() < 4)
-        {
-            target->add_cubes(target_card, 1);
-            if (--target->m_game->top_request().get<request_type::add_cube>().ncubes == 0 || !target->can_receive_cubes()) {
-                target->m_game->pop_request();
-            }
+        if (target_player != target) return;
+        if (pile == card_pile_type::player_character) target_card = target->m_characters.front();
+        else if (pile == card_pile_type::player_table && target_card->color != card_color_type::orange) return;
+        if (target_card->cubes.size() >= 4) return;
+        
+        target->add_cubes(target_card, 1);
+        if (--target->m_game->top_request().get<request_type::add_cube>().ncubes == 0 || !target->can_receive_cubes()) {
+            target->m_game->pop_request();
         }
     }
 

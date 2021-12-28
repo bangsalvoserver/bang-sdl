@@ -98,6 +98,23 @@ ERROR_TABLE_CARDS_ARE_DISABLED      Table cards are disabled
 ERROR_CARD_INACTIVE                 Card inactive in this turn
 ERROR_CANT_EQUIP_CARDS              You can't equip cards
 ERROR_DUPLICATED_CARD               Duplicated card
+ERROR_TARGET_NOT_PLAYER             Target is not a player
+ERROR_TARGET_NOT_DEAD               Target is not dead
+ERROR_TARGET_SHERIFF                You can't play this card on the sheriff
+ERROR_TARGET_NOT_SELF               You can only play this card on yourself
+ERROR_TARGET_SELF                   You can't play this card on youtself
+ERROR_TARGET_NOT_IN_RANGE           Target out of range
+ERROR_TARGET_NOT_NEW                Target repeated
+ERROR_TARGET_NOT_CARD               Target is not a card
+ERROR_TARGET_BLACK_CARD             You can't target black cards
+ERROR_TARGET_NOT_TABLE_CARD         You can only play this card on table cards
+ERROR_TARGET_NOT_HAND_CARD          You can only play this card on hand cards
+ERROR_TARGET_NOT_BLUE_CARD          You can only play this card on blue cards
+ERROR_TARGET_NOT_CLUBS              You can only play this card on clubs cards
+ERROR_TARGET_NOT_BANG               You can only play this card on Bang! cards
+ERROR_TARGET_NOT_MISSED             You can only play this card on Mancato! cards
+ERROR_TARGET_NOT_BANG_OR_MISSED     You can only play this card on Bang! or Mancato! cards
+ERROR_TARGET_NOT_CUBE_SLOT          You can't put cubes on this card
 LOG_GAME_START                      Game started
 LOG_TURN_START                      It's {0}'s turn
 LOG_SOLD_BEER                       {0} sells {1}
