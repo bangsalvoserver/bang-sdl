@@ -186,7 +186,7 @@ namespace banggame {
     };
 
     struct effect_frankie_canton : card_effect {
-        bool can_play(card *origin_card, player *origin, player *target, card *target_card) const;
+        void verify(card *origin_card, player *origin, player *target, card *target_card) const;
         void on_play(card *origin_card, player *origin, player *target, card *target_card);
     };
 
@@ -197,7 +197,7 @@ namespace banggame {
     struct effect_red_ringo : event_based_effect {
         void on_equip(player *target, card *target_card);
 
-        bool can_play(card *origin_card, player *origin, player *target, card *target_card) const;
+        void verify(card *origin_card, player *origin, player *target, card *target_card) const;
         void on_play(card *origin_card, player *origin, player *target, card *target_card);
     };
 

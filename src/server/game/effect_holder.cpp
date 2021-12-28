@@ -13,30 +13,27 @@ namespace banggame {
         }, holder.type);
     }
 
-    bool effect_holder::can_play(card *origin_card, player *origin) const {
-        return visit_effect([=](const auto &value) {
-            if constexpr (requires { value.can_play(origin_card, origin); }) {
-                return value.can_play(origin_card, origin);
+    void effect_holder::verify(card *origin_card, player *origin) const {
+        visit_effect([=](const auto &value) {
+            if constexpr (requires { value.verify(origin_card, origin); }) {
+                value.verify(origin_card, origin);
             }
-            return true;
         }, *this);
     }
 
-    bool effect_holder::can_play(card *origin_card, player *origin, player *target) const {
-        return visit_effect([=](const auto &value) {
-            if constexpr (requires { value.can_play(origin_card, origin, target); }) {
-                return value.can_play(origin_card, origin, target);
+    void effect_holder::verify(card *origin_card, player *origin, player *target) const {
+        visit_effect([=](const auto &value) {
+            if constexpr (requires { value.verify(origin_card, origin, target); }) {
+                value.verify(origin_card, origin, target);
             }
-            return true;
         }, *this);
     }
 
-    bool effect_holder::can_play(card *origin_card, player *origin, player *target, card *target_card) const {
-        return visit_effect([=](const auto &value) {
-            if constexpr (requires { value.can_play(origin_card, origin, target, target_card); }) {
-                return value.can_play(origin_card, origin, target, target_card);
+    void effect_holder::verify(card *origin_card, player *origin, player *target, card *target_card) const {
+        visit_effect([=](const auto &value) {
+            if constexpr (requires { value.verify(origin_card, origin, target, target_card); }) {
+                value.verify(origin_card, origin, target, target_card);
             }
-            return true;
         }, *this);
     }
 

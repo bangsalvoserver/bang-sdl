@@ -54,7 +54,7 @@ namespace banggame {
                 auto *p = target;
                 do {
                     p = p->m_game->get_next_player(p);
-                } while (p->has_card_equipped(target_card->name) && p != target);
+                } while (p->find_equipped_card(target_card) && p != target);
 
                 if (p != target) {
                     target_card->on_unequip(target);

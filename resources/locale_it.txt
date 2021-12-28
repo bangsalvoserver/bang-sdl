@@ -89,6 +89,8 @@ ERROR_WRONG_DECLARED_SUIT           Seme dichiarato diverso
 ERROR_INVALID_ACTION                Azione non valida
 ERROR_NOT_ENOUGH_GOLD               Non hai abbastanza pepite
 ERROR_NOT_ENOUGH_CUBES              Non ci sono abbastanza cubetti
+ERROR_NOT_ENOUGH_CUBES_ON           Non ci sono abbastanza cubetti su {}
+ERROR_CARD_HAS_FULL_CUBES           {} ha già 4 cubetti
 ERROR_INVALID_TARGETS               Target non validi
 ERROR_PLAYER_MUST_DRAW              Devi pescare
 ERROR_PLAYER_MUST_NOT_DRAW          Non devi pescare adesso
@@ -97,7 +99,7 @@ ERROR_CHARACTERS_ARE_DISABLED       I personaggi sono disabilitati
 ERROR_TABLE_CARDS_ARE_DISABLED      Le carte in gioco sono disabilitate
 ERROR_CARD_INACTIVE                 Carta non attiva in questo turno
 ERROR_CANT_EQUIP_CARDS              Non si possono equipaggiare carte
-ERROR_DUPLICATED_CARD               Carta duplicata
+ERROR_DUPLICATED_CARD               Carta duplicata: {}
 ERROR_TARGET_NOT_PLAYER             Il target non è un giocatore
 ERROR_TARGET_NOT_DEAD               Il target non è morto
 ERROR_TARGET_SHERIFF                Non puoi giocare questa carta sullo sceriffo
@@ -115,6 +117,12 @@ ERROR_TARGET_NOT_BANG               Puoi giocare questa carta solo sulle carte B
 ERROR_TARGET_NOT_MISSED             Puoi giocare questa carta solo sulle carte Mancato!
 ERROR_TARGET_NOT_BANG_OR_MISSED     Puoi giocare questa carta solo sulle carte Bang! o Mancato!
 ERROR_TARGET_NOT_CUBE_SLOT          Questa carta non può contenere cubetti
+ERROR_SCENARIO_AT_PLAY              {} è in gioco
+ERROR_CANT_PLAY_CARD                Non puoi giocare {}
+ERROR_ONE_BANG_PER_TURN             Puoi giocare un solo Bang per turno
+ERROR_CANT_SELF_DAMAGE              Non puoi toglierti l'ultimo punto vita
+ERROR_NOT_START_OF_TURN             Non sei a inizio turno
+ERROR_DISCARD_PILE_EMPTY            La pila degli scarti è vuota
 LOG_GAME_START                      La partita è iniziata
 LOG_TURN_START                      È il turno di {0}
 LOG_SOLD_BEER                       {0} vende {1}

@@ -37,8 +37,13 @@ namespace banggame {
             || (m_game->m_playing == this && m_game->has_scenario(scenario_flags::ghosttown));
     }
 
-    bool player::has_card_equipped(const std::string &name) const {
-        return std::ranges::find(m_table, name, &card::name) != m_table.end();
+    card *player::find_equipped_card(card *card) {
+        auto it = std::ranges::find(m_table, card->name, &card::name);
+        if (it != m_table.end()) {
+            return *it;
+        } else {
+            return nullptr;
+        }
     }
 
     card *player::random_hand_card() {
@@ -221,9 +226,7 @@ namespace banggame {
                 throw game_error("ERROR_INVALID_ACTION");
             }
             for (const auto &e : mod_card->effects) {
-                if (!e.can_play(mod_card, this)) {
-                    throw game_error("ERROR_INVALID_ACTION");
-                }
+                e.verify(mod_card, this);
             }
         }
     }
@@ -270,7 +273,7 @@ namespace banggame {
 
         auto &effects = is_response ? card_ptr->responses : card_ptr->effects;
         if (card_ptr->cost > m_gold) throw game_error("ERROR_NOT_ENOUGH_GOLD");
-        if (card_ptr->max_usages != 0 && card_ptr->usages >= card_ptr->max_usages) throw game_error("ERROR_INVALID_ACTION");
+        if (card_ptr->max_usages != 0 && card_ptr->usages >= card_ptr->max_usages) throw game_error("ERROR_MAX_USAGES", card_ptr, card_ptr->max_usages);
 
         int diff = targets.size() - effects.size();
         if (!card_ptr->optionals.empty() && card_ptr->optionals.back().is(effect_type::repeatable)) {
@@ -286,7 +289,7 @@ namespace banggame {
             }
             enums::visit_indexed(util::overloaded{
                 [&](enums::enum_constant<play_card_target_type::target_none>) {
-                    if (!e.can_play(card_ptr, this)) throw game_error("ERROR_INVALID_ACTION");
+                    e.verify(card_ptr, this);
                     if (e.target != enums::flags_none<target_type>) throw game_error("ERROR_INVALID_ACTION");
                 },
                 [&](enums::enum_constant<play_card_target_type::target_player>, const std::vector<target_player_id> &args) {
@@ -297,13 +300,13 @@ namespace banggame {
                             for (auto *p = this;;) {
                                 p = m_game->get_next_player(p);
                                 if (p == this) break;
-                                if (!e.can_play(card_ptr, this, p)) throw game_error("ERROR_INVALID_ACTION");
+                                e.verify(card_ptr, this, p);
                                 ids.emplace_back(p->id);
                             }
                         } else {
                             for (auto *p = this;;) {
                                 ids.emplace_back(p->id);
-                                if (!e.can_play(card_ptr, this, p)) throw game_error("ERROR_INVALID_ACTION");
+                                e.verify(card_ptr, this, p);
                                 p = m_game->get_next_player(p);
                                 if (p == this) break;
                             }
@@ -313,7 +316,7 @@ namespace banggame {
                         throw game_error("ERROR_INVALID_TARGETS");
                     } else {
                         player *target = m_game->get_player(args.front().player_id);
-                        if (!e.can_play(card_ptr, this, target)) throw game_error("ERROR_INVALID_ACTION");
+                        e.verify(card_ptr, this, target);
                         std::ranges::for_each(util::enum_flag_values(e.target), [&](target_type value) {
                             switch (value) {
                             case target_type::player: if (!target->alive()) throw game_error("ERROR_TARGET_NOT_PLAYER"); break;
@@ -349,13 +352,13 @@ namespace banggame {
                             if (arg.player_id == id) return false;
                             auto *target = m_game->get_player(arg.player_id);
                             auto *card = m_game->find_card(arg.card_id);
-                            if (!e.can_play(card_ptr, this, target, card)) return false;
+                            e.verify(card_ptr, this, target, card);
                             return card->owner == target;
                         })) throw game_error("ERROR_INVALID_ACTION");
                     } else {
                         player *target = m_game->get_player(args.front().player_id);
                         card *target_card = m_game->find_card(args.front().card_id);
-                        if (!e.can_play(card_ptr, this, target, target_card)) throw game_error("ERROR_INVALID_ACTION");
+                        e.verify(card_ptr, this, target, target_card);
 
                         constexpr auto is_bangcard = [](card *card_ptr) {
                             return !card_ptr->effects.empty() && card_ptr->effects.front().is(effect_type::bangcard);
@@ -585,7 +588,7 @@ namespace banggame {
                     if (m_game->has_scenario(scenario_flags::judge)) throw game_error("ERROR_CANT_EQUIP_CARDS");
                     verify_equip_target(card_ptr, args.targets);
                     auto *target = m_game->get_player(args.targets.front().get<play_card_target_type::target_player>().front().player_id);
-                    if (target->has_card_equipped(card_ptr->name)) throw game_error("ERROR_DUPLICATED_CARD");
+                    if (auto *card = target->find_equipped_card(card_ptr)) throw game_error("ERROR_DUPLICATED_CARD", card);
                     target->equip_card(card_ptr);
                     set_last_played_card(nullptr);
                     if (this == target) {
@@ -602,7 +605,7 @@ namespace banggame {
                 }
                 case card_color_type::green: {
                     if (m_game->has_scenario(scenario_flags::judge)) throw game_error("ERROR_CANT_EQUIP_CARDS");
-                    if (has_card_equipped(card_ptr->name)) throw game_error("ERROR_DUPLICATED_CARD");
+                    if (card *card = find_equipped_card(card_ptr)) throw game_error("ERROR_DUPLICATED_CARD", card);
                     card_ptr->inactive = true;
                     equip_card(card_ptr);
                     set_last_played_card(nullptr);
@@ -616,7 +619,7 @@ namespace banggame {
                     if (m_game->has_scenario(scenario_flags::judge)) throw game_error("ERROR_CANT_EQUIP_CARDS");
                     verify_equip_target(card_ptr, args.targets);
                     auto *target = m_game->get_player(args.targets.front().get<play_card_target_type::target_player>().front().player_id);
-                    if (target->has_card_equipped(card_ptr->name)) throw game_error("ERROR_DUPLICATED_CARD");
+                    if (card *card = target->find_equipped_card(card_ptr)) throw game_error("ERROR_DUPLICATED_CARD", card);
                     if (m_game->m_cubes.size() < 3) throw game_error("ERROR_NOT_ENOUGH_CUBES");
                     if (target->immune_to(card_ptr)) {
                         discard_card(card_ptr);
@@ -649,12 +652,12 @@ namespace banggame {
                 if (!m_has_drawn) throw game_error("ERROR_PLAYER_MUST_DRAW");
                 int discount = 0;
                 if (!modifiers.empty()) {
-                    if (auto modifier_it = std::ranges::find(m_characters, modifiers.front()->id, &character::id); modifier_it != m_characters.end()) {
-                        if ((*modifier_it)->modifier == card_modifier_type::discount
-                            && (*modifier_it)->usages < (*modifier_it)->max_usages) {
+                    if (auto modifier_it = std::ranges::find(m_characters, modifiers.front()->id, &character::id);
+                        modifier_it != m_characters.end() && (*modifier_it)->modifier == card_modifier_type::discount) {
+                        if ((*modifier_it)->usages < (*modifier_it)->max_usages) {
                             discount = 1;
                         } else {
-                            throw game_error("ERROR_INVALID_ACTION");
+                            throw game_error("ERROR_MAX_USAGES", *modifier_it, (*modifier_it)->max_usages);
                         }
                     }
                 }
@@ -677,7 +680,7 @@ namespace banggame {
                         verify_equip_target(card_ptr, args.targets);
                         play_modifiers(modifiers);
                         auto *target = m_game->get_player(args.targets.front().get<play_card_target_type::target_player>().front().player_id);
-                        if (target->has_card_equipped(card_ptr->name)) throw game_error("ERROR_DUPLICATED_CARD");
+                        if (card *card = target->find_equipped_card(card_ptr)) throw game_error("ERROR_DUPLICATED_CARD", card);
                         add_gold(discount - card_ptr->buy_cost);
                         target->equip_card(card_ptr);
                         set_last_played_card(nullptr);

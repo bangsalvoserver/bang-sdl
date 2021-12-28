@@ -79,7 +79,7 @@ namespace banggame {
         explicit player(game *game);
 
         void equip_card(card *card);
-        bool has_card_equipped(const std::string &name) const;
+        card *find_equipped_card(card *card);
 
         card *random_hand_card();
 

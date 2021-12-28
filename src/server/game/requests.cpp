@@ -294,7 +294,7 @@ namespace banggame {
         if (!target_player->immune_to(origin_card)) {
             if (target_player == target) {
                 target->m_game->pop_request();
-            } else if (!target_player->has_card_equipped(origin_card->name)) {
+            } else if (!target_player->find_equipped_card(origin_card)) {
                 origin_card->on_unequip(target);
                 target_player->equip_card(origin_card);
                 target->m_game->pop_request();

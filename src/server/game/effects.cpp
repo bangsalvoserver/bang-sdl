@@ -12,8 +12,10 @@ namespace banggame {
         target->m_game->queue_request<request_type::bang>(origin_card, origin, target, flags);
     }
 
-    bool effect_bangcard::can_play(card *origin_card, player *origin, player *target) const {
-        return !origin->m_game->has_scenario(scenario_flags::sermon);
+    void effect_bangcard::verify(card *origin_card, player *origin, player *target) const {
+        if (origin->m_game->has_scenario(scenario_flags::sermon)) {
+            throw game_error("ERROR_SCENARIO_AT_PLAY", origin->m_game->m_scenario_cards.back());
+        }
     }
 
     void effect_bangcard::on_play(card *origin_card, player *origin, player *target) {
@@ -52,9 +54,10 @@ namespace banggame {
         }
     }
 
-    bool effect_missedcard::can_respond(card *origin_card, player *origin) const {
-        return !origin->m_cant_play_missedcard
-            && effect_missed().can_respond(origin_card, origin);
+    void effect_missedcard::verify(card *origin_card, player *origin) const {
+        if (origin->m_cant_play_missedcard) {
+            throw game_error("ERROR_CANT_PLAY_CARD", origin_card);
+        }
     }
 
     static auto barrels_used(request_holder &holder) {
@@ -83,8 +86,10 @@ namespace banggame {
         });
     }
 
-    bool effect_banglimit::can_play(card *origin_card, player *origin) const {
-        return origin->m_infinite_bangs > 0 || origin->m_bangs_played < origin->m_bangs_per_turn;
+    void effect_banglimit::verify(card *origin_card, player *origin) const {
+        if (!origin->m_infinite_bangs && origin->m_bangs_played >= origin->m_bangs_per_turn) {
+            throw game_error("ERROR_ONE_BANG_PER_TURN");
+        }
     }
 
     void effect_banglimit::on_play(card *origin_card, player *origin) {
@@ -156,20 +161,20 @@ namespace banggame {
         target->heal(1);
     }
 
-    bool effect_damage::can_play(card *origin_card, player *origin, player *target) const {
-        return target->m_hp > 1;
+    void effect_damage::verify(card *origin_card, player *origin, player *target) const {
+        if (target->m_hp <= 1) {
+            throw game_error("ERROR_CANT_SELF_DAMAGE");
+        }
     }
 
     void effect_damage::on_play(card *origin_card, player *origin, player *target) {
         target->damage(origin_card, origin, 1);
     }
 
-    bool effect_beer::can_respond(player *origin, card *origin_card) const {
-        return !origin->m_game->has_scenario(scenario_flags::reverend);
-    }
-
-    bool effect_beer::can_play(card *origin_card, player *origin, player *target) const {
-        return !origin->m_game->has_scenario(scenario_flags::reverend);
+    void effect_beer::verify(card *origin_card, player *origin, player *target) const {
+        if (origin->m_game->has_scenario(scenario_flags::reverend)) {
+            throw game_error("ERROR_SCENARIO_AT_PLAY", origin->m_game->m_scenario_cards.back());
+        }
     }
 
     void effect_beer::on_play(card *origin_card, player *origin, player *target) {
@@ -245,8 +250,10 @@ namespace banggame {
         });
     }
 
-    bool effect_startofturn::can_play(card *origin_card, player *origin) const {
-        return origin->m_start_of_turn;
+    void effect_startofturn::verify(card *origin_card, player *origin) const {
+        if (!origin->m_start_of_turn) {
+            throw game_error("ERROR_NOT_START_OF_TURN");
+        }
     }
 
     void effect_draw::on_play(card *origin_card, player *origin, player *target) {
@@ -276,8 +283,10 @@ namespace banggame {
         }
     }
 
-    bool effect_draw_discard::can_play(card *origin_card, player *origin, player *target) const {
-        return ! target->m_game->m_discards.empty();
+    void effect_draw_discard::verify(card *origin_card, player *origin, player *target) const {
+        if (target->m_game->m_discards.empty()) {
+            throw game_error("ERROR_DISCARD_PILE_EMPTY");
+        }
     }
 
     void effect_draw_discard::on_play(card *origin_card, player *origin, player *target) {
@@ -299,8 +308,10 @@ namespace banggame {
         target->m_game->queue_event<event_type::post_draw_cards>(target);
     }
 
-    bool effect_draw_skip::can_play(card *origin_card, player *target) const {
-        return target->m_num_drawn_cards < target->m_num_cards_to_draw;
+    void effect_draw_skip::verify(card *origin_card, player *target) const {
+        if (target->m_num_drawn_cards >= target->m_num_cards_to_draw) {
+            throw game_error("ERROR_PLAYER_MUST_NOT_DRAW");
+        }
     }
 
     void effect_draw_skip::on_play(card *origin_card, player *target) {
@@ -310,8 +321,10 @@ namespace banggame {
         }
     }
 
-    bool effect_backfire::can_play(card *origin_card, player *origin) const {
-        return !origin->m_game->m_requests.empty() && origin->m_game->top_request().origin();
+    void effect_backfire::verify(card *origin_card, player *origin) const {
+        if (origin->m_game->m_requests.empty() || !origin->m_game->top_request().origin()) {
+            throw game_error("ERROR_CANT_PLAY_CARD", origin_card);
+        }
     }
 
     void effect_backfire::on_play(card *origin_card, player *origin) {
@@ -462,8 +475,10 @@ namespace banggame {
         });
     }
 
-    bool effect_pay_cube::can_play(card *origin_card, player *origin, player *target, card *target_card) const {
-        return target_card->cubes.size() >= std::max<short>(1, args);
+    void effect_pay_cube::verify(card *origin_card, player *origin, player *target, card *target_card) const {
+        if (target_card->cubes.size() < std::max<short>(1, args)) {
+            throw game_error("ERROR_NOT_ENOUGH_CUBES_ON", origin_card);
+        }
     }
 
     void effect_pay_cube::on_play(card *origin_card, player *origin, player *target, card *target_card) {
@@ -495,16 +510,20 @@ namespace banggame {
         }
     }
 
-    bool effect_bandolier::can_play(card *origin_card, player *origin) const {
-        return origin->m_bangs_played > 0;
+    void effect_bandolier::verify(card *origin_card, player *origin) const {
+        if (origin->m_bangs_played == 0) {
+            throw game_error("ERROR_CANT_PLAY_CARD", origin_card);
+        }
     }
 
     void effect_bandolier::on_play(card *origin_card, player *origin) {
         ++origin->m_bangs_per_turn;
     }
 
-    bool effect_belltower::can_play(card *origin_card, player *origin) const {
-        return origin->m_belltower == 0;
+    void effect_belltower::verify(card *origin_card, player *origin) const {
+        if (origin->m_belltower) {
+            throw game_error("ERROR_CANT_PLAY_CARD", origin_card);
+        }
     }
 
     void effect_belltower::on_play(card *origin_card, player *origin) {

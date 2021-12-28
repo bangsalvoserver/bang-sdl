@@ -89,6 +89,8 @@ ERROR_WRONG_DECLARED_SUIT           Wrong declared suit
 ERROR_INVALID_ACTION                Invalid action
 ERROR_NOT_ENOUGH_GOLD               Not enough gold nuggets
 ERROR_NOT_ENOUGH_CUBES              Not enough cubes
+ERROR_NOT_ENOUGH_CUBES_ON           Not enough cubes on {}
+ERROR_CARD_HAS_FULL_CUBES           {} already has 4 cubes
 ERROR_INVALID_TARGETS               Invalid targets
 ERROR_PLAYER_MUST_DRAW              You must draw
 ERROR_PLAYER_MUST_NOT_DRAW          You must not draw now
@@ -97,7 +99,7 @@ ERROR_CHARACTERS_ARE_DISABLED       Characters are disabled
 ERROR_TABLE_CARDS_ARE_DISABLED      Table cards are disabled
 ERROR_CARD_INACTIVE                 Card inactive in this turn
 ERROR_CANT_EQUIP_CARDS              You can't equip cards
-ERROR_DUPLICATED_CARD               Duplicated card
+ERROR_DUPLICATED_CARD               Duplicated card: {}
 ERROR_TARGET_NOT_PLAYER             Target is not a player
 ERROR_TARGET_NOT_DEAD               Target is not dead
 ERROR_TARGET_SHERIFF                You can't play this card on the sheriff
@@ -115,6 +117,12 @@ ERROR_TARGET_NOT_BANG               You can only play this card on Bang! cards
 ERROR_TARGET_NOT_MISSED             You can only play this card on Mancato! cards
 ERROR_TARGET_NOT_BANG_OR_MISSED     You can only play this card on Bang! or Mancato! cards
 ERROR_TARGET_NOT_CUBE_SLOT          You can't put cubes on this card
+ERROR_SCENARIO_AT_PLAY              {} is at play
+ERROR_CANT_PLAY_CARD                You can't play {}
+ERROR_ONE_BANG_PER_TURN             You can only play one Bang card per turn
+ERROR_CANT_SELF_DAMAGE              You can't take off the last life point
+ERROR_NOT_START_OF_TURN             It's not the start of your turn
+ERROR_DISCARD_PILE_EMPTY            The discard pile is empty 
 LOG_GAME_START                      Game started
 LOG_TURN_START                      It's {0}'s turn
 LOG_SOLD_BEER                       {0} sells {1}
