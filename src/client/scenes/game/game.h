@@ -67,8 +67,8 @@ namespace banggame {
 
         void move_player_views();
 
-        void handle_card_click(const sdl::point &mouse_pt);
-        void find_overlay(const sdl::point &mouse_pt);
+        void handle_card_click();
+        void find_overlay();
 
         game_ui m_ui;
         target_finder m_target;
@@ -93,6 +93,8 @@ namespace banggame {
         std::map<int, player_view> m_players;
         std::map<int, cube_widget> m_cubes;
 
+        sdl::point m_mouse_pt;
+        int m_mouse_motion_timer = 0;
         card_widget *m_overlay = nullptr;
 
         card_expansion_type m_expansions;

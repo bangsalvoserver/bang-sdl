@@ -25,18 +25,20 @@ static bool is_valid_picking_pile(request_type type, card_pile_type pile) {
 }
 
 void target_finder::render(sdl::renderer &renderer) {
-    renderer.set_draw_color(sdl::color{0xff, 0x0, 0x0, 0xff});
+    renderer.set_draw_color(sdl::rgba(sizes::target_finder_current_card_rgba));
     for (auto *card : m_modifiers) {
         renderer.draw_rect(card->get_rect());
     }
     if (m_playing_card) {
         renderer.draw_rect(m_playing_card->get_rect());
     }
-    renderer.set_draw_color(sdl::color{0xff, 0x0, 0xff, 0xff});
+    renderer.set_draw_color(sdl::rgba(sizes::target_finder_target_rgba));
     for (auto &l : m_targets) {
         for (auto [player, card] : l) {
             if (card) {
-                renderer.draw_rect(card->get_rect());
+                if (std::ranges::find(m_selected_cubes, card, &cube_widget::owner) == m_selected_cubes.end()) {
+                    renderer.draw_rect(card->get_rect());
+                }
             } else if (player) {
                 renderer.draw_rect(player->m_bounding_rect);
             }

@@ -17,6 +17,24 @@ namespace sdl {
     using color = SDL_Color;
     using event = SDL_Event;
 
+    constexpr color rgba(uint32_t color) {
+        return {
+            static_cast<uint8_t>((color & 0xff000000) >> (8 * 3)),
+            static_cast<uint8_t>((color & 0x00ff0000) >> (8 * 2)),
+            static_cast<uint8_t>((color & 0x0000ff00) >> (8 * 1)),
+            static_cast<uint8_t>((color & 0x000000ff) >> (8 * 0))
+        };
+    }
+
+    constexpr color rgb(uint32_t color) {
+        return {
+            static_cast<uint8_t>((color & 0xff0000) >> (8 * 2)),
+            static_cast<uint8_t>((color & 0x00ff00) >> (8 * 1)),
+            static_cast<uint8_t>((color & 0x0000ff) >> (8 * 0)),
+            0xff
+        };
+    }
+
     struct error : std::runtime_error {
         using std::runtime_error::runtime_error;
     };

@@ -77,8 +77,18 @@ template<int N> constexpr auto take_last = std::views::reverse | std::views::tak
 
 void game_scene::render(sdl::renderer &renderer) {
     if (m_animations.empty()) {
+        if (m_mouse_motion_timer >= sizes::card_overlay_timer) {
+            if (!m_overlay) {
+                find_overlay();
+            }
+        } else {
+            m_overlay = nullptr;
+            ++m_mouse_motion_timer;
+        }
+
         pop_update();
     } else {
+        m_overlay = nullptr;
         auto &anim = m_animations.front();
         anim.tick();
         if (anim.done()) {
@@ -165,27 +175,22 @@ void game_scene::render(sdl::renderer &renderer) {
 
 void game_scene::handle_event(const sdl::event &event) {
     switch (event.type) {
-    case SDL_MOUSEBUTTONDOWN: {
-        sdl::point mouse_pt{event.button.x, event.button.y};
+    case SDL_MOUSEBUTTONDOWN:
+        m_mouse_pt = {event.button.x, event.button.y};
         switch (event.button.button) {
         case SDL_BUTTON_LEFT:
             if (m_animations.empty()) {
-                handle_card_click(mouse_pt);
+                handle_card_click();
             }
-            break;
-        case SDL_BUTTON_MIDDLE:
-            find_overlay(mouse_pt);
             break;
         case SDL_BUTTON_RIGHT:
             m_target.clear_targets();
             break;
         }
         break;
-    }
-    case SDL_MOUSEBUTTONUP:
-        if (event.button.button == SDL_BUTTON_MIDDLE) {
-            m_overlay = nullptr;
-        }
+    case SDL_MOUSEMOTION:
+        m_mouse_motion_timer = 0;
+        m_mouse_pt = {event.motion.x, event.motion.y};
         break;
     case SDL_KEYDOWN:
         if (sdl::event_handler::is_focused(nullptr)) {
@@ -201,9 +206,9 @@ void game_scene::handle_event(const sdl::event &event) {
     }
 }
 
-void game_scene::handle_card_click(const sdl::point &mouse_pt) {
+void game_scene::handle_card_click() {
     auto mouse_in_card = [&](card_widget *card) {
-        return sdl::point_in_rect(mouse_pt, card->get_rect());
+        return sdl::point_in_rect(m_mouse_pt, card->get_rect());
     };
     auto find_clicked = [&](const card_pile_view &pile) {
         auto it = std::ranges::find_if(pile | std::views::reverse, mouse_in_card);
@@ -223,7 +228,7 @@ void game_scene::handle_card_click(const sdl::point &mouse_pt) {
         m_target.on_click_shop_card(card);
         return;
     }
-    if (sdl::point_in_rect(mouse_pt, main_deck_rect)) {
+    if (sdl::point_in_rect(m_mouse_pt, main_deck_rect)) {
         m_target.on_click_main_deck();
         return;
     }
@@ -232,13 +237,13 @@ void game_scene::handle_card_click(const sdl::point &mouse_pt) {
         return;
     }
     for (auto &p : m_players | std::views::values) {
-        if (sdl::point_in_rect(mouse_pt, p.m_bounding_rect)) {
+        if (sdl::point_in_rect(m_mouse_pt, p.m_bounding_rect)) {
             if (m_target.on_click_player(&p)) {
                 return;
             }
         }
         for (auto &c : p.m_characters | std::views::reverse) {
-            if (sdl::point_in_rect(mouse_pt, c.get_rect())) {
+            if (sdl::point_in_rect(m_mouse_pt, c.get_rect())) {
                 m_target.on_click_character(&p, &c);
                 return;
             }
@@ -254,9 +259,9 @@ void game_scene::handle_card_click(const sdl::point &mouse_pt) {
     }
 }
 
-void game_scene::find_overlay(const sdl::point &mouse_pt) {
+void game_scene::find_overlay() {
     auto mouse_in_card = [&](const card_widget *card) {
-        return sdl::point_in_rect(mouse_pt, card->get_rect());
+        return sdl::point_in_rect(m_mouse_pt, card->get_rect());
     };
     auto find_clicked = [&](const card_pile_view &pile) {
         auto it = std::ranges::find_if(pile | std::views::reverse,
@@ -292,7 +297,7 @@ void game_scene::find_overlay(const sdl::point &mouse_pt) {
     }
     for (auto &p : m_players | std::views::values) {
         for (auto &c : p.m_characters | std::views::reverse) {
-            if (sdl::point_in_rect(mouse_pt, c.get_rect())) {
+            if (sdl::point_in_rect(m_mouse_pt, c.get_rect())) {
                 m_overlay = &c;
                 return;
             }

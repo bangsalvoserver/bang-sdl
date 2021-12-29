@@ -328,7 +328,7 @@ namespace banggame {
     }
 
     void effect_backfire::on_play(card *origin_card, player *origin) {
-        origin->m_game->queue_request<request_type::bang>(origin_card, origin, origin->m_game->top_request().origin(), flags);
+        origin->m_game->queue_request<request_type::bang>(origin_card, origin, origin->m_game->top_request().origin(), flags | effect_flags::single_target);
     }
 
     void effect_bandidos::on_play(card *origin_card, player *origin, player *target) {

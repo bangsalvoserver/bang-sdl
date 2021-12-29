@@ -216,7 +216,7 @@ namespace banggame {
     }
 
     void player_view::render(sdl::renderer &renderer) {
-        renderer.set_draw_color(sdl::color{0x0, 0x0, 0x0, 0xff});
+        renderer.set_draw_color(sdl::rgba(sizes::player_view_border_rgba));
         renderer.draw_rect(m_bounding_rect);
         m_role.render(renderer);
         sdl::rect hp_marker_rect = m_characters.front().get_rect();
@@ -261,14 +261,14 @@ namespace banggame {
     }
 
     void player_view::render_turn_indicator(sdl::renderer &renderer) {
-        draw_border(renderer, m_bounding_rect, sizes::turn_indicator_border, sdl::color{0xff, 0x0, 0x0, 0xff});
+        draw_border(renderer, m_bounding_rect, sizes::turn_indicator_border, sdl::rgba(sizes::turn_indicator_rgba));
     }
 
     void player_view::render_request_origin_indicator(sdl::renderer &renderer) {
-        draw_border(renderer, m_bounding_rect, sizes::request_origin_indicator_border, sdl::color{0xff, 0x80, 0x0, 0xff});
+        draw_border(renderer, m_bounding_rect, sizes::request_origin_indicator_border, sdl::rgba(sizes::request_origin_indicator_rgba));
     }
 
     void player_view::render_request_target_indicator(sdl::renderer &renderer) {
-        draw_border(renderer, m_bounding_rect, sizes::request_target_indicator_border, sdl::color{0x0, 0x0, 0xff, 0xff});
+        draw_border(renderer, m_bounding_rect, sizes::request_target_indicator_border, sdl::rgba(sizes::request_target_indicator_rgba));
     }
 }

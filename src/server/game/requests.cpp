@@ -179,7 +179,9 @@ namespace banggame {
     }
 
     game_formatted_string request_bang::status_text() const {
-        if (bang_strength > 1) {
+        if (unavoidable) {
+            return {"STATUS_BANG_UNAVOIDABLE", origin_card};
+        } else if (bang_strength > 1) {
             return {"STATUS_BANG_MULTIPLE_MISSED", origin_card, bang_strength};
         } else {
             return {"STATUS_BANG", origin_card};

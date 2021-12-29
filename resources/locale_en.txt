@@ -34,6 +34,7 @@ STATUS_DISCARD                      Discard a card for {0}
 STATUS_DISCARD_PASS                 Discard a card before passing the turn
 STATUS_BANG                         {0} ... Respond with Mancato or Resolve
 STATUS_BANG_MULTIPLE_MISSED         {0} ... Respond with {1} Mancato or Resolve
+STATUS_BANG_UNAVOIDABLE             {0} ... This shot is unavoidable! Respond with Resolve
 STATUS_INDIANS                      {0} ... Respond with Bang or Resolve
 STATUS_DUEL                         {0} ... Respond with Bang or Resolve
 STATUS_DESTROY                      {0} to discard {1} ... Respond with Fuga or Resolve
@@ -123,7 +124,8 @@ ERROR_CANT_PLAY_CARD                You can't play {}
 ERROR_ONE_BANG_PER_TURN             You can only play one Bang card per turn
 ERROR_CANT_SELF_DAMAGE              You can't take off the last life point
 ERROR_NOT_START_OF_TURN             It's not the start of your turn
-ERROR_DISCARD_PILE_EMPTY            The discard pile is empty 
+ERROR_DISCARD_PILE_EMPTY            The discard pile is empty
+ERROR_MAX_USAGES                    You can't play {0} more than {1} times per turn
 LOG_GAME_START                      Game started
 LOG_TURN_START                      It's {0}'s turn
 LOG_SOLD_BEER                       {0} sells {1}

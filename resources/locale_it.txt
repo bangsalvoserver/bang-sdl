@@ -34,6 +34,7 @@ STATUS_DISCARD                      Scarta una carta per {0}
 STATUS_DISCARD_PASS                 Scarta una carta prima di passare il turno
 STATUS_BANG                         {0} ... Rispondi con Mancato o Risolvi
 STATUS_BANG_MULTIPLE_MISSED         {0} ... Rispondi con {1} Mancato o Risolvi
+STATUS_BANG_UNAVOIDABLE             {0} ... Il colpo non può essere annullato! Rispondi con Risolvi
 STATUS_INDIANS                      {0} ... Rispondi con Bang o Risolvi
 STATUS_DUEL                         {0} ... Rispondi con Bang o Risolvi
 STATUS_DESTROY                      {0} per scartare {1} ... Rispondi con Fuga o Risolvi
@@ -124,6 +125,7 @@ ERROR_ONE_BANG_PER_TURN             Puoi giocare un solo Bang per turno
 ERROR_CANT_SELF_DAMAGE              Non puoi toglierti l'ultimo punto vita
 ERROR_NOT_START_OF_TURN             Non sei a inizio turno
 ERROR_DISCARD_PILE_EMPTY            La pila degli scarti è vuota
+ERROR_MAX_USAGES                    Nuon puoi giocare {0} più di {1} volte per turno
 LOG_GAME_START                      La partita è iniziata
 LOG_TURN_START                      È il turno di {0}
 LOG_SOLD_BEER                       {0} vende {1}
