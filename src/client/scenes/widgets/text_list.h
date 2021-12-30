@@ -8,7 +8,6 @@ namespace sdl {
 
     struct text_list_style {
         text_style text;
-        text_alignment align = text_alignment::left;
         int text_offset = default_text_list_yoffset;
     };
 

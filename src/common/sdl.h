@@ -330,11 +330,13 @@ namespace sdl {
         TTF_Font *m_value = nullptr;
     };
 
-    inline surface make_text_surface(const std::string &label, const sdl::font &font, color text_color = rgb(0x0)) {
+    inline surface make_text_surface(const std::string &label, const sdl::font &font, int width, color text_color = rgb(0x0)) {
         if (label.empty()) {
             return surface();
         }
-        SDL_Surface *s = TTF_RenderUTF8_Blended(font.get(), label.c_str(), text_color);
+        SDL_Surface *s = width > 0
+            ? TTF_RenderUTF8_Blended_Wrapped(font.get(), label.c_str(), text_color, width)
+            : TTF_RenderUTF8_Blended(font.get(), label.c_str(), text_color);
         if (!s) {
             throw error(std::string("Could not render text: ") + TTF_GetError());
         }

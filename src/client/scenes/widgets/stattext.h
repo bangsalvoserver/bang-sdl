@@ -9,16 +9,11 @@
 DECLARE_RESOURCE(arial_ttf)
 
 namespace sdl {
-
-    enum class text_alignment {
-        left,
-        middle,
-        right
-    };
     struct text_style {
         color text_color = rgb(sdl::default_text_rgb);
         resource_view text_font = GET_RESOURCE(arial_ttf);
         int text_ptsize = sdl::default_text_ptsize;
+        int wrap_length = 0;
     };
 
     class stattext {
@@ -32,10 +27,13 @@ namespace sdl {
 
         std::string m_value;
 
+        int m_wrap_length = 0;
+
     public:
         stattext(const text_style &style = {})
             : m_style(style)
-            , m_font(style.text_font, style.text_ptsize) {}
+            , m_font(style.text_font, style.text_ptsize)
+            , m_wrap_length(style.wrap_length) {}
 
         stattext(const std::string &label, const text_style &style = {})
             : stattext(style)
@@ -46,7 +44,7 @@ namespace sdl {
         void redraw(const std::string &label) {
             if (label != m_value) {
                 m_value = label;
-                m_tex = make_text_surface(label, m_font, m_style.text_color);
+                m_tex = make_text_surface(label, m_font, m_wrap_length, m_style.text_color);
                 m_rect = m_tex.get_rect();
             }
         }
@@ -61,7 +59,7 @@ namespace sdl {
             }
         }
 
-        void render_cropped(renderer &renderer, const sdl::rect &crop_rect, text_alignment align = text_alignment::right) {
+        void render_cropped(renderer &renderer, const sdl::rect &crop_rect) {
             if (m_tex) {
                 m_rect.x = crop_rect.x;
                 m_rect.y = crop_rect.y;
@@ -76,12 +74,20 @@ namespace sdl {
             }
         }
 
-        void set_rect(const rect &rect) {
+        void set_rect(const rect &rect) noexcept {
             m_rect = rect;
         }
 
         const rect &get_rect() const noexcept {
             return m_rect;
+        }
+
+        void set_wrap_length(int length) noexcept {
+            m_wrap_length = length;
+        }
+
+        int get_wrap_length() const noexcept {
+            return m_wrap_length;
         }
 
         void set_point(const point &pt) {

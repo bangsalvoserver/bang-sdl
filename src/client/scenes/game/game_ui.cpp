@@ -12,9 +12,7 @@ game_ui::game_ui(game_scene *parent)
     , m_game_log(sdl::text_list_style{
         .text = {
             .text_ptsize = sdl::chat_log_ptsize
-        },
-        .align = sdl::text_alignment::right,
-        .text_offset = sdl::chat_log_yoffset
+        }
     })
     , m_pass_btn(_("GAME_PASS"), [&target = parent->m_target] {
         target.on_click_pass_turn();
@@ -40,7 +38,7 @@ game_ui::game_ui(game_scene *parent)
 
 void game_ui::resize(int width, int height) {
     m_chat.resize(width, height);
-    m_game_log.set_rect(sdl::rect{width - 320, 300, 300, height - 370});
+    m_game_log.set_rect(sdl::rect{width - 220, height - 310, 210, 250});
     
     m_pass_btn.set_rect(sdl::rect{340, height - 50, 100, 25});
     m_resolve_btn.set_rect(sdl::rect{450, height - 50, 100, 25});

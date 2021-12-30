@@ -12,10 +12,9 @@ namespace sdl {
     constexpr uint32_t default_button_border_rgb = 0x0;
     
     constexpr int chat_text_ptsize = 14;
-    constexpr int default_text_list_yoffset = 20;
+    constexpr int default_text_list_yoffset = 2;
 
     constexpr int chat_log_ptsize = 12;
-    constexpr int chat_log_yoffset = 15;
 
     constexpr uint32_t error_text_rgb = 0xff0000;
     constexpr int error_text_ptsize = 20;
