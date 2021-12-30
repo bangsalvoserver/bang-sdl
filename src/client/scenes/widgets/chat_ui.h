@@ -1,9 +1,8 @@
 #ifndef __CHAT_UI_H__
 #define __CHAT_UI_H__
 
-#include <list>
-
 #include "common/sdl.h"
+#include "text_list.h"
 #include "textbox.h"
 #include "button.h"
 
@@ -17,12 +16,10 @@ public:
     void add_message(const std::string &message);
     void send_chat_message();
 
-    static constexpr int max_messages = 20;
-
 private:
     class game_manager *parent;
 
-    std::list<sdl::stattext> m_messages;
+    sdl::text_list m_messages;
     sdl::textbox m_chat_box;
     sdl::button m_send_btn;
 };

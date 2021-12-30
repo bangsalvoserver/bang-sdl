@@ -2,6 +2,7 @@
 #define __STATTEXT_H__
 
 #include "common/sdl.h"
+#include "defaults.h"
 
 #include <string>
 
@@ -9,16 +10,15 @@ DECLARE_RESOURCE(arial_ttf)
 
 namespace sdl {
 
-    struct text_style {
-        color text_color;
-        resource_view text_font;
-        int text_ptsize;
+    enum class text_alignment {
+        left,
+        middle,
+        right
     };
-
-    static const text_style default_text_style {
-        {0x0, 0x0, 0x0, 0xff},
-        GET_RESOURCE(arial_ttf),
-        18
+    struct text_style {
+        color text_color = rgb(sdl::default_text_rgb);
+        resource_view text_font = GET_RESOURCE(arial_ttf);
+        int text_ptsize = sdl::default_text_ptsize;
     };
 
     class stattext {
@@ -33,11 +33,11 @@ namespace sdl {
         std::string m_value;
 
     public:
-        stattext(const text_style &style = default_text_style)
+        stattext(const text_style &style = {})
             : m_style(style)
             , m_font(style.text_font, style.text_ptsize) {}
 
-        stattext(const std::string &label, const text_style &style = default_text_style)
+        stattext(const std::string &label, const text_style &style = {})
             : stattext(style)
         {
             redraw(label);
@@ -61,7 +61,7 @@ namespace sdl {
             }
         }
 
-        void render_cropped(renderer &renderer, const sdl::rect &crop_rect) {
+        void render_cropped(renderer &renderer, const sdl::rect &crop_rect, text_alignment align = text_alignment::right) {
             if (m_tex) {
                 m_rect.x = crop_rect.x;
                 m_rect.y = crop_rect.y;

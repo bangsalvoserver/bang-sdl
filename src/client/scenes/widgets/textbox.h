@@ -6,19 +6,11 @@
 
 namespace sdl {
 
-    struct textbox_style : text_style {
-        color background_color;
-        color border_color;
-        int margin;
-    };
-
-    static const textbox_style default_textbox_style {
-        default_text_style.text_color,
-        default_text_style.text_font,
-        default_text_style.text_ptsize,
-        {0xff, 0xff, 0xff, 0xff},
-        {0x0, 0x0, 0x0, 0xff},
-        4
+    struct textbox_style {
+        text_style text;
+        color background_color = rgb(0xffffff);
+        color border_color = rgb(0x0);
+        int margin = 4;
     };
 
     class textbox : public event_handler {
@@ -45,7 +37,7 @@ namespace sdl {
         void on_lose_focus() override;
 
     public:
-        textbox(const textbox_style &style = default_textbox_style);
+        textbox(const textbox_style &style = {});
 
         void render(renderer &renderer);
 

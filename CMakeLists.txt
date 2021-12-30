@@ -26,8 +26,9 @@ set(bangclient_srcs
     src/client/scenes/game/target_finder.cpp
     src/client/scenes/widgets/button.cpp
     src/client/scenes/widgets/checkbox.cpp
-    src/client/scenes/widgets/chat_ui.cpp
     src/client/scenes/widgets/textbox.cpp
+    src/client/scenes/widgets/text_list.cpp
+    src/client/scenes/widgets/chat_ui.cpp
     src/client/scenes/connect.cpp
     src/client/scenes/lobby_list.cpp
     src/client/scenes/lobby.cpp

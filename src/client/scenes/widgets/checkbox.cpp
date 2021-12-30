@@ -4,7 +4,7 @@ using namespace sdl;
 
 checkbox::checkbox(const std::string &label, const button_style &style)
     : m_style(style)
-    , m_text(label, style) {}
+    , m_text(label, style.text) {}
 
 void checkbox::render(renderer &renderer) {
     renderer.set_draw_color([&]{

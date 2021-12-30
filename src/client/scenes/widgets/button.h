@@ -6,21 +6,12 @@
 
 namespace sdl {
 
-    struct button_style : text_style {
-        color up_color;
-        color hover_color;
-        color down_color;
-        color border_color;
-    };
-
-    static const button_style default_button_style {
-        default_text_style.text_color,
-        default_text_style.text_font,
-        default_text_style.text_ptsize,
-        {0xee, 0xee, 0xee, 0xff},
-        {0xdd, 0xdd, 0xff, 0xff},
-        {0xcc, 0xcc, 0xff, 0xff},
-        {0x0, 0x0, 0x0, 0xff},
+    struct button_style {
+        text_style text;
+        color up_color = sdl::rgb(sdl::default_button_up_rgb);
+        color hover_color = sdl::rgb(sdl::default_button_hover_rgb);
+        color down_color = sdl::rgb(sdl::default_button_down_rgb);
+        color border_color = sdl::rgb(sdl::default_button_border_rgb);
     };
 
     class button : public event_handler {
@@ -45,7 +36,7 @@ namespace sdl {
         bool handle_event(const event &event) override;
         
     public:
-        button(const std::string &label, button_callback_fun &&onclick = nullptr, const button_style &style = default_button_style);
+        button(const std::string &label, button_callback_fun &&onclick = nullptr, const button_style &style = {});
         
         void render(renderer &renderer);
 

@@ -32,9 +32,8 @@ connect_scene::connect_scene(game_manager *parent)
         do_browse();
     })
     , m_error_text(sdl::text_style{
-        {0xff, 0x0, 0x0, 0xff},
-        sdl::default_text_style.text_font,
-        20
+        .text_color = sdl::rgb(sdl::error_text_rgb),
+        .text_ptsize = sdl::error_text_ptsize
     })
 {
     m_username_box.set_value(parent->get_config().user_name);

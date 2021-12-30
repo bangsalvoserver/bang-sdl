@@ -330,7 +330,7 @@ namespace sdl {
         TTF_Font *m_value = nullptr;
     };
 
-    inline surface make_text_surface(const std::string &label, const sdl::font &font, color text_color = {0x0, 0x0, 0x0, 0xff}) {
+    inline surface make_text_surface(const std::string &label, const sdl::font &font, color text_color = rgb(0x0)) {
         if (label.empty()) {
             return surface();
         }

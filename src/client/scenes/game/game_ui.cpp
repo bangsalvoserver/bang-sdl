@@ -9,6 +9,13 @@ using namespace enums::flag_operators;
 game_ui::game_ui(game_scene *parent)
     : parent(parent)
     , m_chat(parent->parent)
+    , m_game_log(sdl::text_list_style{
+        .text = {
+            .text_ptsize = sdl::chat_log_ptsize
+        },
+        .align = sdl::text_alignment::right,
+        .text_offset = sdl::chat_log_yoffset
+    })
     , m_pass_btn(_("GAME_PASS"), [&target = parent->m_target] {
         target.on_click_pass_turn();
     })
@@ -26,10 +33,14 @@ game_ui::game_ui(game_scene *parent)
     })
     , m_restart_btn(_("GAME_RESTART"), [&mgr = *parent->parent] {
         mgr.add_message<client_message_type::game_start>();
+    })
+    , m_error_text(sdl::text_style{
+        .text_color = sdl::rgb(sdl::game_error_text_rgb)
     }) {}
 
 void game_ui::resize(int width, int height) {
     m_chat.resize(width, height);
+    m_game_log.set_rect(sdl::rect{width - 320, 300, 300, height - 370});
     
     m_pass_btn.set_rect(sdl::rect{340, height - 50, 100, 25});
     m_resolve_btn.set_rect(sdl::rect{450, height - 50, 100, 25});
@@ -42,6 +53,7 @@ void game_ui::resize(int width, int height) {
 
 void game_ui::render(sdl::renderer &renderer) {
     m_chat.render(renderer);
+    m_game_log.render(renderer);
 
     m_pass_btn.render(renderer);
     m_resolve_btn.render(renderer);
@@ -78,6 +90,10 @@ void game_ui::set_button_flags(play_card_flags flags) {
 
 void game_ui::add_message(const std::string &message) {
     m_chat.add_message(message);
+}
+
+void game_ui::add_game_log(const std::string &message) {
+    m_game_log.add_message(message);
 }
 
 void game_ui::show_error(const std::string &message) {

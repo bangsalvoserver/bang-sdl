@@ -417,7 +417,7 @@ void game_scene::handle_game_update(UPDATE_TAG(game_error), const game_formatted
 }
 
 void game_scene::handle_game_update(UPDATE_TAG(game_log), const game_formatted_string &args) {
-    std::cout << evaluate_format_string(args) << '\n';
+    m_ui.add_game_log(evaluate_format_string(args));
     pop_update();
 }
 

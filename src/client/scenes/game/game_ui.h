@@ -16,6 +16,7 @@ namespace banggame {
         void set_button_flags(play_card_flags flags);
 
         void add_message(const std::string &message);
+        void add_game_log(const std::string &message);
         void show_error(const std::string &message);
 
         void set_status(const std::string &message) {
@@ -36,6 +37,7 @@ namespace banggame {
         class game_scene *parent;
 
         chat_ui m_chat;
+        sdl::text_list m_game_log;
 
         sdl::stattext m_status_text;
 

@@ -4,7 +4,7 @@ using namespace sdl;
 
 button::button(const std::string &label, button_callback_fun &&onclick, const button_style &style)
     : m_style(style)
-    , m_text(label, style)
+    , m_text(label, style.text)
     , m_onclick(std::move(onclick)) {}
 
 void button::render(renderer &renderer) {

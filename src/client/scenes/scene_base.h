@@ -15,7 +15,7 @@ public:
     virtual ~scene_base() {}
 
     virtual sdl::color bg_color() {
-        return {0xff, 0xff, 0xff, 0xff};
+        return sdl::rgb(sdl::default_scene_bgcolor_rgb);
     }
     
     virtual void resize(int width, int height) {}

@@ -31,7 +31,7 @@ namespace sdl {
         bool handle_event(const event &event) override;
 
     public:
-        checkbox(const std::string &label, const button_style &style = default_button_style);
+        checkbox(const std::string &label, const button_style &style = {});
 
         void render(renderer &renderer);
 
