@@ -95,6 +95,7 @@ namespace banggame {
 
         sdl::point m_mouse_pt;
         int m_mouse_motion_timer = 0;
+        bool m_middle_click = false;
         card_widget *m_overlay = nullptr;
 
         card_expansion_type m_expansions;

@@ -76,19 +76,20 @@ void game_scene::resize(int width, int height) {
 template<int N> constexpr auto take_last = std::views::reverse | std::views::take(N) | std::views::reverse;
 
 void game_scene::render(sdl::renderer &renderer) {
-    if (m_animations.empty()) {
-        if (m_mouse_motion_timer >= sizes::card_overlay_timer) {
-            if (!m_overlay) {
-                find_overlay();
-            }
-        } else {
-            m_overlay = nullptr;
-            ++m_mouse_motion_timer;
+    if (m_mouse_motion_timer >= sizes::card_overlay_timer) {
+        if (!m_overlay) {
+            find_overlay();
         }
+    } else {
+        if (!m_middle_click) {
+            m_overlay = nullptr;
+        }
+        ++m_mouse_motion_timer;
+    }
 
+    if (m_animations.empty()) {
         pop_update();
     } else {
-        m_overlay = nullptr;
         auto &anim = m_animations.front();
         anim.tick();
         if (anim.done()) {
@@ -185,6 +186,18 @@ void game_scene::handle_event(const sdl::event &event) {
             break;
         case SDL_BUTTON_RIGHT:
             m_target.clear_targets();
+            break;
+        case SDL_BUTTON_MIDDLE:
+            m_middle_click = true;
+            find_overlay();
+            break;
+        }
+        break;
+    case SDL_MOUSEBUTTONUP:
+        m_mouse_pt = {event.button.x, event.button.y};
+        switch (event.button.button) {
+        case SDL_BUTTON_MIDDLE:
+            m_middle_click = false;
             break;
         }
         break;
