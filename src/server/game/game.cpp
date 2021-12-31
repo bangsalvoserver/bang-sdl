@@ -506,9 +506,9 @@ namespace banggame {
         if (m_current_check->origin->m_num_checks == 1) {
             auto *c = draw_card_to(card_pile_type::discard_pile);
             queue_event<event_type::on_draw_check>(m_current_check->origin, c);
+            add_log("LOG_CHECK_DREW_CARD", m_current_check->origin_card, m_current_check->origin, c);
             instant_event<event_type::trigger_tumbleweed>(m_current_check->origin_card, c);
             if (!m_current_check->no_auto_resolve) {
-                add_log("LOG_CHECK_DREW_CARD", m_current_check->origin_card, m_current_check->origin, c);
                 m_current_check->function(c);
                 m_current_check.reset();
             }

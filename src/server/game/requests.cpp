@@ -49,9 +49,9 @@ namespace banggame {
             target->m_game->queue_event<event_type::on_draw_check>(target, drawn_card);
         }
         target->m_game->pop_request();
+        target->m_game->add_log("LOG_CHECK_DREW_CARD", target->m_game->m_current_check->origin_card, target, target_card);
         target->m_game->instant_event<event_type::trigger_tumbleweed>(target->m_game->m_current_check->origin_card, target_card);
         if (!target->m_game->m_current_check->no_auto_resolve) {
-            target->m_game->add_log("LOG_CHECK_DREW_CARD", target->m_game->m_current_check->origin_card, target, target_card);
             target->m_game->m_current_check->function(target_card);
             target->m_game->m_current_check.reset();
         }

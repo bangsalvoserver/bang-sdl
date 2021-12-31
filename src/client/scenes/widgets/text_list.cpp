@@ -8,17 +8,17 @@ namespace sdl {
         m_rect = new_rect;
 
         int y = m_rect.y + m_rect.h;
-        for (stattext &obj : m_messages | std::views::reverse) {
-            rect text_rect = obj.get_rect();
+        for (auto it = m_messages.rbegin(); it != m_messages.rend(); ++it) {
+            rect text_rect = it->get_rect();
             text_rect.x = m_rect.x;
             text_rect.y = y - text_rect.h;
-            obj.set_rect(text_rect);
+            if (text_rect.y < m_rect.y) {
+                m_messages.erase(m_messages.begin(), it.base());
+                break;
+            }
+            it->set_rect(text_rect);
 
             y -= text_rect.h + m_style.text_offset;
-        }
-
-        while (m_messages.front().get_rect().y + m_messages.front().get_rect().h < get_rect().y) {
-            m_messages.pop_front();
         }
     }
 
