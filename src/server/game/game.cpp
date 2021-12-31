@@ -453,6 +453,7 @@ namespace banggame {
             m_discards.emplace_back(top_discards);
             shuffle_cards_and_ids(m_deck);
             add_public_update<game_update_type::deck_shuffled>(card_pile_type::main_deck);
+            add_log("LOG_DECK_RESHUFFLED");
         }
         return drawn_card;
     }
@@ -591,6 +592,7 @@ namespace banggame {
             for (const auto &p : m_players) {
                 add_public_update<game_update_type::player_show_role>(p.id, p.m_role);
             }
+            add_log("LOG_GAME_OVER");
             add_public_update<game_update_type::game_over>(winner_role);
         } else if (killer == target) {
             target->end_of_turn();

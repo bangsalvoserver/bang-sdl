@@ -64,11 +64,14 @@ namespace banggame {
     void request_generalstore::on_pick(card_pile_type pile, player *target_player, card *target_card) {
         auto next = target->m_game->get_next_player(target);
         if (target->m_game->m_selection.size() == 2) {
+            target->m_game->add_log("LOG_DRAWN_FROM_GENERALSTORE", target, target_card);
             target->add_to_hand(target_card);
+            target->m_game->add_log("LOG_DRAWN_FROM_GENERALSTORE", next, target->m_game->m_selection.front());
             next->add_to_hand(target->m_game->m_selection.front());
             target->m_game->pop_request();
         } else {
             target->m_game->pop_request_noupdate();
+            target->m_game->add_log("LOG_DRAWN_FROM_GENERALSTORE", target, target_card);
             target->add_to_hand(target_card);
             target->m_game->queue_request<request_type::generalstore>(origin_card, origin, next);
         }
@@ -100,6 +103,7 @@ namespace banggame {
             } else {
                 target->discard_card(target_card);
             }
+            target->m_game->add_log("LOG_DISCARDED_SELF_CARD", target, target_card);
             target->m_game->instant_event<event_type::on_discard_pass>(target, target_card);
             if (target->m_game->has_expansion(card_expansion_type::armedanddangerous)) {
                 target->m_game->queue_event<event_type::delayed_action>([target = this->target]{

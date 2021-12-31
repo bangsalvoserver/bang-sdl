@@ -58,8 +58,6 @@ namespace banggame {
 
         std::list<bang_modifier> m_bang_mods;
 
-        bool m_cant_play_missedcard = false;
-
         int m_num_checks = 1;
         
         int m_num_cards_to_draw = 2;

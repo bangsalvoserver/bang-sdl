@@ -127,12 +127,19 @@ ERROR_NOT_START_OF_TURN             Non sei a inizio turno
 ERROR_DISCARD_PILE_EMPTY            La pila degli scarti è vuota
 ERROR_MAX_USAGES                    Nuon puoi giocare {0} più di {1} volte per turno
 LOG_GAME_START                      La partita è iniziata
+LOG_GAME_OVER                       La partita è terminata
+LOG_DECK_RESHUFFLED                 Il mazzo viene rimescolato
 LOG_TURN_START                      È il turno di {0}
 LOG_SOLD_BEER                       {0} vende {1}
-LOG_DISCARDED_BLACK                 {0} scarta {2} a {1}
+LOG_DISCARDED_CARD                  {0} scarta {2} a {1}
+LOG_DISCARDED_SELF_CARD             {0} scarta {1}
+LOG_STOLEN_CARD                     {0} ruba {2} da {1}
+LOG_STOLEN_SELF_CARD                {0} ripesca {1}
 LOG_DRAWN_WITH_CHARACTER            {1} pesca usando {0}
+LOG_DRAWN_FROM_GENERALSTORE         {0} pesca {1} dall'emporio
 LOG_PLAYED_CHARACTER                {1} gioca l'effetto di {0}
 LOG_PLAYED_CARD                     {1} gioca {0}
+LOG_PLAYED_CARD_ON                  {1} gioca {0} su {2}
 LOG_PLAYED_TABLE_CARD               {1} gioca {0} da terra
 LOG_EQUIPPED_CARD                   {1} equipaggia {0}
 LOG_EQUIPPED_CARD_TO                {1} equipaggia {0} a {2}
@@ -141,7 +148,12 @@ LOG_BOUGHT_EQUIP                    {1} compra ed equipaggia {0}
 LOG_BOUGHT_EQUIP_TO                 {1} compra ed equipaggia {0} a {2}
 LOG_RESPONDED_WITH_CARD             {1} risponde con {0}
 LOG_DRAWN_FROM_DECK                 {0} pesca dal mazzo
+LOG_DRAWN_CARD                      {0} pesca {1}
+LOG_DRAWN_FROM_DISCARD              {0} pesca {1} dalla cima degli scarti
 LOG_CHECK_DREW_CARD                 {1} estrae {2} per {0}
 LOG_TAKEN_DAMAGE                    {1} prende 1 danno per {0}
 LOG_TAKEN_DAMAGE_PLURAL             {1} prende {2} danni per {0}
+LOG_HEALED                          {0} si cura di 1 punto vita
+LOG_HEALED_PLURAL                   {0} si cura di {1} punti vita
+LOG_CHOSE_CARD_FOR                  {1} sceglie {2} per {0}
 LOG_PLAYER_DIED                     {0} è morto

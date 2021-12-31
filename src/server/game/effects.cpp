@@ -9,6 +9,7 @@ namespace banggame {
     using namespace enums::flag_operators;
 
     void effect_bang::on_play(card *origin_card, player *origin, player *target) {
+        target->m_game->add_log("LOG_PLAYED_CARD_ON", origin_card, origin, target);
         target->m_game->queue_request<request_type::bang>(origin_card, origin, target, flags);
     }
 
@@ -19,6 +20,7 @@ namespace banggame {
     }
 
     void effect_bangcard::on_play(card *origin_card, player *origin, player *target) {
+        target->m_game->add_log("LOG_PLAYED_CARD_ON", origin_card, origin, target);
         target->m_game->queue_event<event_type::on_play_bang>(origin);
         target->m_game->queue_event<event_type::delayed_action>([=, flags = this->flags]{
             request_bang req{origin_card, origin, target, flags};
@@ -55,9 +57,7 @@ namespace banggame {
     }
 
     void effect_missedcard::verify(card *origin_card, player *origin) const {
-        if (origin->m_cant_play_missedcard) {
-            throw game_error("ERROR_CANT_PLAY_CARD", origin_card);
-        }
+        origin->m_game->instant_event<event_type::verify_missedcard>(origin, origin_card);
     }
 
     static auto barrels_used(request_holder &holder) {
@@ -97,10 +97,12 @@ namespace banggame {
     }
 
     void effect_indians::on_play(card *origin_card, player *origin, player *target) {
+        target->m_game->add_log("LOG_PLAYED_CARD_ON", origin_card, origin, target);
         target->m_game->queue_request<request_type::indians>(origin_card, origin, target, flags);
     }
 
     void effect_duel::on_play(card *origin_card, player *origin, player *target) {
+        target->m_game->add_log("LOG_PLAYED_CARD_ON", origin_card, origin, target);
         target->m_game->queue_request<request_type::duel>(origin_card, origin, target, origin, flags);
     }
 
@@ -158,7 +160,7 @@ namespace banggame {
     }
 
     void effect_heal::on_play(card *origin_card, player *origin, player *target) {
-        target->heal(1);
+        target->heal(std::max<short>(1, args));
     }
 
     void effect_damage::verify(card *origin_card, player *origin, player *target) const {
@@ -180,8 +182,9 @@ namespace banggame {
     void effect_beer::on_play(card *origin_card, player *origin, player *target) {
         target->m_game->queue_event<event_type::on_play_beer>(target);
         if (target->m_game->m_players.size() <= 2 || target->m_game->num_alive() > 2) {
-            target->heal(1);
-            target->m_game->instant_event<event_type::on_play_beer_heal>(target);
+            int amt = 1;
+            target->m_game->instant_event<event_type::apply_beer_modifier>(target, amt);
+            target->heal(amt);
         }
     }
 
@@ -206,10 +209,20 @@ namespace banggame {
             target->m_game->instant_event<event_type::on_discard_card>(origin, target, target_card);
             auto effect_end_pos = std::ranges::find(target->m_game->m_pending_events, enums::indexof(event_type::on_effect_end), &event_args::index);
             if (effect_end_pos == target->m_game->m_pending_events.end()) {
+                if (origin != target) {
+                    target->m_game->add_log("LOG_DISCARDED_CARD", origin, target, with_owner{target_card});
+                } else {
+                    target->m_game->add_log("LOG_DISCARDED_SELF_CARD", origin, target_card);
+                }
                 target->discard_card(target_card);
             } else {
                 target->m_game->m_pending_events.emplace(effect_end_pos, std::in_place_index<enums::indexof(event_type::delayed_action)>,
                 [=]{
+                    if (origin != target) {
+                        target->m_game->add_log("LOG_DISCARDED_CARD", origin, target, with_owner{target_card});
+                    } else {
+                        target->m_game->add_log("LOG_DISCARDED_SELF_CARD", origin, target_card);
+                    }
                     target->discard_card(target_card);
                 });
             }
@@ -223,10 +236,20 @@ namespace banggame {
             target->m_game->instant_event<event_type::on_discard_card>(origin, target, target_card);
             auto effect_end_pos = std::ranges::find(target->m_game->m_pending_events, enums::indexof(event_type::on_effect_end), &event_args::index);
             if (effect_end_pos == target->m_game->m_pending_events.end()) {
+                if (origin != target) {
+                    target->m_game->add_log("LOG_STOLEN_CARD", origin, target, with_owner{target_card});
+                } else {
+                    target->m_game->add_log("LOG_STOLEN_SELF_CARD", origin, target_card);
+                }
                 origin->steal_card(target, target_card);
             } else {
                 target->m_game->m_pending_events.emplace(effect_end_pos, std::in_place_index<enums::indexof(event_type::delayed_action)>,
                 [=]{
+                    if (origin != target) {
+                        target->m_game->add_log("LOG_STOLEN_CARD", origin, target, with_owner{target_card});
+                    } else {
+                        target->m_game->add_log("LOG_STOLEN_SELF_CARD", origin, target_card);
+                    }
                     origin->steal_card(target, target_card);
                 });
             }
@@ -235,6 +258,7 @@ namespace banggame {
 
     void effect_virtual_destroy::on_play(card *origin_card, player *origin, player *target, card *target_card) {
         target->discard_card(target_card);
+        target->m_game->add_log("LOG_CHOSE_CARD_FOR", origin_card, origin, target_card);
         target->m_virtual.emplace(target_card, *target_card);
     }
 
@@ -257,7 +281,8 @@ namespace banggame {
     }
 
     void effect_draw::on_play(card *origin_card, player *origin, player *target) {
-        target->m_game->draw_card_to(card_pile_type::player_hand, target);
+        card *drawn_card = target->m_game->draw_card_to(card_pile_type::player_hand, target);
+        target->m_game->add_log("LOG_DRAWN_CARD", target, drawn_card);
     }
 
     struct draw_atend_handler {
@@ -290,13 +315,16 @@ namespace banggame {
     }
 
     void effect_draw_discard::on_play(card *origin_card, player *origin, player *target) {
-        target->add_to_hand(target->m_game->m_discards.back());
+        card *drawn_card = target->m_game->m_discards.back();
+        target->m_game->add_log("LOG_DRAWN_FROM_DISCARD", target, drawn_card);
+        target->add_to_hand(drawn_card);
     }
 
     void effect_draw_rest::on_play(card *origin_card, player *target) {
         while (target->m_num_drawn_cards < target->m_num_cards_to_draw) {
             ++target->m_num_drawn_cards;
             card *drawn_card = target->m_game->draw_phase_one_card_to(card_pile_type::player_hand, target);
+            target->m_game->add_log("LOG_DRAWN_CARD", target, drawn_card);
             target->m_game->instant_event<event_type::on_card_drawn>(target, drawn_card);
         }
         target->m_has_drawn = true;

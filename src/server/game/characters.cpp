@@ -47,9 +47,9 @@ namespace banggame {
     }
 
     void effect_tequila_joe::on_equip(player *target, card *target_card) {
-        target->m_game->add_event<event_type::on_play_beer_heal>(target_card, [target](player *origin) {
+        target->m_game->add_event<event_type::apply_beer_modifier>(target_card, [target](player *origin, int &value) {
             if (target == origin) {
-                target->heal(1);
+                ++value;
             }
         });
     }
@@ -301,12 +301,16 @@ namespace banggame {
     }
 
     void effect_big_spencer::on_equip(player *p, card *target_card) {
-        p->m_cant_play_missedcard = true;
+        p->m_game->add_event<event_type::verify_missedcard>(target_card, [=](player *origin, card *origin_card){
+            if (origin == p) {
+                throw game_error("ERROR_CANT_PLAY_CARD", origin_card);
+            }
+        });
         p->m_initial_cards = 5;
     }
 
     void effect_big_spencer::on_unequip(player *p, card *target_card) {
-        p->m_cant_play_missedcard = false;
+        p->m_game->remove_events(target_card);
         p->m_initial_cards = 0;
     }
 

@@ -127,12 +127,19 @@ ERROR_NOT_START_OF_TURN             It's not the start of your turn
 ERROR_DISCARD_PILE_EMPTY            The discard pile is empty
 ERROR_MAX_USAGES                    You can't play {0} more than {1} times per turn
 LOG_GAME_START                      Game started
+LOG_GAME_OVER                       Game over
+LOG_DECK_RESHUFFLED                 The deck is reshuffled
 LOG_TURN_START                      It's {0}'s turn
 LOG_SOLD_BEER                       {0} sells {1}
-LOG_DISCARDED_BLACK                 {0} forces {1} to discard {2}
+LOG_DISCARDED_CARD                  {0} forces {1} to discard {2}
+LOG_DISCARDED_SELF_CARD             {0} discards {2}
+LOG_STOLEN_CARD                     {0} steals {2} from {1}
+LOG_STOLEN_SELF_CARD                {0} redraws {1}
 LOG_DRAWN_WITH_CHARACTER            {1} draws using {0}
+LOG_DRAWN_FROM_GENERALSTORE         {0} draws {1} from the general store
 LOG_PLAYED_CHARACTER                {1} plays {0}'s effect
 LOG_PLAYED_CARD                     {1} plays {0}
+LOG_PLAYED_CARD_ON                  {1} plays {0} on {2}
 LOG_PLAYED_TABLE_CARD               {1} plays {0} from the table
 LOG_EQUIPPED_CARD                   {1} equips {0}
 LOG_EQUIPPED_CARD_TO                {1} equips {0} on {2}
@@ -141,7 +148,12 @@ LOG_BOUGHT_EQUIP                    {1} buys and equips {0}
 LOG_BOUGHT_EQUIP_TO                 {1} buys and equips {0} to {2}
 LOG_RESPONDED_WITH_CARD             {1} responds with {0}
 LOG_DRAWN_FROM_DECK                 {0} draws from the deck
+LOG_DRAWN_CARD                      {0} draws {1}
+LOG_DRAWN_FROM_DISCARD              {0} draws {1} from the top of the discard pile
 LOG_CHECK_DREW_CARD                 {1} "draws!" {2} for {0}
 LOG_TAKEN_DAMAGE                    {1} takes 1 damage for {0}
 LOG_TAKEN_DAMAGE_PLURAL             {1} takes {2} damage for {0}
+LOG_HEALED                          {0} heals for 1 life point
+LOG_HEALED_PLURAL                   {0} heals for {1} life points
+LOG_CHOSE_CARD_FOR                  {1} chooses {2} for {0}
 LOG_PLAYER_DIED                     {0} died

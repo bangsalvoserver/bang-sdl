@@ -110,6 +110,11 @@ namespace banggame {
         if (!m_ghost && !(m_hp == 0 && m_game->has_scenario(scenario_flags::ghosttown))) {
             m_hp = std::min(m_hp + value, m_max_hp);
             m_game->add_public_update<game_update_type::player_hp>(id, m_hp);
+            if (value == 1) {
+                m_game->add_log("LOG_HEALED", this);
+            } else {
+                m_game->add_log("LOG_HEALED_PLURAL", this, value);
+            }
         }
     }
 
@@ -537,7 +542,7 @@ namespace banggame {
             if (m_gold < target_card->buy_cost + 1) throw game_error("ERROR_NOT_ENOUGH_GOLD");
             add_gold(-target_card->buy_cost - 1);
             target_player->discard_card(target_card);
-            m_game->add_log("LOG_DISCARDED_BLACK", this, target_player, target_card);
+            m_game->add_log("LOG_DISCARDED_CARD", this, target_player, target_card);
         } else {
             card *card_ptr = m_game->find_card(args.card_id);
             if (!modifiers.empty() && modifiers.front()->modifier == card_modifier_type::leevankliff) {
@@ -758,12 +763,13 @@ namespace banggame {
         int save_numcards = m_num_cards_to_draw;
         m_game->queue_event<event_type::on_draw_from_deck>(this);
         if (!m_has_drawn) {
+            m_game->add_log("LOG_DRAWN_FROM_DECK", this);
             while (m_num_drawn_cards<m_num_cards_to_draw) {
                 ++m_num_drawn_cards;
                 card *drawn_card = m_game->draw_phase_one_card_to(card_pile_type::player_hand, this);
+                m_game->add_log("LOG_DRAWN_CARD", this, drawn_card);
                 m_game->instant_event<event_type::on_card_drawn>(this, drawn_card);
             }
-            m_game->add_log("LOG_DRAWN_FROM_DECK", this);
         }
         m_num_cards_to_draw = save_numcards;
         m_has_drawn = true;

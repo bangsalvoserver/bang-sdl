@@ -784,11 +784,8 @@
                 },
                 {
                     "target": "player self",
-                    "class": "heal"
-                },
-                {
-                    "target": "player self",
-                    "class": "heal"
+                    "class": "heal",
+                    "args": 2
                 }
             ]
         },
