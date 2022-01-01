@@ -577,11 +577,6 @@ namespace banggame {
 
     void effect_buntlinespecial::on_play(card *origin_card, player *p) {
         p->add_bang_mod([=](request_bang &req) {
-            if (std::ranges::any_of(p->m_characters, [](const character *c) {
-                return std::ranges::find(c->equips, equip_type::slab_the_killer, &equip_holder::type) != c->equips.end();
-            })) {
-                ++req.bang_strength;
-            }
             p->m_game->add_event<event_type::on_missed>(origin_card, [=](card *bang_card, player *origin, player *target, bool is_bang) {
                 if (target && origin == p && is_bang && !target->m_hand.empty()) {
                     target->m_game->queue_request<request_type::discard>(origin_card, origin, target);
