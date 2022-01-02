@@ -17,14 +17,14 @@ namespace banggame {
 
         void end() {
             for (auto &[card, _] : data) {
-                card->set_pos(card->pile->get_position(card));
+                card->set_pos(card->pile->get_position_of(card));
                 card->animating = false;
             }
         }
 
         void do_animation(float amt) {
             for (auto &[card, start] : data) {
-                sdl::point dest = card->pile->get_position(card);
+                sdl::point dest = card->pile->get_position_of(card);
                 card->set_pos(sdl::point{
                     (int) std::lerp(start.x, dest.x, amt),
                     (int) std::lerp(start.y, dest.y, amt)

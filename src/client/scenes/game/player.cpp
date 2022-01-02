@@ -4,29 +4,27 @@
 
 namespace banggame {
     void player_view::set_position(sdl::point pos, bool flipped) {
-        m_bounding_rect.w = table.width + sizes::card_width * 3 + 40;
+        m_bounding_rect.w = table.width() + sizes::card_width * 3 + 40;
         m_bounding_rect.h = sizes::player_view_height;
         m_bounding_rect.x = pos.x - m_bounding_rect.w / 2;
         m_bounding_rect.y = pos.y - m_bounding_rect.h / 2;
-        hand.pos = table.pos = sdl::point{
-            m_bounding_rect.x + (table.width + sizes::card_width) / 2 + 10,
-            m_bounding_rect.y + m_bounding_rect.h / 2};
-        auto char_pos = m_characters.pos = sdl::point{
+        table.set_pos(sdl::point{
+            m_bounding_rect.x + (table.width() + sizes::card_width) / 2 + 10,
+            m_bounding_rect.y + m_bounding_rect.h / 2});
+        hand.set_pos(table.get_pos());
+        m_characters.set_pos(sdl::point{
             m_bounding_rect.x + m_bounding_rect.w - sizes::card_width - sizes::card_width / 2 - 20,
-            m_bounding_rect.y + m_bounding_rect.h - sizes::card_width - 10};
-        m_role.set_pos(sdl::point(char_pos.x + sizes::card_width + 10, char_pos.y));
-        for (card_view *c : m_characters) {
-            c->set_pos(char_pos);
-            char_pos.x += sizes::character_offset;
-            char_pos.y += sizes::character_offset;
-        }
+            m_bounding_rect.y + m_bounding_rect.h - sizes::card_width - 10});
+        m_role.set_pos(sdl::point(
+            m_characters.get_pos().x + sizes::card_width + 10,
+            m_characters.get_pos().y));
         set_hp_marker_position(hp);
         if (flipped) {
-            hand.pos.y += sizes::card_yoffset;
-            table.pos.y -= sizes::card_yoffset;
+            hand.set_pos(sdl::point{hand.get_pos().x, hand.get_pos().y + sizes::card_yoffset});
+            table.set_pos(sdl::point{table.get_pos().x, table.get_pos().y - sizes::card_yoffset});
         } else {
-            hand.pos.y -= sizes::card_yoffset;
-            table.pos.y += sizes::card_yoffset;
+            table.set_pos(sdl::point{table.get_pos().x, table.get_pos().y + sizes::card_yoffset});
+            hand.set_pos(sdl::point{hand.get_pos().x, hand.get_pos().y - sizes::card_yoffset});
         }
 
         set_username(m_username_text.get_value());
@@ -66,8 +64,9 @@ namespace banggame {
     }
 
     void player_view::set_hp_marker_position(float hp) {
-        m_hp_marker_pos = m_characters.pos;
-        m_hp_marker_pos.y -= std::max(0.f, hp * sizes::one_hp_size);
+        m_hp_marker_pos = sdl::point{
+            m_characters.get_pos().x,
+            m_characters.get_pos().y - std::max<int>(0, hp * sizes::one_hp_size)};
     }
 
     void player_view::set_gold(int amount) {
@@ -100,8 +99,8 @@ namespace banggame {
         }
         if (gold > 0 && m_gold_texture) {
             sdl::rect gold_rect = m_gold_texture.get_rect();
-            gold_rect.x = m_characters.pos.x - gold_rect.w / 2;
-            gold_rect.y = m_characters.pos.y - sizes::gold_yoffset;
+            gold_rect.x = m_characters.get_pos().x - gold_rect.w / 2;
+            gold_rect.y = m_characters.get_pos().y - sizes::gold_yoffset;
             m_gold_texture.render(renderer, gold_rect);
 
             sdl::rect gold_text_rect = m_gold_text.get_rect();

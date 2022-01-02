@@ -126,4 +126,30 @@ namespace banggame {
             cube->render(renderer);
         }
     }
+
+    void card_pile_view::set_pos(const sdl::point &new_pos) {
+        for (card_view *c : *this) {
+            int dx = c->get_pos().x - pos.x;
+            int dy = c->get_pos().y - pos.y;
+            c->set_pos(sdl::point{new_pos.x + dx, new_pos.y + dy});
+        }
+        pos = new_pos;
+    }
+
+    sdl::point card_pile_view::get_position_of(card_view *card) const {
+        if (size() == 1) {
+            return pos;
+        }
+        float xoffset = std::min(float(m_width) / (size() - 1), float(sizes::card_width + sizes::card_xoffset)) * hflip;
+
+        return sdl::point{(int)(pos.x + xoffset *
+            (std::ranges::distance(begin(), std::ranges::find(*this, card)) - (size() - 1) * .5f)),
+            pos.y};
+    }
+
+    void card_pile_view::erase_card(card_view *card) {
+        if (auto it = std::ranges::find(*this, card); it != end()) {
+            erase(it);
+        }
+    }
 }

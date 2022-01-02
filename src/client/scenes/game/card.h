@@ -38,31 +38,23 @@ namespace banggame {
 
     struct card_view;
 
-    struct card_pile_view : std::vector<card_view *> {
+    class card_pile_view : public std::vector<card_view *> {
+    private:
         sdl::point pos;
-        int width;
+        int m_width;
         int hflip;
 
+    public:
         explicit card_pile_view(int width = 0, bool hflip = false)
-            : width(width)
+            : m_width(width)
             , hflip(hflip ? -1 : 1) {}
 
-        sdl::point get_position(card_view *card) const {
-            if (size() == 1) {
-                return pos;
-            }
-            float xoffset = std::min(float(width) / (size() - 1), float(sizes::card_width + sizes::card_xoffset)) * hflip;
+        const sdl::point get_pos() const { return pos; }
+        int width() const { return m_width; }
 
-            return sdl::point{(int)(pos.x + xoffset *
-                (std::ranges::distance(begin(), std::ranges::find(*this, card)) - (size() - 1) * .5f)),
-                pos.y};
-        }
-
-        void erase_card(card_view *card) {
-            if (auto it = std::ranges::find(*this, card); it != end()) {
-                erase(it);
-            }
-        }
+        void set_pos(const sdl::point &new_pos);
+        sdl::point get_position_of(card_view *card) const;
+        void erase_card(card_view *card);
     };
 
     class cube_widget {

@@ -33,32 +33,34 @@ static sdl::point cube_pile_offset(auto &rng) {
 
 void game_scene::resize(int width, int height) {
     scene_base::resize(width, height);
-    
-    m_discard_pile.pos = m_main_deck.pos = sdl::point{width / 2 + sizes::deck_xoffset, height / 2};
-    m_discard_pile.pos.x -= sizes::discard_xoffset;
-    
-    m_selection.pos = sdl::point{width / 2, height / 2 + sizes::selection_yoffset};
 
-    m_shop_discard.pos = m_shop_deck.pos = sdl::point{
+    m_main_deck.set_pos(sdl::point{
+        width / 2 + sizes::deck_xoffset,
+        height / 2});
+
+    m_discard_pile.set_pos(sdl::point{
+        m_main_deck.get_pos().x - sizes::discard_xoffset,
+        m_main_deck.get_pos().y});
+    
+    m_selection.set_pos(sdl::point{
+        width / 2,
+        height / 2 + sizes::selection_yoffset});
+
+    m_shop_deck.set_pos(sdl::point{
         width / 2 + sizes::shop_xoffset - sizes::shop_selection_width - sizes::card_width,
-        height / 2};
+        height / 2});
 
-    m_shop_selection.pos = sdl::point{
+    m_shop_discard.set_pos(m_shop_deck.get_pos());
+
+    m_shop_selection.set_pos(sdl::point{
         width / 2 + sizes::shop_xoffset - sizes::shop_selection_width / 2,
-        height / 2};
+        height / 2});
 
-    m_scenario_card.pos = sdl::point{width / 2 + sizes::deck_xoffset + sizes::card_width + sizes::card_xoffset, height / 2};
+    m_scenario_card.set_pos(sdl::point{
+        width / 2 + sizes::deck_xoffset + sizes::card_width + sizes::card_xoffset,
+        height / 2});
 
     move_player_views();
-
-    if (!m_animations.empty()) {
-        m_animations.front().end();
-        m_animations.pop_front();
-    }
-
-    for (auto &[id, card] : m_cards) {
-        card.set_pos(card.pile->get_position(&card));
-    }
 
     for (auto &cube : m_cubes | std::views::values) {
         if (!cube.owner) {
@@ -230,8 +232,8 @@ void game_scene::handle_card_click() {
 
     sdl::rect main_deck_rect = card_textures::main_deck().get_rect();
     sdl::scale_rect(main_deck_rect, sizes::card_width);
-    main_deck_rect.x = m_main_deck.pos.x - main_deck_rect.w / 2;
-    main_deck_rect.y = m_main_deck.pos.y - main_deck_rect.h / 2;
+    main_deck_rect.x = m_main_deck.get_pos().x - main_deck_rect.w / 2;
+    main_deck_rect.y = m_main_deck.get_pos().y - main_deck_rect.h / 2;
 
     if (card_view *card = find_clicked(m_selection)) {
         m_target.on_click_selection_card(card);
@@ -287,8 +289,8 @@ void game_scene::find_overlay() {
 
     sdl::rect main_deck_rect = card_textures::main_deck().get_rect();
     sdl::scale_rect(main_deck_rect, sizes::card_width);
-    main_deck_rect.x = m_main_deck.pos.x - main_deck_rect.w / 2;
-    main_deck_rect.y = m_main_deck.pos.y - main_deck_rect.h / 2;
+    main_deck_rect.x = m_main_deck.get_pos().x - main_deck_rect.w / 2;
+    main_deck_rect.y = m_main_deck.get_pos().y - main_deck_rect.h / 2;
 
     if (m_overlay = find_clicked(m_selection)) {
         return;
@@ -467,7 +469,7 @@ void game_scene::handle_game_update(UPDATE_TAG(add_cards), const add_cards_updat
         case card_pile_type::hidden_deck:       c.pile = &m_hidden_deck; break;
         default: throw std::runtime_error("Invalid pile");
         }
-        c.set_pos(c.pile->pos);
+        c.set_pos(c.pile->get_pos());
         c.pile->push_back(&c);
     }
 
@@ -484,7 +486,7 @@ void game_scene::handle_game_update(UPDATE_TAG(move_card), const move_card_updat
     card_move_animation anim;
 
     card->pile->erase_card(card);
-    if (card->pile->width > 0) {
+    if (card->pile->width() > 0) {
         for (card_view *anim_card : *card->pile) {
             anim.add_move_card(anim_card);
         }
@@ -506,7 +508,7 @@ void game_scene::handle_game_update(UPDATE_TAG(move_card), const move_card_updat
         }
     }();
     card->pile->push_back(card);
-    if (card->pile->width > 0) {
+    if (card->pile->width() > 0) {
         for (card_view *anim_card : *card->pile) {
             anim.add_move_card(anim_card);
         }
@@ -663,12 +665,9 @@ void game_scene::move_player_views() {
     if (auto it = std::ranges::find(m_players, m_players.size() < 4 ? player_role::deputy : player_role::sheriff,
         [](const auto &pair) { return pair.second.m_role.role; }); it != m_players.end()) {
         auto player_rect = it->second.m_bounding_rect;
-        m_scenario_deck.pos.x = player_rect.x + player_rect.w + sizes::scenario_deck_xoff;
-        m_scenario_deck.pos.y = player_rect.y + player_rect.h / 2;
-
-        for (const auto &c : m_scenario_deck) {
-            c->set_pos(m_scenario_deck.pos);
-        }
+        m_scenario_deck.set_pos(sdl::point{
+            player_rect.x + player_rect.w + sizes::scenario_deck_xoff,
+            player_rect.y + player_rect.h / 2});
     }
 }
 
@@ -722,10 +721,9 @@ void game_scene::handle_game_update(UPDATE_TAG(player_add_character), const play
     c.pile = &p.m_characters;
     c.make_texture_front();
     
-    auto pos = p.m_characters.pos;
-    pos.x += args.index * sizes::character_offset;
-    pos.y += args.index * sizes::character_offset;
-    c.set_pos(pos);
+    c.set_pos(sdl::point{
+        p.m_characters.get_pos().x + args.index * sizes::character_offset,
+        p.m_characters.get_pos().y + args.index * sizes::character_offset});
 
     if (args.index > p.m_characters.size()) {
         throw std::runtime_error("Invalid character index");
