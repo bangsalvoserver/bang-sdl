@@ -1,7 +1,7 @@
 #ifndef __ANIMATION_H__
 #define __ANIMATION_H__
 
-#include "card.h"
+#include "player.h"
 
 namespace banggame {
 
@@ -40,10 +40,10 @@ namespace banggame {
     };
 
     struct card_flip_animation {
-        card_widget *card;
+        card_view *card;
         bool flips;
 
-        card_flip_animation(card_widget *card, bool flips)
+        card_flip_animation(card_view *card, bool flips)
             : card(card), flips(flips) {
             card->animating = true;
         }
@@ -63,7 +63,7 @@ namespace banggame {
     };
 
     struct card_tap_animation {
-        card_widget *card;
+        card_view *card;
         bool taps;
 
         void do_animation(float amt) {

@@ -76,16 +76,16 @@ namespace banggame {
         std::list<game_update> m_pending_updates;
         std::list<animation> m_animations;
 
-        card_pile_view m_shop_deck{0};
-        card_pile_view m_shop_discard{0};
-        card_pile_view m_hidden_deck{0};
+        card_pile_view m_shop_deck;
+        card_pile_view m_shop_discard;
+        card_pile_view m_hidden_deck;
         card_pile_view m_shop_selection{sizes::shop_selection_width, true};
 
-        card_pile_view m_main_deck{0};
-        card_pile_view m_discard_pile{0};
+        card_pile_view m_main_deck;
+        card_pile_view m_discard_pile;
 
-        card_pile_view m_scenario_deck{0};
-        card_pile_view m_scenario_card{0};
+        card_pile_view m_scenario_deck;
+        card_pile_view m_scenario_card;
 
         card_pile_view m_selection{sizes::selection_width};
 
@@ -96,7 +96,7 @@ namespace banggame {
         sdl::point m_mouse_pt;
         int m_mouse_motion_timer = 0;
         bool m_middle_click = false;
-        card_widget *m_overlay = nullptr;
+        card_view *m_overlay = nullptr;
 
         card_expansion_type m_expansions;
         
@@ -106,23 +106,11 @@ namespace banggame {
         std::default_random_engine rng;
 
         std::optional<request_status_args> m_current_request;
-        card_widget *m_last_played_card = nullptr;
+        card_view *m_last_played_card = nullptr;
 
         card_view *find_card(int id) {
             if (auto it = m_cards.find(id); it != m_cards.end()) {
                 return &it->second;
-            }
-            return nullptr;
-        }
-
-        card_widget *find_card_widget(int id) {
-            if (auto it = m_cards.find(id); it != m_cards.end()) {
-                return &it->second;
-            }
-            for (auto &[player_id, p] : m_players) {
-                if (auto it = std::ranges::find(p.m_characters, id, &character_card::id); it != p.m_characters.end()) {
-                    return &*it;
-                }
             }
             return nullptr;
         }

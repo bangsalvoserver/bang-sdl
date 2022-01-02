@@ -146,7 +146,7 @@ void target_finder::on_click_table_card(player_view *player, card_view *card) {
     }
 }
 
-bool target_finder::is_escape_card(card_widget *card) {
+bool target_finder::is_escape_card(card_view *card) {
     if (m_game->m_current_request
         && std::ranges::find(card->response_targets, effect_type::escape, &card_target_data::type) != card->response_targets.end()) {
         return bool(m_game->m_current_request->flags & effect_flags::escapable);
@@ -203,7 +203,7 @@ void target_finder::on_click_hand_card(player_view *player, card_view *card) {
     }
 }
 
-void target_finder::on_click_character(player_view *player, character_card *card) {
+void target_finder::on_click_character(player_view *player, card_view *card) {
     m_flags &= ~(play_card_flags::sell_beer | play_card_flags::discard_black);
 
     if (m_game->m_current_request && m_game->m_current_request->target_id == m_game->m_player_own_id) {
@@ -278,15 +278,15 @@ void target_finder::on_click_discard_black() {
     }
 }
 
-void target_finder::add_modifier(card_widget *card) {
-    if (m_modifiers.empty() || std::ranges::find(m_modifiers, card->modifier, &card_widget::modifier) != m_modifiers.end()) {
+void target_finder::add_modifier(card_view *card) {
+    if (m_modifiers.empty() || std::ranges::find(m_modifiers, card->modifier, &card_view::modifier) != m_modifiers.end()) {
         if (std::ranges::find(m_modifiers, card) == m_modifiers.end()) {
             m_modifiers.push_back(card);
         }
     }
 }
 
-bool target_finder::verify_modifier(card_widget *card) {
+bool target_finder::verify_modifier(card_view *card) {
     if (m_modifiers.empty()) return true;
     switch (m_modifiers.front()->modifier) {
     case card_modifier_type::bangcard:
@@ -304,7 +304,7 @@ bool target_finder::verify_modifier(card_widget *card) {
 std::vector<card_target_data> &target_finder::get_current_card_targets() {
     assert(!bool(m_flags & play_card_flags::equipping));
 
-    card_widget *card = nullptr;
+    card_view *card = nullptr;
     if (m_game->m_last_played_card && !m_modifiers.empty() && m_modifiers.front()->modifier == card_modifier_type::leevankliff) {
         card = m_game->m_last_played_card;
     } else {
@@ -443,11 +443,10 @@ void target_finder::add_card_target(target_pair target) {
     int index = get_target_index();
     auto cur_target = get_target_type(index);
 
-    card_view *as_deck_card = target.card ? m_game->find_card(target.card->id) : nullptr;
-    bool from_hand = std::ranges::find(target.player->hand, as_deck_card) != target.player->hand.end();
+    bool from_hand = target.card->pile == &target.player->hand;
 
-    bool is_bang = as_deck_card && !as_deck_card->targets.empty() && as_deck_card->targets.front().type == effect_type::bangcard;
-    bool is_missed = as_deck_card && !as_deck_card->response_targets.empty() && as_deck_card->response_targets.front().type == effect_type::missedcard;
+    bool is_bang = !target.card->targets.empty() && target.card->targets.front().type == effect_type::bangcard;
+    bool is_missed = !target.card->response_targets.empty() && target.card->response_targets.front().type == effect_type::missedcard;
 
     if (!std::ranges::all_of(util::enum_flag_values(cur_target),
         [&](target_type value) {
@@ -455,7 +454,8 @@ void target_finder::add_card_target(target_pair target) {
             case target_type::card:
             case target_type::everyone:
             case target_type::reachable:
-            case target_type::maxdistance:
+            case target_type::range_1:
+            case target_type::range_2:
             case target_type::new_target:
             case target_type::can_repeat: return true;
             case target_type::self: return target.player->id == m_game->m_player_own_id;
@@ -463,12 +463,12 @@ void target_finder::add_card_target(target_pair target) {
             case target_type::notsheriff: return target.player && target.player->m_role.role != player_role::sheriff;
             case target_type::table: return !from_hand;
             case target_type::hand: return from_hand;
-            case target_type::blue: return as_deck_card && as_deck_card->color == card_color_type::blue;
-            case target_type::clubs: return as_deck_card && as_deck_card->suit == card_suit_type::clubs;
+            case target_type::blue: return target.card->color == card_color_type::blue;
+            case target_type::clubs: return target.card->suit == card_suit_type::clubs;
             case target_type::bang: return is_bang;
             case target_type::missed: return is_missed;
             case target_type::bangormissed: return is_bang || is_missed;
-            case target_type::cube_slot: return as_deck_card && as_deck_card->color == card_color_type::orange;
+            case target_type::cube_slot: return target.card->color == card_color_type::orange;
             default: return false;
             }
         })) return;
@@ -509,8 +509,8 @@ void target_finder::add_character_target(target_pair target) {
     if (!bool(type & target_type::cube_slot)) return;
     if (bool(type & target_type::table)) return;
 
-    if (std::ranges::find(target.player->m_characters, target.card, [](const character_card &c) { return &c; }) != target.player->m_characters.end()) {
-        target.card = &target.player->m_characters.front();
+    if (std::ranges::find(target.player->m_characters, target.card) != target.player->m_characters.end()) {
+        target.card = target.player->m_characters.front();
     } else {
         return;
     }
@@ -544,7 +544,8 @@ bool target_finder::add_player_targets(const std::vector<target_pair> &targets) 
                     });
                 case target_type::everyone:
                 case target_type::reachable:
-                case target_type::maxdistance:
+                case target_type::range_1:
+                case target_type::range_2:
                 case target_type::fanning_target:
                     return true;
                 default:
@@ -576,7 +577,7 @@ void target_finder::clear_targets() {
 void target_finder::send_play_card() {
     play_card_args ret;
     ret.card_id = m_playing_card ? m_playing_card->id : 0;
-    for (card_widget *card : m_modifiers) {
+    for (card_view *card : m_modifiers) {
         ret.modifier_ids.push_back(card->id);
     }
     ret.flags = m_flags;

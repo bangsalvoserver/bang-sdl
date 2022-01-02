@@ -79,7 +79,7 @@ namespace banggame {
 
     struct player_remove_character_update {REFLECTABLE(
         (int) player_id,
-        (int) index
+        (int) card_id
     )};
 
     struct hide_card_update {REFLECTABLE(

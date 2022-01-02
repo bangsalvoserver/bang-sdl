@@ -253,7 +253,8 @@ namespace banggame {
                     c->pile = card_pile_type::none;
                     c->owner = nullptr;
                     p->m_characters.pop_back();
-                    p->m_game->add_public_update<game_update_type::player_remove_character>(p->id, 1);
+                    p->m_game->add_public_update<game_update_type::player_remove_character>(p->id, c->id);
+                    p->m_game->m_characters.erase(c->id);
                 }
             }
         });

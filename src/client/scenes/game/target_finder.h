@@ -1,7 +1,7 @@
 #ifndef __TARGET_FINDER_H__
 #define __TARGET_FINDER_H__
 
-#include "card.h"
+#include "player.h"
 
 #include "common/requests.h"
 
@@ -13,12 +13,12 @@ namespace banggame {
 
     struct target_pair {
         player_view *player;
-        card_widget *card;
+        card_view *card;
     };
 
     struct target_status {
-        card_widget *m_playing_card = nullptr;
-        std::vector<card_widget *> m_modifiers;
+        card_view *m_playing_card = nullptr;
+        std::vector<card_view *> m_modifiers;
 
         std::vector<std::vector<target_pair>> m_targets;
         std::vector<cube_widget *> m_selected_cubes;
@@ -41,7 +41,7 @@ namespace banggame {
         void on_click_shop_card(card_view *card);
         void on_click_table_card(player_view *player, card_view *card);
         void on_click_hand_card(player_view *player, card_view *card);
-        void on_click_character(player_view *player, character_card *card);
+        void on_click_character(player_view *player, card_view *card);
         void on_click_scenario_card(card_view *card);
         bool on_click_player(player_view *player);
 
@@ -53,15 +53,15 @@ namespace banggame {
         void clear_targets();
     
     private:
-        void add_modifier(card_widget *card);
-        bool verify_modifier(card_widget *card);
+        void add_modifier(card_view *card);
+        bool verify_modifier(card_view *card);
 
         void handle_auto_targets();
         void add_card_target(target_pair target);
         void add_character_target(target_pair target);
         bool add_player_targets(const std::vector<target_pair> &targets);
 
-        bool is_escape_card(card_widget *card);
+        bool is_escape_card(card_view *card);
 
         std::vector<card_target_data> &get_current_card_targets();
         std::vector<card_target_data> &get_optional_targets();

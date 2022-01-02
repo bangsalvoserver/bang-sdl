@@ -220,7 +220,7 @@ void game_scene::handle_event(const sdl::event &event) {
 }
 
 void game_scene::handle_card_click() {
-    auto mouse_in_card = [&](card_widget *card) {
+    auto mouse_in_card = [&](card_view *card) {
         return sdl::point_in_rect(m_mouse_pt, card->get_rect());
     };
     auto find_clicked = [&](const card_pile_view &pile) {
@@ -255,9 +255,9 @@ void game_scene::handle_card_click() {
                 return;
             }
         }
-        for (auto &c : p.m_characters | std::views::reverse) {
-            if (sdl::point_in_rect(m_mouse_pt, c.get_rect())) {
-                m_target.on_click_character(&p, &c);
+        for (card_view *c : p.m_characters | std::views::reverse) {
+            if (sdl::point_in_rect(m_mouse_pt, c->get_rect())) {
+                m_target.on_click_character(&p, c);
                 return;
             }
         }
@@ -273,7 +273,7 @@ void game_scene::handle_card_click() {
 }
 
 void game_scene::find_overlay() {
-    auto mouse_in_card = [&](const card_widget *card) {
+    auto mouse_in_card = [&](const card_view *card) {
         return sdl::point_in_rect(m_mouse_pt, card->get_rect());
     };
     auto find_clicked = [&](const card_pile_view &pile) {
@@ -309,9 +309,9 @@ void game_scene::find_overlay() {
         return;
     }
     for (auto &p : m_players | std::views::values) {
-        for (auto &c : p.m_characters | std::views::reverse) {
-            if (sdl::point_in_rect(m_mouse_pt, c.get_rect())) {
-                m_overlay = &c;
+        for (card_view *c : p.m_characters | std::views::reverse) {
+            if (sdl::point_in_rect(m_mouse_pt, c->get_rect())) {
+                m_overlay = c;
                 return;
             }
         }
@@ -389,7 +389,7 @@ std::string game_scene::evaluate_format_string(const game_formatted_string &str)
             [](const std::string &value) { return value; },
             [&](card_format_id value) {
                 player_view *owner = value.player_id ? find_player(value.player_id) : nullptr;
-                card_widget *card = value.card_id ? find_card_widget(value.card_id) : nullptr;
+                card_view *card = value.card_id ? find_card(value.card_id) : nullptr;
                 if (card) {
                     if (owner && card->pile == &owner->hand) {
                         return _("STATUS_CARD_FROM_HAND");
@@ -475,7 +475,7 @@ void game_scene::handle_game_update(UPDATE_TAG(add_cards), const add_cards_updat
 }
 
 void game_scene::handle_game_update(UPDATE_TAG(move_card), const move_card_update &args) {
-    auto *card = find_card(args.card_id);
+    card_view *card = find_card(args.card_id);
     if (!card) {
         pop_update();
         return;
@@ -549,7 +549,7 @@ void game_scene::handle_game_update(UPDATE_TAG(move_cube), const move_cube_updat
     }
     sdl::point diff;
     if (args.card_id) {
-        cube.owner = find_card_widget(args.card_id);
+        cube.owner = find_card(args.card_id);
         diff.x = sizes::cube_xdiff;
         diff.y = sizes::cube_ydiff + sizes::cube_yoff * cube.owner->cubes.size();
         cube.owner->cubes.push_back(&cube);
@@ -569,7 +569,7 @@ void game_scene::handle_game_update(UPDATE_TAG(move_cube), const move_cube_updat
 }
 
 void game_scene::handle_game_update(UPDATE_TAG(show_card), const show_card_update &args) {
-    auto *card = find_card(args.info.id);
+    card_view *card = find_card(args.info.id);
 
     if (card && !card->known) {
         *static_cast<card_info *>(card) = args.info;
@@ -602,7 +602,7 @@ void game_scene::handle_game_update(UPDATE_TAG(show_card), const show_card_updat
 }
 
 void game_scene::handle_game_update(UPDATE_TAG(hide_card), const hide_card_update &args) {
-    auto *card = find_card(args.card_id);
+    card_view *card = find_card(args.card_id);
 
     if (card && card->known && args.ignore_player_id != m_player_own_id) {
         card->known = false;
@@ -622,7 +622,7 @@ void game_scene::handle_game_update(UPDATE_TAG(hide_card), const hide_card_updat
 }
 
 void game_scene::handle_game_update(UPDATE_TAG(tap_card), const tap_card_update &args) {
-    auto *card = find_card(args.card_id);
+    card_view *card = find_card(args.card_id);
     if (card->inactive != args.inactive) {
         card->inactive = args.inactive;
         if (args.instant) {
@@ -637,7 +637,7 @@ void game_scene::handle_game_update(UPDATE_TAG(tap_card), const tap_card_update 
 }
 
 void game_scene::handle_game_update(UPDATE_TAG(last_played_card), const last_played_card_id &args) {
-    m_last_played_card = find_card_widget(args.card_id);
+    m_last_played_card = find_card(args.card_id);
     pop_update();
 }
 
@@ -692,7 +692,7 @@ void game_scene::handle_game_update(UPDATE_TAG(player_add), const player_user_up
 }
 
 void game_scene::handle_game_update(UPDATE_TAG(player_hp), const player_hp_update &args) {
-    auto *player = find_player(args.player_id);
+    player_view *player = find_player(args.player_id);
     int prev_hp = player->hp;
     player->dead = args.dead;
     player->hp = args.hp;
@@ -715,15 +715,27 @@ void game_scene::handle_game_update(UPDATE_TAG(player_add_character), const play
     auto &p = *find_player(args.player_id);
     p.m_role.texture_back = &card_textures::role();
 
-    while (args.index >= p.m_characters.size()) {
-        auto &last_pos = p.m_characters.back().get_pos();
-        p.m_characters.emplace_back().set_pos(sdl::point(last_pos.x + 20, last_pos.y + 20));
-    }
-    auto &c = *std::next(p.m_characters.begin(), args.index);
-
+    auto &c = m_cards[args.info.id];
     static_cast<card_info &>(c) = args.info;
     c.known = true;
+    c.flip_amt = 1.f;
+    c.pile = &p.m_characters;
     c.make_texture_front();
+    
+    auto pos = p.m_characters.pos;
+    pos.x += args.index * sizes::character_offset;
+    pos.y += args.index * sizes::character_offset;
+    c.set_pos(pos);
+
+    if (args.index > p.m_characters.size()) {
+        throw std::runtime_error("Invalid character index");
+    }
+    if (args.index == p.m_characters.size()) {
+        p.m_characters.push_back(&c);
+    } else {
+        m_cards.erase(p.m_characters[args.index]->id);
+        p.m_characters[args.index] = &c;
+    }
 
     if (args.index == 0) {
         p.set_hp_marker_position(p.hp = args.max_hp);
@@ -734,9 +746,9 @@ void game_scene::handle_game_update(UPDATE_TAG(player_add_character), const play
 
 void game_scene::handle_game_update(UPDATE_TAG(player_remove_character), const player_remove_character_update &args) {
     auto &p = *find_player(args.player_id);
-    if (args.index < p.m_characters.size()) {
-        p.m_characters.erase(std::next(p.m_characters.begin(), args.index));
-    }
+
+    p.m_characters.erase_card(find_card(args.card_id));
+    m_cards.erase(args.card_id);
 
     pop_update();
 }

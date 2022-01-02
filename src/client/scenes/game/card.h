@@ -36,7 +36,6 @@ namespace banggame {
         static const sdl::texture &goldrush() { return s_goldrush; }
     };
 
-    struct card_widget;
     struct card_view;
 
     struct card_pile_view : std::vector<card_view *> {
@@ -44,7 +43,7 @@ namespace banggame {
         int width;
         int hflip;
 
-        explicit card_pile_view(int width, bool hflip = false)
+        explicit card_pile_view(int width = 0, bool hflip = false)
             : width(width)
             , hflip(hflip ? -1 : 1) {}
 
@@ -68,7 +67,7 @@ namespace banggame {
 
     class cube_widget {
     public:
-        card_widget *owner = nullptr;
+        card_view *owner = nullptr;
 
         int id;
         sdl::point pos;
@@ -86,7 +85,7 @@ namespace banggame {
         sdl::rect m_rect;
     };
 
-    class card_widget : public card_info {
+    class card_view : public card_info {
     public:
         std::vector<cube_widget *> cubes;
 
@@ -98,8 +97,11 @@ namespace banggame {
         bool known = false;
         card_pile_view *pile = nullptr;
 
+        bool inactive = false;
+
         card_suit_type suit = card_suit_type::none;
         card_value_type value = card_value_type::none;
+        card_color_type color = card_color_type::none;
 
         void set_pos(const sdl::point &pos);
         const sdl::point &get_pos() const {
@@ -127,6 +129,8 @@ namespace banggame {
             texture_front_scaled = sdl::scale_surface(texture_front.get_surface(),
                 texture_front.get_rect().w / sizes::card_width);
         }
+        
+        void make_texture_front();
 
     private:
         sdl::point m_pos;
@@ -135,67 +139,10 @@ namespace banggame {
         void do_render(sdl::renderer &renderer, const sdl::texture &front);
     };
 
-    struct card_view : card_widget {
-        bool inactive = false;
-
-        card_color_type color;
-
-        void make_texture_front();
-    };
-
-    struct character_card : card_widget {
-        void make_texture_front();
-    };
-
-    struct role_card : card_widget {
+    struct role_card : card_view {
         player_role role = player_role::unknown;
 
         void make_texture_front();
-    };
-
-    struct player_view {
-        int id;
-
-        int user_id;
-        
-        explicit player_view(int id) : id(id) {}
-
-        int hp = 0;
-        int gold = 0;
-        bool dead = false;
-
-        card_pile_view hand{sizes::player_hand_width};
-        card_pile_view table{sizes::player_hand_width};
-
-        sdl::rect m_bounding_rect;
-
-        std::list<character_card> m_characters{1};
-        
-        sdl::point m_hp_marker_pos;
-        role_card m_role;
-
-        sdl::stattext m_username_text;
-
-        sdl::stattext m_gold_text;
-
-        sdl::texture *m_profile_image = nullptr;
-        sdl::rect m_profile_rect;
-        
-        static inline sdl::texture m_gold_texture;
-
-        void set_position(sdl::point pos, bool flipped = false);
-
-        void set_hp_marker_position(float hp);
-
-        void set_gold(int amount);
-
-        void set_username(const std::string &name);
-        void set_profile_image(sdl::texture *image);
-
-        void render(sdl::renderer &renderer);
-        void render_turn_indicator(sdl::renderer &renderer);
-        void render_request_origin_indicator(sdl::renderer &renderer);
-        void render_request_target_indicator(sdl::renderer &renderer);
     };
 }
 

@@ -20,7 +20,9 @@ set(bangclient_srcs
     src/client/main.cpp
     src/client/manager.cpp
     src/client/user_info.cpp
+    src/client/scenes/game/card_resources.cpp
     src/client/scenes/game/card.cpp
+    src/client/scenes/game/player.cpp
     src/client/scenes/game/game.cpp
     src/client/scenes/game/game_ui.cpp
     src/client/scenes/game/target_finder.cpp

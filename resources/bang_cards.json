@@ -378,8 +378,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "card maxdistance",
-                    "args": 1,
+                    "target": "card range_1",
                     "class": "steal",
                     "escapable": true
                 }
@@ -647,8 +646,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "card maxdistance",
-                    "args": 1,
+                    "target": "card range_1",
                     "class": "steal",
                     "escapable": true
                 }
@@ -664,8 +662,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player notself maxdistance",
-                    "args": 1,
+                    "target": "player notself range_1",
                     "class": "bang",
                     "escapable": true
                 }
@@ -876,8 +873,7 @@
             "color": "green",
             "effects": [
                 {
-                    "target": "player notself maxdistance",
-                    "args": 1,
+                    "target": "player notself range_1",
                     "class": "bang"
                 },
                 {
@@ -982,8 +978,7 @@
             "color": "green",
             "effects": [
                 {
-                    "target": "player notself maxdistance",
-                    "args": 1,
+                    "target": "player notself range_1",
                     "class": "bang"
                 }
             ]
@@ -1237,8 +1232,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player notself maxdistance",
-                    "args": 2,
+                    "target": "player notself range_2",
                     "class": "bang",
                     "escapable": true
                 }
@@ -3409,8 +3403,7 @@
                     "class": "bottlechoice"
                 },
                 {
-                    "target": "card maxdistance",
-                    "args": 1,
+                    "target": "card range_1",
                     "class": "steal"
                 }
             ]
