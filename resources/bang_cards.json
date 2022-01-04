@@ -2975,11 +2975,14 @@
             "effects": [
                 {
                     "target": "self hand bang card",
-                    "class": "destroy"
+                    "class": "virtual_destroy"
                 },
                 {
                     "target": "self hand bang card",
-                    "class": "destroy"
+                    "class": "virtual_destroy"
+                },
+                {
+                    "class": "virtual_clear"
                 },
                 {
                     "target": "player reachable notself",
@@ -3111,7 +3114,10 @@
             "effects": [
                 {
                     "target": "self hand bang card",
-                    "class": "destroy"
+                    "class": "virtual_destroy"
+                },
+                {
+                    "class": "virtual_clear"
                 },
                 {
                     "target": "notself table card",
