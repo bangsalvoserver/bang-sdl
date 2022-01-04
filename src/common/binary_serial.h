@@ -23,28 +23,12 @@ namespace binary {
         serializer<T>{}(value, out);
     };
 
-    template<std::integral T> requires (sizeof(T) == 1)
+    template<std::integral T>
     struct serializer<T> {
         void operator()(const T &value, byte_vector &out) const {
-            out.push_back(static_cast<std::byte>(value));
-        }
-    };
-
-    template<std::integral T> requires (sizeof(T) == 2)
-    struct serializer<T> {
-        void operator()(const T &value, byte_vector &out) const {
-            out.push_back(static_cast<std::byte>((value & 0xff00) >> (8 * 1)));
-            out.push_back(static_cast<std::byte>((value & 0x00ff) >> (8 * 0)));
-        }
-    };
-
-    template<std::integral T> requires (sizeof(T) == 4)
-    struct serializer<T> {
-        void operator()(const T &value, byte_vector &out) const {
-            out.push_back(static_cast<std::byte>((value & 0xff000000) >> (8 * 3)));
-            out.push_back(static_cast<std::byte>((value & 0x00ff0000) >> (8 * 2)));
-            out.push_back(static_cast<std::byte>((value & 0x0000ff00) >> (8 * 1)));
-            out.push_back(static_cast<std::byte>((value & 0x000000ff) >> (8 * 0)));
+            [&]<size_t ... I>(std::index_sequence<I...>) {
+                (out.push_back(static_cast<std::byte>((value & (static_cast<T>(0xff) << (8 * (sizeof(T) - I - 1)))) >> (8 * (sizeof(T) - I - 1)))), ...);
+            }(std::make_index_sequence<sizeof(T)>());
         }
     };
 
@@ -154,38 +138,14 @@ namespace binary {
         }
     }
 
-    template<std::integral T> requires (sizeof(T) == 1)
+    template<std::integral T>
     struct deserializer<T> {
         T operator()(byte_ptr &pos, byte_ptr end) const {
-            check_length(pos, end, 1);
-            T value = static_cast<T>(*pos);
-            ++pos;
-            return value;
-        }
-    };
-
-    template<std::integral T> requires (sizeof(T) == 2)
-    struct deserializer<T> {
-        T operator()(byte_ptr &pos, byte_ptr end) const {
-            check_length(pos, end, 2);
-            T value =
-                (static_cast<uint8_t>(*(pos + 0)) << (8 * 1)) |
-                (static_cast<uint8_t>(*(pos + 1)) << (8 * 0));
-            pos += 2;
-            return value;
-        }
-    };
-
-    template<std::integral T> requires (sizeof(T) == 4)
-    struct deserializer<T> {
-        T operator()(byte_ptr &pos, byte_ptr end) const {
-            check_length(pos, end, 4);
-            T value =
-                (static_cast<uint8_t>(*(pos + 0)) << (8 * 3)) |
-                (static_cast<uint8_t>(*(pos + 1)) << (8 * 2)) |
-                (static_cast<uint8_t>(*(pos + 2)) << (8 * 1)) |
-                (static_cast<uint8_t>(*(pos + 3)) << (8 * 0));
-            pos += 4;
+            check_length(pos, end, sizeof(T));
+            T value = [&]<size_t ... I>(std::index_sequence<I ...>) {
+                return ((static_cast<uint8_t>(*(pos + I)) << (8 * (sizeof(T) - I - 1))) | ...);
+            }(std::make_index_sequence<sizeof(T)>());
+            pos += sizeof(T);
             return value;
         }
     };

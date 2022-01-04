@@ -18,7 +18,7 @@ void game_manager::parse_message(const sdlnet::ip_address &addr, const std::vect
     } catch (const game_error &e) {
         send_message<server_message_type::game_update>(addr, enums::enum_constant<game_update_type::game_error>(), e);
     } catch (const binary::read_error &e) {
-        std::cerr << addr.ip_string() << ": Serialization Error\n";
+        std::cerr << addr.ip_string() << ": Deserialization Error: " << e.what() << '\n';
     } catch (const std::exception &e) {
         std::cerr << addr.ip_string() << ": Error (" << e.what() << ")\n";
     }

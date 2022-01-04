@@ -23,26 +23,20 @@ game_manager::~game_manager() {
 void game_manager::update_net() {
     while (sock.isopen() && sock_set.check(0)) {
         try {
-            auto header = recv_message_header(sock);
-            auto msg_bytes = recv_message_bytes(sock, header.length);
             enums::visit_indexed([&](auto && ... args) {
                 handle_message(std::forward<decltype(args)>(args)...);
-            }, binary::deserialize<server_message>(msg_bytes));
+            }, binary::deserialize<server_message>(recv_message_bytes(sock)));
         } catch (sdlnet::socket_disconnected) {
             disconnect();
         } catch (const binary::read_error &error) {
-            std::cerr << "Serialization error\n";
+            std::cerr << "Deserialization error: " << error.what() << '\n';
         } catch (const std::exception &error) {
             std::cerr << "Error (" << error.what() << ")\n";
         }
     }
     if (sock.isopen()) {
         while (!m_out_queue.empty()) {
-            auto message_bytes = binary::serialize(m_out_queue.front());
-
-            send_message_header(sock, message_header{(uint32_t)message_bytes.size()});
-            send_message_bytes(sock, message_bytes);
-            
+            send_message_bytes(sock, binary::serialize(m_out_queue.front()));
             m_out_queue.pop_front();
         }
     }

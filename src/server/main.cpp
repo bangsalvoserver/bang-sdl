@@ -26,8 +26,7 @@ int main(int argc, char **argv) {
             for (auto it = clients.begin(); it != clients.end();) {
                 try {
                     if (set.ready(it->second)) {
-                        auto header = recv_message_header(it->second);
-                        mgr.parse_message(it->first, recv_message_bytes(it->second, header.length));
+                        mgr.parse_message(it->first, recv_message_bytes(it->second));
                     }
                     ++it;
                 } catch (sdlnet::socket_disconnected) {
@@ -51,7 +50,6 @@ int main(int argc, char **argv) {
             auto it = clients.find(msg.addr);
             if (it != clients.end()) {
                 try {
-                    send_message_header(it->second, message_header{(uint32_t)msg.value.size()});
                     send_message_bytes(it->second, msg.value);
                 } catch (sdlnet::socket_disconnected) {
                     mgr.client_disconnected(it->first);
