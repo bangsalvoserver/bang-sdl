@@ -465,9 +465,10 @@ void target_finder::add_card_target(target_pair target) {
             case target_type::hand: return from_hand;
             case target_type::blue: return target.card->color == card_color_type::blue;
             case target_type::clubs: return target.card->suit == card_suit_type::clubs;
-            case target_type::bang: return is_bang;
+            case target_type::bang:
+                return bool(m_game->m_player_flags & player_flags::treat_any_as_bang)
+                    || is_bang || (bool(m_game->m_player_flags & player_flags::treat_missed_as_bang) && is_missed);
             case target_type::missed: return is_missed;
-            case target_type::bangormissed: return is_bang || is_missed;
             case target_type::cube_slot: return target.card->color == card_color_type::orange;
             default: return false;
             }

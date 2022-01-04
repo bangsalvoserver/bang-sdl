@@ -68,6 +68,7 @@ namespace banggame {
         bool m_start_of_turn = false;
 
         card_suit_type m_declared_suit = card_suit_type::none;
+        player_flags m_player_flags = enums::flags_none<player_flags>;
 
         int m_gold = 0;
         
@@ -169,6 +170,9 @@ namespace banggame {
 
         card_suit_type get_card_suit(card *drawn_card);
         card_value_type get_card_value(card *drawn_card);
+
+        void add_player_flags(player_flags flags);
+        void remove_player_flags(player_flags flags);
     };
 
 }

@@ -366,12 +366,14 @@ namespace banggame {
                         card *target_card = m_game->find_card(args.front().card_id);
                         e.verify(card_ptr, this, target, target_card);
 
-                        constexpr auto is_bangcard = [](card *card_ptr) {
-                            return !card_ptr->effects.empty() && card_ptr->effects.front().is(effect_type::bangcard);
+                        auto is_missedcard = [](card *card_ptr) {
+                            return !card_ptr->responses.empty() && card_ptr->responses.front().is(effect_type::missedcard);
                         };
 
-                        constexpr auto is_missedcard = [](card *card_ptr) {
-                            return !card_ptr->responses.empty() && card_ptr->responses.front().is(effect_type::missedcard);
+                        auto is_bangcard = [&](card *card_ptr) {
+                            return bool(m_player_flags & player_flags::treat_any_as_bang)
+                                || !card_ptr->effects.empty() && card_ptr->effects.front().is(effect_type::bangcard)
+                                || (bool(m_player_flags & player_flags::treat_missed_as_bang) && is_missedcard(card_ptr));
                         };
 
                         std::ranges::for_each(util::enum_flag_values(e.target), [&](target_type value) {
@@ -392,10 +394,6 @@ namespace banggame {
                             case target_type::clubs: if (get_card_suit(target_card) != card_suit_type::clubs) throw game_error("ERROR_TARGET_NOT_CLUBS"); break;
                             case target_type::bang: if (!is_bangcard(target_card)) throw game_error("ERROR_TARGET_NOT_BANG"); break;
                             case target_type::missed: if (!is_missedcard(target_card)) throw game_error("ERROR_TARGET_NOT_MISSED"); break;
-                            case target_type::bangormissed:
-                                if (!is_bangcard(target_card) && !is_missedcard(target_card))
-                                    throw game_error("ERROR_TARGET_NOT_BANG_OR_MISSED");
-                                break;
                             case target_type::cube_slot:
                                 if (target_card != target->m_characters.front() && target_card->color != card_color_type::orange)
                                     throw game_error("ERROR_TARGET_NOT_CUBE_SLOT");
@@ -928,5 +926,15 @@ namespace banggame {
         } else {
             m_game->add_private_update<game_update_type::player_show_role>(this, id, m_role, true);
         }
+    }
+
+    void player::add_player_flags(player_flags flags) {
+        m_player_flags |= flags;
+        m_game->add_public_update<game_update_type::player_flags>(id, flags);
+    }
+
+    void player::remove_player_flags(player_flags flags) {
+        m_player_flags &= ~flags;
+        m_game->add_public_update<game_update_type::player_flags>(id, flags);
     }
 }

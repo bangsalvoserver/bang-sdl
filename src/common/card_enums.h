@@ -82,7 +82,6 @@ namespace banggame {
         (clubs)
         (bang)
         (missed)
-        (bangormissed)
         (fanning_target)
         (new_target)
         (cube_slot)

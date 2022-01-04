@@ -121,6 +121,16 @@ namespace banggame {
         (bool) instant
     )};
 
+    DEFINE_ENUM_FLAGS_IN_NS(banggame, player_flags,
+        (treat_missed_as_bang)
+        (treat_any_as_bang)
+    )
+
+    struct player_flags_update {REFLECTABLE(
+        (int) player_id,
+        (player_flags) flags
+    )};
+
     struct switch_turn_update {REFLECTABLE(
         (int) player_id
     )};
@@ -152,6 +162,7 @@ namespace banggame {
         (player_add_character, player_character_update)
         (player_remove_character, player_remove_character_update)
         (player_show_role, player_show_role_update)
+        (player_flags, player_flags_update)
         (switch_turn, switch_turn_update)
         (request_status, request_status_args)
         (status_clear)

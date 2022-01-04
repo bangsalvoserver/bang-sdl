@@ -772,6 +772,14 @@ void game_scene::handle_game_update(UPDATE_TAG(player_show_role), const player_s
     move_player_views();
 }
 
+void game_scene::handle_game_update(UPDATE_TAG(player_flags), const player_flags_update &args) {
+    if (m_player_own_id == args.player_id) {
+        m_player_flags = args.flags;
+    }
+
+    pop_update();
+}
+
 void game_scene::handle_game_update(UPDATE_TAG(switch_turn), const switch_turn_update &args) {
     m_playing_id = args.player_id;
     m_target.clear_targets();

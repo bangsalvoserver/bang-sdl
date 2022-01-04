@@ -669,4 +669,12 @@ namespace banggame {
     void effect_ricochet::on_play(card *origin_card, player *origin, player *target, card *target_card) {
         target->m_game->queue_request<request_type::ricochet>(origin_card, origin, target, target_card, flags);
     }
+
+    void effect_lemat::on_equip(player *p, card *origin_card) {
+        p->add_player_flags(player_flags::treat_any_as_bang);
+    }
+
+    void effect_lemat::on_unequip(player *p, card *origin_card) {
+        p->remove_player_flags(player_flags::treat_any_as_bang);
+    }
 }

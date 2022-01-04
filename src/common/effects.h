@@ -292,6 +292,11 @@ namespace banggame {
         void on_play(card *origin_card, player *origin, player *target, card *target_card);
     };
 
+    struct effect_lemat : card_effect {
+        void on_equip(player *target, card *target_card);
+        void on_unequip(player *target, card *target_card);
+    };
+
 }
 
 #endif

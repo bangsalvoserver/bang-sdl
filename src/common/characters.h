@@ -6,9 +6,13 @@
 
 namespace banggame {
 
-    struct effect_slab_the_killer : event_based_effect {
+    struct effect_calamity_janet : card_effect {
         void on_equip(player *target, card *target_card);
         void on_unequip(player *target, card *target_card);
+    };
+
+    struct effect_slab_the_killer : event_based_effect {
+        void on_equip(player *target, card *target_card);
     };
 
     struct effect_black_jack : event_based_effect {

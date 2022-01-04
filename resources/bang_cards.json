@@ -1026,6 +1026,9 @@
                 {
                     "class": "weapon",
                     "args": 1
+                },
+                {
+                    "class": "lemat"
                 }
             ],
             "effects": [
@@ -1866,9 +1869,14 @@
             "image": "01_calamityjanet",
             "hp": 4,
             "expansion": "base",
+            "equip": [
+                {
+                    "class": "calamity_janet"
+                }
+            ],
             "effects": [
                 {
-                    "target": "self hand bangormissed card",
+                    "target": "self hand bang card",
                     "class": "virtual_destroy"
                 },
                 {
@@ -1884,7 +1892,7 @@
             ],
             "responses": [
                 {
-                    "target": "self hand bangormissed card",
+                    "target": "self hand bang card",
                     "class": "virtual_destroy"
                 },
                 {
