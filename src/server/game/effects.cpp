@@ -207,24 +207,19 @@ namespace banggame {
             target->m_game->queue_request<request_type::destroy>(origin_card, origin, target, target_card, flags);
         } else {
             target->m_game->instant_event<event_type::on_discard_card>(origin, target, target_card);
-            auto effect_end_pos = std::ranges::find(target->m_game->m_pending_events, enums::indexof(event_type::on_effect_end), &event_args::index);
-            if (effect_end_pos == target->m_game->m_pending_events.end()) {
+            auto fun = [=]{
                 if (origin != target) {
                     target->m_game->add_log("LOG_DISCARDED_CARD", origin, target, with_owner{target_card});
                 } else {
                     target->m_game->add_log("LOG_DISCARDED_SELF_CARD", origin, target_card);
                 }
                 target->discard_card(target_card);
+            };
+            if (auto pos = std::ranges::find(target->m_game->m_pending_events, enums::indexof(event_type::on_effect_end), &event_args::index);
+                pos != target->m_game->m_pending_events.end()) {
+                target->m_game->m_pending_events.emplace(pos, std::in_place_index<enums::indexof(event_type::delayed_action)>, std::move(fun));
             } else {
-                target->m_game->m_pending_events.emplace(effect_end_pos, std::in_place_index<enums::indexof(event_type::delayed_action)>,
-                [=]{
-                    if (origin != target) {
-                        target->m_game->add_log("LOG_DISCARDED_CARD", origin, target, with_owner{target_card});
-                    } else {
-                        target->m_game->add_log("LOG_DISCARDED_SELF_CARD", origin, target_card);
-                    }
-                    target->discard_card(target_card);
-                });
+                target->m_game->queue_event<event_type::delayed_action>(std::move(fun));
             }
         }
     }
@@ -234,24 +229,19 @@ namespace banggame {
             target->m_game->queue_request<request_type::steal>(origin_card, origin, target, target_card, flags);
         } else {
             target->m_game->instant_event<event_type::on_discard_card>(origin, target, target_card);
-            auto effect_end_pos = std::ranges::find(target->m_game->m_pending_events, enums::indexof(event_type::on_effect_end), &event_args::index);
-            if (effect_end_pos == target->m_game->m_pending_events.end()) {
+            auto fun = [=]{
                 if (origin != target) {
                     target->m_game->add_log("LOG_STOLEN_CARD", origin, target, with_owner{target_card});
                 } else {
                     target->m_game->add_log("LOG_STOLEN_SELF_CARD", origin, target_card);
                 }
                 origin->steal_card(target, target_card);
+            };
+            if (auto pos = std::ranges::find(target->m_game->m_pending_events, enums::indexof(event_type::on_effect_end), &event_args::index);
+                pos != target->m_game->m_pending_events.end()) {
+                target->m_game->m_pending_events.emplace(pos, std::in_place_index<enums::indexof(event_type::delayed_action)>, std::move(fun));
             } else {
-                target->m_game->m_pending_events.emplace(effect_end_pos, std::in_place_index<enums::indexof(event_type::delayed_action)>,
-                [=]{
-                    if (origin != target) {
-                        target->m_game->add_log("LOG_STOLEN_CARD", origin, target, with_owner{target_card});
-                    } else {
-                        target->m_game->add_log("LOG_STOLEN_SELF_CARD", origin, target_card);
-                    }
-                    origin->steal_card(target, target_card);
-                });
+                target->m_game->queue_event<event_type::delayed_action>(std::move(fun));
             }
         }
     }
