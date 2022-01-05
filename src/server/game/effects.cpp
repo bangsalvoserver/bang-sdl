@@ -514,6 +514,7 @@ namespace banggame {
     }
     
     void effect_rust::on_play(card *origin_card, player *origin, player *target) {
+        if (target->count_cubes() == 0) return;
         if (target->can_escape(origin, origin_card, flags)) {
             origin->m_game->queue_request<request_type::rust>(origin_card, origin, target, flags);
         } else {

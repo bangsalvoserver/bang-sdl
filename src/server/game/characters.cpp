@@ -476,10 +476,7 @@ namespace banggame {
     void effect_al_preacher::on_equip(player *p, card *target_card) {
         p->m_game->add_event<event_type::on_equip>(target_card, [=](player *origin, player *target, card *equipped_card) {
             if (p != origin && (equipped_card->color == card_color_type::blue || equipped_card->color == card_color_type::orange)) {
-                int ncubes = p->m_characters.front()->cubes.size();
-                ncubes += std::transform_reduce(p->m_table.begin(), p->m_table.end(), 0,
-                    std::plus(), [](const card *c) { return c->cubes.size(); });
-                if (ncubes >= 2) {
+                if (p->count_cubes() >= 2) {
                     p->m_game->queue_request<request_type::al_preacher>(target_card, origin, p);
                 }
             }

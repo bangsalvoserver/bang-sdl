@@ -173,6 +173,8 @@ namespace banggame {
 
         void add_player_flags(player_flags flags);
         void remove_player_flags(player_flags flags);
+
+        int count_cubes() const;
     };
 
 }

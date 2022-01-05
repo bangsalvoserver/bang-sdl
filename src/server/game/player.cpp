@@ -937,4 +937,9 @@ namespace banggame {
         m_player_flags &= ~flags;
         m_game->add_public_update<game_update_type::player_flags>(id, flags);
     }
+
+    int player::count_cubes() const {
+        return m_characters.front()->cubes.size() + std::transform_reduce(m_table.begin(), m_table.end(), 0,
+            std::plus(), [](const card *c) { return c->cubes.size(); });
+    }
 }
