@@ -16,18 +16,22 @@ namespace banggame {
 
     void effect_mustang::on_equip(player *target, card *target_card) {
         ++target->m_distance_mod;
+        target->send_player_status();
     }
 
     void effect_mustang::on_unequip(player *target, card *target_card) {
         --target->m_distance_mod;
+        target->send_player_status();
     }
 
     void effect_scope::on_equip(player *target, card *target_card) {
         ++target->m_range_mod;
+        target->send_player_status();
     }
 
     void effect_scope::on_unequip(player *target, card *target_card) {
         --target->m_range_mod;
+        target->send_player_status();
     }
 
     void effect_jail::on_equip(player *target, card *target_card) {
@@ -98,10 +102,12 @@ namespace banggame {
 
     void effect_weapon::on_equip(player *target, card *target_card) {
         target->m_weapon_range = args;
+        target->send_player_status();
     }
 
     void effect_weapon::on_unequip(player *target, card *target_card) {
         target->m_weapon_range = 1;
+        target->send_player_status();
     }
 
     void effect_volcanic::on_equip(player *target, card *target_card) {
@@ -163,7 +169,7 @@ namespace banggame {
             }
             target->m_game->add_event<event_type::post_discard_card>(target_card, [=](player *p, card *c) {
                 if (p == target && c == target_card) {
-                    target->m_ghost = false;
+                    target->remove_player_flags(player_flags::ghost);
                     target->m_game->player_death(target);
                     target->m_game->check_game_over(target, true);
                     target->m_game->remove_events(target_card);
@@ -171,12 +177,12 @@ namespace banggame {
             });
         }
         target->m_game->add_public_update<game_update_type::player_hp>(target->id, 0, false);
-        target->m_ghost = true;
+        target->add_player_flags(player_flags::ghost);
     }
 
     void effect_ghost::on_unequip(player *target, card *target_card) {
         target->m_game->add_public_update<game_update_type::player_hp>(target->id, 0, true);
-        target->m_ghost = false;
+        target->remove_player_flags(player_flags::ghost);
     }
 
     void effect_shotgun::on_equip(player *p, card *target_card) {

@@ -122,13 +122,21 @@ namespace banggame {
     )};
 
     DEFINE_ENUM_FLAGS_IN_NS(banggame, player_flags,
+        (dead)
+        (ghost)
+        (has_drawn)
+        (start_of_turn)
+        (see_everyone_range_1)
         (treat_missed_as_bang)
         (treat_any_as_bang)
     )
 
-    struct player_flags_update {REFLECTABLE(
+    struct player_status_update {REFLECTABLE(
         (int) player_id,
-        (player_flags) flags
+        (player_flags) flags,
+        (int) range_mod,
+        (int) weapon_range,
+        (int) distance_mod
     )};
 
     struct switch_turn_update {REFLECTABLE(
@@ -162,7 +170,7 @@ namespace banggame {
         (player_add_character, player_character_update)
         (player_remove_character, player_remove_character_update)
         (player_show_role, player_show_role_update)
-        (player_flags, player_flags_update)
+        (player_status, player_status_update)
         (switch_turn, switch_turn_update)
         (request_status, request_status_args)
         (status_clear)

@@ -265,7 +265,7 @@ namespace banggame {
     }
 
     void effect_startofturn::verify(card *origin_card, player *origin) const {
-        if (!origin->m_start_of_turn) {
+        if (!origin->check_player_flags(player_flags::start_of_turn)) {
             throw game_error("ERROR_NOT_START_OF_TURN");
         }
     }
@@ -317,12 +317,12 @@ namespace banggame {
             target->m_game->add_log("LOG_DRAWN_CARD", target, drawn_card);
             target->m_game->instant_event<event_type::on_card_drawn>(target, drawn_card);
         }
-        target->m_has_drawn = true;
+        target->add_player_flags(player_flags::has_drawn);
         target->m_game->queue_event<event_type::post_draw_cards>(target);
     }
 
     void effect_draw_done::on_play(card *origin_card, player *target) {
-        target->m_has_drawn = true;
+        target->add_player_flags(player_flags::has_drawn);
         target->m_game->queue_event<event_type::post_draw_cards>(target);
     }
 
@@ -334,7 +334,7 @@ namespace banggame {
 
     void effect_draw_skip::on_play(card *origin_card, player *target) {
         if (++target->m_num_drawn_cards == target->m_num_cards_to_draw) {
-            target->m_has_drawn = true;
+            target->add_player_flags(player_flags::has_drawn);
             target->m_game->queue_event<event_type::post_draw_cards>(target);
         }
     }
@@ -540,13 +540,27 @@ namespace banggame {
     }
 
     void effect_belltower::verify(card *origin_card, player *origin) const {
-        if (origin->m_belltower) {
+        if (origin->check_player_flags(player_flags::see_everyone_range_1)) {
             throw game_error("ERROR_CANT_PLAY_CARD", origin_card);
         }
     }
 
     void effect_belltower::on_play(card *origin_card, player *origin) {
-        ++origin->m_belltower;
+        origin->add_player_flags(player_flags::see_everyone_range_1);
+
+        origin->m_game->add_event<event_type::on_play_card_end>(origin_card, [=](player *p, card *target_card) {
+            if (p == origin && origin_card != target_card) {
+                origin->remove_player_flags(player_flags::see_everyone_range_1);
+                origin->m_game->remove_events(origin_card);
+            }
+        });
+
+        origin->m_game->add_event<event_type::on_turn_end>(origin_card, [=](player *p) {
+            if (p == origin) {
+                origin->remove_player_flags(player_flags::see_everyone_range_1);
+                origin->m_game->remove_events(origin_card);
+            }
+        });
     }
 
     void effect_doublebarrel::on_play(card *origin_card, player *origin) {

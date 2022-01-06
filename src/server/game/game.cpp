@@ -555,7 +555,7 @@ namespace banggame {
 
     int game::calc_distance(player *from, player *to) {
         if (from == to) return 0;
-        if (has_scenario(scenario_flags::ambush)) return 1;
+        if (from->check_player_flags(player_flags::see_everyone_range_1)) return 1;
         int d1=0, d2=0;
         for (player *counter = from; counter != to; counter = get_next_player(counter), ++d1);
         for (player *counter = to; counter != from; counter = get_next_player(counter), ++d2);
@@ -630,7 +630,7 @@ namespace banggame {
         }
 
         target->m_characters.resize(1);
-        target->m_dead = true;
+        target->add_player_flags(player_flags::dead);
         target->m_hp = 0;
 
         if (!m_first_dead) m_first_dead = target;
@@ -735,13 +735,13 @@ namespace banggame {
     }
 
     void game::handle_action(ACTION_TAG(draw_from_deck), player *p) {
-        if (m_requests.empty() && m_playing == p && !p->m_has_drawn) {
+        if (m_requests.empty() && m_playing == p && !p->check_player_flags(player_flags::has_drawn)) {
             p->draw_from_deck();
         }
     }
 
     void game::handle_action(ACTION_TAG(pass_turn), player *p) {
-        if (m_requests.empty() && m_playing == p && p->m_has_drawn) {
+        if (m_requests.empty() && m_playing == p && p->check_player_flags(player_flags::has_drawn)) {
             p->pass_turn();
         }
     }

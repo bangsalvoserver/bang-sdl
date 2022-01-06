@@ -772,9 +772,12 @@ void game_scene::handle_game_update(UPDATE_TAG(player_show_role), const player_s
     move_player_views();
 }
 
-void game_scene::handle_game_update(UPDATE_TAG(player_flags), const player_flags_update &args) {
-    if (m_player_own_id == args.player_id) {
-        m_player_flags = args.flags;
+void game_scene::handle_game_update(UPDATE_TAG(player_status), const player_status_update &args) {
+    if (player_view *p = find_player(args.player_id)) {
+        p->m_player_flags = args.flags;
+        p->m_range_mod = args.range_mod;
+        p->m_weapon_range = args.weapon_range;
+        p->m_distance_mod = args.distance_mod;
     }
 
     pop_update();

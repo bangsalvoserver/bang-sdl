@@ -31,6 +31,17 @@ namespace banggame {
 
         sdl::texture *m_profile_image = nullptr;
         sdl::rect m_profile_rect;
+
+        player_flags m_player_flags = enums::flags_none<player_flags>;
+
+        int m_range_mod = 0;
+        int m_weapon_range = 1;
+        int m_distance_mod = 0;
+
+        bool has_player_flags(player_flags flags) const {
+            using namespace enums::flag_operators;
+            return (m_player_flags & flags) == flags;
+        }
         
         static inline sdl::texture m_gold_texture;
 

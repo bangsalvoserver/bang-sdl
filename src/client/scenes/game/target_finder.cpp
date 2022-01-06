@@ -67,7 +67,7 @@ void target_finder::on_click_main_deck() {
     if (m_game->m_current_request && m_game->m_current_request->target_id == m_game->m_player_own_id
         && is_valid_picking_pile(m_game->m_current_request->type, card_pile_type::main_deck)) {
         add_action<game_action_type::pick_card>(card_pile_type::main_deck);
-    } else if (m_game->m_playing_id == m_game->m_player_own_id) {
+    } else if (m_game->m_playing_id == m_game->m_player_own_id && !m_game->has_player_flags(player_flags::has_drawn)) {
         auto *player = m_game->find_player(m_game->m_playing_id);
         add_action<game_action_type::draw_from_deck>();
     }
@@ -90,7 +90,7 @@ void target_finder::on_click_shop_card(card_view *card) {
                 m_flags |= play_card_flags::response;
                 handle_auto_targets();
             }
-        } else if (m_game->m_playing_id == m_game->m_player_own_id) {
+        } else if (m_game->m_playing_id == m_game->m_player_own_id && m_game->has_player_flags(player_flags::has_drawn)) {
             if (!verify_modifier(card)) return;
             if (card->color == card_color_type::black) {
                 if (card->equip_targets.empty()
@@ -132,7 +132,7 @@ void target_finder::on_click_table_card(player_view *player, card_view *card) {
         }
     } else if (m_game->m_playing_id == m_game->m_player_own_id) {
         if (!m_playing_card) {
-            if (player->id == m_game->m_player_own_id && !card->inactive) {
+            if (player->id == m_game->m_player_own_id && !card->inactive && m_game->has_player_flags(player_flags::has_drawn)) {
                 if (card->modifier != card_modifier_type::none) {
                     add_modifier(card);
                 } else if (verify_modifier(card)) {
@@ -175,7 +175,7 @@ void target_finder::on_click_hand_card(player_view *player, card_view *card) {
         }
     } else if (m_game->m_playing_id == m_game->m_player_own_id) {
         if (!m_playing_card) {
-            if (player->id == m_game->m_player_own_id) {
+            if (player->id == m_game->m_player_own_id && m_game->has_player_flags(player_flags::has_drawn)) {
                 if (card->color == card_color_type::brown) {
                     if (card->modifier != card_modifier_type::none) {
                         add_modifier(card);
@@ -220,8 +220,9 @@ void target_finder::on_click_character(player_view *player, card_view *card) {
             }
         }
     } else if (m_game->m_playing_id == m_game->m_player_own_id) {
+        bool is_drawing_card = !card->targets.empty() && card->targets.front().type == effect_type::drawing;
         if (!m_playing_card) {
-            if (player->id == m_game->m_player_own_id) {
+            if (player->id == m_game->m_player_own_id && m_game->has_player_flags(player_flags::has_drawn) != is_drawing_card) {
                 if (card->modifier != card_modifier_type::none) {
                     add_modifier(card);
                 } else if (!card->targets.empty()) {
@@ -240,8 +241,11 @@ void target_finder::on_click_scenario_card(card_view *card) {
 
     if (m_game->m_playing_id == m_game->m_player_own_id
         && !m_playing_card && !card->targets.empty()) {
-        m_playing_card = card;
-        handle_auto_targets();
+        bool is_drawing_card = !card->targets.empty() && card->targets.front().type == effect_type::drawing;
+        if (m_game->has_player_flags(player_flags::has_drawn) != is_drawing_card) {
+            m_playing_card = card;
+            handle_auto_targets();
+        }
     }
 }
 
@@ -264,7 +268,7 @@ bool target_finder::on_click_player(player_view *player) {
 
 void target_finder::on_click_sell_beer() {
     if (!bool(m_game->m_expansions & card_expansion_type::goldrush)) return;
-    if (m_modifiers.empty() && !m_playing_card && m_game->m_playing_id == m_game->m_player_own_id) {
+    if (m_modifiers.empty() && !m_playing_card && m_game->m_playing_id == m_game->m_player_own_id && m_game->has_player_flags(player_flags::has_drawn)) {
         m_flags ^= play_card_flags::sell_beer;
         m_flags &= ~(play_card_flags::discard_black);
     }
@@ -272,7 +276,7 @@ void target_finder::on_click_sell_beer() {
 
 void target_finder::on_click_discard_black() {
     if (!bool(m_game->m_expansions & card_expansion_type::goldrush)) return;
-    if (m_modifiers.empty() && !m_playing_card && m_game->m_playing_id == m_game->m_player_own_id) {
+    if (m_modifiers.empty() && !m_playing_card && m_game->m_playing_id == m_game->m_player_own_id && m_game->has_player_flags(player_flags::has_drawn)) {
         m_flags ^= play_card_flags::discard_black;
         m_flags &= ~(play_card_flags::sell_beer);
     }
@@ -352,6 +356,23 @@ int target_finder::get_target_index() {
     int index = m_targets.size() - 1;
     index += m_targets[index].size() >= num_targets_for(get_target_type(index));
     return index;
+}
+
+int target_finder::calc_distance(player_view *from, player_view *to) {
+    auto get_next_player = [&](player_view *p) {
+        auto it = std::ranges::find(m_game->m_players, p, [](auto &pair) { return &pair.second; });
+        do {
+            if (++it == m_game->m_players.end()) it = m_game->m_players.begin();
+        } while(it->second.dead);
+        return &it->second;
+    };
+
+    if (from == to) return 0;
+    if (from->has_player_flags(player_flags::see_everyone_range_1)) return 1;
+    int d1=0, d2=0;
+    for (player_view *counter = from; counter != to; counter = get_next_player(counter), ++d1);
+    for (player_view *counter = to; counter != from; counter = get_next_player(counter), ++d2);
+    return std::min(d1, d2) + to->m_distance_mod;
 }
 
 void target_finder::handle_auto_targets() {
@@ -448,16 +469,18 @@ void target_finder::add_card_target(target_pair target) {
     bool is_bang = !target.card->targets.empty() && target.card->targets.front().type == effect_type::bangcard;
     bool is_missed = !target.card->response_targets.empty() && target.card->response_targets.front().type == effect_type::missedcard;
 
+    player_view *own_player = m_game->find_player(m_game->m_player_own_id);
+
     if (!std::ranges::all_of(util::enum_flag_values(cur_target),
         [&](target_type value) {
             switch (value) {
             case target_type::card:
             case target_type::everyone:
-            case target_type::reachable:
-            case target_type::range_1:
-            case target_type::range_2:
             case target_type::new_target:
             case target_type::can_repeat: return true;
+            case target_type::reachable: return calc_distance(own_player, target.player) <= own_player->m_weapon_range + own_player->m_range_mod;
+            case target_type::range_1: return calc_distance(own_player, target.player) <= 1 + own_player->m_range_mod;
+            case target_type::range_2:return calc_distance(own_player, target.player) <= 2 + own_player->m_range_mod;
             case target_type::self: return target.player->id == m_game->m_player_own_id;
             case target_type::notself: return target.player->id != m_game->m_player_own_id;
             case target_type::notsheriff: return target.player && target.player->m_role.role != player_role::sheriff;
@@ -466,8 +489,8 @@ void target_finder::add_card_target(target_pair target) {
             case target_type::blue: return target.card->color == card_color_type::blue;
             case target_type::clubs: return target.card->suit == card_suit_type::clubs;
             case target_type::bang:
-                return bool(m_game->m_player_flags & player_flags::treat_any_as_bang)
-                    || is_bang || (bool(m_game->m_player_flags & player_flags::treat_missed_as_bang) && is_missed);
+                return m_game->has_player_flags(player_flags::treat_any_as_bang)
+                    || is_bang || (m_game->has_player_flags(player_flags::treat_missed_as_bang) && is_missed);
             case target_type::missed: return is_missed;
             case target_type::cube_slot: return target.card->color == card_color_type::orange;
             default: return false;
@@ -531,6 +554,7 @@ void target_finder::add_character_target(target_pair target) {
 
 bool target_finder::add_player_targets(const std::vector<target_pair> &targets) {
     auto verify_target = [&](target_type type) {
+        player_view *own_player = m_game->find_player(m_game->m_player_own_id);
         return std::ranges::all_of(targets, [&](player_view *target_player) {
             return std::ranges::all_of(util::enum_flag_values(type), [&](target_type value){
                 switch(value) {
@@ -543,10 +567,10 @@ bool target_finder::add_player_targets(const std::vector<target_pair> &targets) 
                     return std::ranges::none_of(m_targets, [&](const auto &vec) {
                         return std::ranges::find(vec, target_player, &target_pair::player) != vec.end();
                     });
+                case target_type::reachable: return calc_distance(own_player, target_player) <= own_player->m_weapon_range + own_player->m_range_mod;
+                case target_type::range_1: return calc_distance(own_player, target_player) <= 1 + own_player->m_range_mod;
+                case target_type::range_2:return calc_distance(own_player, target_player) <= 2 + own_player->m_range_mod;
                 case target_type::everyone:
-                case target_type::reachable:
-                case target_type::range_1:
-                case target_type::range_2:
                 case target_type::fanning_target:
                     return true;
                 default:

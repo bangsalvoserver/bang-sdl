@@ -33,7 +33,7 @@ namespace banggame {
     }
 
     bool player::alive() const {
-        return !m_dead || m_ghost
+        return !check_player_flags(player_flags::dead) || check_player_flags(player_flags::ghost)
             || (m_game->m_playing == this && m_game->has_scenario(scenario_flags::ghosttown));
     }
 
@@ -82,7 +82,7 @@ namespace banggame {
     }
 
     void player::damage(card *origin_card, player *source, int value, bool is_bang) {
-        if (!m_ghost && !(m_hp == 0 && m_game->has_scenario(scenario_flags::ghosttown))) {
+        if (!check_player_flags(player_flags::ghost) && !(m_hp == 0 && m_game->has_scenario(scenario_flags::ghosttown))) {
             if (m_game->has_expansion(card_expansion_type::valleyofshadows)) {
                 m_game->queue_request<request_type::damaging>(origin_card, source, this, value, is_bang);
             } else {
@@ -107,7 +107,7 @@ namespace banggame {
     }
 
     void player::heal(int value) {
-        if (!m_ghost && !(m_hp == 0 && m_game->has_scenario(scenario_flags::ghosttown))) {
+        if (!check_player_flags(player_flags::ghost) && !(m_hp == 0 && m_game->has_scenario(scenario_flags::ghosttown))) {
             m_hp = std::min(m_hp + value, m_max_hp);
             m_game->add_public_update<game_update_type::player_hp>(id, m_hp);
             if (value == 1) {
@@ -205,11 +205,6 @@ namespace banggame {
 
     void player::add_to_hand(card *target) {
         m_game->move_to(target, card_pile_type::player_hand, true, this);
-    }
-
-    static bool player_in_range(player *origin, player *target, int distance) {
-        return origin->m_belltower > 0
-            || origin->m_game->calc_distance(origin, target) <= distance;
     }
 
     void player::set_last_played_card(card *c) {
@@ -327,13 +322,13 @@ namespace banggame {
                             case target_type::player: if (!target->alive()) throw game_error("ERROR_TARGET_NOT_PLAYER"); break;
                             case target_type::self: if (target->id != id) throw game_error("ERROR_TARGET_NOT_SELF"); break;
                             case target_type::notself: if (target->id == id) throw game_error("ERROR_TARGET_SELF"); break;
-                            case target_type::reachable: if (!player_in_range(this, target, m_weapon_range + m_range_mod)) throw game_error("ERROR_TARGET_NOT_IN_RANGE"); break;
-                            case target_type::range_1: if (!player_in_range(this, target, 1 + m_range_mod)) throw game_error("ERROR_TARGET_NOT_IN_RANGE"); break;
-                            case target_type::range_2: if (!player_in_range(this, target, 2 + m_range_mod)) throw game_error("ERROR_TARGET_NOT_IN_RANGE"); break;
+                            case target_type::reachable: if (m_game->calc_distance(this, target) > m_weapon_range + m_range_mod) throw game_error("ERROR_TARGET_NOT_IN_RANGE"); break;
+                            case target_type::range_1: if (m_game->calc_distance(this, target) > 1 + m_range_mod) throw game_error("ERROR_TARGET_NOT_IN_RANGE"); break;
+                            case target_type::range_2: if (m_game->calc_distance(this, target) > 2 + m_range_mod) throw game_error("ERROR_TARGET_NOT_IN_RANGE"); break;
                             case target_type::new_target: if (!is_new_target(m_current_card_targets, card_ptr, target)) throw game_error("ERROR_TARGET_NOT_NEW"); break;
                             case target_type::fanning_target: {
                                 player *prev_target = m_game->get_player(targets.front().get<play_card_target_type::target_player>().front().player_id);
-                                if (!player_in_range(prev_target, target, 1)) throw game_error("ERROR_TARGET_NOT_IN_RANGE");
+                                if (m_game->calc_distance(prev_target, target) > 1) throw game_error("ERROR_TARGET_NOT_IN_RANGE");
                                 if (target == prev_target) throw game_error("ERROR_TARGET_NOT_NEW");
                                 break;
                             }
@@ -371,9 +366,9 @@ namespace banggame {
                         };
 
                         auto is_bangcard = [&](card *card_ptr) {
-                            return bool(m_player_flags & player_flags::treat_any_as_bang)
-                                || !card_ptr->effects.empty() && card_ptr->effects.front().is(effect_type::bangcard)
-                                || (bool(m_player_flags & player_flags::treat_missed_as_bang) && is_missedcard(card_ptr));
+                            return check_player_flags(player_flags::treat_any_as_bang)
+                                || (!card_ptr->effects.empty() && card_ptr->effects.front().is(effect_type::bangcard))
+                                || (check_player_flags(player_flags::treat_missed_as_bang) && is_missedcard(card_ptr));
                         };
 
                         std::ranges::for_each(util::enum_flag_values(e.target), [&](target_type value) {
@@ -384,9 +379,9 @@ namespace banggame {
                                 break;
                             case target_type::self: if (target->id != id) throw game_error("ERROR_TARGET_NOT_SELF"); break;
                             case target_type::notself: if (target->id == id) throw game_error("ERROR_TARGET_SELF"); break;
-                            case target_type::reachable: if (!player_in_range(this, target, m_weapon_range + m_range_mod)) throw game_error("ERROR_TARGET_NOT_IN_RANGE"); break;
-                            case target_type::range_1: if (!player_in_range(this, target, 1 + m_range_mod)) throw game_error("ERROR_TARGET_NOT_IN_RANGE"); break;
-                            case target_type::range_2: if (!player_in_range(this, target, 2 + m_range_mod)) throw game_error("ERROR_TARGET_NOT_IN_RANGE"); break;
+                            case target_type::reachable: if (m_game->calc_distance(this, target) > m_weapon_range + m_range_mod) throw game_error("ERROR_TARGET_NOT_IN_RANGE"); break;
+                            case target_type::range_1: if (m_game->calc_distance(this, target) > 1 + m_range_mod) throw game_error("ERROR_TARGET_NOT_IN_RANGE"); break;
+                            case target_type::range_2: if (m_game->calc_distance(this, target) > 2 + m_range_mod) throw game_error("ERROR_TARGET_NOT_IN_RANGE"); break;
                             case target_type::new_target: if (!is_new_target(m_current_card_targets, card_ptr, target)) throw game_error("ERROR_TARGET_NOT_NEW"); break;
                             case target_type::table: if (target_card->pile != card_pile_type::player_table) throw game_error("ERROR_TARGET_NOT_TABLE_CARD"); break;
                             case target_type::hand: if (target_card->pile != card_pile_type::player_hand) throw game_error("ERROR_TARGET_NOT_HAND_CARD"); break;
@@ -443,8 +438,6 @@ namespace banggame {
         auto check_immunity = [&](player *target) {
             return target->immune_to(m_virtual ? m_virtual->corresponding_card : card_ptr);
         };
-
-        int initial_belltower = m_belltower;
         
         if (card_ptr->cost > 0) {
             add_gold(-card_ptr->cost);
@@ -503,10 +496,6 @@ namespace banggame {
         if (m_virtual && card_ptr == &m_virtual->virtual_card) {
             m_virtual.reset();
         }
-        
-        if (m_belltower == initial_belltower) {
-            m_belltower = 0;
-        }
     }
 
     void player::play_card(const play_card_args &args) {
@@ -516,7 +505,7 @@ namespace banggame {
         }
 
         if (bool(args.flags & play_card_flags::sell_beer)) {
-            if (!m_has_drawn) throw game_error("ERROR_PLAYER_MUST_DRAW");
+            if (!check_player_flags(player_flags::has_drawn)) throw game_error("ERROR_PLAYER_MUST_DRAW");
             if (!m_game->has_expansion(card_expansion_type::goldrush)
                 || args.targets.size() != 1
                 || !args.targets.front().is(play_card_target_type::target_card)) throw game_error("ERROR_INVALID_ACTION");
@@ -530,7 +519,7 @@ namespace banggame {
             m_game->queue_event<event_type::on_play_beer>(this);
             m_game->queue_event<event_type::on_effect_end>(this, target_card);
         } else if (bool(args.flags & play_card_flags::discard_black)) {
-            if (!m_has_drawn) throw game_error("ERROR_PLAYER_MUST_DRAW");
+            if (!check_player_flags(player_flags::has_drawn)) throw game_error("ERROR_PLAYER_MUST_DRAW");
             if (args.targets.size() != 1
                 || !args.targets.front().is(play_card_target_type::target_card)) throw game_error("ERROR_INVALID_ACTION");
             const auto &l = args.targets.front().get<play_card_target_type::target_card>();
@@ -564,12 +553,12 @@ namespace banggame {
                 if (!card_ptr->effects.empty()) {
                     if (m_game->characters_disabled(this)) throw game_error("ERROR_CHARACTERS_ARE_DISABLED");
                     if (!card_ptr->effects.empty() && card_ptr->effects.front().is(effect_type::drawing)) {
-                        if (m_has_drawn) throw game_error("ERROR_PLAYER_MUST_NOT_DRAW");
+                        if (check_player_flags(player_flags::has_drawn)) throw game_error("ERROR_PLAYER_MUST_NOT_DRAW");
                         verify_card_targets(card_ptr, false, args.targets);
                         m_game->add_private_update<game_update_type::status_clear>(this);
                         m_game->add_log("LOG_DRAWN_WITH_CHARACTER", card_ptr, this);
                     } else {
-                        if (!m_has_drawn) throw game_error("ERROR_PLAYER_MUST_DRAW");
+                        if (!check_player_flags(player_flags::has_drawn)) throw game_error("ERROR_PLAYER_MUST_DRAW");
                         verify_modifiers(card_ptr, modifiers);
                         verify_card_targets(card_ptr, false, args.targets);
                         m_game->add_log("LOG_PLAYED_CHARACTER", card_ptr, this);
@@ -580,7 +569,7 @@ namespace banggame {
                 }
                 break;
             case card_pile_type::player_hand:
-                if (!m_has_drawn) throw game_error("ERROR_PLAYER_MUST_DRAW");
+                if (!check_player_flags(player_flags::has_drawn)) throw game_error("ERROR_PLAYER_MUST_DRAW");
                 switch (card_ptr->color) {
                 case card_color_type::brown:
                     verify_modifiers(card_ptr, modifiers);
@@ -644,7 +633,7 @@ namespace banggame {
                 }
                 break;
             case card_pile_type::player_table:
-                if (!m_has_drawn) throw game_error("ERROR_PLAYER_MUST_DRAW");
+                if (!check_player_flags(player_flags::has_drawn)) throw game_error("ERROR_PLAYER_MUST_DRAW");
                 if (m_game->table_cards_disabled(this)) throw game_error("ERROR_TABLE_CARDS_ARE_DISABLED");
                 if (card_ptr->inactive) throw game_error("ERROR_CARD_INACTIVE");
                 verify_modifiers(card_ptr, modifiers);
@@ -654,7 +643,7 @@ namespace banggame {
                 set_last_played_card(nullptr);
                 break;
             case card_pile_type::shop_selection: {
-                if (!m_has_drawn) throw game_error("ERROR_PLAYER_MUST_DRAW");
+                if (!check_player_flags(player_flags::has_drawn)) throw game_error("ERROR_PLAYER_MUST_DRAW");
                 int discount = 0;
                 if (!modifiers.empty()) {
                     if (auto modifier_it = std::ranges::find(m_characters, modifiers.front()->id, &character::id);
@@ -707,7 +696,7 @@ namespace banggame {
             }
             case card_pile_type::scenario_card: {
                 bool active_when_drawing = !card_ptr->effects.empty() && card_ptr->effects.front().is(effect_type::drawing);
-                if (active_when_drawing == m_has_drawn) {
+                if (active_when_drawing == check_player_flags(player_flags::has_drawn)) {
                     if (active_when_drawing) {
                         throw game_error("ERROR_PLAYER_MUST_NOT_DRAW");
                     } else {
@@ -723,7 +712,7 @@ namespace banggame {
                 throw game_error("play_card: invalid card"_nonloc);
             }
         }
-        m_start_of_turn = false;
+        remove_player_flags(player_flags::start_of_turn);
     }
     
     void player::respond_card(const play_card_args &args) {
@@ -744,7 +733,7 @@ namespace banggame {
             break;
         case card_pile_type::shop_selection:
             // hack per bottiglia e complice
-            if (!m_has_drawn) throw game_error("ERROR_PLAYER_MUST_DRAW");
+            if (!check_player_flags(player_flags::has_drawn)) throw game_error("ERROR_PLAYER_MUST_DRAW");
             break;
         case card_pile_type::player_hand:
             if (card_ptr->color != card_color_type::brown) return;
@@ -759,10 +748,10 @@ namespace banggame {
     }
 
     void player::draw_from_deck() {
-        if (m_has_drawn) throw game_error("ERROR_PLAYER_MUST_NOT_DRAW");
+        if (check_player_flags(player_flags::has_drawn)) throw game_error("ERROR_PLAYER_MUST_NOT_DRAW");
         int save_numcards = m_num_cards_to_draw;
         m_game->queue_event<event_type::on_draw_from_deck>(this);
-        if (!m_has_drawn) {
+        if (!check_player_flags(player_flags::has_drawn)) {
             m_game->add_log("LOG_DRAWN_FROM_DECK", this);
             while (m_num_drawn_cards<m_num_cards_to_draw) {
                 ++m_num_drawn_cards;
@@ -772,7 +761,7 @@ namespace banggame {
             }
         }
         m_num_cards_to_draw = save_numcards;
-        m_has_drawn = true;
+        add_player_flags(player_flags::has_drawn);
         m_game->queue_event<event_type::post_draw_cards>(this);
         if (m_game->m_requests.empty()) {
             m_game->add_private_update<game_update_type::status_clear>(this);
@@ -803,18 +792,18 @@ namespace banggame {
         m_bangs_played = 0;
         m_bangs_per_turn = 1;
         m_num_drawn_cards = 0;
-        m_has_drawn = false;
-        m_start_of_turn = true;
+        remove_player_flags(player_flags::has_drawn);
+        add_player_flags(player_flags::start_of_turn);
         m_declared_suit = card_suit_type::none;
 
-        if (!m_ghost && m_hp == 0) {
+        if (!check_player_flags(player_flags::ghost) && m_hp == 0) {
             if (m_game->has_scenario(scenario_flags::ghosttown)) {
                 ++m_num_cards_to_draw;
                 for (auto *c : m_characters) {
                     c->on_equip(this);
                 }
             } else if (m_game->has_scenario(scenario_flags::deadman) && this == m_game->m_first_dead) {
-                m_dead = false;
+                remove_player_flags(player_flags::dead);
                 m_game->add_public_update<game_update_type::player_hp>(id, m_hp = 2);
                 m_game->draw_card_to(card_pile_type::player_hand, this);
                 m_game->draw_card_to(card_pile_type::player_hand, this);
@@ -885,7 +874,7 @@ namespace banggame {
         if (m_game->num_alive() > 0) {
             if (!m_game->m_ignore_next_turn) {
                 if (!next_player) {
-                    if (!m_ghost && m_hp == 0 && m_game->has_scenario(scenario_flags::ghosttown)) {
+                    if (!check_player_flags(player_flags::ghost) && m_hp == 0 && m_game->has_scenario(scenario_flags::ghosttown)) {
                         --m_num_cards_to_draw;
                         m_game->player_death(this);
                     }
@@ -928,14 +917,26 @@ namespace banggame {
         }
     }
 
+    void player::send_player_status() {
+        m_game->add_public_update<game_update_type::player_status>(id, m_player_flags, m_range_mod, m_weapon_range, m_distance_mod);
+    }
+
     void player::add_player_flags(player_flags flags) {
-        m_player_flags |= flags;
-        m_game->add_public_update<game_update_type::player_flags>(id, flags);
+        if (!check_player_flags(flags)) {
+            m_player_flags |= flags;
+            send_player_status();
+        }
     }
 
     void player::remove_player_flags(player_flags flags) {
-        m_player_flags &= ~flags;
-        m_game->add_public_update<game_update_type::player_flags>(id, flags);
+        if (check_player_flags(flags)) {
+            m_player_flags &= ~flags;
+            send_player_status();
+        }
+    }
+
+    bool player::check_player_flags(player_flags flags) const {
+        return (m_player_flags & flags) == flags;
     }
 
     int player::count_cubes() const {

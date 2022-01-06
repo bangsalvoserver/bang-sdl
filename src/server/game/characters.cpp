@@ -61,7 +61,7 @@ namespace banggame {
     void effect_kit_carlson::on_equip(player *target, card *target_card) {
         target->m_game->add_event<event_type::on_draw_from_deck>(target_card, [=](player *origin) {
             if (target == origin && target->m_num_cards_to_draw < 3) {
-                target->m_has_drawn = true;
+                target->add_player_flags(player_flags::has_drawn);
                 for (int i=0; i<3; ++i) {
                     target->m_game->draw_phase_one_card_to(card_pile_type::selection, target);
                 }
@@ -89,7 +89,7 @@ namespace banggame {
     void effect_claus_the_saint::on_equip(player *target, card *target_card) {
         target->m_game->add_event<event_type::on_draw_from_deck>(target_card, [=](player *origin) {
             if (origin == target) {
-                target->m_has_drawn = true;
+                target->add_player_flags(player_flags::has_drawn);
                 int ncards = target->m_game->num_alive() + target->m_num_cards_to_draw - 1;
                 for (int i=0; i<ncards; ++i) {
                     target->m_game->draw_phase_one_card_to(card_pile_type::selection, target);
@@ -495,7 +495,7 @@ namespace banggame {
         target->m_game->add_event<event_type::on_draw_from_deck>(target_card, [=](player *origin) {
             if (origin == target) {
                 if (target->m_num_cards_to_draw > 1) {
-                    target->m_has_drawn = true;
+                    target->add_player_flags(player_flags::has_drawn);
                     for (int i=0; i<target->m_num_cards_to_draw; ++i) {
                         target->m_game->draw_phase_one_card_to(card_pile_type::selection, target);
                     }

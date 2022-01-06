@@ -59,7 +59,7 @@ namespace banggame {
         void handle_game_update(UPDATE_TAG(player_add_character), const player_character_update &args);
         void handle_game_update(UPDATE_TAG(player_remove_character), const player_remove_character_update &args);
         void handle_game_update(UPDATE_TAG(player_show_role), const player_show_role_update &args);
-        void handle_game_update(UPDATE_TAG(player_flags),     const player_flags_update &args);
+        void handle_game_update(UPDATE_TAG(player_status),     const player_status_update &args);
         void handle_game_update(UPDATE_TAG(switch_turn),      const switch_turn_update &args);
         void handle_game_update(UPDATE_TAG(request_status),   const request_status_args &args);
         void handle_game_update(UPDATE_TAG(status_clear));
@@ -108,7 +108,13 @@ namespace banggame {
 
         std::optional<request_status_args> m_current_request;
         card_view *m_last_played_card = nullptr;
-        player_flags m_player_flags = enums::flags_none<player_flags>;
+
+        bool has_player_flags(player_flags flags) {
+            if (player_view *p = find_player(m_player_own_id)) {
+                return p->has_player_flags(flags);
+            }
+            return false;
+        }
 
         card_view *find_card(int id) {
             if (auto it = m_cards.find(id); it != m_cards.end()) {

@@ -11,7 +11,6 @@ namespace banggame {
         (hangover) // annulla personaggio
         (sermon) // annulla bang
         (ghosttown) // citta' fantasma
-        (ambush) // setta distanze a 1
         (lasso) // annulla carte in gioco
         (judge) // non si puo' equipaggiare
         (abandonedmine) // fase 1 : pesca dagli scarti, fase 3 : scarta coperto nel mazzo
@@ -85,8 +84,9 @@ namespace banggame {
         void on_equip(player *target, card *target_card);
     };
 
-    struct effect_ambush : scenario_effect {
+    struct effect_ambush : card_effect {
         void on_equip(player *target, card *target_card);
+        void on_unequip(player *target, card *target_card);
     };
 
     struct effect_lasso : card_effect {

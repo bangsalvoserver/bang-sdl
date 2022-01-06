@@ -46,12 +46,9 @@ namespace banggame {
         int m_hp = 0;
         int m_max_hp = 0;
         int m_initial_cards = 0;
-        bool m_dead = false;
 
         int m_infinite_bangs = 0;
         int m_calumets = 0;
-        int m_belltower = 0;
-        bool m_ghost = false;
 
         int m_bangs_played = 0;
         int m_bangs_per_turn = 1;
@@ -62,10 +59,8 @@ namespace banggame {
         
         int m_num_cards_to_draw = 2;
         int m_num_drawn_cards = 0;
-        bool m_has_drawn = false;
 
         card *m_last_played_card = nullptr;
-        bool m_start_of_turn = false;
 
         card_suit_type m_declared_suit = card_suit_type::none;
         player_flags m_player_flags = enums::flags_none<player_flags>;
@@ -171,8 +166,10 @@ namespace banggame {
         card_suit_type get_card_suit(card *drawn_card);
         card_value_type get_card_value(card *drawn_card);
 
+        void send_player_status();
         void add_player_flags(player_flags flags);
         void remove_player_flags(player_flags flags);
+        bool check_player_flags(player_flags flags) const;
 
         int count_cubes() const;
     };

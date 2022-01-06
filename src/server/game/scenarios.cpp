@@ -116,7 +116,15 @@ namespace banggame {
     }
 
     void effect_ambush::on_equip(player *target, card *target_card) {
-        target->m_game->m_scenario_flags |= scenario_flags::ambush;
+        for (auto &p : target->m_game->m_players) {
+            p.add_player_flags(player_flags::see_everyone_range_1);
+        }
+    }
+
+    void effect_ambush::on_unequip(player *target, card *target_card) {
+        for (auto &p : target->m_game->m_players) {
+            p.remove_player_flags(player_flags::see_everyone_range_1);
+        }
     }
 
     void effect_lasso::on_equip(player *target, card *target_card) {
@@ -152,7 +160,7 @@ namespace banggame {
                 }
             }
 
-            p->m_has_drawn = true;
+            p->add_player_flags(player_flags::has_drawn);
             p->m_game->queue_request<request_type::peyote>(target_card, p);
         });
     }
