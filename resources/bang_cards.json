@@ -1034,7 +1034,7 @@
             "effects": [
                 {
                     "target": "self hand card",
-                    "class": "virtual_destroy"
+                    "class": "choose_card"
                 },
                 {
                     "target": "player reachable notself",
@@ -1042,21 +1042,15 @@
                 },
                 {
                     "class": "banglimit"
-                },
-                {
-                    "class": "virtual_clear"
                 }
             ],
             "responses": [
                 {
                     "target": "self hand card",
-                    "class": "virtual_destroy"
+                    "class": "choose_card"
                 },
                 {
                     "class": "bangresponse_onturn"
-                },
-                {
-                    "class": "virtual_clear"
                 }
             ]
         },
@@ -1877,7 +1871,7 @@
             "effects": [
                 {
                     "target": "self hand bang card",
-                    "class": "virtual_destroy"
+                    "class": "choose_card"
                 },
                 {
                     "target": "player reachable notself",
@@ -1885,21 +1879,15 @@
                 },
                 {
                     "class": "banglimit"
-                },
-                {
-                    "class": "virtual_clear"
                 }
             ],
             "responses": [
                 {
                     "target": "self hand bang card",
-                    "class": "virtual_destroy"
+                    "class": "choose_card"
                 },
                 {
                     "class": "bangmissed"
-                },
-                {
-                    "class": "virtual_clear"
                 }
             ]
         },
@@ -2347,14 +2335,11 @@
             "effects": [
                 {
                     "target": "self hand clubs card",
-                    "class": "virtual_destroy"
+                    "class": "choose_card"
                 },
                 {
                     "target": "player reachable notself",
                     "class": "bang"
-                },
-                {
-                    "class": "virtual_clear"
                 }
             ]
         },
@@ -2378,14 +2363,11 @@
             "effects": [
                 {
                     "target": "self hand bang card",
-                    "class": "virtual_destroy"
+                    "class": "choose_card"
                 },
                 {
                     "target": "player everyone notself",
                     "class": "bang"
-                },
-                {
-                    "class": "virtual_clear"
                 }
             ]
         },
@@ -2488,14 +2470,11 @@
             "effects": [
                 {
                     "target": "self hand card",
-                    "class": "virtual_copy"
+                    "class": "flint_westwood_choose"
                 },
                 {
                     "target": "notself hand card",
                     "class": "flint_westwood"
-                },
-                {
-                    "class": "virtual_clear"
                 }
             ]
         },
@@ -2975,14 +2954,11 @@
             "effects": [
                 {
                     "target": "self hand bang card",
-                    "class": "virtual_destroy"
+                    "class": "destroy"
                 },
                 {
                     "target": "self hand bang card",
-                    "class": "virtual_destroy"
-                },
-                {
-                    "class": "virtual_clear"
+                    "class": "destroy"
                 },
                 {
                     "target": "player reachable notself",
@@ -3114,10 +3090,7 @@
             "effects": [
                 {
                     "target": "self hand bang card",
-                    "class": "virtual_destroy"
-                },
-                {
-                    "class": "virtual_clear"
+                    "class": "destroy"
                 },
                 {
                     "target": "notself table card",

@@ -393,12 +393,24 @@ namespace banggame {
         return {"STATUS_YOUL_GRINNER", origin_card};
     }
 
+    struct flint_westwood_handler {
+        card *chosen_card;
+
+        void operator()(player *, card *) {}
+    };
+    
+    void effect_flint_westwood_choose::on_play(card *origin_card, player *origin, player *target, card *target_card) {
+        origin->m_game->add_event<event_type::on_play_card_end>(origin_card, flint_westwood_handler{target_card});
+    }
+
     void effect_flint_westwood::on_play(card *origin_card, player *origin, player *target, card *target_card) {
         int num_cards = 2;
         for (int i=0; !target->m_hand.empty() && i<2; ++i) {
             origin->steal_card(target, target->random_hand_card());
         }
-        target->steal_card(origin, origin->m_virtual->corresponding_card);
+        target->steal_card(origin, origin->m_game->m_event_handlers.find(origin_card)->
+            second.get<event_type::on_play_card_end>().target<flint_westwood_handler>()->chosen_card);
+        origin->m_game->remove_events(origin_card);
     }
 
     void effect_don_bell::on_equip(player *p, card *target_card) {
@@ -622,7 +634,7 @@ namespace banggame {
 
     bool effect_ms_abigail::can_escape(player *origin, card *origin_card, effect_flags flags) const {
         if (!origin) return false;
-        if (origin->m_virtual) origin_card = origin->m_virtual->corresponding_card;
+        if (origin->m_chosen_card) origin_card = origin->m_chosen_card;
         if (!bool(flags & effect_flags::single_target)) return false;
         if (origin_card->color != card_color_type::brown) return false;
         switch (origin->get_card_value(origin_card)) {

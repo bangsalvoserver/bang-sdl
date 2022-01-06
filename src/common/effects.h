@@ -118,16 +118,8 @@ namespace banggame {
         void on_play(card *origin_card, player *origin, player *target, card *target_card);
     };
 
-    struct effect_virtual_destroy : card_effect {
+    struct effect_choose_card : card_effect {
         void on_play(card *origin_card, player *origin, player *target, card *target_card);
-    };
-
-    struct effect_virtual_copy : card_effect {
-        void on_play(card *origin_card, player *origin, player *target, card *target_card);
-    };
-
-    struct effect_virtual_clear : card_effect {
-        void on_play(card *origin_card, player *origin);
     };
 
     struct effect_startofturn : effect_empty {

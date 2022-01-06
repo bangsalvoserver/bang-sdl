@@ -246,21 +246,18 @@ namespace banggame {
         }
     }
 
-    void effect_virtual_destroy::on_play(card *origin_card, player *origin, player *target, card *target_card) {
+    void effect_choose_card::on_play(card *origin_card, player *origin, player *target, card *target_card) {
         target->discard_card(target_card);
         target->m_game->add_log("LOG_CHOSE_CARD_FOR", origin_card, origin, target_card);
-        target->m_virtual.emplace(target_card, *target_card);
-    }
+        target->m_chosen_card = target_card;
 
-    void effect_virtual_copy::on_play(card *origin_card, player *origin, player *target, card *target_card) {
-        target->m_virtual.emplace(target_card, *target_card);
-        target->m_virtual->virtual_card.suit = card_suit_type::none;
-        target->m_virtual->virtual_card.value = card_value_type::none;
-    }
-
-    void effect_virtual_clear::on_play(card *origin_card, player *origin) {
-        origin->m_game->queue_event<event_type::delayed_action>([=]{
-            origin->m_virtual.reset();
+        target->m_game->add_event<event_type::on_play_card_end>(target_card, [=](player *p, card *c) {
+            if (p == origin && c == origin_card) {
+                origin->m_game->queue_event<event_type::delayed_action>([=]{
+                    origin->m_chosen_card = nullptr;
+                });
+                origin->m_game->remove_events(target_card);
+            }
         });
     }
 
@@ -574,7 +571,7 @@ namespace banggame {
     void effect_thunderer::on_play(card *origin_card, player *origin) {
         origin->add_bang_mod([=](request_bang &req) {
             req.cleanup_function = [=]{
-                card *bang_card = origin->m_virtual ? origin->m_virtual->corresponding_card : req.origin_card;
+                card *bang_card = origin->m_chosen_card ? origin->m_chosen_card : req.origin_card;
                 origin->add_to_hand(bang_card);
             };
         });

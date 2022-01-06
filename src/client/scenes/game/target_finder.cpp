@@ -580,9 +580,11 @@ bool target_finder::add_player_targets(const std::vector<target_pair> &targets) 
                     });
                 case target_type::reachable: return calc_distance(own_player, target_player) <= own_player->m_weapon_range + own_player->m_range_mod;
                 case target_type::range_1: return calc_distance(own_player, target_player) <= 1 + own_player->m_range_mod;
-                case target_type::range_2:return calc_distance(own_player, target_player) <= 2 + own_player->m_range_mod;
-                case target_type::everyone:
+                case target_type::range_2: return calc_distance(own_player, target_player) <= 2 + own_player->m_range_mod;
                 case target_type::fanning_target:
+                    return !m_targets.empty() && !m_targets.back().empty()
+                        && calc_distance(m_targets.back().back().player, target_player) <= 1;
+                case target_type::everyone:
                     return true;
                 default:
                     return false;

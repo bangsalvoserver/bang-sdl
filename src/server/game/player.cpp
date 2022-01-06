@@ -266,7 +266,7 @@ namespace banggame {
     }
 
     void player::verify_card_targets(card *card_ptr, bool is_response, const std::vector<play_card_target> &targets) {
-        card_suit_type suit = get_card_suit(m_virtual ? m_virtual->corresponding_card : card_ptr);
+        card_suit_type suit = get_card_suit(m_chosen_card ? m_chosen_card : card_ptr);
         if (m_game->m_playing == this && m_declared_suit != card_suit_type::none && suit != card_suit_type::none && suit != m_declared_suit) {
             throw game_error("ERROR_WRONG_DECLARED_SUIT");
         }
@@ -436,7 +436,7 @@ namespace banggame {
         }
 
         auto check_immunity = [&](player *target) {
-            return target->immune_to(m_virtual ? m_virtual->corresponding_card : card_ptr);
+            return target->immune_to(m_chosen_card ? m_chosen_card : card_ptr);
         };
         
         if (card_ptr->cost > 0) {
@@ -492,10 +492,6 @@ namespace banggame {
 
         m_game->instant_event<event_type::on_play_card_end>(this, card_ptr);
         m_game->queue_event<event_type::on_effect_end>(this, card_ptr);
-
-        if (m_virtual && card_ptr == &m_virtual->virtual_card) {
-            m_virtual.reset();
-        }
     }
 
     void player::play_card(const play_card_args &args) {

@@ -14,11 +14,6 @@ namespace banggame {
     
     using draw_check_function = std::function<void(card *drawn_card)>;
     using bang_modifier = std::function<void(request_bang &req)>;
-    
-    struct virtual_card {
-        card *corresponding_card = nullptr;
-        card virtual_card;
-    };
 
     struct player {
         game *m_game;
@@ -28,7 +23,7 @@ namespace banggame {
         std::vector<card *> m_table;
         std::vector<character *> m_characters;
 
-        std::optional<virtual_card> m_virtual;
+        card *m_chosen_card = nullptr;
         player_role m_role;
 
         struct predraw_check {
