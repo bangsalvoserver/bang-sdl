@@ -51,6 +51,8 @@ namespace banggame {
         void on_click_discard_black();
 
         void clear_targets();
+
+        void set_response_highlights(const std::vector<int> &card_ids);
     
     private:
         void add_modifier(card_view *card);
@@ -76,6 +78,8 @@ namespace banggame {
         
     private:
         game_scene *m_game;
+
+        std::vector<card_view *> m_response_highlights;
 
         template<game_action_type T, typename ... Ts>
         void add_action(Ts && ... args);

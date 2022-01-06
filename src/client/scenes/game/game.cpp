@@ -799,8 +799,10 @@ void game_scene::handle_game_update(UPDATE_TAG(request_status), const request_st
 
     if (!args.target_id || args.target_id == m_player_own_id) {
         m_ui.set_status(evaluate_format_string(args.status_text));
+        m_target.set_response_highlights(args.can_respond_with);
     } else {
         m_ui.clear_status();
+        m_target.set_response_highlights({});
     }
 
     pop_update();
@@ -810,6 +812,7 @@ void game_scene::handle_game_update(UPDATE_TAG(status_clear)) {
     m_current_request.reset();
 
     m_ui.clear_status();
+    m_target.set_response_highlights({});
 
     pop_update();
 }

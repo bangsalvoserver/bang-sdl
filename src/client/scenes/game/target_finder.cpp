@@ -24,7 +24,18 @@ static bool is_valid_picking_pile(request_type type, card_pile_type pile) {
     }, type);
 }
 
+void target_finder::set_response_highlights(const std::vector<int> &card_ids) {
+    m_response_highlights.clear();
+    for (int id : card_ids) {
+        m_response_highlights.push_back(m_game->find_card(id));
+    }
+}
+
 void target_finder::render(sdl::renderer &renderer) {
+    renderer.set_draw_color(sdl::rgba(sizes::target_finder_can_respond_rgba));
+    for (auto *card : m_response_highlights) {
+        renderer.draw_rect(card->get_rect());
+    }
     renderer.set_draw_color(sdl::rgba(sizes::target_finder_current_card_rgba));
     for (auto *card : m_modifiers) {
         renderer.draw_rect(card->get_rect());

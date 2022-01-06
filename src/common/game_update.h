@@ -148,7 +148,8 @@ namespace banggame {
         (int) origin_id,
         (int) target_id,
         (effect_flags) flags,
-        (game_formatted_string) status_text
+        (game_formatted_string) status_text,
+        (std::vector<int>) can_respond_with
     )};
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, game_update_type,
