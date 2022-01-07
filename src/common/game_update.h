@@ -148,8 +148,11 @@ namespace banggame {
         (int) origin_id,
         (int) target_id,
         (effect_flags) flags,
-        (game_formatted_string) status_text,
-        (std::vector<int>) can_respond_with
+        (game_formatted_string) status_text
+    )};
+
+    struct request_respond_args {REFLECTABLE(
+        (std::vector<int>) card_ids
     )};
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, game_update_type,
@@ -174,6 +177,7 @@ namespace banggame {
         (player_status, player_status_update)
         (switch_turn, switch_turn_update)
         (request_status, request_status_args)
+        (request_respond, request_respond_args)
         (status_clear)
     )
 

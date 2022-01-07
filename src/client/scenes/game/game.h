@@ -62,6 +62,7 @@ namespace banggame {
         void handle_game_update(UPDATE_TAG(player_status),     const player_status_update &args);
         void handle_game_update(UPDATE_TAG(switch_turn),      const switch_turn_update &args);
         void handle_game_update(UPDATE_TAG(request_status),   const request_status_args &args);
+        void handle_game_update(UPDATE_TAG(request_respond),   const request_respond_args &args);
         void handle_game_update(UPDATE_TAG(status_clear));
         
         void pop_update();
