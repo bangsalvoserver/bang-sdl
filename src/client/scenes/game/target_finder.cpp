@@ -129,13 +129,13 @@ void target_finder::on_click_table_card(player_view *player, card_view *card) {
         m_targets.emplace_back(std::vector{target_pair{player, card}});
         send_play_card();
     } else if (m_game->m_current_request && m_game->m_current_request->target_id == m_game->m_player_own_id) {
-        if (is_valid_picking_pile(m_game->m_current_request->type, card_pile_type::player_table)) {
-            add_action<game_action_type::pick_card>(card_pile_type::player_table, player->id, card->id);
-        } else if (!m_playing_card) {
-            if (!card->inactive && std::ranges::find(m_response_highlights, card) != m_response_highlights.end()) {
+        if (!m_playing_card) {
+            if (std::ranges::find(m_response_highlights, card) != m_response_highlights.end() && !card->inactive) {
                 m_playing_card = card;
                 m_flags |= play_card_flags::response;
                 handle_auto_targets();
+            } else if (is_valid_picking_pile(m_game->m_current_request->type, card_pile_type::player_table)) {
+                add_action<game_action_type::pick_card>(card_pile_type::player_table, player->id, card->id);
             }
         } else {
             add_card_target(target_pair{player, card});
@@ -156,14 +156,6 @@ void target_finder::on_click_table_card(player_view *player, card_view *card) {
     }
 }
 
-bool target_finder::is_escape_card(card_view *card) {
-    if (m_game->m_current_request
-        && std::ranges::find(card->response_targets, effect_type::escape, &card_target_data::type) != card->response_targets.end()) {
-        return bool(m_game->m_current_request->flags & effect_flags::escapable);
-    }
-    return false;
-}
-
 void target_finder::on_click_hand_card(player_view *player, card_view *card) {
     m_flags &= ~play_card_flags::discard_black;
 
@@ -173,13 +165,13 @@ void target_finder::on_click_hand_card(player_view *player, card_view *card) {
     } else if (m_game->m_current_request
         && (m_game->m_current_request->target_id == 0
         || m_game->m_current_request->target_id == m_game->m_player_own_id)) {
-        if (is_valid_picking_pile(m_game->m_current_request->type, card_pile_type::player_hand) && !is_escape_card(card)) {
-            add_action<game_action_type::pick_card>(card_pile_type::player_hand, player->id, card->id);
-        } else if (!m_playing_card) {
+        if (!m_playing_card) {
             if (std::ranges::find(m_response_highlights, card) != m_response_highlights.end()) {
                 m_playing_card = card;
                 m_flags |= play_card_flags::response;
                 handle_auto_targets();
+            } else if (is_valid_picking_pile(m_game->m_current_request->type, card_pile_type::player_hand)) {
+                add_action<game_action_type::pick_card>(card_pile_type::player_hand, player->id, card->id);
             }
         } else {
             add_card_target(target_pair{player, card});
@@ -218,22 +210,20 @@ void target_finder::on_click_character(player_view *player, card_view *card) {
     m_flags &= ~(play_card_flags::sell_beer | play_card_flags::discard_black);
 
     if (m_game->m_current_request && m_game->m_current_request->target_id == m_game->m_player_own_id) {
-        if (is_valid_picking_pile(m_game->m_current_request->type, card_pile_type::player_character)) {
-            add_action<game_action_type::pick_card>(card_pile_type::player_character, player->id, card->id);
-        } else if (player->id == m_game->m_player_own_id) {
-            if (!m_playing_card) {
-                if (std::ranges::find(m_response_highlights, card) != m_response_highlights.end()) {
-                    m_playing_card = card;
-                    m_flags |= play_card_flags::response;
-                    handle_auto_targets();
-                }
-            } else {
-                add_character_target(target_pair{player, card});
+        if (!m_playing_card) {
+            if (std::ranges::find(m_response_highlights, card) != m_response_highlights.end()) {
+                m_playing_card = card;
+                m_flags |= play_card_flags::response;
+                handle_auto_targets();
+            } else if (is_valid_picking_pile(m_game->m_current_request->type, card_pile_type::player_character)) {
+                add_action<game_action_type::pick_card>(card_pile_type::player_character, player->id, card->id);
             }
+        } else {
+            add_character_target(target_pair{player, card});
         }
     } else if (m_game->m_playing_id == m_game->m_player_own_id) {
-        bool is_drawing_card = !card->targets.empty() && card->targets.front().type == effect_type::drawing;
         if (!m_playing_card) {
+            const bool is_drawing_card = !card->targets.empty() && card->targets.front().type == effect_type::drawing;
             if (player->id == m_game->m_player_own_id && m_game->has_player_flags(player_flags::has_drawn) != is_drawing_card) {
                 if (card->modifier != card_modifier_type::none) {
                     add_modifier(card);

@@ -62,8 +62,6 @@ namespace banggame {
         void add_card_target(target_pair target);
         void add_character_target(target_pair target);
         bool add_player_targets(const std::vector<target_pair> &targets);
-
-        bool is_escape_card(card_view *card);
         
         int calc_distance(player_view *from, player_view *to);
 
