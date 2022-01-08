@@ -77,9 +77,8 @@ namespace banggame {
         (int) index
     )};
 
-    struct player_remove_character_update {REFLECTABLE(
-        (int) player_id,
-        (int) card_id
+    struct player_clear_characters_update {REFLECTABLE(
+        (int) player_id
     )};
 
     struct hide_card_update {REFLECTABLE(
@@ -172,7 +171,7 @@ namespace banggame {
         (player_hp, player_hp_update)
         (player_gold, player_gold_update)
         (player_add_character, player_character_update)
-        (player_remove_character, player_remove_character_update)
+        (player_clear_characters, player_clear_characters_update)
         (player_show_role, player_show_role_update)
         (player_status, player_status_update)
         (switch_turn, switch_turn_update)

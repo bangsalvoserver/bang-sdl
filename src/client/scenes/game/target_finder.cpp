@@ -50,7 +50,7 @@ void target_finder::render(sdl::renderer &renderer) {
                 if (std::ranges::find(m_selected_cubes, card, &cube_widget::owner) == m_selected_cubes.end()) {
                     renderer.draw_rect(card->get_rect());
                 }
-            } else if (player) {
+            } else if (player && player->id != m_game->m_player_own_id) {
                 renderer.draw_rect(player->m_bounding_rect);
             }
         }

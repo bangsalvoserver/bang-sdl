@@ -233,6 +233,7 @@ namespace banggame {
                 target->m_game->m_characters.erase(target->m_characters.back()->id);
                 target->m_characters.pop_back();
             }
+            target->m_game->add_public_update<game_update_type::player_clear_characters>(target->id);
             target->m_game->send_character_update(copy_it->second, target->id, 1);
             target->m_characters.emplace_back(&copy_it->second)->on_equip(target);
         }
@@ -257,7 +258,7 @@ namespace banggame {
                     c->pile = card_pile_type::none;
                     c->owner = nullptr;
                     p->m_characters.pop_back();
-                    p->m_game->add_public_update<game_update_type::player_remove_character>(p->id, c->id);
+                    p->m_game->add_public_update<game_update_type::player_clear_characters>(p->id);
                     p->m_game->m_characters.erase(c->id);
                 }
             }
@@ -458,6 +459,7 @@ namespace banggame {
             c->owner = nullptr;
         }
         target->m_characters.resize(1);
+        target->m_game->add_public_update<game_update_type::player_clear_characters>(target->id);
         greygory_deck_set_characters(target);
     }
 

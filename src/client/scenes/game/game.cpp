@@ -731,7 +731,6 @@ void game_scene::handle_game_update(UPDATE_TAG(player_add_character), const play
     if (args.index == p.m_characters.size()) {
         p.m_characters.push_back(&c);
     } else {
-        m_cards.erase(p.m_characters[args.index]->id);
         p.m_characters[args.index] = &c;
     }
 
@@ -742,11 +741,13 @@ void game_scene::handle_game_update(UPDATE_TAG(player_add_character), const play
     pop_update();
 }
 
-void game_scene::handle_game_update(UPDATE_TAG(player_remove_character), const player_remove_character_update &args) {
+void game_scene::handle_game_update(UPDATE_TAG(player_clear_characters), const player_clear_characters_update &args) {
     auto &p = *find_player(args.player_id);
 
-    p.m_characters.erase_card(find_card(args.card_id));
-    m_cards.erase(args.card_id);
+    while (p.m_characters.size() > 1) {
+        m_cards.erase(p.m_characters.back()->id);
+        p.m_characters.pop_back();
+    }
 
     pop_update();
 }
