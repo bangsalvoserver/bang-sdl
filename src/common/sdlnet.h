@@ -10,8 +10,6 @@ namespace sdlnet {
     constexpr size_t buffer_size = 1024;
 
     struct net_error : std::runtime_error {
-        using std::runtime_error::runtime_error;
-        
         net_error() : std::runtime_error(SDLNet_GetError()) {}
     };
 

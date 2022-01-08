@@ -34,6 +34,11 @@ int main(int argc, char **argv) {
                     std::cout << it->first.ip_string() << " Disconnected\n";
                     set.erase(it->second);
                     it = clients.erase(it);
+                } catch (const std::exception &e) {
+                    mgr.client_disconnected(it->first);
+                    std::cout << it->first.ip_string() << ": " << e.what() << '\n';
+                    set.erase(it->second);
+                    it = clients.erase(it);
                 }
             }
             if (set.ready(server)) {
