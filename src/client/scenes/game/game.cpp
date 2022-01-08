@@ -182,7 +182,7 @@ void game_scene::handle_event(const sdl::event &event) {
         m_mouse_pt = {event.button.x, event.button.y};
         switch (event.button.button) {
         case SDL_BUTTON_LEFT:
-            if (m_animations.empty()) {
+            if (m_pending_updates.empty() && m_animations.empty()) {
                 handle_card_click();
             }
             break;

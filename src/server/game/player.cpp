@@ -849,7 +849,7 @@ namespace banggame {
 
     void player::pass_turn(player *next_player) {
         if (num_hand_cards() > max_cards_end_of_turn()) {
-            m_game->queue_request<request_type::discard_pass>(this);
+            m_game->queue_request<request_type::discard_pass>(this, next_player);
         } else {
             end_of_turn(next_player);
         }
