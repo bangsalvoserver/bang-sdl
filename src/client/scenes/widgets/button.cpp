@@ -31,7 +31,7 @@ void button::render(renderer &renderer) {
     }
 
     m_text.set_point(pos);
-    m_text.render(renderer);
+    m_text.render(renderer, false);
 }
 
 bool button::handle_event(const event &event) {

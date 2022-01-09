@@ -13,10 +13,6 @@ class scene_base {
 public:
     scene_base(class game_manager *parent) : parent(parent) {}
     virtual ~scene_base() {}
-
-    virtual sdl::color bg_color() {
-        return sdl::rgb(sdl::default_scene_bgcolor_rgb);
-    }
     
     virtual void resize(int width, int height) {}
 

@@ -98,6 +98,8 @@ private:
 
     std::map<int, user_info> m_users;
 
+    sdl::texture m_background;
+
     int m_width;
     int m_height;
 

@@ -14,6 +14,9 @@ namespace sdl {
         resource_view text_font = GET_RESOURCE(arial_ttf);
         int text_ptsize = sdl::default_text_ptsize;
         int wrap_length = 0;
+        color bg_color = rgba(sdl::default_text_bg_rgba);
+        int bg_border_x = 5;
+        int bg_border_y = 2;
     };
 
     class stattext {
@@ -53,8 +56,15 @@ namespace sdl {
             return m_value;
         }
 
-        void render(renderer &renderer) {
+        void render(renderer &renderer, bool render_background = true) {
             if (m_tex) {
+                if (render_background) {
+                    renderer.set_draw_color(m_style.bg_color);
+                    renderer.fill_rect(sdl::rect{
+                        m_rect.x - m_style.bg_border_x, m_rect.y - m_style.bg_border_y,
+                        m_rect.w + m_style.bg_border_x * 2, m_rect.h + m_style.bg_border_y * 2});
+                }
+
                 m_tex.render(renderer, m_rect);
             }
         }

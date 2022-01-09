@@ -20,10 +20,6 @@ namespace banggame {
     public:
         game_scene(class game_manager *parent);
 
-        sdl::color bg_color() override {
-            return sdl::rgb(sdl::game_scene_bgcolor_rgb);
-        }
-
         void init(const game_started_args &args);
         
         void resize(int width, int height) override;

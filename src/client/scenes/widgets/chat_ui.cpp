@@ -21,7 +21,7 @@ chat_ui::chat_ui(game_manager *parent)
 void chat_ui::resize(int width, int height) {
     m_chat_box.set_rect(sdl::rect{20, height - 50, 200, 25});
     m_send_btn.set_rect(sdl::rect{230, height - 50, 100, 25});
-    m_messages.set_rect(sdl::rect{20, 300, 300, height - 370});
+    m_messages.set_rect(sdl::rect{20, 400, 250, height - 470});
 }
 
 void chat_ui::render(sdl::renderer &renderer) {

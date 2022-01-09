@@ -7,9 +7,13 @@
 #include "common/message_header.h"
 #include "common/binary_serial.h"
 
+DECLARE_RESOURCE(background_png)
+
 using namespace banggame;
 
-game_manager::game_manager(const std::string &config_filename) : m_config(config_filename) {
+game_manager::game_manager(const std::string &config_filename)
+    : m_background(sdl::surface(GET_RESOURCE(background_png)))
+    , m_config(config_filename) {
     switch_scene<scene_type::connect>();
 }
 
@@ -79,9 +83,26 @@ void game_manager::resize(int width, int height) {
     m_scene->resize(m_width, m_height);
 }
 
+static void render_tiled(sdl::renderer &renderer, const sdl::texture &texture, const sdl::rect &dst_rect) {
+    const sdl::rect src_rect = texture.get_rect();
+
+    for (int y=dst_rect.y; y<=dst_rect.w + dst_rect.h + src_rect.h; y+=src_rect.h) {
+        for (int x=dst_rect.x; x<=dst_rect.x + dst_rect.w + src_rect.w; x+=src_rect.w) {
+            sdl::rect from = src_rect;
+            sdl::rect to{x, y, src_rect.w, src_rect.h};
+            if (to.x + to.w > dst_rect.x + dst_rect.w) {
+                from.w = to.w = dst_rect.x + dst_rect.w - to.x;
+            }
+            if (to.y + to.h > dst_rect.y + dst_rect.h) {
+                from.h = to.h = dst_rect.y + dst_rect.h - to.y;
+            }
+            SDL_RenderCopy(renderer.get(), texture.get_texture(renderer), &from, &to);
+        }
+    }
+}
+
 void game_manager::render(sdl::renderer &renderer) {
-    renderer.set_draw_color(m_scene->bg_color());
-    renderer.render_clear();
+    render_tiled(renderer, m_background, sdl::rect{0, 0, width(), height()});
     
     m_scene->render(renderer);
 }

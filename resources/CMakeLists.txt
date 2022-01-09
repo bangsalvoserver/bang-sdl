@@ -24,7 +24,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
     compile_resources(bang_cards bang_cards.json)
 endif()
 
-compile_resources(resources_obj arial.ttf icons/icon_checkbox.png icons/bang.png)
+compile_resources(resources_obj arial.ttf icons/icon_checkbox.png icons/bang.png background.png)
 
 add_executable(compile_locale compile_locale.cpp)
 function(compile_locales target_name)

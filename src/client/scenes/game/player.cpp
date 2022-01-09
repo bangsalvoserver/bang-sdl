@@ -107,7 +107,7 @@ namespace banggame {
             gold_text_rect.x = gold_rect.x + (gold_rect.w - gold_text_rect.w) / 2;
             gold_text_rect.y = gold_rect.y + (gold_rect.h - gold_text_rect.h) / 2;
             m_gold_text.set_rect(gold_text_rect);
-            m_gold_text.render(renderer);
+            m_gold_text.render(renderer, false);
         }
 
         m_username_text.render(renderer);
