@@ -6,8 +6,8 @@
 constexpr uint32_t bang_magic = 0x42414e47;
 constexpr size_t buffer_size = 1024;
 
-struct magic_number_mismatch : std::runtime_error {
-    using std::runtime_error::runtime_error;
+struct magic_number_mismatch : std::runtime_error  {
+    magic_number_mismatch() : std::runtime_error("Magic number mismatch") {}
 };
 
 void send_message_bytes(sdlnet::tcp_socket &sock, const std::vector<std::byte> &bytes) {
@@ -26,7 +26,7 @@ std::vector<std::byte> recv_message_bytes(sdlnet::tcp_socket &sock) {
     std::byte buf[sizeof(uint32_t) * 2];
     sock.recv(buf, sizeof(buf));
     if (SDLNet_Read32(buf) != bang_magic) {
-        throw magic_number_mismatch("Magic number mismatch");
+        throw magic_number_mismatch();
     }
 
     std::vector<std::byte> ret(SDLNet_Read32(buf + sizeof(uint32_t)));

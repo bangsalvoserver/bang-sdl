@@ -224,6 +224,9 @@ namespace binary {
                     return deserializer<std::variant_alternative_t<I, variant_type>>{}(pos, end);
                 } ... };
             }(std::make_index_sequence<sizeof...(Ts)>());
+            if (index >= sizeof...(Ts)) {
+                throw read_error("Invalid variant index");
+            }
             return lut[index](pos, end);
         }
     };
@@ -242,6 +245,9 @@ namespace binary {
                     }
                 } ... };
             }(enums::make_enum_sequence<T>());
+            if (index >= std::variant_size_v<enums::enum_variant_base<T>>) {
+                throw read_error("Invalid enum_variant index");
+            }
             return lut[index](pos, end);
         }
     };
