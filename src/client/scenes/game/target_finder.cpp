@@ -2,6 +2,7 @@
 
 #include "game.h"
 #include "../../manager.h"
+#include "../widgets/os_api.h"
 
 #include <cassert>
 
@@ -496,7 +497,10 @@ void target_finder::add_card_target(target_pair target) {
             case target_type::cube_slot: return target.card->color == card_color_type::orange;
             default: return false;
             }
-        })) return;
+        })) {
+        if (bool(cur_target & target_type::card)) play_bell();
+        return;
+    }
     
     if (bool(cur_target & target_type::card)) {
         if ((bool(cur_target & target_type::can_repeat)
@@ -556,7 +560,7 @@ void target_finder::add_character_target(target_pair target) {
 bool target_finder::add_player_targets(const std::vector<target_pair> &targets) {
     auto verify_target = [&](target_type type) {
         player_view *own_player = m_game->find_player(m_game->m_player_own_id);
-        return std::ranges::all_of(targets, [&](player_view *target_player) {
+        if (std::ranges::all_of(targets, [&](player_view *target_player) {
             return std::ranges::all_of(util::enum_flag_values(type), [&](target_type value){
                 switch(value) {
                 case target_type::player: return !target_player->dead;
@@ -580,7 +584,9 @@ bool target_finder::add_player_targets(const std::vector<target_pair> &targets) 
                     return false;
                 }
             });
-        }, &target_pair::player);
+        }, &target_pair::player)) return true;
+        if (bool(type & target_type::player)) play_bell();
+        return false;
     };
     if (bool(m_flags & play_card_flags::equipping)) {
         if (verify_target(m_playing_card->equip_targets[m_targets.size()].target)) {

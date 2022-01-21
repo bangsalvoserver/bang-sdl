@@ -1,5 +1,6 @@
 #include "game.h"
 #include "../../manager.h"
+#include "../widgets/os_api.h"
 
 #include <iostream>
 #include <numbers>
@@ -372,6 +373,7 @@ void game_scene::add_chat_message(const std::string &message) {
 }
 
 void game_scene::show_error(const std::string &message) {
+    play_bell();
     m_ui.show_error(message);
 }
 
