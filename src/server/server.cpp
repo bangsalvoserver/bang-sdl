@@ -5,7 +5,7 @@
 
 #include "manager.h"
 
-using namespace std::literals;
+using namespace std::string_literals;
 
 bang_server::bang_server()
     : m_sockset(banggame::server_max_clients) {}
@@ -67,7 +67,7 @@ bool bang_server::start() {
                     }
                 }
             }
-            std::this_thread::sleep_for(1s / banggame::fps);
+            SDL_Delay(1000 / banggame::fps);
         }
     });
 
