@@ -10,6 +10,7 @@ struct recent_server_line {
     
     sdl::stattext m_address_text;
     sdl::button m_connect_btn;
+    sdl::button m_delete_btn;
 
     recent_server_line(class connect_scene *parent, const std::string &address);
 
@@ -30,7 +31,11 @@ public:
 
     void do_connect(const std::string &address);
 
+    void do_delete_address(recent_server_line *addr);
+
     void do_browse();
+
+    void do_create_server();
 
 private:
     sdl::stattext m_username_label;
@@ -43,6 +48,7 @@ private:
     sdl::stattext m_address_label;
     sdl::textbox m_address_box;
     sdl::button m_connect_btn;
+    sdl::button m_create_server_btn;
 
     sdl::stattext m_error_text;
 

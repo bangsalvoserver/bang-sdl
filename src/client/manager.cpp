@@ -73,6 +73,9 @@ void game_manager::disconnect() {
     sock_set.erase(sock);
     sock.close();
     switch_scene<scene_type::connect>()->show_error(_("ERROR_DISCONNECTED"));
+    if (m_listenserver) {
+        m_listenserver.reset();
+    }
 }
 
 
@@ -113,8 +116,24 @@ void game_manager::handle_event(const sdl::event &event) {
     }
 }
 
+bool game_manager::start_listenserver() {
+    m_listenserver = std::make_unique<bang_server>();
+    m_listenserver->set_message_callback([this](const std::string &msg) {
+        m_scene->add_chat_message(std::string("SERVER: ") + msg); 
+    });
+    m_listenserver->set_error_callback([this](const std::string &msg) {
+        m_scene->show_error(std::string("SERVER: ") + msg);
+    });
+    if (m_listenserver->start()) {
+        return true;
+    } else {
+        m_listenserver.reset();
+        return false;
+    }
+}
+
 void game_manager::handle_message(MESSAGE_TAG(client_accepted)) {
-    if (!connected_ip.empty()) {
+    if (!connected_ip.empty() && !m_listenserver) {
         auto it = std::ranges::find(m_config.recent_servers, connected_ip);
         if (it == m_config.recent_servers.end()) {
             m_config.recent_servers.push_back(connected_ip);

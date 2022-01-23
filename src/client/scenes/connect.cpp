@@ -8,16 +8,21 @@ recent_server_line::recent_server_line(connect_scene *parent, const std::string 
     , m_address_text(address)
     , m_connect_btn(_("BUTTON_CONNECT"), [parent, &address]{
         parent->do_connect(address);
+    })
+    , m_delete_btn(_("BUTTON_DELETE"), [this]{
+        this->parent->do_delete_address(this);
     }) {}
 
 void recent_server_line::set_rect(const sdl::rect &rect) {
     m_address_text.set_point(sdl::point(rect.x, rect.y));
     m_connect_btn.set_rect(sdl::rect(rect.x + rect.w - 100, rect.y, 100, rect.h));
+    m_delete_btn.set_rect(sdl::rect(rect.x + rect.w - 210, rect.y, 100, rect.h));
 }
 
 void recent_server_line::render(sdl::renderer &renderer) {
     m_address_text.render(renderer);
     m_connect_btn.render(renderer);
+    m_delete_btn.render(renderer);
 }
 
 connect_scene::connect_scene(game_manager *parent)
@@ -27,6 +32,9 @@ connect_scene::connect_scene(game_manager *parent)
     , m_address_label(_("LABEL_NEW_ADDRESS"))
     , m_connect_btn(_("BUTTON_CONNECT"), [this]{
         do_connect(m_address_box.get_value());
+    })
+    , m_create_server_btn(_("BUTTON_CREATE_SERVER"), [this]{
+        do_create_server();
     })
     , m_propic_browse_btn(_("BUTTON_BROWSE"), [this]{
         do_browse();
@@ -61,7 +69,7 @@ void connect_scene::resize(int width, int height) {
     m_propic_box.set_rect(sdl::rect{100 + label_rect.w + 10, 100, width - 320 - label_rect.w, 25});
     m_propic_browse_btn.set_rect(sdl::rect{width - 200, 100, 100, 25});
 
-    sdl::rect rect{100, 150, width - 200, 25};
+    sdl::rect rect{100, 200, width - 200, 25};
     for (auto &line : m_recents) {
         line.set_rect(rect);
         rect.y += 50;
@@ -75,6 +83,8 @@ void connect_scene::resize(int width, int height) {
     m_address_box.set_rect(sdl::rect{rect.x + label_rect.w + 10, rect.y, rect.w - 120 - label_rect.w, rect.h});
     
     m_connect_btn.set_rect(sdl::rect{rect.x + rect.w - 100, rect.y, 100, rect.h});
+
+    m_create_server_btn.set_rect(sdl::rect{(width - 200) / 2, 150, 200, 25});
 
     m_error_text.set_point(sdl::point{(width - m_error_text.get_rect().w) / 2, rect.y + 50});
 }
@@ -94,6 +104,7 @@ void connect_scene::render(sdl::renderer &renderer) {
     m_address_label.render(renderer);
     m_address_box.render(renderer);
     m_connect_btn.render(renderer);
+    m_create_server_btn.render(renderer);
     m_error_text.render(renderer);
 }
 
@@ -113,10 +124,25 @@ void connect_scene::do_connect(const std::string &address) {
     }
 }
 
+void connect_scene::do_delete_address(recent_server_line *addr) {
+    auto it = std::ranges::find(m_recents, addr, [](const auto &obj) { return &obj; });
+    auto &servers = parent->get_config().recent_servers;
+    servers.erase(servers.begin() + std::distance(m_recents.begin(), it));
+    m_recents.erase(it);
+
+    resize(parent->width(), parent->height());
+}
+
 void connect_scene::do_browse() {
     const char *filters[] = {"*.jpg", "*.png"};
     const char *ret = tinyfd_openFileDialog(_("BANG_TITLE").c_str(), parent->get_config().profile_image.c_str(), 2, filters, _("DIALOG_IMAGE_FILES").c_str(), 0);
     if (ret) {
         m_propic_box.set_value(parent->get_config().profile_image.assign(ret));
+    }
+}
+
+void connect_scene::do_create_server() {
+    if (parent->start_listenserver()) {
+        do_connect("localhost");
     }
 }

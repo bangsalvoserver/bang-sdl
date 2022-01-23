@@ -201,7 +201,12 @@ namespace sdlnet {
     };
 
     struct tcp_server_socket : tcp_socket {
+        tcp_server_socket() = default;
         explicit tcp_server_socket(uint16_t port) : tcp_socket(ip_address(INADDR_ANY, port)) {}
+
+        void listen(uint16_t port) {
+            open(ip_address(INADDR_ANY, port));
+        }
 
         tcp_peer_socket accept() {
             return SDLNet_TCP_Accept(sock);

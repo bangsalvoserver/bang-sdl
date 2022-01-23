@@ -38,7 +38,7 @@ set(bangclient_srcs
 )
 
 set(bangserver_srcs
-    src/server/main.cpp
+    src/server/server.cpp
     src/server/manager.cpp
     src/server/game/effect_holder.cpp
     src/server/game/effects.cpp
@@ -73,12 +73,16 @@ if(WIN32)
     target_link_options(bangclient PRIVATE -mconsole)
 endif()
 
-add_executable(bangserver ${bangserver_srcs})
-target_link_libraries(bangserver PkgConfig::SDL2_net PkgConfig::jsoncpp)
+add_library(bangserverlib SHARED ${bangserver_srcs})
+target_link_libraries(bangserverlib PkgConfig::SDL2_net PkgConfig::jsoncpp)
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
-    target_link_libraries(bangserver bang_cards)
-    target_compile_definitions(bangserver PRIVATE BANG_CARDS_JSON_LINKED)
+target_link_libraries(bangserverlib bang_cards)
+target_compile_definitions(bangserverlib PRIVATE BANG_CARDS_JSON_LINKED)
 endif()
+target_link_libraries(bangclient bangserverlib)
+
+add_executable(bangserver src/server/main.cpp)
+target_link_libraries(bangserver bangserverlib)
 if(WIN32)
     target_link_options(bangserver PRIVATE -mconsole)
 endif()

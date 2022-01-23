@@ -3,6 +3,9 @@
 
 #include <list>
 #include <map>
+#include <memory>
+
+#include "server/server.h"
 
 #include "common/net_enums.h"
 
@@ -66,6 +69,8 @@ public:
     int get_user_own_id() const noexcept { return m_user_own_id; }
     int get_lobby_owner_id() const noexcept { return m_lobby_owner_id; }
 
+    bool start_listenserver();
+
     user_info *get_user_info(int id) {
         auto it = m_users.find(id);
         if (it != m_users.end()) {
@@ -96,6 +101,7 @@ private:
     sdlnet::socket_set sock_set{1};
     std::string connected_ip;
 
+    std::unique_ptr<bang_server> m_listenserver;
     std::map<int, user_info> m_users;
 
     sdl::texture m_background;

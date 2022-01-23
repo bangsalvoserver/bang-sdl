@@ -1,5 +1,7 @@
 BANG_TITLE                          Bang!
 BUTTON_CONNECT                      Connetti
+BUTTON_CREATE_SERVER                Crea Server
+BUTTON_DELETE                       Elimina
 BUTTON_BROWSE                       Sfoglia....
 BUTTON_JOIN                         Entra
 BUTTON_MAKE_LOBBY                   Crea lobby
