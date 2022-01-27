@@ -100,14 +100,38 @@ namespace banggame {
         event_based_effect{}.on_unequip(target, target_card);
     }
 
-    void effect_weapon::on_equip(player *target, card *target_card) {
-        target->m_weapon_range = args;
-        target->send_player_status();
+    void effect_horse::on_equip(player *target, card *target_card) {
+        target->m_game->add_event<event_type::on_equip>(target_card, [=](player *origin, player *e_target, card *e_target_card) {
+            const auto is_horse = [=](const card *c) {
+                return c != target_card && !c->equips.empty() && c->equips.front().is(equip_type::horse);
+            };
+            if (target == e_target && target_card == e_target_card) {
+                if (auto it = std::ranges::find_if(target->m_table, is_horse); it != target->m_table.end()) {
+                    target->discard_card(*it);
+                }
+            }
+        });
     }
 
-    void effect_weapon::on_unequip(player *target, card *target_card) {
-        target->m_weapon_range = 1;
-        target->send_player_status();
+    void effect_weapon::on_equip(player *target, card *target_card) {
+        target->m_game->add_event<event_type::on_equip>(target_card, [=, range = args](player *origin, player *e_target, card *e_target_card) {
+            const auto is_weapon = [=](const card *c) {
+                return c != target_card && !c->equips.empty() && c->equips.front().is(equip_type::weapon);
+            };
+            if (target == e_target && target_card == e_target_card) {
+                if (auto it = std::ranges::find_if(target->m_table, is_weapon); it != target->m_table.end()) {
+                    target->discard_card(*it);
+                }
+                target->m_weapon_range = range;
+                target->send_player_status();
+            }
+        });
+        target->m_game->add_event<event_type::post_discard_card>(target_card, [=](player *e_target, card *e_target_card) {
+            if (target == e_target && target_card == e_target_card) {
+                target->m_weapon_range = 1;
+                target->send_player_status();
+            }
+        });
     }
 
     void effect_volcanic::on_equip(player *target, card *target_card) {

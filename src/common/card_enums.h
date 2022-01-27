@@ -37,15 +37,15 @@ namespace banggame {
     
     DEFINE_ENUM_FLAGS_DATA_IN_NS(banggame, card_expansion_type,
         (base)
-        (thebullet)
         (dodgecity)
-        (valleyofshadows)
-        (wildwestshow)
         (goldrush)
         (armedanddangerous)
+        (valleyofshadows)
+        (canyondiablo)
         (highnoon)
         (fistfulofcards)
-        (canyondiablo)
+        (wildwestshow)
+        (thebullet)
         (ghostcards)
     )
 

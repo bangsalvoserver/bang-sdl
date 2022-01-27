@@ -95,6 +95,10 @@ namespace banggame {
         void on_play(card *origin_card, player *origin, player *target);
     };
 
+    struct effect_heal_notfull : effect_heal {
+        void verify(card *origin_card, player *origin, player *target) const;
+    };
+
     struct effect_damage : card_effect {
         void verify(card *origin_card, player *origin, player *target) const;
         void on_play(card *origin_card, player *origin, player *target);

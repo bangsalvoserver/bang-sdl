@@ -54,6 +54,9 @@
             "color": "blue",
             "equip": [
                 {
+                    "class": "horse"
+                },
+                {
                     "class": "mustang"
                 }
             ]
@@ -476,6 +479,9 @@
             "expansion": "dodgecity",
             "color": "blue",
             "equip": [
+                {
+                    "class": "horse"
+                },
                 {
                     "class": "mustang"
                 }
@@ -1831,6 +1837,514 @@
                 },
                 {
                     "class": "thunderer"
+                }
+            ]
+        },
+        {
+            "disabled": true,
+            "name": "Tombarolo",
+            "signs": [
+                "8P"
+            ],
+            "image": "20_tombarolo",
+            "expansion": "canyondiablo",
+            "color": "brown",
+            "effects": [
+                {
+                    "class": "graverobber"
+                }
+            ]
+        },
+        {
+            "disabled": true,
+            "name": "Baro",
+            "signs": [
+                "10F"
+            ],
+            "image": "20_baro",
+            "expansion": "canyondiablo",
+            "color": "brown",
+            "effects": [
+                {
+                    "target": "self table blue card",
+                    "class": "card_sharper_choose"
+                },
+                {
+                    "target": "notself table blue card",
+                    "class": "card_sharper_switch",
+                    "escapable": true
+                }
+            ]
+        },
+        {
+            "disabled": true,
+            "name": "Miraggio",
+            "signs": [
+                "8C"
+            ],
+            "image": "20_miraggio",
+            "expansion": "canyondiablo",
+            "color": "brown",
+            "responses": [
+                {
+                    "class": "missed"
+                },
+                {
+                    "class": "mirage"
+                }
+            ]
+        },
+        {
+            "disabled": true,
+            "name": "Patto di Sangue",
+            "signs": [
+                "JC"
+            ],
+            "image": "20_pattodisangue",
+            "expansion": "canyondiablo",
+            "color": "brown",
+            "effects": [
+                {
+                    "target": "player self",
+                    "class": "damage"
+                },
+                {
+                    "target": "player notself",
+                    "class": "heal_notfull"
+                }
+            ]
+        },
+        {
+            "disabled": true,
+            "name": "Sacrificio",
+            "signs": [
+                "10C"
+            ],
+            "image": "20_sacrificio",
+            "expansion": "canyondiablo",
+            "color": "brown",
+            "responses": [
+                {
+                    "class": "sacrifice"
+                }
+            ]
+        },
+        {
+            "disabled": true,
+            "name": "Disarmare",
+            "signs": [
+                "7C"
+            ],
+            "image": "20_disarmare",
+            "expansion": "canyondiablo",
+            "color": "brown",
+            "responses": [
+                {
+                    "class": "missed"
+                },
+                {
+                    "class": "disarm"
+                }
+            ]
+        },
+        {
+            "name": "Molotov",
+            "signs": [
+                "AC"
+            ],
+            "image": "20_molotov",
+            "expansion": "canyondiablo",
+            "color": "brown",
+            "effects": [
+                {
+                    "target": "player reachable notself",
+                    "class": "bang"
+                }
+            ]
+        },
+        {
+            "name": "Mancato!",
+            "signs": [
+                "JP",
+                "6F"
+            ],
+            "image": "20_mancato",
+            "expansion": "canyondiablo",
+            "color": "brown",
+            "responses": [
+                {
+                    "class": "missedcard"
+                }
+            ]
+        },
+        {
+            "name": "Bang!",
+            "signs": [
+                "10P",
+                "QF",
+                "8Q",
+                "6Q"
+            ],
+            "image": "01_bang",
+            "expansion": "canyondiablo",
+            "color": "brown",
+            "effects": [
+                {
+                    "target": "player reachable notself",
+                    "class": "bangcard"
+                },
+                {
+                    "class": "banglimit"
+                }
+            ],
+            "responses": [
+                {
+                    "class": "bangresponse"
+                }
+            ]
+        },
+        {
+            "name": "Panico!",
+            "signs": [
+                "9C"
+            ],
+            "image": "01_panico",
+            "expansion": "canyondiablo",
+            "color": "brown",
+            "effects": [
+                {
+                    "target": "card range_1",
+                    "class": "steal",
+                    "escapable": true
+                }
+            ]
+        },
+        {
+            "name": "Birra",
+            "signs": [
+                "QC"
+            ],
+            "image": "01_birra",
+            "expansion": "canyondiablo",
+            "color": "brown",
+            "effects": [
+                {
+                    "target": "player self",
+                    "class": "beer"
+                }
+            ],
+            "responses": [
+                {
+                    "target": "player self",
+                    "class": "beer"
+                },
+                {
+                    "class": "deathsave"
+                }
+            ]
+        },
+        {
+            "name": "Cat Balou",
+            "signs": [
+                "JF"
+            ],
+            "image": "01_catbalou",
+            "expansion": "canyondiablo",
+            "color": "brown",
+            "effects": [
+                {
+                    "target": "card",
+                    "class": "destroy",
+                    "escapable": true
+                }
+            ]
+        },
+        {
+            "name": "Bulldog",
+            "signs": [
+                "7Q"
+            ],
+            "image": "20_bulldog",
+            "expansion": "canyondiablo",
+            "color": "blue",
+            "usages": 1,
+            "equip": [
+                {
+                    "class": "weapon",
+                    "args": 2
+                }
+            ],
+            "effects": [
+                {
+                    "target": "self hand bang card",
+                    "class": "choose_card"
+                },
+                {
+                    "target": "self hand card",
+                    "class": "destroy"
+                },
+                {
+                    "target": "player everyone notself",
+                    "class": "bang"
+                }
+            ]
+        },
+        {
+            "disabled": true,
+            "name": "Ultime Volont\u00e0",
+            "signs": [
+                "AP"
+            ],
+            "image": "20_ultimevolonta",
+            "expansion": "canyondiablo",
+            "color": "blue",
+            "equip": [
+                {
+                    "target": "player",
+                    "class": "lastwill"
+                }
+            ]
+        },
+        {
+            "disabled": true,
+            "name": "Guida Indiana",
+            "signs": [
+                "8F"
+            ],
+            "image": "20_guidaindiana",
+            "expansion": "canyondiablo",
+            "color": "blue",
+            "equip": [
+                {
+                    "class": "indianguide"
+                }
+            ]
+        },
+        {
+            "name": "Remington",
+            "signs": [
+                "KP"
+            ],
+            "image": "20_remington",
+            "expansion": "canyondiablo",
+            "color": "blue",
+            "equip": [
+                {
+                    "class": "weapon",
+                    "args": 3
+                }
+            ]
+        },
+        {
+            "disabled": true,
+            "name": "Esattore",
+            "signs": [
+                "KF"
+            ],
+            "image": "20_esattore",
+            "expansion": "canyondiablo",
+            "color": "blue",
+            "equip": [
+                {
+                    "target": "player",
+                    "class": "taxman"
+                }
+            ]
+        },
+        {
+            "disabled": true,
+            "name": "Bordello",
+            "signs": [
+                "7F"
+            ],
+            "image": "20_bordello",
+            "expansion": "canyondiablo",
+            "color": "blue",
+            "equip": [
+                {
+                    "target": "player",
+                    "class": "brothel"
+                }
+            ]
+        },
+        {
+            "disabled": true,
+            "name": "Bronco",
+            "signs": [
+                "QQ"
+            ],
+            "image": "20_bronco",
+            "expansion": "canyondiablo",
+            "color": "blue",
+            "equip": [
+                {
+                    "class": "horse"
+                },
+                {
+                    "class": "mustang"
+                },
+                {
+                    "class": "bronco"
+                }
+            ]
+        },
+        {
+            "disabled": true,
+            "name": "Mulo",
+            "signs": [
+                "QP"
+            ],
+            "image": "20_mulo",
+            "expansion": "canyondiablo",
+            "color": "blue",
+            "equip": [
+                {
+                    "class": "horse"
+                },
+                {
+                    "class": "packmule"
+                }
+            ]
+        },
+        {
+            "name": "Sentiero di Guerra",
+            "signs": [
+                "KQ"
+            ],
+            "image": "20_sentierodiguerra",
+            "expansion": "canyondiablo",
+            "color": "green",
+            "effects": [
+                {
+                    "target": "player everyone notself",
+                    "class": "indians"
+                }
+            ]
+        },
+        {
+            "name": "Incendio",
+            "signs": [
+                "JQ"
+            ],
+            "image": "20_incendio",
+            "expansion": "canyondiablo",
+            "color": "green",
+            "effects": [
+                {
+                    "target": "everyone notself card",
+                    "class": "destroy"
+                }
+            ]
+        },
+        {
+            "name": "Proiettile Vagante",
+            "signs": [
+                "10Q"
+            ],
+            "image": "20_proiettilevagante",
+            "expansion": "canyondiablo",
+            "color": "brown",
+            "responses": [
+                {
+                    "class": "missed"
+                }
+            ],
+            "optional": [
+                {
+                    "target": "player notself range_1",
+                    "class": "bang"
+                }
+            ]
+        },
+        {
+            "disabled": true,
+            "name": "Offre La Casa",
+            "signs": [
+                "KC"
+            ],
+            "image": "20_offrelacasa",
+            "expansion": "canyondiablo",
+            "color": "green",
+            "effects": [
+                {
+                    "target": "player self",
+                    "class": "heal_notfull"
+                },
+                {
+                    "target": "player self",
+                    "class": "draw"
+                }
+            ]
+        },
+        {
+            "name": "Chitarra",
+            "signs": [
+                "9F"
+            ],
+            "image": "20_chitarra",
+            "expansion": "canyondiablo",
+            "color": "blue",
+            "equip": [
+                {
+                    "target": "player",
+                    "class": "weapon",
+                    "args": 0
+                }
+            ]
+        },
+        {
+            "name": "Attaccabrighe",
+            "signs": [
+                "9P"
+            ],
+            "image": "20_attaccabrighe",
+            "expansion": "canyondiablo",
+            "color": "green",
+            "effects": [
+                {
+                    "target": "card range_1",
+                    "class": "steal"
+                }
+            ]
+        },
+        {
+            "name": "Strozzino",
+            "signs": [
+                "9Q"
+            ],
+            "image": "20_strozzino",
+            "expansion": "canyondiablo",
+            "color": "brown",
+            "effects": [
+                {
+                    "target": "player self",
+                    "class": "draw"
+                },
+                {
+                    "target": "player self",
+                    "class": "draw"
+                },
+                {
+                    "target": "player self",
+                    "class": "damage"
+                }
+            ]
+        },
+        {
+            "name": "Schivata",
+            "signs": [
+                "7P"
+            ],
+            "image": "20_schivata",
+            "expansion": "canyondiablo",
+            "color": "brown",
+            "responses": [
+                {
+                    "target": "player self",
+                    "class": "draw"
+                },
+                {
+                    "class": "missed"
                 }
             ]
         }

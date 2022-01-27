@@ -480,7 +480,9 @@ void target_finder::add_card_target(target_pair target) {
             case target_type::everyone:
             case target_type::new_target:
             case target_type::can_repeat: return true;
-            case target_type::reachable: return calc_distance(own_player, target.player) <= own_player->m_weapon_range + own_player->m_range_mod;
+            case target_type::reachable:
+                return own_player->m_weapon_range > 0
+                    && calc_distance(own_player, target.player) <= own_player->m_weapon_range + own_player->m_range_mod;
             case target_type::range_1: return calc_distance(own_player, target.player) <= 1 + own_player->m_range_mod;
             case target_type::range_2:return calc_distance(own_player, target.player) <= 2 + own_player->m_range_mod;
             case target_type::self: return target.player->id == m_game->m_player_own_id;
@@ -572,7 +574,9 @@ bool target_finder::add_player_targets(const std::vector<target_pair> &targets) 
                     return std::ranges::none_of(m_targets, [&](const auto &vec) {
                         return std::ranges::find(vec, target_player, &target_pair::player) != vec.end();
                     });
-                case target_type::reachable: return calc_distance(own_player, target_player) <= own_player->m_weapon_range + own_player->m_range_mod;
+                case target_type::reachable:
+                    return own_player->m_weapon_range > 0
+                        && calc_distance(own_player, target_player) <= own_player->m_weapon_range + own_player->m_range_mod;
                 case target_type::range_1: return calc_distance(own_player, target_player) <= 1 + own_player->m_range_mod;
                 case target_type::range_2: return calc_distance(own_player, target_player) <= 2 + own_player->m_range_mod;
                 case target_type::fanning_target:

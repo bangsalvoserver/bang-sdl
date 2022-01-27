@@ -78,7 +78,7 @@ banggame::card_expansion_type::goldrush             Gold Rush
 banggame::card_expansion_type::armedanddangerous    Armed & Dangerous
 banggame::card_expansion_type::highnoon             High Noon
 banggame::card_expansion_type::fistfulofcards       Fistful of Cards
-banggame::card_expansion_type::canyondiablo         Canyon Diablo
+banggame::card_expansion_type::canyondiablo         Canyon Diablo (beta)
 banggame::card_expansion_type::ghostcards           Ghost cards
 lobby_state::waiting                Waiting
 lobby_state::playing                Playing
@@ -126,6 +126,7 @@ ERROR_SCENARIO_AT_PLAY              {} is at play
 ERROR_CANT_PLAY_CARD                You can't play {}
 ERROR_ONE_BANG_PER_TURN             You can only play one Bang card per turn
 ERROR_CANT_SELF_DAMAGE              You can't take off the last life point
+ERROR_CANT_HEAL_PAST_FULL_HP        You can't heal yourself past the last life point
 ERROR_NOT_START_OF_TURN             It's not the start of your turn
 ERROR_DISCARD_PILE_EMPTY            The discard pile is empty
 ERROR_MAX_USAGES                    You can't play {0} more than {1} times per turn

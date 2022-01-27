@@ -16,16 +16,6 @@ namespace banggame {
         , id(game->get_next_id()) {}
 
     void player::equip_card(card *target) {
-        auto is_weapon = [](const card *c) {
-            return !c->equips.empty() && c->equips.front().is(equip_type::weapon);
-        };
-
-        if (is_weapon(target)) {
-            if (auto it = std::ranges::find_if(m_table, is_weapon); it != m_table.end()) {
-                discard_card(*it);
-            }
-        }
-
         if (!m_game->table_cards_disabled(this)) {
             target->on_equip(this);
         }
@@ -322,7 +312,9 @@ namespace banggame {
                             case target_type::player: if (!target->alive()) throw game_error("ERROR_TARGET_NOT_PLAYER"); break;
                             case target_type::self: if (target->id != id) throw game_error("ERROR_TARGET_NOT_SELF"); break;
                             case target_type::notself: if (target->id == id) throw game_error("ERROR_TARGET_SELF"); break;
-                            case target_type::reachable: if (m_game->calc_distance(this, target) > m_weapon_range + m_range_mod) throw game_error("ERROR_TARGET_NOT_IN_RANGE"); break;
+                            case target_type::reachable:
+                                if (m_weapon_range > 0 && m_game->calc_distance(this, target) > m_weapon_range + m_range_mod)
+                                    throw game_error("ERROR_TARGET_NOT_IN_RANGE"); break;
                             case target_type::range_1: if (m_game->calc_distance(this, target) > 1 + m_range_mod) throw game_error("ERROR_TARGET_NOT_IN_RANGE"); break;
                             case target_type::range_2: if (m_game->calc_distance(this, target) > 2 + m_range_mod) throw game_error("ERROR_TARGET_NOT_IN_RANGE"); break;
                             case target_type::new_target: if (!is_new_target(m_current_card_targets, card_ptr, target)) throw game_error("ERROR_TARGET_NOT_NEW"); break;
@@ -379,7 +371,9 @@ namespace banggame {
                                 break;
                             case target_type::self: if (target->id != id) throw game_error("ERROR_TARGET_NOT_SELF"); break;
                             case target_type::notself: if (target->id == id) throw game_error("ERROR_TARGET_SELF"); break;
-                            case target_type::reachable: if (m_game->calc_distance(this, target) > m_weapon_range + m_range_mod) throw game_error("ERROR_TARGET_NOT_IN_RANGE"); break;
+                            case target_type::reachable:
+                                if (m_weapon_range > 0 && m_game->calc_distance(this, target) > m_weapon_range + m_range_mod)
+                                    throw game_error("ERROR_TARGET_NOT_IN_RANGE"); break;
                             case target_type::range_1: if (m_game->calc_distance(this, target) > 1 + m_range_mod) throw game_error("ERROR_TARGET_NOT_IN_RANGE"); break;
                             case target_type::range_2: if (m_game->calc_distance(this, target) > 2 + m_range_mod) throw game_error("ERROR_TARGET_NOT_IN_RANGE"); break;
                             case target_type::new_target: if (!is_new_target(m_current_card_targets, card_ptr, target)) throw game_error("ERROR_TARGET_NOT_NEW"); break;

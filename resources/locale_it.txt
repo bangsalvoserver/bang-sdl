@@ -78,7 +78,7 @@ banggame::card_expansion_type::goldrush             Corsa all'Oro
 banggame::card_expansion_type::armedanddangerous    Armed & Dangerous
 banggame::card_expansion_type::highnoon             Mezzogiorno di Fuoco
 banggame::card_expansion_type::fistfulofcards       Per un Pugno di Carte
-banggame::card_expansion_type::canyondiablo         Canyon Diablo
+banggame::card_expansion_type::canyondiablo         Canyon Diablo (beta)
 banggame::card_expansion_type::ghostcards           Carte Fantasma
 lobby_state::waiting                In attesa
 lobby_state::playing                In gioco
@@ -126,6 +126,7 @@ ERROR_SCENARIO_AT_PLAY              {} è in gioco
 ERROR_CANT_PLAY_CARD                Non puoi giocare {}
 ERROR_ONE_BANG_PER_TURN             Puoi giocare un solo Bang per turno
 ERROR_CANT_SELF_DAMAGE              Non puoi toglierti l'ultimo punto vita
+ERROR_CANT_HEAL_PAST_FULL_HP        Non puoi curarti oltre l'ultimo punto vita
 ERROR_NOT_START_OF_TURN             Non sei a inizio turno
 ERROR_DISCARD_PILE_EMPTY            La pila degli scarti è vuota
 ERROR_MAX_USAGES                    Nuon puoi giocare {0} più di {1} volte per turno

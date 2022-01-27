@@ -163,6 +163,12 @@ namespace banggame {
         target->heal(std::max<short>(1, args));
     }
 
+    void effect_heal_notfull::verify(card *origin_card, player *origin, player *target) const {
+        if (target->m_hp == target->m_max_hp) {
+            throw game_error("ERROR_CANT_HEAL_PAST_FULL_HP");
+        }
+    }
+
     void effect_damage::verify(card *origin_card, player *origin, player *target) const {
         if (target->m_hp <= 1) {
             throw game_error("ERROR_CANT_SELF_DAMAGE");
