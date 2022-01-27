@@ -34,14 +34,34 @@ namespace sdlnet {
         initializer &operator = (initializer &&other) = delete;
     };
 
+    inline uint32_t host_to_net32(uint32_t value) {
+        uint32_t buf;
+        SDLNet_Write32(value, &buf);
+        return buf;
+    }
+
+    inline uint16_t host_to_net16(uint16_t value) {
+        uint16_t buf;
+        SDLNet_Write16(value, &buf);
+        return buf;
+    }
+
+    inline uint32_t net_to_host32(uint32_t value) {
+        return SDLNet_Read32(&value);
+    }
+
+    inline uint16_t net_to_host16(uint16_t value) {
+        return SDLNet_Read16(&value);
+    }
+
     struct ip_address : IPaddress {
         ip_address() = default;
 
         ip_address(IPaddress addr) : IPaddress(addr) {}
 
         ip_address(uint32_t host, uint16_t port) {
-            SDLNet_Write32(host, &this->host);
-            SDLNet_Write16(port, &this->port);
+            this->host = host_to_net32(host);
+            this->port = host_to_net16(port);
         }
 
         ip_address(const std::string &host, uint16_t port) {

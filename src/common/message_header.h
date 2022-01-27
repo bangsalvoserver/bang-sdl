@@ -12,8 +12,8 @@ struct magic_number_mismatch : std::runtime_error  {
 
 void send_message_bytes(sdlnet::tcp_socket &sock, const std::vector<std::byte> &bytes) {
     std::byte buf[sizeof(uint32_t) * 2];
-    SDLNet_Write32(bang_magic, buf);
-    SDLNet_Write32(static_cast<uint32_t>(bytes.size()), buf + sizeof(uint32_t));
+    *reinterpret_cast<uint32_t*>(buf) = sdlnet::host_to_net32(bang_magic);
+    *reinterpret_cast<uint32_t*>(buf + sizeof(uint32_t)) = sdlnet::host_to_net32(bytes.size());
     sock.send(buf, sizeof(buf));
 
     const std::byte *pos = bytes.data();
@@ -25,11 +25,12 @@ void send_message_bytes(sdlnet::tcp_socket &sock, const std::vector<std::byte> &
 std::vector<std::byte> recv_message_bytes(sdlnet::tcp_socket &sock) {
     std::byte buf[sizeof(uint32_t) * 2];
     sock.recv(buf, sizeof(buf));
-    if (SDLNet_Read32(buf) != bang_magic) {
+
+    if (sdlnet::net_to_host32(*reinterpret_cast<uint32_t*>(buf)) != bang_magic) {
         throw magic_number_mismatch();
     }
 
-    std::vector<std::byte> ret(SDLNet_Read32(buf + sizeof(uint32_t)));
+    std::vector<std::byte> ret(sdlnet::net_to_host32(*reinterpret_cast<uint32_t*>(buf + sizeof(uint32_t))));
     std::byte *pos = ret.data();
     while (pos != ret.data() + ret.size()) {
         pos += sock.recv(pos, std::min(buffer_size, (size_t)(ret.data() + ret.size() - pos)));
