@@ -78,6 +78,7 @@ banggame::card_expansion_type::goldrush             Corsa all'Oro
 banggame::card_expansion_type::armedanddangerous    Armed & Dangerous
 banggame::card_expansion_type::highnoon             Mezzogiorno di Fuoco
 banggame::card_expansion_type::fistfulofcards       Per un Pugno di Carte
+banggame::card_expansion_type::canyondiablo         Canyon Diablo
 banggame::card_expansion_type::ghostcards           Carte Fantasma
 lobby_state::waiting                In attesa
 lobby_state::playing                In gioco

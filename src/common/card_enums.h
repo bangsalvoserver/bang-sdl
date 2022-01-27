@@ -45,6 +45,7 @@ namespace banggame {
         (armedanddangerous)
         (highnoon)
         (fistfulofcards)
+        (canyondiablo)
         (ghostcards)
     )
 
