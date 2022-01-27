@@ -51,11 +51,16 @@ set(bangserver_srcs
     src/server/game/scenarios.cpp
 )
 
-include_directories(bangclient src)
+include_directories(src)
 add_subdirectory(resources)
 
-add_executable(bangclient ${bangclient_srcs})
-target_link_libraries(bangclient PkgConfig::SDL2 PkgConfig::SDL2_net PkgConfig::SDL2_ttf PkgConfig::SDL2_image PkgConfig::SDL2_gfx PkgConfig::jsoncpp)
+if(WIN32 AND CMAKE_BUILD_TYPE STREQUAL "Release")
+    add_executable(bangclient WIN32 ${bangclient_srcs})
+else()
+    add_executable(bangclient ${bangclient_srcs})
+endif()
+
+target_link_libraries(bangclient PkgConfig::SDL2_net PkgConfig::SDL2 PkgConfig::SDL2_ttf PkgConfig::SDL2_image PkgConfig::SDL2_gfx PkgConfig::jsoncpp)
 target_link_libraries(bangclient resources_obj locale_headers)
 if(WIN32)
     target_sources(bangclient PRIVATE resources/icons/bang.rc)
@@ -69,9 +74,6 @@ else()
 endif()
 
 add_dependencies(bangclient cards_pak)
-if(CMAKE_BUILD_TYPE STREQUAL "Release")
-    target_link_options(bangclient PRIVATE -mwindows)
-endif()
 
 add_library(bangserverlib SHARED ${bangserver_srcs})
 target_link_libraries(bangserverlib PkgConfig::SDL2_net PkgConfig::jsoncpp)
@@ -83,6 +85,6 @@ target_link_libraries(bangclient bangserverlib)
 
 add_executable(bangserver src/server/main.cpp)
 target_link_libraries(bangserver bangserverlib)
-if(WIN32)
+if(WIN32 AND MINGW)
     target_link_options(bangserver PRIVATE -mconsole)
 endif()
