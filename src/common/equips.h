@@ -35,12 +35,14 @@ namespace banggame {
         void on_equip(player *target, card *target_card);
     };
 
-    struct effect_horse : event_based_effect {
-        void on_equip(player *target, card *target_card);
+    struct effect_horse : card_effect {
+        void on_pre_equip(player *target, card *target_card);
     };
 
-    struct effect_weapon : event_based_effect {
+    struct effect_weapon : card_effect {
+        void on_pre_equip(player *target, card *target_card);
         void on_equip(player *target, card *target_card);
+        void on_unequip(player *target, card *target_card);
     };
 
     struct effect_volcanic : card_effect {

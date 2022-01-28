@@ -76,15 +76,27 @@ namespace banggame {
         }, *this);
     }
 
+    void equip_holder::on_pre_equip(player *target, card *target_card) {
+        visit_effect([=](auto &&value) {
+            if constexpr (requires { value.on_pre_equip(target, target_card); }) {
+                value.on_pre_equip(target, target_card);
+            }
+        }, *this);
+    }
+
     void equip_holder::on_equip(player *target, card *target_card) {
         visit_effect([=](auto &&value) {
-            value.on_equip(target, target_card);
+            if constexpr (requires { value.on_equip(target, target_card); }) {
+                value.on_equip(target, target_card);
+            }
         }, *this);
     }
 
     void equip_holder::on_unequip(player *target, card *target_card) {
         visit_effect([=](auto &&value) {
-            value.on_unequip(target, target_card);
+            if constexpr (requires { value.on_unequip(target, target_card); }) {
+                value.on_unequip(target, target_card);
+            }
         }, *this);
     }
 

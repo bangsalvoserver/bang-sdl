@@ -169,16 +169,6 @@ namespace banggame {
         template<typename Variant> struct all_is_effect{};
         template<typename ... Ts> struct all_is_effect<std::variant<Ts...>>
             : std::bool_constant<(is_effect<Ts> && ...)> {};
-
-        template<typename T> concept equippable = requires(T obj, player *p, card *c) {
-            obj.on_equip(p, c);
-            obj.on_unequip(p, c);
-        };
-
-        template<typename Variant> struct all_equippable{};
-        template<typename ... Ts> struct all_equippable<std::variant<Ts...>>
-            : std::bool_constant<(equippable<Ts> && ...)> {};
-        
     }
 
     template<enums::reflected_enum E>
@@ -218,8 +208,7 @@ namespace banggame {
     struct equip_holder : effect_base<equip_type> {
         using effect_base<equip_type>::effect_base;
 
-        static_assert(detail::all_equippable<enums::enum_variant_base<equip_type>>::value);
-
+        void on_pre_equip(player *target, card *target_card);
         void on_equip(player *target, card *target_card);
         void on_unequip(player *target, card *target_card);
     };

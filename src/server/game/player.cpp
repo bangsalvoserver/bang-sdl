@@ -16,6 +16,10 @@ namespace banggame {
         , id(game->get_next_id()) {}
 
     void player::equip_card(card *target) {
+        for (auto &e : target->equips) {
+            e.on_pre_equip(this, target);
+        }
+
         if (!m_game->table_cards_disabled(this)) {
             target->on_equip(this);
         }
@@ -97,7 +101,7 @@ namespace banggame {
     }
 
     void player::heal(int value) {
-        if (!check_player_flags(player_flags::ghost) && !(m_hp == 0 && m_game->has_scenario(scenario_flags::ghosttown))) {
+        if (!check_player_flags(player_flags::ghost) && !(m_hp == 0 && m_game->has_scenario(scenario_flags::ghosttown)) && m_hp != m_max_hp) {
             m_hp = std::min(m_hp + value, m_max_hp);
             m_game->add_public_update<game_update_type::player_hp>(id, m_hp);
             if (value == 1) {
