@@ -47,12 +47,14 @@ namespace banggame {
 
         void on_click_pass_turn();
         void on_click_resolve();
-        void on_click_sell_beer();
-        void on_click_discard_black();
 
         void clear_targets();
 
         void set_response_highlights(const std::vector<int> &card_ids);
+
+        bool is_playing_card(card_view *card) const {
+            return m_playing_card == card;
+        }
     
     private:
         void add_modifier(card_view *card);

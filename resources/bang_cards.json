@@ -4044,5 +4044,46 @@
                 }
             ]
         }
+    ],
+    "specials": [
+        {
+            "name": "GAME_SELL_BEER",
+            "expansion": "goldrush",
+            "effects": [
+                {
+                    "target": "self hand beer card",
+                    "class": "sell_beer"
+                }
+            ]
+        },
+        {
+            "name": "GAME_DISCARD_BLACK",
+            "expansion": "goldrush",
+            "effects": [
+                {
+                    "target": "notself table black card",
+                    "class": "discard_black"
+                }
+            ]
+        },
+        {
+            "disabled": true,
+            "name": "GAME_DISCARD_BRONCO",
+            "expansion": "canyondiablo",
+            "effects": [
+                {
+                    "target": "notself table card",
+                    "class": "destroy_bronco"
+                },
+                {
+                    "target": "self hand card",
+                    "class": "destroy"
+                },
+                {
+                    "target": "self hand card",
+                    "class": "destroy"
+                }
+            ]
+        }
     ]
 }

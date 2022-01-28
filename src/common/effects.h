@@ -191,6 +191,15 @@ namespace banggame {
         void on_play(card *origin_card, player *origin);
     };
 
+    struct effect_sell_beer : card_effect {
+        void on_play(card *origin_card, player *origin, player *target, card *target_card);
+    };
+
+    struct effect_discard_black : card_effect {
+        void verify(card *origin_card, player *origin, player *target, card *target_card);
+        void on_play(card *origin_card, player *origin, player *target, card *target_card);
+    };
+
     struct effect_rum : card_effect {
         void on_play(card *origin_card, player *origin);
     };

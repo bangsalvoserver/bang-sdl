@@ -21,10 +21,6 @@ game_scene::game_scene(class game_manager *parent)
 
 void game_scene::init(const game_started_args &args) {
     m_expansions = args.expansions;
-
-    if (!bool(args.expansions & card_expansion_type::goldrush)) {
-        m_ui.disable_goldrush();
-    }
 }
 
 static sdl::point cube_pile_offset(auto &rng) {
@@ -165,7 +161,6 @@ void game_scene::render(sdl::renderer &renderer) {
     }
 
     m_target.render(renderer);
-    m_ui.set_button_flags(m_target.get_flags());
     m_ui.render(renderer);
 
     if (m_overlay && m_overlay->texture_front) {
@@ -213,8 +208,6 @@ void game_scene::handle_event(const sdl::event &event) {
             switch(event.key.keysym.sym) {
             case SDLK_a: m_target.on_click_pass_turn(); break;
             case SDLK_s: m_target.on_click_resolve(); break;
-            case SDLK_d: m_target.on_click_sell_beer(); break;
-            case SDLK_f: m_target.on_click_discard_black(); break;
             default: break;
             }
         }
@@ -469,6 +462,7 @@ void game_scene::handle_game_update(UPDATE_TAG(add_cards), const add_cards_updat
         case card_pile_type::shop_deck:         c.pile = &m_shop_deck; c.texture_back = &card_textures::goldrush(); break;
         case card_pile_type::scenario_deck:     c.pile = &m_scenario_deck; break;
         case card_pile_type::hidden_deck:       c.pile = &m_hidden_deck; break;
+        case card_pile_type::specials:          c.pile = &m_specials; break;
         default: throw std::runtime_error("Invalid pile");
         }
         c.set_pos(c.pile->get_pos());
@@ -506,6 +500,7 @@ void game_scene::handle_game_update(UPDATE_TAG(move_card), const move_card_updat
         case card_pile_type::shop_discard:      return m_shop_discard;
         case card_pile_type::hidden_deck:       return m_hidden_deck;
         case card_pile_type::scenario_card:     return m_scenario_card;
+        case card_pile_type::specials:          return m_specials;
         default: throw std::runtime_error("Invalid pile");
         }
     }();
@@ -582,12 +577,16 @@ void game_scene::handle_game_update(UPDATE_TAG(show_card), const show_card_updat
         card->value = args.value;
         card->color = args.color;
 
-        card->make_texture_front();
+        if (!card->image.empty()) {
+            card->make_texture_front();
+        }
 
         if (card->pile == &m_main_deck) {
             std::swap(*std::ranges::find(m_main_deck, card), m_main_deck.back());
         } else if (card->pile == &m_shop_deck) {
             std::swap(*std::ranges::find(m_shop_deck, card), m_shop_deck.back());
+        } else if (card->pile == &m_specials) {
+            m_ui.add_special(card);
         }
         if (bool(args.flags & show_card_flags::no_animation)) {
             card->flip_amt = 1.f;

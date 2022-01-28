@@ -32,8 +32,6 @@ namespace banggame {
     DEFINE_ENUM_FLAGS_IN_NS(banggame, play_card_flags,
         (response)
         (equipping)
-        (sell_beer)
-        (discard_black)
     )
 
     struct play_card_args {REFLECTABLE(

@@ -87,6 +87,8 @@ namespace banggame {
 
         card_pile_view m_selection{sizes::selection_width};
 
+        card_pile_view m_specials;
+
         std::map<int, card_view> m_cards;
         std::map<int, player_view> m_players;
         std::map<int, cube_widget> m_cubes;

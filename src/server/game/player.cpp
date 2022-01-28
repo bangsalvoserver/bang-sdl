@@ -367,11 +367,16 @@ namespace banggame {
                                 || (check_player_flags(player_flags::treat_missed_as_bang) && is_missedcard(card_ptr));
                         };
 
+                        auto is_beercard = [](card *card_ptr) {
+                            return !card_ptr->effects.empty() && card_ptr->effects.front().is(effect_type::beer);
+                        };
+
                         std::ranges::for_each(util::enum_flag_values(e.target), [&](target_type value) {
                             switch (value) {
                             case target_type::card:
                                 if (!target->alive()) throw game_error("ERROR_TARGET_NOT_CARD");
-                                if (target_card->color == card_color_type::black) throw game_error("ERROR_TARGET_BLACK_CARD");
+                                if (target_card->color == card_color_type::black
+                                    && !bool(e.target & target_type::black)) throw game_error("ERROR_TARGET_BLACK_CARD");
                                 break;
                             case target_type::self: if (target->id != id) throw game_error("ERROR_TARGET_NOT_SELF"); break;
                             case target_type::notself: if (target->id == id) throw game_error("ERROR_TARGET_SELF"); break;
@@ -387,11 +392,13 @@ namespace banggame {
                             case target_type::clubs: if (get_card_suit(target_card) != card_suit_type::clubs) throw game_error("ERROR_TARGET_NOT_CLUBS"); break;
                             case target_type::bang: if (!is_bangcard(target_card)) throw game_error("ERROR_TARGET_NOT_BANG"); break;
                             case target_type::missed: if (!is_missedcard(target_card)) throw game_error("ERROR_TARGET_NOT_MISSED"); break;
+                            case target_type::beer: if (!is_beercard(target_card)) throw game_error("ERROR_TARGET_NOT_BEER"); break;
                             case target_type::cube_slot:
                                 if (target_card != target->m_characters.front() && target_card->color != card_color_type::orange)
                                     throw game_error("ERROR_TARGET_NOT_CUBE_SLOT");
                                 break;
-                            case target_type::can_repeat: break;
+                            case target_type::can_repeat:
+                            case target_type::black: break;
                             default: throw game_error("ERROR_INVALID_ACTION");
                             }
                         });
@@ -498,213 +505,189 @@ namespace banggame {
             modifiers.push_back(m_game->find_card(id));
         }
 
-        if (bool(args.flags & play_card_flags::sell_beer)) {
-            if (!check_player_flags(player_flags::has_drawn)) throw game_error("ERROR_PLAYER_MUST_DRAW");
-            if (!m_game->has_expansion(card_expansion_type::goldrush)
-                || args.targets.size() != 1
-                || !args.targets.front().is(play_card_target_type::target_card)) throw game_error("ERROR_INVALID_ACTION");
-            const auto &l = args.targets.front().get<play_card_target_type::target_card>();
-            if (l.size() != 1) throw game_error("ERROR_INVALID_ACTION");
-            card *target_card = m_game->find_card(l.front().card_id);
-            if (target_card->effects.empty() || !target_card->effects.front().is(effect_type::beer)) throw game_error("ERROR_INVALID_ACTION");
-            discard_card(target_card);
-            add_gold(1);
-            m_game->add_log("LOG_SOLD_BEER", this, target_card);
-            m_game->queue_event<event_type::on_play_beer>(this);
-            m_game->queue_event<event_type::on_effect_end>(this, target_card);
-        } else if (bool(args.flags & play_card_flags::discard_black)) {
-            if (!check_player_flags(player_flags::has_drawn)) throw game_error("ERROR_PLAYER_MUST_DRAW");
-            if (args.targets.size() != 1
-                || !args.targets.front().is(play_card_target_type::target_card)) throw game_error("ERROR_INVALID_ACTION");
-            const auto &l = args.targets.front().get<play_card_target_type::target_card>();
-            if (l.size() != 1) throw game_error("ERROR_INVALID_ACTION");
-            auto *target_player = m_game->get_player(l.front().player_id);
-            if (target_player == this) throw game_error("ERROR_CANT_DISCARD_OWN_BLACK");
-            card *target_card = m_game->find_card(l.front().card_id);
-            if (target_card->color != card_color_type::black) throw game_error("ERROR_INVALID_ACTION");
-            if (m_gold < target_card->buy_cost + 1) throw game_error("ERROR_NOT_ENOUGH_GOLD");
-            add_gold(-target_card->buy_cost - 1);
-            target_player->discard_card(target_card);
-            m_game->add_log("LOG_DISCARDED_CARD", this, target_player, target_card);
-        } else {
-            card *card_ptr = m_game->find_card(args.card_id);
-            if (!modifiers.empty() && modifiers.front()->modifier == card_modifier_type::leevankliff) {
-                // Hack per usare il raii eliminare il limite di bang
-                // quando lee van kliff gioca l'effetto del personaggio su una carta bang.
-                // Se le funzioni di verifica throwano viene chiamato il distruttore
-                struct banglimit_remover {
-                    int &num;
-                    banglimit_remover(int &num) : num(num) { ++num; }
-                    ~banglimit_remover() { --num; }
-                } _banglimit_remover{m_infinite_bangs};
-                verify_card_targets(m_last_played_card, false, args.targets);
-                m_game->move_to(card_ptr, card_pile_type::discard_pile);
-                m_game->queue_event<event_type::on_play_hand_card>(this, card_ptr);
-                do_play_card(m_last_played_card, false, args.targets);
-                set_last_played_card(nullptr);
-            } else switch(card_ptr->pile) {
-            case card_pile_type::player_character:
-                if (!card_ptr->effects.empty()) {
-                    if (m_game->characters_disabled(this)) throw game_error("ERROR_CHARACTERS_ARE_DISABLED");
-                    if (!card_ptr->effects.empty() && card_ptr->effects.front().is(effect_type::drawing)) {
-                        if (check_player_flags(player_flags::has_drawn)) throw game_error("ERROR_PLAYER_MUST_NOT_DRAW");
-                        verify_card_targets(card_ptr, false, args.targets);
-                        m_game->add_private_update<game_update_type::status_clear>(this);
-                        m_game->add_log("LOG_DRAWN_WITH_CHARACTER", card_ptr, this);
-                    } else {
-                        if (!check_player_flags(player_flags::has_drawn)) throw game_error("ERROR_PLAYER_MUST_DRAW");
-                        verify_modifiers(card_ptr, modifiers);
-                        verify_card_targets(card_ptr, false, args.targets);
-                        m_game->add_log("LOG_PLAYED_CHARACTER", card_ptr, this);
-                        play_modifiers(modifiers);
-                    }
-                    do_play_card(card_ptr, false, args.targets);
-                    set_last_played_card(nullptr);
-                }
-                break;
-            case card_pile_type::player_hand:
-                if (!check_player_flags(player_flags::has_drawn)) throw game_error("ERROR_PLAYER_MUST_DRAW");
-                switch (card_ptr->color) {
-                case card_color_type::brown:
+        card *card_ptr = m_game->find_card(args.card_id);
+        if (!modifiers.empty() && modifiers.front()->modifier == card_modifier_type::leevankliff) {
+            // Hack per usare il raii eliminare il limite di bang
+            // quando lee van kliff gioca l'effetto del personaggio su una carta bang.
+            // Se le funzioni di verifica throwano viene chiamato il distruttore
+            struct banglimit_remover {
+                int &num;
+                banglimit_remover(int &num) : num(num) { ++num; }
+                ~banglimit_remover() { --num; }
+            } _banglimit_remover{m_infinite_bangs};
+            verify_card_targets(m_last_played_card, false, args.targets);
+            m_game->move_to(card_ptr, card_pile_type::discard_pile);
+            m_game->queue_event<event_type::on_play_hand_card>(this, card_ptr);
+            do_play_card(m_last_played_card, false, args.targets);
+            set_last_played_card(nullptr);
+        } else switch(card_ptr->pile) {
+        case card_pile_type::player_character:
+            if (!card_ptr->effects.empty()) {
+                if (m_game->characters_disabled(this)) throw game_error("ERROR_CHARACTERS_ARE_DISABLED");
+                if (!card_ptr->effects.empty() && card_ptr->effects.front().is(effect_type::drawing)) {
+                    if (check_player_flags(player_flags::has_drawn)) throw game_error("ERROR_PLAYER_MUST_NOT_DRAW");
+                    verify_card_targets(card_ptr, false, args.targets);
+                    m_game->add_private_update<game_update_type::status_clear>(this);
+                    m_game->add_log("LOG_DRAWN_WITH_CHARACTER", card_ptr, this);
+                } else {
+                    if (!check_player_flags(player_flags::has_drawn)) throw game_error("ERROR_PLAYER_MUST_DRAW");
                     verify_modifiers(card_ptr, modifiers);
                     verify_card_targets(card_ptr, false, args.targets);
+                    m_game->add_log("LOG_PLAYED_CHARACTER", card_ptr, this);
                     play_modifiers(modifiers);
-                    do_play_card(card_ptr, false, args.targets);
-                    set_last_played_card(card_ptr);
-                    break;
-                case card_color_type::blue: {
-                    if (m_game->has_scenario(scenario_flags::judge)) throw game_error("ERROR_CANT_EQUIP_CARDS");
-                    verify_equip_target(card_ptr, args.targets);
-                    auto *target = m_game->get_player(args.targets.front().get<play_card_target_type::target_player>().front().player_id);
-                    if (auto *card = target->find_equipped_card(card_ptr)) throw game_error("ERROR_DUPLICATED_CARD", card);
+                }
+                do_play_card(card_ptr, false, args.targets);
+                set_last_played_card(nullptr);
+            }
+            break;
+        case card_pile_type::player_hand:
+            if (!check_player_flags(player_flags::has_drawn)) throw game_error("ERROR_PLAYER_MUST_DRAW");
+            switch (card_ptr->color) {
+            case card_color_type::brown:
+                verify_modifiers(card_ptr, modifiers);
+                verify_card_targets(card_ptr, false, args.targets);
+                play_modifiers(modifiers);
+                do_play_card(card_ptr, false, args.targets);
+                set_last_played_card(card_ptr);
+                break;
+            case card_color_type::blue: {
+                if (m_game->has_scenario(scenario_flags::judge)) throw game_error("ERROR_CANT_EQUIP_CARDS");
+                verify_equip_target(card_ptr, args.targets);
+                auto *target = m_game->get_player(args.targets.front().get<play_card_target_type::target_player>().front().player_id);
+                if (auto *card = target->find_equipped_card(card_ptr)) throw game_error("ERROR_DUPLICATED_CARD", card);
+                target->equip_card(card_ptr);
+                set_last_played_card(nullptr);
+                if (this == target) {
+                    m_game->add_log("LOG_EQUIPPED_CARD", card_ptr, this);
+                } else {
+                    m_game->add_log("LOG_EQUIPPED_CARD_TO", card_ptr, this, target);
+                }
+                if (m_game->has_expansion(card_expansion_type::armedanddangerous) && can_receive_cubes()) {
+                    m_game->queue_request<request_type::add_cube>(card_ptr, this);
+                }
+                m_game->queue_event<event_type::on_equip>(this, target, card_ptr);
+                m_game->queue_event<event_type::on_effect_end>(this, card_ptr);
+                break;
+            }
+            case card_color_type::green: {
+                if (m_game->has_scenario(scenario_flags::judge)) throw game_error("ERROR_CANT_EQUIP_CARDS");
+                if (card *card = find_equipped_card(card_ptr)) throw game_error("ERROR_DUPLICATED_CARD", card);
+                card_ptr->inactive = true;
+                equip_card(card_ptr);
+                set_last_played_card(nullptr);
+                m_game->add_log("LOG_EQUIPPED_CARD", card_ptr, this);
+                m_game->queue_event<event_type::on_equip>(this, this, card_ptr);
+                m_game->queue_event<event_type::on_effect_end>(this, card_ptr);
+                m_game->add_public_update<game_update_type::tap_card>(card_ptr->id, true);
+                break;
+            }
+            case card_color_type::orange: {
+                if (m_game->has_scenario(scenario_flags::judge)) throw game_error("ERROR_CANT_EQUIP_CARDS");
+                verify_equip_target(card_ptr, args.targets);
+                auto *target = m_game->get_player(args.targets.front().get<play_card_target_type::target_player>().front().player_id);
+                if (card *card = target->find_equipped_card(card_ptr)) throw game_error("ERROR_DUPLICATED_CARD", card);
+                if (m_game->m_cubes.size() < 3) throw game_error("ERROR_NOT_ENOUGH_CUBES");
+                if (target->immune_to(card_ptr)) {
+                    discard_card(card_ptr);
+                } else {
                     target->equip_card(card_ptr);
-                    set_last_played_card(nullptr);
+                    add_cubes(card_ptr, 3);
+                    m_game->queue_event<event_type::on_equip>(this, target, card_ptr);
                     if (this == target) {
                         m_game->add_log("LOG_EQUIPPED_CARD", card_ptr, this);
                     } else {
                         m_game->add_log("LOG_EQUIPPED_CARD_TO", card_ptr, this, target);
                     }
-                    if (m_game->has_expansion(card_expansion_type::armedanddangerous) && can_receive_cubes()) {
-                        m_game->queue_request<request_type::add_cube>(card_ptr, this);
-                    }
-                    m_game->queue_event<event_type::on_equip>(this, target, card_ptr);
-                    m_game->queue_event<event_type::on_effect_end>(this, card_ptr);
-                    break;
                 }
-                case card_color_type::green: {
-                    if (m_game->has_scenario(scenario_flags::judge)) throw game_error("ERROR_CANT_EQUIP_CARDS");
-                    if (card *card = find_equipped_card(card_ptr)) throw game_error("ERROR_DUPLICATED_CARD", card);
-                    card_ptr->inactive = true;
-                    equip_card(card_ptr);
-                    set_last_played_card(nullptr);
-                    m_game->add_log("LOG_EQUIPPED_CARD", card_ptr, this);
-                    m_game->queue_event<event_type::on_equip>(this, this, card_ptr);
-                    m_game->queue_event<event_type::on_effect_end>(this, card_ptr);
-                    m_game->add_public_update<game_update_type::tap_card>(card_ptr->id, true);
-                    break;
-                }
-                case card_color_type::orange: {
-                    if (m_game->has_scenario(scenario_flags::judge)) throw game_error("ERROR_CANT_EQUIP_CARDS");
-                    verify_equip_target(card_ptr, args.targets);
-                    auto *target = m_game->get_player(args.targets.front().get<play_card_target_type::target_player>().front().player_id);
-                    if (card *card = target->find_equipped_card(card_ptr)) throw game_error("ERROR_DUPLICATED_CARD", card);
-                    if (m_game->m_cubes.size() < 3) throw game_error("ERROR_NOT_ENOUGH_CUBES");
-                    if (target->immune_to(card_ptr)) {
-                        discard_card(card_ptr);
-                    } else {
-                        target->equip_card(card_ptr);
-                        add_cubes(card_ptr, 3);
-                        m_game->queue_event<event_type::on_equip>(this, target, card_ptr);
-                        if (this == target) {
-                            m_game->add_log("LOG_EQUIPPED_CARD", card_ptr, this);
-                        } else {
-                            m_game->add_log("LOG_EQUIPPED_CARD_TO", card_ptr, this, target);
-                        }
-                    }
-                    set_last_played_card(nullptr);
-                    m_game->queue_event<event_type::on_effect_end>(this, card_ptr);
-                }
-                }
-                break;
-            case card_pile_type::player_table:
-                if (!check_player_flags(player_flags::has_drawn)) throw game_error("ERROR_PLAYER_MUST_DRAW");
-                if (m_game->table_cards_disabled(this)) throw game_error("ERROR_TABLE_CARDS_ARE_DISABLED");
-                if (card_ptr->inactive) throw game_error("ERROR_CARD_INACTIVE");
-                verify_modifiers(card_ptr, modifiers);
-                verify_card_targets(card_ptr, false, args.targets);
-                play_modifiers(modifiers);
-                do_play_card(card_ptr, false, args.targets);
                 set_last_played_card(nullptr);
-                break;
-            case card_pile_type::shop_selection: {
-                if (!check_player_flags(player_flags::has_drawn)) throw game_error("ERROR_PLAYER_MUST_DRAW");
-                int discount = 0;
-                if (!modifiers.empty()) {
-                    if (auto modifier_it = std::ranges::find(m_characters, modifiers.front()->id, &character::id);
-                        modifier_it != m_characters.end() && (*modifier_it)->modifier == card_modifier_type::discount) {
-                        if ((*modifier_it)->usages < (*modifier_it)->max_usages) {
-                            discount = 1;
-                        } else {
-                            throw game_error("ERROR_MAX_USAGES", *modifier_it, (*modifier_it)->max_usages);
-                        }
+                m_game->queue_event<event_type::on_effect_end>(this, card_ptr);
+            }
+            }
+            break;
+        case card_pile_type::player_table:
+            if (!check_player_flags(player_flags::has_drawn)) throw game_error("ERROR_PLAYER_MUST_DRAW");
+            if (m_game->table_cards_disabled(this)) throw game_error("ERROR_TABLE_CARDS_ARE_DISABLED");
+            if (card_ptr->inactive) throw game_error("ERROR_CARD_INACTIVE");
+            verify_modifiers(card_ptr, modifiers);
+            verify_card_targets(card_ptr, false, args.targets);
+            play_modifiers(modifiers);
+            do_play_card(card_ptr, false, args.targets);
+            set_last_played_card(nullptr);
+            break;
+        case card_pile_type::shop_selection: {
+            if (!check_player_flags(player_flags::has_drawn)) throw game_error("ERROR_PLAYER_MUST_DRAW");
+            int discount = 0;
+            if (!modifiers.empty()) {
+                if (auto modifier_it = std::ranges::find(m_characters, modifiers.front()->id, &character::id);
+                    modifier_it != m_characters.end() && (*modifier_it)->modifier == card_modifier_type::discount) {
+                    if ((*modifier_it)->usages < (*modifier_it)->max_usages) {
+                        discount = 1;
+                    } else {
+                        throw game_error("ERROR_MAX_USAGES", *modifier_it, (*modifier_it)->max_usages);
                     }
                 }
-                if (m_gold >= card_ptr->buy_cost - discount) {
-                    switch (card_ptr->color) {
-                    case card_color_type::brown:
-                        verify_card_targets(card_ptr, false, args.targets);
-                        play_modifiers(modifiers);
-                        add_gold(discount - card_ptr->buy_cost);
-                        do_play_card(card_ptr, false, args.targets);
-                        set_last_played_card(card_ptr);
-                        m_game->queue_event<event_type::delayed_action>([this]{
-                            while (m_game->m_shop_selection.size() < 3) {
-                                m_game->draw_shop_card();
-                            }
-                        });
-                    break;
-                    case card_color_type::black:
-                        if (m_game->has_scenario(scenario_flags::judge)) throw game_error("ERROR_CANT_EQUIP_CARDS");
-                        verify_equip_target(card_ptr, args.targets);
-                        play_modifiers(modifiers);
-                        auto *target = m_game->get_player(args.targets.front().get<play_card_target_type::target_player>().front().player_id);
-                        if (card *card = target->find_equipped_card(card_ptr)) throw game_error("ERROR_DUPLICATED_CARD", card);
-                        add_gold(discount - card_ptr->buy_cost);
-                        target->equip_card(card_ptr);
-                        set_last_played_card(nullptr);
-                        if (this == target) {
-                            m_game->add_log("LOG_BOUGHT_EQUIP", card_ptr, this);
-                        } else {
-                            m_game->add_log("LOG_BOUGHT_EQUIP_TO", card_ptr, this, target);
-                        }
+            }
+            if (m_gold >= card_ptr->buy_cost - discount) {
+                switch (card_ptr->color) {
+                case card_color_type::brown:
+                    verify_card_targets(card_ptr, false, args.targets);
+                    play_modifiers(modifiers);
+                    add_gold(discount - card_ptr->buy_cost);
+                    do_play_card(card_ptr, false, args.targets);
+                    set_last_played_card(card_ptr);
+                    m_game->queue_event<event_type::delayed_action>([this]{
                         while (m_game->m_shop_selection.size() < 3) {
                             m_game->draw_shop_card();
                         }
-                        m_game->queue_event<event_type::on_effect_end>(this, card_ptr);
-                        break;
-                    }
-                    break;
-                } else {
-                    throw game_error("ERROR_NOT_ENOUGH_GOLD");
-                }
-            }
-            case card_pile_type::scenario_card: {
-                bool active_when_drawing = !card_ptr->effects.empty() && card_ptr->effects.front().is(effect_type::drawing);
-                if (active_when_drawing == check_player_flags(player_flags::has_drawn)) {
-                    if (active_when_drawing) {
-                        throw game_error("ERROR_PLAYER_MUST_NOT_DRAW");
-                    } else {
-                        throw game_error("ERROR_PLAYER_MUST_DRAW");
-                    }
-                }
-                verify_card_targets(card_ptr, false, args.targets);
-                do_play_card(card_ptr, false, args.targets);
-                set_last_played_card(nullptr);
+                    });
                 break;
+                case card_color_type::black:
+                    if (m_game->has_scenario(scenario_flags::judge)) throw game_error("ERROR_CANT_EQUIP_CARDS");
+                    verify_equip_target(card_ptr, args.targets);
+                    play_modifiers(modifiers);
+                    auto *target = m_game->get_player(args.targets.front().get<play_card_target_type::target_player>().front().player_id);
+                    if (card *card = target->find_equipped_card(card_ptr)) throw game_error("ERROR_DUPLICATED_CARD", card);
+                    add_gold(discount - card_ptr->buy_cost);
+                    target->equip_card(card_ptr);
+                    set_last_played_card(nullptr);
+                    if (this == target) {
+                        m_game->add_log("LOG_BOUGHT_EQUIP", card_ptr, this);
+                    } else {
+                        m_game->add_log("LOG_BOUGHT_EQUIP_TO", card_ptr, this, target);
+                    }
+                    while (m_game->m_shop_selection.size() < 3) {
+                        m_game->draw_shop_card();
+                    }
+                    m_game->queue_event<event_type::on_effect_end>(this, card_ptr);
+                    break;
+                }
+                break;
+            } else {
+                throw game_error("ERROR_NOT_ENOUGH_GOLD");
             }
-            default:
-                throw game_error("play_card: invalid card"_nonloc);
+        }
+        case card_pile_type::scenario_card: {
+            bool active_when_drawing = !card_ptr->effects.empty() && card_ptr->effects.front().is(effect_type::drawing);
+            if (active_when_drawing == check_player_flags(player_flags::has_drawn)) {
+                if (active_when_drawing) {
+                    throw game_error("ERROR_PLAYER_MUST_NOT_DRAW");
+                } else {
+                    throw game_error("ERROR_PLAYER_MUST_DRAW");
+                }
             }
+            verify_card_targets(card_ptr, false, args.targets);
+            do_play_card(card_ptr, false, args.targets);
+            set_last_played_card(nullptr);
+            break;
+        }
+        case card_pile_type::specials:
+            if (!check_player_flags(player_flags::has_drawn)) throw game_error("ERROR_PLAYER_MUST_DRAW");
+            verify_card_targets(card_ptr, false, args.targets);
+            do_play_card(card_ptr, false, args.targets);
+            set_last_played_card(nullptr);
+            break;
+        default:
+            throw game_error("play_card: invalid card"_nonloc);
         }
         remove_player_flags(player_flags::start_of_turn);
     }

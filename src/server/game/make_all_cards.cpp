@@ -104,11 +104,15 @@ namespace banggame {
         Json::Value json_cards;
         bang_cards_stream >> json_cards;
 
+        const auto is_disabled = [](const Json::Value &value) {
+            return value.isMember("disabled") && value["disabled"].asBool();
+        };
+
         for (const auto &json_card : json_cards["cards"]) {
+            if (is_disabled(json_card)) continue;
             card c;
             c.expansion = enums::flags_from_string<card_expansion_type>(json_card["expansion"].asString());
             if (c.expansion != enums::invalid_enum_v<card_expansion_type>) {
-                if (json_card.isMember("disabled") && json_card["disabled"].asBool()) continue;
                 make_all_effects(c, json_card);
                 c.color = enums::from_string<card_color_type>(json_card["color"].asString());
                 for (const auto &json_sign : json_card["signs"]) {
@@ -129,10 +133,10 @@ namespace banggame {
         }
 
         for (const auto &json_character : json_cards["characters"]) {
+            if (is_disabled(json_character)) continue;
             character c;
             c.expansion = enums::from_string<card_expansion_type>(json_character["expansion"].asString());
             if (c.expansion != enums::invalid_enum_v<card_expansion_type>) {
-                if (json_character.isMember("disabled") && json_character["disabled"].asBool()) continue;
                 make_all_effects(c, json_character);
                 c.max_hp = json_character["hp"].asInt();
                 ret.characters.push_back(c);
@@ -140,9 +144,9 @@ namespace banggame {
         }
 
         for (const auto &json_card : json_cards["goldrush"]) {
+            if (is_disabled(json_card)) continue;
             card c;
             c.expansion = card_expansion_type::goldrush;
-            if (json_card.isMember("disabled") && json_card["disabled"].asBool()) continue;
             make_all_effects(c, json_card);
             c.color = enums::from_string<card_color_type>(json_card["color"].asString());
             c.buy_cost = json_card["buy_cost"].asInt();
@@ -153,9 +157,9 @@ namespace banggame {
         }
 
         for (const auto &json_card : json_cards["highnoon"]) {
+            if (is_disabled(json_card)) continue;
             card c;
             c.expansion = card_expansion_type::highnoon;
-            if (json_card.isMember("disabled") && json_card["disabled"].asBool()) continue;
             if (json_card.isMember("expansion")) {
                 c.expansion |= enums::flags_from_string<card_expansion_type>(json_card["expansion"].asString());
             }
@@ -164,17 +168,17 @@ namespace banggame {
         }
 
         for (const auto &json_card : json_cards["fistfulofcards"]) {
+            if (is_disabled(json_card)) continue;
             card c;
             c.expansion = card_expansion_type::fistfulofcards;
-            if (json_card.isMember("disabled") && json_card["disabled"].asBool()) continue;
             make_all_effects(c, json_card);
             ret.fistfulofcards.push_back(c);
         }
 
         for (const auto &json_card : json_cards["wildwestshow"]) {
+            if (is_disabled(json_card)) continue;
             card c;
             c.expansion = card_expansion_type::wildwestshow;
-            if (json_card.isMember("disabled") && json_card["disabled"].asBool()) continue;
             if (json_card.isMember("expansion")) {
                 c.expansion |= enums::flags_from_string<card_expansion_type>(json_card["expansion"].asString());
             }
@@ -183,11 +187,19 @@ namespace banggame {
         }
 
         for (const auto &json_card : json_cards["hidden"]) {
-            if (json_card.isMember("disabled") && json_card["disabled"].asBool()) continue;
+            if (is_disabled(json_card)) continue;
             card c;
             c.expansion = enums::flags_from_string<card_expansion_type>(json_card["expansion"].asString());
             make_all_effects(c, json_card);
             ret.hidden.push_back(c);
+        }
+
+        for (const auto &json_card : json_cards["specials"]) {
+            if (is_disabled(json_card)) continue;
+            card c;
+            c.expansion = enums::flags_from_string<card_expansion_type>(json_card["expansion"].asString());
+            make_all_effects(c, json_card);
+            ret.specials.push_back(c);
         }
 
         return ret;

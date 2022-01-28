@@ -20,12 +20,6 @@ game_ui::game_ui(game_scene *parent)
     , m_resolve_btn(_("GAME_RESOLVE"), [&target = parent->m_target] {
         target.on_click_resolve();
     })
-    , m_sell_beer_btn(_("GAME_SELL_BEER"), [&target = parent->m_target] {
-        target.on_click_sell_beer();
-    })
-    , m_discard_black_btn(_("GAME_DISCARD_BLACK"), [&target = parent->m_target] {
-        target.on_click_discard_black();
-    })
     , m_leave_btn(_("BUTTON_EXIT"), [&mgr = *parent->parent] {
         mgr.add_message<client_message_type::lobby_leave>();
     })
@@ -42,8 +36,12 @@ void game_ui::resize(int width, int height) {
     
     m_pass_btn.set_rect(sdl::rect{340, height - 50, 100, 25});
     m_resolve_btn.set_rect(sdl::rect{450, height - 50, 100, 25});
-    m_sell_beer_btn.set_rect(sdl::rect{560, height - 50, 100, 25});
-    m_discard_black_btn.set_rect(sdl::rect{670, height - 50, 100, 25});
+
+    int x = 560;
+    for (auto &[btn, card] : m_special_btns) {
+        btn.set_rect(sdl::rect{x, height - 50, 100, 25});
+        x += 110;
+    }
 
     m_leave_btn.set_rect(sdl::rect{20, 20, 100, 25});
     m_restart_btn.set_rect(sdl::rect{140, 20, 100, 25});
@@ -55,8 +53,11 @@ void game_ui::render(sdl::renderer &renderer) {
 
     m_pass_btn.render(renderer);
     m_resolve_btn.render(renderer);
-    m_sell_beer_btn.render(renderer);
-    m_discard_black_btn.render(renderer);
+
+    for (auto &[btn, card] : m_special_btns) {
+        btn.set_toggled(parent->m_target.is_playing_card(card));
+        btn.render(renderer);
+    }
     
     m_leave_btn.render(renderer);
     m_restart_btn.render(renderer);
@@ -79,11 +80,6 @@ void game_ui::render(sdl::renderer &renderer) {
     }
 }
 
-void game_ui::set_button_flags(play_card_flags flags) {
-    m_sell_beer_btn.set_toggled(bool(flags & play_card_flags::sell_beer));
-    m_discard_black_btn.set_toggled(bool(flags & play_card_flags::discard_black));
-}
-
 void game_ui::add_message(const std::string &message) {
     m_chat.add_message(message);
 }
@@ -95,4 +91,13 @@ void game_ui::add_game_log(const std::string &message) {
 void game_ui::show_error(const std::string &message) {
     m_error_text.redraw(message);
     m_error_timeout = 200;
+}
+
+void game_ui::add_special(card_view *card) {
+    m_special_btns.emplace_back(std::piecewise_construct,
+        std::make_tuple(_(card->name), [&target = parent->m_target, card]{
+            target.on_click_scenario_card(card);
+        }), std::make_tuple(card));
+
+    resize(parent->parent->width(), parent->parent->height());
 }

@@ -80,9 +80,11 @@ namespace banggame {
         (table)
         (hand)
         (blue)
+        (black)
         (clubs)
         (bang)
         (missed)
+        (beer)
         (fanning_target)
         (new_target)
         (cube_slot)
@@ -111,6 +113,7 @@ namespace banggame {
         (hidden_deck)
         (scenario_deck)
         (scenario_card)
+        (specials)
     )
 
     DEFINE_ENUM_IN_NS(banggame, card_modifier_type,

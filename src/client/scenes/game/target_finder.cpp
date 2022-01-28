@@ -41,7 +41,7 @@ void target_finder::render(sdl::renderer &renderer) {
     for (auto *card : m_modifiers) {
         renderer.draw_rect(card->get_rect());
     }
-    if (m_playing_card) {
+    if (m_playing_card && m_playing_card->texture_front) {
         renderer.draw_rect(m_playing_card->get_rect());
     }
     renderer.set_draw_color(sdl::rgba(sizes::target_finder_target_rgba));
@@ -93,8 +93,6 @@ void target_finder::on_click_selection_card(card_view *card) {
 }
 
 void target_finder::on_click_shop_card(card_view *card) {
-    m_flags &= ~(play_card_flags::sell_beer | play_card_flags::discard_black);
-
     if (!m_playing_card) {
         if (m_game->m_current_request && m_game->m_current_request->target_id == m_game->m_player_own_id) {
             if (card->color == card_color_type::none) {
@@ -124,12 +122,7 @@ void target_finder::on_click_shop_card(card_view *card) {
 }
 
 void target_finder::on_click_table_card(player_view *player, card_view *card) {
-    m_flags &= ~play_card_flags::sell_beer;
-
-    if (bool(m_flags & play_card_flags::discard_black)) {
-        m_targets.emplace_back(std::vector{target_pair{player, card}});
-        send_play_card();
-    } else if (m_game->m_current_request && m_game->m_current_request->target_id == m_game->m_player_own_id) {
+    if (m_game->m_current_request && m_game->m_current_request->target_id == m_game->m_player_own_id) {
         if (!m_playing_card) {
             if (std::ranges::find(m_response_highlights, card) != m_response_highlights.end() && !card->inactive) {
                 m_playing_card = card;
@@ -158,12 +151,7 @@ void target_finder::on_click_table_card(player_view *player, card_view *card) {
 }
 
 void target_finder::on_click_hand_card(player_view *player, card_view *card) {
-    m_flags &= ~play_card_flags::discard_black;
-
-    if (bool(m_flags & play_card_flags::sell_beer) && player->id == m_game->m_player_own_id) {
-        m_targets.emplace_back(std::vector{target_pair{player, card}});
-        send_play_card();
-    } else if (m_game->m_current_request
+    if (m_game->m_current_request
         && (m_game->m_current_request->target_id == 0
         || m_game->m_current_request->target_id == m_game->m_player_own_id)) {
         if (!m_playing_card) {
@@ -208,8 +196,6 @@ void target_finder::on_click_hand_card(player_view *player, card_view *card) {
 }
 
 void target_finder::on_click_character(player_view *player, card_view *card) {
-    m_flags &= ~(play_card_flags::sell_beer | play_card_flags::discard_black);
-
     if (m_game->m_current_request && m_game->m_current_request->target_id == m_game->m_player_own_id) {
         if (!m_playing_card) {
             if (std::ranges::find(m_response_highlights, card) != m_response_highlights.end()) {
@@ -240,8 +226,6 @@ void target_finder::on_click_character(player_view *player, card_view *card) {
 }
 
 void target_finder::on_click_scenario_card(card_view *card) {
-    m_flags &= ~(play_card_flags::sell_beer | play_card_flags::discard_black);
-
     if (m_game->m_playing_id == m_game->m_player_own_id
         && !m_playing_card && !card->targets.empty()) {
         bool is_drawing_card = !card->targets.empty() && card->targets.front().type == effect_type::drawing;
@@ -253,8 +237,6 @@ void target_finder::on_click_scenario_card(card_view *card) {
 }
 
 bool target_finder::on_click_player(player_view *player) {
-    if (bool(m_flags & (play_card_flags::sell_beer | play_card_flags::discard_black))) return false;
-
     if (m_game->m_current_request && m_game->m_current_request->target_id == m_game->m_player_own_id) {
         if (is_valid_picking_pile(m_game->m_current_request->type, card_pile_type::player)) {
             add_action<game_action_type::pick_card>(card_pile_type::player, player->id);
@@ -266,22 +248,6 @@ bool target_finder::on_click_player(player_view *player) {
         return add_player_targets(std::vector{target_pair{player}});
     }
     return false;
-}
-
-void target_finder::on_click_sell_beer() {
-    if (!bool(m_game->m_expansions & card_expansion_type::goldrush)) return;
-    if (m_modifiers.empty() && !m_playing_card && m_game->m_playing_id == m_game->m_player_own_id && m_game->has_player_flags(player_flags::has_drawn)) {
-        m_flags ^= play_card_flags::sell_beer;
-        m_flags &= ~(play_card_flags::discard_black);
-    }
-}
-
-void target_finder::on_click_discard_black() {
-    if (!bool(m_game->m_expansions & card_expansion_type::goldrush)) return;
-    if (m_modifiers.empty() && !m_playing_card && m_game->m_playing_id == m_game->m_player_own_id && m_game->has_player_flags(player_flags::has_drawn)) {
-        m_flags ^= play_card_flags::discard_black;
-        m_flags &= ~(play_card_flags::sell_beer);
-    }
 }
 
 void target_finder::add_modifier(card_view *card) {
@@ -470,6 +436,7 @@ void target_finder::add_card_target(target_pair target) {
 
     bool is_bang = !target.card->targets.empty() && target.card->targets.front().type == effect_type::bangcard;
     bool is_missed = !target.card->response_targets.empty() && target.card->response_targets.front().type == effect_type::missedcard;
+    bool is_beer = !target.card->targets.empty() && target.card->targets.front().type == effect_type::beer;
 
     player_view *own_player = m_game->find_player(m_game->m_player_own_id);
 
@@ -491,11 +458,13 @@ void target_finder::add_card_target(target_pair target) {
             case target_type::table: return !from_hand;
             case target_type::hand: return from_hand;
             case target_type::blue: return target.card->color == card_color_type::blue;
+            case target_type::black: return target.card->color == card_color_type::black;
             case target_type::clubs: return target.card->suit == card_suit_type::clubs;
             case target_type::bang:
                 return m_game->has_player_flags(player_flags::treat_any_as_bang)
                     || is_bang || (m_game->has_player_flags(player_flags::treat_missed_as_bang) && is_missed);
             case target_type::missed: return is_missed;
+            case target_type::beer: return is_beer;
             case target_type::cube_slot: return target.card->color == card_color_type::orange;
             default: return false;
             }

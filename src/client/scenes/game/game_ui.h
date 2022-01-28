@@ -3,6 +3,7 @@
 
 #include "../widgets/chat_ui.h"
 #include "common/game_action.h"
+#include "card.h"
 
 namespace banggame {
 
@@ -12,8 +13,6 @@ namespace banggame {
 
         void resize(int width, int height);
         void render(sdl::renderer &renderer);
-
-        void set_button_flags(play_card_flags flags);
 
         void add_message(const std::string &message);
         void add_game_log(const std::string &message);
@@ -28,10 +27,8 @@ namespace banggame {
         void enable_restart(bool value) {
             m_restart_btn.set_enabled(value);
         }
-        void disable_goldrush() {
-            m_sell_beer_btn.disable();
-            m_discard_black_btn.disable();
-        }
+
+        void add_special(card_view *card);
 
     private:
         class game_scene *parent;
@@ -46,8 +43,8 @@ namespace banggame {
 
         sdl::button m_pass_btn;
         sdl::button m_resolve_btn;
-        sdl::button m_sell_beer_btn;
-        sdl::button m_discard_black_btn;
+
+        std::list<std::pair<sdl::button, card_view*>> m_special_btns;
 
         sdl::button m_leave_btn;
         sdl::button m_restart_btn;

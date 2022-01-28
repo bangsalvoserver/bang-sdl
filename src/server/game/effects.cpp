@@ -424,6 +424,26 @@ namespace banggame {
         origin->m_game->pop_request();
     }
 
+    void effect_sell_beer::on_play(card *origin_card, player *origin, player *target, card *target_card) {
+        target->discard_card(target_card);
+        origin->add_gold(1);
+        origin->m_game->add_log("LOG_SOLD_BEER", origin, target_card);
+        origin->m_game->queue_event<event_type::on_play_beer>(origin);
+        origin->m_game->queue_event<event_type::on_effect_end>(origin, target_card);
+    }
+
+    void effect_discard_black::verify(card *origin_card, player *origin, player *target, card *target_card) {
+        if (origin->m_gold < target_card->buy_cost + 1) {
+            throw game_error("ERROR_NOT_ENOUGH_GOLD");
+        }
+    }
+
+    void effect_discard_black::on_play(card *origin_card, player *origin, player *target, card *target_card) {
+        origin->add_gold(-target_card->buy_cost - 1);
+        target->discard_card(target_card);
+        origin->m_game->add_log("LOG_DISCARDED_CARD", origin, target, target_card);
+    }
+
     void effect_rum::on_play(card *origin_card, player *origin) {
         std::vector<card_suit_type> suits;
         for (int i=0; i < 3 + origin->m_num_checks; ++i) {

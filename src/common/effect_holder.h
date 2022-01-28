@@ -47,6 +47,8 @@ namespace banggame {
         (damage,        effect_damage)
         (saved,         effect_saved)
         (escape,        effect_escape)
+        (sell_beer,     effect_sell_beer)
+        (discard_black, effect_discard_black)
         (rum,           effect_rum)
         (bottle,        effect_bottle)
         (bottlechoice,  effect_shopchoice)

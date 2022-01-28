@@ -62,6 +62,7 @@ namespace banggame {
         std::vector<character> characters;
         std::vector<card> goldrush;
         std::vector<card> hidden;
+        std::vector<card> specials;
         std::vector<card> highnoon;
         std::vector<card> fistfulofcards;
         std::vector<card> wildwestshow;

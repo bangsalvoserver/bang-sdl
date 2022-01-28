@@ -309,6 +309,16 @@ namespace banggame {
             new_card->pile = pile;
         };
 
+        for (const auto &c : all_cards.specials) {
+            if ((c.expansion & options.expansions) == c.expansion) {
+                add_card(card_pile_type::specials, c);
+            }
+        }
+        add_public_update<game_update_type::add_cards>(make_id_vector(m_specials), card_pile_type::specials);
+        for (const auto &c : m_specials) {
+            send_card_update(*c, nullptr, show_card_flags::no_animation);
+        }
+
         for (const auto &c : all_cards.deck) {
             if (m_players.size() <= 2 && c.discard_if_two_players) continue;
             if ((c.expansion & options.expansions) == c.expansion) {
@@ -440,6 +450,7 @@ namespace banggame {
         case card_pile_type::hidden_deck:       return m_hidden_deck;
         case card_pile_type::scenario_deck:     return m_scenario_deck;
         case card_pile_type::scenario_card:     return m_scenario_cards;
+        case card_pile_type::specials:          return m_specials;
         default: throw std::runtime_error("Invalid Pile");
         }
     }
