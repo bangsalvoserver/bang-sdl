@@ -50,16 +50,8 @@ namespace banggame {
         }
     }
 
-    void game::send_request_update() {
+    void game::send_request_respond() {
         const auto &req = top_request();
-        add_public_update<game_update_type::request_status>(
-            req.enum_index(),
-            req.origin() ? req.origin()->id : 0,
-            req.target() ? req.target()->id : 0,
-            req.flags(),
-            req.status_text()
-        );
-
         for (auto &p : m_players) {
             add_private_update<game_update_type::request_respond>(&p, [&]{
                 std::vector<int> ids;
@@ -74,10 +66,23 @@ namespace banggame {
                     add_ids_for(p.m_hand | std::views::filter([](card *c) { return c->color == card_color_type::brown; }));
                     if (!table_cards_disabled(&p)) add_ids_for(p.m_table | std::views::filter(std::not_fn(&card::inactive)));
                     if (!characters_disabled(&p)) add_ids_for(p.m_characters);
+                    add_ids_for(m_specials);
                 }
                 return ids;
-            }(), req.resolvable());
+            }());
         }
+    }
+
+    void game::send_request_update() {
+        const auto &req = top_request();
+        add_public_update<game_update_type::request_status>(
+            req.enum_index(),
+            req.origin() ? req.origin()->id : 0,
+            req.target() ? req.target()->id : 0,
+            req.flags(),
+            req.status_text()
+        );
+        send_request_respond();
     }
 
     void game::send_character_update(const character &c, int player_id, int index) {
@@ -770,23 +775,6 @@ namespace banggame {
     void game::handle_action(ACTION_TAG(draw_from_deck), player *p) {
         if (m_requests.empty() && m_playing == p && !p->check_player_flags(player_flags::has_drawn)) {
             p->draw_from_deck();
-        }
-    }
-
-    void game::handle_action(ACTION_TAG(pass_turn), player *p) {
-        if (m_requests.empty() && m_playing == p && p->check_player_flags(player_flags::has_drawn)) {
-            p->pass_turn();
-        }
-    }
-
-    void game::handle_action(ACTION_TAG(resolve), player *p) {
-        if (!m_requests.empty() && p == top_request().target()) {
-            enums::visit_indexed([]<request_type E>(enums::enum_constant<E>, auto &req) {
-                if constexpr (resolvable_request<E>) {
-                    auto req_copy = std::move(req);
-                    req_copy.on_resolve();
-                }
-            }, top_request());
         }
     }
 }

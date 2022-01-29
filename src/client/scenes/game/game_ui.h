@@ -41,8 +41,7 @@ namespace banggame {
         sdl::stattext m_error_text;
         int m_error_timeout = 0;
 
-        sdl::button m_pass_btn;
-        sdl::button m_resolve_btn;
+        sdl::button m_confirm_btn;
 
         std::list<std::pair<sdl::button, card_view*>> m_special_btns;
 

@@ -10,6 +10,7 @@ namespace sdl {
     constexpr uint32_t default_button_up_rgb = 0xeeeeee;
     constexpr uint32_t default_button_hover_rgb = 0xddddff;
     constexpr uint32_t default_button_down_rgb = 0xccccff;
+    constexpr uint32_t default_button_toggled_rgb = 0xbbbbff;
     constexpr uint32_t default_button_border_rgb = 0x0;
     
     constexpr int chat_text_ptsize = 14;

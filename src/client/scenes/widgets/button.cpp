@@ -11,7 +11,7 @@ void button::render(renderer &renderer) {
     if (!enabled()) return;
     
     renderer.set_draw_color([&]{
-        if (toggled) return m_style.down_color;
+        if (toggled) return m_style.toggled_color;
         switch (m_state) {
         case state_hover:   return m_style.hover_color;
         case state_down:    return m_style.down_color;

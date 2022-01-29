@@ -11,6 +11,7 @@ namespace sdl {
         color up_color = sdl::rgb(sdl::default_button_up_rgb);
         color hover_color = sdl::rgb(sdl::default_button_hover_rgb);
         color down_color = sdl::rgb(sdl::default_button_down_rgb);
+        color toggled_color = sdl::rgb(sdl::default_button_toggled_rgb);
         color border_color = sdl::rgb(sdl::default_button_border_rgb);
     };
 

@@ -203,15 +203,6 @@ void game_scene::handle_event(const sdl::event &event) {
         m_mouse_motion_timer = 0;
         m_mouse_pt = {event.motion.x, event.motion.y};
         break;
-    case SDL_KEYDOWN:
-        if (sdl::event_handler::is_focused(nullptr)) {
-            switch(event.key.keysym.sym) {
-            case SDLK_a: m_target.on_click_pass_turn(); break;
-            case SDLK_s: m_target.on_click_resolve(); break;
-            default: break;
-            }
-        }
-        break;
     }
 }
 
@@ -810,7 +801,6 @@ void game_scene::handle_game_update(UPDATE_TAG(request_status), const request_st
 
 void game_scene::handle_game_update(UPDATE_TAG(request_respond), const request_respond_args &args) {
     m_target.set_response_highlights(args.card_ids);
-    m_target.set_resolvable(args.resolvable);
 
     pop_update();
 }

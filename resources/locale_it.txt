@@ -15,6 +15,7 @@ LABEL_NEW_ADDRESS                   Nuovo indirizzo:
 ERROR_NO_USERNAME                   Specificare un nome utente
 ERROR_DISCONNECTED                  Disconnesso dal server
 DIALOG_IMAGE_FILES                  File Immagine
+GAME_CONFIRM                        Conferma
 GAME_PASS                           Passa
 GAME_RESOLVE                        Risolvi
 GAME_SELL_BEER                      Vendi birra

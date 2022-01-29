@@ -15,6 +15,7 @@ LABEL_NEW_ADDRESS                   New address:
 ERROR_NO_USERNAME                   Specify the user name
 ERROR_DISCONNECTED                  Disconnected from the server
 DIALOG_IMAGE_FILES                  Image Files
+GAME_CONFIRM                        Confirm
 GAME_PASS                           Pass turn
 GAME_RESOLVE                        Resolve
 GAME_SELL_BEER                      Sell beer

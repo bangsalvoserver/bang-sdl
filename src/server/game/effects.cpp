@@ -8,6 +8,29 @@ namespace banggame {
 
     using namespace enums::flag_operators;
 
+    void effect_pass_turn::on_play(card *origin_card, player *origin) {
+        origin->pass_turn();
+    }
+
+    bool effect_resolve::can_respond(card *origin_card, player *origin) const {
+        if (!origin->m_game->m_requests.empty()) {
+            const auto &req = origin->m_game->top_request();
+            if (origin == req.target()) {
+                return req.resolvable();
+            }
+        }
+        return false;
+    }
+    
+    void effect_resolve::on_play(card *origin_card, player *origin) {
+        enums::visit_indexed([]<request_type E>(enums::enum_constant<E>, auto &req) {
+            if constexpr (resolvable_request<E>) {
+                auto req_copy = std::move(req);
+                req_copy.on_resolve();
+            }
+        }, origin->m_game->top_request());
+    }
+
     void effect_bang::on_play(card *origin_card, player *origin, player *target) {
         target->m_game->add_log("LOG_PLAYED_CARD_ON", origin_card, origin, target);
         target->m_game->queue_request<request_type::bang>(origin_card, origin, target, flags);
@@ -50,6 +73,8 @@ namespace banggame {
             if (0 == --req.bang_strength) {
                 origin->m_game->instant_event<event_type::on_missed>(req.origin_card, req.origin, req.target, req.is_bang_card);
                 origin->m_game->pop_request();
+            } else {
+                origin->m_game->send_request_respond();
             }
         } else {
             origin->m_game->pop_request();
@@ -79,6 +104,7 @@ namespace banggame {
 
     void effect_barrel::on_play(card *origin_card, player *target) {
         barrels_used(target->m_game->top_request())->push_back(origin_card);
+        target->m_game->send_request_respond();
         target->m_game->draw_check_then(target, origin_card, [=](card *drawn_card) {
             if (target->get_card_suit(drawn_card) == card_suit_type::hearts) {
                 effect_missed().on_play(origin_card, target);

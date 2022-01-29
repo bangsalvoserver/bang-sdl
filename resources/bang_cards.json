@@ -4046,6 +4046,24 @@
     ],
     "specials": [
         {
+            "name": "GAME_PASS",
+            "expansion": "base",
+            "effects": [
+                {
+                    "class": "pass_turn"
+                }
+            ]
+        },
+        {
+            "name": "GAME_RESOLVE",
+            "expansion": "base",
+            "responses": [
+                {
+                    "class": "resolve"
+                }
+            ]
+        },
+        {
             "name": "GAME_SELL_BEER",
             "expansion": "goldrush",
             "effects": [

@@ -720,6 +720,8 @@ namespace banggame {
         case card_pile_type::player_hand:
             if (card_ptr->color != card_color_type::brown) return;
             break;
+        case card_pile_type::specials:
+            break;
         default:
             throw game_error("respond_card: invalid card"_nonloc);
         }

@@ -14,11 +14,8 @@ game_ui::game_ui(game_scene *parent)
             .text_ptsize = sdl::chat_log_ptsize
         }
     })
-    , m_pass_btn(_("GAME_PASS"), [&target = parent->m_target] {
-        target.on_click_pass_turn();
-    })
-    , m_resolve_btn(_("GAME_RESOLVE"), [&target = parent->m_target] {
-        target.on_click_resolve();
+    , m_confirm_btn(_("GAME_CONFIRM"), [&target = parent->m_target] {
+        target.on_click_confirm();
     })
     , m_leave_btn(_("BUTTON_EXIT"), [&mgr = *parent->parent] {
         mgr.add_message<client_message_type::lobby_leave>();
@@ -33,15 +30,14 @@ game_ui::game_ui(game_scene *parent)
 void game_ui::resize(int width, int height) {
     m_chat.resize(width, height);
     m_game_log.set_rect(sdl::rect{width - 220, height - 310, 210, 250});
-    
-    m_pass_btn.set_rect(sdl::rect{340, height - 50, 100, 25});
-    m_resolve_btn.set_rect(sdl::rect{450, height - 50, 100, 25});
 
-    int x = 560;
+    int x = 340;
     for (auto &[btn, card] : m_special_btns) {
         btn.set_rect(sdl::rect{x, height - 50, 100, 25});
         x += 110;
     }
+    
+    m_confirm_btn.set_rect(sdl::rect{x, height - 50, 100, 25});
 
     m_leave_btn.set_rect(sdl::rect{20, 20, 100, 25});
     m_restart_btn.set_rect(sdl::rect{140, 20, 100, 25});
@@ -51,11 +47,11 @@ void game_ui::render(sdl::renderer &renderer) {
     m_chat.render(renderer);
     m_game_log.render(renderer);
 
-    m_pass_btn.render(renderer);
-    m_resolve_btn.render(renderer);
+    m_confirm_btn.set_toggled(parent->m_target.can_confirm());
+    m_confirm_btn.render(renderer);
 
     for (auto &[btn, card] : m_special_btns) {
-        btn.set_toggled(parent->m_target.is_playing_card(card));
+        btn.set_toggled(parent->m_target.is_playing_card(card) || parent->m_target.can_respond_with(card));
         btn.render(renderer);
     }
     

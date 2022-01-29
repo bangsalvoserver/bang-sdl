@@ -42,20 +42,19 @@ namespace banggame {
         void on_click_scenario_card(card_view *card);
         bool on_click_player(player_view *player);
 
-        void on_click_pass_turn();
-        void on_click_resolve();
+        void on_click_confirm();
 
         void clear_targets();
 
         void set_response_highlights(const std::vector<int> &card_ids);
-        void set_resolvable(bool resolvable) {
-            m_resolvable = resolvable;
-        }
         void clear_status();
 
         bool is_playing_card(card_view *card) const {
             return m_playing_card == card;
         }
+
+        bool can_respond_with(card_view *card) const;
+        bool can_confirm() const;
     
     private:
         void add_modifier(card_view *card);
@@ -68,8 +67,8 @@ namespace banggame {
         
         int calc_distance(player_view *from, player_view *to);
 
-        std::vector<card_target_data> &get_current_card_targets();
-        std::vector<card_target_data> &get_optional_targets();
+        const std::vector<card_target_data> &get_current_card_targets() const;
+        const std::vector<card_target_data> &get_optional_targets() const;
 
         void send_play_card();
 
@@ -81,7 +80,6 @@ namespace banggame {
         game_scene *m_game;
 
         std::vector<card_view *> m_response_highlights;
-        bool m_resolvable = false;
 
         template<game_action_type T, typename ... Ts>
         void add_action(Ts && ... args);

@@ -189,6 +189,7 @@ namespace banggame {
             return req.is(type) && (!target || req.target() == target);
         }
 
+        void send_request_respond();
         void send_request_update();
 
         void add_request(auto &&req) {
@@ -314,8 +315,6 @@ namespace banggame {
         void handle_action(ACTION_TAG(play_card), player *p, const play_card_args &args);
         void handle_action(ACTION_TAG(respond_card), player *p, const play_card_args &args);
         void handle_action(ACTION_TAG(draw_from_deck), player *p);
-        void handle_action(ACTION_TAG(pass_turn), player *p);
-        void handle_action(ACTION_TAG(resolve), player *p);
     };
 
 }
