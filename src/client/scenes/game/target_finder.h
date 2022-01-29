@@ -23,7 +23,8 @@ namespace banggame {
         std::vector<std::vector<target_pair>> m_targets;
         std::vector<cube_widget *> m_selected_cubes;
 
-        play_card_flags m_flags = enums::flags_none<play_card_flags>;
+        bool m_equipping = false;
+        bool m_response = false;
     };
 
     class target_finder : private target_status {
@@ -31,10 +32,6 @@ namespace banggame {
         target_finder(game_scene *parent) : m_game(parent) {}
         
         void render(sdl::renderer &renderer);
-
-        play_card_flags get_flags() const {
-            return m_flags;
-        }
 
         void on_click_main_deck();
         void on_click_selection_card(card_view *card);
@@ -51,6 +48,10 @@ namespace banggame {
         void clear_targets();
 
         void set_response_highlights(const std::vector<int> &card_ids);
+        void set_resolvable(bool resolvable) {
+            m_resolvable = resolvable;
+        }
+        void clear_status();
 
         bool is_playing_card(card_view *card) const {
             return m_playing_card == card;
@@ -80,6 +81,7 @@ namespace banggame {
         game_scene *m_game;
 
         std::vector<card_view *> m_response_highlights;
+        bool m_resolvable = false;
 
         template<game_action_type T, typename ... Ts>
         void add_action(Ts && ... args);

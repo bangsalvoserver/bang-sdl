@@ -35,7 +35,7 @@ namespace banggame {
         (value_K,   "K")
     )
     
-    DEFINE_ENUM_FLAGS_DATA_IN_NS(banggame, card_expansion_type,
+    DEFINE_ENUM_FLAGS_IN_NS(banggame, card_expansion_type,
         (base)
         (dodgecity)
         (goldrush)

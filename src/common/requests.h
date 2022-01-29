@@ -273,6 +273,12 @@ namespace banggame {
                 return req.status_text();
             }, *this);
         }
+
+        bool resolvable() const {
+            return enums::visit_indexed([]<request_type T>(enums::enum_constant<T>, auto) {
+                return resolvable_request<T>;
+            }, *this);
+        }
     };
 
 }

@@ -810,6 +810,7 @@ void game_scene::handle_game_update(UPDATE_TAG(request_status), const request_st
 
 void game_scene::handle_game_update(UPDATE_TAG(request_respond), const request_respond_args &args) {
     m_target.set_response_highlights(args.card_ids);
+    m_target.set_resolvable(args.resolvable);
 
     pop_update();
 }
@@ -818,7 +819,7 @@ void game_scene::handle_game_update(UPDATE_TAG(status_clear)) {
     m_current_request.reset();
 
     m_ui.clear_status();
-    m_target.set_response_highlights({});
+    m_target.clear_status();
 
     pop_update();
 }

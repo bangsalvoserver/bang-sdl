@@ -76,7 +76,7 @@ namespace banggame {
                     if (!characters_disabled(&p)) add_ids_for(p.m_characters);
                 }
                 return ids;
-            }());
+            }(), req.resolvable());
         }
     }
 
@@ -758,11 +758,13 @@ namespace banggame {
     }
 
     void game::handle_action(ACTION_TAG(play_card), player *p, const play_card_args &args) {
-        if (bool(args.flags & play_card_flags::response)) {
-            p->respond_card(args);
-        } else if (m_requests.empty() && m_playing == p) {
+        if (m_requests.empty() && m_playing == p) {
             p->play_card(args);
         }
+    }
+
+    void game::handle_action(ACTION_TAG(respond_card), player *p, const play_card_args &args) {
+        p->respond_card(args);
     }
 
     void game::handle_action(ACTION_TAG(draw_from_deck), player *p) {

@@ -151,7 +151,8 @@ namespace banggame {
     )};
 
     struct request_respond_args {REFLECTABLE(
-        (std::vector<int>) card_ids
+        (std::vector<int>) card_ids,
+        (bool) resolvable
     )};
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, game_update_type,
