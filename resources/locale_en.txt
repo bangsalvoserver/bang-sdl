@@ -19,6 +19,7 @@ GAME_PASS                           Pass turn
 GAME_RESOLVE                        Resolve
 GAME_SELL_BEER                      Sell beer
 GAME_DISCARD_BLACK                  Discard black
+GAME_DISCARD_BRONCO                 Discard Bronco
 GAME_RESTART                        Restart
 GAME_USER_CONNECTED                 {} connected
 GAME_USER_DISCONNECTED              {} disconnected
@@ -120,7 +121,8 @@ ERROR_TARGET_NOT_BLUE_CARD          You can only play this card on blue cards
 ERROR_TARGET_NOT_CLUBS              You can only play this card on clubs cards
 ERROR_TARGET_NOT_BANG               You can only play this card on Bang! cards
 ERROR_TARGET_NOT_MISSED             You can only play this card on Mancato! cards
-ERROR_TARGET_NOT_BANG_OR_MISSED     You can only play this card on Bang! or Mancato! cards
+ERROR_TARGET_NOT_BEER               You can only play this card on Beer cards
+ERROR_TARGET_NOT_BRONCO             You can only play this card on Bronco
 ERROR_TARGET_NOT_CUBE_SLOT          You can't put cubes on this card
 ERROR_SCENARIO_AT_PLAY              {} is at play
 ERROR_CANT_PLAY_CARD                You can't play {}

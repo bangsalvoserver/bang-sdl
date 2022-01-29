@@ -443,7 +443,6 @@ void target_finder::add_card_target(target_pair target) {
 
     bool is_bang = !target.card->targets.empty() && target.card->targets.front().type == effect_type::bangcard;
     bool is_missed = !target.card->response_targets.empty() && target.card->response_targets.front().type == effect_type::missedcard;
-    bool is_beer = !target.card->targets.empty() && target.card->targets.front().type == effect_type::beer;
 
     player_view *own_player = m_game->find_player(m_game->m_player_own_id);
 
@@ -471,7 +470,8 @@ void target_finder::add_card_target(target_pair target) {
                 return m_game->has_player_flags(player_flags::treat_any_as_bang)
                     || is_bang || (m_game->has_player_flags(player_flags::treat_missed_as_bang) && is_missed);
             case target_type::missed: return is_missed;
-            case target_type::beer: return is_beer;
+            case target_type::beer: return !target.card->targets.empty() && target.card->targets.front().type == effect_type::beer;
+            case target_type::bronco: return !target.card->equip_targets.empty() && target.card->equip_targets.back().type == equip_type::bronco;
             case target_type::cube_slot: return target.card->color == card_color_type::orange;
             default: return false;
             }

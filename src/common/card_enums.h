@@ -85,6 +85,7 @@ namespace banggame {
         (bang)
         (missed)
         (beer)
+        (bronco)
         (fanning_target)
         (new_target)
         (cube_slot)

@@ -371,6 +371,10 @@ namespace banggame {
                             return !card_ptr->effects.empty() && card_ptr->effects.front().is(effect_type::beer);
                         };
 
+                        auto is_bronco = [](card *card_ptr) {
+                            return !card_ptr->equips.empty() && card_ptr->equips.back().is(equip_type::bronco);
+                        };
+
                         std::ranges::for_each(util::enum_flag_values(e.target), [&](target_type value) {
                             switch (value) {
                             case target_type::card:
@@ -393,6 +397,7 @@ namespace banggame {
                             case target_type::bang: if (!is_bangcard(target_card)) throw game_error("ERROR_TARGET_NOT_BANG"); break;
                             case target_type::missed: if (!is_missedcard(target_card)) throw game_error("ERROR_TARGET_NOT_MISSED"); break;
                             case target_type::beer: if (!is_beercard(target_card)) throw game_error("ERROR_TARGET_NOT_BEER"); break;
+                            case target_type::bronco: if (!is_bronco(target_card)) throw game_error("ERROR_TARGET_NOT_BRONCO"); break;
                             case target_type::cube_slot:
                                 if (target_card != target->m_characters.front() && target_card->color != card_color_type::orange)
                                     throw game_error("ERROR_TARGET_NOT_CUBE_SLOT");

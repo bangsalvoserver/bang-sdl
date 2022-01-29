@@ -19,6 +19,7 @@ GAME_PASS                           Passa
 GAME_RESOLVE                        Risolvi
 GAME_SELL_BEER                      Vendi birra
 GAME_DISCARD_BLACK                  Scarta nera
+GAME_DISCARD_BRONCO                 Scarta Bronco
 GAME_RESTART                        Riavvia
 GAME_USER_CONNECTED                 {} si è connesso
 GAME_USER_DISCONNECTED              {} si è disconnesso
@@ -120,7 +121,8 @@ ERROR_TARGET_NOT_BLUE_CARD          Puoi giocare questa carta solo sulle carte b
 ERROR_TARGET_NOT_CLUBS              Puoi giocare questa carta solo sulle carte di picche
 ERROR_TARGET_NOT_BANG               Puoi giocare questa carta solo sulle carte Bang!
 ERROR_TARGET_NOT_MISSED             Puoi giocare questa carta solo sulle carte Mancato!
-ERROR_TARGET_NOT_BANG_OR_MISSED     Puoi giocare questa carta solo sulle carte Bang! o Mancato!
+ERROR_TARGET_NOT_BEER               Puoi giocare questa carta solo sulle carte Birra
+ERROR_TARGET_NOT_BRONCO             Puoi giocare questa carta solo su Bronco
 ERROR_TARGET_NOT_CUBE_SLOT          Questa carta non può contenere cubetti
 ERROR_SCENARIO_AT_PLAY              {} è in gioco
 ERROR_CANT_PLAY_CARD                Non puoi giocare {}

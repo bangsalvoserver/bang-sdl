@@ -110,6 +110,7 @@ namespace banggame {
         (bomb,          effect_bomb)
         (tumbleweed,    effect_tumbleweed)
         (lemat,         effect_lemat)
+        (bronco,        effect_empty)
         (calamity_janet, effect_calamity_janet)
         (black_jack,    effect_black_jack)
         (kit_carlson,   effect_kit_carlson)

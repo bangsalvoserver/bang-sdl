@@ -2168,7 +2168,6 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Bronco",
             "signs": [
                 "QQ"
@@ -4067,20 +4066,19 @@
             ]
         },
         {
-            "disabled": true,
             "name": "GAME_DISCARD_BRONCO",
             "expansion": "canyondiablo",
             "effects": [
-                {
-                    "target": "notself table card",
-                    "class": "destroy_bronco"
-                },
                 {
                     "target": "self hand card",
                     "class": "destroy"
                 },
                 {
                     "target": "self hand card",
+                    "class": "destroy"
+                },
+                {
+                    "target": "notself table bronco card",
                     "class": "destroy"
                 }
             ]
