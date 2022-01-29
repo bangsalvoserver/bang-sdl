@@ -212,7 +212,7 @@ namespace banggame {
 
     void request_destroy::on_resolve() {
         effect_destroy{}.on_play(origin_card, origin, target, target_card);
-        target->m_game->pop_request(request_type::destroy);
+        target->m_game->pop_request();
     }
 
     game_formatted_string request_destroy::status_text() const {

@@ -1,6 +1,5 @@
 #include "game.h"
 
-#include "card.h"
 #include "common/requests.h"
 #include "common/net_enums.h"
 
@@ -680,16 +679,6 @@ namespace banggame {
 
         add_public_update<game_update_type::player_hp>(target->id, 0, true);
         add_public_update<game_update_type::player_show_role>(target->id, target->m_role);
-    }
-
-    void game::handle_event(event_args &event) {
-        for (auto &[card_id, e] : m_event_handlers) {
-            if (e.index() == event.index()) {
-                enums::visit_indexed([&]<event_type T>(enums::enum_constant<T>, auto &fun) {
-                    std::apply(fun, std::get<enums::indexof(T)>(event));
-                }, e);
-            }
-        }
     }
 
     void game::disable_table_cards() {

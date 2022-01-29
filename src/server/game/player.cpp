@@ -710,7 +710,10 @@ namespace banggame {
 
     void player::draw_from_deck() {
         int save_numcards = m_num_cards_to_draw;
-        m_game->instant_event<event_type::on_draw_from_deck>(this);
+        m_game->instant_event<event_type::on_draw_from_deck_priority>(this);
+        if (m_game->top_request_is(request_type::draw)) {
+            m_game->instant_event<event_type::on_draw_from_deck>(this);
+        }
         if (m_game->top_request_is(request_type::draw)) {
             m_game->pop_request(request_type::draw);
             m_game->add_log("LOG_DRAWN_FROM_DECK", this);

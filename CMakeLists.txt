@@ -42,6 +42,7 @@ set(bangserver_srcs
     src/server/manager.cpp
     src/server/game/effect_holder.cpp
     src/server/game/effects.cpp
+    src/server/game/events.cpp
     src/server/game/equips.cpp
     src/server/game/characters.cpp
     src/server/game/game.cpp
