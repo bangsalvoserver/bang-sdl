@@ -557,7 +557,8 @@ namespace banggame {
         }
     }
 
-    void game::pop_request_noupdate() {
+    void game::pop_request_noupdate(request_type type) {
+        if (type != request_type::none && !top_request_is(type)) return;
         enums::visit([](auto &value) {
             if constexpr (requires { value.cleanup(); }) {
                 value.cleanup();
@@ -770,11 +771,5 @@ namespace banggame {
 
     void game::handle_action(ACTION_TAG(respond_card), player *p, const play_card_args &args) {
         p->respond_card(args);
-    }
-
-    void game::handle_action(ACTION_TAG(draw_from_deck), player *p) {
-        if (m_requests.empty() && m_playing == p && !p->check_player_flags(player_flags::has_drawn)) {
-            p->draw_from_deck();
-        }
     }
 }

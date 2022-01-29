@@ -123,7 +123,6 @@ namespace banggame {
     DEFINE_ENUM_FLAGS_IN_NS(banggame, player_flags,
         (dead)
         (ghost)
-        (has_drawn)
         (start_of_turn)
         (see_everyone_range_1)
         (treat_missed_as_bang)

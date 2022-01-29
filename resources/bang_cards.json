@@ -2420,9 +2420,12 @@
             "image": "01_jessejones",
             "hp": 4,
             "expansion": "base",
-            "effects": [
+            "responses": [
                 {
                     "class": "drawing"
+                },
+                {
+                    "class": "draw_done"
                 },
                 {
                     "target": "notself hand card",
@@ -2485,7 +2488,7 @@
             "image": "01_pedroramirez",
             "hp": 4,
             "expansion": "base",
-            "effects": [
+            "responses": [
                 {
                     "class": "drawing"
                 },
@@ -2781,16 +2784,16 @@
             "image": "03_pat_brennan",
             "hp": 4,
             "expansion": "dodgecity",
-            "effects": [
+            "responses": [
                 {
                     "class": "drawing"
                 },
                 {
-                    "target": "table card",
-                    "class": "steal"
+                    "class": "draw_done"
                 },
                 {
-                    "class": "draw_done"
+                    "target": "table card",
+                    "class": "steal"
                 }
             ]
         },
@@ -2889,7 +2892,7 @@
             "image": "07_evelynshebang",
             "hp": 4,
             "expansion": "valleyofshadows",
-            "effects": [
+            "responses": [
                 {
                     "class": "drawing"
                 },
@@ -2897,8 +2900,14 @@
                     "class": "draw_skip"
                 },
                 {
+                    "class": "draw_done"
+                },
+                {
                     "target": "player notself reachable new_target",
                     "class": "bang"
+                },
+                {
+                    "class": "draw_again_if_needed"
                 }
             ]
         },
@@ -3008,7 +3017,7 @@
             "hp": 4,
             "expansion": "wildwestshow",
             "usages": 1,
-            "effects": [
+            "responses": [
                 {
                     "class": "drawing"
                 },
@@ -3493,7 +3502,7 @@
         {
             "name": "Fratelli di Sangue",
             "image": "05_fratellidisangue",
-            "effects": [
+            "responses": [
                 {
                     "class": "drawing"
                 },
@@ -3536,7 +3545,7 @@
         {
             "name": "Liquore Forte",
             "image": "05_liquoreforte",
-            "effects": [
+            "responses": [
                 {
                     "class": "drawing"
                 },

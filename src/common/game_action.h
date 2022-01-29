@@ -39,7 +39,6 @@ namespace banggame {
         (pick_card, pick_card_args)
         (play_card, play_card_args)
         (respond_card, play_card_args)
-        (draw_from_deck)
     )
 
     using game_action = enums::enum_variant<game_action_type>;

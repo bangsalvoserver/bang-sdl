@@ -529,24 +529,15 @@ namespace banggame {
         case card_pile_type::player_character:
             if (!card_ptr->effects.empty()) {
                 if (m_game->characters_disabled(this)) throw game_error("ERROR_CHARACTERS_ARE_DISABLED");
-                if (!card_ptr->effects.empty() && card_ptr->effects.front().is(effect_type::drawing)) {
-                    if (check_player_flags(player_flags::has_drawn)) throw game_error("ERROR_PLAYER_MUST_NOT_DRAW");
-                    verify_card_targets(card_ptr, false, args.targets);
-                    m_game->add_private_update<game_update_type::status_clear>(this);
-                    m_game->add_log("LOG_DRAWN_WITH_CHARACTER", card_ptr, this);
-                } else {
-                    if (!check_player_flags(player_flags::has_drawn)) throw game_error("ERROR_PLAYER_MUST_DRAW");
-                    verify_modifiers(card_ptr, modifiers);
-                    verify_card_targets(card_ptr, false, args.targets);
-                    m_game->add_log("LOG_PLAYED_CHARACTER", card_ptr, this);
-                    play_modifiers(modifiers);
-                }
+                verify_modifiers(card_ptr, modifiers);
+                verify_card_targets(card_ptr, false, args.targets);
+                m_game->add_log("LOG_PLAYED_CHARACTER", card_ptr, this);
+                play_modifiers(modifiers);
                 do_play_card(card_ptr, false, args.targets);
                 set_last_played_card(nullptr);
             }
             break;
         case card_pile_type::player_hand:
-            if (!check_player_flags(player_flags::has_drawn)) throw game_error("ERROR_PLAYER_MUST_DRAW");
             switch (card_ptr->color) {
             case card_color_type::brown:
                 verify_modifiers(card_ptr, modifiers);
@@ -610,7 +601,6 @@ namespace banggame {
             }
             break;
         case card_pile_type::player_table:
-            if (!check_player_flags(player_flags::has_drawn)) throw game_error("ERROR_PLAYER_MUST_DRAW");
             if (m_game->table_cards_disabled(this)) throw game_error("ERROR_TABLE_CARDS_ARE_DISABLED");
             if (card_ptr->inactive) throw game_error("ERROR_CARD_INACTIVE");
             verify_modifiers(card_ptr, modifiers);
@@ -620,7 +610,6 @@ namespace banggame {
             set_last_played_card(nullptr);
             break;
         case card_pile_type::shop_selection: {
-            if (!check_player_flags(player_flags::has_drawn)) throw game_error("ERROR_PLAYER_MUST_DRAW");
             int discount = 0;
             if (!modifiers.empty()) {
                 if (auto modifier_it = std::ranges::find(m_characters, modifiers.front()->id, &character::id);
@@ -672,21 +661,12 @@ namespace banggame {
             }
         }
         case card_pile_type::scenario_card: {
-            bool active_when_drawing = !card_ptr->effects.empty() && card_ptr->effects.front().is(effect_type::drawing);
-            if (active_when_drawing == check_player_flags(player_flags::has_drawn)) {
-                if (active_when_drawing) {
-                    throw game_error("ERROR_PLAYER_MUST_NOT_DRAW");
-                } else {
-                    throw game_error("ERROR_PLAYER_MUST_DRAW");
-                }
-            }
             verify_card_targets(card_ptr, false, args.targets);
             do_play_card(card_ptr, false, args.targets);
             set_last_played_card(nullptr);
             break;
         }
         case card_pile_type::specials:
-            if (!check_player_flags(player_flags::has_drawn)) throw game_error("ERROR_PLAYER_MUST_DRAW");
             verify_card_targets(card_ptr, false, args.targets);
             do_play_card(card_ptr, false, args.targets);
             set_last_played_card(nullptr);
@@ -713,13 +693,10 @@ namespace banggame {
             if (m_game->table_cards_disabled(this)) throw game_error("ERROR_TABLE_CARDS_ARE_DISABLED");
             if (card_ptr->inactive) throw game_error("ERROR_CARD_INACTIVE");
             break;
-        case card_pile_type::shop_selection:
-            // hack per bottiglia e complice
-            if (!check_player_flags(player_flags::has_drawn)) throw game_error("ERROR_PLAYER_MUST_DRAW");
-            break;
         case card_pile_type::player_hand:
             if (card_ptr->color != card_color_type::brown) return;
             break;
+        case card_pile_type::shop_selection:
         case card_pile_type::specials:
             break;
         default:
@@ -732,10 +709,10 @@ namespace banggame {
     }
 
     void player::draw_from_deck() {
-        if (check_player_flags(player_flags::has_drawn)) throw game_error("ERROR_PLAYER_MUST_NOT_DRAW");
         int save_numcards = m_num_cards_to_draw;
-        m_game->queue_event<event_type::on_draw_from_deck>(this);
-        if (!check_player_flags(player_flags::has_drawn)) {
+        m_game->instant_event<event_type::on_draw_from_deck>(this);
+        if (m_game->top_request_is(request_type::draw)) {
+            m_game->pop_request(request_type::draw);
             m_game->add_log("LOG_DRAWN_FROM_DECK", this);
             while (m_num_drawn_cards<m_num_cards_to_draw) {
                 ++m_num_drawn_cards;
@@ -745,11 +722,7 @@ namespace banggame {
             }
         }
         m_num_cards_to_draw = save_numcards;
-        add_player_flags(player_flags::has_drawn);
         m_game->queue_event<event_type::post_draw_cards>(this);
-        if (m_game->m_requests.empty()) {
-            m_game->add_private_update<game_update_type::status_clear>(this);
-        }
     }
 
     card_suit_type player::get_card_suit(card *drawn_card) {
@@ -776,7 +749,6 @@ namespace banggame {
         m_bangs_played = 0;
         m_bangs_per_turn = 1;
         m_num_drawn_cards = 0;
-        remove_player_flags(player_flags::has_drawn);
         add_player_flags(player_flags::start_of_turn);
         m_declared_suit = card_suit_type::none;
 
@@ -812,6 +784,7 @@ namespace banggame {
         m_game->queue_event<event_type::delayed_action>([&]{
             if (m_predraw_checks.empty()) {
                 m_game->queue_event<event_type::on_turn_start>(this);
+                m_game->queue_request<request_type::draw>(this);
             } else {
                 for (auto &[card_id, obj] : m_predraw_checks) {
                     obj.resolved = false;
@@ -829,6 +802,7 @@ namespace banggame {
 
             if (std::ranges::all_of(m_predraw_checks | std::views::values, &predraw_check::resolved)) {
                 m_game->queue_event<event_type::on_turn_start>(this);
+                m_game->queue_request<request_type::draw>(this);
             } else {
                 m_game->queue_request<request_type::predraw>(this);
             }

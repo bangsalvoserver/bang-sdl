@@ -16,10 +16,18 @@ namespace banggame {
             if (it != target->m_predraw_checks.end()
                 && !it->second.resolved
                 && it->second.priority == top_priority) {
-                target->m_game->pop_request();
+                target->m_game->pop_request(request_type::predraw);
                 target->m_game->draw_check_then(target, target_card, it->second.check_fun);
             }
         }
+    }
+
+    void request_draw::on_pick(card_pile_type pile, player *target_player, card *target_card) {
+        target->draw_from_deck();
+    }
+
+    game_formatted_string request_draw::status_text() const {
+        return "STATUS_YOUR_TURN";
     }
 
     game_formatted_string request_predraw::status_text() const {
@@ -48,7 +56,7 @@ namespace banggame {
             target->m_game->move_to(drawn_card, card_pile_type::discard_pile);
             target->m_game->queue_event<event_type::on_draw_check>(target, drawn_card);
         }
-        target->m_game->pop_request();
+        target->m_game->pop_request(request_type::check);
         target->m_game->add_log("LOG_CHECK_DREW_CARD", target->m_game->m_current_check->origin_card, target, target_card);
         target->m_game->instant_event<event_type::trigger_tumbleweed>(target->m_game->m_current_check->origin_card, target_card);
         if (!target->m_game->m_current_check->no_auto_resolve) {
@@ -68,9 +76,9 @@ namespace banggame {
             target->add_to_hand(target_card);
             target->m_game->add_log("LOG_DRAWN_FROM_GENERALSTORE", next, target->m_game->m_selection.front());
             next->add_to_hand(target->m_game->m_selection.front());
-            target->m_game->pop_request();
+            target->m_game->pop_request(request_type::generalstore);
         } else {
-            target->m_game->pop_request_noupdate();
+            target->m_game->pop_request_noupdate(request_type::generalstore);
             target->m_game->add_log("LOG_DRAWN_FROM_GENERALSTORE", target, target_card);
             target->add_to_hand(target_card);
             target->m_game->queue_request<request_type::generalstore>(origin_card, origin, next);
@@ -84,7 +92,7 @@ namespace banggame {
     void request_discard::on_pick(card_pile_type pile, player *target_player, card *target_card) {
         if (target_player == target) {
             if (--target->m_game->top_request().get<request_type::discard>().ncards == 0) {
-                target->m_game->pop_request();
+                target->m_game->pop_request(request_type::discard);
             }
 
             target->discard_card(target_card);
@@ -113,7 +121,7 @@ namespace banggame {
                 });
             }
             if (target->num_hand_cards() <= target->max_cards_end_of_turn()) {
-                target->m_game->pop_request();
+                target->m_game->pop_request(request_type::discard_pass);
                 target->m_game->queue_event<event_type::delayed_action>([*this]{
                     target->end_of_turn(next_player);
                 });
@@ -126,7 +134,7 @@ namespace banggame {
     }
 
     void request_indians::on_resolve() {
-        target->m_game->pop_request();
+        target->m_game->pop_request(request_type::indians);
         target->damage(origin_card, origin, 1);
     }
 
@@ -135,7 +143,7 @@ namespace banggame {
     }
 
     void request_duel::on_resolve() {
-        target->m_game->pop_request();
+        target->m_game->pop_request(request_type::duel);
         target->damage(origin_card, origin, 1);
     }
 
@@ -145,9 +153,9 @@ namespace banggame {
     
     void timer_damaging::on_finished() {
         if (origin->m_hp <= damage) {
-            origin->m_game->pop_request_noupdate();
+            origin->m_game->pop_request_noupdate(request_type::damaging);
         } else {
-            origin->m_game->pop_request();
+            origin->m_game->pop_request(request_type::damaging);
         }
         origin->do_damage(origin_card, source, damage, is_bang);
         cleanup();
@@ -165,7 +173,7 @@ namespace banggame {
     }
 
     void request_bang::on_resolve() {
-        target->m_game->pop_request();
+        target->m_game->pop_request(request_type::bang);
         target->damage(origin_card, origin, bang_damage, is_bang_card);
         if (!target->m_game->m_requests.empty() && target->m_game->m_requests.back().is(request_type::damaging)) {
             auto &req = target->m_game->m_requests.back().get<request_type::damaging>();
@@ -195,7 +203,7 @@ namespace banggame {
     void request_death::on_resolve() {
         target->m_game->player_death(target);
         target->m_game->check_game_over(target);
-        target->m_game->pop_request();
+        target->m_game->pop_request(request_type::death);
     }
 
     game_formatted_string request_death::status_text() const {
@@ -204,7 +212,7 @@ namespace banggame {
 
     void request_destroy::on_resolve() {
         effect_destroy{}.on_play(origin_card, origin, target, target_card);
-        target->m_game->pop_request();
+        target->m_game->pop_request(request_type::destroy);
     }
 
     game_formatted_string request_destroy::status_text() const {
@@ -217,7 +225,7 @@ namespace banggame {
 
     void request_steal::on_resolve() {
         effect_steal{}.on_play(origin_card, origin, target, target_card);
-        target->m_game->pop_request();
+        target->m_game->pop_request(request_type::steal);
     }
 
     game_formatted_string request_steal::status_text() const {
@@ -229,13 +237,13 @@ namespace banggame {
             target->discard_card(target_card);
             if (--target->m_game->top_request().get<request_type::bandidos>().num_cards == 0
                 || target->num_hand_cards() == 0) {
-                target->m_game->pop_request();
+                target->m_game->pop_request(request_type::bandidos);
             }
         }
     }
 
     void request_bandidos::on_resolve() {
-        target->m_game->pop_request();
+        target->m_game->pop_request(request_type::bandidos);
         target->damage(origin_card, origin, 1);
     }
 
@@ -248,7 +256,7 @@ namespace banggame {
             target->discard_card(target_card);
             target->m_game->draw_card_to(card_pile_type::player_hand, target);
             target->m_game->draw_card_to(card_pile_type::player_hand, target);
-            target->m_game->pop_request();
+            target->m_game->pop_request(request_type::tornado);
         }
     }
 
@@ -259,7 +267,7 @@ namespace banggame {
     void request_poker::on_pick(card_pile_type pile, player *target_player, card *target_card) {
         if (target == target_player) {
             target->m_game->move_to(target_card, card_pile_type::selection, true, origin);
-            target->m_game->pop_request();
+            target->m_game->pop_request(request_type::poker);
         }
     }
 
@@ -274,7 +282,7 @@ namespace banggame {
             for (auto *c : target->m_game->m_selection) {
                 target->m_game->move_to(c, card_pile_type::discard_pile);
             }
-            target->m_game->pop_request();
+            target->m_game->pop_request(request_type::poker_draw);
         }
     }
 
@@ -286,12 +294,12 @@ namespace banggame {
         if (pile == card_pile_type::main_deck) {
             target->m_game->draw_card_to(card_pile_type::player_hand, target);
             target->m_game->draw_card_to(card_pile_type::player_hand, target);
-            target->m_game->pop_request();
+            target->m_game->pop_request(request_type::saved);
         } else if (pile == card_pile_type::player_hand && target_player == saved) {
             for (int i=0; i<2 && !saved->m_hand.empty(); ++i) {
                 target->steal_card(saved, saved->random_hand_card());
             }
-            target->m_game->pop_request();
+            target->m_game->pop_request(request_type::saved);
         }
     }
 
@@ -307,7 +315,7 @@ namespace banggame {
         
         target->add_cubes(target_card, 1);
         if (--target->m_game->top_request().get<request_type::add_cube>().ncubes == 0 || !target->can_receive_cubes()) {
-            target->m_game->pop_request();
+            target->m_game->pop_request(request_type::add_cube);
         }
     }
 
@@ -322,15 +330,15 @@ namespace banggame {
     void request_move_bomb::on_pick(card_pile_type pile, player *target_player, card *target_card) {
         if (!target_player->immune_to(origin_card)) {
             if (target_player == target) {
-                target->m_game->pop_request();
+                target->m_game->pop_request(request_type::move_bomb);
             } else if (!target_player->find_equipped_card(origin_card)) {
                 origin_card->on_unequip(target);
                 target_player->equip_card(origin_card);
-                target->m_game->pop_request();
+                target->m_game->pop_request(request_type::move_bomb);
             }
         } else {
             target->discard_card(origin_card);
-            target->m_game->pop_request();
+            target->m_game->pop_request(request_type::move_bomb);
         }
     }
 
@@ -339,7 +347,7 @@ namespace banggame {
     }
 
     void request_rust::on_resolve() {
-        target->m_game->pop_request();
+        target->m_game->pop_request(request_type::rust);
 
         effect_rust{}.on_play(origin_card, origin, target);
     }

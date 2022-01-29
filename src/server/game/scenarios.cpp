@@ -33,7 +33,7 @@ namespace banggame {
     void request_thedaltons::on_pick(card_pile_type pile, player *target_player, card *target_card) {
         if (target_card->color == card_color_type::blue && target == target_player) {
             target->discard_card(target_card);
-            target->m_game->pop_request();
+            target->m_game->pop_request(request_type::thedaltons);
         }
     }
 
@@ -149,7 +149,7 @@ namespace banggame {
     }
 
     void effect_peyote::on_equip(player *target, card *target_card) {
-        target->m_game->add_event<event_type::on_turn_start>(target_card, [=](player *p) {
+        target->m_game->add_event<event_type::on_draw_from_deck>(target_card, [=](player *p) {
             auto &vec = p->m_game->m_hidden_deck;
             for (auto it = vec.begin(); it != vec.end(); ) {
                 auto *card = *it;
@@ -159,8 +159,8 @@ namespace banggame {
                     ++it;
                 }
             }
-
-            p->add_player_flags(player_flags::has_drawn);
+            
+            p->m_game->pop_request_noupdate(request_type::draw);
             p->m_game->queue_request<request_type::peyote>(target_card, p);
         });
     }
@@ -180,7 +180,7 @@ namespace banggame {
             while (!target->m_game->m_selection.empty()) {
                 target->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::hidden_deck, true, nullptr, show_card_flags::no_animation);
             }
-            target->m_game->pop_request();
+            target->m_game->pop_request(request_type::peyote);
         }
     }
 
@@ -209,7 +209,7 @@ namespace banggame {
         while (!target->m_game->m_selection.empty()) {
             target->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::hidden_deck, true, nullptr, show_card_flags::no_animation);
         }
-        target->m_game->pop_request();
+        target->m_game->pop_request(request_type::handcuffs);
     }
 
     game_formatted_string request_handcuffs::status_text() const {

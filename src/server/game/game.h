@@ -220,7 +220,8 @@ namespace banggame {
             }
         }
 
-        void pop_request() {
+        void pop_request(request_type type = request_type::none) {
+            if (type != request_type::none && !top_request_is(type)) return;
             pop_request_noupdate();
             if (m_requests.empty()) {
                 add_public_update<game_update_type::status_clear>();
@@ -230,7 +231,7 @@ namespace banggame {
             }
         }
 
-        void pop_request_noupdate();
+        void pop_request_noupdate(request_type type = request_type::none);
 
         void tick();
 
@@ -314,7 +315,6 @@ namespace banggame {
         void handle_action(ACTION_TAG(pick_card), player *p, const pick_card_args &args);
         void handle_action(ACTION_TAG(play_card), player *p, const play_card_args &args);
         void handle_action(ACTION_TAG(respond_card), player *p, const play_card_args &args);
-        void handle_action(ACTION_TAG(draw_from_deck), player *p);
     };
 
 }

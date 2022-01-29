@@ -72,12 +72,12 @@ namespace banggame {
             auto &req = origin->m_game->top_request().get<request_type::bang>();
             if (0 == --req.bang_strength) {
                 origin->m_game->instant_event<event_type::on_missed>(req.origin_card, req.origin, req.target, req.is_bang_card);
-                origin->m_game->pop_request();
+                origin->m_game->pop_request(request_type::bang);
             } else {
                 origin->m_game->send_request_respond();
             }
         } else {
-            origin->m_game->pop_request();
+            origin->m_game->pop_request(request_type::ricochet);
         }
     }
 
@@ -147,12 +147,12 @@ namespace banggame {
             player *origin = req.origin;
             player *respond_to = req.respond_to;
             player *target = req.target;
-            target->m_game->pop_request_noupdate();
+            target->m_game->pop_request_noupdate(request_type::duel);
             target->m_game->queue_request<request_type::duel>(origin_card, origin, respond_to, target);
             break;
         }
         case request_type::indians:
-            target->m_game->pop_request();
+            target->m_game->pop_request(request_type::indians);
         }
     }
 
@@ -230,7 +230,7 @@ namespace banggame {
 
     void effect_deathsave::on_play(card *origin_card, player *origin) {
         if (origin->m_hp > 0) {
-            origin->m_game->pop_request();
+            origin->m_game->pop_request(request_type::death);
         }
     }
 
@@ -254,6 +254,10 @@ namespace banggame {
                 target->m_game->queue_event<event_type::delayed_action>(std::move(fun));
             }
         }
+    }
+
+    bool effect_drawing::can_respond(card *origin_card, player *origin) const {
+        return origin->m_game->top_request_is(request_type::draw);
     }
 
     void effect_steal::on_play(card *origin_card, player *origin, player *target, card *target_card) {
@@ -346,13 +350,21 @@ namespace banggame {
             target->m_game->add_log("LOG_DRAWN_CARD", target, drawn_card);
             target->m_game->instant_event<event_type::on_card_drawn>(target, drawn_card);
         }
-        target->add_player_flags(player_flags::has_drawn);
+        target->m_game->pop_request(request_type::draw);
         target->m_game->queue_event<event_type::post_draw_cards>(target);
     }
 
     void effect_draw_done::on_play(card *origin_card, player *target) {
-        target->add_player_flags(player_flags::has_drawn);
+        target->m_game->pop_request(request_type::draw);
         target->m_game->queue_event<event_type::post_draw_cards>(target);
+    }
+
+    void effect_draw_again_if_needed::on_play(card *origin_card, player *target) {
+        target->m_game->queue_event<event_type::delayed_action>([=]{
+            if (target->m_num_drawn_cards < target->m_num_cards_to_draw) {
+                target->m_game->queue_request<request_type::draw>(target);
+            }
+        });
     }
 
     void effect_draw_skip::verify(card *origin_card, player *target) const {
@@ -363,7 +375,7 @@ namespace banggame {
 
     void effect_draw_skip::on_play(card *origin_card, player *target) {
         if (++target->m_num_drawn_cards == target->m_num_cards_to_draw) {
-            target->add_player_flags(player_flags::has_drawn);
+            target->m_game->pop_request(request_type::draw);
             target->m_game->queue_event<event_type::post_draw_cards>(target);
         }
     }
@@ -432,7 +444,7 @@ namespace banggame {
         auto &req = origin->m_game->top_request().get<request_type::damaging>();
         player *saved = req.origin;
         if (0 == --req.damage) {
-            origin->m_game->pop_request();
+            origin->m_game->pop_request(request_type::damaging);
         }
         origin->m_game->queue_event<event_type::delayed_action>([=]{
             if (saved->alive()) {
@@ -534,7 +546,7 @@ namespace banggame {
         for (int i=0; i<2; ++i) {
             it = origin->m_game->move_to(*it, card_pile_type::shop_selection, true, nullptr, show_card_flags::no_animation);
         }
-        origin->m_game->pop_request();
+        origin->m_game->pop_request(request_type::shopchoice);
         origin->m_game->queue_event<event_type::delayed_action>([m_game = origin->m_game]{
             while (m_game->m_shop_selection.size() < 3) {
                 m_game->draw_shop_card();
@@ -714,12 +726,12 @@ namespace banggame {
     }
 
     void effect_tumbleweed::on_play(card *origin_card, player *origin) {
-        origin->m_game->pop_request();
+        origin->m_game->pop_request(request_type::tumbleweed);
         origin->m_game->do_draw_check();
     }
 
     void timer_tumbleweed::on_finished() {
-        target->m_game->pop_request();
+        target->m_game->pop_request(request_type::tumbleweed);
         target->m_game->m_current_check->function(drawn_card);
         target->m_game->m_current_check.reset();
     }

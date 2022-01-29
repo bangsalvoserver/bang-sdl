@@ -61,7 +61,7 @@ namespace banggame {
     void effect_kit_carlson::on_equip(player *target, card *target_card) {
         target->m_game->add_event<event_type::on_draw_from_deck>(target_card, [=](player *origin) {
             if (target == origin && target->m_num_cards_to_draw < 3) {
-                target->add_player_flags(player_flags::has_drawn);
+                target->m_game->pop_request_noupdate(request_type::draw);
                 for (int i=0; i<3; ++i) {
                     target->m_game->draw_phase_one_card_to(card_pile_type::selection, target);
                 }
@@ -78,7 +78,7 @@ namespace banggame {
             while (!target->m_game->m_selection.empty()) {
                 target->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::main_deck, false);
             }
-            target->m_game->pop_request();
+            target->m_game->pop_request(request_type::kit_carlson);
         }
     }
 
@@ -89,7 +89,7 @@ namespace banggame {
     void effect_claus_the_saint::on_equip(player *target, card *target_card) {
         target->m_game->add_event<event_type::on_draw_from_deck>(target_card, [=](player *origin) {
             if (origin == target) {
-                target->add_player_flags(player_flags::has_drawn);
+                target->m_game->pop_request_noupdate(request_type::draw);
                 int ncards = target->m_game->num_alive() + target->m_num_cards_to_draw - 1;
                 for (int i=0; i<ncards; ++i) {
                     target->m_game->draw_phase_one_card_to(card_pile_type::selection, target);
@@ -117,7 +117,7 @@ namespace banggame {
         }
         if (target->m_game->m_selection.size() == 1) {
             get_next_target()->add_to_hand(target->m_game->m_selection.front());
-            target->m_game->pop_request();
+            target->m_game->pop_request(request_type::claus_the_saint);
         }
     }
 
@@ -267,7 +267,7 @@ namespace banggame {
 
     void request_vera_custer::on_pick(card_pile_type pile, player *target_player, card *target_card) {
         if (target_card != target->m_characters.front()) {
-            target->m_game->pop_request();
+            target->m_game->pop_request(request_type::vera_custer);
             vera_custer_copy_character(target, static_cast<character *>(target_card));
         }
     }
@@ -362,7 +362,7 @@ namespace banggame {
         origin->m_game->top_request().get<request_type::death>().draw_attempts.push_back(origin_card);
         origin->m_game->draw_check_then(origin, origin_card, [origin](card *drawn_card) {
             if (origin->get_card_suit(drawn_card) != card_suit_type::spades) {
-                origin->m_game->pop_request();
+                origin->m_game->pop_request(request_type::death);
                 origin->m_hp = 1;
                 origin->m_game->add_public_update<game_update_type::player_hp>(origin->id, 1);
                 origin->m_game->draw_card_to(card_pile_type::player_hand, origin);
@@ -384,7 +384,7 @@ namespace banggame {
 
     void request_youl_grinner::on_pick(card_pile_type pile, player *target_player, card *target_card) {
         if (target_player == target) {
-            target->m_game->pop_request();
+            target->m_game->pop_request(request_type::youl_grinner);
             origin->steal_card(target, target_card);
             target->m_game->queue_event<event_type::on_effect_end>(origin, origin_card);
         }
@@ -484,7 +484,7 @@ namespace banggame {
     }
 
     void effect_lemonade_jim::on_play(card *origin_card, player *origin) {
-        origin->m_game->pop_request();
+        origin->m_game->pop_request(request_type::lemonade_jim);
     }
     
     void effect_al_preacher::on_equip(player *p, card *target_card) {
@@ -502,14 +502,14 @@ namespace banggame {
     }
 
     void effect_al_preacher::on_play(card *origin_card, player *origin) {
-        origin->m_game->pop_request();
+        origin->m_game->pop_request(request_type::al_preacher);
     }
 
     void effect_dutch_will::on_equip(player *target, card *target_card) {
         target->m_game->add_event<event_type::on_draw_from_deck>(target_card, [=](player *origin) {
             if (origin == target) {
                 if (target->m_num_cards_to_draw > 1) {
-                    target->add_player_flags(player_flags::has_drawn);
+                    target->m_game->pop_request_noupdate(request_type::draw);
                     for (int i=0; i<target->m_num_cards_to_draw; ++i) {
                         target->m_game->draw_phase_one_card_to(card_pile_type::selection, target);
                     }
@@ -524,7 +524,7 @@ namespace banggame {
         target->add_to_hand(target_card);
         target->m_game->queue_event<event_type::on_card_drawn>(target, target_card);
         if (target->m_game->m_selection.size() == 1) {
-            target->m_game->pop_request();
+            target->m_game->pop_request(request_type::dutch_will);
             target->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::discard_pile);
             target->add_gold(1);
         }
@@ -574,7 +574,7 @@ namespace banggame {
     }
 
     void request_shop_choose_target::on_pick(card_pile_type pile, player *target_player, card *target_card) {
-        target->m_game->pop_request();
+        target->m_game->pop_request(request_type::shop_choose_target);
         if (origin_card->color == card_color_type::black) {
             target_player->equip_card(origin_card);
         } else {

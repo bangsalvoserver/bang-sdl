@@ -15,6 +15,14 @@ namespace banggame {
         game_formatted_string status_text() const;
     };
 
+    struct request_draw : request_base, allowed_piles<card_pile_type::main_deck> {
+        request_draw(player *target)
+            : request_base(nullptr, nullptr, target) {}
+
+        void on_pick(card_pile_type pile, player *target, card *target_card);
+        game_formatted_string status_text() const;
+    };
+
     struct request_check : request_base, allowed_piles<card_pile_type::selection> {
         request_check(card *origin_card, player *target)
             : request_base(origin_card, nullptr, target) {}
@@ -197,7 +205,9 @@ namespace banggame {
     };
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, request_type,
+        (none,          request_base)
         (predraw,       request_predraw)
+        (draw,          request_draw)
         (check,         request_check)
         (generalstore,  request_generalstore)
         (discard,       request_discard)
@@ -269,8 +279,12 @@ namespace banggame {
         }
 
         game_formatted_string status_text() const {
-            return enums::visit([](const auto &req) {
-                return req.status_text();
+            return enums::visit_indexed([]<request_type T>(enums::enum_constant<T>, const auto &req) -> game_formatted_string {
+                if constexpr (requires { req.status_text(); }) {
+                    return req.status_text();
+                } else {
+                    return {};
+                }
             }, *this);
         }
 

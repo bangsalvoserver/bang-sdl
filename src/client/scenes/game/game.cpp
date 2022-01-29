@@ -780,10 +780,6 @@ void game_scene::handle_game_update(UPDATE_TAG(switch_turn), const switch_turn_u
     m_playing_id = args.player_id;
     m_target.clear_targets();
 
-    if (m_playing_id == m_player_own_id && !m_current_request) {
-        m_ui.set_status(_("STATUS_YOUR_TURN"));
-    }
-
     pop_update();
 }
 

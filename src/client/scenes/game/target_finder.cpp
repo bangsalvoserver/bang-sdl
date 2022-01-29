@@ -84,8 +84,6 @@ void target_finder::on_click_main_deck() {
     if (m_game->m_current_request && m_game->m_current_request->target_id == m_game->m_player_own_id
         && is_valid_picking_pile(m_game->m_current_request->type, card_pile_type::main_deck)) {
         add_action<game_action_type::pick_card>(card_pile_type::main_deck);
-    } else if (m_game->m_playing_id == m_game->m_player_own_id && !m_game->has_player_flags(player_flags::has_drawn)) {
-        add_action<game_action_type::draw_from_deck>();
     }
 }
 
@@ -104,7 +102,7 @@ void target_finder::on_click_shop_card(card_view *card) {
                 m_response = true;
                 handle_auto_targets();
             }
-        } else if (m_game->m_playing_id == m_game->m_player_own_id && m_game->has_player_flags(player_flags::has_drawn)) {
+        } else if (m_game->m_playing_id == m_game->m_player_own_id) {
             if (!verify_modifier(card)) return;
             if (card->color == card_color_type::black) {
                 if (card->equip_targets.empty()
@@ -144,7 +142,7 @@ void target_finder::on_click_table_card(player_view *player, card_view *card) {
         }
     } else if (m_game->m_playing_id == m_game->m_player_own_id) {
         if (!m_playing_card) {
-            if (player->id == m_game->m_player_own_id && !card->inactive && m_game->has_player_flags(player_flags::has_drawn)) {
+            if (player->id == m_game->m_player_own_id && !card->inactive) {
                 if (card->modifier != card_modifier_type::none) {
                     add_modifier(card);
                 } else if (verify_modifier(card)) {
@@ -175,7 +173,7 @@ void target_finder::on_click_hand_card(player_view *player, card_view *card) {
         }
     } else if (m_game->m_playing_id == m_game->m_player_own_id) {
         if (!m_playing_card) {
-            if (player->id == m_game->m_player_own_id && m_game->has_player_flags(player_flags::has_drawn)) {
+            if (player->id == m_game->m_player_own_id) {
                 if (card->color == card_color_type::brown) {
                     if (card->modifier != card_modifier_type::none) {
                         add_modifier(card);
@@ -218,8 +216,7 @@ void target_finder::on_click_character(player_view *player, card_view *card) {
         }
     } else if (m_game->m_playing_id == m_game->m_player_own_id) {
         if (!m_playing_card) {
-            const bool is_drawing_card = !card->targets.empty() && card->targets.front().type == effect_type::drawing;
-            if (player->id == m_game->m_player_own_id && m_game->has_player_flags(player_flags::has_drawn) != is_drawing_card) {
+            if (player->id == m_game->m_player_own_id) {
                 if (card->modifier != card_modifier_type::none) {
                     add_modifier(card);
                 } else if (!card->targets.empty()) {
@@ -244,11 +241,8 @@ void target_finder::on_click_scenario_card(card_view *card) {
         }
     } else if (m_game->m_playing_id == m_game->m_player_own_id
         && !m_playing_card && !card->targets.empty()) {
-        bool is_drawing_card = !card->targets.empty() && card->targets.front().type == effect_type::drawing;
-        if (m_game->has_player_flags(player_flags::has_drawn) != is_drawing_card) {
-            m_playing_card = card;
-            handle_auto_targets();
-        }
+        m_playing_card = card;
+        handle_auto_targets();
     }
 }
 
