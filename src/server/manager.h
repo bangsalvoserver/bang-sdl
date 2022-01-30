@@ -39,7 +39,7 @@ struct lobby : util::id_counter<lobby> {
     banggame::card_expansion_type expansions;
 
     banggame::game game;
-    void start_game();
+    void start_game(const banggame::all_cards_t &all_cards);
     void send_updates(game_manager &mgr);
 };
 
@@ -57,6 +57,8 @@ std::vector<std::byte> make_message(Ts && ... args) {
 
 class game_manager {
 public:
+    game_manager();
+    
     void parse_message(const sdlnet::ip_address &addr, const std::vector<std::byte> &msg);
     int pending_messages();
     server_message_pair pop_message();
@@ -99,6 +101,8 @@ private:
     std::map<sdlnet::ip_address, game_user> users;
     std::list<lobby> m_lobbies;
     std::list<server_message_pair> m_out_queue;
+
+    banggame::all_cards_t all_cards;
 };
 
 #endif

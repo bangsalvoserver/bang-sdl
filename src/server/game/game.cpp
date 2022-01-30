@@ -256,7 +256,7 @@ namespace banggame {
         }
     }
 
-    void game::start_game(const game_options &options) {
+    void game::start_game(const game_options &options, const all_cards_t &all_cards) {
         m_options = options;
         
         add_event<event_type::delayed_action>(0, [](std::function<void()> fun) { fun(); });

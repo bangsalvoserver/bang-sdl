@@ -11,15 +11,7 @@
 #include "common/effects.h"
 
 #ifdef BANG_CARDS_JSON_LINKED
-
 DECLARE_RESOURCE(bang_cards_json)
-static const auto bang_cards_resource = GET_RESOURCE(bang_cards_json);
-static util::isviewstream bang_cards_stream({bang_cards_resource.data, bang_cards_resource.length});
-
-#else
-
-static std::ifstream bang_cards_stream(std::string(SDL_GetBasePath()) + "../resources/bang_cards.json");
-
 #endif
 
 namespace banggame {
@@ -96,7 +88,14 @@ namespace banggame {
         }
     }
 
-    const all_cards_t all_cards = [] {
+    all_cards_t make_all_cards() {
+#ifdef BANG_CARDS_JSON_LINKED
+        const auto bang_cards_resource = GET_RESOURCE(bang_cards_json);
+        util::isviewstream bang_cards_stream({bang_cards_resource.data, bang_cards_resource.length});
+#else
+        std::ifstream bang_cards_stream(std::string(SDL_GetBasePath()) + "../resources/bang_cards.json");
+#endif
+
         using namespace enums::flag_operators;
 
         all_cards_t ret;
@@ -203,6 +202,6 @@ namespace banggame {
         }
 
         return ret;
-    }();
+    };
 
 }

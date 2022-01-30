@@ -511,21 +511,7 @@ namespace banggame {
         }
 
         card *card_ptr = m_game->find_card(args.card_id);
-        if (!modifiers.empty() && modifiers.front()->modifier == card_modifier_type::leevankliff) {
-            // Hack per usare il raii eliminare il limite di bang
-            // quando lee van kliff gioca l'effetto del personaggio su una carta bang.
-            // Se le funzioni di verifica throwano viene chiamato il distruttore
-            struct banglimit_remover {
-                int &num;
-                banglimit_remover(int &num) : num(num) { ++num; }
-                ~banglimit_remover() { --num; }
-            } _banglimit_remover{m_infinite_bangs};
-            verify_card_targets(m_last_played_card, false, args.targets);
-            m_game->move_to(card_ptr, card_pile_type::discard_pile);
-            m_game->queue_event<event_type::on_play_hand_card>(this, card_ptr);
-            do_play_card(m_last_played_card, false, args.targets);
-            set_last_played_card(nullptr);
-        } else switch(card_ptr->pile) {
+        switch(card_ptr->pile) {
         case card_pile_type::player_character:
             if (!card_ptr->effects.empty()) {
                 if (m_game->characters_disabled(this)) throw game_error("ERROR_CHARACTERS_ARE_DISABLED");
@@ -540,11 +526,27 @@ namespace banggame {
         case card_pile_type::player_hand:
             switch (card_ptr->color) {
             case card_color_type::brown:
-                verify_modifiers(card_ptr, modifiers);
-                verify_card_targets(card_ptr, false, args.targets);
-                play_modifiers(modifiers);
-                do_play_card(card_ptr, false, args.targets);
-                set_last_played_card(card_ptr);
+                if (!modifiers.empty() && modifiers.front()->modifier == card_modifier_type::leevankliff) {
+                    // Hack per usare il raii eliminare il limite di bang
+                    // quando lee van kliff gioca l'effetto del personaggio su una carta bang.
+                    // Se le funzioni di verifica throwano viene chiamato il distruttore
+                    struct banglimit_remover {
+                        int &num;
+                        banglimit_remover(int &num) : num(num) { ++num; }
+                        ~banglimit_remover() { --num; }
+                    } _banglimit_remover{m_infinite_bangs};
+                    verify_card_targets(m_last_played_card, false, args.targets);
+                    m_game->move_to(card_ptr, card_pile_type::discard_pile);
+                    m_game->queue_event<event_type::on_play_hand_card>(this, card_ptr);
+                    do_play_card(m_last_played_card, false, args.targets);
+                    set_last_played_card(nullptr);
+                } else {
+                    verify_modifiers(card_ptr, modifiers);
+                    verify_card_targets(card_ptr, false, args.targets);
+                    play_modifiers(modifiers);
+                    do_play_card(card_ptr, false, args.targets);
+                    set_last_played_card(card_ptr);
+                }
                 break;
             case card_color_type::blue: {
                 if (m_game->has_scenario(scenario_flags::judge)) throw game_error("ERROR_CANT_EQUIP_CARDS");
@@ -660,12 +662,7 @@ namespace banggame {
                 throw game_error("ERROR_NOT_ENOUGH_GOLD");
             }
         }
-        case card_pile_type::scenario_card: {
-            verify_card_targets(card_ptr, false, args.targets);
-            do_play_card(card_ptr, false, args.targets);
-            set_last_played_card(nullptr);
-            break;
-        }
+        case card_pile_type::scenario_card:
         case card_pile_type::specials:
             verify_card_targets(card_ptr, false, args.targets);
             do_play_card(card_ptr, false, args.targets);
@@ -687,7 +684,11 @@ namespace banggame {
         switch (card_ptr->pile) {
         case card_pile_type::player_character:
             if (m_game->characters_disabled(this)) throw game_error("ERROR_CHARACTERS_ARE_DISABLED");
-            m_game->add_log("LOG_RESPONDED_WITH_CARD", card_ptr, this);
+            if (card_ptr->responses.front().is(effect_type::drawing)) {
+                m_game->add_log("LOG_DRAWN_WITH_CHARACTER", card_ptr, this);
+            } else {
+                m_game->add_log("LOG_RESPONDED_WITH_CARD", card_ptr, this);
+            }
             break;
         case card_pile_type::player_table:
             if (m_game->table_cards_disabled(this)) throw game_error("ERROR_TABLE_CARDS_ARE_DISABLED");

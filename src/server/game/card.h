@@ -68,7 +68,7 @@ namespace banggame {
         std::vector<card> wildwestshow;
     };
 
-    extern const all_cards_t all_cards;
+    all_cards_t make_all_cards();
 
 }
 

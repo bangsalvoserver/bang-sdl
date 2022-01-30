@@ -9,6 +9,9 @@
 using namespace banggame;
 using namespace enums::flag_operators;
 
+game_manager::game_manager()
+    : all_cards(make_all_cards()) {}
+
 void game_manager::parse_message(const sdlnet::ip_address &addr, const std::vector<std::byte> &bytes) {
     try {
         auto msg = binary::deserialize<client_message>(bytes);
@@ -272,7 +275,7 @@ void game_manager::handle_message(MESSAGE_TAG(game_start), const sdlnet::ip_addr
 
     broadcast_message<server_message_type::game_started>(*it, it->expansions | card_expansion_type::base);
 
-    it->start_game();
+    it->start_game(all_cards);
 }
 
 void game_manager::handle_message(MESSAGE_TAG(game_action), const sdlnet::ip_address &addr, const game_action &value) {
@@ -315,7 +318,7 @@ void lobby::send_updates(game_manager &mgr) {
     }
 }
 
-void lobby::start_game() {
+void lobby::start_game(const banggame::all_cards_t &all_cards) {
     game = {};
 
     game_options opts;
@@ -335,5 +338,5 @@ void lobby::start_game() {
         ++it;
     }
 
-    game.start_game(opts);
+    game.start_game(opts, all_cards);
 }
