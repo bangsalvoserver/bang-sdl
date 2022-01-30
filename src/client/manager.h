@@ -50,13 +50,10 @@ public:
 
     template<scene_type E>
     auto *switch_scene() {
-        if (m_scene) {
-            delete m_scene;
-        }
-        auto *scene = new enums::enum_type_t<E>(this);
-        scene->resize(m_width, m_height);
-        m_scene = scene;
-        return scene;
+        using type = enums::enum_type_t<E>;
+        m_scene = std::make_unique<type>(this);
+        m_scene->resize(m_width, m_height);
+        return static_cast<type *>(m_scene.get());
     }
 
     config &get_config() {
@@ -93,7 +90,7 @@ private:
     void handle_message(MESSAGE_TAG(game_started), const game_started_args &args);
     void handle_message(MESSAGE_TAG(game_update), const banggame::game_update &args);
 
-    scene_base *m_scene = nullptr;
+    std::unique_ptr<scene_base> m_scene;
 
     std::list<client_message> m_out_queue;
 

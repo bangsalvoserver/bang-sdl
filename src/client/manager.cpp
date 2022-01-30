@@ -18,9 +18,6 @@ game_manager::game_manager(const std::string &config_filename)
 }
 
 game_manager::~game_manager() {
-    if (m_scene) {
-        delete m_scene;
-    }
     m_config.save();
 }
 
