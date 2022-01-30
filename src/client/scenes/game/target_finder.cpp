@@ -68,10 +68,12 @@ void target_finder::render(sdl::renderer &renderer) {
 }
 
 bool target_finder::can_confirm() const {
-    if (m_playing_card && !m_equipping && !get_optional_targets().empty()) {
-        if ((m_targets.size() - get_current_card_targets().size()) % get_optional_targets().size() == 0) {
-            return true;
-        }
+    if (m_playing_card && !m_equipping) {
+        const int ntargets = get_current_card_targets().size();
+        const int noptionals = get_optional_targets().size();
+        return noptionals != 0
+            && m_targets.size() >= ntargets
+            && ((m_targets.size() - ntargets) % noptionals == 0);
     }
     return false;
 }

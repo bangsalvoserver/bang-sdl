@@ -271,7 +271,7 @@ namespace banggame {
 
         int diff = targets.size() - effects.size();
         if (!card_ptr->optionals.empty() && card_ptr->optionals.back().is(effect_type::repeatable)) {
-            if (diff % card_ptr->optionals.size() != 0) throw game_error("ERROR_INVALID_TARGETS");
+            if (diff < 0 || diff % card_ptr->optionals.size() != 0) throw game_error("ERROR_INVALID_TARGETS");
         } else {
             if (diff != 0 && diff != card_ptr->optionals.size()) throw game_error("ERROR_INVALID_TARGETS");
         }
