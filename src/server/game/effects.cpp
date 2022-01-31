@@ -634,8 +634,7 @@ namespace banggame {
 
     void effect_thunderer::on_play(card *origin_card, player *origin) {
         origin->add_bang_mod([=](request_bang &req) {
-            req.cleanup_function = [=]{
-                card *bang_card = origin->m_chosen_card ? origin->m_chosen_card : req.origin_card;
+            req.cleanup_function = [origin, bang_card = origin->m_chosen_card ? origin->m_chosen_card : req.origin_card] {
                 origin->add_to_hand(bang_card);
             };
         });
