@@ -46,6 +46,7 @@ set(bangserver_srcs
     src/server/game/equips.cpp
     src/server/game/characters.cpp
     src/server/game/game.cpp
+    src/server/game/game2.cpp
     src/server/game/make_all_cards.cpp
     src/server/game/player.cpp
     src/server/game/requests.cpp

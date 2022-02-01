@@ -171,6 +171,7 @@ namespace banggame {
         (abandonedmine, effect_abandonedmine)
         (deadman,       effect_deadman)
         (fistfulofcards, effect_fistfulofcards)
+        (packmule,      effect_packmule)
     )
 
     namespace detail {

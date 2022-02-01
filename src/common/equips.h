@@ -107,6 +107,10 @@ namespace banggame {
         void on_play(card *origin_card, player *target);
     };
 
+    struct effect_packmule : event_based_effect {
+        void on_equip(player *target, card *target_card);
+    };
+
 }
 
 #endif

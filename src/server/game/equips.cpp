@@ -239,4 +239,12 @@ namespace banggame {
             }
         });
     }
+
+    void effect_packmule::on_equip(player *p, card *target_card) {
+        p->m_game->add_event<event_type::apply_maxcards_modifier>(target_card, [p](player *origin, int &value) {
+            if (origin == p) {
+                ++value;
+            }
+        });
+    }
 }

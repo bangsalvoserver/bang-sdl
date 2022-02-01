@@ -101,9 +101,7 @@ namespace banggame {
             return m_initial_cards == 0 ? m_max_hp : m_initial_cards;
         }
 
-        int max_cards_end_of_turn() const {
-            return m_max_cards_mods.empty() ? m_hp : std::ranges::min(m_max_cards_mods);
-        }
+        int max_cards_end_of_turn();
 
         bool alive() const;
 

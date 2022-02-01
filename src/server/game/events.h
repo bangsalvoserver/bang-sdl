@@ -20,6 +20,7 @@ namespace banggame {
         (apply_suit_modifier, std::function<void(card_suit_type &)>)
         (apply_value_modifier, std::function<void(card_value_type &)>)
         (apply_beer_modifier, std::function<void(player *origin, int &value)>)
+        (apply_maxcards_modifier, std::function<void(player *origin, int &value)>)
         (verify_missedcard, std::function<void(player *origin, card *target_card)>)
         (on_discard_card,   std::function<void(player *origin, player *target, card *target_card)>)
         (on_hit,            std::function<void(card *origin_card, player *origin, player *target, int damage, bool is_bang)>)

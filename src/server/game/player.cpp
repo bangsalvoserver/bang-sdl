@@ -26,6 +26,12 @@ namespace banggame {
         m_game->move_to(target, card_pile_type::player_table, true, this, show_card_flags::show_everyone);
     }
 
+    int player::max_cards_end_of_turn() {
+        int n = m_max_cards_mods.empty() ? m_hp : std::ranges::min(m_max_cards_mods);
+        m_game->instant_event<event_type::apply_maxcards_modifier>(this, n);
+        return n;
+    }
+
     bool player::alive() const {
         return !check_player_flags(player_flags::dead) || check_player_flags(player_flags::ghost)
             || (m_game->m_playing == this && m_game->has_scenario(scenario_flags::ghosttown));
