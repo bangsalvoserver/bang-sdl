@@ -57,21 +57,21 @@ namespace banggame {
     void request_generalstore::on_pick(card_pile_type pile, player *target_player, card *target_card) {
         auto next = target->m_game->get_next_player(target);
         if (target->m_game->m_selection.size() == 2) {
-            target->m_game->add_log("LOG_DRAWN_FROM_GENERALSTORE", target, target_card);
+            target->m_game->add_log("LOG_DRAWN_FROM_GENERALSTORE", target, target_card, origin_card);
             target->add_to_hand(target_card);
-            target->m_game->add_log("LOG_DRAWN_FROM_GENERALSTORE", next, target->m_game->m_selection.front());
+            target->m_game->add_log("LOG_DRAWN_FROM_GENERALSTORE", next, target->m_game->m_selection.front(), origin_card);
             next->add_to_hand(target->m_game->m_selection.front());
             target->m_game->pop_request(request_type::generalstore);
         } else {
             target->m_game->pop_request_noupdate(request_type::generalstore);
-            target->m_game->add_log("LOG_DRAWN_FROM_GENERALSTORE", target, target_card);
+            target->m_game->add_log("LOG_DRAWN_FROM_GENERALSTORE", target, target_card, origin_card);
             target->add_to_hand(target_card);
             target->m_game->queue_request<request_type::generalstore>(origin_card, origin, next);
         }
     }
 
     game_formatted_string request_generalstore::status_text() const {
-        return "STATUS_GENERALSTORE";
+        return {"STATUS_GENERALSTORE", origin_card};
     }
 
     void request_discard::on_pick(card_pile_type pile, player *target_player, card *target_card) {

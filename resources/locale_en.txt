@@ -33,7 +33,7 @@ STATUS_UNKNOWN_PLAYER               (unknown player)
 STATUS_PREDRAW                      "Draw!" a card before drawing
 STATUS_PREDRAW_FOR                  "Draw!" for {}
 STATUS_CHECK                        Choose which card to "draw!" for {0}
-STATUS_GENERALSTORE                 Draw a card from the general store
+STATUS_GENERALSTORE                 Draw a card for {0}
 STATUS_DISCARD                      Discard a card for {0}
 STATUS_DISCARD_PASS                 Discard a card before passing the turn
 STATUS_BANG                         {0} ... Respond with Mancato or Resolve
@@ -143,7 +143,7 @@ LOG_DISCARDED_SELF_CARD             {0} discards {2}
 LOG_STOLEN_CARD                     {0} steals {2} from {1}
 LOG_STOLEN_SELF_CARD                {0} redraws {1}
 LOG_DRAWN_WITH_CHARACTER            {1} draws using {0}
-LOG_DRAWN_FROM_GENERALSTORE         {0} draws {1} from the general store
+LOG_DRAWN_FROM_GENERALSTORE         {0} draws {1} for {2}
 LOG_PLAYED_CHARACTER                {1} plays {0}'s effect
 LOG_PLAYED_CARD                     {1} plays {0}
 LOG_PLAYED_CARD_ON                  {1} plays {0} on {2}

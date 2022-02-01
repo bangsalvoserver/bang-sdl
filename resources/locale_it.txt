@@ -33,7 +33,7 @@ STATUS_UNKNOWN_PLAYER               (giocatore sconosciuto)
 STATUS_PREDRAW                      Estrai prima di pescare
 STATUS_PREDRAW_FOR                  Estrai per {}
 STATUS_CHECK                        Scegli quale carta estrarre per {0}
-STATUS_GENERALSTORE                 Pesca una carta dall'emporio
+STATUS_GENERALSTORE                 Pesca una carta per {0}
 STATUS_DISCARD                      Scarta una carta per {0}
 STATUS_DISCARD_PASS                 Scarta una carta prima di passare il turno
 STATUS_BANG                         {0} ... Rispondi con Mancato o Risolvi
@@ -143,7 +143,7 @@ LOG_DISCARDED_SELF_CARD             {0} scarta {1}
 LOG_STOLEN_CARD                     {0} ruba {2} da {1}
 LOG_STOLEN_SELF_CARD                {0} ripesca {1}
 LOG_DRAWN_WITH_CHARACTER            {1} pesca usando {0}
-LOG_DRAWN_FROM_GENERALSTORE         {0} pesca {1} dall'emporio
+LOG_DRAWN_FROM_GENERALSTORE         {0} pesca {1} per {2}
 LOG_PLAYED_CHARACTER                {1} gioca l'effetto di {0}
 LOG_PLAYED_CARD                     {1} gioca {0}
 LOG_PLAYED_CARD_ON                  {1} gioca {0} su {2}

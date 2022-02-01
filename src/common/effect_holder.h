@@ -89,6 +89,9 @@ namespace banggame {
         (red_ringo,     effect_red_ringo)
         (al_preacher,   effect_al_preacher)
         (ms_abigail,    effect_ms_abigail)
+        (graverobber,   effect_graverobber)
+        (mirage,        effect_mirage)
+        (disarm,        effect_disarm)
     )
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, equip_type,

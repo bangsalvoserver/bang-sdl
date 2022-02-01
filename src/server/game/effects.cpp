@@ -382,7 +382,7 @@ namespace banggame {
 
     void effect_draw_again_if_needed::on_play(card *origin_card, player *target) {
         target->m_game->queue_event<event_type::delayed_action>([=]{
-            if (target->m_num_drawn_cards < target->m_num_cards_to_draw) {
+            if (target->m_num_drawn_cards < target->m_num_cards_to_draw && target->m_game->m_playing == target) {
                 target->m_game->queue_request<request_type::draw>(target);
             }
         });
@@ -772,5 +772,42 @@ namespace banggame {
 
     void effect_lemat::on_unequip(player *p, card *origin_card) {
         p->remove_player_flags(player_flags::treat_any_as_bang);
+    }
+
+    void effect_graverobber::on_play(card *origin_card, player *origin) {
+        origin->m_game->move_to(origin_card, card_pile_type::selection);
+        for (int i=0; i<origin->m_game->num_alive(); ++i) {
+            if (origin->m_game->m_discards.empty()) {
+                origin->m_game->draw_card_to(card_pile_type::selection);
+            } else {
+                origin->m_game->move_to(origin->m_game->m_discards.back(), card_pile_type::selection);
+            }
+        }
+        origin->m_game->move_to(origin_card, card_pile_type::discard_pile);
+        origin->m_game->queue_request<request_type::generalstore>(origin_card, origin, origin);
+    }
+
+    void effect_mirage::verify(card *origin_card, player *origin) const {
+        if (origin->m_game->m_requests.empty()
+            || origin->m_game->top_request().origin() != origin->m_game->m_playing) {
+            throw game_error("ERROR_CANT_PLAY_CARD", origin_card);
+        }
+    }
+
+    void effect_mirage::on_play(card *origin_card, player *origin) {
+        origin->m_game->get_next_in_turn(origin->m_game->m_playing)->start_of_turn();
+    }
+
+    void effect_disarm::verify(card *origin_card, player *origin) const {
+        if (origin->m_game->m_requests.empty() || !origin->m_game->top_request().origin()) {
+            throw game_error("ERROR_CANT_PLAY_CARD", origin_card);
+        }
+    }
+
+    void effect_disarm::on_play(card *origin_card, player *origin) {
+        player *shooter = origin->m_game->top_request().origin();
+        if (!shooter->m_hand.empty()) {
+            shooter->discard_card(shooter->random_hand_card());
+        }
     }
 }

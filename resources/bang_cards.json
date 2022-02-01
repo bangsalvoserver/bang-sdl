@@ -1866,7 +1866,6 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Tombarolo",
             "signs": [
                 "8P"
@@ -1902,7 +1901,6 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Miraggio",
             "signs": [
                 "8C"
@@ -1954,7 +1952,6 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Disarmare",
             "signs": [
                 "7C"
@@ -1964,10 +1961,10 @@
             "color": "brown",
             "responses": [
                 {
-                    "class": "missed"
+                    "class": "disarm"
                 },
                 {
-                    "class": "disarm"
+                    "class": "missed"
                 }
             ]
         },
@@ -1982,7 +1979,8 @@
             "effects": [
                 {
                     "target": "player reachable notself",
-                    "class": "bang"
+                    "class": "bang",
+                    "escapable": true
                 }
             ]
         },
