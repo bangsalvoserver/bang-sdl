@@ -27,6 +27,11 @@
                 {
                     "class": "dynamite"
                 }
+            ],
+            "responses": [
+                {
+                    "class": "predraw"
+                }
             ]
         },
         {
@@ -75,6 +80,11 @@
                 {
                     "target": "player notsheriff",
                     "class": "jail"
+                }
+            ],
+            "responses": [
+                {
+                    "class": "predraw"
                 }
             ]
         },
@@ -467,6 +477,11 @@
             "equip": [
                 {
                     "class": "dynamite"
+                }
+            ],
+            "responses": [
+                {
+                    "class": "predraw"
                 }
             ]
         },
@@ -1073,6 +1088,11 @@
                     "target": "player",
                     "class": "snake"
                 }
+            ],
+            "responses": [
+                {
+                    "class": "predraw"
+                }
             ]
         },
         {
@@ -1652,6 +1672,11 @@
                     "target": "player",
                     "class": "bomb"
                 }
+            ],
+            "responses": [
+                {
+                    "class": "predraw"
+                }
             ]
         },
         {
@@ -1895,7 +1920,6 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Patto di Sangue",
             "signs": [
                 "JC"
@@ -2149,6 +2173,11 @@
                     "target": "player",
                     "class": "taxman"
                 }
+            ],
+            "responses": [
+                {
+                    "class": "predraw"
+                }
             ]
         },
         {
@@ -2164,6 +2193,11 @@
                 {
                     "target": "player",
                     "class": "brothel"
+                }
+            ],
+            "responses": [
+                {
+                    "class": "predraw"
                 }
             ]
         },
@@ -2954,7 +2988,7 @@
             "responses": [
                 {
                     "target": "self hand missed card",
-                    "class": "destroy"
+                    "class": "choose_card"
                 },
                 {
                     "class": "escape"

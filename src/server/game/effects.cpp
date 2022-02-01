@@ -31,6 +31,27 @@ namespace banggame {
         }, origin->m_game->top_request());
     }
 
+    bool effect_predraw::can_respond(card *origin_card, player *origin) const {
+        if (origin->m_game->top_request_is(request_type::predraw, origin)) {
+            int top_priority = std::ranges::max(origin->m_predraw_checks
+                | std::views::values
+                | std::views::filter(std::not_fn(&player::predraw_check::resolved))
+                | std::views::transform(&player::predraw_check::priority));
+            auto it = origin->m_predraw_checks.find(origin_card);
+            if (it != origin->m_predraw_checks.end()
+                && !it->second.resolved
+                && it->second.priority == top_priority) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    void effect_predraw::on_play(card *origin_card, player *origin) {
+        origin->m_game->pop_request(request_type::predraw);
+        origin->m_game->draw_check_then(origin, origin_card, origin->m_predraw_checks.find(origin_card)->second.check_fun);
+    }
+
     void effect_bang::on_play(card *origin_card, player *origin, player *target) {
         target->m_game->add_log("LOG_PLAYED_CARD_ON", origin_card, origin, target);
         target->m_game->queue_request<request_type::bang>(origin_card, origin, target, flags);

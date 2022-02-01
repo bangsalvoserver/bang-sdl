@@ -7,11 +7,10 @@
 
 namespace banggame {
 
-    struct request_predraw : request_base, allowed_piles<card_pile_type::player_table> {
+    struct request_predraw : request_base {
         request_predraw(player *target)
             : request_base(nullptr, nullptr, target) {}
         
-        void on_pick(card_pile_type pile, player *target, card *target_card);
         game_formatted_string status_text() const;
     };
 

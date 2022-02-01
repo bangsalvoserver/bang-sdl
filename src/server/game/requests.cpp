@@ -6,21 +6,6 @@
 #include "game.h"
 
 namespace banggame {
-    void request_predraw::on_pick(card_pile_type pile, player *target_player, card *target_card) {
-        if (target_player == target) {
-            int top_priority = std::ranges::max(target->m_predraw_checks
-                | std::views::values
-                | std::views::filter(std::not_fn(&player::predraw_check::resolved))
-                | std::views::transform(&player::predraw_check::priority));
-            auto it = target->m_predraw_checks.find(target_card);
-            if (it != target->m_predraw_checks.end()
-                && !it->second.resolved
-                && it->second.priority == top_priority) {
-                target->m_game->pop_request(request_type::predraw);
-                target->m_game->draw_check_then(target, target_card, it->second.check_fun);
-            }
-        }
-    }
 
     void request_draw::on_pick(card_pile_type pile, player *target_player, card *target_card) {
         target->draw_from_deck();
