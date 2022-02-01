@@ -6,6 +6,7 @@
 #include "manager.h"
 
 using namespace std::string_literals;
+using namespace std::placeholders;
 
 bang_server::bang_server()
     : m_sockset(banggame::server_max_clients) {}
@@ -24,6 +25,7 @@ bool bang_server::start() {
 
     m_thread = std::jthread([this](std::stop_token token) {
         game_manager mgr;
+        mgr.set_error_callback(std::bind(&bang_server::print_error, this, _1));
         while(!token.stop_requested()) {
             if (m_sockset.check(0)) {
                 for (auto it = m_clients.begin(); it != m_clients.end();) {
@@ -58,7 +60,7 @@ bool bang_server::start() {
                 auto it = m_clients.find(msg.addr);
                 if (it != m_clients.end()) {
                     try {
-                        send_message_bytes(it->second, msg.value);
+                        send_message_bytes(it->second, binary::serialize(msg.value));
                     } catch (sdlnet::socket_disconnected) {
                         mgr.client_disconnected(it->first);
                         print_message(it->first.ip_string() + " Disconnected"s);

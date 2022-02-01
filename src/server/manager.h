@@ -45,15 +45,17 @@ struct lobby : util::id_counter<lobby> {
 
 struct server_message_pair {
     sdlnet::ip_address addr;
-    std::vector<std::byte> value;
+    server_message value;
 };
 
 template<server_message_type E, typename ... Ts>
-std::vector<std::byte> make_message(Ts && ... args) {
-    return binary::serialize(server_message{enums::enum_constant<E>{}, std::forward<Ts>(args) ...});
+server_message make_message(Ts && ... args) {
+    return server_message{enums::enum_constant<E>{}, std::forward<Ts>(args) ...};
 }
 
 #define MESSAGE_TAG(name) enums::enum_constant<client_message_type::name>
+
+using message_callback_t = std::function<void(const std::string &)>;
 
 class game_manager {
 public:
@@ -80,6 +82,10 @@ public:
 
     void tick();
 
+    void set_error_callback(message_callback_t &&fun) {
+        m_error_callback = std::move(fun);
+    }
+
 private:
     game_user *find_user(const sdlnet::ip_address &addr);
     std::list<lobby>::iterator find_lobby(const game_user *u);
@@ -103,6 +109,12 @@ private:
     std::list<server_message_pair> m_out_queue;
 
     banggame::all_cards_t all_cards;
+
+    message_callback_t m_error_callback;
+
+    void print_error(const std::string &msg) {
+        if (m_error_callback) m_error_callback(msg);
+    }
 };
 
 #endif

@@ -35,6 +35,18 @@ namespace sdl {
             s_handlers.erase(std::ranges::find(s_handlers, this));
         }
 
+        event_handler(const event_handler &) = delete;
+        event_handler(event_handler &&other) {
+            m_enabled = other.m_enabled;
+            s_handlers.push_back(this);
+        }
+
+        event_handler &operator = (const event_handler &) = delete;
+        event_handler &operator = (event_handler &&other) noexcept {
+            m_enabled = other.m_enabled;
+            return *this;
+        }
+
         static bool handle_events(const sdl::event &event) {
             for (auto &h : s_handlers) {
                 if (h->enabled() && h->handle_event(event)) return true;
@@ -67,7 +79,7 @@ namespace sdl {
 
         void disable() noexcept { m_enabled = false; }
         void enable() noexcept { m_enabled = true; }
-        void set_enabled(bool value) { m_enabled = value; }
+        void set_enabled(bool value) noexcept { m_enabled = value; }
         bool enabled() const noexcept { return m_enabled; }
     };
 
