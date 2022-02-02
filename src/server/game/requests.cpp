@@ -99,7 +99,7 @@ namespace banggame {
             target->m_game->add_log("LOG_DISCARDED_SELF_CARD", target, target_card);
             target->m_game->instant_event<event_type::on_discard_pass>(target, target_card);
             if (target->m_game->has_expansion(card_expansion_type::armedanddangerous)) {
-                target->m_game->queue_event<event_type::delayed_action>([target = this->target]{
+                target->m_game->queue_event<event_type::delayed_action>([target = target]{
                     if (target->can_receive_cubes()) {
                         target->m_game->queue_request<request_type::add_cube>(nullptr, target);
                     }
@@ -187,8 +187,10 @@ namespace banggame {
 
     void request_death::on_resolve() {
         target->m_game->player_death(target);
-        target->m_game->check_game_over(target);
         target->m_game->pop_request(request_type::death);
+        target->m_game->queue_event<event_type::delayed_action>([target = target]{
+            target->m_game->check_game_over(target);
+        });
     }
 
     game_formatted_string request_death::status_text() const {

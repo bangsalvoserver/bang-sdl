@@ -66,7 +66,7 @@ namespace banggame {
     void effect_bangcard::on_play(card *origin_card, player *origin, player *target) {
         target->m_game->add_log("LOG_PLAYED_CARD_ON", origin_card, origin, target);
         target->m_game->queue_event<event_type::on_play_bang>(origin);
-        target->m_game->queue_event<event_type::delayed_action>([=, flags = this->flags]{
+        target->m_game->queue_event<event_type::delayed_action>([=, flags = flags]{
             request_bang req{origin_card, origin, target, flags};
             req.is_bang_card = true;
             origin->apply_bang_mods(req);

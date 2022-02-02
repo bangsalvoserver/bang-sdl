@@ -786,14 +786,16 @@ namespace banggame {
         m_game->add_log("LOG_TURN_START", this);
         m_game->queue_event<event_type::pre_turn_start>(this);
         m_game->queue_event<event_type::delayed_action>([&]{
-            if (m_predraw_checks.empty()) {
-                m_game->queue_event<event_type::on_turn_start>(this);
-                m_game->queue_request<request_type::draw>(this);
-            } else {
-                for (auto &[card_id, obj] : m_predraw_checks) {
-                    obj.resolved = false;
+            if (m_game->m_playing == this) {
+                if (m_predraw_checks.empty()) {
+                    m_game->queue_event<event_type::on_turn_start>(this);
+                    m_game->queue_request<request_type::draw>(this);
+                } else {
+                    for (auto &[card_id, obj] : m_predraw_checks) {
+                        obj.resolved = false;
+                    }
+                    m_game->queue_request<request_type::predraw>(this);
                 }
-                m_game->queue_request<request_type::predraw>(this);
             }
         });
     }
@@ -803,12 +805,13 @@ namespace banggame {
             if (auto it = m_predraw_checks.find(target_card); it != m_predraw_checks.end()) {
                 it->second.resolved = true;
             }
-
-            if (std::ranges::all_of(m_predraw_checks | std::views::values, &predraw_check::resolved)) {
-                m_game->queue_event<event_type::on_turn_start>(this);
-                m_game->queue_request<request_type::draw>(this);
-            } else {
-                m_game->queue_request<request_type::predraw>(this);
+            if (m_game->m_playing == this) {
+                if (std::ranges::all_of(m_predraw_checks | std::views::values, &predraw_check::resolved)) {
+                    m_game->queue_event<event_type::on_turn_start>(this);
+                    m_game->queue_request<request_type::draw>(this);
+                } else {
+                    m_game->queue_request<request_type::predraw>(this);
+                }
             }
         });
     }
