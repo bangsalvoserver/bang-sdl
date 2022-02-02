@@ -33,7 +33,7 @@ STATUS_UNKNOWN_PLAYER               (giocatore sconosciuto)
 STATUS_PREDRAW                      Estrai prima di pescare
 STATUS_PREDRAW_FOR                  Estrai per {}
 STATUS_CHECK                        Scegli quale carta estrarre per {0}
-STATUS_GENERALSTORE                 Pesca una carta dall'emporio
+STATUS_GENERALSTORE                 Pesca una carta per {0}
 STATUS_DISCARD                      Scarta una carta per {0}
 STATUS_DISCARD_PASS                 Scarta una carta prima di passare il turno
 STATUS_BANG                         {0} ... Rispondi con Mancato o Risolvi
@@ -68,6 +68,9 @@ STATUS_CAN_PLAY_CARD                Puoi giocare {0}
 STATUS_DAMAGING                     {0} prende un danno per {1}
 STATUS_DAMAGING_PLURAL              {0} prende {2} danni per {1}
 STATUS_CAN_PLAY_TUMBLEWEED          {0} estrae {3} per {2} ... Puoi giocare {1}
+STATUS_CARD_SHARPER                 {0} per scambiare {1} con {2} ... Rispondi con Fuga o Risolvi
+STATUS_LASTWILL                     {0} ... Scegli fino a tre carte da dare
+STATUS_LASTWILL_TARGET              {0} ... Scegli a chi dare le carte
 banggame::player_role::sheriff      Sceriffo
 banggame::player_role::deputy       Vice
 banggame::player_role::outlaw       Fuorilegge
@@ -143,7 +146,7 @@ LOG_DISCARDED_SELF_CARD             {0} scarta {1}
 LOG_STOLEN_CARD                     {0} ruba {2} da {1}
 LOG_STOLEN_SELF_CARD                {0} ripesca {1}
 LOG_DRAWN_WITH_CHARACTER            {1} pesca usando {0}
-LOG_DRAWN_FROM_GENERALSTORE         {0} pesca {1} dall'emporio
+LOG_DRAWN_FROM_GENERALSTORE         {0} pesca {1} per {2}
 LOG_PLAYED_CHARACTER                {1} gioca l'effetto di {0}
 LOG_PLAYED_CARD                     {1} gioca {0}
 LOG_PLAYED_CARD_ON                  {1} gioca {0} su {2}

@@ -1866,7 +1866,6 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Tombarolo",
             "signs": [
                 "8P"
@@ -1881,7 +1880,6 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Baro",
             "signs": [
                 "10F"
@@ -1902,7 +1900,6 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Miraggio",
             "signs": [
                 "8C"
@@ -1939,7 +1936,6 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Sacrificio",
             "signs": [
                 "10C"
@@ -1954,7 +1950,6 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Disarmare",
             "signs": [
                 "7C"
@@ -1964,10 +1959,10 @@
             "color": "brown",
             "responses": [
                 {
-                    "class": "missed"
+                    "class": "disarm"
                 },
                 {
-                    "class": "disarm"
+                    "class": "missed"
                 }
             ]
         },
@@ -1982,7 +1977,8 @@
             "effects": [
                 {
                     "target": "player reachable notself",
-                    "class": "bang"
+                    "class": "bang",
+                    "escapable": true
                 }
             ]
         },
@@ -2114,7 +2110,7 @@
             ]
         },
         {
-            "disabled": true,
+            "discard_if_two_players": true,
             "name": "Ultime Volont\u00e0",
             "signs": [
                 "AP"
@@ -2130,7 +2126,6 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Guida Indiana",
             "signs": [
                 "8F"
@@ -2160,7 +2155,6 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Esattore",
             "signs": [
                 "KF"
@@ -2222,7 +2216,6 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Mulo",
             "signs": [
                 "QP"
@@ -2290,7 +2283,6 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Offre La Casa",
             "signs": [
                 "KC"

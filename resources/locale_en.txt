@@ -33,7 +33,7 @@ STATUS_UNKNOWN_PLAYER               (unknown player)
 STATUS_PREDRAW                      "Draw!" a card before drawing
 STATUS_PREDRAW_FOR                  "Draw!" for {}
 STATUS_CHECK                        Choose which card to "draw!" for {0}
-STATUS_GENERALSTORE                 Draw a card from the general store
+STATUS_GENERALSTORE                 Draw a card for {0}
 STATUS_DISCARD                      Discard a card for {0}
 STATUS_DISCARD_PASS                 Discard a card before passing the turn
 STATUS_BANG                         {0} ... Respond with Mancato or Resolve
@@ -68,6 +68,9 @@ STATUS_CAN_PLAY_CARD                You can play {0}
 STATUS_DAMAGING                     {0} takes 1 damage for {1}
 STATUS_DAMAGING_PLURAL              {0} takes {2} damage for {1}
 STATUS_CAN_PLAY_TUMBLEWEED          {0} "draws!" {3} for {2} ... You can play {1}
+STATUS_CARD_SHARPER                 {0} to switch {1} with {2} ... Respond with Fuga or Resolve
+STATUS_LASTWILL                     {0} ... Choose up to three cards to give
+STATUS_LASTWILL_TARGET              {0} ... Choose who to give the cards
 banggame::player_role::sheriff      Sheriff
 banggame::player_role::deputy       Deputy
 banggame::player_role::outlaw       Outlaw
@@ -143,7 +146,7 @@ LOG_DISCARDED_SELF_CARD             {0} discards {2}
 LOG_STOLEN_CARD                     {0} steals {2} from {1}
 LOG_STOLEN_SELF_CARD                {0} redraws {1}
 LOG_DRAWN_WITH_CHARACTER            {1} draws using {0}
-LOG_DRAWN_FROM_GENERALSTORE         {0} draws {1} from the general store
+LOG_DRAWN_FROM_GENERALSTORE         {0} draws {1} for {2}
 LOG_PLAYED_CHARACTER                {1} plays {0}'s effect
 LOG_PLAYED_CARD                     {1} plays {0}
 LOG_PLAYED_CARD_ON                  {1} plays {0} on {2}

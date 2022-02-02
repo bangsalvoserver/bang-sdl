@@ -89,6 +89,12 @@ namespace banggame {
         (red_ringo,     effect_red_ringo)
         (al_preacher,   effect_al_preacher)
         (ms_abigail,    effect_ms_abigail)
+        (graverobber,   effect_graverobber)
+        (mirage,        effect_mirage)
+        (disarm,        effect_disarm)
+        (card_sharper_choose, effect_card_sharper_choose)
+        (card_sharper_switch, effect_card_sharper_switch)
+        (sacrifice,     effect_sacrifice)
     )
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, equip_type,
@@ -168,6 +174,10 @@ namespace banggame {
         (abandonedmine, effect_abandonedmine)
         (deadman,       effect_deadman)
         (fistfulofcards, effect_fistfulofcards)
+        (packmule,      effect_packmule)
+        (indianguide,   effect_indianguide)
+        (taxman,        effect_taxman)
+        (lastwill,      effect_lastwill)
     )
 
     namespace detail {
