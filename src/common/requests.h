@@ -198,7 +198,7 @@ namespace banggame {
 
     struct request_card_sharper : request_base {
         request_card_sharper(card *origin_card, player *origin, player *target, card *chosen_card, card *target_card)
-            : request_base(origin_card, origin, target)
+            : request_base(origin_card, origin, target, effect_flags::escapable)
             , chosen_card(chosen_card)
             , target_card(target_card) {}
 
