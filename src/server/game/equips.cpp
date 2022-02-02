@@ -270,4 +270,12 @@ namespace banggame {
             target->next_predraw_check(target_card);
         });
     }
+
+    void effect_lastwill::on_equip(player *p, card *target_card) {
+        p->m_game->add_event<event_type::on_player_death_priority>(target_card, [=](player *origin, player *target) {
+            if (p == target) {
+                target->m_game->queue_request<request_type::lastwill>(target_card, target);
+            }
+        });
+    }
 }

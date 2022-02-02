@@ -177,6 +177,7 @@ namespace banggame {
         (packmule,      effect_packmule)
         (indianguide,   effect_indianguide)
         (taxman,        effect_taxman)
+        (lastwill,      effect_lastwill)
     )
 
     namespace detail {

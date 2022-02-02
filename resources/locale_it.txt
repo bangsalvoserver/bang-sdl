@@ -69,6 +69,8 @@ STATUS_DAMAGING                     {0} prende un danno per {1}
 STATUS_DAMAGING_PLURAL              {0} prende {2} danni per {1}
 STATUS_CAN_PLAY_TUMBLEWEED          {0} estrae {3} per {2} ... Puoi giocare {1}
 STATUS_CARD_SHARPER                 {0} per scambiare {1} con {2} ... Rispondi con Fuga o Risolvi
+STATUS_LASTWILL                     {0} ... Scegli fino a tre carte da dare
+STATUS_LASTWILL_TARGET              {0} ... Scegli a chi dare le carte
 banggame::player_role::sheriff      Sceriffo
 banggame::player_role::deputy       Vice
 banggame::player_role::outlaw       Fuorilegge

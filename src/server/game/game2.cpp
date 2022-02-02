@@ -7,6 +7,41 @@
 
 namespace banggame {
 
+    void game::send_request_respond() {
+        const auto &req = top_request();
+        for (auto &p : m_players) {
+            add_private_update<game_update_type::request_respond>(&p, [&]{
+                std::vector<int> ids;
+                if (!req.target() || req.target() == &p) {
+                    auto add_ids_for = [&](auto &&cards) {
+                        for (card *c : cards) {
+                            if (std::ranges::any_of(c->responses, [&](const effect_holder &e) {
+                                return e.can_respond(c, &p);
+                            })) ids.push_back(c->id);
+                        }
+                    };
+                    add_ids_for(p.m_hand | std::views::filter([](card *c) { return c->color == card_color_type::brown; }));
+                    if (!table_cards_disabled(&p)) add_ids_for(p.m_table | std::views::filter(std::not_fn(&card::inactive)));
+                    if (!characters_disabled(&p)) add_ids_for(p.m_characters);
+                    add_ids_for(m_specials);
+                }
+                return ids;
+            }());
+        }
+    }
+
+    void game::send_request_update() {
+        const auto &req = top_request();
+        add_public_update<game_update_type::request_status>(
+            req.enum_index(),
+            req.origin() ? req.origin()->id : 0,
+            req.target() ? req.target()->id : 0,
+            req.flags(),
+            req.status_text()
+        );
+        send_request_respond();
+    }
+
     std::vector<card *> &game::get_pile(card_pile_type pile, player *owner) {
         switch (pile) {
         case card_pile_type::player_hand:       return owner->m_hand;
@@ -237,14 +272,17 @@ namespace banggame {
 
         if (!m_first_dead) m_first_dead = target;
 
-        instant_event<event_type::on_player_death>(m_playing, target);
-        
-        target->discard_all();
-        target->add_gold(-target->m_gold);
-        add_log("LOG_PLAYER_DIED", target);
+        queue_event<event_type::on_player_death_priority>(m_playing, target);
+        queue_event<event_type::delayed_action>([=, this]{
+            instant_event<event_type::on_player_death>(m_playing, target);
 
-        add_public_update<game_update_type::player_hp>(target->id, 0, true);
-        add_public_update<game_update_type::player_show_role>(target->id, target->m_role);
+            target->discard_all();
+            target->add_gold(-target->m_gold);
+            add_log("LOG_PLAYER_DIED", target);
+
+            add_public_update<game_update_type::player_hp>(target->id, 0, true);
+            add_public_update<game_update_type::player_show_role>(target->id, target->m_role);
+        });
     }
 
     void game::disable_table_cards() {

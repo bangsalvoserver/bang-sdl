@@ -49,41 +49,6 @@ namespace banggame {
         }
     }
 
-    void game::send_request_respond() {
-        const auto &req = top_request();
-        for (auto &p : m_players) {
-            add_private_update<game_update_type::request_respond>(&p, [&]{
-                std::vector<int> ids;
-                if (!req.target() || req.target() == &p) {
-                    auto add_ids_for = [&](auto &&cards) {
-                        for (card *c : cards) {
-                            if (std::ranges::any_of(c->responses, [&](const effect_holder &e) {
-                                return e.can_respond(c, &p);
-                            })) ids.push_back(c->id);
-                        }
-                    };
-                    add_ids_for(p.m_hand | std::views::filter([](card *c) { return c->color == card_color_type::brown; }));
-                    if (!table_cards_disabled(&p)) add_ids_for(p.m_table | std::views::filter(std::not_fn(&card::inactive)));
-                    if (!characters_disabled(&p)) add_ids_for(p.m_characters);
-                    add_ids_for(m_specials);
-                }
-                return ids;
-            }());
-        }
-    }
-
-    void game::send_request_update() {
-        const auto &req = top_request();
-        add_public_update<game_update_type::request_status>(
-            req.enum_index(),
-            req.origin() ? req.origin()->id : 0,
-            req.target() ? req.target()->id : 0,
-            req.flags(),
-            req.status_text()
-        );
-        send_request_respond();
-    }
-
     void game::send_character_update(const character &c, int player_id, int index) {
         player_character_update obj;
         obj.info = make_card_info(c);

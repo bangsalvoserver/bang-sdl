@@ -119,6 +119,10 @@ namespace banggame {
         void on_equip(player *target, card *target_card);
     };
 
+    struct effect_lastwill : event_based_effect {
+        void on_equip(player *target, card *target_card);
+    };
+
 }
 
 #endif

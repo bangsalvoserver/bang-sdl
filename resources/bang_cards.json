@@ -2110,7 +2110,7 @@
             ]
         },
         {
-            "disabled": true,
+            "discard_if_two_players": true,
             "name": "Ultime Volont\u00e0",
             "signs": [
                 "AP"
