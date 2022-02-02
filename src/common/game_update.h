@@ -2,8 +2,8 @@
 #define __GAME_UPDATE_H__
 
 #include "card_enums.h"
+#include "effect_holder.h"
 #include "requests.h"
-#include "timer.h"
 
 namespace banggame {
 

@@ -4,9 +4,8 @@
 #include <concepts>
 
 #include "effects.h"
-#include "equips.h"
 #include "characters.h"
-#include "scenarios.h"
+#include "effects/scenarios.h"
 
 namespace banggame {
 

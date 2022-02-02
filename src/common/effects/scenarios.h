@@ -1,21 +1,9 @@
 #ifndef __SCENARIOS_H__
 #define __SCENARIOS_H__
 
-#include "effects.h"
-#include "equips.h"
+#include "card_effect.h"
 
 namespace banggame {
-    DEFINE_ENUM_FLAGS_IN_NS(banggame, scenario_flags,
-        (invert_rotation) // inverti giro
-        (reverend) // annulla birra
-        (hangover) // annulla personaggio
-        (sermon) // annulla bang
-        (ghosttown) // citta' fantasma
-        (lasso) // annulla carte in gioco
-        (judge) // non si puo' equipaggiare
-        (abandonedmine) // fase 1 : pesca dagli scarti, fase 3 : scarta coperto nel mazzo
-        (deadman) // il primo morto ritorna in vita con 2 carte e 2 hp nel suo turno
-    )
 
     struct scenario_effect : card_effect {
         void on_unequip(player *target, card *target_card) {}
@@ -143,6 +131,18 @@ namespace banggame {
 
     struct effect_deadman : scenario_effect {
         void on_equip(player *target, card *target_card);
+    };
+
+    struct effect_startofturn : effect_empty {
+        void verify(card *origin_card, player *origin) const;
+    };
+
+    struct effect_sniper : card_effect {
+        void on_play(card *origin_card, player *origin, player *target);
+    };
+
+    struct effect_ricochet : card_effect {
+        void on_play(card *origin_card, player *origin, player *target, card *target_card);
     };
 }
 

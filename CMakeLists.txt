@@ -40,17 +40,33 @@ set(bangclient_srcs
 set(bangserver_srcs
     src/server/server.cpp
     src/server/manager.cpp
+    src/server/game/effects/characters_armedanddangerous.cpp
+    src/server/game/effects/characters_base.cpp
+    src/server/game/effects/characters_dodgecity.cpp
+    src/server/game/effects/characters_goldrush.cpp
+    src/server/game/effects/characters_valleyofshadows.cpp
+    src/server/game/effects/characters_wildwestshow.cpp
+    src/server/game/effects/effects_armedanddangerous.cpp
+    src/server/game/effects/effects_base.cpp
+    src/server/game/effects/effects_canyondiablo.cpp
+    src/server/game/effects/effects_goldrush.cpp
+    src/server/game/effects/effects_valleyofshadows.cpp
+    src/server/game/effects/equips_armedanddangerous.cpp
+    src/server/game/effects/equips_base.cpp
+    src/server/game/effects/equips_canyondiablo.cpp
+    src/server/game/effects/equips_goldrush.cpp
+    src/server/game/effects/equips_valleyofshadows.cpp
+    src/server/game/effects/requests_armedanddangerous.cpp
+    src/server/game/effects/requests_base.cpp
+    src/server/game/effects/requests_canyondiablo.cpp
+    src/server/game/effects/requests_valleyofshadows.cpp
+    src/server/game/effects/scenarios.cpp
     src/server/game/effect_holder.cpp
-    src/server/game/effects.cpp
     src/server/game/events.cpp
-    src/server/game/equips.cpp
-    src/server/game/characters.cpp
     src/server/game/game.cpp
     src/server/game/game2.cpp
     src/server/game/make_all_cards.cpp
     src/server/game/player.cpp
-    src/server/game/requests.cpp
-    src/server/game/scenarios.cpp
 )
 
 include_directories(src)

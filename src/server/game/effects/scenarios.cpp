@@ -1,10 +1,29 @@
-#include "common/scenarios.h"
+#include "common/effects/scenarios.h"
 
-#include "player.h"
-#include "game.h"
+#include "../game.h"
 
 namespace banggame {
     using namespace enums::flag_operators;
+
+    void effect_startofturn::verify(card *origin_card, player *origin) const {
+        if (!origin->check_player_flags(player_flags::start_of_turn)) {
+            throw game_error("ERROR_NOT_START_OF_TURN");
+        }
+    }
+
+    void effect_sniper::on_play(card *origin_card, player *origin, player *target) {
+        request_bang req{origin_card, origin, target, flags};
+        req.bang_strength = 2;
+        target->m_game->queue_request(std::move(req));
+    }
+
+    void effect_ricochet::on_play(card *origin_card, player *origin, player *target, card *target_card) {
+        target->m_game->queue_request<request_type::ricochet>(origin_card, origin, target, target_card, flags);
+    }
+
+    game_formatted_string request_ricochet::status_text() const {
+        return {"STATUS_RICOCHET", origin_card, target_card};
+    }
 
     void effect_blessing::on_equip(player *target, card *target_card) {
         target->m_game->add_event<event_type::apply_suit_modifier>(target_card, [](card_suit_type &suit) {

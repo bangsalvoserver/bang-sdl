@@ -14,7 +14,6 @@
 
 #include "common/net_enums.h"
 #include "common/requests.h"
-#include "common/timer.h"
 #include "formatter.h"
 
 namespace banggame {
@@ -32,6 +31,18 @@ namespace banggame {
     };
 
     #define ACTION_TAG(name) enums::enum_constant<game_action_type::name>
+    
+    DEFINE_ENUM_FLAGS_IN_NS(banggame, scenario_flags,
+        (invert_rotation) // inverti giro
+        (reverend) // annulla birra
+        (hangover) // annulla personaggio
+        (sermon) // annulla bang
+        (ghosttown) // citta' fantasma
+        (lasso) // annulla carte in gioco
+        (judge) // non si puo' equipaggiare
+        (abandonedmine) // fase 1 : pesca dagli scarti, fase 3 : scarta coperto nel mazzo
+        (deadman) // il primo morto ritorna in vita con 2 carte e 2 hp nel suo turno
+    )
 
     struct game : event_handler_map {
         std::list<std::pair<player *, game_update>> m_updates;
