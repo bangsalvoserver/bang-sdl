@@ -83,7 +83,8 @@ namespace banggame {
 
     void player::damage(card *origin_card, player *source, int value, bool is_bang) {
         if (!check_player_flags(player_flags::ghost) && !(m_hp == 0 && m_game->has_scenario(scenario_flags::ghosttown))) {
-            if (m_game->has_expansion(card_expansion_type::valleyofshadows)) {
+            if (m_game->has_expansion(card_expansion_type::valleyofshadows)
+                || m_game->has_expansion(card_expansion_type::canyondiablo)) {
                 m_game->queue_request<request_type::damaging>(origin_card, source, this, value, is_bang);
             } else {
                 do_damage(origin_card, source, value, is_bang);

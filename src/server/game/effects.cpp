@@ -811,16 +811,16 @@ namespace banggame {
         }
     }
 
-    void effect_card_sharper_choose::verify(card *origin_card, player *origin, player *target, card *target_card) {
+    void effect_card_sharper_choose::verify(card *origin_card, player *origin, player *target, card *target_card) const {
         // hack che crea e ricrea l'evento solo per archiviare chosen_card
-        on_play(origin_card, origin, target, target_card);
+        origin->m_game->add_event<event_type::on_play_card_end>(origin_card, card_sharper_handler{origin_card, origin, nullptr, target_card, nullptr});
     }
 
     void effect_card_sharper_choose::on_play(card *origin_card, player *origin, player *target, card *target_card) {
         origin->m_game->add_event<event_type::on_play_card_end>(origin_card, card_sharper_handler{origin_card, origin, nullptr, target_card, nullptr});
     }
 
-    void effect_card_sharper_switch::verify(card *origin_card, player *origin, player *target, card *target_card) {
+    void effect_card_sharper_switch::verify(card *origin_card, player *origin, player *target, card *target_card) const {
         auto *chosen_card = origin->m_game->m_event_handlers.find(origin_card)->second
             .get<event_type::on_play_card_end>().target<card_sharper_handler>()->chosen_card;
         origin->m_game->remove_events(origin_card);
@@ -860,5 +860,32 @@ namespace banggame {
             chosen_card->on_unequip(origin);
         }
         target->equip_card(chosen_card);
+    }
+
+    bool effect_sacrifice::can_respond(card *origin_card, player *origin) const {
+        if (origin->m_game->top_request_is(request_type::damaging)) {
+            auto &req = origin->m_game->top_request().get<request_type::damaging>();
+            return req.origin != origin;
+        }
+        return false;
+    }
+
+    void effect_sacrifice::on_play(card *origin_card, player *origin) {
+        auto &req = origin->m_game->top_request().get<request_type::damaging>();
+        player *saved = req.origin;
+        bool fatal = saved->m_hp <= req.damage;
+        if (0 == --req.damage) {
+            origin->m_game->pop_request(request_type::damaging);
+        }
+        origin->damage(origin_card, origin, 1);
+        origin->m_game->queue_event<event_type::delayed_action>([=]{
+            if (origin->alive()) {
+                origin->m_game->draw_card_to(card_pile_type::player_hand, origin);
+                origin->m_game->draw_card_to(card_pile_type::player_hand, origin);
+                if (fatal) {
+                    origin->m_game->draw_card_to(card_pile_type::player_hand, origin);
+                }
+            }
+        });
     }
 }

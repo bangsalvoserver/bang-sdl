@@ -94,6 +94,7 @@ namespace banggame {
         (disarm,        effect_disarm)
         (card_sharper_choose, effect_card_sharper_choose)
         (card_sharper_switch, effect_card_sharper_switch)
+        (sacrifice,     effect_sacrifice)
     )
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, equip_type,
