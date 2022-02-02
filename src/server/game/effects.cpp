@@ -799,6 +799,7 @@ namespace banggame {
     }
 
     void effect_mirage::on_play(card *origin_card, player *origin) {
+        origin->m_game->m_playing->untap_inactive_cards();
         origin->m_game->get_next_in_turn(origin->m_game->m_playing)->start_of_turn();
     }
 

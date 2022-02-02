@@ -831,14 +831,17 @@ namespace banggame {
         }
     }
 
-    void player::end_of_turn(player *next_player) {
+    void player::untap_inactive_cards() {
         for (card *c : m_table) {
             if (c->inactive) {
                 c->inactive = false;
                 m_game->add_public_update<game_update_type::tap_card>(c->id, false);
             }
         }
-        
+    }
+
+    void player::end_of_turn(player *next_player) {
+        untap_inactive_cards();
         m_current_card_targets.clear();
 
         m_game->m_ignore_next_turn = false;

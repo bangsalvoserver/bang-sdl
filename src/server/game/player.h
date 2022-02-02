@@ -165,6 +165,8 @@ namespace banggame {
         bool check_player_flags(player_flags flags) const;
 
         int count_cubes() const;
+
+        void untap_inactive_cards();
     };
 
 }
