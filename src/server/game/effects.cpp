@@ -810,4 +810,55 @@ namespace banggame {
             shooter->discard_card(shooter->random_hand_card());
         }
     }
+
+    void effect_card_sharper_choose::verify(card *origin_card, player *origin, player *target, card *target_card) {
+        // hack che crea e ricrea l'evento solo per archiviare chosen_card
+        on_play(origin_card, origin, target, target_card);
+    }
+
+    void effect_card_sharper_choose::on_play(card *origin_card, player *origin, player *target, card *target_card) {
+        origin->m_game->add_event<event_type::on_play_card_end>(origin_card, card_sharper_handler{origin_card, origin, nullptr, target_card, nullptr});
+    }
+
+    void effect_card_sharper_switch::verify(card *origin_card, player *origin, player *target, card *target_card) {
+        auto *chosen_card = origin->m_game->m_event_handlers.find(origin_card)->second
+            .get<event_type::on_play_card_end>().target<card_sharper_handler>()->chosen_card;
+        origin->m_game->remove_events(origin_card);
+        
+        if (auto *c = origin->find_equipped_card(target_card)) {
+            throw game_error("ERROR_DUPLICATED_CARD", c);
+        }
+        if (auto *c = target->find_equipped_card(chosen_card)) {
+            throw game_error("ERROR_DUPLICATED_CARD", c);
+        }
+    }
+
+    void effect_card_sharper_switch::on_play(card *origin_card, player *origin, player *target, card *target_card) {
+        auto *handler = origin->m_game->m_event_handlers.find(origin_card)->second
+            .get<event_type::on_play_card_end>().target<card_sharper_handler>();
+        handler->target = target;
+        handler->target_card = target_card;
+    }
+
+    void card_sharper_handler::operator()(player *p, card *c) {
+        if (p == origin && c == origin_card) {
+            if (target->can_escape(origin, origin_card, effect_flags::escapable)) {
+                origin->m_game->queue_request<request_type::card_sharper>(origin_card, origin, target, chosen_card, target_card);
+            } else {
+                on_resolve();
+            }
+            p->m_game->remove_events(origin_card);
+        }
+    }
+
+    void card_sharper_handler::on_resolve() {
+        if (!origin->m_game->table_cards_disabled(target)) {
+            target_card->on_unequip(target);
+        }
+        origin->equip_card(target_card);
+        if (chosen_card->owner == origin && !origin->m_game->table_cards_disabled(origin)) {
+            chosen_card->on_unequip(origin);
+        }
+        target->equip_card(chosen_card);
+    }
 }

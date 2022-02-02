@@ -339,6 +339,27 @@ namespace banggame {
         void on_play(card *origin_card, player *origin);
     };
 
+    struct card_sharper_handler {
+        card *origin_card;
+        player *origin;
+        player *target;
+        card *chosen_card;
+        card *target_card;
+
+        void operator()(player *p, card *c);
+        void on_resolve();
+    };
+
+    struct effect_card_sharper_choose : card_effect {
+        void verify(card *origin_card, player *origin, player *target, card *target_card);
+        void on_play(card *origin_card, player *origin, player *target, card *target_card);
+    };
+
+    struct effect_card_sharper_switch : card_effect {
+        void verify(card *origin_card, player *origin, player *target, card *target_card);
+        void on_play(card *origin_card, player *origin, player *target, card *target_card);
+    };
+
 }
 
 #endif

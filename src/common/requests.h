@@ -196,6 +196,19 @@ namespace banggame {
         game_formatted_string status_text() const;
     };
 
+    struct request_card_sharper : request_base {
+        request_card_sharper(card *origin_card, player *origin, player *target, card *chosen_card, card *target_card)
+            : request_base(origin_card, origin, target)
+            , chosen_card(chosen_card)
+            , target_card(target_card) {}
+
+        card *chosen_card;
+        card *target_card;
+
+        void on_resolve();
+        game_formatted_string status_text() const;
+    };
+
     struct request_ricochet : request_destroy {
         using request_destroy::request_destroy;
 
@@ -225,6 +238,7 @@ namespace banggame {
         (add_cube,      request_add_cube)
         (move_bomb,     request_move_bomb)
         (rust,          request_rust)
+        (card_sharper,  request_card_sharper)
         (ricochet,      request_ricochet)
         (peyote,        request_peyote)
         (handcuffs,     request_handcuffs)

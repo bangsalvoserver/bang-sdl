@@ -343,6 +343,16 @@ namespace banggame {
         return {"STATUS_RUST", origin_card};
     }
 
+    void request_card_sharper::on_resolve() {
+        target->m_game->pop_request(request_type::card_sharper);
+        
+        card_sharper_handler{origin_card, origin, target, chosen_card, target_card}.on_resolve();
+    }
+
+    game_formatted_string request_card_sharper::status_text() const {
+        return {"STATUS_CARD_SHARPER", origin_card, target_card, chosen_card};
+    }
+
     game_formatted_string request_shopchoice::status_text() const {
         return {"STATUS_SHOPCHOICE", origin_card};
     }

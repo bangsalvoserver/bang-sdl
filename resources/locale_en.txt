@@ -68,6 +68,7 @@ STATUS_CAN_PLAY_CARD                You can play {0}
 STATUS_DAMAGING                     {0} takes 1 damage for {1}
 STATUS_DAMAGING_PLURAL              {0} takes {2} damage for {1}
 STATUS_CAN_PLAY_TUMBLEWEED          {0} "draws!" {3} for {2} ... You can play {1}
+STATUS_CARD_SHARPER                 {0} to switch {1} with {2} ... Respond with Fuga or Resolve
 banggame::player_role::sheriff      Sheriff
 banggame::player_role::deputy       Deputy
 banggame::player_role::outlaw       Outlaw

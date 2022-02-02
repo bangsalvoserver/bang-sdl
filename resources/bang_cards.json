@@ -1880,7 +1880,6 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Baro",
             "signs": [
                 "10F"

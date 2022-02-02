@@ -92,6 +92,8 @@ namespace banggame {
         (graverobber,   effect_graverobber)
         (mirage,        effect_mirage)
         (disarm,        effect_disarm)
+        (card_sharper_choose, effect_card_sharper_choose)
+        (card_sharper_switch, effect_card_sharper_switch)
     )
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, equip_type,
