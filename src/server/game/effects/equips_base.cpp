@@ -4,7 +4,6 @@
 
 namespace banggame {
 
-    
     void event_based_effect::on_unequip(player *target, card *target_card) {
         target->m_game->remove_events(target_card);
     }
