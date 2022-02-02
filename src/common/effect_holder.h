@@ -175,6 +175,8 @@ namespace banggame {
         (deadman,       effect_deadman)
         (fistfulofcards, effect_fistfulofcards)
         (packmule,      effect_packmule)
+        (indianguide,   effect_indianguide)
+        (taxman,        effect_taxman)
     )
 
     namespace detail {

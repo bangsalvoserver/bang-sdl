@@ -2126,7 +2126,6 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Guida Indiana",
             "signs": [
                 "8F"
@@ -2156,7 +2155,6 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Esattore",
             "signs": [
                 "KF"

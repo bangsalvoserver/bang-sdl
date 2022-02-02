@@ -111,6 +111,14 @@ namespace banggame {
         void on_equip(player *target, card *target_card);
     };
 
+    struct effect_indianguide : event_based_effect {
+        void on_equip(player *target, card *target_card);
+    };
+
+    struct effect_taxman : predraw_check_effect {
+        void on_equip(player *target, card *target_card);
+    };
+
 }
 
 #endif

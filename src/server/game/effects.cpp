@@ -144,8 +144,12 @@ namespace banggame {
     }
 
     void effect_indians::on_play(card *origin_card, player *origin, player *target) {
-        target->m_game->add_log("LOG_PLAYED_CARD_ON", origin_card, origin, target);
-        target->m_game->queue_request<request_type::indians>(origin_card, origin, target, flags);
+        bool immune = false;
+        target->m_game->instant_event<event_type::apply_indianguide_modifier>(target, immune);
+        if (!immune) {
+            target->m_game->add_log("LOG_PLAYED_CARD_ON", origin_card, origin, target);
+            target->m_game->queue_request<request_type::indians>(origin_card, origin, target, flags);
+        }
     }
 
     void effect_duel::on_play(card *origin_card, player *origin, player *target) {
