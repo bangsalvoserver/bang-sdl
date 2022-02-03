@@ -40,6 +40,9 @@ void game_manager::tick() {
             l.game.tick();
         }
         l.send_updates(*this);
+        if (l.state == lobby_state::finished) {
+            send_lobby_update(l);
+        }
     }
 }
 
@@ -239,7 +242,12 @@ void game_manager::handle_message(MESSAGE_TAG(game_start), game_user *user) {
         throw game_error("ERROR_LOBBY_NOT_WAITING");
     }
 
+    if (lobby_ptr->users.size() <= 1) {
+        throw game_error("ERROR_NOT_ENOUGH_PLAYERS");
+    }
+
     lobby_ptr->state = lobby_state::playing;
+    send_lobby_update(*lobby_ptr);
 
     broadcast_message<server_message_type::game_started>(*lobby_ptr, lobby_ptr->expansions | card_expansion_type::base);
 
