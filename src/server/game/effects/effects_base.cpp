@@ -20,12 +20,7 @@ namespace banggame {
     }
     
     void effect_resolve::on_play(card *origin_card, player *origin) {
-        enums::visit_indexed([]<request_type E>(enums::enum_constant<E>, auto &req) {
-            if constexpr (resolvable_request<E>) {
-                auto req_copy = std::move(req);
-                req_copy.on_resolve();
-            }
-        }, origin->m_game->top_request());
+        origin->m_game->top_request().on_resolve();
     }
 
     bool effect_predraw::can_respond(card *origin_card, player *origin) const {

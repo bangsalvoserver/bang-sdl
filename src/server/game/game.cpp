@@ -409,8 +409,8 @@ namespace banggame {
                         }
                     };
                     add_ids_for(p.m_hand | std::views::filter([](card *c) { return c->color == card_color_type::brown; }));
-                    if (!table_cards_disabled(&p)) add_ids_for(p.m_table | std::views::filter(std::not_fn(&card::inactive)));
-                    if (!characters_disabled(&p)) add_ids_for(p.m_characters);
+                    add_ids_for(p.m_table | std::views::filter([&](card *c) { return !c->inactive && !is_disabled(c); }));
+                    add_ids_for(p.m_characters | std::views::filter([&](card *c) { return !is_disabled(c); }));
                     add_ids_for(m_specials);
                 }
                 return ids;
@@ -643,8 +643,8 @@ namespace banggame {
     void game::player_death(player *killer, player *target) {
         if (killer != m_playing) killer = nullptr;
         
-        if (!characters_disabled(target)) {
-            for (character *c : target->m_characters) {
+        for (character *c : target->m_characters) {
+            if (!is_disabled(c)) {
                 c->on_unequip(target);
             }
         }
@@ -676,60 +676,47 @@ namespace banggame {
         });
     }
 
-    void game::disable_table_cards() {
-        if (m_table_cards_disabled++ == 0) {
-            for (auto &p : m_players) {
-                if (!has_scenario(scenario_flags::lasso) && &p == m_playing) continue;
-                for (auto *c : p.m_table) {
-                    c->on_unequip(&p);
-                }
+    void game::add_disabler(card *target_card, card_disabler_fun &&fun) {
+        const auto disable_if_new = [&](card *c) {
+            if (!is_disabled(c) && fun(c)) {
+                c->on_unequip(c->owner);
             }
+        };
+
+        for (auto &p : m_players) {
+            std::ranges::for_each(p.m_table, disable_if_new);
+            std::ranges::for_each(p.m_characters, disable_if_new);
         }
+
+        m_disablers.emplace(target_card, std::move(fun));
     }
 
-    void game::enable_table_cards() {
-        if (--m_table_cards_disabled == 0) {
-            for (auto &p : m_players) {
-                if (!has_scenario(scenario_flags::lasso) && &p == m_playing) continue;
-                for (auto *c : p.m_table) {
-                    c->on_equip(&p);
-                }
+    void game::remove_disablers(card *target_card) {
+        const auto enable_if_old = [&](card *c) {
+            bool a = false;
+            bool b = false;
+            for (const auto &[t, fun] : m_disablers) {
+                if (t != target_card) a = a || fun(c);
+                else b = b || fun(c);
             }
+            if (!a && b) {
+                c->on_equip(c->owner);
+            }
+        };
+
+        for (auto &p : m_players) {
+            std::ranges::for_each(p.m_table, enable_if_old);
+            std::ranges::for_each(p.m_characters, enable_if_old);
         }
+
+        m_disablers.erase(target_card);
     }
 
-    bool game::table_cards_disabled(player *p) const {
-        return has_scenario(scenario_flags::lasso)
-            || (m_table_cards_disabled > 0 && p != m_playing);
-    }
-    
-    void game::disable_characters() {
-        if (m_characters_disabled++ == 0) {
-            for (auto &p : m_players) {
-                if (!p.alive()) continue;
-                if (!has_scenario(scenario_flags::hangover) && &p == m_playing) continue;
-                for (auto *c : p.m_characters) {
-                    c->on_unequip(&p);
-                }
-            }
+    bool game::is_disabled(card *target_card) const {
+        for (const auto &fun : m_disablers | std::views::values) {
+            if (fun(target_card)) return true;
         }
-    }
-    
-    void game::enable_characters() {
-        if (--m_characters_disabled == 0) {
-            for (auto &p : m_players) {
-                if (!p.alive()) continue;
-                if (!has_scenario(scenario_flags::hangover) && &p == m_playing) continue;
-                for (auto *c : p.m_characters) {
-                    c->on_equip(&p);
-                }
-            }
-        }
-    }
-
-    bool game::characters_disabled(player *p) const {
-        return has_scenario(scenario_flags::hangover)
-            || (m_characters_disabled > 0 && p != m_playing);
+        return false;
     }
 
     void game::handle_action(ACTION_TAG(pick_card), player *p, const pick_card_args &args) {

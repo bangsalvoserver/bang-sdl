@@ -38,12 +38,13 @@ namespace banggame {
     }
 
     void effect_lasso::on_equip(player *target, card *target_card) {
-        target->m_game->m_scenario_flags |= scenario_flags::lasso;
-        target->m_game->disable_table_cards();
+        target->m_game->add_disabler(target_card, [](card *c) {
+            return c->pile == card_pile_type::player_table;
+        });
     }
 
     void effect_lasso::on_unequip(player *target, card *target_card) {
-        target->m_game->enable_table_cards();
+        target->m_game->remove_disablers(target_card);
     }
 
     void effect_abandonedmine::on_equip(player *target, card *target_card) {

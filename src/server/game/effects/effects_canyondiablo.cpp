@@ -84,11 +84,11 @@ namespace banggame {
     }
 
     void card_sharper_handler::on_resolve() {
-        if (!origin->m_game->table_cards_disabled(target)) {
+        if (!origin->m_game->is_disabled(target_card)) {
             target_card->on_unequip(target);
         }
         origin->equip_card(target_card);
-        if (chosen_card->owner == origin && !origin->m_game->table_cards_disabled(origin)) {
+        if (chosen_card->owner == origin && !origin->m_game->is_disabled(chosen_card)) {
             chosen_card->on_unequip(origin);
         }
         target->equip_card(chosen_card);

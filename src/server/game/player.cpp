@@ -19,10 +19,10 @@ namespace banggame {
             e.on_pre_equip(this, target);
         }
 
-        if (!m_game->table_cards_disabled(this)) {
+        m_game->move_to(target, card_pile_type::player_table, true, this, show_card_flags::show_everyone);
+        if (!m_game->is_disabled(target)) {
             target->on_equip(this);
         }
-        m_game->move_to(target, card_pile_type::player_table, true, this, show_card_flags::show_everyone);
     }
 
     int player::max_cards_end_of_turn() {
@@ -59,7 +59,7 @@ namespace banggame {
             drop_all_cubes(target_card);
             auto it = m_game->move_to(target_card, pile, known, owner, flags);
             m_game->queue_event<event_type::post_discard_card>(this, target_card);
-            if (!m_game->table_cards_disabled(this)) {
+            if (!m_game->is_disabled(target_card)) {
                 target_card->on_unequip(this);
             }
             return it;
@@ -161,7 +161,7 @@ namespace banggame {
             owner->m_game->queue_event<event_type::delayed_action>([=]{
                 owner->m_game->move_to(target, card_pile_type::discard_pile);
                 owner->m_game->instant_event<event_type::post_discard_orange_card>(owner, target);
-                if (!owner->m_game->table_cards_disabled(owner)) {
+                if (!owner->m_game->is_disabled(target)) {
                     target->on_unequip(owner);
                 }
             });
@@ -219,8 +219,12 @@ namespace banggame {
                 throw game_error("ERROR_WRONG_DECLARED_SUIT");
             }
 
-            if (mod_card->pile == card_pile_type::player_character && m_game->characters_disabled(this)) throw game_error("ERROR_CHARACTERS_DISABLED");
-            if (mod_card->pile == card_pile_type::player_table && m_game->table_cards_disabled(this)) throw game_error("ERROR_TABLE_CARDS_DISABLED");
+            if (m_game->is_disabled(mod_card)) {
+                switch (mod_card->pile) {
+                case card_pile_type::player_character: throw game_error("ERROR_CHARACTERS_ARE_DISABLED");
+                case card_pile_type::player_table: throw game_error("ERROR_TABLE_CARDS_ARE_DISABLED");
+                }
+            }
             if (mod_card->modifier != card_modifier_type::bangcard
                 || std::ranges::find(c->effects, effect_type::bangcard, &effect_holder::type) == c->effects.end()) {
                 throw game_error("ERROR_INVALID_ACTION");
@@ -520,7 +524,7 @@ namespace banggame {
         switch(card_ptr->pile) {
         case card_pile_type::player_character:
             if (!card_ptr->effects.empty()) {
-                if (m_game->characters_disabled(this)) throw game_error("ERROR_CHARACTERS_ARE_DISABLED");
+                if (m_game->is_disabled(card_ptr)) throw game_error("ERROR_CHARACTERS_ARE_DISABLED");
                 verify_modifiers(card_ptr, modifiers);
                 verify_card_targets(card_ptr, false, args.targets);
                 m_game->add_log("LOG_PLAYED_CHARACTER", card_ptr, this);
@@ -609,7 +613,7 @@ namespace banggame {
             }
             break;
         case card_pile_type::player_table:
-            if (m_game->table_cards_disabled(this)) throw game_error("ERROR_TABLE_CARDS_ARE_DISABLED");
+            if (m_game->is_disabled(card_ptr)) throw game_error("ERROR_TABLE_CARDS_ARE_DISABLED");
             if (card_ptr->inactive) throw game_error("ERROR_CARD_INACTIVE");
             verify_modifiers(card_ptr, modifiers);
             verify_card_targets(card_ptr, false, args.targets);
@@ -689,7 +693,7 @@ namespace banggame {
 
         switch (card_ptr->pile) {
         case card_pile_type::player_character:
-            if (m_game->characters_disabled(this)) throw game_error("ERROR_CHARACTERS_ARE_DISABLED");
+            if (m_game->is_disabled(card_ptr)) throw game_error("ERROR_CHARACTERS_ARE_DISABLED");
             if (card_ptr->responses.front().is(effect_type::drawing)) {
                 m_game->add_log("LOG_DRAWN_WITH_CHARACTER", card_ptr, this);
             } else {
@@ -697,7 +701,7 @@ namespace banggame {
             }
             break;
         case card_pile_type::player_table:
-            if (m_game->table_cards_disabled(this)) throw game_error("ERROR_TABLE_CARDS_ARE_DISABLED");
+            if (m_game->is_disabled(card_ptr)) throw game_error("ERROR_TABLE_CARDS_ARE_DISABLED");
             if (card_ptr->inactive) throw game_error("ERROR_CARD_INACTIVE");
             break;
         case card_pile_type::player_hand:
@@ -818,11 +822,14 @@ namespace banggame {
     }
 
     void player::request_drawing() {
-        m_game->instant_event<event_type::on_request_draw>(this);
-        if (!m_game->top_request_is(request_type::draw)) {
-            m_game->queue_event<event_type::on_turn_start>(this);
-            m_game->queue_request<request_type::draw>(this);
-        }
+        m_game->queue_event<event_type::before_turn_start>(this);
+        m_game->queue_event<event_type::on_turn_start>(this);
+        m_game->queue_event<event_type::delayed_action>([this]{
+            m_game->instant_event<event_type::on_request_draw>(this);
+            if (m_game->m_requests.empty()) {
+                m_game->queue_request<request_type::draw>(this);
+            }
+        });
     }
 
     void player::pass_turn(player *next_player) {

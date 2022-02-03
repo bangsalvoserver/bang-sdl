@@ -128,12 +128,14 @@ namespace banggame {
     }
 
     void effect_bigfifty::on_play(card *origin_card, player *p) {
-        p->m_game->disable_table_cards();
-        p->m_game->disable_characters();
-        p->add_bang_mod([p](request_bang &req) {
-            req.cleanup_function = [p]{
-                p->m_game->enable_table_cards();
-                p->m_game->enable_characters();
+        p->m_game->add_disabler(origin_card, [=](card *c) {
+            return (c->pile == card_pile_type::player_table
+                || c->pile == card_pile_type::player_character)
+                && c->owner != p;
+        });
+        p->add_bang_mod([=](request_bang &req) {
+            req.cleanup_function = [=]{
+                p->m_game->remove_disablers(origin_card);
             };
         });
     }

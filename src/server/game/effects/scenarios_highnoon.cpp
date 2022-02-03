@@ -97,12 +97,13 @@ namespace banggame {
     }
 
     void effect_hangover::on_equip(player *target, card *target_card) {
-        target->m_game->m_scenario_flags |= scenario_flags::hangover;
-        target->m_game->disable_characters();
+        target->m_game->add_disabler(target_card, [](card *c) {
+            return c->pile == card_pile_type::player_character;
+        });
     }
 
     void effect_hangover::on_unequip(player *target, card *target_card) {
-        target->m_game->enable_characters();
+        target->m_game->remove_disablers(target_card);
         target->m_game->queue_event<event_type::on_effect_end>(target, target_card);
     }
 

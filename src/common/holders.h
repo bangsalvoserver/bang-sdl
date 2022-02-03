@@ -297,7 +297,8 @@ namespace banggame {
         effect_flags flags() const;
         game_formatted_string status_text() const;
         bool resolvable() const;
-
+        
+        void on_resolve();
         bool tick();
         void cleanup();
         void on_pick(card_pile_type pile, player *target, card *target_card);

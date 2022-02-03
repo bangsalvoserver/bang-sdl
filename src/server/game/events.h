@@ -38,6 +38,7 @@ namespace banggame {
         (on_play_bang,      std::function<void(player *origin)>)
         (on_play_beer,      std::function<void(player *origin)>)
         (pre_turn_start,    std::function<void(player *origin)>)
+        (before_turn_start, std::function<void(player *origin)>)
         (on_turn_start,     std::function<void(player *origin)>)
         (on_turn_end,       std::function<void(player *origin)>)
         (on_request_draw,   std::function<void(player *origin)>)

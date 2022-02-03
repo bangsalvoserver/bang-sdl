@@ -35,14 +35,14 @@ namespace banggame {
     DEFINE_ENUM_FLAGS_IN_NS(banggame, scenario_flags,
         (invert_rotation) // inverti giro
         (reverend) // annulla birra
-        (hangover) // annulla personaggio
         (sermon) // annulla bang
         (ghosttown) // citta' fantasma
-        (lasso) // annulla carte in gioco
         (judge) // non si puo' equipaggiare
         (abandonedmine) // fase 1 : pesca dagli scarti, fase 3 : scarta coperto nel mazzo
         (deadman) // il primo morto ritorna in vita con 2 carte e 2 hp nel suo turno
     )
+
+    using card_disabler_fun = std::function<bool(card *)>;
 
     struct game : event_handler_map {
         std::list<std::pair<player *, game_update>> m_updates;
@@ -80,8 +80,7 @@ namespace banggame {
 
         std::vector<character *> m_base_characters;
 
-        int m_table_cards_disabled = 0;
-        int m_characters_disabled = 0;
+        std::multimap<card *, card_disabler_fun> m_disablers;
 
         player *m_playing = nullptr;
         player *m_first_player = nullptr;
@@ -228,13 +227,9 @@ namespace banggame {
         void draw_check_then(player *origin, card *origin_card, draw_check_function fun);
         void do_draw_check();
 
-        void disable_table_cards();
-        void enable_table_cards();
-        bool table_cards_disabled(player *p) const;
-
-        void disable_characters();
-        void enable_characters();
-        bool characters_disabled(player *p) const;
+        void add_disabler(card *target_card, card_disabler_fun &&fun);
+        void remove_disablers(card *target_card);
+        bool is_disabled(card *target_card) const;
 
         int num_alive() const {
             return std::ranges::count_if(m_players, &player::alive);

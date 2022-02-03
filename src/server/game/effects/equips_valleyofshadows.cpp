@@ -21,22 +21,23 @@ namespace banggame {
         });
     }
 
-    void effect_ghost::on_equip(player *target, card *target_card) {
-        if (target_card->pile == card_pile_type::player_hand) {
-            if (!target->m_game->characters_disabled(target) && !target->alive()) {
-                for (character *c : target->m_characters) {
-                    c->on_equip(target);
-                }
+    void effect_ghost::on_pre_equip(player *target, card *target_card) {
+        for (character *c : target->m_characters) {
+            if (!target->m_game->is_disabled(c) && !target->alive()) {
+                c->on_equip(target);
             }
-            target->m_game->add_event<event_type::post_discard_card>(target_card, [=](player *p, card *c) {
-                if (p == target && c == target_card) {
-                    target->remove_player_flags(player_flags::ghost);
-                    target->m_game->player_death(nullptr, target);
-                    target->m_game->check_game_over(nullptr, target);
-                    target->m_game->remove_events(target_card);
-                }
-            });
         }
+        target->m_game->add_event<event_type::post_discard_card>(target_card, [=](player *p, card *c) {
+            if (p == target && c == target_card) {
+                target->remove_player_flags(player_flags::ghost);
+                target->m_game->player_death(nullptr, target);
+                target->m_game->check_game_over(nullptr, target);
+                target->m_game->remove_events(target_card);
+            }
+        });
+    }
+
+    void effect_ghost::on_equip(player *target, card *target_card) {
         target->m_game->add_public_update<game_update_type::player_hp>(target->id, 0, false);
         target->add_player_flags(player_flags::ghost);
     }

@@ -10,6 +10,7 @@ namespace banggame {
     };
 
     struct effect_ghost : card_effect {
+        void on_pre_equip(player *target, card *target_card);
         void on_equip(player *target, card *target_card);
         void on_unequip(player *target, card *target_card);
     };

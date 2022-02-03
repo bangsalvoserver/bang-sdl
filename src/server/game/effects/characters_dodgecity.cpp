@@ -91,22 +91,22 @@ namespace banggame {
     }
 
     void effect_bellestar::on_equip(player *p, card *target_card) {
-        p->m_game->add_event<event_type::on_turn_start>(target_card, [p](player *target) {
+        p->m_game->add_event<event_type::on_turn_start>(target_card, [=](player *target) {
             if (p == target) {
-                p->m_game->disable_table_cards();
+                p->m_game->add_disabler(target_card, [=](card *c) {
+                    return c->pile == card_pile_type::player_table && c->owner != target;
+                });
             }
         });
-        p->m_game->add_event<event_type::on_turn_end>(target_card, [p](player *target) {
+        p->m_game->add_event<event_type::on_turn_end>(target_card, [=](player *target) {
             if (p == target) {
-                p->m_game->enable_table_cards();
+                p->m_game->remove_disablers(target_card);
             }
         });
     }
 
     void effect_bellestar::on_unequip(player *target, card *target_card) {
-        if (target == target->m_game->m_playing) {
-            target->m_game->enable_table_cards();
-        }
+        target->m_game->remove_disablers(target_card);
         target->m_game->remove_events(target_card);
     }
 
@@ -130,7 +130,7 @@ namespace banggame {
     }
 
     void effect_vera_custer::on_equip(player *p, card *target_card) {
-        p->m_game->add_event<event_type::on_turn_start>(target_card, [=](player *target) {
+        p->m_game->add_event<event_type::before_turn_start>(target_card, [=](player *target) {
             if (p == target) {
                 ++p->m_characters.front()->usages;
                 if (p->m_game->num_alive() == 2 && p->m_game->get_next_player(p)->m_characters.size() == 1) {

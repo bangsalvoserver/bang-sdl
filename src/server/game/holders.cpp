@@ -133,6 +133,15 @@ namespace banggame {
         }, *this);
     }
 
+    void request_holder::on_resolve() {
+        enums::visit_indexed([]<request_type E>(enums::enum_constant<E>, auto &req) {
+            if constexpr (resolvable_request<E>) {
+                auto req_copy = std::move(req);
+                req_copy.on_resolve();
+            }
+        }, *this);
+    }
+
     bool request_holder::tick() {
         return enums::visit_indexed([&]<request_type E>(enums::enum_constant<E>, auto &obj) {
             if constexpr (timer_request<E>) {
