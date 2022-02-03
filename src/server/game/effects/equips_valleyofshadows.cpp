@@ -31,8 +31,8 @@ namespace banggame {
             target->m_game->add_event<event_type::post_discard_card>(target_card, [=](player *p, card *c) {
                 if (p == target && c == target_card) {
                     target->remove_player_flags(player_flags::ghost);
-                    target->m_game->player_death(target);
-                    target->m_game->check_game_over(target, true);
+                    target->m_game->player_death(nullptr, target);
+                    target->m_game->check_game_over(nullptr, target);
                     target->m_game->remove_events(target_card);
                 }
             });

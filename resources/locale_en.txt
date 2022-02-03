@@ -166,4 +166,5 @@ LOG_TAKEN_DAMAGE_PLURAL             {1} takes {2} damage for {0}
 LOG_HEALED                          {0} heals for 1 life point
 LOG_HEALED_PLURAL                   {0} heals for {1} life points
 LOG_CHOSE_CARD_FOR                  {1} chooses {2} for {0}
+LOG_PLAYER_KILLED                   {0} killed {1}
 LOG_PLAYER_DIED                     {0} died

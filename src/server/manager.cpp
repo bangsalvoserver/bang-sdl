@@ -312,10 +312,8 @@ void lobby::send_updates(game_manager &mgr) {
         }
         if (data.second.is(game_update_type::game_over)) {
             state = lobby_state::finished;
-            game.m_updates.clear();
-        } else {
-            game.m_updates.pop_front();
         }
+        game.m_updates.pop_front();
     }
 }
 

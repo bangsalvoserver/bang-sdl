@@ -793,7 +793,7 @@ namespace banggame {
         m_game->add_log("LOG_TURN_START", this);
         m_game->queue_event<event_type::pre_turn_start>(this);
         m_game->queue_event<event_type::delayed_action>([&]{
-            if (m_game->m_playing == this) {
+            if (m_game->m_playing == this && alive()) {
                 if (m_predraw_checks.empty()) {
                     m_game->queue_event<event_type::on_turn_start>(this);
                     m_game->queue_request<request_type::draw>(this);
@@ -812,7 +812,7 @@ namespace banggame {
             if (auto it = m_predraw_checks.find(target_card); it != m_predraw_checks.end()) {
                 it->second.resolved = true;
             }
-            if (m_game->m_playing == this) {
+            if (m_game->m_playing == this && alive()) {
                 if (std::ranges::all_of(m_predraw_checks | std::views::values, &predraw_check::resolved)) {
                     m_game->queue_event<event_type::on_turn_start>(this);
                     m_game->queue_request<request_type::draw>(this);
@@ -851,7 +851,7 @@ namespace banggame {
                 if (!next_player) {
                     if (!check_player_flags(player_flags::ghost) && m_hp == 0 && m_game->has_scenario(scenario_flags::ghosttown)) {
                         --m_num_cards_to_draw;
-                        m_game->player_death(this);
+                        m_game->player_death(nullptr, this);
                     }
                     next_player = m_game->get_next_in_turn(this);
                 }

@@ -2278,7 +2278,8 @@
             "optional": [
                 {
                     "target": "player notself range_1",
-                    "class": "bang"
+                    "class": "bang",
+                    "escapable": true
                 }
             ]
         },

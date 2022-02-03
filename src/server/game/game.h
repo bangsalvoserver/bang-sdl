@@ -253,8 +253,8 @@ namespace banggame {
 
         int calc_distance(player *from, player *to);
 
-        void check_game_over(player *target, bool discarded_ghost = false);
-        void player_death(player *target);
+        void check_game_over(player *killer, player *target);
+        void player_death(player *killer, player *target);
 
         void handle_action(ACTION_TAG(pick_card), player *p, const pick_card_args &args);
         void handle_action(ACTION_TAG(play_card), player *p, const play_card_args &args);

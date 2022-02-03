@@ -199,9 +199,9 @@ namespace banggame {
         return std::min(d1, d2) + to->m_distance_mod;
     }
 
-    void game::check_game_over(player *target, bool discarded_ghost) {
-        player *killer = m_playing;
-
+    void game::check_game_over(player *killer, player *target) {
+        if (killer != m_playing) killer = nullptr;
+        
         auto winner_role = [&]{
             auto alive_players_view = m_players | std::views::filter(&player::alive);
             int num_alive = std::ranges::distance(alive_players_view);
@@ -213,7 +213,7 @@ namespace banggame {
                 if (target->m_role == player_role::sheriff) {
                     return player_role::outlaw;
                 }
-            } else if (!discarded_ghost) {
+            } else if (killer) {
                 if (target->m_role == player_role::outlaw && killer->m_role == player_role::renegade) {
                     return player_role::renegade;
                 } else if (target->m_role == player_role::renegade && killer->m_role == player_role::deputy) {
@@ -231,9 +231,9 @@ namespace banggame {
             }
             add_log("LOG_GAME_OVER");
             add_public_update<game_update_type::game_over>(winner_role);
-        } else if (killer == target) {
+        } else if (m_playing == target) {
             target->end_of_turn();
-        } else if (!discarded_ghost) {
+        } else if (killer) {
             if (m_players.size() > 3) {
                 switch (target->m_role) {
                 case player_role::outlaw:
@@ -255,7 +255,9 @@ namespace banggame {
         }
     }
 
-    void game::player_death(player *target) {
+    void game::player_death(player *killer, player *target) {
+        if (killer != m_playing) killer = nullptr;
+        
         if (!characters_disabled(target)) {
             for (character *c : target->m_characters) {
                 c->on_unequip(target);
@@ -272,13 +274,17 @@ namespace banggame {
 
         if (!m_first_dead) m_first_dead = target;
 
-        queue_event<event_type::on_player_death_priority>(m_playing, target);
+        queue_event<event_type::on_player_death_priority>(killer, target);
         queue_event<event_type::delayed_action>([=, this]{
-            instant_event<event_type::on_player_death>(m_playing, target);
+            instant_event<event_type::on_player_death>(killer, target);
 
             target->discard_all();
             target->add_gold(-target->m_gold);
-            add_log("LOG_PLAYER_DIED", target);
+            if (killer) {
+                add_log("LOG_PLAYER_KILLED", killer, target);
+            } else {
+                add_log("LOG_PLAYER_DIED", target);
+            }
 
             add_public_update<game_update_type::player_hp>(target->id, 0, true);
             add_public_update<game_update_type::player_show_role>(target->id, target->m_role);
