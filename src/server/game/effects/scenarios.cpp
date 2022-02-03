@@ -168,7 +168,7 @@ namespace banggame {
     }
 
     void effect_peyote::on_equip(player *target, card *target_card) {
-        target->m_game->add_event<event_type::on_draw_from_deck_priority>(target_card, [=](player *p) {
+        target->m_game->add_event<event_type::on_request_draw>(target_card, [=](player *p) {
             auto &vec = p->m_game->m_hidden_deck;
             for (auto it = vec.begin(); it != vec.end(); ) {
                 auto *card = *it;
@@ -179,7 +179,6 @@ namespace banggame {
                 }
             }
             
-            p->m_game->pop_request_noupdate(request_type::draw);
             p->m_game->queue_request<request_type::peyote>(target_card, p);
         });
     }
@@ -200,6 +199,7 @@ namespace banggame {
                 target->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::hidden_deck, true, nullptr, show_card_flags::no_animation);
             }
             target->m_game->pop_request(request_type::peyote);
+            target->m_game->queue_event<event_type::post_draw_cards>(target);
         }
     }
 

@@ -157,14 +157,15 @@ namespace banggame {
         }
     }
 
-    void game::pop_request_noupdate(request_type type) {
-        if (type != request_type::none && !top_request_is(type)) return;
+    bool game::pop_request_noupdate(request_type type) {
+        if (type != request_type::none && !top_request_is(type)) return false;
         enums::visit([](auto &value) {
             if constexpr (requires { value.cleanup(); }) {
                 value.cleanup();
             }
         }, m_requests.front());
         m_requests.pop_front();
+        return true;
     }
 
     player *game::get_next_player(player *p) {

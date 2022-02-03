@@ -338,13 +338,15 @@ namespace banggame {
             target->m_game->add_log("LOG_DRAWN_CARD", target, drawn_card);
             target->m_game->instant_event<event_type::on_card_drawn>(target, drawn_card);
         }
-        target->m_game->pop_request(request_type::draw);
-        target->m_game->queue_event<event_type::post_draw_cards>(target);
+        if (target->m_game->pop_request(request_type::draw)) {
+            target->m_game->queue_event<event_type::post_draw_cards>(target);
+        }
     }
 
     void effect_draw_done::on_play(card *origin_card, player *target) {
-        target->m_game->pop_request(request_type::draw);
-        target->m_game->queue_event<event_type::post_draw_cards>(target);
+        if (target->m_game->pop_request(request_type::draw)) {
+            target->m_game->queue_event<event_type::post_draw_cards>(target);
+        }
     }
 
     void effect_draw_skip::verify(card *origin_card, player *target) const {
@@ -355,8 +357,9 @@ namespace banggame {
 
     void effect_draw_skip::on_play(card *origin_card, player *target) {
         if (++target->m_num_drawn_cards == target->m_num_cards_to_draw) {
-            target->m_game->pop_request(request_type::draw);
-            target->m_game->queue_event<event_type::post_draw_cards>(target);
+            if (target->m_game->pop_request(request_type::draw)) {
+                target->m_game->queue_event<event_type::post_draw_cards>(target);
+            }
         }
     }
 

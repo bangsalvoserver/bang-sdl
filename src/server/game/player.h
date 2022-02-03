@@ -153,6 +153,8 @@ namespace banggame {
         void draw_from_deck();
 
         void start_of_turn();
+        void request_drawing();
+        
         void pass_turn(player *next_player = nullptr);
         void end_of_turn(player *next_player = nullptr);
 

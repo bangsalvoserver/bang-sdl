@@ -24,9 +24,10 @@ namespace banggame {
         target->add_predraw_check(target_card, -1, [=](card *drawn_card) {
             auto suit = target->get_card_suit(drawn_card);
             if (suit == card_suit_type::clubs || suit == card_suit_type::spades) {
-                target->m_game->add_event<event_type::on_draw_from_deck_priority>(target_card, [=](player *origin) {
-                    if (target == origin) {
-                        if (target->m_num_cards_to_draw > 0) --target->m_num_cards_to_draw;
+                --target->m_num_cards_to_draw;
+                target->m_game->add_event<event_type::post_draw_cards>(target_card, [=](player *origin) {
+                    if (origin == target) {
+                        ++target->m_num_cards_to_draw;
                         target->m_game->remove_events(target_card);
                     }
                 });

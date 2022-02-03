@@ -14,7 +14,7 @@ namespace banggame {
     void effect_draw_again_if_needed::on_play(card *origin_card, player *target) {
         target->m_game->queue_event<event_type::delayed_action>([=]{
             if (target->m_num_drawn_cards < target->m_num_cards_to_draw && target->m_game->m_playing == target) {
-                target->m_game->queue_request<request_type::draw>(target);
+                target->request_drawing();
             }
         });
     }

@@ -718,10 +718,7 @@ namespace banggame {
 
     void player::draw_from_deck() {
         int save_numcards = m_num_cards_to_draw;
-        m_game->instant_event<event_type::on_draw_from_deck_priority>(this);
-        if (m_game->top_request_is(request_type::draw)) {
-            m_game->instant_event<event_type::on_draw_from_deck>(this);
-        }
+        m_game->instant_event<event_type::on_draw_from_deck>(this);
         if (m_game->top_request_is(request_type::draw)) {
             m_game->pop_request(request_type::draw);
             m_game->add_log("LOG_DRAWN_FROM_DECK", this);
@@ -795,8 +792,7 @@ namespace banggame {
         m_game->queue_event<event_type::delayed_action>([&]{
             if (m_game->m_playing == this && alive()) {
                 if (m_predraw_checks.empty()) {
-                    m_game->queue_event<event_type::on_turn_start>(this);
-                    m_game->queue_request<request_type::draw>(this);
+                    request_drawing();
                 } else {
                     for (auto &[card_id, obj] : m_predraw_checks) {
                         obj.resolved = false;
@@ -814,13 +810,20 @@ namespace banggame {
             }
             if (m_game->m_playing == this && alive()) {
                 if (std::ranges::all_of(m_predraw_checks | std::views::values, &predraw_check::resolved)) {
-                    m_game->queue_event<event_type::on_turn_start>(this);
-                    m_game->queue_request<request_type::draw>(this);
+                    request_drawing();
                 } else {
                     m_game->queue_request<request_type::predraw>(this);
                 }
             }
         });
+    }
+
+    void player::request_drawing() {
+        m_game->instant_event<event_type::on_request_draw>(this);
+        if (!m_game->top_request_is(request_type::draw)) {
+            m_game->queue_event<event_type::on_turn_start>(this);
+            m_game->queue_request<request_type::draw>(this);
+        }
     }
 
     void player::pass_turn(player *next_player) {
