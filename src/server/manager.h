@@ -13,10 +13,14 @@
 
 #include "game/game.h"
 
+struct lobby;
+
 struct game_user : util::id_counter<game_user> {
     sdlnet::ip_address addr;
     std::string name;
     std::vector<std::byte> profile_image;
+    lobby *in_lobby = nullptr;
+    banggame::player *controlling = nullptr;
 
     game_user(sdlnet::ip_address addr, std::string name, std::vector<std::byte> profile_image = {})
         : addr(std::move(addr))
@@ -26,13 +30,8 @@ struct game_user : util::id_counter<game_user> {
 
 class game_manager;
 
-struct lobby_user {
-    game_user *user;
-    banggame::player *controlling;
-};
-
 struct lobby : util::id_counter<lobby> {
-    std::vector<lobby_user> users;
+    std::vector<game_user *> users;
     game_user *owner;
     std::string name;
     lobby_state state;
@@ -75,8 +74,8 @@ public:
     template<server_message_type E, typename ... Ts>
     void broadcast_message(const lobby &lobby, Ts && ... args) {
         auto msg = make_message<E>(std::forward<Ts>(args) ... );
-        for (const auto &u : lobby.users) {
-            m_out_queue.emplace_back(u.user->addr, msg);
+        for (game_user *u : lobby.users) {
+            m_out_queue.emplace_back(u->addr, msg);
         }
     }
 
@@ -87,22 +86,19 @@ public:
     }
 
 private:
-    game_user *find_user(const sdlnet::ip_address &addr);
-    std::list<lobby>::iterator find_lobby(const game_user *u);
-
     lobby_data make_lobby_data(const lobby &l);
     void send_lobby_update(const lobby &l);
 
     void handle_message(MESSAGE_TAG(connect), const sdlnet::ip_address &addr, const connect_args &value);
-    void handle_message(MESSAGE_TAG(lobby_list), const sdlnet::ip_address &addr);
-    void handle_message(MESSAGE_TAG(lobby_make), const sdlnet::ip_address &addr, const lobby_info &value);
-    void handle_message(MESSAGE_TAG(lobby_edit), const sdlnet::ip_address &addr, const lobby_info &args);
-    void handle_message(MESSAGE_TAG(lobby_join), const sdlnet::ip_address &addr, const lobby_join_args &value);
-    void handle_message(MESSAGE_TAG(lobby_players), const sdlnet::ip_address &addr);
-    void handle_message(MESSAGE_TAG(lobby_leave), const sdlnet::ip_address &addr);
-    void handle_message(MESSAGE_TAG(lobby_chat), const sdlnet::ip_address &addr, const lobby_chat_client_args &value);
-    void handle_message(MESSAGE_TAG(game_start), const sdlnet::ip_address &addr);
-    void handle_message(MESSAGE_TAG(game_action), const sdlnet::ip_address &addr, const banggame::game_action &value);
+    void handle_message(MESSAGE_TAG(lobby_list), game_user *user);
+    void handle_message(MESSAGE_TAG(lobby_make), game_user *user, const lobby_info &value);
+    void handle_message(MESSAGE_TAG(lobby_edit), game_user *user, const lobby_info &args);
+    void handle_message(MESSAGE_TAG(lobby_join), game_user *user, const lobby_join_args &value);
+    void handle_message(MESSAGE_TAG(lobby_players), game_user *user);
+    void handle_message(MESSAGE_TAG(lobby_leave), game_user *user);
+    void handle_message(MESSAGE_TAG(lobby_chat), game_user *user, const lobby_chat_client_args &value);
+    void handle_message(MESSAGE_TAG(game_start), game_user *user);
+    void handle_message(MESSAGE_TAG(game_action), game_user *user, const banggame::game_action &value);
 
     std::map<sdlnet::ip_address, game_user> users;
     std::list<lobby> m_lobbies;

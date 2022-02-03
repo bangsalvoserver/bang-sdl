@@ -91,6 +91,7 @@ lobby_state::finished               Partita finita
 ERROR_PLAYER_IN_LOBBY               Giocatore già in una lobby
 ERROR_PLAYER_NOT_IN_LOBBY           Giocatore non in una lobby
 ERROR_PLAYER_NOT_LOBBY_OWNER        Non proprietario della lobby
+ERROR_USER_NOT_CONTROLLING_PLAYER   Giocatore non in gioco
 ERROR_LOBBY_NOT_WAITING             Lobby non in attesa
 ERROR_LOBBY_NOT_PLAYING             Lobby non in gioco
 ERROR_PLAYER_DOES_NOT_OWN_CARD      Carta non tua
