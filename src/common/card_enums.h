@@ -1,7 +1,7 @@
 #ifndef __CARD_ENUMS_H__
 #define __CARD_ENUMS_H__
 
-#include "common/utils.h"
+#include "utils/utils.h"
 
 namespace banggame {
 

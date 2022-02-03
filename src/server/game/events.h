@@ -4,7 +4,8 @@
 #include <list>
 #include <functional>
 
-#include "common/enum_variant.h"
+#include "utils/enum_variant.h"
+
 #include "common/card_enums.h"
 
 namespace banggame {

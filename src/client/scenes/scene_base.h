@@ -1,8 +1,9 @@
 #ifndef __SCENE_BASE_H__
 #define __SCENE_BASE_H__
 
-#include "common/sdl.h"
 #include "common/net_enums.h"
+
+#include "utils/sdl.h"
 
 #include "widgets/button.h"
 #include "widgets/textbox.h"

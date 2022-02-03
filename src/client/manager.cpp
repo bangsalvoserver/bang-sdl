@@ -3,9 +3,10 @@
 #include <sstream>
 #include <iostream>
 
+#include "utils/message_header.h"
+#include "utils/binary_serial.h"
+
 #include "common/options.h"
-#include "common/message_header.h"
-#include "common/binary_serial.h"
 
 DECLARE_RESOURCE(background_png)
 

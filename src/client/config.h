@@ -4,7 +4,8 @@
 #include <fstream>
 #include <vector>
 
-#include "common/json_serial.h"
+#include "utils/json_serial.h"
+
 #include "common/card_enums.h"
 
 struct config {

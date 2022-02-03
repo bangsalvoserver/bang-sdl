@@ -4,8 +4,10 @@
 #include "common/card_enums.h"
 #include "common/game_update.h"
 
-#include "common/sdl.h"
+#include "utils/sdl.h"
+
 #include "sizes.h"
+
 #include "../widgets/stattext.h"
 
 #include <vector>

@@ -5,7 +5,8 @@
 #include <ranges>
 #include <fmt/format.h>
 #include <fmt/args.h>
-#include "common/enums.h"
+
+#include "utils/enums.h"
 
 namespace intl {
     std::string translate(std::string_view str);

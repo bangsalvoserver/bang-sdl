@@ -1,7 +1,7 @@
 #ifndef __FORMAT_STR_H__
 #define __FORMAT_STR_H__
 
-#include "common/utils.h"
+#include "utils/utils.h"
 
 namespace banggame {
 

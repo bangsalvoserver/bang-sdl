@@ -1,4 +1,4 @@
-#include "common/sdl.h"
+#include "utils/sdl.h"
 
 namespace banggame {
 

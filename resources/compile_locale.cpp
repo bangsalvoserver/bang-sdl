@@ -43,7 +43,7 @@ int main(int argc, char **argv) {
 
     ofs << "// Auto generated file.\n"
         "#include <string>\n"
-        "#include \"common/static_map.h\"\n\n"
+        "#include \"utils/static_map.h\"\n\n"
         "constexpr auto " << identifier_name << " = util::static_map<std::string_view, std::string_view>({\n";
     
     for (const auto &[key, value] : strings) {

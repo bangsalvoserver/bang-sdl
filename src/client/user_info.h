@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 
-#include "common/sdl.h"
+#include "utils/sdl.h"
 
 sdl::surface decode_profile_image(const std::vector<std::byte> &data);
 std::vector<std::byte> encode_profile_image(sdl::surface image);

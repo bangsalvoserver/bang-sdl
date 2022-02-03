@@ -1,7 +1,8 @@
 #ifndef __GAME_ACTION_H__
 #define __GAME_ACTION_H__
 
-#include "common/reflector.h"
+#include "utils/reflector.h"
+
 #include "card_enums.h"
 
 namespace banggame {

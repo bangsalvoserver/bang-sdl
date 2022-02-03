@@ -1,7 +1,7 @@
 #ifndef __MESSAGE_HEADER_H__
 #define __MESSAGE_HEADER_H__
 
-#include "common/sdlnet.h"
+#include "sdlnet.h"
 
 constexpr uint32_t bang_magic = 0x42414e47;
 constexpr size_t buffer_size = 1024;

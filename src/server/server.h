@@ -5,7 +5,7 @@
 #include <thread>
 #include <map>
 
-#include "common/sdlnet.h"
+#include "utils/sdlnet.h"
 
 using message_callback_t = std::function<void(const std::string &)>;
 

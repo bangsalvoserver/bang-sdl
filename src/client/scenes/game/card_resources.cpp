@@ -1,6 +1,6 @@
 #include "card_resources.h"
 
-#include "common/unpacker.h"
+#include "utils/unpacker.h"
 
 #include <SDL2/SDL.h>
 

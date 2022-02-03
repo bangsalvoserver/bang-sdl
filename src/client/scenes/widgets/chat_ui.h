@@ -1,7 +1,8 @@
 #ifndef __CHAT_UI_H__
 #define __CHAT_UI_H__
 
-#include "common/sdl.h"
+#include "utils/sdl.h"
+
 #include "text_list.h"
 #include "textbox.h"
 #include "button.h"

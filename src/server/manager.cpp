@@ -3,8 +3,9 @@
 #include <iostream>
 #include <stdexcept>
 
+#include "utils/binary_serial.h"
+
 #include "common/net_enums.h"
-#include "common/binary_serial.h"
 
 using namespace banggame;
 using namespace enums::flag_operators;

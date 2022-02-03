@@ -6,10 +6,11 @@
 
 #include <json/json.h>
 
-#include "common/utils.h"
+#include "utils/utils.h"
+#include "utils/binary_serial.h"
+
 #include "common/options.h"
 #include "common/net_enums.h"
-#include "common/binary_serial.h"
 
 #include "game/game.h"
 

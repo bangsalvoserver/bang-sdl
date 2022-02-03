@@ -1,7 +1,7 @@
 #include "server.h"
 
-#include "common/message_header.h"
-#include "common/binary_serial.h"
+#include "utils/message_header.h"
+#include "utils/binary_serial.h"
 
 #include "manager.h"
 
