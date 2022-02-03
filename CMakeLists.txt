@@ -60,11 +60,11 @@ set(bangserver_srcs
     src/server/game/effects/requests_base.cpp
     src/server/game/effects/requests_canyondiablo.cpp
     src/server/game/effects/requests_valleyofshadows.cpp
-    src/server/game/effects/scenarios.cpp
-    src/server/game/effect_holder.cpp
+    src/server/game/effects/scenarios_highnoon.cpp
+    src/server/game/effects/scenarios_fistfulofcards.cpp
+    src/server/game/holders.cpp
     src/server/game/events.cpp
     src/server/game/game.cpp
-    src/server/game/game2.cpp
     src/server/game/make_all_cards.cpp
     src/server/game/player.cpp
 )

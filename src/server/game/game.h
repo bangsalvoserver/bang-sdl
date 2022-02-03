@@ -13,7 +13,7 @@
 #include "events.h"
 
 #include "common/net_enums.h"
-#include "common/requests.h"
+#include "common/holders.h"
 #include "formatter.h"
 
 namespace banggame {

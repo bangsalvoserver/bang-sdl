@@ -1,4 +1,5 @@
-#include "common/effect_holder.h"
+#include "common/holders.h"
+
 #include "formatter.h"
 
 #include <stdexcept>
@@ -96,6 +97,73 @@ namespace banggame {
         visit_effect([=](auto &&value) {
             if constexpr (requires { value.on_unequip(target, target_card); }) {
                 value.on_unequip(target, target_card);
+            }
+        }, *this);
+    }
+
+    card *request_holder::origin_card() const {
+        return enums::visit(&request_base::origin_card, *this);
+    }
+
+    player *request_holder::origin() const {
+        return enums::visit(&request_base::origin, *this);
+    }
+
+    player *request_holder::target() const {
+        return enums::visit(&request_base::target, *this);
+    }
+
+    effect_flags request_holder::flags() const {
+        return enums::visit(&request_base::flags, *this);
+    }
+
+    game_formatted_string request_holder::status_text() const {
+        return enums::visit_indexed([]<request_type T>(enums::enum_constant<T>, const auto &req) -> game_formatted_string {
+            if constexpr (requires { req.status_text(); }) {
+                return req.status_text();
+            } else {
+                return {};
+            }
+        }, *this);
+    }
+
+    bool request_holder::resolvable() const {
+        return enums::visit_indexed([]<request_type T>(enums::enum_constant<T>, auto) {
+            return resolvable_request<T>;
+        }, *this);
+    }
+
+    bool request_holder::tick() {
+        return enums::visit_indexed([&]<request_type E>(enums::enum_constant<E>, auto &obj) {
+            if constexpr (timer_request<E>) {
+                if (obj.duration && --obj.duration == 0) {
+                    if constexpr (requires { obj.on_finished(); }) {
+                        auto copy = std::move(obj);
+                        copy.on_finished();
+                    } else {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }, *this);
+    }
+
+    void request_holder::cleanup() {
+        enums::visit([](auto &value) {
+            if constexpr (requires { value.cleanup(); }) {
+                value.cleanup();
+            }
+        }, *this);
+    }
+
+    void request_holder::on_pick(card_pile_type pile, player *target, card *target_card) {
+        enums::visit_indexed([&]<request_type E>(enums::enum_constant<E>, auto &req) {
+            if constexpr (picking_request<E>) {
+                if (req.valid_pile(pile)) {
+                    auto req_copy = req;
+                    req_copy.on_pick(pile, target, target_card);
+                }
             }
         }, *this);
     }

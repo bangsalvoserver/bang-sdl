@@ -8,7 +8,7 @@
 #include "common/svstream.h"
 #include "common/resource.h"
 
-#include "common/effects.h"
+#include "common/holders.h"
 
 #ifdef BANG_CARDS_JSON_LINKED
 DECLARE_RESOURCE(bang_cards_json)

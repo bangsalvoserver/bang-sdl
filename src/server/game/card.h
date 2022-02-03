@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 
-#include "common/effect_holder.h"
+#include "common/holders.h"
 #include "common/card_enums.h"
 #include "common/game_update.h"
 

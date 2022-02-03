@@ -1,11 +1,13 @@
-#ifndef __EFFECT_HOLDER_H__
-#define __EFFECT_HOLDER_H__
+#ifndef __HOLDERS_H__
+#define __HOLDERS_H__
 
 #include <concepts>
 
-#include "effects.h"
-#include "characters.h"
+#include "effects/effects.h"
+#include "effects/equips.h"
+#include "effects/characters.h"
 #include "effects/scenarios.h"
+#include "effects/requests.h"
 
 namespace banggame {
 
@@ -178,6 +180,47 @@ namespace banggame {
         (taxman,        effect_taxman)
         (lastwill,      effect_lastwill)
     )
+    DEFINE_ENUM_TYPES_IN_NS(banggame, request_type,
+        (none,          request_base)
+        (predraw,       request_predraw)
+        (draw,          request_draw)
+        (check,         request_check)
+        (generalstore,  request_generalstore)
+        (discard,       request_discard)
+        (discard_pass,  request_discard_pass)
+        (bang,          request_bang)
+        (duel,          request_duel)
+        (indians,       request_indians)
+        (destroy,       request_destroy)
+        (steal,         request_steal)
+        (death,         request_death)
+        (bandidos,      request_bandidos)
+        (tornado,       request_tornado)
+        (poker,         request_poker)
+        (poker_draw,    request_poker_draw)
+        (saved,         request_saved)
+        (add_cube,      request_add_cube)
+        (move_bomb,     request_move_bomb)
+        (rust,          request_rust)
+        (card_sharper,  request_card_sharper)
+        (lastwill,      request_lastwill)
+        (lastwill_target, request_lastwill_target)
+        (ricochet,      request_ricochet)
+        (peyote,        request_peyote)
+        (handcuffs,     request_handcuffs)
+        (shopchoice,    request_shopchoice)
+        (kit_carlson,   request_kit_carlson)
+        (claus_the_saint, request_claus_the_saint)
+        (vera_custer,   request_vera_custer)
+        (youl_grinner,  request_youl_grinner)
+        (dutch_will,    request_dutch_will)
+        (shop_choose_target, request_shop_choose_target)
+        (thedaltons,    request_thedaltons)
+        (lemonade_jim,  timer_lemonade_jim)
+        (al_preacher,   timer_al_preacher)
+        (damaging,      timer_damaging)
+        (tumbleweed,    timer_tumbleweed)
+    )
 
     namespace detail {
         template<typename T> concept is_effect = std::is_base_of_v<card_effect, T>;
@@ -186,6 +229,18 @@ namespace banggame {
         template<typename ... Ts> struct all_is_effect<std::variant<Ts...>>
             : std::bool_constant<(is_effect<Ts> && ...)> {};
     }
+
+    template<request_type E> concept picking_request =
+        requires(enums::enum_type_t<E> &req, card_pile_type pile, player *target, card *target_card) {
+        { enums::enum_type_t<E>::valid_pile(pile) } -> std::convertible_to<bool>;
+        req.on_pick(pile, target, target_card);
+    };
+
+    template<request_type E> concept resolvable_request = requires (enums::enum_type_t<E> &req) {
+        req.on_resolve();
+    };
+
+    template<request_type E> concept timer_request = std::derived_from<enums::enum_type_t<E>, timer_base>;
 
     template<enums::reflected_enum E>
     struct effect_base : card_effect {
@@ -227,6 +282,25 @@ namespace banggame {
         void on_pre_equip(player *target, card *target_card);
         void on_equip(player *target, card *target_card);
         void on_unequip(player *target, card *target_card);
+    };
+
+    struct request_holder : enums::enum_variant<request_type> {
+        using enums::enum_variant<request_type>::enum_variant;
+        
+        template<request_type E, typename ... Ts>
+        request_holder(enums::enum_constant<E> tag, Ts && ... args)
+            : enums::enum_variant<request_type>(tag, std::forward<Ts>(args) ...) {}
+
+        card *origin_card() const;
+        player *origin() const;
+        player *target() const;
+        effect_flags flags() const;
+        game_formatted_string status_text() const;
+        bool resolvable() const;
+
+        bool tick();
+        void cleanup();
+        void on_pick(card_pile_type pile, player *target, card *target_card);
     };
 }
 

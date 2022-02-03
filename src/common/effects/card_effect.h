@@ -55,6 +55,10 @@ namespace banggame {
         }
     };
 
+    struct scenario_effect : card_effect {
+        void on_unequip(player *target, card *target_card) {}
+    };
+
 }
 
 

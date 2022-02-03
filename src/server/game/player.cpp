@@ -2,8 +2,7 @@
 
 #include "game.h"
 
-#include "common/effects.h"
-#include "common/requests.h"
+#include "common/holders.h"
 #include "common/net_enums.h"
 
 #include <cassert>
