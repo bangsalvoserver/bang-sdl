@@ -412,6 +412,7 @@ namespace banggame {
             add_ids_for(p.m_hand | std::views::filter([](card *c) { return c->color == card_color_type::brown; }));
             add_ids_for(p.m_table | std::views::filter([&](card *c) { return !c->inactive && !is_disabled(c); }));
             add_ids_for(p.m_characters | std::views::filter([&](card *c) { return !is_disabled(c); }));
+            add_ids_for(m_scenario_cards | std::views::reverse | std::views::take(1));
             add_ids_for(m_specials);
 
             auto maybe_add_pick_id = [&](card_pile_type pile, player *target_player, card *target_card) {
