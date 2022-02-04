@@ -115,7 +115,7 @@ namespace banggame {
                 make_all_effects(c, json_card);
                 c.color = enums::from_string<card_color_type>(json_card["color"].asString());
                 for (const auto &json_sign : json_card["signs"]) {
-                    std::string_view str = json_sign.asString();
+                    std::string str = json_sign.asString();
                     c.suit = *std::ranges::find_if(enums::enum_values_v<card_suit_type>,
                         [&](card_suit_type e) {
                             return str.ends_with(enums::get_data(e).letter);
