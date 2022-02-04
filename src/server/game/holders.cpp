@@ -52,7 +52,7 @@ namespace banggame {
             if constexpr (requires { value.on_play(origin_card, origin); }) {
                 value.on_play(origin_card, origin);
             } else {
-                throw std::runtime_error("on_play(origin)");
+                throw std::runtime_error("missing on_play(origin_card, origin)");
             }
         }, *this);
     }
@@ -62,7 +62,7 @@ namespace banggame {
             if constexpr (requires { value.on_play(origin_card, origin, target); }) {
                 value.on_play(origin_card, origin, target);
             } else {
-                throw std::runtime_error("on_play(origin, target)");
+                throw std::runtime_error("missing on_play(origin_card, origin, target)");
             }
         }, *this);
     }
@@ -72,31 +72,31 @@ namespace banggame {
             if constexpr (requires { value.on_play(origin_card, origin, target, target_card); }) {
                 value.on_play(origin_card, origin, target, target_card);
             } else {
-                throw std::runtime_error("on_play(origin, target, card)");
+                throw std::runtime_error("missing on_play(origin_card, origin, target, target_card)");
             }
         }, *this);
     }
 
-    void equip_holder::on_pre_equip(player *target, card *target_card) {
+    void equip_holder::on_pre_equip(card *target_card, player *target) {
         visit_effect([=](auto &&value) {
-            if constexpr (requires { value.on_pre_equip(target, target_card); }) {
-                value.on_pre_equip(target, target_card);
+            if constexpr (requires { value.on_pre_equip(target_card, target); }) {
+                value.on_pre_equip(target_card, target);
             }
         }, *this);
     }
 
-    void equip_holder::on_equip(player *target, card *target_card) {
+    void equip_holder::on_equip(card *target_card, player *target) {
         visit_effect([=](auto &&value) {
-            if constexpr (requires { value.on_equip(target, target_card); }) {
-                value.on_equip(target, target_card);
+            if constexpr (requires { value.on_equip(target_card, target); }) {
+                value.on_equip(target_card, target);
             }
         }, *this);
     }
 
-    void equip_holder::on_unequip(player *target, card *target_card) {
+    void equip_holder::on_unequip(card *target_card, player *target) {
         visit_effect([=](auto &&value) {
-            if constexpr (requires { value.on_unequip(target, target_card); }) {
-                value.on_unequip(target, target_card);
+            if constexpr (requires { value.on_unequip(target_card, target); }) {
+                value.on_unequip(target_card, target);
             }
         }, *this);
     }
@@ -121,9 +121,8 @@ namespace banggame {
         return enums::visit([](const auto &req) -> game_formatted_string {
             if constexpr (requires { req.status_text(); }) {
                 return req.status_text();
-            } else {
-                return {};
             }
+            throw std::runtime_error("missing status_text()");
         }, *this);
     }
 
@@ -139,7 +138,7 @@ namespace banggame {
                 auto copy = std::move(req);
                 copy.on_resolve();
             } else {
-                throw std::runtime_error("on_resolve()");
+                throw std::runtime_error("missing on_resolve()");
             }
         }, *this);
     }
@@ -159,7 +158,7 @@ namespace banggame {
                 auto copy = req;
                 copy.on_pick(pile, target, target_card);
             } else {
-                throw std::runtime_error("on_pick(pile, target, target_card)");
+                throw std::runtime_error("missing on_pick(pile, target, target_card)");
             }
         }, *this);
     }

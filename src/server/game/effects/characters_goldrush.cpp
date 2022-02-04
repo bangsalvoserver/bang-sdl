@@ -5,7 +5,7 @@
 namespace banggame {
     using namespace enums::flag_operators;
 
-    void effect_don_bell::on_equip(player *p, card *target_card) {
+    void effect_don_bell::on_equip(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_turn_end>(target_card, [=](player *target) {
             if (p == target) {
                 if (target_card->max_usages == 0) {
@@ -26,13 +26,13 @@ namespace banggame {
         });
     }
 
-    void effect_madam_yto::on_equip(player *p, card *target_card) {
+    void effect_madam_yto::on_equip(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_play_beer>(target_card, [p](player *target) {
             p->m_game->draw_card_to(card_pile_type::player_hand, p);
         });
     }
 
-    void effect_dutch_will::on_equip(player *target, card *target_card) {
+    void effect_dutch_will::on_equip(card *target_card, player *target) {
         target->m_game->add_event<event_type::on_draw_from_deck>(target_card, [=](player *origin) {
             if (origin == target) {
                 if (target->m_num_cards_to_draw > 1) {

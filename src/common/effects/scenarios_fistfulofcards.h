@@ -6,8 +6,8 @@
 namespace banggame {
 
     struct effect_ambush : card_effect {
-        void on_equip(player *target, card *target_card);
-        void on_unequip(player *target, card *target_card);
+        void on_equip(card *target_card, player *target);
+        void on_unequip(card *target_card, player *target);
     };
 
     struct effect_sniper : card_effect {
@@ -19,24 +19,24 @@ namespace banggame {
     };
 
     struct effect_deadman : scenario_effect {
-        void on_equip(player *target, card *target_card);
+        void on_equip(card *target_card, player *target);
     };
 
     struct effect_judge : scenario_effect {
-        void on_equip(player *target, card *target_card);
+        void on_equip(card *target_card, player *target);
     };
 
     struct effect_lasso : card_effect {
-        void on_equip(player *target, card *target_card);
-        void on_unequip(player *target, card *target_card);
+        void on_equip(card *target_card, player *target);
+        void on_unequip(card *target_card, player *target);
     };
 
     struct effect_abandonedmine : scenario_effect {
-        void on_equip(player *target, card *target_card);
+        void on_equip(card *target_card, player *target);
     };
 
     struct effect_peyote : event_based_effect {
-        void on_equip(player *target, card *target_card);
+        void on_equip(card *target_card, player *target);
     };
 
     struct request_peyote : request_base, allowed_piles<card_pile_type::selection> {
@@ -52,11 +52,11 @@ namespace banggame {
     };
     
     struct effect_russianroulette : scenario_effect {
-        void on_equip(player *target, card *target_card);
+        void on_equip(card *target_card, player *target);
     };
 
     struct effect_fistfulofcards : event_based_effect {
-        void on_equip(player *target, card *target_card);
+        void on_equip(card *target_card, player *target);
     };
 
 }

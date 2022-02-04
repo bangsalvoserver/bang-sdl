@@ -5,7 +5,7 @@
 namespace banggame {
     using namespace enums::flag_operators;
 
-    void effect_al_preacher::on_equip(player *p, card *target_card) {
+    void effect_al_preacher::on_equip(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_equip>(target_card, [=](player *origin, player *target, card *equipped_card) {
             if (p != origin && (equipped_card->color == card_color_type::blue || equipped_card->color == card_color_type::orange)) {
                 if (p->count_cubes() >= 2) {
@@ -23,7 +23,7 @@ namespace banggame {
         origin->m_game->pop_request(request_type::al_preacher);
     }
 
-    void effect_julie_cutter::on_equip(player *p, card *target_card) {
+    void effect_julie_cutter::on_equip(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_hit>(target_card, [=](card *origin_card, player *origin, player *target, int damage, bool is_bang) {
             if (origin && p == target && origin != target) {
                 p->m_game->draw_check_then(target, target_card, [=](card *drawn_card) {
@@ -45,7 +45,7 @@ namespace banggame {
         target->move_cubes(target_card, origin->m_characters.front(), 1);
     }
 
-    void effect_bloody_mary::on_equip(player *p, card *target_card) {
+    void effect_bloody_mary::on_equip(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_missed>(target_card, [=](card *origin_card, player *origin, player *target, bool is_bang) {
             if (origin == p && is_bang) {
                 origin->m_game->draw_card_to(card_pile_type::player_hand, p);
@@ -53,7 +53,7 @@ namespace banggame {
         });
     }
 
-    void effect_red_ringo::on_equip(player *p, card *target_card) {
+    void effect_red_ringo::on_equip(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_game_start>(target_card, [p] {
             p->add_cubes(p->m_characters.front(), 4);
         });

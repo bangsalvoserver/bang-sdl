@@ -5,13 +5,13 @@
 namespace banggame {
     using namespace enums::flag_operators;
 
-    void effect_ambush::on_equip(player *target, card *target_card) {
+    void effect_ambush::on_equip(card *target_card, player *target) {
         for (auto &p : target->m_game->m_players) {
             p.add_player_flags(player_flags::see_everyone_range_1);
         }
     }
 
-    void effect_ambush::on_unequip(player *target, card *target_card) {
+    void effect_ambush::on_unequip(card *target_card, player *target) {
         for (auto &p : target->m_game->m_players) {
             p.remove_player_flags(player_flags::see_everyone_range_1);
         }
@@ -29,29 +29,29 @@ namespace banggame {
         }
     }
 
-    void effect_deadman::on_equip(player *target, card *target_card) {
+    void effect_deadman::on_equip(card *target_card, player *target) {
         target->m_game->m_scenario_flags |= scenario_flags::deadman;
     }
 
-    void effect_judge::on_equip(player *target, card *target_card) {
+    void effect_judge::on_equip(card *target_card, player *target) {
         target->m_game->m_scenario_flags |= scenario_flags::judge;
     }
 
-    void effect_lasso::on_equip(player *target, card *target_card) {
+    void effect_lasso::on_equip(card *target_card, player *target) {
         target->m_game->add_disabler(target_card, [](card *c) {
             return c->pile == card_pile_type::player_table;
         });
     }
 
-    void effect_lasso::on_unequip(player *target, card *target_card) {
+    void effect_lasso::on_unequip(card *target_card, player *target) {
         target->m_game->remove_disablers(target_card);
     }
 
-    void effect_abandonedmine::on_equip(player *target, card *target_card) {
+    void effect_abandonedmine::on_equip(card *target_card, player *target) {
         target->m_game->m_scenario_flags |= scenario_flags::abandonedmine;
     }
 
-    void effect_peyote::on_equip(player *target, card *target_card) {
+    void effect_peyote::on_equip(card *target_card, player *target) {
         target->m_game->add_event<event_type::on_request_draw>(target_card, [=](player *p) {
             auto &vec = p->m_game->m_hidden_deck;
             for (auto it = vec.begin(); it != vec.end(); ) {
@@ -99,7 +99,7 @@ namespace banggame {
         return {"STATUS_RICOCHET", origin_card, target_card};
     }
 
-    void effect_russianroulette::on_equip(player *target, card *target_card) {
+    void effect_russianroulette::on_equip(card *target_card, player *target) {
         auto queue_russianroulette_request = [=](player *target) {
             request_bang req{target_card, nullptr, target};
             req.bang_damage = 2;
@@ -118,7 +118,7 @@ namespace banggame {
         });
     }
 
-    void effect_fistfulofcards::on_equip(player *target, card *target_card) {
+    void effect_fistfulofcards::on_equip(card *target_card, player *target) {
         target->m_game->add_event<event_type::pre_turn_start>(target_card, [=](player *p) {
             for (int i=0; i<p->m_hand.size(); ++i) {
                 p->m_game->queue_request<request_type::bang>(target_card, nullptr, p);

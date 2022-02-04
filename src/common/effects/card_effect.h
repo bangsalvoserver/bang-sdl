@@ -23,11 +23,11 @@ namespace banggame {
     };
 
     struct event_based_effect : card_effect {
-        void on_unequip(player *target, card *target_card);
+        void on_unequip(card *target_card, player *target);
     };
 
     struct predraw_check_effect : card_effect {
-        void on_unequip(player *target, card *target_card);
+        void on_unequip(card *target_card, player *target);
     };
 
     struct request_base {
@@ -56,7 +56,7 @@ namespace banggame {
     };
 
     struct scenario_effect : card_effect {
-        void on_unequip(player *target, card *target_card) {}
+        void on_unequip(card *target_card, player *target) {}
     };
 
 }

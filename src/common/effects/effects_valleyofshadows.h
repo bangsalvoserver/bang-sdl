@@ -41,8 +41,8 @@ namespace banggame {
     };
 
     struct effect_lemat : card_effect {
-        void on_equip(player *target, card *target_card);
-        void on_unequip(player *target, card *target_card);
+        void on_equip(card *target_card, player *target);
+        void on_unequip(card *target_card, player *target);
     };
 }
 

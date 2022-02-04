@@ -5,15 +5,15 @@
 namespace banggame {
     using namespace enums::flag_operators;
 
-    void effect_calamity_janet::on_equip(player *p, card *origin_card) {
+    void effect_calamity_janet::on_equip(card *origin_card, player *p) {
         p->add_player_flags(player_flags::treat_missed_as_bang);
     }
 
-    void effect_calamity_janet::on_unequip(player *p, card *origin_card) {
+    void effect_calamity_janet::on_unequip(card *origin_card, player *p) {
         p->remove_player_flags(player_flags::treat_missed_as_bang);
     }
 
-    void effect_slab_the_killer::on_equip(player *p, card *target_card) {
+    void effect_slab_the_killer::on_equip(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_play_bang>(target_card, [p](player *target) {
             if (p == target) {
                 target->add_bang_mod([](request_bang &req) {
@@ -23,7 +23,7 @@ namespace banggame {
         });
     }
 
-    void effect_black_jack::on_equip(player *target, card *target_card) {
+    void effect_black_jack::on_equip(card *target_card, player *target) {
         target->m_game->add_event<event_type::on_card_drawn>(target_card, [target](player *origin, card *drawn_card) {
             if (origin == target && origin->m_num_drawn_cards == 2) {
                 card_suit_type suit = target->get_card_suit(drawn_card);
@@ -40,7 +40,7 @@ namespace banggame {
         });
     }
 
-    void effect_kit_carlson::on_equip(player *target, card *target_card) {
+    void effect_kit_carlson::on_equip(card *target_card, player *target) {
         target->m_game->add_event<event_type::on_draw_from_deck>(target_card, [=](player *origin) {
             if (target == origin && target->m_num_cards_to_draw < 3) {
                 target->m_game->pop_request_noupdate(request_type::draw);
@@ -68,7 +68,7 @@ namespace banggame {
         return {"STATUS_KIT_CARLSON", origin_card};
     }
 
-    void effect_el_gringo::on_equip(player *p, card *target_card) {
+    void effect_el_gringo::on_equip(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_hit>(target_card, [=](card *origin_card, player *origin, player *target, int damage, bool is_bang) {
             if (origin && p == target && p->m_game->m_playing != p) {
                 while(damage-- && !origin->m_hand.empty()) {
@@ -79,7 +79,7 @@ namespace banggame {
         });
     }
 
-    void effect_suzy_lafayette::on_equip(player *p, card *target_card) {
+    void effect_suzy_lafayette::on_equip(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_effect_end>(target_card, [p](player *origin, card *target_card) {
             if (p->m_hand.empty()) {
                 p->m_game->draw_card_to(card_pile_type::player_hand, p);
@@ -87,7 +87,7 @@ namespace banggame {
         });
     }
 
-    void effect_vulture_sam::on_equip(player *p, card *target_card) {
+    void effect_vulture_sam::on_equip(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_player_death>(target_card, [p](player *origin, player *target) {
             if (p != target) {
                 for (auto it = target->m_table.begin(); it != target->m_table.end(); ) {
@@ -105,7 +105,7 @@ namespace banggame {
         });
     }
 
-    void effect_greg_digger::on_equip(player *p, card *target_card) {
+    void effect_greg_digger::on_equip(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_player_death>(target_card, [p](player *origin, player *target) {
             if (p != target) {
                 p->heal(2);

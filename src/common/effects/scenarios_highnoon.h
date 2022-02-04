@@ -6,15 +6,15 @@
 namespace banggame {
 
     struct effect_blessing : event_based_effect {
-        void on_equip(player *target, card *target_card);
+        void on_equip(card *target_card, player *target);
     };
 
     struct effect_curse : event_based_effect {
-        void on_equip(player *target, card *target_card);
+        void on_equip(card *target_card, player *target);
     };
 
     struct effect_thedaltons : scenario_effect {
-        void on_equip(player *target, card *target_card);
+        void on_equip(card *target_card, player *target);
     };
 
     struct request_thedaltons : request_base {
@@ -27,50 +27,50 @@ namespace banggame {
     };
 
     struct effect_thedoctor : scenario_effect {
-        void on_equip(player *target, card *target_card);
+        void on_equip(card *target_card, player *target);
     };
 
     struct effect_trainarrival : card_effect {
-        void on_equip(player *target, card *target_card);
-        void on_unequip(player *target, card *target_card);
+        void on_equip(card *target_card, player *target);
+        void on_unequip(card *target_card, player *target);
     };
 
     struct effect_thirst : card_effect {
-        void on_equip(player *target, card *target_card);
-        void on_unequip(player *target, card *target_card);
+        void on_equip(card *target_card, player *target);
+        void on_unequip(card *target_card, player *target);
     };
 
     struct effect_highnoon : event_based_effect {
-        void on_equip(player *target, card *target_card);
+        void on_equip(card *target_card, player *target);
     };
 
     struct effect_shootout : event_based_effect {
-        void on_equip(player *target, card *target_card);
+        void on_equip(card *target_card, player *target);
     };
 
     struct effect_invert_rotation : scenario_effect {
-        void on_equip(player *target, card *target_card);
+        void on_equip(card *target_card, player *target);
     };
 
     struct effect_reverend : scenario_effect {
-        void on_equip(player *target, card *target_card);
+        void on_equip(card *target_card, player *target);
     };
 
     struct effect_hangover : card_effect {
-        void on_equip(player *target, card *target_card);
-        void on_unequip(player *target, card *target_card);
+        void on_equip(card *target_card, player *target);
+        void on_unequip(card *target_card, player *target);
     };
 
     struct effect_sermon : scenario_effect {
-        void on_equip(player *target, card *target_card);
+        void on_equip(card *target_card, player *target);
     };
 
     struct effect_ghosttown : scenario_effect {
-        void on_equip(player *target, card *target_card);
+        void on_equip(card *target_card, player *target);
     };
 
     struct effect_handcuffs : event_based_effect {
-        void on_equip(player *target, card *target_card);
+        void on_equip(card *target_card, player *target);
     };
 
     struct request_handcuffs : request_base, allowed_piles<card_pile_type::selection> {

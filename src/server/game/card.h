@@ -42,13 +42,13 @@ namespace banggame {
 
         void on_equip(player *target) {
             for (auto &e : equips) {
-                e.on_equip(target, this);
+                e.on_equip(this, target);
             }
         }
 
         void on_unequip(player *target) {
             for (auto &e : equips) {
-                e.on_unequip(target, this);
+                e.on_unequip(this, target);
             }
         }
     };

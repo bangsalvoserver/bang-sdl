@@ -5,7 +5,7 @@
 namespace banggame {
     using namespace enums::flag_operators;
 
-    void effect_bill_noface::on_equip(player *target, card *target_card) {
+    void effect_bill_noface::on_equip(card *target_card, player *target) {
         target->m_game->add_event<event_type::on_draw_from_deck>(target_card, [target](player *origin) {
             if (target == origin) {
                 target->m_num_cards_to_draw = target->m_num_cards_to_draw - 1 + target->m_max_hp - target->m_hp;
@@ -13,7 +13,7 @@ namespace banggame {
         });
     }
 
-    void effect_tequila_joe::on_equip(player *target, card *target_card) {
+    void effect_tequila_joe::on_equip(card *target_card, player *target) {
         target->m_game->add_event<event_type::apply_beer_modifier>(target_card, [target](player *origin, int &value) {
             if (target == origin) {
                 ++value;
@@ -21,7 +21,7 @@ namespace banggame {
         });
     }
 
-    void effect_claus_the_saint::on_equip(player *target, card *target_card) {
+    void effect_claus_the_saint::on_equip(card *target_card, player *target) {
         target->m_game->add_event<event_type::on_draw_from_deck>(target_card, [=](player *origin) {
             if (origin == target) {
                 target->m_game->pop_request_noupdate(request_type::draw);
@@ -60,7 +60,7 @@ namespace banggame {
         return {"STATUS_CLAUS_THE_SAINT", origin_card};
     }
     
-    void effect_herb_hunter::on_equip(player *p, card *target_card) {
+    void effect_herb_hunter::on_equip(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_player_death>(target_card, [p](player *origin, player *target) {
             if (p != target) {
                 p->m_game->draw_card_to(card_pile_type::player_hand, p);
@@ -69,7 +69,7 @@ namespace banggame {
         });
     }
 
-    void effect_johnny_kisch::on_equip(player *p, card *target_card) {
+    void effect_johnny_kisch::on_equip(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_equip>(target_card, [=](player *origin, player *target, card *equipped_card) {
             if (p == origin) {
                 for (auto &other : p->m_game->m_players) {
@@ -82,7 +82,7 @@ namespace banggame {
         });
     }
 
-    void effect_molly_stark::on_equip(player *p, card *target_card) {
+    void effect_molly_stark::on_equip(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_play_hand_card>(target_card, [p](player *target, card *card) {
             if (p == target && p->m_game->m_playing != p) {
                 p->m_game->draw_card_to(card_pile_type::player_hand, p);
@@ -90,7 +90,7 @@ namespace banggame {
         });
     }
 
-    void effect_bellestar::on_equip(player *p, card *target_card) {
+    void effect_bellestar::on_equip(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_turn_start>(target_card, [=](player *target) {
             if (p == target) {
                 p->m_game->add_disabler(target_card, [=](card *c) {
@@ -105,7 +105,7 @@ namespace banggame {
         });
     }
 
-    void effect_bellestar::on_unequip(player *target, card *target_card) {
+    void effect_bellestar::on_unequip(card *target_card, player *target) {
         target->m_game->remove_disablers(target_card);
         target->m_game->remove_events(target_card);
     }
@@ -129,7 +129,7 @@ namespace banggame {
         }
     }
 
-    void effect_vera_custer::on_equip(player *p, card *target_card) {
+    void effect_vera_custer::on_equip(card *target_card, player *p) {
         p->m_game->add_event<event_type::before_turn_start>(target_card, [=](player *target) {
             if (p == target) {
                 ++p->m_characters.front()->usages;

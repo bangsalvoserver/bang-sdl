@@ -6,12 +6,12 @@
 namespace banggame {
     
     struct effect_bomb : card_effect {
-        void on_equip(player *target, card *target_card);
-        void on_unequip(player *target, card *target_card);
+        void on_equip(card *target_card, player *target);
+        void on_unequip(card *target_card, player *target);
     };
 
     struct effect_tumbleweed : event_based_effect {
-        void on_equip(player *target, card *target_card);
+        void on_equip(card *target_card, player *target);
 
         bool can_respond(card *origin_card, player *origin) const;
         void on_play(card *origin_card, player *target);

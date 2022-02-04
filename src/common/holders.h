@@ -228,12 +228,17 @@ namespace banggame {
             requires (sizeof(card_effect) == sizeof(T));
         };
         
-        template<typename Variant> struct all_is_effect{};
-        template<typename ... Ts> struct all_is_effect<std::variant<Ts...>>
+        template<typename Variant> struct all_elements_effects{};
+        template<typename ... Ts> struct all_elements_effects<std::variant<Ts...>>
             : std::bool_constant<(is_effect<Ts> && ...)> {};
+
+        template<typename E> concept effect_enum = requires {
+            requires enums::reflected_enum<E>;
+            requires all_elements_effects<enums::enum_variant_base<E>>::value;
+        };
     }
 
-    template<enums::reflected_enum E>
+    template<detail::effect_enum E>
     struct effect_base : card_effect {
         using enum_type = E;
         enum_type type;
@@ -248,8 +253,6 @@ namespace banggame {
             static_cast<card_effect &>(value) = static_cast<const card_effect &>(*this);
             return value;
         }
-        
-        static_assert(detail::all_is_effect<enums::enum_variant_base<E>>::value);
     };
 
     struct effect_holder : effect_base<effect_type> {
@@ -270,9 +273,9 @@ namespace banggame {
     struct equip_holder : effect_base<equip_type> {
         using effect_base<equip_type>::effect_base;
 
-        void on_pre_equip(player *target, card *target_card);
-        void on_equip(player *target, card *target_card);
-        void on_unequip(player *target, card *target_card);
+        void on_pre_equip(card *target_card, player *target);
+        void on_equip(card *target_card, player *target);
+        void on_unequip(card *target_card, player *target);
     };
 
     struct request_holder : enums::enum_variant<request_type> {

@@ -5,19 +5,19 @@
 namespace banggame {
     using namespace enums::flag_operators;
 
-    void effect_blessing::on_equip(player *target, card *target_card) {
+    void effect_blessing::on_equip(card *target_card, player *target) {
         target->m_game->add_event<event_type::apply_suit_modifier>(target_card, [](card_suit_type &suit) {
             suit = card_suit_type::hearts;
         });
     }
 
-    void effect_curse::on_equip(player *target, card *target_card) {
+    void effect_curse::on_equip(card *target_card, player *target) {
         target->m_game->add_event<event_type::apply_suit_modifier>(target_card, [](card_suit_type &suit) {
             suit = card_suit_type::spades;
         });
     }
 
-    void effect_thedaltons::on_equip(player *target, card *target_card) {
+    void effect_thedaltons::on_equip(card *target_card, player *target) {
         player *p = target;
         while(true) {
             if (std::ranges::find(p->m_table, card_color_type::blue, &card::color) != p->m_table.end()) {
@@ -44,7 +44,7 @@ namespace banggame {
         return {"STATUS_THEDALTONS", origin_card};
     }
 
-    void effect_thedoctor::on_equip(player *target, card *target_card) {
+    void effect_thedoctor::on_equip(card *target_card, player *target) {
         int min_hp = std::ranges::min(target->m_game->m_players
             | std::views::filter(&player::alive)
             | std::views::transform(&player::m_hp));
@@ -56,70 +56,70 @@ namespace banggame {
         }
     }
 
-    void effect_trainarrival::on_equip(player *target, card *target_card) {
+    void effect_trainarrival::on_equip(card *target_card, player *target) {
         for (auto &p : target->m_game->m_players) {
             ++p.m_num_cards_to_draw;
         }
     }
 
-    void effect_trainarrival::on_unequip(player *target, card *target_card) {
+    void effect_trainarrival::on_unequip(card *target_card, player *target) {
         for (auto &p : target->m_game->m_players) {
             --p.m_num_cards_to_draw;
         }
     }
 
-    void effect_thirst::on_equip(player *target, card *target_card) {
+    void effect_thirst::on_equip(card *target_card, player *target) {
         for (auto &p : target->m_game->m_players) {
             --p.m_num_cards_to_draw;
         }
     }
 
-    void effect_thirst::on_unequip(player *target, card *target_card) {
+    void effect_thirst::on_unequip(card *target_card, player *target) {
         for (auto &p : target->m_game->m_players) {
             ++p.m_num_cards_to_draw;
         }
     }
 
-    void effect_highnoon::on_equip(player *target, card *target_card) {
+    void effect_highnoon::on_equip(card *target_card, player *target) {
         target->m_game->add_event<event_type::pre_turn_start>(target_card, [=](player *p) {
             p->damage(target_card, nullptr, 1);
         });
     }
 
-    void effect_shootout::on_equip(player *target, card *target_card) {
+    void effect_shootout::on_equip(card *target_card, player *target) {
         target->m_game->add_event<event_type::on_turn_start>(target_card, [](player *p) {
             ++p->m_bangs_per_turn;
         });
     }
 
-    void effect_invert_rotation::on_equip(player *target, card *target_card) {
+    void effect_invert_rotation::on_equip(card *target_card, player *target) {
         target->m_game->m_scenario_flags |= scenario_flags::invert_rotation;
     }
 
-    void effect_reverend::on_equip(player *target, card *target_card) {
+    void effect_reverend::on_equip(card *target_card, player *target) {
         target->m_game->m_scenario_flags |= scenario_flags::reverend;
     }
 
-    void effect_hangover::on_equip(player *target, card *target_card) {
+    void effect_hangover::on_equip(card *target_card, player *target) {
         target->m_game->add_disabler(target_card, [](card *c) {
             return c->pile == card_pile_type::player_character;
         });
     }
 
-    void effect_hangover::on_unequip(player *target, card *target_card) {
+    void effect_hangover::on_unequip(card *target_card, player *target) {
         target->m_game->remove_disablers(target_card);
         target->m_game->queue_event<event_type::on_effect_end>(target, target_card);
     }
 
-    void effect_sermon::on_equip(player *target, card *target_card) {
+    void effect_sermon::on_equip(card *target_card, player *target) {
         target->m_game->m_scenario_flags |= scenario_flags::sermon;
     }
 
-    void effect_ghosttown::on_equip(player *target, card *target_card) {
+    void effect_ghosttown::on_equip(card *target_card, player *target) {
         target->m_game->m_scenario_flags |= scenario_flags::ghosttown;
     }
 
-    void effect_handcuffs::on_equip(player *target, card *target_card) {
+    void effect_handcuffs::on_equip(card *target_card, player *target) {
         target->m_game->add_event<event_type::post_draw_cards>(target_card, [=](player *origin) {
             auto &vec = origin->m_game->m_hidden_deck;
             for (auto it = vec.begin(); it != vec.end(); ) {

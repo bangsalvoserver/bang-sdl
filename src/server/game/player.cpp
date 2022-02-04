@@ -16,7 +16,7 @@ namespace banggame {
 
     void player::equip_card(card *target) {
         for (auto &e : target->equips) {
-            e.on_pre_equip(this, target);
+            e.on_pre_equip(target, this);
         }
 
         m_game->move_to(target, card_pile_type::player_table, true, this, show_card_flags::show_everyone);

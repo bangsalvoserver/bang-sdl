@@ -6,19 +6,19 @@
 namespace banggame {
 
     struct effect_packmule : event_based_effect {
-        void on_equip(player *target, card *target_card);
+        void on_equip(card *target_card, player *target);
     };
 
     struct effect_indianguide : event_based_effect {
-        void on_equip(player *target, card *target_card);
+        void on_equip(card *target_card, player *target);
     };
 
     struct effect_taxman : predraw_check_effect {
-        void on_equip(player *target, card *target_card);
+        void on_equip(card *target_card, player *target);
     };
 
     struct effect_lastwill : event_based_effect {
-        void on_equip(player *target, card *target_card);
+        void on_equip(card *target_card, player *target);
     };
 
 }

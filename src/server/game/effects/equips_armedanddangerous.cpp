@@ -4,7 +4,7 @@
 
 namespace banggame {
 
-    void effect_bomb::on_equip(player *target, card *target_card) {
+    void effect_bomb::on_equip(card *target_card, player *target) {
         target->add_predraw_check(target_card, 0, [=](card *drawn_card) {
             card_suit_type suit = target->get_card_suit(drawn_card);
             if (suit == card_suit_type::spades || suit == card_suit_type::clubs) {
@@ -21,8 +21,8 @@ namespace banggame {
         });
     }
 
-    void effect_bomb::on_unequip(player *target, card *target_card) {
-        predraw_check_effect{}.on_unequip(target, target_card);
-        event_based_effect{}.on_unequip(target, target_card);
+    void effect_bomb::on_unequip(card *target_card, player *target) {
+        predraw_check_effect{}.on_unequip(target_card, target);
+        event_based_effect{}.on_unequip(target_card, target);
     }
 }

@@ -5,7 +5,7 @@
 namespace banggame {
     using namespace enums::flag_operators;
 
-    void effect_big_spencer::on_equip(player *p, card *target_card) {
+    void effect_big_spencer::on_equip(card *target_card, player *p) {
         p->m_game->add_event<event_type::verify_missedcard>(target_card, [=](player *origin, card *origin_card){
             if (origin == p) {
                 throw game_error("ERROR_CANT_PLAY_CARD", origin_card);
@@ -14,12 +14,12 @@ namespace banggame {
         p->m_initial_cards = 5;
     }
 
-    void effect_big_spencer::on_unequip(player *p, card *target_card) {
+    void effect_big_spencer::on_unequip(card *target_card, player *p) {
         p->m_game->remove_events(target_card);
         p->m_initial_cards = 0;
     }
 
-    void effect_gary_looter::on_equip(player *p, card *target_card) {
+    void effect_gary_looter::on_equip(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_discard_pass>(target_card, [p](player *origin, card *discarded_card) {
             if (p != origin) {
                 for (;origin != p; origin = origin->m_game->get_next_player(origin)) {
@@ -34,7 +34,7 @@ namespace banggame {
         });
     }
 
-    void effect_john_pain::on_equip(player *p, card *target_card) {
+    void effect_john_pain::on_equip(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_draw_check>(target_card, [p](player *origin, card *drawn_card) {
             if (p->m_hand.size() < 6) {
                 for (;origin != p; origin = origin->m_game->get_next_player(origin)) {
@@ -69,7 +69,7 @@ namespace banggame {
         });
     }
 
-    void effect_youl_grinner::on_equip(player *target, card *target_card) {
+    void effect_youl_grinner::on_equip(card *target_card, player *target) {
         target->m_game->add_event<event_type::on_turn_start>(target_card, [=](player *origin) {
             if (target == origin) {
                 for (auto &p : target->m_game->m_players) {
@@ -138,7 +138,7 @@ namespace banggame {
         greygory_deck_set_characters(target);
     }
 
-    void effect_greygory_deck::on_equip(player *p, card *target_card) {
+    void effect_greygory_deck::on_equip(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_game_start>(target_card, [p] {
             greygory_deck_set_characters(p);
         });
