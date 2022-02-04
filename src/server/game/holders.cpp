@@ -118,7 +118,7 @@ namespace banggame {
     }
 
     game_formatted_string request_holder::status_text() const {
-        return enums::visit_indexed([]<request_type T>(enums::enum_constant<T>, const auto &req) -> game_formatted_string {
+        return enums::visit([](const auto &req) -> game_formatted_string {
             if constexpr (requires { req.status_text(); }) {
                 return req.status_text();
             } else {
@@ -128,26 +128,48 @@ namespace banggame {
     }
 
     bool request_holder::resolvable() const {
-        return enums::visit_indexed([]<request_type T>(enums::enum_constant<T>, auto) {
-            return resolvable_request<T>;
+        return enums::visit([](auto &req) {
+            return requires (std::remove_cvref_t<decltype(req)> obj) { obj.on_resolve(); };
         }, *this);
     }
 
     void request_holder::on_resolve() {
-        enums::visit_indexed([]<request_type E>(enums::enum_constant<E>, auto &req) {
-            if constexpr (resolvable_request<E>) {
-                auto req_copy = std::move(req);
-                req_copy.on_resolve();
+        enums::visit([](auto &req) {
+            if constexpr (requires { req.on_resolve(); }) {
+                auto copy = std::move(req);
+                copy.on_resolve();
+            } else {
+                throw std::runtime_error("on_resolve()");
+            }
+        }, *this);
+    }
+
+    bool request_holder::can_pick(card_pile_type pile, player *target, card *target_card) const {
+        return enums::visit([&](auto &req) {
+            if constexpr (requires { req.can_pick(pile, target, target_card); }) {
+                return req.can_pick(pile, target, target_card);
+            }
+            return false;
+        }, *this);
+    }
+
+    void request_holder::on_pick(card_pile_type pile, player *target, card *target_card) {
+        enums::visit([&](auto &req) {
+            if constexpr (requires { req.on_pick(pile, target, target_card); }) {
+                auto copy = req;
+                copy.on_pick(pile, target, target_card);
+            } else {
+                throw std::runtime_error("on_pick(pile, target, target_card)");
             }
         }, *this);
     }
 
     bool request_holder::tick() {
-        return enums::visit_indexed([&]<request_type E>(enums::enum_constant<E>, auto &obj) {
-            if constexpr (timer_request<E>) {
-                if (obj.duration && --obj.duration == 0) {
-                    if constexpr (requires { obj.on_finished(); }) {
-                        auto copy = std::move(obj);
+        return enums::visit([&](auto &req) {
+            if constexpr (std::is_base_of_v<timer_base, std::remove_cvref_t<decltype(req)>>) {
+                if (req.duration && --req.duration == 0) {
+                    if constexpr (requires { req.on_finished(); }) {
+                        auto copy = std::move(req);
                         copy.on_finished();
                     } else {
                         return true;
@@ -159,20 +181,9 @@ namespace banggame {
     }
 
     void request_holder::cleanup() {
-        enums::visit([](auto &value) {
-            if constexpr (requires { value.cleanup(); }) {
-                value.cleanup();
-            }
-        }, *this);
-    }
-
-    void request_holder::on_pick(card_pile_type pile, player *target, card *target_card) {
-        enums::visit_indexed([&]<request_type E>(enums::enum_constant<E>, auto &req) {
-            if constexpr (picking_request<E>) {
-                if (req.valid_pile(pile)) {
-                    auto req_copy = req;
-                    req_copy.on_pick(pile, target, target_card);
-                }
+        enums::visit([](auto &req) {
+            if constexpr (requires { req.cleanup(); }) {
+                req.cleanup();
             }
         }, *this);
     }

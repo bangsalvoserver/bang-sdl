@@ -5,13 +5,14 @@
 
 namespace banggame {
 
-    struct request_add_cube : request_base, allowed_piles<card_pile_type::player_character, card_pile_type::player_table> {
+    struct request_add_cube : request_base {
         request_add_cube(card *origin_card, player *target, int ncubes = 1)
             : request_base(origin_card, nullptr, target)
             , ncubes(ncubes) {}
 
         int ncubes = 1;
         
+        bool can_pick(card_pile_type pile, player *target, card *target_card) const;
         void on_pick(card_pile_type pile, player *target, card *target_card);
         game_formatted_string status_text() const;
     };

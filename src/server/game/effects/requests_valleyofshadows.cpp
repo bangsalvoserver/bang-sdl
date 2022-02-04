@@ -43,13 +43,15 @@ namespace banggame {
         return {"STATUS_STEAL", origin_card, with_owner{target_card}};
     }
 
+    bool request_bandidos::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
+        return pile == card_pile_type::player_hand && target_player == target;
+    }
+
     void request_bandidos::on_pick(card_pile_type pile, player *target_player, card *target_card) {
-        if (target_player == target) {
-            target->discard_card(target_card);
-            if (--target->m_game->top_request().get<request_type::bandidos>().num_cards == 0
-                || target->num_hand_cards() == 0) {
-                target->m_game->pop_request(request_type::bandidos);
-            }
+        target->discard_card(target_card);
+        if (--target->m_game->top_request().get<request_type::bandidos>().num_cards == 0
+            || target->num_hand_cards() == 0) {
+            target->m_game->pop_request(request_type::bandidos);
         }
     }
 
@@ -62,24 +64,28 @@ namespace banggame {
         return {"STATUS_BANDIDOS", origin_card};
     }
 
+    bool request_tornado::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
+        return pile == card_pile_type::player_hand && target_player == target;
+    }
+
     void request_tornado::on_pick(card_pile_type pile, player *target_player, card *target_card) {
-        if (target_player == target) {
-            target->discard_card(target_card);
-            target->m_game->draw_card_to(card_pile_type::player_hand, target);
-            target->m_game->draw_card_to(card_pile_type::player_hand, target);
-            target->m_game->pop_request(request_type::tornado);
-        }
+        target->discard_card(target_card);
+        target->m_game->draw_card_to(card_pile_type::player_hand, target);
+        target->m_game->draw_card_to(card_pile_type::player_hand, target);
+        target->m_game->pop_request(request_type::tornado);
     }
 
     game_formatted_string request_tornado::status_text() const {
         return {"STATUS_TORNADO", origin_card};
     }
 
+    bool request_poker::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
+        return pile == card_pile_type::player_hand && target_player == target;
+    }
+
     void request_poker::on_pick(card_pile_type pile, player *target_player, card *target_card) {
-        if (target == target_player) {
-            target->m_game->move_to(target_card, card_pile_type::selection, true, origin);
-            target->m_game->pop_request(request_type::poker);
-        }
+        target->m_game->move_to(target_card, card_pile_type::selection, true, origin);
+        target->m_game->pop_request(request_type::poker);
     }
 
     game_formatted_string request_poker::status_text() const {
@@ -101,16 +107,24 @@ namespace banggame {
         return {"STATUS_POKER_DRAW", origin_card};
     }
 
+    bool request_saved::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
+        return pile == card_pile_type::main_deck
+            || (pile == card_pile_type::player_hand && target_player == saved);
+    }
+
     void request_saved::on_pick(card_pile_type pile, player *target_player, card *target_card) {
-        if (pile == card_pile_type::main_deck) {
+        switch (pile) {
+        case card_pile_type::main_deck:
             target->m_game->draw_card_to(card_pile_type::player_hand, target);
             target->m_game->draw_card_to(card_pile_type::player_hand, target);
             target->m_game->pop_request(request_type::saved);
-        } else if (pile == card_pile_type::player_hand && target_player == saved) {
+            break;
+        case card_pile_type::player_hand:
             for (int i=0; i<2 && !saved->m_hand.empty(); ++i) {
                 target->steal_card(saved, saved->random_hand_card());
             }
             target->m_game->pop_request(request_type::saved);
+            break;
         }
     }
 

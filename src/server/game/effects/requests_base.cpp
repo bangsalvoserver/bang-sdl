@@ -70,44 +70,48 @@ namespace banggame {
     game_formatted_string request_generalstore::status_text() const {
         return {"STATUS_GENERALSTORE", origin_card};
     }
+
+    bool request_discard::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
+        return pile == card_pile_type::player_hand && target_player == target;
+    }
     
     void request_discard::on_pick(card_pile_type pile, player *target_player, card *target_card) {
-        if (target_player == target) {
-            if (--target->m_game->top_request().get<request_type::discard>().ncards == 0) {
-                target->m_game->pop_request(request_type::discard);
-            }
-
-            target->discard_card(target_card);
-            target->m_game->queue_event<event_type::on_effect_end>(target, origin_card);
+        if (--target->m_game->top_request().get<request_type::discard>().ncards == 0) {
+            target->m_game->pop_request(request_type::discard);
         }
+
+        target->discard_card(target_card);
+        target->m_game->queue_event<event_type::on_effect_end>(target, origin_card);
     }
 
     game_formatted_string request_discard::status_text() const {
         return {"STATUS_DISCARD", origin_card};
     }
 
+    bool request_discard_pass::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
+        return pile == card_pile_type::player_hand && target_player == target;
+    }
+
     void request_discard_pass::on_pick(card_pile_type pile, player *target_player, card *target_card) {
-        if (target_player == target) {
-            if (target->m_game->has_scenario(scenario_flags::abandonedmine)) {
-                target->move_card_to(target_card, card_pile_type::main_deck);
-            } else {
-                target->discard_card(target_card);
-            }
-            target->m_game->add_log("LOG_DISCARDED_SELF_CARD", target, target_card);
-            target->m_game->instant_event<event_type::on_discard_pass>(target, target_card);
-            if (target->m_game->has_expansion(card_expansion_type::armedanddangerous)) {
-                target->m_game->queue_event<event_type::delayed_action>([target = target]{
-                    if (target->can_receive_cubes()) {
-                        target->m_game->queue_request<request_type::add_cube>(nullptr, target);
-                    }
-                });
-            }
-            if (target->num_hand_cards() <= target->max_cards_end_of_turn()) {
-                target->m_game->pop_request(request_type::discard_pass);
-                target->m_game->queue_event<event_type::delayed_action>([*this]{
-                    target->end_of_turn(next_player);
-                });
-            }
+        if (target->m_game->has_scenario(scenario_flags::abandonedmine)) {
+            target->move_card_to(target_card, card_pile_type::main_deck);
+        } else {
+            target->discard_card(target_card);
+        }
+        target->m_game->add_log("LOG_DISCARDED_SELF_CARD", target, target_card);
+        target->m_game->instant_event<event_type::on_discard_pass>(target, target_card);
+        if (target->m_game->has_expansion(card_expansion_type::armedanddangerous)) {
+            target->m_game->queue_event<event_type::delayed_action>([target = target]{
+                if (target->can_receive_cubes()) {
+                    target->m_game->queue_request<request_type::add_cube>(nullptr, target);
+                }
+            });
+        }
+        if (target->num_hand_cards() <= target->max_cards_end_of_turn()) {
+            target->m_game->pop_request(request_type::discard_pass);
+            target->m_game->queue_event<event_type::delayed_action>([*this]{
+                target->end_of_turn(next_player);
+            });
         }
     }
 

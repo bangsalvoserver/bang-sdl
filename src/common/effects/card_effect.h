@@ -50,7 +50,7 @@ namespace banggame {
 
     template<card_pile_type ... Es>
     struct allowed_piles {
-        static bool valid_pile(card_pile_type pile) {
+        bool can_pick(card_pile_type pile, player *, card *) const {
             return ((pile == Es) || ...);
         }
     };

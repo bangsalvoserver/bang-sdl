@@ -103,25 +103,25 @@ namespace banggame {
         origin->m_game->instant_event<event_type::verify_missedcard>(origin, origin_card);
     }
 
-    static auto barrels_used(request_holder &holder) {
-        return enums::visit([](auto &req) -> std::vector<card *> * {
-            if constexpr (requires { req.barrels_used; }) {
-                return &req.barrels_used;
-            }
-            return nullptr;
-        }, holder);
+    static std::vector<card *> &barrels_used(request_holder &holder) {
+        if (holder.is(request_type::bang)) {
+            return holder.get<request_type::bang>().barrels_used;
+        } else if (holder.is(request_type::ricochet)) {
+            return holder.get<request_type::ricochet>().barrels_used;
+        }
+        throw std::runtime_error("Invalid request");
     };
 
     bool effect_barrel::can_respond(card *origin_card, player *origin) const {
         if (effect_missed().can_respond(origin_card, origin)) {
-            auto *vec = barrels_used(origin->m_game->top_request());
-            return std::ranges::find(*vec, origin_card) == vec->end();
+            const auto &vec = barrels_used(origin->m_game->top_request());
+            return std::ranges::find(vec, origin_card) == vec.end();
         }
         return false;
     }
 
     void effect_barrel::on_play(card *origin_card, player *target) {
-        barrels_used(target->m_game->top_request())->push_back(origin_card);
+        barrels_used(target->m_game->top_request()).push_back(origin_card);
         target->m_game->send_request_respond();
         target->m_game->draw_check_then(target, origin_card, [=](card *drawn_card) {
             if (target->get_card_suit(drawn_card) == card_suit_type::hearts) {

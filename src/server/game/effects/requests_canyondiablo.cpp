@@ -14,12 +14,15 @@ namespace banggame {
         return {"STATUS_CARD_SHARPER", origin_card, target_card, chosen_card};
     }
 
+    bool request_lastwill::can_pick(card_pile_type pile, player *p, card *target_card) const {
+        return (pile == card_pile_type::player_hand || pile == card_pile_type::player_table)
+            && p == target && target_card != origin_card;
+    }
+
     void request_lastwill::on_pick(card_pile_type pile, player *p, card *target_card) {
-        if (p == target && target_card != origin_card) {
-            target->m_game->move_to(target_card, card_pile_type::selection, true, target);
-            if (--target->m_game->top_request().get<request_type::lastwill>().ncards == 0) {
-                on_resolve();
-            }
+        target->m_game->move_to(target_card, card_pile_type::selection, true, target);
+        if (--target->m_game->top_request().get<request_type::lastwill>().ncards == 0) {
+            on_resolve();
         }
     }
 
@@ -34,6 +37,10 @@ namespace banggame {
 
     game_formatted_string request_lastwill::status_text() const {
         return {"STATUS_LASTWILL", origin_card};
+    }
+
+    bool request_lastwill_target::can_pick(card_pile_type pile, player *p, card *) const {
+        return pile == card_pile_type::player && p != target;
     }
 
     void request_lastwill_target::on_pick(card_pile_type pile, player *p, card *) {

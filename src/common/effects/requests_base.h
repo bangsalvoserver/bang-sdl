@@ -36,23 +36,25 @@ namespace banggame {
         game_formatted_string status_text() const;
     };
 
-    struct request_discard : request_base, allowed_piles<card_pile_type::player_hand> {
+    struct request_discard : request_base {
         request_discard(card *origin_card, player *origin, player *target)
             : request_base(origin_card, origin, target) {}
 
         int ncards = 1;
         
+        bool can_pick(card_pile_type pile, player *target, card *target_card) const;
         void on_pick(card_pile_type pile, player *target, card *target_card);
         game_formatted_string status_text() const;
     };
 
-    struct request_discard_pass : request_base, allowed_piles<card_pile_type::player_hand> {
+    struct request_discard_pass : request_base {
         player *next_player;
         
         request_discard_pass(player *target, player *next_player)
             : request_base(nullptr, nullptr, target)
             , next_player(next_player) {}
 
+        bool can_pick(card_pile_type pile, player *target, card *target_card) const;
         void on_pick(card_pile_type pile, player *target, card *target_card);
         game_formatted_string status_text() const;
     };

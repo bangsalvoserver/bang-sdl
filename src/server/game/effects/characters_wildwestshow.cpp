@@ -81,12 +81,14 @@ namespace banggame {
         });
     }
 
+    bool request_youl_grinner::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
+        return pile == card_pile_type::player_hand && target_player == target;
+    }
+
     void request_youl_grinner::on_pick(card_pile_type pile, player *target_player, card *target_card) {
-        if (target_player == target) {
-            target->m_game->pop_request(request_type::youl_grinner);
-            origin->steal_card(target, target_card);
-            target->m_game->queue_event<event_type::on_effect_end>(origin, origin_card);
-        }
+        target->m_game->pop_request(request_type::youl_grinner);
+        origin->steal_card(target, target_card);
+        target->m_game->queue_event<event_type::on_effect_end>(origin, origin_card);
     }
 
     game_formatted_string request_youl_grinner::status_text() const {

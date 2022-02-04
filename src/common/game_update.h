@@ -148,8 +148,15 @@ namespace banggame {
         (game_formatted_string) status_text
     )};
 
+    struct picking_args {REFLECTABLE(
+        (card_pile_type) pile,
+        (int) player_id,
+        (int) card_id
+    )};
+
     struct request_respond_args {REFLECTABLE(
-        (std::vector<int>) card_ids
+        (std::vector<int>) respond_ids,
+        (std::vector<picking_args>) pick_ids
     )};
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, game_update_type,

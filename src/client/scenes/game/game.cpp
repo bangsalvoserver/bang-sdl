@@ -215,11 +215,6 @@ void game_scene::handle_card_click() {
         return (it == pile.rend()) ? nullptr : *it;
     };
 
-    sdl::rect main_deck_rect = card_textures::main_deck().get_rect();
-    sdl::scale_rect(main_deck_rect, sizes::card_width);
-    main_deck_rect.x = m_main_deck.get_pos().x - main_deck_rect.w / 2;
-    main_deck_rect.y = m_main_deck.get_pos().y - main_deck_rect.h / 2;
-
     if (card_view *card = find_clicked(m_selection)) {
         m_target.on_click_selection_card(card);
         return;
@@ -228,7 +223,7 @@ void game_scene::handle_card_click() {
         m_target.on_click_shop_card(card);
         return;
     }
-    if (sdl::point_in_rect(m_mouse_pt, main_deck_rect)) {
+    if (sdl::point_in_rect(m_mouse_pt, m_main_deck.back()->get_rect())) {
         m_target.on_click_main_deck();
         return;
     }
@@ -271,11 +266,6 @@ void game_scene::find_overlay() {
         );
         return (it == pile.rend()) ? nullptr : *it;
     };
-
-    sdl::rect main_deck_rect = card_textures::main_deck().get_rect();
-    sdl::scale_rect(main_deck_rect, sizes::card_width);
-    main_deck_rect.x = m_main_deck.get_pos().x - main_deck_rect.w / 2;
-    main_deck_rect.y = m_main_deck.get_pos().y - main_deck_rect.h / 2;
 
     if (m_overlay = find_clicked(m_selection)) {
         return;
@@ -785,6 +775,7 @@ void game_scene::handle_game_update(UPDATE_TAG(switch_turn), const switch_turn_u
 
 void game_scene::handle_game_update(UPDATE_TAG(request_status), const request_status_args &args) {
     m_current_request = args;
+    m_target.clear_status();
 
     if (!args.target_id || args.target_id == m_player_own_id) {
         m_ui.set_status(evaluate_format_string(args.status_text));
@@ -796,7 +787,7 @@ void game_scene::handle_game_update(UPDATE_TAG(request_status), const request_st
 }
 
 void game_scene::handle_game_update(UPDATE_TAG(request_respond), const request_respond_args &args) {
-    m_target.set_response_highlights(args.card_ids);
+    m_target.set_response_highlights(args);
 
     pop_update();
 }

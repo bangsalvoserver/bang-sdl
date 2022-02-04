@@ -14,29 +14,27 @@ void target_finder::add_action(Ts && ... args) {
     m_game->parent->add_message<client_message_type::game_action>(enums::enum_constant<T>{}, std::forward<Ts>(args) ...);
 }
 
-static bool is_valid_picking_pile(request_type type, card_pile_type pile) {
-    return enums::visit_enum([&](auto enum_const) {
-        constexpr request_type E = decltype(enum_const)::value;
-        if constexpr (picking_request<E>) {
-            return enums::enum_type_t<E>::valid_pile(pile);
-        } else {
-            return false;
-        }
-    }, type);
-}
-
-void target_finder::set_response_highlights(const std::vector<int> &card_ids) {
-    m_response_highlights.clear();
-    for (int id : card_ids) {
-        m_response_highlights.push_back(m_game->find_card(id));
-    }
-}
-
-void target_finder::clear_status() {
-    m_response_highlights.clear();
-}
-
 void target_finder::render(sdl::renderer &renderer) {
+    renderer.set_draw_color(sdl::rgba(sizes::target_finder_can_pick_rgba));
+    for (auto [pile, player, card] : m_picking_highlights) {
+        switch (pile) {
+        case card_pile_type::player_hand:
+        case card_pile_type::player_table:
+        case card_pile_type::player_character:
+        case card_pile_type::selection:
+            if (card->texture_front) renderer.draw_rect(card->get_rect());
+            break;
+        case card_pile_type::player:
+            renderer.draw_rect(player->m_bounding_rect);
+            break;
+        case card_pile_type::main_deck:
+            if (!m_game->m_main_deck.empty()) renderer.draw_rect(m_game->m_main_deck.back()->get_rect());
+            break;
+        case card_pile_type::discard_pile:
+            if (!m_game->m_discard_pile.empty()) renderer.draw_rect(m_game->m_discard_pile.back()->get_rect());
+            break;
+        }
+    }
     renderer.set_draw_color(sdl::rgba(sizes::target_finder_can_respond_rgba));
     for (auto *card : m_response_highlights) {
         if (card->texture_front) {
@@ -67,6 +65,43 @@ void target_finder::render(sdl::renderer &renderer) {
     }
 }
 
+bool target_finder::is_current_player_targeted() const {
+    return m_game->m_current_request
+        && (m_game->m_current_request->target_id == 0
+        || m_game->m_current_request->target_id == m_game->m_player_own_id);
+}
+
+bool target_finder::can_respond_with(card_view *card) const {
+    return std::ranges::find(m_response_highlights, card) != m_response_highlights.end();
+}
+
+bool target_finder::can_pick(card_pile_type pile, player_view *player, card_view *card) const {
+    return std::ranges::find(m_picking_highlights, std::tuple{pile, player, card}) != m_picking_highlights.end();
+}
+
+void target_finder::set_response_highlights(const request_respond_args &args) {
+    m_response_highlights.clear();
+    for (int id : args.respond_ids) {
+        m_response_highlights.push_back(m_game->find_card(id));
+    }
+
+    m_picking_highlights.clear();
+    for (const picking_args &args : args.pick_ids) {
+        m_picking_highlights.emplace_back(args.pile,
+            args.player_id ? m_game->find_player(args.player_id) : nullptr,
+            args.card_id ? m_game->find_card(args.card_id) : nullptr);
+    }
+}
+
+void target_finder::clear_status() {
+    m_response_highlights.clear();
+    m_picking_highlights.clear();
+}
+
+void target_finder::clear_targets() {
+    static_cast<target_status &>(*this) = {};
+}
+
 bool target_finder::can_confirm() const {
     if (m_playing_card && !m_equipping) {
         const int ntargets = get_current_card_targets().size();
@@ -83,22 +118,20 @@ void target_finder::on_click_confirm() {
 }
 
 void target_finder::on_click_main_deck() {
-    if (m_game->m_current_request && m_game->m_current_request->target_id == m_game->m_player_own_id
-        && is_valid_picking_pile(m_game->m_current_request->type, card_pile_type::main_deck)) {
+    if (is_current_player_targeted() && can_pick(card_pile_type::main_deck, nullptr, nullptr)) {
         add_action<game_action_type::pick_card>(card_pile_type::main_deck);
     }
 }
 
 void target_finder::on_click_selection_card(card_view *card) {
-    if (m_game->m_current_request && m_game->m_current_request->target_id == m_game->m_player_own_id
-        && is_valid_picking_pile(m_game->m_current_request->type, card_pile_type::selection)) {
+    if (is_current_player_targeted() && can_pick(card_pile_type::selection, nullptr, card)) {
         add_action<game_action_type::pick_card>(card_pile_type::selection, 0, card->id);
     }
 }
 
 void target_finder::on_click_shop_card(card_view *card) {
     if (!m_playing_card) {
-        if (m_game->m_current_request && m_game->m_current_request->target_id == m_game->m_player_own_id) {
+        if (is_current_player_targeted()) {
             if (card->color == card_color_type::none) {
                 m_playing_card = card;
                 m_response = true;
@@ -125,18 +158,14 @@ void target_finder::on_click_shop_card(card_view *card) {
     }
 }
 
-bool target_finder::can_respond_with(card_view *card) const {
-    return std::ranges::find(m_response_highlights, card) != m_response_highlights.end();
-}
-
 void target_finder::on_click_table_card(player_view *player, card_view *card) {
-    if (m_game->m_current_request && m_game->m_current_request->target_id == m_game->m_player_own_id) {
+    if (is_current_player_targeted()) {
         if (!m_playing_card) {
             if (can_respond_with(card) && !card->inactive) {
                 m_playing_card = card;
                 m_response = true;
                 handle_auto_targets();
-            } else if (is_valid_picking_pile(m_game->m_current_request->type, card_pile_type::player_table)) {
+            } else if (can_pick(card_pile_type::player_table, player, card)) {
                 add_action<game_action_type::pick_card>(card_pile_type::player_table, player->id, card->id);
             }
         } else {
@@ -159,15 +188,13 @@ void target_finder::on_click_table_card(player_view *player, card_view *card) {
 }
 
 void target_finder::on_click_hand_card(player_view *player, card_view *card) {
-    if (m_game->m_current_request
-        && (m_game->m_current_request->target_id == 0
-        || m_game->m_current_request->target_id == m_game->m_player_own_id)) {
+    if (is_current_player_targeted()) {
         if (!m_playing_card) {
             if (can_respond_with(card)) {
                 m_playing_card = card;
                 m_response = true;
                 handle_auto_targets();
-            } else if (is_valid_picking_pile(m_game->m_current_request->type, card_pile_type::player_hand)) {
+            } else if (can_pick(card_pile_type::player_hand, player, card)) {
                 add_action<game_action_type::pick_card>(card_pile_type::player_hand, player->id, card->id);
             }
         } else {
@@ -204,13 +231,13 @@ void target_finder::on_click_hand_card(player_view *player, card_view *card) {
 }
 
 void target_finder::on_click_character(player_view *player, card_view *card) {
-    if (m_game->m_current_request && m_game->m_current_request->target_id == m_game->m_player_own_id) {
+    if (is_current_player_targeted()) {
         if (!m_playing_card) {
             if (can_respond_with(card)) {
                 m_playing_card = card;
                 m_response = true;
                 handle_auto_targets();
-            } else if (is_valid_picking_pile(m_game->m_current_request->type, card_pile_type::player_character)) {
+            } else if (can_pick(card_pile_type::player_character, player, card)) {
                 add_action<game_action_type::pick_card>(card_pile_type::player_character, player->id, card->id);
             }
         } else {
@@ -233,9 +260,7 @@ void target_finder::on_click_character(player_view *player, card_view *card) {
 }
 
 void target_finder::on_click_scenario_card(card_view *card) {
-    if (m_game->m_current_request
-        && (m_game->m_current_request->target_id == 0
-        || m_game->m_current_request->target_id == m_game->m_player_own_id)) {
+    if (is_current_player_targeted()) {
         if (!m_playing_card && can_respond_with(card)) {
             m_playing_card = card;
             m_response = true;
@@ -249,8 +274,8 @@ void target_finder::on_click_scenario_card(card_view *card) {
 }
 
 bool target_finder::on_click_player(player_view *player) {
-    if (m_game->m_current_request && m_game->m_current_request->target_id == m_game->m_player_own_id) {
-        if (is_valid_picking_pile(m_game->m_current_request->type, card_pile_type::player)) {
+    if (is_current_player_targeted()) {
+        if (can_pick(card_pile_type::player, player, nullptr)) {
             add_action<game_action_type::pick_card>(card_pile_type::player, player->id);
             return true;
         } else if (m_playing_card) {
@@ -587,10 +612,6 @@ bool target_finder::add_player_targets(const std::vector<target_pair> &targets) 
         }
     }
     return false;
-}
-
-void target_finder::clear_targets() {
-    static_cast<target_status &>(*this) = {};
 }
 
 void target_finder::send_play_card() {

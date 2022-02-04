@@ -27,26 +27,29 @@ namespace banggame {
         game_formatted_string status_text() const;
     };
 
-    struct request_bandidos : request_base, allowed_piles<card_pile_type::player_hand> {
+    struct request_bandidos : request_base {
         using request_base::request_base;
 
         int num_cards = 2;
 
+        bool can_pick(card_pile_type pile, player *target, card *target_card) const;
         void on_pick(card_pile_type pile, player *target, card *target_card);
         void on_resolve();
         game_formatted_string status_text() const;
     };
 
-    struct request_tornado : request_base, allowed_piles<card_pile_type::player_hand> {
+    struct request_tornado : request_base {
         using request_base::request_base;
         
+        bool can_pick(card_pile_type pile, player *target, card *target_card) const;
         void on_pick(card_pile_type pile, player *target, card *target_card);
         game_formatted_string status_text() const;
     };
 
-    struct request_poker : request_base, allowed_piles<card_pile_type::player_hand> {
+    struct request_poker : request_base {
         using request_base::request_base;
 
+        bool can_pick(card_pile_type pile, player *target, card *target_card) const;
         void on_pick(card_pile_type pile, player *target, card *target_card);
         game_formatted_string status_text() const;
     };
@@ -79,13 +82,14 @@ namespace banggame {
         game_formatted_string status_text() const;
     };
 
-    struct request_saved : request_base, allowed_piles<card_pile_type::player_hand, card_pile_type::main_deck> {
+    struct request_saved : request_base {
         request_saved(card *origin_card, player *target, player *saved)
             : request_base(origin_card, nullptr, target)
             , saved(saved) {}
 
         player *saved = nullptr;
 
+        bool can_pick(card_pile_type pile, player *target, card *target_card) const;
         void on_pick(card_pile_type pile, player *target, card *target_card);
         game_formatted_string status_text() const;
     };

@@ -33,6 +33,15 @@ namespace banggame {
         
         void render(sdl::renderer &renderer);
 
+        bool is_current_player_targeted() const;
+        bool can_respond_with(card_view *card) const;
+        bool can_pick(card_pile_type pile, player_view *player, card_view *card) const;
+        bool can_confirm() const;
+
+        void set_response_highlights(const request_respond_args &args);
+        void clear_status();
+        void clear_targets();
+
         void on_click_main_deck();
         void on_click_selection_card(card_view *card);
         void on_click_shop_card(card_view *card);
@@ -44,17 +53,9 @@ namespace banggame {
 
         void on_click_confirm();
 
-        void clear_targets();
-
-        void set_response_highlights(const std::vector<int> &card_ids);
-        void clear_status();
-
         bool is_playing_card(card_view *card) const {
             return m_playing_card == card;
         }
-
-        bool can_respond_with(card_view *card) const;
-        bool can_confirm() const;
     
     private:
         void add_modifier(card_view *card);
@@ -80,6 +81,7 @@ namespace banggame {
         game_scene *m_game;
 
         std::vector<card_view *> m_response_highlights;
+        std::vector<std::tuple<card_pile_type, player_view *, card_view *>> m_picking_highlights;
 
         template<game_action_type T, typename ... Ts>
         void add_action(Ts && ... args);

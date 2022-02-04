@@ -397,24 +397,58 @@ namespace banggame {
 
     void game::send_request_respond() {
         const auto &req = top_request();
-        for (auto &p : m_players) {
-            add_private_update<game_update_type::request_respond>(&p, [&]{
-                std::vector<int> ids;
-                if (!req.target() || req.target() == &p) {
-                    auto add_ids_for = [&](auto &&cards) {
-                        for (card *c : cards) {
-                            if (std::ranges::any_of(c->responses, [&](const effect_holder &e) {
-                                return e.can_respond(c, &p);
-                            })) ids.push_back(c->id);
-                        }
-                    };
-                    add_ids_for(p.m_hand | std::views::filter([](card *c) { return c->color == card_color_type::brown; }));
-                    add_ids_for(p.m_table | std::views::filter([&](card *c) { return !c->inactive && !is_disabled(c); }));
-                    add_ids_for(p.m_characters | std::views::filter([&](card *c) { return !is_disabled(c); }));
-                    add_ids_for(m_specials);
+        auto send_update_to = [&](player &p) {
+            std::vector<int> respond_ids;
+            std::vector<picking_args> pick_ids;
+
+            auto add_ids_for = [&](auto &&cards) {
+                for (card *c : cards) {
+                    if (std::ranges::any_of(c->responses, [&](const effect_holder &e) {
+                        return e.can_respond(c, &p);
+                    })) respond_ids.push_back(c->id);
                 }
-                return ids;
-            }());
+            };
+
+            add_ids_for(p.m_hand | std::views::filter([](card *c) { return c->color == card_color_type::brown; }));
+            add_ids_for(p.m_table | std::views::filter([&](card *c) { return !c->inactive && !is_disabled(c); }));
+            add_ids_for(p.m_characters | std::views::filter([&](card *c) { return !is_disabled(c); }));
+            add_ids_for(m_specials);
+
+            auto maybe_add_pick_id = [&](card_pile_type pile, player *target_player, card *target_card) {
+                if (req.can_pick(pile, target_player, target_card)) {
+                    pick_ids.emplace_back(pile,
+                        target_player ? target_player->id : 0,
+                        target_card ? target_card->id : 0);
+                }
+            };
+
+            for (player &target : m_players) {
+                maybe_add_pick_id(card_pile_type::player, &target, nullptr);
+                for (card *c : target.m_hand) {
+                    maybe_add_pick_id(card_pile_type::player_hand, &target, c);
+                }
+                for (card *c : target.m_table) {
+                    maybe_add_pick_id(card_pile_type::player_table, &target, c);
+                }
+                for (card *c : target.m_characters) {
+                    maybe_add_pick_id(card_pile_type::player_character, &target, c);
+                }
+            }
+            maybe_add_pick_id(card_pile_type::main_deck, nullptr, nullptr);
+            maybe_add_pick_id(card_pile_type::discard_pile, nullptr, nullptr);
+            for (card *c : m_selection) {
+                maybe_add_pick_id(card_pile_type::selection, nullptr, c);
+            }
+
+            add_private_update<game_update_type::request_respond>(&p, std::move(respond_ids), std::move(pick_ids));
+        };
+
+        if (player *target = req.target()) {
+            send_update_to(*target);
+        } else {
+            for (auto &p : m_players) {
+                send_update_to(p);
+            }
         }
     }
 
@@ -720,11 +754,15 @@ namespace banggame {
     }
 
     void game::handle_action(ACTION_TAG(pick_card), player *p, const pick_card_args &args) {
-        if (!m_requests.empty() && p == top_request().target()) {
-            top_request().on_pick(
-                args.pile,
-                args.player_id ? get_player(args.player_id) : nullptr,
-                args.card_id ? find_card(args.card_id) : nullptr);
+        if (!m_requests.empty()) {
+            auto &req = top_request();
+            if (!req.target() || p == req.target()) {
+                player *target_player = args.player_id ? get_player(args.player_id) : nullptr;
+                card *target_card = args.card_id ? find_card(args.card_id) : nullptr;
+                if (req.can_pick(args.pile, target_player, target_card)) {
+                    req.on_pick(args.pile, target_player, target_card);
+                }
+            }
         }
     }
 

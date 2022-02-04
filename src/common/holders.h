@@ -223,24 +223,15 @@ namespace banggame {
     )
 
     namespace detail {
-        template<typename T> concept is_effect = std::is_base_of_v<card_effect, T>;
-
+        template<typename T> concept is_effect = requires {
+            requires std::derived_from<T, card_effect>;
+            requires (sizeof(card_effect) == sizeof(T));
+        };
+        
         template<typename Variant> struct all_is_effect{};
         template<typename ... Ts> struct all_is_effect<std::variant<Ts...>>
             : std::bool_constant<(is_effect<Ts> && ...)> {};
     }
-
-    template<request_type E> concept picking_request =
-        requires(enums::enum_type_t<E> &req, card_pile_type pile, player *target, card *target_card) {
-        { enums::enum_type_t<E>::valid_pile(pile) } -> std::convertible_to<bool>;
-        req.on_pick(pile, target, target_card);
-    };
-
-    template<request_type E> concept resolvable_request = requires (enums::enum_type_t<E> &req) {
-        req.on_resolve();
-    };
-
-    template<request_type E> concept timer_request = std::derived_from<enums::enum_type_t<E>, timer_base>;
 
     template<enums::reflected_enum E>
     struct effect_base : card_effect {
@@ -296,12 +287,15 @@ namespace banggame {
         player *target() const;
         effect_flags flags() const;
         game_formatted_string status_text() const;
+
         bool resolvable() const;
-        
         void on_resolve();
+
+        bool can_pick(card_pile_type pile, player *target, card *target_card) const;
+        void on_pick(card_pile_type pile, player *target, card *target_card);
+
         bool tick();
         void cleanup();
-        void on_pick(card_pile_type pile, player *target, card *target_card);
     };
 }
 

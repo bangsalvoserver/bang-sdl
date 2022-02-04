@@ -29,11 +29,15 @@ namespace banggame {
         }
     }
 
+    bool request_thedaltons::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
+        return pile == card_pile_type::player_table
+            && target == target_player
+            && target_card->color == card_color_type::blue;
+    }
+
     void request_thedaltons::on_pick(card_pile_type pile, player *target_player, card *target_card) {
-        if (target_card->color == card_color_type::blue && target == target_player) {
-            target->discard_card(target_card);
-            target->m_game->pop_request(request_type::thedaltons);
-        }
+        target->discard_card(target_card);
+        target->m_game->pop_request(request_type::thedaltons);
     }
 
     game_formatted_string request_thedaltons::status_text() const {
