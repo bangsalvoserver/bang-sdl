@@ -22,7 +22,7 @@ void target_finder::render(sdl::renderer &renderer) {
         case card_pile_type::player_table:
         case card_pile_type::player_character:
         case card_pile_type::selection:
-            if (card->texture_front) renderer.draw_rect(card->get_rect());
+            renderer.draw_rect(card->get_rect());
             break;
         case card_pile_type::player:
             renderer.draw_rect(player->m_bounding_rect);

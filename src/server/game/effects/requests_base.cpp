@@ -166,8 +166,11 @@ namespace banggame {
     }
 
     void request_death::on_resolve() {
-        target->m_game->player_death(origin, target);
-        target->m_game->pop_request(request_type::death);
+        target->m_game->instant_event<event_type::on_player_death_priority>(origin, target);
+        if (target->m_game->top_request_is(request_type::death)) {
+            target->m_game->player_death(origin, target);
+            target->m_game->pop_request(request_type::death);
+        }
         target->m_game->queue_event<event_type::delayed_action>([origin = origin, target = target]{
             target->m_game->check_game_over(origin, target);
         });

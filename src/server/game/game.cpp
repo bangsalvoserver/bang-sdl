@@ -694,21 +694,18 @@ namespace banggame {
 
         if (!m_first_dead) m_first_dead = target;
 
-        queue_event<event_type::on_player_death_priority>(killer, target);
-        queue_event<event_type::delayed_action>([=, this]{
-            instant_event<event_type::on_player_death>(killer, target);
+        instant_event<event_type::on_player_death>(killer, target);
 
-            target->discard_all();
-            target->add_gold(-target->m_gold);
-            if (killer) {
-                add_log("LOG_PLAYER_KILLED", killer, target);
-            } else {
-                add_log("LOG_PLAYER_DIED", target);
-            }
+        target->discard_all();
+        target->add_gold(-target->m_gold);
+        if (killer) {
+            add_log("LOG_PLAYER_KILLED", killer, target);
+        } else {
+            add_log("LOG_PLAYER_DIED", target);
+        }
 
-            add_public_update<game_update_type::player_hp>(target->id, 0, true);
-            add_public_update<game_update_type::player_show_role>(target->id, target->m_role);
-        });
+        add_public_update<game_update_type::player_hp>(target->id, 0, true);
+        add_public_update<game_update_type::player_show_role>(target->id, target->m_role);
     }
 
     void game::add_disabler(card *target_card, card_disabler_fun &&fun) {

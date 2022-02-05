@@ -28,10 +28,11 @@ namespace banggame {
 
     void request_lastwill::on_resolve() {
         if (target->m_game->m_selection.empty()) {
+            target->m_game->player_death(origin, target);
             target->m_game->pop_request(request_type::lastwill);
         } else {
             target->m_game->pop_request_noupdate(request_type::lastwill);
-            target->m_game->queue_request<request_type::lastwill_target>(origin_card, target);
+            target->m_game->add_request<request_type::lastwill_target>(origin_card, target);
         }
     }
 
@@ -45,11 +46,12 @@ namespace banggame {
 
     void request_lastwill_target::on_pick(card_pile_type pile, player *p, card *) {
         if (p != target) {
-            target->m_game->pop_request(request_type::lastwill_target);
-
             while (!target->m_game->m_selection.empty()) {
                 target->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::player_hand, true, p);
             }
+            
+            target->m_game->player_death(origin, target);
+            target->m_game->pop_request(request_type::lastwill_target);
         }
     }
 

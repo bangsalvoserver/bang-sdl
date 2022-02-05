@@ -39,7 +39,8 @@ namespace banggame {
     void effect_lastwill::on_equip(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_player_death_priority>(target_card, [=](player *origin, player *target) {
             if (p == target) {
-                target->m_game->queue_request<request_type::lastwill>(target_card, target);
+                target->m_game->pop_request_noupdate(request_type::death);
+                target->m_game->add_request<request_type::lastwill>(target_card, target);
             }
         });
     }
