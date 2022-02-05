@@ -151,6 +151,7 @@ namespace banggame {
             return req.is(type) && (!target || req.target() == target);
         }
 
+        request_respond_args make_request_respond(player *p);
         void send_request_respond();
         void send_request_update();
 

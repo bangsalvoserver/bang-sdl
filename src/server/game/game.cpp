@@ -8,6 +8,7 @@
 namespace banggame {
 
     using namespace enums::flag_operators;
+    using namespace std::placeholders;
 
     static card_info make_card_info(const card &c) {
         auto make_card_info_effects = []<typename T>(std::vector<T> &out, const auto &vec) {
@@ -68,24 +69,22 @@ namespace banggame {
         throw game_error("server.find_card: ID not found"_nonloc);
     }
 
-    static auto make_id_vector(const auto &vec) {
-        std::vector<int> ret;
-        for (const card *obj : vec) {
-            ret.push_back(obj->id);
-        }
-        return ret;
+    static std::vector<int> make_id_vector(auto &&range) {
+        auto view = range | std::views::transform(&card::id);
+        return {view.begin(), view.end()};
     };
 
     std::vector<game_update> game::get_game_state_updates(player *owner) {
         std::vector<game_update> ret;
 
-        auto add_cards = [&](auto Fun, card_pile_type pile) {
-            auto ids = m_cards
-                | std::views::filter([&](const auto &pair) {
-                    return Fun(pair.second.expansion);
-                }) | std::views::keys;
+        auto add_cards = [&](auto fun, card_pile_type pile) {
             ret.emplace_back(enums::enum_constant<game_update_type::add_cards>{},
-                std::vector(ids.begin(), ids.end()), pile);
+                make_id_vector(m_cards
+                    | std::views::values
+                    | std::views::filter([&](const card &c) {
+                        return fun(c.expansion);
+                    })),
+                pile);
         };
 
         auto show_card = [&](card *c) {
@@ -129,6 +128,9 @@ namespace banggame {
             return bool(expansion &
                 card_expansion_type::goldrush);
         }, card_pile_type::shop_deck);
+
+        ret.emplace_back(enums::enum_constant<game_update_type::add_cards>{}, make_id_vector(m_specials), card_pile_type::specials);
+        std::ranges::for_each(m_specials, show_card);
 
         move_cards(m_discards);
         move_cards(m_selection, false);
@@ -193,6 +195,7 @@ namespace banggame {
                 req.target() ? req.target()->id : 0,
                 req.flags(),
                 req.status_text());
+            ret.emplace_back(enums::enum_constant<game_update_type::request_respond>{}, make_request_respond(owner));
         }
 
         return ret;
@@ -395,60 +398,50 @@ namespace banggame {
         }
     }
 
-    void game::send_request_respond() {
-        const auto &req = top_request();
-        auto send_update_to = [&](player &p) {
-            std::vector<int> respond_ids;
-            std::vector<picking_args> pick_ids;
+    request_respond_args game::make_request_respond(player *p) {
+        request_respond_args ret;
 
-            auto add_ids_for = [&](auto &&cards) {
-                for (card *c : cards) {
-                    if (std::ranges::any_of(c->responses, [&](const effect_holder &e) {
-                        return e.can_respond(c, &p);
-                    })) respond_ids.push_back(c->id);
-                }
-            };
-
-            add_ids_for(p.m_hand | std::views::filter([](card *c) { return c->color == card_color_type::brown; }));
-            add_ids_for(p.m_table | std::views::filter([&](card *c) { return !c->inactive && !is_disabled(c); }));
-            add_ids_for(p.m_characters | std::views::filter([&](card *c) { return !is_disabled(c); }));
-            add_ids_for(m_scenario_cards | std::views::reverse | std::views::take(1));
-            add_ids_for(m_specials);
-
-            auto maybe_add_pick_id = [&](card_pile_type pile, player *target_player, card *target_card) {
-                if (req.can_pick(pile, target_player, target_card)) {
-                    pick_ids.emplace_back(pile,
-                        target_player ? target_player->id : 0,
-                        target_card ? target_card->id : 0);
-                }
-            };
-
-            for (player &target : m_players) {
-                maybe_add_pick_id(card_pile_type::player, &target, nullptr);
-                for (card *c : target.m_hand) {
-                    maybe_add_pick_id(card_pile_type::player_hand, &target, c);
-                }
-                for (card *c : target.m_table) {
-                    maybe_add_pick_id(card_pile_type::player_table, &target, c);
-                }
-                for (card *c : target.m_characters) {
-                    maybe_add_pick_id(card_pile_type::player_character, &target, c);
-                }
+        auto add_ids_for = [&](auto &&cards) {
+            for (card *c : cards) {
+                if (std::ranges::any_of(c->responses, [&](const effect_holder &e) {
+                    return e.can_respond(c, p);
+                })) ret.respond_ids.push_back(c->id);
             }
-            maybe_add_pick_id(card_pile_type::main_deck, nullptr, nullptr);
-            maybe_add_pick_id(card_pile_type::discard_pile, nullptr, nullptr);
-            for (card *c : m_selection) {
-                maybe_add_pick_id(card_pile_type::selection, nullptr, c);
-            }
-
-            add_private_update<game_update_type::request_respond>(&p, std::move(respond_ids), std::move(pick_ids));
         };
 
-        if (player *target = req.target()) {
-            send_update_to(*target);
+        add_ids_for(p->m_hand | std::views::filter([](card *c) { return c->color == card_color_type::brown; }));
+        add_ids_for(p->m_table | std::views::filter([&](card *c) { return !c->inactive && !is_disabled(c); }));
+        add_ids_for(p->m_characters | std::views::filter([&](card *c) { return !is_disabled(c); }));
+        add_ids_for(m_scenario_cards | std::views::reverse | std::views::take(1));
+        add_ids_for(m_specials);
+
+        auto maybe_add_pick_id = [&](card_pile_type pile, player *target_player, card *target_card) {
+            if (top_request().can_pick(pile, target_player, target_card)) {
+                ret.pick_ids.emplace_back(pile,
+                    target_player ? target_player->id : 0,
+                    target_card ? target_card->id : 0);
+            }
+        };
+
+        for (player &target : m_players) {
+            maybe_add_pick_id(card_pile_type::player, &target, nullptr);
+            std::ranges::for_each(target.m_hand, std::bind(maybe_add_pick_id, card_pile_type::player_hand, &target, _1));
+            std::ranges::for_each(target.m_table, std::bind(maybe_add_pick_id, card_pile_type::player_table, &target, _1));
+            std::ranges::for_each(target.m_characters, std::bind(maybe_add_pick_id, card_pile_type::player_character, &target, _1));
+        }
+        maybe_add_pick_id(card_pile_type::main_deck, nullptr, nullptr);
+        maybe_add_pick_id(card_pile_type::discard_pile, nullptr, nullptr);
+        std::ranges::for_each(m_selection, std::bind(maybe_add_pick_id, card_pile_type::selection, nullptr, _1));
+
+        return ret;
+    }
+
+    void game::send_request_respond() {
+        if (player *target = top_request().target()) {
+            add_private_update<game_update_type::request_respond>(target, make_request_respond(target));
         } else {
             for (auto &p : m_players) {
-                send_update_to(p);
+                add_private_update<game_update_type::request_respond>(&p, make_request_respond(&p));
             }
         }
     }

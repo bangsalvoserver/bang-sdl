@@ -479,7 +479,8 @@ void target_finder::add_card_target(target_pair target) {
     if (!std::ranges::all_of(util::enum_flag_values(cur_target),
         [&](target_type value) {
             switch (value) {
-            case target_type::card:
+            case target_type::card: return target.card->color != card_color_type::black || bool(cur_target & target_type::black);
+            case target_type::black:
             case target_type::everyone:
             case target_type::new_target:
             case target_type::can_repeat: return true;
@@ -494,7 +495,6 @@ void target_finder::add_card_target(target_pair target) {
             case target_type::table: return !from_hand;
             case target_type::hand: return from_hand;
             case target_type::blue: return target.card->color == card_color_type::blue;
-            case target_type::black: return target.card->color == card_color_type::black;
             case target_type::clubs: return target.card->suit == card_suit_type::clubs;
             case target_type::bang:
                 return m_game->has_player_flags(player_flags::treat_any_as_bang)
