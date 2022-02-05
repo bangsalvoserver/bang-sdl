@@ -83,7 +83,7 @@ banggame::card_expansion_type::goldrush             Gold Rush
 banggame::card_expansion_type::armedanddangerous    Armed & Dangerous
 banggame::card_expansion_type::highnoon             High Noon
 banggame::card_expansion_type::fistfulofcards       Fistful of Cards
-banggame::card_expansion_type::canyondiablo         Canyon Diablo (beta)
+banggame::card_expansion_type::canyondiablo         Canyon Diablo
 banggame::card_expansion_type::ghostcards           Ghost cards
 lobby_state::waiting                Waiting
 lobby_state::playing                Playing

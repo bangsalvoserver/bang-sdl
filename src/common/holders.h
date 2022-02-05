@@ -179,6 +179,7 @@ namespace banggame {
         (indianguide,   effect_indianguide)
         (taxman,        effect_taxman)
         (lastwill,      effect_lastwill)
+        (brothel,       effect_brothel)
     )
     DEFINE_ENUM_TYPES_IN_NS(banggame, request_type,
         (none,          request_base)

@@ -44,4 +44,34 @@ namespace banggame {
             }
         });
     }
+
+    void effect_brothel::on_equip(card *target_card, player *target) {
+        target->add_predraw_check(target_card, -2, [=](card *drawn_card) {
+            target->discard_card(target_card);
+            auto suit = target->get_card_suit(drawn_card);
+            if (suit == card_suit_type::clubs || suit == card_suit_type::spades) {
+                card *event_holder = new card; // hack
+                target->m_game->add_disabler(event_holder, [=](card *c) {
+                    return c->pile == card_pile_type::player_character && c->owner == target;
+                });
+                target->m_game->add_event<event_type::on_turn_end>(event_holder,
+                    [target, event_holder, nturns = 2](player *p) mutable {
+                        if (p == target && --nturns == 0) {
+                            delete event_holder;
+                            target->m_game->remove_disablers(event_holder);
+                            target->m_game->remove_events(event_holder);
+                        }
+                    });
+                target->m_game->add_event<event_type::on_player_death>(event_holder,
+                    [target, event_holder](player *origin, player *p) {
+                        if (target == p) {
+                            delete event_holder;
+                            target->m_game->remove_disablers(event_holder);
+                            target->m_game->remove_events(event_holder);
+                        }
+                    });
+            }
+            target->next_predraw_check(target_card);
+        });
+    }
 }
