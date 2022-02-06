@@ -215,6 +215,7 @@ void game_manager::handle_message(MESSAGE_TAG(lobby_leave), game_user *user) {
         } else if (lobby_it->state == lobby_state::waiting && user == lobby_it->owner) {
             for (game_user *u : lobby_it->users) {
                 broadcast_message<server_message_type::lobby_left>(*lobby_it, u->id);
+                u->in_lobby = nullptr;
             }
             m_lobbies.erase(lobby_it);
         }
