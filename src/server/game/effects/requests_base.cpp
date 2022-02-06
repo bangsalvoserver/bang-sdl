@@ -116,7 +116,12 @@ namespace banggame {
     }
 
     game_formatted_string request_discard_pass::status_text() const {
-        return "STATUS_DISCARD_PASS";
+        int diff = target->m_hand.size() - target->max_cards_end_of_turn();
+        if (diff > 1) {
+            return {"STATUS_DISCARD_PASS_PLURAL", diff};
+        } else {
+            return "STATUS_DISCARD_PASS";
+        }
     }
 
     void request_indians::on_resolve() {

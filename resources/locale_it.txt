@@ -36,6 +36,7 @@ STATUS_CHECK                        Scegli quale carta estrarre per {0}
 STATUS_GENERALSTORE                 Pesca una carta per {0}
 STATUS_DISCARD                      Scarta una carta per {0}
 STATUS_DISCARD_PASS                 Scarta una carta prima di passare il turno
+STATUS_DISCARD_PASS_PLURAL          Scarta {} carte prima di passare il turno
 STATUS_BANG                         {0} ... Rispondi con Mancato o Risolvi
 STATUS_BANG_MULTIPLE_MISSED         {0} ... Rispondi con {1} Mancato o Risolvi
 STATUS_BANG_UNAVOIDABLE             {0} ... Il colpo non può essere annullato! Rispondi con Risolvi

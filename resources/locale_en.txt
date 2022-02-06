@@ -36,6 +36,7 @@ STATUS_CHECK                        Choose which card to "draw!" for {0}
 STATUS_GENERALSTORE                 Draw a card for {0}
 STATUS_DISCARD                      Discard a card for {0}
 STATUS_DISCARD_PASS                 Discard a card before passing the turn
+STATUS_DISCARD_PASS_PLURAL          Discard {} cards before passing the turn
 STATUS_BANG                         {0} ... Respond with Mancato or Resolve
 STATUS_BANG_MULTIPLE_MISSED         {0} ... Respond with {1} Mancato or Resolve
 STATUS_BANG_UNAVOIDABLE             {0} ... This shot is unavoidable! Respond with Resolve
