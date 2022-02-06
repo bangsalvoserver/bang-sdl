@@ -28,12 +28,22 @@ static sdl::point cube_pile_offset(auto &rng) {
     return {int(dist(rng)), int(dist(rng))};
 }
 
+void game_scene::update_main_deck_count() {
+    m_main_deck_count.redraw(std::to_string(m_main_deck.size()));
+    sdl::rect rect = m_main_deck_count.get_rect();
+    rect.x = m_main_deck.get_pos().x - rect.w / 2;
+    rect.y = m_main_deck.get_pos().y - rect.h / 2;
+    m_main_deck_count.set_rect(rect);
+}
+
 void game_scene::resize(int width, int height) {
     scene_base::resize(width, height);
 
     m_main_deck.set_pos(sdl::point{
         width / 2 + sizes::deck_xoffset,
         height / 2});
+
+    update_main_deck_count();
 
     m_discard_pile.set_pos(sdl::point{
         m_main_deck.get_pos().x - sizes::discard_xoffset,
@@ -100,6 +110,8 @@ void game_scene::render(sdl::renderer &renderer) {
     for (card_view *card : m_main_deck | take_last<2>) {
         card->render(renderer);
     }
+
+    m_main_deck_count.render(renderer);
 
     for (card_view *card : m_shop_discard | take_last<1>) {
         card->render(renderer);
@@ -416,6 +428,7 @@ void game_scene::handle_game_update(UPDATE_TAG(deck_shuffled), const card_pile_t
         }
         m_discard_pile.clear();
         m_discard_pile.push_back(top_discard);
+        update_main_deck_count();
         
         m_animations.emplace_back(30, std::move(anim));
         break;
@@ -435,19 +448,27 @@ void game_scene::handle_game_update(UPDATE_TAG(deck_shuffled), const card_pile_t
 }
 
 void game_scene::handle_game_update(UPDATE_TAG(add_cards), const add_cards_update &args) {
-    for (int id : args.card_ids) {
-        auto &c = m_cards[id];
-        c.id = id;
-        switch (args.pile) {
-        case card_pile_type::main_deck:         c.pile = &m_main_deck; c.texture_back = &card_textures::main_deck(); break;
-        case card_pile_type::shop_deck:         c.pile = &m_shop_deck; c.texture_back = &card_textures::goldrush(); break;
-        case card_pile_type::scenario_deck:     c.pile = &m_scenario_deck; break;
-        case card_pile_type::hidden_deck:       c.pile = &m_hidden_deck; break;
-        case card_pile_type::specials:          c.pile = &m_specials; break;
-        default: throw std::runtime_error("Invalid pile");
+    auto add_cards_to = [&](card_pile_view &pile, const sdl::texture *texture = nullptr) {
+        for (int id : args.card_ids) {
+            auto &c = m_cards[id];
+            c.id = id;
+            c.pile = &pile;
+            c.texture_back = texture;
+            c.set_pos(pile.get_pos());
+            pile.push_back(&c);
         }
-        c.set_pos(c.pile->get_pos());
-        c.pile->push_back(&c);
+    };
+
+    switch (args.pile) {
+    case card_pile_type::main_deck:
+        add_cards_to(m_main_deck, &card_textures::main_deck());
+        update_main_deck_count();
+        break;
+    case card_pile_type::shop_deck:         add_cards_to(m_shop_deck, &card_textures::goldrush()); break;
+    case card_pile_type::scenario_deck:     add_cards_to(m_scenario_deck); break;
+    case card_pile_type::hidden_deck:       add_cards_to(m_hidden_deck); break;
+    case card_pile_type::specials:          add_cards_to(m_specials); break;
+    default: throw std::runtime_error("Invalid pile");
     }
 
     pop_update();
@@ -468,6 +489,8 @@ void game_scene::handle_game_update(UPDATE_TAG(move_card), const move_card_updat
             anim.add_move_card(anim_card);
         }
     }
+
+    bool is_main_deck = card->pile == &m_main_deck;
     
     card->pile = &[&] () -> card_pile_view& {
         switch(args.pile) {
@@ -486,6 +509,9 @@ void game_scene::handle_game_update(UPDATE_TAG(move_card), const move_card_updat
         }
     }();
     card->pile->push_back(card);
+    if (is_main_deck || card->pile == &m_main_deck) {
+        update_main_deck_count();
+    }
     if (card->pile->width() > 0) {
         for (card_view *anim_card : *card->pile) {
             anim.add_move_card(anim_card);

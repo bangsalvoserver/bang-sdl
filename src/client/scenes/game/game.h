@@ -82,6 +82,9 @@ namespace banggame {
         card_pile_view m_main_deck;
         card_pile_view m_discard_pile;
 
+        sdl::stattext m_main_deck_count;
+        void update_main_deck_count();
+
         card_pile_view m_scenario_deck;
         card_pile_view m_scenario_card;
 
