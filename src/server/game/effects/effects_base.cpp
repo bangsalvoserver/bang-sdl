@@ -59,12 +59,6 @@ namespace banggame {
         target->m_game->queue_request<request_type::bang>(origin_card, origin, target, flags);
     }
 
-    void effect_bangcard::verify(card *origin_card, player *origin, player *target) const {
-        if (origin->m_game->has_scenario(scenario_flags::sermon)) {
-            throw game_error("ERROR_SCENARIO_AT_PLAY", origin->m_game->m_scenario_cards.back());
-        }
-    }
-
     void effect_bangcard::on_play(card *origin_card, player *origin, player *target) {
         target->m_game->add_log("LOG_PLAYED_CARD_ON", origin_card, origin, target);
         target->m_game->queue_event<event_type::on_play_bang>(origin);
@@ -97,10 +91,6 @@ namespace banggame {
         } else {
             origin->m_game->pop_request(request_type::ricochet);
         }
-    }
-
-    void effect_missedcard::verify(card *origin_card, player *origin) const {
-        origin->m_game->instant_event<event_type::verify_missedcard>(origin, origin_card);
     }
 
     static std::vector<card *> &barrels_used(request_holder &holder) {
@@ -155,8 +145,6 @@ namespace banggame {
     }
 
     bool effect_bangresponse::can_respond(card *origin_card, player *origin) const {
-        if (origin->m_game->has_scenario(scenario_flags::sermon)
-            && origin == origin->m_game->m_playing) return false;
         return origin->m_game->top_request_is(request_type::duel, origin)
             || origin->m_game->top_request_is(request_type::indians, origin);
     }
@@ -214,12 +202,6 @@ namespace banggame {
     void effect_heal_notfull::verify(card *origin_card, player *origin, player *target) const {
         if (target->m_hp == target->m_max_hp) {
             throw game_error("ERROR_CANT_HEAL_PAST_FULL_HP");
-        }
-    }
-
-    void effect_beer::verify(card *origin_card, player *origin, player *target) const {
-        if (origin->m_game->has_scenario(scenario_flags::reverend)) {
-            throw game_error("ERROR_SCENARIO_AT_PLAY", origin->m_game->m_scenario_cards.back());
         }
     }
 

@@ -107,9 +107,8 @@ ERROR_INVALID_TARGETS               Target non validi
 ERROR_PLAYER_MUST_DRAW              Devi pescare
 ERROR_PLAYER_MUST_NOT_DRAW          Non devi pescare adesso
 ERROR_CANT_DISCARD_OWN_BLACK        Non puoi scartare le tue carte nere
-ERROR_CHARACTERS_ARE_DISABLED       I personaggi sono disabilitati
-ERROR_TABLE_CARDS_ARE_DISABLED      Le carte in gioco sono disabilitate
-ERROR_CARD_INACTIVE                 Carta non attiva in questo turno
+ERROR_CARD_IS_DISABLED              {} è disabilitata
+ERROR_CARD_INACTIVE                 {} non è attiva in questo turno
 ERROR_CANT_EQUIP_CARDS              Non si possono equipaggiare carte
 ERROR_DUPLICATED_CARD               Carta duplicata: {}
 ERROR_TARGET_NOT_PLAYER             Il target non è un giocatore

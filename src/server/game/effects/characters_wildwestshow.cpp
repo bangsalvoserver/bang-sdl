@@ -6,16 +6,17 @@ namespace banggame {
     using namespace enums::flag_operators;
 
     void effect_big_spencer::on_equip(card *target_card, player *p) {
-        p->m_game->add_event<event_type::verify_missedcard>(target_card, [=](player *origin, card *origin_card){
-            if (origin == p) {
-                throw game_error("ERROR_CANT_PLAY_CARD", origin_card);
-            }
+        p->m_game->add_disabler(target_card, [=](card *c) {
+            return c->pile == card_pile_type::player_hand
+                && c->owner == p
+                && !c->responses.empty()
+                && c->responses.front().is(effect_type::missedcard);
         });
         p->m_initial_cards = 5;
     }
 
     void effect_big_spencer::on_unequip(card *target_card, player *p) {
-        p->m_game->remove_events(target_card);
+        p->m_game->remove_disablers(target_card);
         p->m_initial_cards = 0;
     }
 

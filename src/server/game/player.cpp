@@ -220,10 +220,7 @@ namespace banggame {
             }
 
             if (m_game->is_disabled(mod_card)) {
-                switch (mod_card->pile) {
-                case card_pile_type::player_character: throw game_error("ERROR_CHARACTERS_ARE_DISABLED");
-                case card_pile_type::player_table: throw game_error("ERROR_TABLE_CARDS_ARE_DISABLED");
-                }
+                throw game_error("ERROR_CARD_IS_DISABLED", mod_card);
             }
             if (mod_card->modifier != card_modifier_type::bangcard
                 || std::ranges::find(c->effects, effect_type::bangcard, &effect_holder::type) == c->effects.end()) {
@@ -524,7 +521,7 @@ namespace banggame {
         switch(card_ptr->pile) {
         case card_pile_type::player_character:
             if (!card_ptr->effects.empty()) {
-                if (m_game->is_disabled(card_ptr)) throw game_error("ERROR_CHARACTERS_ARE_DISABLED");
+                if (m_game->is_disabled(card_ptr)) throw game_error("ERROR_CARD_IS_DISABLED", card_ptr);
                 verify_modifiers(card_ptr, modifiers);
                 verify_card_targets(card_ptr, false, args.targets);
                 m_game->add_log("LOG_PLAYED_CHARACTER", card_ptr, this);
@@ -551,6 +548,7 @@ namespace banggame {
                     do_play_card(m_last_played_card, false, args.targets);
                     set_last_played_card(nullptr);
                 } else {
+                    if (m_game->is_disabled(card_ptr)) throw game_error("ERROR_CARD_IS_DISABLED", card_ptr);
                     verify_modifiers(card_ptr, modifiers);
                     verify_card_targets(card_ptr, false, args.targets);
                     play_modifiers(modifiers);
@@ -613,8 +611,8 @@ namespace banggame {
             }
             break;
         case card_pile_type::player_table:
-            if (m_game->is_disabled(card_ptr)) throw game_error("ERROR_TABLE_CARDS_ARE_DISABLED");
-            if (card_ptr->inactive) throw game_error("ERROR_CARD_INACTIVE");
+            if (m_game->is_disabled(card_ptr)) throw game_error("ERROR_CARD_IS_DISABLED", card_ptr);
+            if (card_ptr->inactive) throw game_error("ERROR_CARD_INACTIVE", card_ptr);
             verify_modifiers(card_ptr, modifiers);
             verify_card_targets(card_ptr, false, args.targets);
             play_modifiers(modifiers);
@@ -691,9 +689,9 @@ namespace banggame {
             return e.can_respond(card_ptr, this);
         })) return;
 
+        if (m_game->is_disabled(card_ptr)) throw game_error("ERROR_CARD_IS_DISABLED", card_ptr);
         switch (card_ptr->pile) {
         case card_pile_type::player_character:
-            if (m_game->is_disabled(card_ptr)) throw game_error("ERROR_CHARACTERS_ARE_DISABLED");
             if (card_ptr->responses.front().is(effect_type::drawing)) {
                 m_game->add_log("LOG_DRAWN_WITH_CHARACTER", card_ptr, this);
             } else {
@@ -701,11 +699,10 @@ namespace banggame {
             }
             break;
         case card_pile_type::player_table:
-            if (m_game->is_disabled(card_ptr)) throw game_error("ERROR_TABLE_CARDS_ARE_DISABLED");
-            if (card_ptr->inactive) throw game_error("ERROR_CARD_INACTIVE");
+            if (card_ptr->inactive) throw game_error("ERROR_CARD_INACTIVE", card_ptr);
             break;
         case card_pile_type::player_hand:
-            if (card_ptr->color != card_color_type::brown) return;
+            if (card_ptr->color != card_color_type::brown) throw game_error("INVALID_ACTION");
             break;
         case card_pile_type::shop_selection:
         case card_pile_type::specials:

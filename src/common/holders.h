@@ -19,7 +19,7 @@ namespace banggame {
         (bangcard,      effect_bangcard)
         (banglimit,     effect_banglimit)
         (missed,        effect_missed)
-        (missedcard,    effect_missedcard)
+        (missedcard,    effect_missed)
         (bangresponse,  effect_bangresponse)
         (bangmissed,    effect_bangmissed)
         (bangresponse_onturn, effect_bangresponse_onturn)

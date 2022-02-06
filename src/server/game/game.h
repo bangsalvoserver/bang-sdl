@@ -34,8 +34,6 @@ namespace banggame {
     
     DEFINE_ENUM_FLAGS_IN_NS(banggame, scenario_flags,
         (invert_rotation) // inverti giro
-        (reverend) // annulla birra
-        (sermon) // annulla bang
         (ghosttown) // citta' fantasma
         (judge) // non si puo' equipaggiare
         (abandonedmine) // fase 1 : pesca dagli scarti, fase 3 : scarta coperto nel mazzo

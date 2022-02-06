@@ -20,13 +20,10 @@ namespace banggame {
     };
     
     struct effect_bang : card_effect {
-        void on_play(card *origin_card, player *origin) {}
-        
         void on_play(card *origin_card, player *origin, player *target);
     };
 
     struct effect_bangcard : card_effect {
-        void verify(card *origin_card, player *origin, player *target) const;
         void on_play(card *origin_card, player *origin, player *target);
     };
 
@@ -57,10 +54,6 @@ namespace banggame {
         void on_play(card *origin_card, player *origin);
     };
 
-    struct effect_missedcard : effect_missed {
-        void verify(card *origin_card, player *origin) const;
-    };
-
     struct effect_bangmissed : card_effect {
         bool can_respond(card *origin_card, player *origin) const;
         void on_play(card *origin_card, player *origin);
@@ -72,7 +65,6 @@ namespace banggame {
     };
 
     struct effect_beer : card_effect {
-        void verify(card *origin_card, player *origin, player *target) const;
         void on_play(card *origin_card, player *origin, player *target);
     };
 

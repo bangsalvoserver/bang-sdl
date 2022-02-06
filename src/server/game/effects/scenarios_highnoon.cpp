@@ -97,7 +97,15 @@ namespace banggame {
     }
 
     void effect_reverend::on_equip(card *target_card, player *target) {
-        target->m_game->m_scenario_flags |= scenario_flags::reverend;
+        target->m_game->add_disabler(target_card, [](card *c) {
+            return c->pile == card_pile_type::player_hand
+                && !c->effects.empty()
+                && c->effects.front().is(effect_type::beer);
+        });
+    }
+
+    void effect_reverend::on_unequip(card *target_card, player *target) {
+        target->m_game->remove_disablers(target_card);
     }
 
     void effect_hangover::on_equip(card *target_card, player *target) {
@@ -112,7 +120,20 @@ namespace banggame {
     }
 
     void effect_sermon::on_equip(card *target_card, player *target) {
-        target->m_game->m_scenario_flags |= scenario_flags::sermon;
+        target->m_game->add_event<event_type::pre_turn_start>(target_card, [=](player *p) {
+            target->m_game->add_disabler(target_card, [=](card *c) {
+                return c->owner == p
+                    && std::ranges::find(c->effects, effect_type::bangcard, &effect_holder::type) != c->effects.end();
+            });
+        });
+        target->m_game->add_event<event_type::on_turn_end>(target_card, [=](player *p) {
+            target->m_game->remove_disablers(target_card);
+        });
+    }
+
+    void effect_sermon::on_unequip(card *target_card, player *target) {
+        target->m_game->remove_disablers(target_card);
+        target->m_game->remove_events(target_card);
     }
 
     void effect_ghosttown::on_equip(card *target_card, player *target) {

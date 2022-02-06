@@ -403,15 +403,15 @@ namespace banggame {
 
         auto add_ids_for = [&](auto &&cards) {
             for (card *c : cards) {
-                if (std::ranges::any_of(c->responses, [&](const effect_holder &e) {
+                if (!is_disabled(c) && std::ranges::any_of(c->responses, [&](const effect_holder &e) {
                     return e.can_respond(c, p);
                 })) ret.respond_ids.push_back(c->id);
             }
         };
 
         add_ids_for(p->m_hand | std::views::filter([](card *c) { return c->color == card_color_type::brown; }));
-        add_ids_for(p->m_table | std::views::filter([&](card *c) { return !c->inactive && !is_disabled(c); }));
-        add_ids_for(p->m_characters | std::views::filter([&](card *c) { return !is_disabled(c); }));
+        add_ids_for(p->m_table | std::views::filter(std::not_fn(&card::inactive)));
+        add_ids_for(p->m_characters);
         add_ids_for(m_scenario_cards | std::views::reverse | std::views::take(1));
         add_ids_for(m_specials);
 

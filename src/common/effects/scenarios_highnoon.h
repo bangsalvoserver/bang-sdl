@@ -52,8 +52,9 @@ namespace banggame {
         void on_equip(card *target_card, player *target);
     };
 
-    struct effect_reverend : scenario_effect {
+    struct effect_reverend : card_effect {
         void on_equip(card *target_card, player *target);
+        void on_unequip(card *target_card, player *target);
     };
 
     struct effect_hangover : card_effect {
@@ -61,8 +62,9 @@ namespace banggame {
         void on_unequip(card *target_card, player *target);
     };
 
-    struct effect_sermon : scenario_effect {
+    struct effect_sermon : card_effect {
         void on_equip(card *target_card, player *target);
+        void on_unequip(card *target_card, player *target);
     };
 
     struct effect_ghosttown : scenario_effect {

@@ -107,9 +107,8 @@ ERROR_INVALID_TARGETS               Invalid targets
 ERROR_PLAYER_MUST_DRAW              You must draw
 ERROR_PLAYER_MUST_NOT_DRAW          You must not draw now
 ERROR_CANT_DISCARD_OWN_BLACK        You can't discard your own black cards
-ERROR_CHARACTERS_ARE_DISABLED       Characters are disabled
-ERROR_TABLE_CARDS_ARE_DISABLED      Table cards are disabled
-ERROR_CARD_INACTIVE                 Card inactive in this turn
+ERROR_CARD_IS_DISABLED              {} is disabled
+ERROR_CARD_INACTIVE                 {} is inactive in this turn
 ERROR_CANT_EQUIP_CARDS              You can't equip cards
 ERROR_DUPLICATED_CARD               Duplicated card: {}
 ERROR_TARGET_NOT_PLAYER             Target is not a player
