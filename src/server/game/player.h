@@ -4,7 +4,6 @@
 #include <list>
 #include <vector>
 #include <algorithm>
-#include <optional>
 
 #include "card.h"
 
@@ -34,35 +33,30 @@ namespace banggame {
 
         std::map<card *, predraw_check> m_predraw_checks;
 
-        int m_range_mod = 0;
-        int m_weapon_range = 1;
-        int m_distance_mod = 0;
+        int8_t m_range_mod = 0;
+        int8_t m_weapon_range = 1;
+        int8_t m_distance_mod = 0;
 
-        int m_hp = 0;
-        int m_max_hp = 0;
-        int m_initial_cards = 0;
+        int8_t m_hp = 0;
+        int8_t m_max_hp = 0;
 
-        int m_infinite_bangs = 0;
-        int m_calumets = 0;
-
-        int m_bangs_played = 0;
-        int m_bangs_per_turn = 1;
+        int8_t m_bangs_played = 0;
+        int8_t m_bangs_per_turn = 1;
 
         std::list<bang_modifier> m_bang_mods;
 
-        int m_num_checks = 1;
+        int8_t m_num_checks = 1;
         
-        int m_num_cards_to_draw = 2;
-        int m_num_drawn_cards = 0;
+        int8_t m_num_cards_to_draw = 2;
+        int8_t m_num_drawn_cards = 0;
 
         card *m_last_played_card = nullptr;
 
         card_suit_type m_declared_suit = card_suit_type::none;
         player_flags m_player_flags = enums::flags_none<player_flags>;
 
-        int m_gold = 0;
+        int8_t m_gold = 0;
         
-        std::vector<int> m_max_cards_mods;
         std::multimap<card *, player *> m_current_card_targets;
 
         explicit player(game *game);
@@ -71,10 +65,6 @@ namespace banggame {
         card *find_equipped_card(card *card);
 
         card *random_hand_card();
-
-        bool is_hand_empty() const {
-            return m_hand.empty();
-        }
 
         void add_cubes(card *target, int ncubes);
         void pay_cubes(card *target, int ncubes);
@@ -93,13 +83,7 @@ namespace banggame {
         void discard_card(card *card);
         void steal_card(player *target, card *card);
 
-        int num_hand_cards() const {
-            return m_hand.size();
-        }
-
-        int get_initial_cards() const {
-            return m_initial_cards == 0 ? m_max_hp : m_initial_cards;
-        }
+        int get_initial_cards();
 
         int max_cards_end_of_turn();
 

@@ -34,7 +34,7 @@ namespace banggame {
     }
 
     void effect_tornado::on_play(card *origin_card, player *origin, player *target) {
-        if (target->num_hand_cards() == 0) {
+        if (target->m_hand.empty()) {
             target->m_game->queue_event<event_type::delayed_action>([=]{
                 target->m_game->draw_card_to(card_pile_type::player_hand, target);
                 target->m_game->draw_card_to(card_pile_type::player_hand, target);

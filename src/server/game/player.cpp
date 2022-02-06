@@ -25,9 +25,17 @@ namespace banggame {
         }
     }
 
+    int player::get_initial_cards() {
+        int value = m_max_hp;
+        m_game->instant_event<event_type::apply_initial_cards_modifier>(this, value);
+        return value;
+    }
+
     int player::max_cards_end_of_turn() {
-        int n = m_max_cards_mods.empty() ? m_hp : std::ranges::min(m_max_cards_mods);
+        int n = 0;
         m_game->instant_event<event_type::apply_maxcards_modifier>(this, n);
+        if (!n) n = m_hp;
+        m_game->instant_event<event_type::apply_maxcards_adder>(this, n);
         return n;
     }
 
@@ -108,7 +116,7 @@ namespace banggame {
 
     void player::heal(int value) {
         if (!check_player_flags(player_flags::ghost) && !(m_hp == 0 && m_game->has_scenario(scenario_flags::ghosttown)) && m_hp != m_max_hp) {
-            m_hp = std::min(m_hp + value, m_max_hp);
+            m_hp = std::min<int8_t>(m_hp + value, m_max_hp);
             m_game->add_public_update<game_update_type::player_hp>(id, m_hp);
             if (value == 1) {
                 m_game->add_log("LOG_HEALED", this);
@@ -124,7 +132,9 @@ namespace banggame {
     }
 
     bool player::immune_to(card *c) {
-        return m_calumets > 0 && get_card_suit(c) == card_suit_type::diamonds;
+        bool value = false;
+        m_game->instant_event<event_type::apply_immunity_modifier>(c, this, value);
+        return value;
     }
 
     bool player::can_receive_cubes() const {
@@ -538,10 +548,10 @@ namespace banggame {
                     // quando lee van kliff gioca l'effetto del personaggio su una carta bang.
                     // Se le funzioni di verifica throwano viene chiamato il distruttore
                     struct banglimit_remover {
-                        int &num;
-                        banglimit_remover(int &num) : num(num) { ++num; }
+                        int8_t &num;
+                        banglimit_remover(int8_t &num) : num(num) { ++num; }
                         ~banglimit_remover() { --num; }
-                    } _banglimit_remover{m_infinite_bangs};
+                    } _banglimit_remover{m_bangs_per_turn};
                     verify_card_targets(m_last_played_card, false, args.targets);
                     m_game->move_to(card_ptr, card_pile_type::discard_pile);
                     m_game->queue_event<event_type::on_play_hand_card>(this, card_ptr);
@@ -830,7 +840,7 @@ namespace banggame {
     }
 
     void player::pass_turn(player *next_player) {
-        if (num_hand_cards() > max_cards_end_of_turn()) {
+        if (m_hand.size() > max_cards_end_of_turn()) {
             m_game->queue_request<request_type::discard_pass>(this, next_player);
         } else {
             end_of_turn(next_player);

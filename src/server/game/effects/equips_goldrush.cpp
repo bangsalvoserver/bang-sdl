@@ -21,22 +21,17 @@ namespace banggame {
     }
 
     void effect_calumet::on_equip(card *target_card, player *target) {
-        ++target->m_calumets;
-    }
-
-    void effect_calumet::on_unequip(card *target_card, player *target) {
-        --target->m_calumets;
+        target->m_game->add_event<event_type::apply_immunity_modifier>(target_card, [=](card *origin_card, player *p, bool &value) {
+            value = value || (p == target && p->get_card_suit(origin_card) == card_suit_type::diamonds);
+        });
     }
 
     void effect_gunbelt::on_equip(card *target_card, player *target) {
-        target->m_max_cards_mods.push_back(args);
-    }
-
-    void effect_gunbelt::on_unequip(card *target_card, player *target) {
-        auto it = std::ranges::find(target->m_max_cards_mods, args);
-        if (it != target->m_max_cards_mods.end()) {
-            target->m_max_cards_mods.erase(it);
-        }
+        target->m_game->add_event<event_type::apply_maxcards_modifier>(target_card, [=, args = args](player *p, int &value) {
+            if (p == target && (value == 0 || args < value)) {
+                value = args;
+            }
+        });
     }
 
     void effect_wanted::on_equip(card *target_card, player *p) {

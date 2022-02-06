@@ -33,9 +33,8 @@ namespace banggame {
         void on_unequip(card *target_card, player *target);
     };
 
-    struct effect_volcanic : card_effect {
+    struct effect_volcanic : event_based_effect {
         void on_equip(card *target_card, player *target);
-        void on_unequip(card *target_card, player *target);
     };
 
     struct effect_boots : event_based_effect {

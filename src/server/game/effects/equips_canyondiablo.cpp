@@ -7,7 +7,7 @@
 namespace banggame {
 
     void effect_packmule::on_equip(card *target_card, player *p) {
-        p->m_game->add_event<event_type::apply_maxcards_modifier>(target_card, [p](player *origin, int &value) {
+        p->m_game->add_event<event_type::apply_maxcards_adder>(target_card, [p](player *origin, int &value) {
             if (origin == p) {
                 ++value;
             }
@@ -15,10 +15,8 @@ namespace banggame {
     }
 
     void effect_indianguide::on_equip(card *target_card, player *p) {
-        p->m_game->add_event<event_type::apply_indianguide_modifier>(target_card, [p](player *origin, bool &value) {
-            if (origin == p) {
-                value = true;
-            }
+        p->m_game->add_event<event_type::apply_immunity_modifier>(target_card, [p](card *origin_card, player *origin, bool &value) {
+            value = value || (origin == p && !origin_card->effects.empty() && origin_card->effects.front().is(effect_type::indians));
         });
     }
 

@@ -14,14 +14,12 @@ namespace banggame {
         void on_unequip(card *target_card, player *target);
     };
 
-    struct effect_calumet : card_effect {
+    struct effect_calumet : event_based_effect {
         void on_equip(card *target_card, player *target);
-        void on_unequip(card *target_card, player *target);
     };
 
-    struct effect_gunbelt : card_effect {
+    struct effect_gunbelt : event_based_effect {
         void on_equip(card *target_card, player *target);
-        void on_unequip(card *target_card, player *target);
     };
 
     struct effect_wanted : event_based_effect {

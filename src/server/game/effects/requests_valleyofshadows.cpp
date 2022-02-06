@@ -50,7 +50,7 @@ namespace banggame {
     void request_bandidos::on_pick(card_pile_type pile, player *target_player, card *target_card) {
         target->discard_card(target_card);
         if (--target->m_game->top_request().get<request_type::bandidos>().num_cards == 0
-            || target->num_hand_cards() == 0) {
+            || target->m_hand.empty()) {
             target->m_game->pop_request(request_type::bandidos);
         }
     }

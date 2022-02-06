@@ -96,11 +96,9 @@ namespace banggame {
     }
 
     void effect_volcanic::on_equip(card *target_card, player *target) {
-        ++target->m_infinite_bangs;
-    }
-
-    void effect_volcanic::on_unequip(card *target_card, player *target) {
-        --target->m_infinite_bangs;
+        target->m_game->add_event<event_type::apply_volcanic_modifier>(target_card, [=](player *p, bool &value) {
+            value = value || p == target;
+        });
     }
 
     void effect_boots::on_equip(card *target_card, player *p) {

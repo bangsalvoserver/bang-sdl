@@ -121,7 +121,9 @@ namespace banggame {
     }
 
     void effect_banglimit::verify(card *origin_card, player *origin) const {
-        if (!origin->m_infinite_bangs && origin->m_bangs_played >= origin->m_bangs_per_turn) {
+        bool value = origin->m_bangs_played < origin->m_bangs_per_turn;
+        origin->m_game->instant_event<event_type::apply_volcanic_modifier>(origin, value);
+        if (!value) {
             throw game_error("ERROR_ONE_BANG_PER_TURN");
         }
     }
@@ -131,12 +133,8 @@ namespace banggame {
     }
 
     void effect_indians::on_play(card *origin_card, player *origin, player *target) {
-        bool immune = false;
-        target->m_game->instant_event<event_type::apply_indianguide_modifier>(target, immune);
-        if (!immune) {
-            target->m_game->add_log("LOG_PLAYED_CARD_ON", origin_card, origin, target);
-            target->m_game->queue_request<request_type::indians>(origin_card, origin, target, flags);
-        }
+        target->m_game->add_log("LOG_PLAYED_CARD_ON", origin_card, origin, target);
+        target->m_game->queue_request<request_type::indians>(origin_card, origin, target, flags);
     }
 
     void effect_duel::on_play(card *origin_card, player *origin, player *target) {
