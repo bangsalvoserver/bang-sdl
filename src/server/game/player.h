@@ -21,7 +21,7 @@ namespace banggame {
         std::vector<card *> m_hand;
         std::vector<card *> m_table;
         std::vector<card *> m_characters;
-        character *m_backup_character;
+        std::vector<card *> m_backup_character;
 
         card *m_chosen_card = nullptr;
         player_role m_role;

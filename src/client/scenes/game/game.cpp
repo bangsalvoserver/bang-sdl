@@ -497,6 +497,7 @@ void game_scene::handle_game_update(UPDATE_TAG(move_card), const move_card_updat
         case card_pile_type::player_hand:       return find_player(args.player_id)->hand;
         case card_pile_type::player_table:      return find_player(args.player_id)->table;
         case card_pile_type::player_character:  return find_player(args.player_id)->m_characters;
+        case card_pile_type::player_backup:     return find_player(args.player_id)->m_backup_characters;
         case card_pile_type::main_deck:         return m_main_deck;
         case card_pile_type::discard_pile:      return m_discard_pile;
         case card_pile_type::selection:         return m_selection;
@@ -685,6 +686,7 @@ void game_scene::handle_game_update(UPDATE_TAG(player_add), const player_user_up
         m_player_own_id = args.player_id;
     }
     auto &p = m_players.try_emplace(args.player_id, args.player_id).first->second;
+    p.m_role.texture_back = &card_textures::role();
 
     p.user_id = args.user_id;
     if (user_info *info = parent->get_user_info(args.user_id)) {
@@ -721,30 +723,41 @@ void game_scene::handle_game_update(UPDATE_TAG(player_gold), const player_gold_u
 
 void game_scene::handle_game_update(UPDATE_TAG(player_add_character), const player_character_update &args) {
     auto &p = *find_player(args.player_id);
-    p.m_role.texture_back = &card_textures::role();
 
     auto &c = m_cards[args.info.id];
     static_cast<card_info &>(c) = args.info;
-    c.known = true;
-    c.flip_amt = 1.f;
-    c.pile = &p.m_characters;
+
     c.make_texture_front();
+    c.texture_back = &card_textures::character();
     
-    c.set_pos(sdl::point{
-        p.m_characters.get_pos().x + args.index * sizes::character_offset,
-        p.m_characters.get_pos().y + args.index * sizes::character_offset});
+    if (args.index >= 0) {
+        if (args.index > p.m_characters.size()) {
+            throw std::runtime_error("Invalid character index");
+        }
+        c.known = true;
+        c.flip_amt = 1.f;
+        c.pile = &p.m_characters;
 
-    if (args.index > p.m_characters.size()) {
-        throw std::runtime_error("Invalid character index");
-    }
-    if (args.index == p.m_characters.size()) {
-        p.m_characters.push_back(&c);
+        c.set_pos(sdl::point{
+            p.m_characters.get_pos().x + args.index * sizes::character_offset,
+            p.m_characters.get_pos().y + args.index * sizes::character_offset});
+
+        if (args.index == p.m_characters.size()) {
+            p.m_characters.push_back(&c);
+        } else {
+            p.m_characters[args.index] = &c;
+        }
+        
+        if (args.index == 0) {
+            p.set_hp_marker_position(p.hp = args.max_hp);
+        }
     } else {
-        p.m_characters[args.index] = &c;
-    }
-
-    if (args.index == 0) {
-        p.set_hp_marker_position(p.hp = args.max_hp);
+        c.pile = &p.m_backup_characters;
+        c.flip_amt = 0.f;
+        c.known = false;
+        p.m_backup_characters.clear();
+        p.m_backup_characters.push_back(&c);
+        c.set_pos(p.m_backup_characters.get_pos());
     }
 
     pop_update();

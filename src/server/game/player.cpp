@@ -914,7 +914,10 @@ namespace banggame {
     }
 
     void player::set_backup_character(character *c) {
-        m_backup_character = c;
+        m_backup_character.push_back(c);
+        c->pile = card_pile_type::player_backup;
+        c->owner = this;
+        m_game->send_character_update(*c, id, -1);
     }
 
     void player::send_player_status() {

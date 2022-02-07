@@ -275,6 +275,8 @@ struct to_end{};
         std::ranges::shuffle(role_it, role_it + m_players.size(), rng);
         for (auto &p : m_players) {
             p.set_character_and_role(*character_it++, *role_it++);
+        }
+        for (auto &p : m_players) {
             p.set_backup_character(*character_it++);
         }
 
@@ -360,6 +362,8 @@ struct to_end{};
             }
             m_scenario_deck.push_back(last_scenario_cards[std::uniform_int_distribution<>(0, last_scenario_cards.size() - 1)(rng)]);
             std::swap(m_scenario_deck.back(), m_scenario_deck.front());
+
+            swap_testing<to_end>(m_scenario_deck);
 
             add_public_update<game_update_type::add_cards>(make_id_vector(m_scenario_deck), card_pile_type::scenario_deck);
 
@@ -474,6 +478,7 @@ struct to_end{};
         case card_pile_type::player_hand:       return owner->m_hand;
         case card_pile_type::player_table:      return owner->m_table;
         case card_pile_type::player_character:  return owner->m_characters;
+        case card_pile_type::player_backup:     return owner->m_backup_character;
         case card_pile_type::main_deck:         return m_deck;
         case card_pile_type::discard_pile:      return m_discards;
         case card_pile_type::selection:         return m_selection;

@@ -64,9 +64,9 @@ namespace banggame {
     }
 
     void player_view::set_hp_marker_position(float hp) {
-        m_hp_marker_pos = sdl::point{
+        m_backup_characters.set_pos({
             m_characters.get_pos().x,
-            m_characters.get_pos().y - std::max<int>(0, hp * sizes::one_hp_size)};
+            m_characters.get_pos().y - std::max<int>(0, hp * sizes::one_hp_size)});
     }
 
     void player_view::set_gold(int amount) {
@@ -85,14 +85,13 @@ namespace banggame {
         renderer.set_draw_color(sdl::rgba(sizes::player_view_border_rgba));
         renderer.draw_rect(m_bounding_rect);
         m_role.render(renderer);
-        sdl::rect hp_marker_rect = card_textures::character().get_rect();
-        sdl::scale_rect(hp_marker_rect, sizes::card_width);
-        hp_marker_rect.x = m_hp_marker_pos.x - hp_marker_rect.w / 2;
-        hp_marker_rect.y = m_hp_marker_pos.y - hp_marker_rect.h / 2;
-        card_textures::character().render(renderer, hp_marker_rect);
-        if (hp > 5) {
-            hp_marker_rect.y += sizes::one_hp_size * 5;
-            card_textures::character().render(renderer, hp_marker_rect);
+        if (!m_backup_characters.empty()) {
+            m_backup_characters.front()->render(renderer);
+            if (hp > 5) {
+                sdl::rect hp_marker_rect = m_backup_characters.front()->get_rect();
+                hp_marker_rect.y += sizes::one_hp_size * 5;
+                card_textures::character().render(renderer, hp_marker_rect);
+            }
         }
         for (card_view *c : m_characters) {
             c->render(renderer);

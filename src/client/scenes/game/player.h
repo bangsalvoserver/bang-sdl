@@ -21,8 +21,8 @@ namespace banggame {
         sdl::rect m_bounding_rect;
 
         card_pile_view m_characters;
+        card_pile_view m_backup_characters;
         
-        sdl::point m_hp_marker_pos;
         role_card m_role;
 
         sdl::stattext m_username_text;

@@ -170,11 +170,7 @@ namespace banggame {
 
     void effect_newidentity::on_equip(card *target_card, player *target) {
         target->m_game->add_event<event_type::pre_turn_start>(target_card, [=](player *p) {
-            p->m_backup_character->pile = card_pile_type::hidden_deck;
-            target->m_game->m_hidden_deck.push_back(p->m_backup_character);
-            target->m_game->add_public_update<game_update_type::add_cards>(std::vector{p->m_backup_character->id}, card_pile_type::hidden_deck);
-
-            target->m_game->move_to(p->m_backup_character, card_pile_type::selection, true, nullptr, show_card_flags::no_animation);
+            target->m_game->move_to(p->m_backup_character.front(), card_pile_type::selection, true, nullptr);
             target->m_game->queue_request<request_type::newidentity>(target_card, p);
         });
     }
@@ -193,14 +189,14 @@ namespace banggame {
                 target->m_characters.pop_back();
             }
             target->m_game->add_public_update<game_update_type::player_clear_characters>(target->id);
-            target->m_game->move_to(target->m_characters.front(), card_pile_type::hidden_deck, true, nullptr, show_card_flags::no_animation);
-            target->m_game->move_to(target->m_backup_character, card_pile_type::player_character, true, target, show_card_flags::show_everyone);
-            target->equip_if_enabled(target->m_backup_character);
+            target->m_game->move_to(target->m_characters.front(), card_pile_type::player_backup, false, target);
+            target->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::player_character, true, target, show_card_flags::show_everyone);
+            target->equip_if_enabled(target->m_characters.front());
             target->m_hp = 2;
-            target->m_max_hp = target->m_backup_character->max_hp + (target->m_role == player_role::sheriff);
+            target->m_max_hp = static_cast<const character *>(target->m_characters.front())->max_hp + (target->m_role == player_role::sheriff);
             target->m_game->add_public_update<game_update_type::player_hp>(target->id, target->m_hp, false, false);
         } else {
-            target->m_game->move_to(target->m_backup_character, card_pile_type::hidden_deck, true, nullptr, show_card_flags::no_animation);
+            target->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::player_backup, false, target);
         }
         target->m_game->pop_request(request_type::newidentity);
     }
