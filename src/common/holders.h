@@ -180,6 +180,7 @@ namespace banggame {
         (taxman,        effect_taxman)
         (lastwill,      effect_lastwill)
         (brothel,       effect_brothel)
+        (newidentity,   effect_newidentity)
     )
     DEFINE_ENUM_TYPES_IN_NS(banggame, request_type,
         (none,          request_base)
@@ -217,6 +218,7 @@ namespace banggame {
         (dutch_will,    request_dutch_will)
         (shop_choose_target, request_shop_choose_target)
         (thedaltons,    request_thedaltons)
+        (newidentity,   request_newidentity)
         (lemonade_jim,  timer_lemonade_jim)
         (al_preacher,   timer_al_preacher)
         (damaging,      timer_damaging)

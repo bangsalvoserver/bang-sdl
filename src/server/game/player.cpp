@@ -792,7 +792,7 @@ namespace banggame {
             }
         }
         
-        for (character *c : m_characters) {
+        for (card *c : m_characters) {
             c->usages = 0;
         }
         for (card *c : m_table) {
@@ -911,6 +911,10 @@ namespace banggame {
         } else {
             m_game->add_private_update<game_update_type::player_show_role>(this, id, m_role, true);
         }
+    }
+
+    void player::set_backup_character(character *c) {
+        m_backup_character = c;
     }
 
     void player::send_player_status() {

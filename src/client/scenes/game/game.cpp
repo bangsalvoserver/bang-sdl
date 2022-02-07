@@ -496,6 +496,7 @@ void game_scene::handle_game_update(UPDATE_TAG(move_card), const move_card_updat
         switch(args.pile) {
         case card_pile_type::player_hand:       return find_player(args.player_id)->hand;
         case card_pile_type::player_table:      return find_player(args.player_id)->table;
+        case card_pile_type::player_character:  return find_player(args.player_id)->m_characters;
         case card_pile_type::main_deck:         return m_main_deck;
         case card_pile_type::discard_pile:      return m_discard_pile;
         case card_pile_type::selection:         return m_selection;

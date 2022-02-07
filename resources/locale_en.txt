@@ -72,6 +72,7 @@ STATUS_CAN_PLAY_TUMBLEWEED          {0} "draws!" {3} for {2} ... You can play {1
 STATUS_CARD_SHARPER                 {0} to switch {1} with {2} ... Respond with Fuga or Resolve
 STATUS_LASTWILL                     {0} ... Choose up to three cards to give
 STATUS_LASTWILL_TARGET              {0} ... Choose who to give the cards
+STATUS_NEWIDENTITY                  {0} ... Choose which character to switch to
 banggame::player_role::sheriff      Sheriff
 banggame::player_role::deputy       Deputy
 banggame::player_role::outlaw       Outlaw

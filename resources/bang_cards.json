@@ -3471,10 +3471,14 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Nuova Identit\u00e0",
             "image": "05_nuovaidentita",
-            "expansion": "thebullet"
+            "expansion": "thebullet",
+            "equip": [
+                {
+                    "class": "newidentity"
+                }
+            ]
         },
         {
             "name": "Mezzogiorno di Fuoco",

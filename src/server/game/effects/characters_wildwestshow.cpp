@@ -28,7 +28,7 @@ namespace banggame {
         p->m_game->add_event<event_type::on_discard_pass>(target_card, [p](player *origin, card *discarded_card) {
             if (p != origin) {
                 for (;origin != p; origin = origin->m_game->get_next_player(origin)) {
-                    if (std::ranges::any_of(origin->m_characters, [](const character *c) {
+                    if (std::ranges::any_of(origin->m_characters, [](const card *c) {
                         return !c->equips.empty() && c->equips.front().is(equip_type::gary_looter);
                     })) {
                         return;
@@ -43,7 +43,7 @@ namespace banggame {
         p->m_game->add_event<event_type::on_draw_check>(target_card, [p](player *origin, card *drawn_card) {
             if (p->m_hand.size() < 6) {
                 for (;origin != p; origin = origin->m_game->get_next_player(origin)) {
-                    if (std::ranges::any_of(origin->m_characters, [](const character *c) {
+                    if (std::ranges::any_of(origin->m_characters, [](const card *c) {
                         return !c->equips.empty() && c->equips.front().is(equip_type::john_pain);
                     })) {
                         return;
@@ -127,7 +127,7 @@ namespace banggame {
             target->equip_if_enabled(c);
             c->pile = card_pile_type::player_character;
             c->owner = target;
-            target->m_game->send_character_update(*c, target->id, i+1);
+            target->m_game->send_character_update(static_cast<const character &>(*c), target->id, i+1);
         }
     }
     

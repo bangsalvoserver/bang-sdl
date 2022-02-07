@@ -162,7 +162,7 @@ namespace banggame {
             obj.player_id = p.id;
             obj.index = 0;
 
-            for (character *c : p.m_characters) {
+            for (card *c : p.m_characters) {
                 obj.info = make_card_info(*c);
                 ret.emplace_back(enums::enum_constant<game_update_type::player_add_character>{}, obj);
                 ++obj.index;
@@ -275,6 +275,7 @@ struct to_end{};
         std::ranges::shuffle(role_it, role_it + m_players.size(), rng);
         for (auto &p : m_players) {
             p.set_character_and_role(*character_it++, *role_it++);
+            p.set_backup_character(*character_it++);
         }
 
         for (; character_it != character_ptrs.end(); ++character_it) {
@@ -472,6 +473,7 @@ struct to_end{};
         switch (pile) {
         case card_pile_type::player_hand:       return owner->m_hand;
         case card_pile_type::player_table:      return owner->m_table;
+        case card_pile_type::player_character:  return owner->m_characters;
         case card_pile_type::main_deck:         return m_deck;
         case card_pile_type::discard_pile:      return m_discards;
         case card_pile_type::selection:         return m_selection;
@@ -681,7 +683,7 @@ struct to_end{};
     void game::player_death(player *killer, player *target) {
         if (killer != m_playing) killer = nullptr;
         
-        for (character *c : target->m_characters) {
+        for (card *c : target->m_characters) {
             target->unequip_if_enabled(c);
         }
 
