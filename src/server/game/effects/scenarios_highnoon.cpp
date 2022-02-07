@@ -192,6 +192,7 @@ namespace banggame {
             target->m_game->move_to(target->m_characters.front(), card_pile_type::player_backup, false, target);
             target->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::player_character, true, target, show_card_flags::show_everyone);
             target->equip_if_enabled(target->m_characters.front());
+            target->move_cubes(target->m_backup_character.front(), target->m_characters.front(), 4);
             target->m_hp = 2;
             target->m_max_hp = static_cast<const character *>(target->m_characters.front())->max_hp + (target->m_role == player_role::sheriff);
             target->m_game->add_public_update<game_update_type::player_hp>(target->id, target->m_hp, false, false);

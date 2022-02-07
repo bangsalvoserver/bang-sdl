@@ -174,7 +174,7 @@ namespace banggame {
     }
 
     static void check_orange_card_empty(player *owner, card *target) {
-        if (target->cubes.empty() && target->pile != card_pile_type::player_character) {
+        if (target->cubes.empty() && target->pile != card_pile_type::player_character && target->pile != card_pile_type::player_backup) {
             owner->m_game->queue_event<event_type::delayed_action>([=]{
                 owner->m_game->move_to(target, card_pile_type::discard_pile);
                 owner->m_game->instant_event<event_type::post_discard_orange_card>(owner, target);
@@ -593,6 +593,10 @@ namespace banggame {
             case card_color_type::green: {
                 if (m_game->has_scenario(scenario_flags::judge)) throw game_error("ERROR_CANT_EQUIP_CARDS");
                 if (card *card = find_equipped_card(card_ptr)) throw game_error("ERROR_DUPLICATED_CARD", card);
+                auto suit = get_card_suit(card_ptr);
+                if (m_declared_suit != card_suit_type::none && suit != card_suit_type::none && suit != m_declared_suit) {
+                    throw game_error("ERROR_WRONG_DECLARED_SUIT");
+                }
                 card_ptr->inactive = true;
                 equip_card(card_ptr);
                 set_last_played_card(nullptr);
