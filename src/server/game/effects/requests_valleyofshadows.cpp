@@ -10,7 +10,7 @@ namespace banggame {
         } else {
             origin->m_game->pop_request(request_type::damaging);
         }
-        origin->do_damage(origin_card, source, damage, is_bang);
+        origin->damage(origin_card, source, damage, is_bang, true);
         cleanup();
     }
 

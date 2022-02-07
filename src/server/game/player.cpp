@@ -100,30 +100,25 @@ namespace banggame {
         target->move_card_to(target_card, card_pile_type::player_hand, true, this);
     }
 
-    void player::damage(card *origin_card, player *source, int value, bool is_bang) {
+    void player::damage(card *origin_card, player *origin, int value, bool is_bang, bool instant) {
         if (!check_player_flags(player_flags::ghost) && !(m_hp == 0 && m_game->has_scenario(scenario_flags::ghosttown))) {
-            if (m_game->has_expansion(card_expansion_type::valleyofshadows)
-                || m_game->has_expansion(card_expansion_type::canyondiablo)) {
-                m_game->queue_request<request_type::damaging>(origin_card, source, this, value, is_bang);
+            if (instant || !m_game->has_expansion(card_expansion_type::valleyofshadows | card_expansion_type::canyondiablo)) {
+                m_hp -= value;
+                m_game->add_public_update<game_update_type::player_hp>(id, m_hp);
+                m_game->add_log(value == 1 ? "LOG_TAKEN_DAMAGE" : "LOG_TAKEN_DAMAGE_PLURAL", origin_card, this, value);
+                if (m_hp <= 0) {
+                    m_game->add_request<request_type::death>(origin_card, origin, this);
+                }
+                if (m_game->has_expansion(card_expansion_type::goldrush)) {
+                    if (origin && origin->m_game->m_playing == origin && origin != this) {
+                        origin->add_gold(value);
+                    }
+                }
+                m_game->queue_event<event_type::on_hit>(origin_card, origin, this, value, is_bang);
             } else {
-                do_damage(origin_card, source, value, is_bang);
+                m_game->queue_request<request_type::damaging>(origin_card, origin, this, value, is_bang);
             }
         }
-    }
-
-    void player::do_damage(card *origin_card, player *origin, int value, bool is_bang) {
-        m_hp -= value;
-        m_game->add_public_update<game_update_type::player_hp>(id, m_hp);
-        m_game->add_log(value == 1 ? "LOG_TAKEN_DAMAGE" : "LOG_TAKEN_DAMAGE_PLURAL", origin_card, this, value);
-        if (m_hp <= 0) {
-            m_game->add_request<request_type::death>(origin_card, origin, this);
-        }
-        if (m_game->has_expansion(card_expansion_type::goldrush)) {
-            if (origin && origin->m_game->m_playing == origin && origin != this) {
-                origin->add_gold(value);
-            }
-        }
-        m_game->queue_event<event_type::on_hit>(origin_card, origin, this, value, is_bang);
     }
 
     void player::heal(int value) {

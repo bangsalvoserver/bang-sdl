@@ -92,8 +92,7 @@ namespace banggame {
 
         bool alive() const;
 
-        void damage(card *origin_card, player *source, int value, bool is_bang = false);
-        void do_damage(card *origin_card, player *source, int value, bool is_bang = false);
+        void damage(card *origin_card, player *source, int value, bool is_bang = false, bool instant = false);
 
         void heal(int value);
 
