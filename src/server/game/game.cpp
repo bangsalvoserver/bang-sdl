@@ -168,6 +168,12 @@ namespace banggame {
                 ++obj.index;
             }
 
+            if (!p.m_backup_character.empty()) {
+                obj.info = make_card_info(*p.m_backup_character.front());
+                obj.index = -1;
+                ret.emplace_back(enums::enum_constant<game_update_type::player_add_character>{}, obj);
+            }
+
             for (int id : p.m_characters.front()->cubes) {
                 ret.emplace_back(enums::enum_constant<game_update_type::move_cube>{}, id, p.m_characters.front()->id);
             }
