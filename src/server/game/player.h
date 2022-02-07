@@ -64,6 +64,9 @@ namespace banggame {
         void equip_card(card *card);
         card *find_equipped_card(card *card);
 
+        void equip_if_enabled(card *target_card);
+        void unequip_if_enabled(card *target_card);
+
         card *random_hand_card();
 
         void add_cubes(card *target, int ncubes);

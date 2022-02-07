@@ -83,9 +83,11 @@ namespace banggame {
         if (json_card.isMember("discard_if_two_players")) {
             out.discard_if_two_players = json_card["discard_if_two_players"].asBool();
         }
+#ifndef DISABLE_TESTING
         if (json_card.isMember("testing")) {
             out.testing = json_card["testing"].asBool();
         }
+#endif
     }
 
     all_cards_t make_all_cards() {

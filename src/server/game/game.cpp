@@ -210,19 +210,29 @@ namespace banggame {
         }
     }
 
-    template<bool ToEnd, std::derived_from<card> T>
+struct to_begin{};
+struct to_end{};
+
+#ifndef DISABLE_TESTING
+    static auto get_iterator(to_begin, auto &vec) {
+        return vec.begin();
+    }
+
+    static auto get_iterator(to_end, auto &vec) {
+        return vec.rbegin();
+    }
+
+    template<typename Tag, std::derived_from<card> T>
     static void swap_testing(std::vector<T *> &vec) {
-        auto pos = [&]{
-            if constexpr (ToEnd) {
-                return vec.rbegin();
-            } else {
-                return vec.begin();
-            }
-        }();
+        auto pos = get_iterator(Tag{}, vec);
         for (auto &ptr : vec | std::views::filter(&T::testing)) {
             std::swap(ptr, *pos++);
         }
     }
+#else
+    template<typename Tag, std::derived_from<card> T>
+    static void swap_testing(std::vector<T *> &vec) {}
+#endif
 
     void game::start_game(const game_options &options, const all_cards_t &all_cards) {
         m_options = options;
@@ -239,7 +249,7 @@ namespace banggame {
         }
 
         std::ranges::shuffle(character_ptrs, rng);
-        swap_testing<false>(character_ptrs);
+        swap_testing<to_begin>(character_ptrs);
 
         auto character_it = character_ptrs.begin();
         
@@ -300,7 +310,7 @@ namespace banggame {
 
         add_public_update<game_update_type::add_cards>(make_id_vector(m_deck), card_pile_type::main_deck);
         shuffle_cards_and_ids(m_deck);
-        swap_testing<true>(m_deck);
+        swap_testing<to_end>(m_deck);
 
         if (has_expansion(card_expansion_type::goldrush)) {
             for (const auto &c : all_cards.goldrush) {
@@ -309,7 +319,7 @@ namespace banggame {
             }
             add_public_update<game_update_type::add_cards>(make_id_vector(m_shop_deck), card_pile_type::shop_deck);
             shuffle_cards_and_ids(m_shop_deck);
-            swap_testing<true>(m_shop_deck);
+            swap_testing<to_end>(m_shop_deck);
         }
 
         if (has_expansion(card_expansion_type::armedanddangerous)) {
@@ -543,11 +553,11 @@ namespace banggame {
             send_card_update(**(m_scenario_deck.rbegin() + 1), nullptr, show_card_flags::no_animation);
         }
         if (!m_scenario_cards.empty()) {
-            m_scenario_cards.back()->on_unequip(m_first_player);
+            m_first_player->unequip_if_enabled(m_scenario_cards.back());
             m_scenario_flags = enums::flags_none<scenario_flags>;
         }
         move_to(m_scenario_deck.back(), card_pile_type::scenario_card);
-        m_scenario_cards.back()->on_equip(m_first_player);
+        m_first_player->equip_if_enabled(m_scenario_cards.back());
     }
     
     void game::draw_check_then(player *origin, card *origin_card, draw_check_function fun) {
@@ -672,9 +682,7 @@ namespace banggame {
         if (killer != m_playing) killer = nullptr;
         
         for (character *c : target->m_characters) {
-            if (!is_disabled(c)) {
-                c->on_unequip(target);
-            }
+            target->unequip_if_enabled(c);
         }
 
         if (target->m_characters.size() > 1) {
@@ -704,7 +712,9 @@ namespace banggame {
     void game::add_disabler(card *target_card, card_disabler_fun &&fun) {
         const auto disable_if_new = [&](card *c) {
             if (!is_disabled(c) && fun(c)) {
-                c->on_unequip(c->owner);
+                for (auto &e : c->equips) {
+                    e.on_unequip(c, c->owner);
+                }
             }
         };
 
@@ -725,7 +735,9 @@ namespace banggame {
                 else b = b || fun(c);
             }
             if (!a && b) {
-                c->on_equip(c->owner);
+                for (auto &e : c->equips) {
+                    e.on_equip(c, c->owner);
+                }
             }
         };
 

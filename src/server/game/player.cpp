@@ -20,8 +20,22 @@ namespace banggame {
         }
 
         m_game->move_to(target, card_pile_type::player_table, true, this, show_card_flags::show_everyone);
-        if (!m_game->is_disabled(target)) {
-            target->on_equip(this);
+        equip_if_enabled(target);
+    }
+
+    void player::equip_if_enabled(card *target_card) {
+        if (!m_game->is_disabled(target_card)) {
+            for (auto &e : target_card->equips) {
+                e.on_equip(target_card, this);
+            }
+        }
+    }
+
+    void player::unequip_if_enabled(card *target_card) {
+        if (!m_game->is_disabled(target_card)) {
+            for (auto &e : target_card->equips) {
+                e.on_unequip(target_card, this);
+            }
         }
     }
 
@@ -67,9 +81,7 @@ namespace banggame {
             drop_all_cubes(target_card);
             auto it = m_game->move_to(target_card, pile, known, owner, flags);
             m_game->queue_event<event_type::post_discard_card>(this, target_card);
-            if (!m_game->is_disabled(target_card)) {
-                target_card->on_unequip(this);
-            }
+            unequip_if_enabled(target_card);
             return it;
         } else if (target_card->pile == card_pile_type::player_hand) {
             return m_game->move_to(target_card, pile, known, owner, flags);
@@ -171,9 +183,7 @@ namespace banggame {
             owner->m_game->queue_event<event_type::delayed_action>([=]{
                 owner->m_game->move_to(target, card_pile_type::discard_pile);
                 owner->m_game->instant_event<event_type::post_discard_orange_card>(owner, target);
-                if (!owner->m_game->is_disabled(target)) {
-                    target->on_unequip(owner);
-                }
+                owner->unequip_if_enabled(target);
             });
         }
     }
@@ -774,7 +784,7 @@ namespace banggame {
             if (m_game->has_scenario(scenario_flags::ghosttown)) {
                 ++m_num_cards_to_draw;
                 for (auto *c : m_characters) {
-                    c->on_equip(this);
+                    equip_if_enabled(c);
                 }
             } else if (m_game->has_scenario(scenario_flags::deadman) && this == m_game->m_first_dead) {
                 remove_player_flags(player_flags::dead);
@@ -782,7 +792,7 @@ namespace banggame {
                 m_game->draw_card_to(card_pile_type::player_hand, this);
                 m_game->draw_card_to(card_pile_type::player_hand, this);
                 for (auto *c : m_characters) {
-                    c->on_equip(this);
+                    equip_if_enabled(c);
                 }
             }
         }
@@ -898,7 +908,7 @@ namespace banggame {
         m_characters.emplace_back(c);
         c->pile = card_pile_type::player_character;
         c->owner = this;
-        c->on_equip(this);
+        equip_if_enabled(c);
         m_game->send_character_update(*c, id, 0);
 
         if (role == player_role::sheriff || m_game->m_players.size() <= 3) {

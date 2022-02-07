@@ -124,7 +124,7 @@ namespace banggame {
         std::ranges::shuffle(target->m_game->m_base_characters, target->m_game->rng);
         for (int i=0; i<2; ++i) {
             auto *c = target->m_characters.emplace_back(target->m_game->m_base_characters[i]);
-            c->on_equip(target);
+            target->equip_if_enabled(c);
             c->pile = card_pile_type::player_character;
             c->owner = target;
             target->m_game->send_character_update(*c, target->id, i+1);
@@ -134,7 +134,7 @@ namespace banggame {
     void effect_greygory_deck::on_play(card *target_card, player *target) {
         for (int i=1; i<target->m_characters.size(); ++i) {
             auto *c = target->m_characters[i];
-            c->on_unequip(target);
+            target->unequip_if_enabled(c);
             c->pile = card_pile_type::none;
             c->owner = nullptr;
         }

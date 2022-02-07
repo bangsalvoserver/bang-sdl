@@ -30,7 +30,7 @@ namespace banggame {
             if (target_player == target) {
                 target->m_game->pop_request(request_type::move_bomb);
             } else if (!target_player->find_equipped_card(origin_card)) {
-                origin_card->on_unequip(target);
+                target->unequip_if_enabled(origin_card);
                 target_player->equip_card(origin_card);
                 target->m_game->pop_request(request_type::move_bomb);
             }

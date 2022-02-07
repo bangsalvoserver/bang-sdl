@@ -23,9 +23,7 @@ namespace banggame {
 
     void effect_ghost::on_pre_equip(card *target_card, player *target) {
         for (character *c : target->m_characters) {
-            if (!target->m_game->is_disabled(c) && !target->alive()) {
-                c->on_equip(target);
-            }
+            target->equip_if_enabled(c);
         }
         target->m_game->add_event<event_type::post_discard_card>(target_card, [=](player *p, card *c) {
             if (p == target && c == target_card) {

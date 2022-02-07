@@ -59,7 +59,7 @@ namespace banggame {
                 } while (p->find_equipped_card(target_card) && p != target);
 
                 if (p != target) {
-                    target_card->on_unequip(target);
+                    target->unequip_if_enabled(target_card);
                     p->equip_card(target_card);
                 }
             }

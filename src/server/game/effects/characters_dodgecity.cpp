@@ -119,13 +119,14 @@ namespace banggame {
             copy_it->second.owner = target;
 
             if (target->m_characters.size() == 2) {
-                target->m_characters.back()->on_unequip(target);
+                target->unequip_if_enabled(target->m_characters.back());
                 target->m_game->m_characters.erase(target->m_characters.back()->id);
                 target->m_characters.pop_back();
             }
             target->m_game->add_public_update<game_update_type::player_clear_characters>(target->id);
             target->m_game->send_character_update(copy_it->second, target->id, 1);
-            target->m_characters.emplace_back(&copy_it->second)->on_equip(target);
+            target->m_characters.emplace_back(&copy_it->second);
+            target->equip_if_enabled(&copy_it->second);
         }
     }
 
@@ -144,7 +145,7 @@ namespace banggame {
             if (p == target && p->m_characters.front()->usages == 0) {
                 if (p->m_characters.size() > 1) {
                     auto *c = p->m_characters.back();
-                    c->on_unequip(p);
+                    p->unequip_if_enabled(c);
                     c->pile = card_pile_type::none;
                     c->owner = nullptr;
                     p->m_characters.pop_back();

@@ -22,12 +22,12 @@ namespace banggame {
         card_modifier_type modifier = card_modifier_type::none;
         std::string name;
         std::string image;
-        int usages = 0;
-        int max_usages = 0;
+        int8_t usages = 0;
+        int8_t max_usages = 0;
         bool discard_if_two_players = false;
 
-        int buy_cost = 0;
-        int cost = 0;
+        int8_t buy_cost = 0;
+        int8_t cost = 0;
         
         card_suit_type suit = card_suit_type::none;
         card_value_type value = card_value_type::none;
@@ -38,19 +38,10 @@ namespace banggame {
 
         card_pile_type pile = card_pile_type::none;
         player *owner = nullptr;
+
+#ifndef DISABLE_TESTING
         bool testing = false;
-
-        void on_equip(player *target) {
-            for (auto &e : equips) {
-                e.on_equip(this, target);
-            }
-        }
-
-        void on_unequip(player *target) {
-            for (auto &e : equips) {
-                e.on_unequip(this, target);
-            }
-        }
+#endif
     };
 
     struct character : card {
