@@ -557,6 +557,7 @@ namespace banggame {
                         banglimit_remover(int8_t &num) : num(num) { ++num; }
                         ~banglimit_remover() { --num; }
                     } _banglimit_remover{m_bangs_per_turn};
+                    if (m_game->is_disabled(modifiers.front())) throw game_error("ERROR_CARD_IS_DISABLED", modifiers.front());
                     verify_card_targets(m_last_played_card, false, args.targets);
                     m_game->move_to(card_ptr, card_pile_type::discard_pile);
                     m_game->queue_event<event_type::on_play_hand_card>(this, card_ptr);
@@ -643,6 +644,7 @@ namespace banggame {
             if (!modifiers.empty()) {
                 if (auto modifier_it = std::ranges::find(m_characters, modifiers.front()->id, &character::id);
                     modifier_it != m_characters.end() && (*modifier_it)->modifier == card_modifier_type::discount) {
+                    if (m_game->is_disabled(*modifier_it)) throw game_error("ERROR_CARD_IS_DISABLED", *modifier_it);
                     if ((*modifier_it)->usages < (*modifier_it)->max_usages) {
                         discount = 1;
                     } else {
@@ -723,6 +725,7 @@ namespace banggame {
         case card_pile_type::player_hand:
             if (card_ptr->color != card_color_type::brown) throw game_error("INVALID_ACTION");
             break;
+        case card_pile_type::scenario_card:
         case card_pile_type::shop_selection:
         case card_pile_type::specials:
             break;

@@ -642,6 +642,7 @@ struct to_end{};
 
     int game::calc_distance(player *from, player *to) {
         if (from == to) return 0;
+        if (from->check_player_flags(player_flags::disable_player_distances)) return to->m_distance_mod;
         if (from->check_player_flags(player_flags::see_everyone_range_1)) return 1;
         int d1=0, d2=0;
         for (player *counter = from; counter != to; counter = get_next_player(counter), ++d1);

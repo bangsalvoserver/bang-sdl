@@ -379,6 +379,7 @@ int target_finder::calc_distance(player_view *from, player_view *to) {
     };
 
     if (from == to) return 0;
+    if (from->has_player_flags(player_flags::disable_player_distances)) return to->m_distance_mod;
     if (from->has_player_flags(player_flags::see_everyone_range_1)) return 1;
     int d1=0, d2=0;
     for (player_view *counter = from; counter != to; counter = get_next_player(counter), ++d1);
@@ -397,9 +398,6 @@ void target_finder::handle_auto_targets() {
             return true;
         case target_type::self | target_type::player:
             m_targets.push_back(std::vector{target_pair{self_player}});
-            return true;
-        case target_type::self | target_type::card:
-            m_targets.push_back(std::vector{target_pair{self_player, m_playing_card}});
             return true;
         case target_type::everyone | target_type::player: {
             std::vector<target_pair> ids;

@@ -7,13 +7,13 @@ namespace banggame {
 
     void effect_ambush::on_equip(card *target_card, player *target) {
         for (auto &p : target->m_game->m_players) {
-            p.add_player_flags(player_flags::see_everyone_range_1);
+            p.add_player_flags(player_flags::disable_player_distances);
         }
     }
 
     void effect_ambush::on_unequip(card *target_card, player *target) {
         for (auto &p : target->m_game->m_players) {
-            p.remove_player_flags(player_flags::see_everyone_range_1);
+            p.remove_player_flags(player_flags::disable_player_distances);
         }
     }
 
