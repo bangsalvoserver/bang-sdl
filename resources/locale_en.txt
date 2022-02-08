@@ -30,6 +30,7 @@ STATUS_YOUR_TURN                    Your turn ... Draw from the deck
 STATUS_CARD_FROM_HAND               card from hand
 STATUS_UNKNOWN_CARD                 (unknown card)
 STATUS_UNKNOWN_PLAYER               (unknown player)
+STATUS_CHARACTERCHOICE              Choose your character
 STATUS_PREDRAW                      "Draw!" a card before drawing
 STATUS_PREDRAW_FOR                  "Draw!" for {}
 STATUS_CHECK                        Choose which card to "draw!" for {0}
@@ -77,6 +78,7 @@ banggame::player_role::sheriff      Sheriff
 banggame::player_role::deputy       Deputy
 banggame::player_role::outlaw       Outlaw
 banggame::player_role::renegade     Renegade
+banggame::card_expansion_type::characterchoice      Character Choice
 banggame::card_expansion_type::thebullet            The Bullet
 banggame::card_expansion_type::dodgecity            Dodge City
 banggame::card_expansion_type::valleyofshadows      Valley of Shadows

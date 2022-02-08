@@ -37,6 +37,7 @@ namespace banggame {
     
     DEFINE_ENUM_FLAGS_IN_NS(banggame, card_expansion_type,
         (base)
+        (characterchoice)
         (dodgecity)
         (goldrush)
         (armedanddangerous)

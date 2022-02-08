@@ -189,12 +189,19 @@ namespace banggame {
                 target->m_characters.pop_back();
             }
             target->m_game->add_public_update<game_update_type::player_clear_characters>(target->id);
-            target->m_game->move_to(target->m_characters.front(), card_pile_type::player_backup, false, target);
-            target->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::player_character, true, target, show_card_flags::show_everyone);
-            target->equip_if_enabled(target->m_characters.front());
-            target->move_cubes(target->m_backup_character.front(), target->m_characters.front(), 4);
+
+            card *old_character = target->m_characters.front();
+            target->m_game->move_to(old_character, card_pile_type::player_backup, false, target);
+            target->m_game->move_to(target_card, card_pile_type::player_character, true, target, show_card_flags::show_everyone);
+
+            target->equip_if_enabled(target_card);
+            target->move_cubes(old_character, target_card, old_character->cubes.size());
+            for (auto &e : target_card->equips) {
+                e.on_pre_equip(target_card, target);
+            }
+            
             target->m_hp = 2;
-            target->m_max_hp = static_cast<const character *>(target->m_characters.front())->max_hp + (target->m_role == player_role::sheriff);
+            target->m_max_hp = static_cast<const character *>(target_card)->max_hp + (target->m_role == player_role::sheriff);
             target->m_game->add_public_update<game_update_type::player_hp>(target->id, target->m_hp, false, false);
         } else {
             target->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::player_backup, false, target);

@@ -13,11 +13,6 @@ namespace banggame {
         void on_equip(card *target_card, player *origin);
     };
 
-    struct effect_greygory_deck : event_based_effect {
-        void on_play(card *origin_card, player *origin);
-        void on_equip(card *target_card, player *target);
-    };
-
     struct effect_dutch_will : event_based_effect {
         void on_equip(card *target_card, player *target);
     };

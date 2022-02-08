@@ -20,8 +20,8 @@ namespace banggame {
 
         sdl::rect m_bounding_rect;
 
-        card_pile_view m_characters;
-        card_pile_view m_backup_characters;
+        character_pile m_characters;
+        character_pile m_backup_characters;
         
         role_card m_role;
 

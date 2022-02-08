@@ -12,7 +12,8 @@ namespace banggame {
 
     struct add_cards_update {REFLECTABLE(
         (std::vector<int>) card_ids,
-        (card_pile_type) pile
+        (card_pile_type) pile,
+        (int) player_id
     )};
 
     DEFINE_ENUM_FLAGS_IN_NS(banggame, show_card_flags,
@@ -67,13 +68,6 @@ namespace banggame {
         (card_value_type) value,
         (card_color_type) color,
         (show_card_flags) flags
-    )};
-
-    struct player_character_update {REFLECTABLE(
-        (card_info) info,
-        (int) max_hp,
-        (int) player_id,
-        (int) index
     )};
 
     struct player_clear_characters_update {REFLECTABLE(
@@ -175,7 +169,6 @@ namespace banggame {
         (player_add, player_user_update)
         (player_hp, player_hp_update)
         (player_gold, player_gold_update)
-        (player_add_character, player_character_update)
         (player_clear_characters, player_clear_characters_update)
         (player_show_role, player_show_role_update)
         (player_status, player_status_update)

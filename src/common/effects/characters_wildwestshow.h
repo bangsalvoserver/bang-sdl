@@ -44,6 +44,11 @@ namespace banggame {
         void on_play(card *origin_card, player *origin, player *target, card *target_card);
     };
 
+    struct effect_greygory_deck : event_based_effect {
+        void on_pre_equip(card *target_card, player *target);
+        void on_play(card *origin_card, player *origin);
+    };
+
 }
 
 #endif

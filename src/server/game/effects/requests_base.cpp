@@ -4,6 +4,31 @@
 
 namespace banggame {
 
+    bool request_characterchoice::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
+        return pile == card_pile_type::player_hand && target_player == target;
+    }
+
+    void request_characterchoice::on_pick(card_pile_type pile, player *target_player, card *target_card) {
+        target->m_game->move_to(target_card, card_pile_type::player_character, true, target, show_card_flags::show_everyone);
+        target->equip_if_enabled(target_card);
+
+        target->m_hp = target->m_max_hp = static_cast<character *>(target_card)->max_hp + (target->m_role == player_role::sheriff);
+        target->m_game->add_public_update<game_update_type::player_hp>(target->id, target->m_hp, false, true);
+
+        target->m_game->move_to(target->m_hand.front(), card_pile_type::player_backup, false, target);
+        target->m_game->pop_request(request_type::characterchoice);
+    }
+
+    game_formatted_string request_characterchoice::status_text() const {
+        return "STATUS_CHARACTERCHOICE";
+    }
+
+    bool request_draw::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
+        return target->m_game->has_scenario(scenario_flags::abandonedmine) && !target->m_game->m_discards.empty()
+            ? pile == card_pile_type::discard_pile
+            : pile == card_pile_type::main_deck;
+    }
+
     void request_draw::on_pick(card_pile_type pile, player *target_player, card *target_card) {
         target->draw_from_deck();
     }
