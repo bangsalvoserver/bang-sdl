@@ -6,32 +6,37 @@
 
 constexpr std::byte profile_pic_magic_num = static_cast<std::byte>(0x8f);
 
-std::vector<std::byte> encode_profile_image(sdl::surface image) {
-    std::vector<std::byte> image_data;
+std::vector<std::byte> encode_profile_image(const sdl::surface &image) {
+    const auto do_encode = [](const sdl::surface &image) {
+        std::vector<std::byte> image_data;
+
+        const auto w = image.get_rect().w;
+        const auto h = image.get_rect().h;
+        const auto bpp = image.get()->format->BytesPerPixel;
+        const auto nbytes = w * h * bpp;
+        image_data.reserve(4 + nbytes);
+        image_data.push_back(profile_pic_magic_num);
+        image_data.push_back(static_cast<std::byte>(w));
+        image_data.push_back(static_cast<std::byte>(h));
+        image_data.push_back(static_cast<std::byte>(bpp));
+        image_data.insert(image_data.end(),
+            static_cast<std::byte *>(image.get()->pixels),
+            static_cast<std::byte *>(image.get()->pixels) + nbytes);
+        return image_data;
+    };
+
     sdl::rect rect = image.get_rect();
     int scale = 1;
     if (rect.w > rect.h) {
         if (rect.w > sizes::propic_size) {
-            image = sdl::scale_surface(image, rect.w / sizes::propic_size);
+            return do_encode(sdl::scale_surface(image, rect.w / sizes::propic_size));
         }
     } else {
         if (rect.h > sizes::propic_size) {
-            image = sdl::scale_surface(image, rect.h / sizes::propic_size);
+            return do_encode(sdl::scale_surface(image, rect.h / sizes::propic_size));
         }
     }
-    const auto w = image.get_rect().w;
-    const auto h = image.get_rect().h;
-    const auto bpp = image.get()->format->BytesPerPixel;
-    const auto nbytes = w * h * bpp;
-    image_data.reserve(4 + nbytes);
-    image_data.push_back(profile_pic_magic_num);
-    image_data.push_back(static_cast<std::byte>(w));
-    image_data.push_back(static_cast<std::byte>(h));
-    image_data.push_back(static_cast<std::byte>(bpp));
-    image_data.insert(image_data.end(),
-        static_cast<std::byte *>(image.get()->pixels),
-        static_cast<std::byte *>(image.get()->pixels) + nbytes);
-    return image_data;
+    return do_encode(image);
 }
 
 sdl::surface decode_profile_image(const std::vector<std::byte> &data) {

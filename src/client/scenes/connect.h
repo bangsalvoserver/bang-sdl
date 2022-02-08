@@ -27,23 +27,23 @@ public:
     
     void render(sdl::renderer &renderer) override;
 
+    void handle_event(const sdl::event &event) override;
+
     void show_error(const std::string &message) override;
 
     void do_connect(const std::string &address);
 
     void do_delete_address(recent_server_line *addr);
 
-    void do_browse();
+    void do_browse_propic();
 
     void do_create_server();
 
 private:
     sdl::stattext m_username_label;
     sdl::textbox m_username_box;
-
-    sdl::stattext m_propic_label;
-    sdl::textbox m_propic_box;
-    sdl::button m_propic_browse_btn;
+    sdl::texture m_propic;
+    sdl::point m_propic_pos;
 
     sdl::stattext m_address_label;
     sdl::textbox m_address_box;

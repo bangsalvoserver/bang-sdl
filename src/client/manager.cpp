@@ -44,23 +44,13 @@ void game_manager::update_net() {
     }
 }
 
-static std::vector<std::byte> load_profile_image(const std::string &filename) {
-    if (filename.empty()) return {};
-
-    try {
-        return encode_profile_image(sdl::surface(resource(filename)));
-    } catch (const std::runtime_error &e) {
-        return {};
-    }
-}
-
 void game_manager::connect(const std::string &host) {
     try {
         sock.open(sdlnet::ip_address(host, banggame::server_port));
         sock_set.add(sock);
         connected_ip = host;
 
-        add_message<client_message_type::connect>(m_config.user_name, load_profile_image(m_config.profile_image));
+        add_message<client_message_type::connect>(m_config.user_name, m_config.profile_image_data);
     } catch (const sdlnet::net_error &e) {
         m_scene->show_error(e.what());
     }

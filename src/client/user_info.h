@@ -7,7 +7,7 @@
 #include "utils/sdl.h"
 
 sdl::surface decode_profile_image(const std::vector<std::byte> &data);
-std::vector<std::byte> encode_profile_image(sdl::surface image);
+std::vector<std::byte> encode_profile_image(const sdl::surface &image);
 
 struct user_info {
     std::string name;

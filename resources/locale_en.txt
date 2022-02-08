@@ -2,15 +2,13 @@ BANG_TITLE                          Bang!
 BUTTON_CONNECT                      Connect
 BUTTON_CREATE_SERVER                Create Server
 BUTTON_DELETE                       Delete
-BUTTON_BROWSE                       Browse....
 BUTTON_JOIN                         Join
 BUTTON_MAKE_LOBBY                   Make lobby
 BUTTON_START                        Start
 BUTTON_EXIT                         Exit
 BUTTON_DISCONNECT                   Disconnect
 BUTTON_SEND                         Send
-LABEL_USERNAME                      User name:
-LABEL_PROFILE_PICTURE               Profile picture:
+LABEL_USERNAME                      Name:
 LABEL_NEW_ADDRESS                   New address:
 ERROR_NO_USERNAME                   Specify the user name
 ERROR_DISCONNECTED                  Disconnected from the server
