@@ -124,8 +124,7 @@ namespace banggame {
 
         void next_predraw_check(card *target_card);
 
-        void set_character_and_role(character *c, player_role role);
-        void set_backup_character(character *c);
+        void set_role(player_role role);
 
         void set_last_played_card(card *c);
 

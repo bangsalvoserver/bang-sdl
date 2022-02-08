@@ -76,8 +76,6 @@ namespace banggame {
 
         std::vector<int> m_cubes;
 
-        std::vector<character *> m_base_characters;
-
         std::multimap<card *, card_disabler_fun> m_disablers;
 
         player *m_playing = nullptr;

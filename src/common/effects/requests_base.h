@@ -5,6 +5,15 @@
 
 namespace banggame {
 
+    struct request_characterchoice : request_base {
+        request_characterchoice(player *target)
+            : request_base(nullptr, nullptr, target) {}
+        
+        bool can_pick(card_pile_type pile, player *target, card *target_card) const;
+        void on_pick(card_pile_type pile, player *target, card *target_card);
+        game_formatted_string status_text() const;
+    };
+
     struct request_predraw : request_base {
         request_predraw(player *target)
             : request_base(nullptr, nullptr, target) {}

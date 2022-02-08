@@ -184,6 +184,7 @@ namespace banggame {
     )
     DEFINE_ENUM_TYPES_IN_NS(banggame, request_type,
         (none,          request_base)
+        (characterchoice, request_characterchoice)
         (predraw,       request_predraw)
         (draw,          request_draw)
         (check,         request_check)

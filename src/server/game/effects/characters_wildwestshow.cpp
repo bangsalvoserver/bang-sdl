@@ -121,12 +121,24 @@ namespace banggame {
     }
 
     void effect_greygory_deck::on_pre_equip(card *target_card, player *target) {
-        std::ranges::shuffle(target->m_game->m_base_characters, target->m_game->rng);
+        auto view = target->m_game->m_characters
+            | std::views::values
+            | std::views::filter([&](const character &c) {
+                return c.expansion == card_expansion_type::base
+                    && (c.pile == card_pile_type::none
+                    || (c.pile == card_pile_type::player_character && c.owner == target));
+            })
+            | std::views::transform([](character &c) {
+                return &c;
+            });
+        std::vector<character *> base_characters(view.begin(), view.end());
+        std::ranges::shuffle(base_characters, target->m_game->rng);
+
         target->m_game->add_public_update<game_update_type::add_cards>(
-            make_id_vector(target->m_game->m_base_characters | std::views::take(2)),
+            make_id_vector(base_characters | std::views::take(2)),
             card_pile_type::player_character, target->id);
         for (int i=0; i<2; ++i) {
-            auto *c = target->m_characters.emplace_back(target->m_game->m_base_characters[i]);
+            auto *c = target->m_characters.emplace_back(base_characters[i]);
             target->equip_if_enabled(c);
             c->pile = card_pile_type::player_character;
             c->owner = target;

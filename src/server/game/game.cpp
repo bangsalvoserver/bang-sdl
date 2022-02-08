@@ -212,55 +212,8 @@ struct to_end{};
     void game::start_game(const game_options &options, const all_cards_t &all_cards) {
         m_options = options;
         
-        add_event<event_type::delayed_action>(0, [](std::function<void()> fun) { fun(); });
-
-        std::vector<character *> character_ptrs;
-        for (const auto &c : all_cards.characters) {
-            if (m_players.size() <= 2 && c.discard_if_two_players) continue;
-            if (bool(c.expansion & options.expansions)) {
-                auto it = m_characters.emplace(get_next_id(), c).first;
-                character_ptrs.emplace_back(&it->second)->id = it->first;
-            }
-        }
-
-        std::ranges::shuffle(character_ptrs, rng);
-        swap_testing<to_begin>(character_ptrs);
-
-        auto character_it = character_ptrs.begin();
+        add_event<event_type::delayed_action>(nullptr, [](std::function<void()> fun) { fun(); });
         
-        std::array roles {
-            player_role::sheriff,
-            player_role::outlaw,
-            player_role::outlaw,
-            player_role::renegade,
-            player_role::deputy,
-            player_role::outlaw,
-            player_role::deputy,
-            player_role::renegade
-        };
-
-        std::array roles_3players {
-            player_role::deputy,
-            player_role::outlaw,
-            player_role::renegade
-        };
-
-        auto role_it = m_players.size() > 3 ? roles.begin() : roles_3players.begin();
-
-        std::ranges::shuffle(role_it, role_it + m_players.size(), rng);
-        for (auto &p : m_players) {
-            p.set_character_and_role(*character_it++, *role_it++);
-        }
-        for (auto &p : m_players) {
-            p.set_backup_character(*character_it++);
-        }
-
-        for (; character_it != character_ptrs.end(); ++character_it) {
-            if ((*character_it)->expansion == card_expansion_type::base) {
-                m_base_characters.push_back(*character_it);
-            }
-        }
-
         auto add_card = [&](card_pile_type pile, const card &c) {
             auto it = m_cards.emplace(get_next_id(), c).first;
             auto *new_card = get_pile(pile).emplace_back(&it->second);
@@ -270,7 +223,7 @@ struct to_end{};
         };
 
         for (const auto &c : all_cards.specials) {
-            if ((c.expansion & options.expansions) == c.expansion) {
+            if ((c.expansion & m_options.expansions) == c.expansion) {
                 add_card(card_pile_type::specials, c);
             }
         }
@@ -281,7 +234,7 @@ struct to_end{};
 
         for (const auto &c : all_cards.deck) {
             if (m_players.size() <= 2 && c.discard_if_two_players) continue;
-            if ((c.expansion & options.expansions) == c.expansion) {
+            if ((c.expansion & m_options.expansions) == c.expansion) {
                 add_card(card_pile_type::main_deck, c);
             }
         }
@@ -354,20 +307,29 @@ struct to_end{};
         if (!m_hidden_deck.empty()) {
             add_public_update<game_update_type::add_cards>(make_id_vector(m_hidden_deck), card_pile_type::hidden_deck);
         }
+        
+        std::array roles {
+            player_role::sheriff,
+            player_role::outlaw,
+            player_role::outlaw,
+            player_role::renegade,
+            player_role::deputy,
+            player_role::outlaw,
+            player_role::deputy,
+            player_role::renegade
+        };
 
-        int max_initial_cards = std::ranges::max(m_players | std::views::transform(&player::get_initial_cards));
-        for (int i=0; i<max_initial_cards; ++i) {
-            for (auto &p : m_players) {
-                if (p.m_hand.size() < p.get_initial_cards()) {
-                    draw_card_to(card_pile_type::player_hand, &p);
-                }
-            }
-        }
+        std::array roles_3players {
+            player_role::deputy,
+            player_role::outlaw,
+            player_role::renegade
+        };
 
-        if (!m_shop_deck.empty()) {
-            for (int i=0; i<3; ++i) {
-                draw_shop_card();
-            }
+        auto role_it = m_players.size() > 3 ? roles.begin() : roles_3players.begin();
+
+        std::ranges::shuffle(role_it, role_it + m_players.size(), rng);
+        for (auto &p : m_players) {
+            p.set_role(*role_it++);
         }
 
         if (m_players.size() > 3) {
@@ -376,15 +338,93 @@ struct to_end{};
             m_playing = &*std::ranges::find(m_players, player_role::deputy, &player::m_role);
         }
 
-        for (auto &p : m_players) {
-            card *c = p.m_characters.front();
-            for (auto &e : c->equips) {
-                e.on_pre_equip(c, &p);
-            }
-        }
         add_log("LOG_GAME_START");
         m_first_player = m_playing;
-        m_first_player->start_of_turn();
+
+        std::vector<character *> character_ptrs;
+        for (const auto &c : all_cards.characters) {
+            if (m_players.size() <= 2 && c.discard_if_two_players) continue;
+            if (bool(c.expansion & options.expansions)) {
+                auto it = m_characters.emplace(get_next_id(), c).first;
+                character_ptrs.emplace_back(&it->second)->id = it->first;
+            }
+        }
+
+        std::ranges::shuffle(character_ptrs, rng);
+        swap_testing<to_begin>(character_ptrs);
+
+        auto add_character_to = [&](character *c, player &p) {
+            p.m_characters.push_back(c);
+            c->pile = card_pile_type::player_character;
+            c->owner = &p;
+            add_public_update<game_update_type::add_cards>(std::vector{c->id}, card_pile_type::player_character, p.id);
+        };
+
+        auto character_it = character_ptrs.begin();
+
+#ifdef DISABLE_TESTING
+        for (auto &p : m_players) {
+            add_character_to(*character_it++, p);
+            add_character_to(*character_it++, p);
+        }
+#else
+        for (auto &p : m_players) {
+            add_character_to(*character_it++, p);
+        }
+        for (auto &p : m_players) {
+            add_character_to(*character_it++, p);
+        }
+#endif
+
+        if (has_expansion(card_expansion_type::characterchoice)) {
+            for (auto &p : m_players) {
+                while (!p.m_characters.empty()) {
+                    move_to(p.m_characters.front(), card_pile_type::player_hand, true, &p, show_card_flags::no_animation | show_card_flags::show_everyone);
+                }
+            }
+            auto *p = m_first_player;
+            while (true) {
+                queue_request<request_type::characterchoice>(p);
+
+                p = get_next_player(p);
+                if (p == m_first_player) break;
+            }
+        } else {
+            for (auto &p : m_players) {
+                send_card_update(*p.m_characters.front(), &p, show_card_flags::no_animation | show_card_flags::show_everyone);
+                p.equip_if_enabled(p.m_characters.front());
+                p.m_hp = p.m_max_hp = static_cast<character *>(p.m_characters.front())->max_hp + (p.m_role == player_role::sheriff);
+                add_public_update<game_update_type::player_hp>(p.id, p.m_hp, false, true);
+
+                move_to(p.m_characters.back(), card_pile_type::player_backup, false, &p, show_card_flags::no_animation);
+            }
+        }
+
+        queue_event<event_type::delayed_action>([this] {
+            for (auto &p : m_players) {
+                card *c = p.m_characters.front();
+                for (auto &e : c->equips) {
+                    e.on_pre_equip(c, &p);
+                }
+            }
+
+            int max_initial_cards = std::ranges::max(m_players | std::views::transform(&player::get_initial_cards));
+            for (int i=0; i<max_initial_cards; ++i) {
+                for (auto &p : m_players) {
+                    if (p.m_hand.size() < p.get_initial_cards()) {
+                        draw_card_to(card_pile_type::player_hand, &p);
+                    }
+                }
+            }
+
+            if (!m_shop_deck.empty()) {
+                for (int i=0; i<3; ++i) {
+                    draw_shop_card();
+                }
+            }
+
+            m_first_player->start_of_turn();
+        });
     }
 
     void game::tick() {

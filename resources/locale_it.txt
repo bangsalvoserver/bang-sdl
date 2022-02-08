@@ -30,6 +30,7 @@ STATUS_YOUR_TURN                    Tocca a te ... Pesca dal mazzo
 STATUS_CARD_FROM_HAND               carta dalla mano
 STATUS_UNKNOWN_CARD                 (carta sconosciuta)
 STATUS_UNKNOWN_PLAYER               (giocatore sconosciuto)
+STATUS_CHARACTERCHOICE              Scegli il tuo personaggio
 STATUS_PREDRAW                      Estrai prima di pescare
 STATUS_PREDRAW_FOR                  Estrai per {}
 STATUS_CHECK                        Scegli quale carta estrarre per {0}
@@ -77,6 +78,7 @@ banggame::player_role::sheriff      Sceriffo
 banggame::player_role::deputy       Vice
 banggame::player_role::outlaw       Fuorilegge
 banggame::player_role::renegade     Rinnegato
+banggame::card_expansion_type::characterchoice      Scelta dei Personaggi
 banggame::card_expansion_type::thebullet            La Pallottola
 banggame::card_expansion_type::dodgecity            Dodge City
 banggame::card_expansion_type::valleyofshadows      La Valle Delle Ombre
