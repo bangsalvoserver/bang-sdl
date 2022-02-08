@@ -3371,6 +3371,7 @@
             ]
         },
         {
+            "discard_if_two_players": true,
             "name": "Corsa all'Oro",
             "image": "05_corsaalloro",
             "equip": [
