@@ -137,7 +137,7 @@ namespace banggame {
     }
 
     sdl::point card_pile_view::get_position_of(card_view *card) const {
-        if (size() == 1) {
+        if (size() == 1 || m_width == 0) {
             return pos;
         }
         float xoffset = std::min(float(m_width) / (size() - 1), float(sizes::card_width + sizes::card_xoffset)) * hflip;
@@ -145,6 +145,11 @@ namespace banggame {
         return sdl::point{(int)(pos.x + xoffset *
             (std::ranges::distance(begin(), std::ranges::find(*this, card)) - (size() - 1) * .5f)),
             pos.y};
+    }
+
+    sdl::point character_pile::get_position_of(card_view *card) const {
+        int diff = std::ranges::distance(begin(), std::ranges::find(*this, card));
+        return sdl::point{pos.x + sizes::character_offset * diff, pos.y + sizes::character_offset * diff};
     }
 
     void card_pile_view::erase_card(card_view *card) {

@@ -122,12 +122,15 @@ namespace banggame {
 
     void effect_greygory_deck::on_pre_equip(card *target_card, player *target) {
         std::ranges::shuffle(target->m_game->m_base_characters, target->m_game->rng);
+        target->m_game->add_public_update<game_update_type::add_cards>(
+            make_id_vector(target->m_game->m_base_characters | std::views::take(2)),
+            card_pile_type::player_character, target->id);
         for (int i=0; i<2; ++i) {
             auto *c = target->m_characters.emplace_back(target->m_game->m_base_characters[i]);
             target->equip_if_enabled(c);
             c->pile = card_pile_type::player_character;
             c->owner = target;
-            target->m_game->send_character_update(static_cast<const character &>(*c), target->id, i+1);
+            target->m_game->send_card_update(*c, target, show_card_flags::no_animation | show_card_flags::show_everyone);
         }
     }
     
@@ -141,6 +144,7 @@ namespace banggame {
         target->m_characters.resize(1);
         target->m_game->add_public_update<game_update_type::player_clear_characters>(target->id);
         on_pre_equip(target_card, target);
+        target->m_game->send_request_respond();
     }
 
 }

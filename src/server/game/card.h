@@ -44,6 +44,11 @@ namespace banggame {
 #endif
     };
 
+    inline std::vector<int> make_id_vector(auto &&range) {
+        auto view = range | std::views::transform(&card::id);
+        return {view.begin(), view.end()};
+    };
+
     struct character : card {
         int max_hp;
     };

@@ -458,8 +458,8 @@ void game_scene::handle_game_update(UPDATE_TAG(add_cards), const add_cards_updat
             c.id = id;
             c.pile = &pile;
             c.texture_back = texture;
-            c.set_pos(pile.get_pos());
             pile.push_back(&c);
+            c.set_pos(pile.get_position_of(&c));
         }
     };
 
@@ -467,6 +467,12 @@ void game_scene::handle_game_update(UPDATE_TAG(add_cards), const add_cards_updat
     case card_pile_type::main_deck:
         add_cards_to(m_main_deck, &card_textures::main_deck());
         update_main_deck_count();
+        break;
+    case card_pile_type::player_character:
+        add_cards_to(find_player(args.player_id)->m_characters, &card_textures::character());
+        break;
+    case card_pile_type::player_backup:
+        add_cards_to(find_player(args.player_id)->m_backup_characters, &card_textures::character());
         break;
     case card_pile_type::shop_deck:         add_cards_to(m_shop_deck, &card_textures::goldrush()); break;
     case card_pile_type::scenario_deck:     add_cards_to(m_scenario_deck); break;
@@ -722,48 +728,6 @@ void game_scene::handle_game_update(UPDATE_TAG(player_hp), const player_hp_updat
 
 void game_scene::handle_game_update(UPDATE_TAG(player_gold), const player_gold_update &args) {
     find_player(args.player_id)->set_gold(args.gold);
-    pop_update();
-}
-
-void game_scene::handle_game_update(UPDATE_TAG(player_add_character), const player_character_update &args) {
-    auto &p = *find_player(args.player_id);
-
-    auto &c = m_cards[args.info.id];
-    static_cast<card_info &>(c) = args.info;
-
-    c.make_texture_front();
-    c.texture_back = &card_textures::character();
-    
-    if (args.index >= 0) {
-        if (args.index > p.m_characters.size()) {
-            throw std::runtime_error("Invalid character index");
-        }
-        c.known = true;
-        c.flip_amt = 1.f;
-        c.pile = &p.m_characters;
-
-        c.set_pos(sdl::point{
-            p.m_characters.get_pos().x + args.index * sizes::character_offset,
-            p.m_characters.get_pos().y + args.index * sizes::character_offset});
-
-        if (args.index == p.m_characters.size()) {
-            p.m_characters.push_back(&c);
-        } else {
-            p.m_characters[args.index] = &c;
-        }
-        
-        if (args.index == 0) {
-            p.set_hp_marker_position(p.hp = args.max_hp);
-        }
-    } else {
-        c.pile = &p.m_backup_characters;
-        c.flip_amt = 0.f;
-        c.known = false;
-        p.m_backup_characters.clear();
-        p.m_backup_characters.push_back(&c);
-        c.set_pos(p.m_backup_characters.get_pos());
-    }
-
     pop_update();
 }
 

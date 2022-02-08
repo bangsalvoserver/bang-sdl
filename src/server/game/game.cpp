@@ -50,16 +50,6 @@ namespace banggame {
         }
     }
 
-    void game::send_character_update(const character &c, int player_id, int index) {
-        player_character_update obj;
-        obj.info = make_card_info(c);
-        obj.max_hp = c.max_hp;
-        obj.player_id = player_id;
-        obj.index = index;
-        
-        add_public_update<game_update_type::player_add_character>(std::move(obj));
-    }
-
     card *game::find_card(int card_id) {
         if (auto it = m_cards.find(card_id); it != m_cards.end()) {
             return &it->second;
@@ -68,11 +58,6 @@ namespace banggame {
         }
         throw game_error("server.find_card: ID not found"_nonloc);
     }
-
-    static std::vector<int> make_id_vector(auto &&range) {
-        auto view = range | std::views::transform(&card::id);
-        return {view.begin(), view.end()};
-    };
 
     std::vector<game_update> game::get_game_state_updates(player *owner) {
         std::vector<game_update> ret;
@@ -157,26 +142,10 @@ namespace banggame {
         }
 
         for (auto &p : m_players) {
-            player_character_update obj;
-            obj.max_hp = p.m_max_hp;
-            obj.player_id = p.id;
-            obj.index = 0;
+            ret.emplace_back(enums::enum_constant<game_update_type::add_cards>{}, make_id_vector(p.m_characters), card_pile_type::player_character, p.id);
+            std::ranges::for_each(p.m_characters, show_card);
 
-            for (card *c : p.m_characters) {
-                obj.info = make_card_info(*c);
-                ret.emplace_back(enums::enum_constant<game_update_type::player_add_character>{}, obj);
-                ++obj.index;
-            }
-
-            if (!p.m_backup_character.empty()) {
-                obj.info = make_card_info(*p.m_backup_character.front());
-                obj.index = -1;
-                ret.emplace_back(enums::enum_constant<game_update_type::player_add_character>{}, obj);
-            }
-
-            for (int id : p.m_characters.front()->cubes) {
-                ret.emplace_back(enums::enum_constant<game_update_type::move_cube>{}, id, p.m_characters.front()->id);
-            }
+            ret.emplace_back(enums::enum_constant<game_update_type::add_cards>{}, make_id_vector(p.m_backup_character), card_pile_type::player_backup, p.id);
 
             ret.emplace_back(enums::enum_constant<game_update_type::player_hp>{}, p.id, p.m_hp, !p.alive(), true);
             

@@ -124,7 +124,9 @@ namespace banggame {
                 target->m_characters.pop_back();
             }
             target->m_game->add_public_update<game_update_type::player_clear_characters>(target->id);
-            target->m_game->send_character_update(static_cast<const character &>(copy_it->second), target->id, 1);
+            target->m_game->add_public_update<game_update_type::add_cards>(
+                std::vector{copy_it->second.id}, card_pile_type::player_character, target->id);
+            target->m_game->send_card_update(copy_it->second, target, show_card_flags::no_animation | show_card_flags::show_everyone);
             target->m_characters.emplace_back(&copy_it->second);
             target->equip_if_enabled(&copy_it->second);
         }

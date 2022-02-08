@@ -896,19 +896,16 @@ namespace banggame {
     }
 
     void player::set_character_and_role(character *c, player_role role) {
-        m_role = role;
-
-        m_max_hp = c->max_hp;
-        if (role == player_role::sheriff) {
-            ++m_max_hp;
-        }
-        m_hp = m_max_hp;
-
         m_characters.emplace_back(c);
         c->pile = card_pile_type::player_character;
         c->owner = this;
         equip_if_enabled(c);
-        m_game->send_character_update(*c, id, 0);
+        m_game->add_public_update<game_update_type::add_cards>(std::vector{c->id}, card_pile_type::player_character, id);
+        m_game->send_card_update(*c, this, show_card_flags::show_everyone | show_card_flags::no_animation);
+
+        m_role = role;
+        m_hp = m_max_hp = c->max_hp + (role == player_role::sheriff);
+        m_game->add_public_update<game_update_type::player_hp>(id, m_hp, false, true);
 
         if (role == player_role::sheriff || m_game->m_players.size() <= 3) {
             m_game->add_public_update<game_update_type::player_show_role>(id, m_role, true);
@@ -921,7 +918,7 @@ namespace banggame {
         m_backup_character.push_back(c);
         c->pile = card_pile_type::player_backup;
         c->owner = this;
-        m_game->send_character_update(*c, id, -1);
+        m_game->add_public_update<game_update_type::add_cards>(std::vector{c->id}, card_pile_type::player_backup, id);
     }
 
     void player::send_player_status() {

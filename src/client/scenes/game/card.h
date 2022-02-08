@@ -41,7 +41,7 @@ namespace banggame {
     struct card_view;
 
     class card_pile_view : public std::vector<card_view *> {
-    private:
+    protected:
         sdl::point pos;
         int m_width;
         int hflip;
@@ -55,8 +55,12 @@ namespace banggame {
         int width() const { return m_width; }
 
         void set_pos(const sdl::point &new_pos);
-        sdl::point get_position_of(card_view *card) const;
+        virtual sdl::point get_position_of(card_view *card) const;
         void erase_card(card_view *card);
+    };
+
+    struct character_pile : card_pile_view {
+        sdl::point get_position_of(card_view *card) const override;
     };
 
     class cube_widget {

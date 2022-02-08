@@ -125,7 +125,6 @@ namespace banggame {
         std::vector<game_update> get_game_state_updates(player *owner);
 
         void send_card_update(const card &c, player *owner = nullptr, show_card_flags flags = enums::flags_none<show_card_flags>);
-        void send_character_update(const character &c, int player_id, int index);
 
         void start_game(const game_options &options, const all_cards_t &all_cards);
 
