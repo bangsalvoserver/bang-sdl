@@ -53,10 +53,8 @@ namespace banggame {
         });
     }
 
-    void effect_red_ringo::on_equip(card *target_card, player *p) {
-        p->m_game->add_event<event_type::on_game_start>(target_card, [p] {
-            p->add_cubes(p->m_characters.front(), 4);
-        });
+    void effect_red_ringo::on_pre_equip(card *target_card, player *target) {
+        target->add_cubes(target->m_characters.front(), 4);
     }
 
     void effect_red_ringo::verify(card *origin_card, player *origin, player *target, card *target_card) const {

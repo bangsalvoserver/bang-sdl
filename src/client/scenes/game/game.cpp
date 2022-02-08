@@ -239,6 +239,10 @@ void game_scene::handle_card_click() {
         m_target.on_click_main_deck();
         return;
     }
+    if (!m_discard_pile.empty() && sdl::point_in_rect(m_mouse_pt, m_discard_pile.back()->get_rect())) {
+        m_target.on_click_discard_pile();
+        return;
+    }
     if (!m_scenario_card.empty() && mouse_in_card(m_scenario_card.back())) {
         m_target.on_click_scenario_card(m_scenario_card.back());
         return;

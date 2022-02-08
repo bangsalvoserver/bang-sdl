@@ -120,7 +120,7 @@ namespace banggame {
         origin->m_game->remove_events(origin_card);
     }
 
-    static void greygory_deck_set_characters(player *target) {
+    void effect_greygory_deck::on_pre_equip(card *target_card, player *target) {
         std::ranges::shuffle(target->m_game->m_base_characters, target->m_game->rng);
         for (int i=0; i<2; ++i) {
             auto *c = target->m_characters.emplace_back(target->m_game->m_base_characters[i]);
@@ -140,13 +140,7 @@ namespace banggame {
         }
         target->m_characters.resize(1);
         target->m_game->add_public_update<game_update_type::player_clear_characters>(target->id);
-        greygory_deck_set_characters(target);
-    }
-
-    void effect_greygory_deck::on_equip(card *target_card, player *p) {
-        p->m_game->add_event<event_type::on_game_start>(target_card, [p] {
-            greygory_deck_set_characters(p);
-        });
+        on_pre_equip(target_card, target);
     }
 
 }

@@ -117,6 +117,12 @@ void target_finder::on_click_confirm() {
     if (can_confirm()) send_play_card();
 }
 
+void target_finder::on_click_discard_pile() {
+    if (is_current_player_targeted() && can_pick(card_pile_type::discard_pile, nullptr, nullptr)) {
+        add_action<game_action_type::pick_card>(card_pile_type::discard_pile);
+    }
+}
+
 void target_finder::on_click_main_deck() {
     if (is_current_player_targeted() && can_pick(card_pile_type::main_deck, nullptr, nullptr)) {
         add_action<game_action_type::pick_card>(card_pile_type::main_deck);

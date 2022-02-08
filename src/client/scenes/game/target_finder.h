@@ -42,6 +42,7 @@ namespace banggame {
         void clear_status();
         void clear_targets();
 
+        void on_click_discard_pile();
         void on_click_main_deck();
         void on_click_selection_card(card_view *card);
         void on_click_shop_card(card_view *card);

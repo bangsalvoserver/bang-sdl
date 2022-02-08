@@ -407,7 +407,12 @@ struct to_end{};
             m_playing = &*std::ranges::find(m_players, player_role::deputy, &player::m_role);
         }
 
-        queue_event<event_type::on_game_start>();
+        for (auto &p : m_players) {
+            card *c = p.m_characters.front();
+            for (auto &e : c->equips) {
+                e.on_pre_equip(c, &p);
+            }
+        }
         add_log("LOG_GAME_START");
         m_first_player = m_playing;
         m_first_player->start_of_turn();

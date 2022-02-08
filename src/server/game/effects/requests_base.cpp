@@ -4,6 +4,12 @@
 
 namespace banggame {
 
+    bool request_draw::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
+        return target->m_game->has_scenario(scenario_flags::abandonedmine) && !target->m_game->m_discards.empty()
+            ? pile == card_pile_type::discard_pile
+            : pile == card_pile_type::main_deck;
+    }
+
     void request_draw::on_pick(card_pile_type pile, player *target_player, card *target_card) {
         target->draw_from_deck();
     }
