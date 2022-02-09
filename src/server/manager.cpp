@@ -58,7 +58,7 @@ server_message_pair game_manager::pop_message() {
 }
 
 
-void game_manager::handle_message(MESSAGE_TAG(connect), const sdlnet::ip_address &addr, const connect_args &args) {
+void game_manager::HANDLE_MESSAGE(connect, const sdlnet::ip_address &addr, const connect_args &args) {
     if (users.try_emplace(addr, addr, args.user_name, args.profile_image).second) {
         send_message<server_message_type::client_accepted>(addr);
     }
@@ -80,7 +80,7 @@ void game_manager::send_lobby_update(const lobby &l) {
     }
 }
 
-void game_manager::handle_message(MESSAGE_TAG(lobby_list), game_user *user) {
+void game_manager::HANDLE_MESSAGE(lobby_list, game_user *user) {
     std::vector<lobby_data> vec;
     for (const auto &lobby : m_lobbies) {
         vec.push_back(make_lobby_data(lobby));
@@ -88,7 +88,7 @@ void game_manager::handle_message(MESSAGE_TAG(lobby_list), game_user *user) {
     send_message<server_message_type::lobby_list>(user->addr, std::move(vec));
 }
 
-void game_manager::handle_message(MESSAGE_TAG(lobby_make), game_user *user, const lobby_info &value) {
+void game_manager::HANDLE_MESSAGE(lobby_make, game_user *user, const lobby_info &value) {
     if (user->in_lobby) {
         throw game_error("ERROR_PLAYER_IN_LOBBY");
     }
@@ -106,7 +106,7 @@ void game_manager::handle_message(MESSAGE_TAG(lobby_make), game_user *user, cons
     send_message<server_message_type::lobby_entered>(user->addr, value, user->id, user->id);
 }
 
-void game_manager::handle_message(MESSAGE_TAG(lobby_edit), game_user *user, const lobby_info &args) {
+void game_manager::HANDLE_MESSAGE(lobby_edit, game_user *user, const lobby_info &args) {
     lobby *lobby_ptr = user->in_lobby;
     if (!lobby_ptr) {
         throw game_error("ERROR_PLAYER_NOT_IN_LOBBY");
@@ -129,7 +129,7 @@ void game_manager::handle_message(MESSAGE_TAG(lobby_edit), game_user *user, cons
     }
 }
 
-void game_manager::handle_message(MESSAGE_TAG(lobby_join), game_user *user, const lobby_join_args &value) {
+void game_manager::HANDLE_MESSAGE(lobby_join, game_user *user, const lobby_join_args &value) {
     auto lobby_it = std::ranges::find(m_lobbies, value.lobby_id, &lobby::id);
     if (lobby_it == m_lobbies.end()) {
         throw game_error("Invalid Lobby ID"_nonloc);
@@ -179,7 +179,7 @@ void game_manager::handle_message(MESSAGE_TAG(lobby_join), game_user *user, cons
     }
 }
 
-void game_manager::handle_message(MESSAGE_TAG(lobby_players), game_user *user) {
+void game_manager::HANDLE_MESSAGE(lobby_players, game_user *user) {
     if (!user->in_lobby) {
         throw game_error("ERROR_PLAYER_NOT_IN_LOBBY");
     }
@@ -199,7 +199,7 @@ void game_manager::client_disconnected(const sdlnet::ip_address &addr) {
     }
 }
 
-void game_manager::handle_message(MESSAGE_TAG(lobby_leave), game_user *user) {
+void game_manager::HANDLE_MESSAGE(lobby_leave, game_user *user) {
     if (!user->in_lobby) return;
     
     auto lobby_it = std::ranges::find(m_lobbies, user->in_lobby, [](const lobby &l) { return &l; });
@@ -222,7 +222,7 @@ void game_manager::handle_message(MESSAGE_TAG(lobby_leave), game_user *user) {
     }
 }
 
-void game_manager::handle_message(MESSAGE_TAG(lobby_chat), game_user *user, const lobby_chat_client_args &value) {
+void game_manager::HANDLE_MESSAGE(lobby_chat, game_user *user, const lobby_chat_client_args &value) {
     if (!user->in_lobby) {
         throw game_error("ERROR_PLAYER_NOT_IN_LOBBY");
     }
@@ -230,7 +230,7 @@ void game_manager::handle_message(MESSAGE_TAG(lobby_chat), game_user *user, cons
     broadcast_message<server_message_type::lobby_chat>(*user->in_lobby, user->id, value.message);
 }
 
-void game_manager::handle_message(MESSAGE_TAG(game_start), game_user *user) {
+void game_manager::HANDLE_MESSAGE(game_start, game_user *user) {
     lobby *lobby_ptr = user->in_lobby;
     if (!lobby_ptr) {
         throw game_error("ERROR_PLAYER_NOT_IN_LOBBY");
@@ -256,7 +256,7 @@ void game_manager::handle_message(MESSAGE_TAG(game_start), game_user *user) {
     lobby_ptr->start_game(all_cards);
 }
 
-void game_manager::handle_message(MESSAGE_TAG(game_action), game_user *user, const game_action &value) {
+void game_manager::HANDLE_MESSAGE(game_action, game_user *user, const game_action &value) {
     lobby *lobby_ptr = user->in_lobby;
     if (!lobby_ptr) {
         throw game_error("ERROR_PLAYER_NOT_IN_LOBBY");

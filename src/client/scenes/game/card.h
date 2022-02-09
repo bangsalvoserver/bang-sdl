@@ -97,10 +97,6 @@ namespace banggame {
 
         bool inactive = false;
 
-        card_suit_type suit = card_suit_type::none;
-        card_value_type value = card_value_type::none;
-        card_color_type color = card_color_type::none;
-
         void set_pos(const sdl::point &pos);
         const sdl::point &get_pos() const {
             return m_pos;

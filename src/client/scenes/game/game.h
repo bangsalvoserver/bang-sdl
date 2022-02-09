@@ -12,7 +12,7 @@
 #include <optional>
 #include <random>
 
-#define UPDATE_TAG(name) enums::enum_constant<game_update_type::name>
+#define HANDLE_UPDATE(name, ...) handle_game_update(enums::enum_constant<game_update_type::name> __VA_OPT__(,) __VA_ARGS__)
 
 namespace banggame {
 
@@ -37,28 +37,28 @@ namespace banggame {
         void remove_user(int id) override;
 
     private:
-        void handle_game_update(UPDATE_TAG(game_over),        const game_over_update &args);
-        void handle_game_update(UPDATE_TAG(game_error),       const game_formatted_string &args);
-        void handle_game_update(UPDATE_TAG(game_log),         const game_formatted_string &args);
-        void handle_game_update(UPDATE_TAG(add_cards),        const add_cards_update &args);
-        void handle_game_update(UPDATE_TAG(move_card),        const move_card_update &args);
-        void handle_game_update(UPDATE_TAG(add_cubes),        const add_cubes_update &args);
-        void handle_game_update(UPDATE_TAG(move_cube),        const move_cube_update &args);
-        void handle_game_update(UPDATE_TAG(deck_shuffled),    const card_pile_type &pile);
-        void handle_game_update(UPDATE_TAG(show_card),        const show_card_update &args);
-        void handle_game_update(UPDATE_TAG(hide_card),        const hide_card_update &args);
-        void handle_game_update(UPDATE_TAG(tap_card),         const tap_card_update &args);
-        void handle_game_update(UPDATE_TAG(last_played_card), const last_played_card_id &args);
-        void handle_game_update(UPDATE_TAG(player_add),       const player_user_update &args);
-        void handle_game_update(UPDATE_TAG(player_hp),        const player_hp_update &args);
-        void handle_game_update(UPDATE_TAG(player_gold),      const player_gold_update &args);
-        void handle_game_update(UPDATE_TAG(player_clear_characters), const player_clear_characters_update &args);
-        void handle_game_update(UPDATE_TAG(player_show_role), const player_show_role_update &args);
-        void handle_game_update(UPDATE_TAG(player_status),     const player_status_update &args);
-        void handle_game_update(UPDATE_TAG(switch_turn),      const switch_turn_update &args);
-        void handle_game_update(UPDATE_TAG(request_status),   const request_status_args &args);
-        void handle_game_update(UPDATE_TAG(request_respond),   const request_respond_args &args);
-        void handle_game_update(UPDATE_TAG(status_clear));
+        void HANDLE_UPDATE(game_over,        const game_over_update &args);
+        void HANDLE_UPDATE(game_error,       const game_formatted_string &args);
+        void HANDLE_UPDATE(game_log,         const game_formatted_string &args);
+        void HANDLE_UPDATE(add_cards,        const add_cards_update &args);
+        void HANDLE_UPDATE(move_card,        const move_card_update &args);
+        void HANDLE_UPDATE(add_cubes,        const add_cubes_update &args);
+        void HANDLE_UPDATE(move_cube,        const move_cube_update &args);
+        void HANDLE_UPDATE(deck_shuffled,    const card_pile_type &pile);
+        void HANDLE_UPDATE(show_card,        const show_card_update &args);
+        void HANDLE_UPDATE(hide_card,        const hide_card_update &args);
+        void HANDLE_UPDATE(tap_card,         const tap_card_update &args);
+        void HANDLE_UPDATE(last_played_card, const last_played_card_id &args);
+        void HANDLE_UPDATE(player_add,       const player_user_update &args);
+        void HANDLE_UPDATE(player_hp,        const player_hp_update &args);
+        void HANDLE_UPDATE(player_gold,      const player_gold_update &args);
+        void HANDLE_UPDATE(player_clear_characters, const player_clear_characters_update &args);
+        void HANDLE_UPDATE(player_show_role, const player_show_role_update &args);
+        void HANDLE_UPDATE(player_status,     const player_status_update &args);
+        void HANDLE_UPDATE(switch_turn,      const switch_turn_update &args);
+        void HANDLE_UPDATE(request_status,   const request_status_args &args);
+        void HANDLE_UPDATE(request_respond,   const request_respond_args &args);
+        void HANDLE_UPDATE(status_clear);
         
         void pop_update();
 

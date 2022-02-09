@@ -52,21 +52,28 @@ namespace banggame {
 
     struct card_info {REFLECTABLE(
         (int) id,
-        (card_expansion_type) expansion,
         (std::string) name,
         (std::string) image,
         (std::vector<card_target_data>) targets,
         (std::vector<card_target_data>) response_targets,
         (std::vector<card_target_data>) optional_targets,
         (std::vector<equip_target_data>) equip_targets,
-        (card_modifier_type) modifier
-    )};
+        (card_expansion_type) expansion,
+        (card_modifier_type) modifier,
+        (card_suit_type) suit,
+        (card_value_type) value,
+        (card_color_type) color
+    )
+        card_info()
+            : expansion(enums::flags_none<decltype(expansion)>)
+            , modifier(card_modifier_type::none)
+            , suit(card_suit_type::none)
+            , value(card_value_type::none)
+            , color(card_color_type::none) {}
+    };
 
     struct show_card_update {REFLECTABLE(
         (card_info) info,
-        (card_suit_type) suit,
-        (card_value_type) value,
-        (card_color_type) color,
         (show_card_flags) flags
     )};
 

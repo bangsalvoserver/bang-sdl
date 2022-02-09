@@ -54,6 +54,7 @@ server_message make_message(Ts && ... args) {
 }
 
 #define MESSAGE_TAG(name) enums::enum_constant<client_message_type::name>
+#define HANDLE_MESSAGE(name, ...) handle_message(MESSAGE_TAG(name) __VA_OPT__(,) __VA_ARGS__)
 
 using message_callback_t = std::function<void(const std::string &)>;
 
@@ -90,16 +91,16 @@ private:
     lobby_data make_lobby_data(const lobby &l);
     void send_lobby_update(const lobby &l);
 
-    void handle_message(MESSAGE_TAG(connect), const sdlnet::ip_address &addr, const connect_args &value);
-    void handle_message(MESSAGE_TAG(lobby_list), game_user *user);
-    void handle_message(MESSAGE_TAG(lobby_make), game_user *user, const lobby_info &value);
-    void handle_message(MESSAGE_TAG(lobby_edit), game_user *user, const lobby_info &args);
-    void handle_message(MESSAGE_TAG(lobby_join), game_user *user, const lobby_join_args &value);
-    void handle_message(MESSAGE_TAG(lobby_players), game_user *user);
-    void handle_message(MESSAGE_TAG(lobby_leave), game_user *user);
-    void handle_message(MESSAGE_TAG(lobby_chat), game_user *user, const lobby_chat_client_args &value);
-    void handle_message(MESSAGE_TAG(game_start), game_user *user);
-    void handle_message(MESSAGE_TAG(game_action), game_user *user, const banggame::game_action &value);
+    void HANDLE_MESSAGE(connect,        const sdlnet::ip_address &addr, const connect_args &value);
+    void HANDLE_MESSAGE(lobby_list,     game_user *user);
+    void HANDLE_MESSAGE(lobby_make,     game_user *user, const lobby_info &value);
+    void HANDLE_MESSAGE(lobby_edit,     game_user *user, const lobby_info &args);
+    void HANDLE_MESSAGE(lobby_join,     game_user *user, const lobby_join_args &value);
+    void HANDLE_MESSAGE(lobby_players,  game_user *user);
+    void HANDLE_MESSAGE(lobby_leave,    game_user *user);
+    void HANDLE_MESSAGE(lobby_chat,     game_user *user, const lobby_chat_client_args &value);
+    void HANDLE_MESSAGE(game_start,     game_user *user);
+    void HANDLE_MESSAGE(game_action,    game_user *user, const banggame::game_action &value);
 
     std::map<sdlnet::ip_address, game_user> users;
     std::list<lobby> m_lobbies;

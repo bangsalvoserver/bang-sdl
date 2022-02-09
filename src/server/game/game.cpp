@@ -27,6 +27,9 @@ namespace banggame {
         info.name = c.name;
         info.image = c.image;
         info.modifier = c.modifier;
+        info.suit = c.suit;
+        info.value = c.value;
+        info.color = c.color;
         make_card_info_effects(info.targets, c.effects);
         make_card_info_effects(info.response_targets, c.responses);
         make_card_info_effects(info.optional_targets, c.optionals);
@@ -35,18 +38,11 @@ namespace banggame {
     }
 
     void game::send_card_update(const card &c, player *owner, show_card_flags flags) {
-        show_card_update obj;
-        obj.info = make_card_info(c);
-        obj.suit = c.suit;
-        obj.value = c.value;
-        obj.color = c.color;
-        obj.flags = flags;
-
         if (!owner || bool(flags & show_card_flags::show_everyone)) {
-            add_public_update<game_update_type::show_card>(obj);
+            add_public_update<game_update_type::show_card>(make_card_info(c), flags);
         } else {
             add_public_update<game_update_type::hide_card>(c.id, flags, owner->id);
-            add_private_update<game_update_type::show_card>(owner, obj);
+            add_private_update<game_update_type::show_card>(owner, make_card_info(c), flags);
         }
     }
 
@@ -61,118 +57,110 @@ namespace banggame {
 
     std::vector<game_update> game::get_game_state_updates(player *owner) {
         std::vector<game_update> ret;
-
-        auto add_cards = [&](auto fun, card_pile_type pile) {
-            ret.emplace_back(enums::enum_constant<game_update_type::add_cards>{},
-                make_id_vector(m_cards
-                    | std::views::values
-                    | std::views::filter([&](const card &c) {
-                        return fun(c.expansion);
-                    })),
-                pile);
+#define ADD_TO_RET(name, ...) ret.emplace_back(enums::enum_constant<game_update_type::name>{} __VA_OPT__(,) __VA_ARGS__)
+        
+        auto add_cards = [&](auto &&range, card_pile_type pile, player *p = nullptr) {
+            ADD_TO_RET(add_cards, make_id_vector(range), pile, p ? p->id : 0);
         };
+
+        add_cards(m_cards 
+            | std::views::values
+            | std::views::filter([](const card &c) {
+                return c.suit != card_suit_type::none;
+            }), card_pile_type::main_deck);
+
+        add_cards(m_cards
+            | std::views::values
+            | std::views::filter([](const card &c) {
+                return bool(c.expansion & card_expansion_type::goldrush);
+            }), card_pile_type::shop_deck);
 
         auto show_card = [&](card *c) {
-            show_card_update obj;
-            obj.info = make_card_info(*c);
-            obj.suit = c->suit;
-            obj.value = c->value;
-            obj.color = c->color;
-            obj.flags = show_card_flags::no_animation;
-
-            ret.emplace_back(enums::enum_constant<game_update_type::show_card>{}, std::move(obj));
+            ADD_TO_RET(show_card, make_card_info(*c), show_card_flags::no_animation);
         };
 
-        auto move_cards = [&](std::vector<card *> &vec, bool known = true) {
-            for (card *c : vec) {
-                ret.emplace_back(enums::enum_constant<game_update_type::move_card>{},
-                    c->id, c->owner ? c->owner->id : 0, c->pile, show_card_flags::no_animation);
+        add_cards(m_specials, card_pile_type::specials);
+        std::ranges::for_each(m_specials, show_card);
 
-                if (known || c->owner == owner) {
+        auto move_cards = [&]<typename T = decltype([](const card &c) { return true; })>(auto &&range, T do_show_card = {}) {
+            for (card *c : range) {
+                ADD_TO_RET(move_card, c->id, c->owner ? c->owner->id : 0, c->pile, show_card_flags::no_animation);
+
+                if (do_show_card(*c)) {
                     show_card(c);
 
                     for (int id : c->cubes) {
-                        ret.emplace_back(enums::enum_constant<game_update_type::move_cube>{}, id, c->id);
+                        ADD_TO_RET(move_cube, id, c->id);
                     }
 
                     if (c->inactive) {
-                        ret.emplace_back(enums::enum_constant<game_update_type::tap_card>{}, c->id, true, true);
+                        ADD_TO_RET(tap_card, c->id, true, true);
                     }
                 }
             }
         };
 
-        add_cards([](card_expansion_type expansion) {
-            return !bool(expansion &
-                ( card_expansion_type::goldrush
-                | card_expansion_type::highnoon
-                | card_expansion_type::fistfulofcards ));
-        }, card_pile_type::main_deck);
-
-        add_cards([](card_expansion_type expansion) {
-            return bool(expansion &
-                card_expansion_type::goldrush);
-        }, card_pile_type::shop_deck);
-
-        ret.emplace_back(enums::enum_constant<game_update_type::add_cards>{}, make_id_vector(m_specials), card_pile_type::specials);
-        std::ranges::for_each(m_specials, show_card);
-
         move_cards(m_discards);
-        move_cards(m_selection, false);
+        move_cards(m_selection, [&](const card &c){ return c.owner == owner; });
         move_cards(m_shop_discards);
         move_cards(m_shop_selection);
         move_cards(m_hidden_deck);
 
         if (!m_scenario_deck.empty()) {
-            ret.emplace_back(enums::enum_constant<game_update_type::add_cards>{}, make_id_vector(m_scenario_deck),
-                card_pile_type::scenario_deck);
+            add_cards(m_scenario_deck, card_pile_type::scenario_deck);
             show_card(m_scenario_deck.back());
         }
         if (!m_scenario_cards.empty()) {
-            card *c = m_scenario_cards.back();
-            ret.emplace_back(enums::enum_constant<game_update_type::add_cards>{}, std::vector{c->id},
-                card_pile_type::scenario_deck);
-            ret.emplace_back(enums::enum_constant<game_update_type::move_card>{},
-                c->id, 0, card_pile_type::scenario_card, show_card_flags::no_animation);
-            show_card(c);
+            auto last_card = m_scenario_cards | std::views::reverse | std::views::take(1);
+            add_cards(last_card, card_pile_type::scenario_deck);
+            move_cards(last_card);
         }
         
         if (!m_cubes.empty()) {
-            ret.emplace_back(enums::enum_constant<game_update_type::add_cubes>{}, m_cubes);
+            ADD_TO_RET(add_cubes, m_cubes);
         }
 
         for (auto &p : m_players) {
-            ret.emplace_back(enums::enum_constant<game_update_type::add_cards>{}, make_id_vector(p.m_characters), card_pile_type::player_character, p.id);
-            std::ranges::for_each(p.m_characters, show_card);
-
-            ret.emplace_back(enums::enum_constant<game_update_type::add_cards>{}, make_id_vector(p.m_backup_character), card_pile_type::player_backup, p.id);
-
-            ret.emplace_back(enums::enum_constant<game_update_type::player_hp>{}, p.id, p.m_hp, !p.alive(), true);
-            
-            if (p.m_gold != 0) {
-                ret.emplace_back(enums::enum_constant<game_update_type::player_gold>{}, p.m_gold);
-            }
-
             if (p.m_role == player_role::sheriff || p.m_hp == 0 || m_players.size() < 4) {
-                ret.emplace_back(enums::enum_constant<game_update_type::player_show_role>{}, p.id, p.m_role, true);
+                ADD_TO_RET(player_show_role, p.id, p.m_role, true);
             }
+
+            add_cards(m_characters
+                | std::views::values
+                | std::views::filter([&](const card &c) {
+                    return c.owner == &p;
+                }), card_pile_type::player_backup, &p);
+
+            move_cards(p.m_characters);
+            move_cards(p.m_backup_character, [](const card &c){ return false; });
 
             move_cards(p.m_table);
-            move_cards(p.m_hand, false);
+            move_cards(p.m_hand, [&](const card &c){ return c.owner == owner || c.suit == card_suit_type::none; });
+
+            ADD_TO_RET(player_hp, p.id, p.m_hp, !p.alive(), true);
+            
+            if (p.m_gold != 0) {
+                ADD_TO_RET(player_gold, p.id, p.m_gold);
+            }
         }
 
-        ret.emplace_back(enums::enum_constant<game_update_type::switch_turn>{}, m_playing->id);
+        if (m_playing) {
+            ADD_TO_RET(switch_turn, m_playing->id);
+        }
         if (!m_requests.empty()) {
             auto &req = top_request();
-            ret.emplace_back(enums::enum_constant<game_update_type::request_status>{},
+            ADD_TO_RET(request_status,
                 req.enum_index(),
                 req.origin() ? req.origin()->id : 0,
                 req.target() ? req.target()->id : 0,
                 req.flags(),
                 req.status_text());
-            ret.emplace_back(enums::enum_constant<game_update_type::request_respond>{}, make_request_respond(owner));
+            if (owner) {
+                ADD_TO_RET(request_respond, make_request_respond(owner));
+            }
         }
 
+#undef ADD_TO_RET
         return ret;
     }
 
@@ -333,13 +321,12 @@ struct to_end{};
         }
 
         if (m_players.size() > 3) {
-            m_playing = &*std::ranges::find(m_players, player_role::sheriff, &player::m_role);
+            m_first_player = &*std::ranges::find(m_players, player_role::sheriff, &player::m_role);
         } else {
-            m_playing = &*std::ranges::find(m_players, player_role::deputy, &player::m_role);
+            m_first_player = &*std::ranges::find(m_players, player_role::deputy, &player::m_role);
         }
 
         add_log("LOG_GAME_START");
-        m_first_player = m_playing;
 
         std::vector<character *> character_ptrs;
         for (const auto &c : all_cards.characters) {
@@ -519,12 +506,16 @@ struct to_end{};
         } else {
             add_public_update<game_update_type::hide_card>(c->id, flags);
         }
-        add_public_update<game_update_type::move_card>(c->id, owner ? owner->id : 0, pile, flags);
         auto &prev_pile = get_pile(c->pile, c->owner);
+        auto card_it = std::ranges::find(prev_pile, c);
+        if (c->pile == pile && c->owner == owner) {
+            return std::next(card_it);
+        }
+        add_public_update<game_update_type::move_card>(c->id, owner ? owner->id : 0, pile, flags);
         get_pile(pile, owner).emplace_back(c);
         c->pile = pile;
         c->owner = owner;
-        return prev_pile.erase(std::ranges::find(prev_pile, c));
+        return prev_pile.erase(card_it);
     }
 
     card *game::draw_card_to(card_pile_type pile, player *owner, show_card_flags flags) {

@@ -25,7 +25,7 @@ DEFINE_ENUM_TYPES(scene_type,
     (game, banggame::game_scene)
 )
 
-#define MESSAGE_TAG(name) enums::enum_constant<server_message_type::name>
+#define HANDLE_MESSAGE(name, ...) handle_message(enums::enum_constant<server_message_type::name> __VA_OPT__(,) __VA_ARGS__)
 
 class game_manager {
 public:
@@ -78,17 +78,17 @@ public:
     }
 
 private:
-    void handle_message(MESSAGE_TAG(client_accepted));
-    void handle_message(MESSAGE_TAG(lobby_list), const std::vector<lobby_data> &args);
-    void handle_message(MESSAGE_TAG(lobby_update), const lobby_data &args);
-    void handle_message(MESSAGE_TAG(lobby_edited), const lobby_info &args);
-    void handle_message(MESSAGE_TAG(lobby_entered), const lobby_entered_args &args);
-    void handle_message(MESSAGE_TAG(lobby_players), const std::vector<lobby_player_data> &args);
-    void handle_message(MESSAGE_TAG(lobby_joined), const lobby_player_data &args);
-    void handle_message(MESSAGE_TAG(lobby_left), const lobby_left_args &args);
-    void handle_message(MESSAGE_TAG(lobby_chat), const lobby_chat_args &args);
-    void handle_message(MESSAGE_TAG(game_started), const game_started_args &args);
-    void handle_message(MESSAGE_TAG(game_update), const banggame::game_update &args);
+    void HANDLE_MESSAGE(client_accepted);
+    void HANDLE_MESSAGE(lobby_list, const std::vector<lobby_data> &args);
+    void HANDLE_MESSAGE(lobby_update, const lobby_data &args);
+    void HANDLE_MESSAGE(lobby_edited, const lobby_info &args);
+    void HANDLE_MESSAGE(lobby_entered, const lobby_entered_args &args);
+    void HANDLE_MESSAGE(lobby_players, const std::vector<lobby_player_data> &args);
+    void HANDLE_MESSAGE(lobby_joined, const lobby_player_data &args);
+    void HANDLE_MESSAGE(lobby_left, const lobby_left_args &args);
+    void HANDLE_MESSAGE(lobby_chat, const lobby_chat_args &args);
+    void HANDLE_MESSAGE(game_started, const game_started_args &args);
+    void HANDLE_MESSAGE(game_update, const banggame::game_update &args);
 
     std::unique_ptr<scene_base> m_scene;
 
