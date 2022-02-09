@@ -204,6 +204,14 @@ namespace banggame {
             }
         }
 
+        void queue_delayed_action(auto &&fun) {
+            if (m_requests.empty()) {
+                fun();
+            } else {
+                queue_event<event_type::delayed_action>(std::forward<decltype(fun)>(fun));
+            }
+        }
+
         void pop_events() {
             while (m_requests.empty() && !m_pending_events.empty()) {
                 handle_event(m_pending_events.front());

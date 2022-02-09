@@ -90,7 +90,7 @@ namespace banggame {
             it = origin->m_game->move_to(*it, card_pile_type::shop_selection, true, nullptr, show_card_flags::no_animation);
         }
         origin->m_game->pop_request(request_type::shopchoice);
-        origin->m_game->queue_event<event_type::delayed_action>([m_game = origin->m_game]{
+        origin->m_game->queue_delayed_action([m_game = origin->m_game]{
             while (m_game->m_shop_selection.size() < 3) {
                 m_game->draw_shop_card();
             }

@@ -62,7 +62,7 @@ namespace banggame {
     void effect_bangcard::on_play(card *origin_card, player *origin, player *target) {
         target->m_game->add_log("LOG_PLAYED_CARD_ON", origin_card, origin, target);
         target->m_game->queue_event<event_type::on_play_bang>(origin);
-        target->m_game->queue_event<event_type::delayed_action>([=, flags = flags]{
+        target->m_game->queue_delayed_action([=, flags = flags]{
             request_bang req{origin_card, origin, target, flags};
             req.is_bang_card = true;
             origin->apply_bang_mods(req);
@@ -243,7 +243,7 @@ namespace banggame {
                 pos != target->m_game->m_pending_events.end()) {
                 target->m_game->m_pending_events.emplace(pos, std::in_place_index<enums::indexof(event_type::delayed_action)>, std::move(fun));
             } else {
-                target->m_game->queue_event<event_type::delayed_action>(std::move(fun));
+                target->m_game->queue_delayed_action(std::move(fun));
             }
         }
     }
@@ -269,7 +269,7 @@ namespace banggame {
                 pos != target->m_game->m_pending_events.end()) {
                 target->m_game->m_pending_events.emplace(pos, std::in_place_index<enums::indexof(event_type::delayed_action)>, std::move(fun));
             } else {
-                target->m_game->queue_event<event_type::delayed_action>(std::move(fun));
+                target->m_game->queue_delayed_action(std::move(fun));
             }
         }
     }
@@ -281,7 +281,7 @@ namespace banggame {
 
         target->m_game->add_event<event_type::on_play_card_end>(target_card, [=](player *p, card *c) {
             if (p == origin && c == origin_card) {
-                origin->m_game->queue_event<event_type::delayed_action>([=]{
+                origin->m_game->queue_delayed_action([=]{
                     origin->m_chosen_card = nullptr;
                 });
                 origin->m_game->remove_events(target_card);

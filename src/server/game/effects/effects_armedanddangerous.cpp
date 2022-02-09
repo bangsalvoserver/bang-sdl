@@ -53,7 +53,7 @@ namespace banggame {
         if (target->can_escape(origin, origin_card, flags)) {
             origin->m_game->queue_request<request_type::rust>(origin_card, origin, target, flags);
         } else {
-            target->m_game->queue_event<event_type::delayed_action>([=]{
+            target->m_game->queue_delayed_action([=]{
                 target->move_cubes(target->m_characters.front(), origin->m_characters.front(), 1);
                 for (auto &c : target->m_table | std::views::reverse) {
                     if (c->color == card_color_type::orange) {

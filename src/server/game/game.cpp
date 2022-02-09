@@ -200,8 +200,6 @@ struct to_end{};
     void game::start_game(const game_options &options, const all_cards_t &all_cards) {
         m_options = options;
         
-        add_event<event_type::delayed_action>(nullptr, [](std::function<void()> fun) { fun(); });
-        
         auto add_card = [&](card_pile_type pile, const card &c) {
             auto it = m_cards.emplace(get_next_id(), c).first;
             auto *new_card = get_pile(pile).emplace_back(&it->second);
@@ -387,7 +385,7 @@ struct to_end{};
             }
         }
 
-        queue_event<event_type::delayed_action>([this] {
+        queue_delayed_action([this] {
             for (auto &p : m_players) {
                 card *c = p.m_characters.front();
                 for (auto &e : c->equips) {
@@ -410,6 +408,7 @@ struct to_end{};
                 }
             }
 
+            m_playing = m_first_player;
             m_first_player->start_of_turn();
         });
     }

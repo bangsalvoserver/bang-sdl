@@ -175,7 +175,7 @@ namespace banggame {
 
     static void check_orange_card_empty(player *owner, card *target) {
         if (target->cubes.empty() && target->pile != card_pile_type::player_character && target->pile != card_pile_type::player_backup) {
-            owner->m_game->queue_event<event_type::delayed_action>([=]{
+            owner->m_game->queue_delayed_action([=]{
                 owner->m_game->move_to(target, card_pile_type::discard_pile);
                 owner->m_game->instant_event<event_type::post_discard_orange_card>(owner, target);
                 owner->unequip_if_enabled(target);
@@ -660,7 +660,7 @@ namespace banggame {
                     add_gold(discount - card_ptr->buy_cost);
                     do_play_card(card_ptr, false, args.targets);
                     set_last_played_card(card_ptr);
-                    m_game->queue_event<event_type::delayed_action>([this]{
+                    m_game->queue_delayed_action([this]{
                         while (m_game->m_shop_selection.size() < 3) {
                             m_game->draw_shop_card();
                         }
@@ -769,7 +769,7 @@ namespace banggame {
 
     void player::start_of_turn() {
         if (this != m_game->m_playing && this == m_game->m_first_player) {
-            m_game->queue_event<event_type::delayed_action>([&]{
+            m_game->queue_delayed_action([&]{
                 m_game->draw_scenario_card();
             });
         }
@@ -811,7 +811,7 @@ namespace banggame {
         m_game->add_public_update<game_update_type::switch_turn>(id);
         m_game->add_log("LOG_TURN_START", this);
         m_game->queue_event<event_type::pre_turn_start>(this);
-        m_game->queue_event<event_type::delayed_action>([&]{
+        m_game->queue_delayed_action([&]{
             if (m_game->m_playing == this && alive()) {
                 if (m_predraw_checks.empty()) {
                     request_drawing();
@@ -826,7 +826,7 @@ namespace banggame {
     }
 
     void player::next_predraw_check(card *target_card) {
-        m_game->queue_event<event_type::delayed_action>([this, target_card]{
+        m_game->queue_delayed_action([this, target_card]{
             if (auto it = m_predraw_checks.find(target_card); it != m_predraw_checks.end()) {
                 it->second.resolved = true;
             }
@@ -843,7 +843,7 @@ namespace banggame {
     void player::request_drawing() {
         m_game->queue_event<event_type::before_turn_start>(this);
         m_game->queue_event<event_type::on_turn_start>(this);
-        m_game->queue_event<event_type::delayed_action>([this]{
+        m_game->queue_delayed_action([this]{
             m_game->instant_event<event_type::on_request_draw>(this);
             if (m_game->m_requests.empty()) {
                 m_game->queue_request<request_type::draw>(this);

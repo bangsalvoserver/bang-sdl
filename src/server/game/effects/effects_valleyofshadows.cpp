@@ -12,7 +12,7 @@ namespace banggame {
     }
 
     void effect_draw_again_if_needed::on_play(card *origin_card, player *target) {
-        target->m_game->queue_event<event_type::delayed_action>([=]{
+        target->m_game->queue_delayed_action([=]{
             if (target->m_num_drawn_cards < target->m_num_cards_to_draw && target->m_game->m_playing == target) {
                 target->request_drawing();
             }
@@ -35,7 +35,7 @@ namespace banggame {
 
     void effect_tornado::on_play(card *origin_card, player *origin, player *target) {
         if (target->m_hand.empty()) {
-            target->m_game->queue_event<event_type::delayed_action>([=]{
+            target->m_game->queue_delayed_action([=]{
                 target->m_game->draw_card_to(card_pile_type::player_hand, target);
                 target->m_game->draw_card_to(card_pile_type::player_hand, target);
             });
@@ -56,7 +56,7 @@ namespace banggame {
                 origin->m_game->queue_request<request_type::poker>(origin_card, origin, target, flags);
             }
         };
-        origin->m_game->queue_event<event_type::delayed_action>([=]{
+        origin->m_game->queue_delayed_action([=]{
             if (std::ranges::find(origin->m_game->m_selection, card_value_type::value_A, &card::value) != origin->m_game->m_selection.end()) {
                 while (!target->m_game->m_selection.empty()) {
                     origin->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::discard_pile);
@@ -85,7 +85,7 @@ namespace banggame {
         if (0 == --req.damage) {
             origin->m_game->pop_request(request_type::damaging);
         }
-        origin->m_game->queue_event<event_type::delayed_action>([=]{
+        origin->m_game->queue_delayed_action([=]{
             if (saved->alive()) {
                 origin->m_game->queue_request<request_type::saved>(origin_card, origin, saved);
             }

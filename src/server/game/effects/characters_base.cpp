@@ -30,7 +30,7 @@ namespace banggame {
                 target->m_game->send_card_update(*drawn_card, nullptr, show_card_flags::short_pause);
                 target->m_game->send_card_update(*drawn_card, target);
                 if (suit == card_suit_type::hearts || suit == card_suit_type::diamonds) {
-                    origin->m_game->queue_event<event_type::delayed_action>([=]{
+                    origin->m_game->queue_delayed_action([=]{
                         ++origin->m_num_drawn_cards;
                         card *drawn_card = origin->m_game->draw_phase_one_card_to(card_pile_type::player_hand, origin);
                         origin->m_game->instant_event<event_type::on_card_drawn>(target, drawn_card);
