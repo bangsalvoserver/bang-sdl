@@ -50,7 +50,6 @@ namespace banggame {
             draw_check_function function;
             player *origin = nullptr;
             card *origin_card = nullptr;
-            bool no_auto_resolve = false;
         };
         std::optional<draw_check_handler> m_current_check;
         

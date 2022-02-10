@@ -588,7 +588,7 @@ struct to_end{};
             queue_event<event_type::on_draw_check>(m_current_check->origin, c);
             add_log("LOG_CHECK_DREW_CARD", m_current_check->origin_card, m_current_check->origin, c);
             instant_event<event_type::trigger_tumbleweed>(m_current_check->origin_card, c);
-            if (!m_current_check->no_auto_resolve) {
+            if (!top_request_is(request_type::tumbleweed)) {
                 m_current_check->function(c);
                 m_current_check.reset();
             }
@@ -667,6 +667,9 @@ struct to_end{};
         }();
 
         if (winner_role != player_role::unknown) {
+            m_requests.clear();
+            m_pending_events.clear();
+            add_public_update<game_update_type::status_clear>();
             for (const auto &p : m_players) {
                 add_public_update<game_update_type::player_show_role>(p.id, p.m_role);
             }

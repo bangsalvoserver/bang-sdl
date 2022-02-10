@@ -44,7 +44,7 @@ namespace sizes {
     constexpr int request_target_indicator_border = 9;
     constexpr uint32_t request_target_indicator_rgba = 0xff0000ff;
 
-    constexpr int player_ellipse_x_distance = 200;
+    constexpr int player_ellipse_x_distance = 250;
     constexpr int player_ellipse_y_distance = 180;
 
     constexpr int propic_size = 50;

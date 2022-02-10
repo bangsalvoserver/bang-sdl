@@ -192,7 +192,6 @@ namespace banggame {
     void effect_tumbleweed::on_equip(card *target_card, player *origin) {
         origin->m_game->add_event<event_type::trigger_tumbleweed>(target_card, [=](card *origin_card, card *drawn_card) {
             origin->m_game->add_request<request_type::tumbleweed>(target_card, origin, drawn_card, origin_card);
-            origin->m_game->m_current_check->no_auto_resolve = true;
         });
     }
 

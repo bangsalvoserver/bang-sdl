@@ -116,7 +116,7 @@ namespace banggame {
                 }
                 m_game->queue_event<event_type::on_hit>(origin_card, origin, this, value, is_bang);
             } else {
-                m_game->queue_request<request_type::damaging>(origin_card, origin, this, value, is_bang);
+                m_game->add_request<request_type::damaging>(origin_card, origin, this, value, is_bang);
             }
         }
     }
@@ -769,9 +769,7 @@ namespace banggame {
 
     void player::start_of_turn() {
         if (this != m_game->m_playing && this == m_game->m_first_player) {
-            m_game->queue_delayed_action([&]{
-                m_game->draw_scenario_card();
-            });
+            m_game->draw_scenario_card();
         }
         
         m_game->m_playing = this;
@@ -805,36 +803,31 @@ namespace banggame {
         for (card *c : m_table) {
             c->usages = 0;
         }
-
+        for (auto &[card_id, obj] : m_predraw_checks) {
+            obj.resolved = false;
+        }
         m_current_card_targets.clear();
         
         m_game->add_public_update<game_update_type::switch_turn>(id);
         m_game->add_log("LOG_TURN_START", this);
         m_game->queue_event<event_type::pre_turn_start>(this);
-        m_game->queue_delayed_action([&]{
-            if (m_game->m_playing == this && alive()) {
-                if (m_predraw_checks.empty()) {
-                    request_drawing();
-                } else {
-                    for (auto &[card_id, obj] : m_predraw_checks) {
-                        obj.resolved = false;
-                    }
-                    m_game->queue_request<request_type::predraw>(this);
-                }
-            }
-        });
+        next_predraw_check(nullptr);
     }
 
     void player::next_predraw_check(card *target_card) {
-        m_game->queue_delayed_action([this, target_card]{
-            if (auto it = m_predraw_checks.find(target_card); it != m_predraw_checks.end()) {
-                it->second.resolved = true;
-            }
-            if (m_game->m_playing == this && alive()) {
-                if (std::ranges::all_of(m_predraw_checks | std::views::values, &predraw_check::resolved)) {
-                    request_drawing();
-                } else {
-                    m_game->queue_request<request_type::predraw>(this);
+        if (auto it = m_predraw_checks.find(target_card); it != m_predraw_checks.end()) {
+            it->second.resolved = true;
+        }
+        m_game->queue_delayed_action([this]{
+            if (m_game->m_playing == this) {
+                if (alive()) {
+                    if (std::ranges::all_of(m_predraw_checks | std::views::values, &predraw_check::resolved)) {
+                        request_drawing();
+                    } else {
+                        m_game->queue_request<request_type::predraw>(this);
+                    }
+                } else if (m_game->num_alive() > 1) {
+                    m_game->get_next_in_turn(this)->start_of_turn();
                 }
             }
         });
