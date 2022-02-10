@@ -21,19 +21,6 @@ namespace banggame {
     struct effect_goldrush : card_effect {
         void on_play(card *origin_card, player *origin);
     };
-
-    struct effect_bottle : card_effect {
-        void on_play(card *origin_card, player *origin);
-    };
-
-    struct effect_pardner : card_effect {
-        void on_play(card *origin_card, player *origin);
-    };
-
-    struct effect_shopchoice : card_effect {
-        bool can_respond(card *origin_card, player *origin) const;
-        void on_play(card *origin_card, player *origin);
-    };
 }
 
 #endif

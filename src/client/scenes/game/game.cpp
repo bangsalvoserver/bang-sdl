@@ -62,6 +62,10 @@ void game_scene::resize(int width, int height) {
     m_shop_selection.set_pos(sdl::point{
         width / 2 + sizes::shop_xoffset - sizes::shop_selection_width / 2,
         height / 2});
+    
+    m_shop_choice.set_pos(sdl::point{
+        m_shop_selection.get_pos().x,
+        m_shop_selection.get_pos().y + sizes::shop_choice_offset});
 
     m_scenario_card.set_pos(sdl::point{
         width / 2 + sizes::deck_xoffset + sizes::card_width + sizes::card_xoffset,
@@ -122,6 +126,10 @@ void game_scene::render(sdl::renderer &renderer) {
     }
 
     for (card_view *card : m_shop_selection) {
+        card->render(renderer);
+    }
+
+    for (card_view *card : m_shop_choice) {
         card->render(renderer);
     }
 
@@ -231,7 +239,7 @@ void game_scene::handle_card_click() {
         m_target.on_click_selection_card(card);
         return;
     }
-    if (card_view *card = find_clicked(m_shop_selection)) {
+    if (card_view *card = find_clicked(m_shop_choice.empty() ? m_shop_selection : m_shop_choice)) {
         m_target.on_click_shop_card(card);
         return;
     }

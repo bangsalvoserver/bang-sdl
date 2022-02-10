@@ -56,7 +56,6 @@ STATUS_RUST                         {0} ... Rispondi con Fuga o Risolvi
 STATUS_RICOCHET                     {0} su {1} ... Rispondi con Mancato o Risolvi
 STATUS_PEYOTE                       {0} ... Dichiara Rosso o Nero
 STATUS_HANDCUFFS                    {0} ... Dichiara un seme
-STATUS_SHOPCHOICE                   Scegli come giocare {0}
 STATUS_KIT_CARLSON                  {0} ... Scegli quali carte pescare
 STATUS_CLAUS_THE_SAINT              {0} ... Scegli due carte da pescare e quali da regalare a giro
 STATUS_VERA_CUSTER                  {0} ... Scegli quale personaggio copiare

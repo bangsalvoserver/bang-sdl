@@ -83,13 +83,6 @@ namespace banggame {
         game_formatted_string status_text() const;
     };
 
-    struct request_shopchoice : request_base {
-        request_shopchoice(card *origin_card, player *target)
-            : request_base(origin_card, nullptr, target) {}
-        
-        game_formatted_string status_text() const;
-    };
-
     struct effect_newidentity : event_based_effect {
         void on_equip(card *target_card, player *target);
     };

@@ -3738,7 +3738,7 @@
             "count": 3,
             "image": "04_bottiglia",
             "color": "brown",
-            "buy_cost": 2,
+            "modifier": "shopchoice",
             "effects": [
                 {
                     "class": "bottle"
@@ -3775,7 +3775,7 @@
             "count": 3,
             "image": "04_complice",
             "color": "brown",
-            "buy_cost": 2,
+            "modifier": "shopchoice",
             "effects": [
                 {
                     "class": "pardner"
@@ -3940,9 +3940,11 @@
             "expansion": "goldrush",
             "name": "Bottiglia come Panico!",
             "image": "04_bottiglia_panico",
-            "responses": [
+            "color": "brown",
+            "buy_cost": 2,
+            "effects": [
                 {
-                    "class": "bottlechoice"
+                    "class": "bottle"
                 },
                 {
                     "target": "card range_1",
@@ -3954,9 +3956,11 @@
             "expansion": "goldrush",
             "name": "Bottiglia come Birra",
             "image": "04_bottiglia_birra",
-            "responses": [
+            "color": "brown",
+            "buy_cost": 2,
+            "effects": [
                 {
-                    "class": "bottlechoice"
+                    "class": "bottle"
                 },
                 {
                     "target": "player self",
@@ -3968,9 +3972,11 @@
             "expansion": "goldrush",
             "name": "Bottiglia come Bang!",
             "image": "04_bottiglia_bang",
-            "responses": [
+            "color": "brown",
+            "buy_cost": 2,
+            "effects": [
                 {
-                    "class": "bottlechoice"
+                    "class": "bottle"
                 },
                 {
                     "target": "player reachable notself",
@@ -3982,9 +3988,11 @@
             "expansion": "goldrush",
             "name": "Complice come Emporio",
             "image": "04_complice_emporio",
-            "responses": [
+            "color": "brown",
+            "buy_cost": 2,
+            "effects": [
                 {
-                    "class": "pardnerchoice"
+                    "class": "pardner"
                 },
                 {
                     "class": "generalstore"
@@ -3995,9 +4003,11 @@
             "expansion": "goldrush",
             "name": "Complice come Duello",
             "image": "04_complice_duello",
-            "responses": [
+            "color": "brown",
+            "buy_cost": 2,
+            "effects": [
                 {
-                    "class": "pardnerchoice"
+                    "class": "pardner"
                 },
                 {
                     "target": "player notself",
@@ -4009,9 +4019,11 @@
             "expansion": "goldrush",
             "name": "Complice come Cat Balou",
             "image": "04_complice_catbalou",
-            "responses": [
+            "color": "brown",
+            "buy_cost": 2,
+            "effects": [
                 {
-                    "class": "pardnerchoice"
+                    "class": "pardner"
                 },
                 {
                     "target": "card",

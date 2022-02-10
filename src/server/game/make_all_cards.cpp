@@ -191,6 +191,8 @@ namespace banggame {
             if (is_disabled(json_card)) continue;
             card c;
             c.expansion = enums::flags_from_string<card_expansion_type>(json_card["expansion"].asString());
+            if (json_card.isMember("color")) c.color = enums::from_string<card_color_type>(json_card["color"].asString());
+            if (json_card.isMember("buy_cost")) c.buy_cost = json_card["buy_cost"].asInt();
             make_all_effects(c, json_card);
             ret.hidden.push_back(c);
         }

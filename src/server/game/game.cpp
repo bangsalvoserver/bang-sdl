@@ -290,6 +290,7 @@ struct to_end{};
                 add_card(card_pile_type::hidden_deck, c);
             }
         }
+
         if (!m_hidden_deck.empty()) {
             add_public_update<game_update_type::add_cards>(make_id_vector(m_hidden_deck), card_pile_type::hidden_deck);
         }
@@ -550,6 +551,13 @@ struct to_end{};
     card *game::draw_shop_card() {
         card *drawn_card = m_shop_deck.back();
         move_to(drawn_card, card_pile_type::shop_selection);
+        if (drawn_card->modifier == card_modifier_type::shopchoice) {
+            for (card *c : m_hidden_deck) {
+                if (!c->effects.empty() && c->effects.front().type == drawn_card->effects.front().type) {
+                    send_card_update(*c, nullptr, show_card_flags::no_animation);
+                }
+            }
+        }
         if (m_shop_deck.empty()) {
             m_shop_deck = std::move(m_shop_discards);
             for (card *c : m_shop_deck) {

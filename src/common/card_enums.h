@@ -124,6 +124,7 @@ namespace banggame {
         (bangcard)
         (discount)
         (leevankliff)
+        (shopchoice)
     )
 
 }

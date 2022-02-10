@@ -56,7 +56,6 @@ STATUS_RUST                         {0} ... Respond with Fuga or Resolve
 STATUS_RICOCHET                     {0} on {1} ... Respond with Mancato or Resolve
 STATUS_PEYOTE                       {0} ... Declare Red or Black
 STATUS_HANDCUFFS                    {0} ... Declare a Suit
-STATUS_SHOPCHOICE                   Choose how to play {0}
 STATUS_KIT_CARLSON                  {0} ... Choose which cards to draw
 STATUS_CLAUS_THE_SAINT              {0} ... Choose two cards to draw and the others to gift in turn.
 STATUS_VERA_CUSTER                  {0} ... Choose which character to copy

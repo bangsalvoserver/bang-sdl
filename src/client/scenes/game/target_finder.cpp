@@ -99,6 +99,7 @@ void target_finder::clear_status() {
 }
 
 void target_finder::clear_targets() {
+    m_game->m_shop_choice.clear();
     static_cast<target_status &>(*this) = {};
 }
 
@@ -144,19 +145,22 @@ void target_finder::on_click_shop_card(card_view *card) {
                 handle_auto_targets();
             }
         } else if (m_game->m_playing_id == m_game->m_player_own_id) {
-            if (!verify_modifier(card)) return;
             if (card->color == card_color_type::black) {
-                if (card->equip_targets.empty()
-                    || card->equip_targets.front().target == enums::flags_none<target_type>
-                    || bool(card->equip_targets.front().target & target_type::self)) {
-                    m_playing_card = card;
-                    m_targets.emplace_back(std::vector{target_pair{m_game->find_player(m_game->m_playing_id)}});
-                    send_play_card();
-                } else {
-                    m_playing_card = card;
-                    m_equipping = true;
+                if (verify_modifier(card)) {
+                    if (card->equip_targets.empty()
+                        || card->equip_targets.front().target == enums::flags_none<target_type>
+                        || bool(card->equip_targets.front().target & target_type::self)) {
+                        m_playing_card = card;
+                        m_targets.emplace_back(std::vector{target_pair{m_game->find_player(m_game->m_playing_id)}});
+                        send_play_card();
+                    } else {
+                        m_playing_card = card;
+                        m_equipping = true;
+                    }
                 }
-            } else {
+            } else if (card->modifier != card_modifier_type::none) {
+                add_modifier(card);
+            } else if (verify_modifier(card)) {
                 m_playing_card = card;
                 handle_auto_targets();
             }
@@ -294,26 +298,61 @@ bool target_finder::on_click_player(player_view *player) {
 }
 
 void target_finder::add_modifier(card_view *card) {
-    if (m_modifiers.empty() || std::ranges::find(m_modifiers, card->modifier, &card_view::modifier) != m_modifiers.end()) {
-        if (std::ranges::find(m_modifiers, card) == m_modifiers.end()) {
-            m_modifiers.push_back(card);
+    if (std::ranges::find(m_modifiers, card) == m_modifiers.end()) {
+        switch (card->modifier) {
+        case card_modifier_type::bangcard:
+            if (std::ranges::all_of(m_modifiers, [](const card_view *c) {
+                return c->modifier == card_modifier_type::bangcard;
+            })) {
+                m_modifiers.push_back(card);
+            }
+            break;
+        case card_modifier_type::leevankliff:
+            if (m_modifiers.empty() && m_game->m_last_played_card) {
+                m_modifiers.push_back(card);
+            }
+            break;
+        case card_modifier_type::discount:
+        case card_modifier_type::shopchoice:
+            if (std::ranges::all_of(m_modifiers, [](const card_view *c) {
+                return c->modifier == card_modifier_type::discount
+                    || c->modifier == card_modifier_type::shopchoice;
+            })) {
+                if (card->modifier == card_modifier_type::shopchoice) {
+                    for (card_view *c : m_game->m_hidden_deck) {
+                        if (!c->targets.empty() && c->targets.front().type == card->targets.front().type) {
+                            m_game->m_shop_choice.push_back(c);
+                        }
+                    }
+                    for (card_view *c : m_game->m_shop_choice) {
+                        c->set_pos(m_game->m_shop_choice.get_position_of(c));
+                    }
+                }
+                m_modifiers.push_back(card);
+            }
+            break;
+        default:
+            break;
         }
     }
 }
 
 bool target_finder::verify_modifier(card_view *card) {
-    if (m_modifiers.empty()) return true;
-    switch (m_modifiers.front()->modifier) {
-    case card_modifier_type::bangcard:
-        return std::ranges::find(card->targets, effect_type::bangcard, &card_target_data::type) != card->targets.end();
-    case card_modifier_type::leevankliff:
-        return !card->targets.empty() && card->targets.front().type == effect_type::bangcard
-            && m_game->m_last_played_card;
-    case card_modifier_type::discount:
-        return card->expansion == card_expansion_type::goldrush;
-    default:
-        return false;
-    }
+    return std::ranges::all_of(m_modifiers, [&](card_view *c) {
+        switch (c->modifier) {
+        case card_modifier_type::bangcard:
+            return std::ranges::find(card->targets, effect_type::bangcard, &card_target_data::type) != card->targets.end();
+        case card_modifier_type::leevankliff:
+            return !card->targets.empty() && card->targets.front().type == effect_type::bangcard
+                && m_game->m_last_played_card;
+        case card_modifier_type::discount:
+            return card->expansion == card_expansion_type::goldrush;
+        case card_modifier_type::shopchoice:
+            return std::ranges::find(m_game->m_shop_choice, card) != m_game->m_shop_choice.end();
+        default:
+            return false;
+        }
+    });
 }
 
 const std::vector<card_target_data> &target_finder::get_current_card_targets() const {

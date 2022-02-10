@@ -455,7 +455,9 @@ namespace banggame {
                 if (card_ptr->color == card_color_type::brown) {
                     m_game->move_to(card_ptr, card_pile_type::shop_discard);
                 }
-                m_game->add_log(is_response ? "LOG_PLAYED_CARD" : "LOG_BOUGHT_CARD", card_ptr, this);
+                m_game->add_log("LOG_BOUGHT_CARD", card_ptr, this);
+                break;
+            case card_pile_type::hidden_deck:
                 break;
             }
         };
@@ -639,17 +641,23 @@ namespace banggame {
             do_play_card(card_ptr, false, args.targets);
             set_last_played_card(nullptr);
             break;
+        case card_pile_type::hidden_deck:
+            if (std::ranges::find(modifiers, card_modifier_type::shopchoice, &card::modifier) == modifiers.end()) {
+                throw game_error("ERROR_INVALID_ACTION");
+            }
+            [[fallthrough]];
         case card_pile_type::shop_selection: {
             int discount = 0;
-            if (!modifiers.empty()) {
-                if (auto modifier_it = std::ranges::find(m_characters, modifiers.front()->id, &character::id);
-                    modifier_it != m_characters.end() && (*modifier_it)->modifier == card_modifier_type::discount) {
-                    if (m_game->is_disabled(*modifier_it)) throw game_error("ERROR_CARD_IS_DISABLED", *modifier_it);
-                    if ((*modifier_it)->usages < (*modifier_it)->max_usages) {
-                        discount = 1;
-                    } else {
-                        throw game_error("ERROR_MAX_USAGES", *modifier_it, (*modifier_it)->max_usages);
-                    }
+            for (card *c : modifiers) {
+                if (m_game->is_disabled(c)) throw game_error("ERROR_CARD_IS_DISABLED", c);
+                switch (c->modifier) {
+                case card_modifier_type::discount:
+                    if (c->usages >= c->max_usages) throw game_error("ERROR_MAX_USAGES", c, c->max_usages);
+                    discount = 1;
+                    break;
+                case card_modifier_type::shopchoice:
+                    if (c->effects.front().type != card_ptr->effects.front().type) throw game_error("ERROR_INVALID_ACTION");
+                    break;
                 }
             }
             if (m_gold >= card_ptr->buy_cost - discount) {
@@ -660,11 +668,8 @@ namespace banggame {
                     add_gold(discount - card_ptr->buy_cost);
                     do_play_card(card_ptr, false, args.targets);
                     set_last_played_card(card_ptr);
-                    m_game->queue_delayed_action([this]{
-                        while (m_game->m_shop_selection.size() < 3) {
-                            m_game->draw_shop_card();
-                        }
-                    });
+                    m_game->draw_shop_card();
+                    m_game->queue_event<event_type::on_effect_end>(this, card_ptr);
                 break;
                 case card_color_type::black:
                     if (m_game->has_scenario(scenario_flags::judge)) throw game_error("ERROR_CANT_EQUIP_CARDS");
@@ -680,9 +685,7 @@ namespace banggame {
                     } else {
                         m_game->add_log("LOG_BOUGHT_EQUIP_TO", card_ptr, this, target);
                     }
-                    while (m_game->m_shop_selection.size() < 3) {
-                        m_game->draw_shop_card();
-                    }
+                    m_game->draw_shop_card();
                     m_game->queue_event<event_type::on_effect_end>(this, card_ptr);
                     break;
                 }
@@ -726,7 +729,6 @@ namespace banggame {
             if (card_ptr->color != card_color_type::brown) throw game_error("INVALID_ACTION");
             break;
         case card_pile_type::scenario_card:
-        case card_pile_type::shop_selection:
         case card_pile_type::specials:
             break;
         default:

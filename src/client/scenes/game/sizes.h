@@ -24,6 +24,9 @@ namespace sizes {
 
     constexpr int shop_selection_width = 150;
 
+    constexpr int shop_choice_width = 130;
+    constexpr int shop_choice_offset = 20;
+
     constexpr int cube_pile_size = 15;
     constexpr int cube_pile_xoffset = 70;
 
