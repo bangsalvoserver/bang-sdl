@@ -129,10 +129,6 @@ void game_scene::render(sdl::renderer &renderer) {
         card->render(renderer);
     }
 
-    for (card_view *card : m_shop_choice) {
-        card->render(renderer);
-    }
-
     for (card_view *card : m_scenario_deck | take_last<1>) {
         card->render(renderer);
     }

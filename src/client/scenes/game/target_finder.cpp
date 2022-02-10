@@ -45,6 +45,11 @@ void target_finder::render(sdl::renderer &renderer) {
     for (auto *card : m_modifiers) {
         renderer.draw_rect(card->get_rect());
     }
+
+    for (card_view *card : m_game->m_shop_choice) {
+        card->render(renderer);
+    }
+
     if (m_playing_card && m_playing_card->texture_front) {
         renderer.draw_rect(m_playing_card->get_rect());
     }
@@ -138,7 +143,7 @@ void target_finder::set_forced_card(card_view *card) {
             || card->equip_targets.front().target == enums::flags_none<target_type>
             || bool(card->equip_targets.front().target & target_type::self)) {
             m_playing_card = card;
-            m_targets.emplace_back(std::vector{target_pair{m_game->find_player(m_game->m_playing_id)}});
+            m_targets.emplace_back(std::vector{target_pair{m_game->find_player(m_game->m_playing_id), nullptr, true}});
             send_play_card();
         } else {
             m_playing_card = card;
@@ -194,7 +199,7 @@ void target_finder::on_click_shop_card(card_view *card) {
                         || card->equip_targets.front().target == enums::flags_none<target_type>
                         || bool(card->equip_targets.front().target & target_type::self)) {
                         m_playing_card = card;
-                        m_targets.emplace_back(std::vector{target_pair{m_game->find_player(m_game->m_playing_id)}});
+                        m_targets.emplace_back(std::vector{target_pair{m_game->find_player(m_game->m_playing_id), nullptr, true}});
                         send_play_card();
                     } else {
                         m_playing_card = card;
@@ -264,16 +269,13 @@ void target_finder::on_click_hand_card(player_view *player, card_view *card) {
                         handle_auto_targets();
                     }
                 } else {
+                    m_playing_card = card;
+                    m_equipping = true;
                     if (card->equip_targets.empty()
                         || card->equip_targets.front().target == enums::flags_none<target_type>
                         || bool(card->equip_targets.front().target & target_type::self)) {
-                        add_action<game_action_type::play_card>(card->id, std::vector<int>{}, std::vector{
-                            play_card_target{enums::enum_constant<play_card_target_type::target_player>{},
-                            std::vector{target_player_id{player->id}}}
-                        });
-                    } else {
-                        m_playing_card = card;
-                        m_equipping = true;
+                        m_targets.push_back(std::vector{target_pair{player, nullptr, true}});
+                        send_play_card();
                     }
                 }
             }
