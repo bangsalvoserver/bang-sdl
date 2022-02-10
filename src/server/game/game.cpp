@@ -789,6 +789,7 @@ struct to_end{};
         if (!m_requests.empty()) {
             auto &req = top_request();
             if (!req.target() || p == req.target()) {
+                add_private_update<game_update_type::confirm_play>(p);
                 player *target_player = args.player_id ? get_player(args.player_id) : nullptr;
                 card *target_card = args.card_id ? find_card(args.card_id) : nullptr;
                 if (req.can_pick(args.pile, target_player, target_card)) {

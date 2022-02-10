@@ -12,8 +12,9 @@ namespace banggame {
     class game_scene;
 
     struct target_pair {
-        player_view *player;
-        card_view *card;
+        player_view *player = nullptr;
+        card_view *card = nullptr;
+        bool auto_target = false;
     };
 
     struct target_status {
@@ -83,6 +84,7 @@ namespace banggame {
         const std::vector<card_target_data> &get_current_card_targets() const;
         const std::vector<card_target_data> &get_optional_targets() const;
 
+        void send_pick_card(card_pile_type pile, player_view *player = nullptr, card_view *card = nullptr);
         void send_play_card();
 
         target_type get_target_type(int index);
