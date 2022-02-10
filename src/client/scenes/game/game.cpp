@@ -198,12 +198,14 @@ void game_scene::handle_event(const sdl::event &event) {
         m_mouse_pt = {event.button.x, event.button.y};
         switch (event.button.button) {
         case SDL_BUTTON_LEFT:
-            if (m_pending_updates.empty() && m_animations.empty()) {
+            if (m_pending_updates.empty() && m_animations.empty() && !m_target.waiting_confirm()) {
                 handle_card_click();
             }
             break;
         case SDL_BUTTON_RIGHT:
-            m_target.clear_targets();
+            if (!m_target.waiting_confirm()) {
+                m_target.clear_targets();
+            }
             break;
         case SDL_BUTTON_MIDDLE:
             m_middle_click = true;
@@ -669,8 +671,13 @@ void game_scene::HANDLE_UPDATE(tap_card, const tap_card_update &args) {
     }
 }
 
-void game_scene::HANDLE_UPDATE(last_played_card, const last_played_card_id &args) {
-    m_last_played_card = find_card(args.card_id);
+void game_scene::HANDLE_UPDATE(last_played_card, const card_id_args &args) {
+    m_target.set_last_played_card(find_card(args.card_id));
+    pop_update();
+}
+
+void game_scene::HANDLE_UPDATE(force_play_card, const card_id_args &args) {
+    m_target.set_forced_card(find_card(args.card_id));
     pop_update();
 }
 
@@ -817,5 +824,10 @@ void game_scene::HANDLE_UPDATE(status_clear) {
     m_ui.clear_status();
     m_target.clear_status();
 
+    pop_update();
+}
+
+void game_scene::HANDLE_UPDATE(confirm_play) {
+    m_target.confirm_play();
     pop_update();
 }

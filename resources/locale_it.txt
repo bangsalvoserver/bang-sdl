@@ -61,7 +61,6 @@ STATUS_CLAUS_THE_SAINT              {0} ... Scegli due carte da pescare e quali 
 STATUS_VERA_CUSTER                  {0} ... Scegli quale personaggio copiare
 STATUS_YOUL_GRINNER                 Dai una carta a {0}
 STATUS_DUTCH_WILL                   {0} ... Scegli quale carta pescare
-STATUS_SHOP_CHOOSE_TARGET           Scegli a chi giocare {0}
 STATUS_THEDALTONS                   {0} ... Scarta una carta blu
 STATUS_CAN_PLAY_CARD                Puoi giocare {0}
 STATUS_DAMAGING                     {0} prende un danno per {1}

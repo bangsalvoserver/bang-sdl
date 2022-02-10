@@ -42,6 +42,17 @@ namespace banggame {
         void clear_status();
         void clear_targets();
 
+        void set_last_played_card(card_view *card) {
+            m_last_played_card = card;
+        }
+
+        void set_forced_card(card_view *card);
+
+        void confirm_play();
+        bool waiting_confirm() const {
+            return m_waiting_confirm;
+        }
+
         void on_click_discard_pile();
         void on_click_main_deck();
         void on_click_selection_card(card_view *card);
@@ -83,6 +94,10 @@ namespace banggame {
 
         std::vector<card_view *> m_response_highlights;
         std::vector<std::tuple<card_pile_type, player_view *, card_view *>> m_picking_highlights;
+
+        card_view *m_last_played_card = nullptr;
+        card_view *m_forced_card = nullptr;
+        bool m_waiting_confirm = false;
 
         template<game_action_type T, typename ... Ts>
         void add_action(Ts && ... args);

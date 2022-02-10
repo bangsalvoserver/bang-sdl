@@ -101,6 +101,9 @@ void target_finder::clear_status() {
 void target_finder::clear_targets() {
     m_game->m_shop_choice.clear();
     static_cast<target_status &>(*this) = {};
+    if (m_forced_card) {
+        set_forced_card(m_forced_card);
+    }
 }
 
 bool target_finder::can_confirm() const {
@@ -116,6 +119,39 @@ bool target_finder::can_confirm() const {
 
 void target_finder::on_click_confirm() {
     if (can_confirm()) send_play_card();
+}
+
+void target_finder::set_forced_card(card_view *card) {
+    m_forced_card = card;
+    if (!m_forced_card) {
+        return;
+    }
+
+    switch (card->color) {
+    case card_color_type::blue:
+    case card_color_type::green:
+    case card_color_type::orange:
+    case card_color_type::black:
+        if (card->equip_targets.empty()
+            || card->equip_targets.front().target == enums::flags_none<target_type>
+            || bool(card->equip_targets.front().target & target_type::self)) {
+            m_playing_card = card;
+            m_targets.emplace_back(std::vector{target_pair{m_game->find_player(m_game->m_playing_id)}});
+            send_play_card();
+        } else {
+            m_playing_card = card;
+            m_equipping = true;
+        }
+        break;
+    case card_color_type::brown:
+        if (card->modifier != card_modifier_type::none) {
+            add_modifier(card);
+        } else if (verify_modifier(card)) {
+            m_playing_card = card;
+            handle_auto_targets();
+        }
+        break;
+    }
 }
 
 void target_finder::on_click_discard_pile() {
@@ -308,7 +344,7 @@ void target_finder::add_modifier(card_view *card) {
             }
             break;
         case card_modifier_type::leevankliff:
-            if (m_modifiers.empty() && m_game->m_last_played_card) {
+            if (m_modifiers.empty() && m_last_played_card) {
                 m_modifiers.push_back(card);
             }
             break;
@@ -344,7 +380,7 @@ bool target_finder::verify_modifier(card_view *card) {
             return std::ranges::find(card->targets, effect_type::bangcard, &card_target_data::type) != card->targets.end();
         case card_modifier_type::leevankliff:
             return !card->targets.empty() && card->targets.front().type == effect_type::bangcard
-                && m_game->m_last_played_card;
+                && m_last_played_card;
         case card_modifier_type::discount:
             return card->expansion == card_expansion_type::goldrush;
         case card_modifier_type::shopchoice:
@@ -359,8 +395,8 @@ const std::vector<card_target_data> &target_finder::get_current_card_targets() c
     assert(!m_equipping);
 
     card_view *card = nullptr;
-    if (m_game->m_last_played_card && !m_modifiers.empty() && m_modifiers.front()->modifier == card_modifier_type::leevankliff) {
-        card = m_game->m_last_played_card;
+    if (m_last_played_card && !m_modifiers.empty() && m_modifiers.front()->modifier == card_modifier_type::leevankliff) {
+        card = m_last_played_card;
     } else {
         card = m_playing_card;
     }
@@ -374,8 +410,8 @@ const std::vector<card_target_data> &target_finder::get_current_card_targets() c
 }
 
 const std::vector<card_target_data> &target_finder::get_optional_targets() const {
-    if (m_game->m_last_played_card && !m_modifiers.empty() && m_modifiers.front()->modifier == card_modifier_type::leevankliff) {
-        return m_game->m_last_played_card->optional_targets;
+    if (m_last_played_card && !m_modifiers.empty() && m_modifiers.front()->modifier == card_modifier_type::leevankliff) {
+        return m_last_played_card->optional_targets;
     } else {
         return m_playing_card->optional_targets;
     }
@@ -686,5 +722,12 @@ void target_finder::send_play_card() {
     } else {
         add_action<game_action_type::play_card>(std::move(ret));
     }
+
+    m_waiting_confirm = true;
+}
+
+void target_finder::confirm_play() {
+    m_waiting_confirm = false;
+    m_forced_card = nullptr;
     clear_targets();
 }

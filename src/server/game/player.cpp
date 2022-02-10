@@ -134,8 +134,10 @@ namespace banggame {
     }
 
     void player::add_gold(int amount) {
-        m_gold += amount;
-        m_game->add_public_update<game_update_type::player_gold>(id, m_gold);
+        if (amount) {
+            m_gold += amount;
+            m_game->add_public_update<game_update_type::player_gold>(id, m_gold);
+        }
     }
 
     bool player::immune_to(card *c) {
@@ -225,6 +227,11 @@ namespace banggame {
     void player::set_last_played_card(card *c) {
         m_last_played_card = c;
         m_game->add_private_update<game_update_type::last_played_card>(this, c ? c->id : 0);
+    }
+
+    void player::set_forced_card(card *c) {
+        m_forced_card = c;
+        m_game->add_private_update<game_update_type::force_play_card>(this, c ? c->id : 0);
     }
 
     void player::verify_modifiers(card *c, const std::vector<card *> &modifiers) {
@@ -528,13 +535,38 @@ namespace banggame {
         m_game->queue_event<event_type::on_effect_end>(this, card_ptr);
     }
 
+    struct confirmer {
+        player *p = nullptr;
+
+        confirmer(player *p) : p(p) {
+            p->m_game->add_private_update<game_update_type::confirm_play>(p);
+        }
+
+        ~confirmer() {
+            if (p->m_forced_card && std::uncaught_exceptions()) {
+                p->m_game->add_private_update<game_update_type::force_play_card>(p, p->m_forced_card->id);
+            }
+        }
+    };
+
     void player::play_card(const play_card_args &args) {
+        confirmer _confirm{this};
+        
         std::vector<card *> modifiers;
         for (int id : args.modifier_ids) {
             modifiers.push_back(m_game->find_card(id));
         }
 
         card *card_ptr = m_game->find_card(args.card_id);
+        
+        bool was_forced_card = false;
+        if (m_forced_card) {
+            if (card_ptr != m_forced_card && std::ranges::find(modifiers, m_forced_card) == modifiers.end()) {
+                throw game_error("ERROR_INVALID_ACTION");
+            }
+            was_forced_card = true;
+        }
+
         switch(card_ptr->pile) {
         case card_pile_type::player_character:
             if (!card_ptr->effects.empty()) {
@@ -647,52 +679,55 @@ namespace banggame {
             }
             [[fallthrough]];
         case card_pile_type::shop_selection: {
-            int discount = 0;
+            int cost = card_ptr->buy_cost;
             for (card *c : modifiers) {
                 if (m_game->is_disabled(c)) throw game_error("ERROR_CARD_IS_DISABLED", c);
                 switch (c->modifier) {
                 case card_modifier_type::discount:
                     if (c->usages >= c->max_usages) throw game_error("ERROR_MAX_USAGES", c, c->max_usages);
-                    discount = 1;
+                    --cost;
                     break;
                 case card_modifier_type::shopchoice:
                     if (c->effects.front().type != card_ptr->effects.front().type) throw game_error("ERROR_INVALID_ACTION");
                     break;
                 }
             }
-            if (m_gold >= card_ptr->buy_cost - discount) {
-                switch (card_ptr->color) {
-                case card_color_type::brown:
-                    verify_card_targets(card_ptr, false, args.targets);
-                    play_modifiers(modifiers);
-                    add_gold(discount - card_ptr->buy_cost);
-                    do_play_card(card_ptr, false, args.targets);
-                    set_last_played_card(card_ptr);
-                    m_game->draw_shop_card();
-                    m_game->queue_event<event_type::on_effect_end>(this, card_ptr);
-                break;
-                case card_color_type::black:
-                    if (m_game->has_scenario(scenario_flags::judge)) throw game_error("ERROR_CANT_EQUIP_CARDS");
-                    verify_equip_target(card_ptr, args.targets);
-                    play_modifiers(modifiers);
-                    auto *target = m_game->get_player(args.targets.front().get<play_card_target_type::target_player>().front().player_id);
-                    if (card *card = target->find_equipped_card(card_ptr)) throw game_error("ERROR_DUPLICATED_CARD", card);
-                    add_gold(discount - card_ptr->buy_cost);
-                    target->equip_card(card_ptr);
-                    set_last_played_card(nullptr);
-                    if (this == target) {
-                        m_game->add_log("LOG_BOUGHT_EQUIP", card_ptr, this);
-                    } else {
-                        m_game->add_log("LOG_BOUGHT_EQUIP_TO", card_ptr, this, target);
-                    }
-                    m_game->draw_shop_card();
-                    m_game->queue_event<event_type::on_effect_end>(this, card_ptr);
-                    break;
-                }
-                break;
-            } else {
-                throw game_error("ERROR_NOT_ENOUGH_GOLD");
+            if (was_forced_card) {
+                cost = 0;
             }
+            if (m_gold < cost) throw game_error("ERROR_NOT_ENOUGH_GOLD");
+            switch (card_ptr->color) {
+            case card_color_type::brown:
+                verify_card_targets(card_ptr, false, args.targets);
+                play_modifiers(modifiers);
+                add_gold(-cost);
+                do_play_card(card_ptr, false, args.targets);
+                set_last_played_card(card_ptr);
+                m_game->queue_event<event_type::on_effect_end>(this, card_ptr);
+            break;
+            case card_color_type::black:
+                if (m_game->has_scenario(scenario_flags::judge)) throw game_error("ERROR_CANT_EQUIP_CARDS");
+                verify_equip_target(card_ptr, args.targets);
+                play_modifiers(modifiers);
+                auto *target = m_game->get_player(args.targets.front().get<play_card_target_type::target_player>().front().player_id);
+                if (card *card = target->find_equipped_card(card_ptr)) throw game_error("ERROR_DUPLICATED_CARD", card);
+                add_gold(-cost);
+                target->equip_card(card_ptr);
+                set_last_played_card(nullptr);
+                if (this == target) {
+                    m_game->add_log("LOG_BOUGHT_EQUIP", card_ptr, this);
+                } else {
+                    m_game->add_log("LOG_BOUGHT_EQUIP_TO", card_ptr, this, target);
+                }
+                m_game->queue_event<event_type::on_effect_end>(this, card_ptr);
+                break;
+            }
+            m_game->queue_delayed_action([&]{
+                while (m_game->m_shop_selection.size() < 3) {
+                    m_game->draw_shop_card();
+                }
+            });
+            break;
         }
         case card_pile_type::scenario_card:
         case card_pile_type::specials:
@@ -704,9 +739,14 @@ namespace banggame {
             throw game_error("play_card: invalid card"_nonloc);
         }
         remove_player_flags(player_flags::start_of_turn);
+        if (was_forced_card) {
+            m_forced_card = nullptr;
+        }
     }
     
     void player::respond_card(const play_card_args &args) {
+        confirmer _confirm{this};
+        
         card *card_ptr = m_game->find_card(args.card_id);
 
         if (std::ranges::none_of(card_ptr->responses, [=, this](const effect_holder &e){

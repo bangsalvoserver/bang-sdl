@@ -214,7 +214,6 @@ namespace banggame {
         (vera_custer,   request_vera_custer)
         (youl_grinner,  request_youl_grinner)
         (dutch_will,    request_dutch_will)
-        (shop_choose_target, request_shop_choose_target)
         (thedaltons,    request_thedaltons)
         (newidentity,   request_newidentity)
         (lemonade_jim,  timer_lemonade_jim)

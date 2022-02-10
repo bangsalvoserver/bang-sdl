@@ -28,14 +28,6 @@ namespace banggame {
     struct effect_josh_mccloud : card_effect {
         void on_play(card *origin_card, player *origin);
     };
-
-    struct request_shop_choose_target : request_base, allowed_piles<card_pile_type::player> {
-        request_shop_choose_target(card *origin_card, player *target)
-            : request_base(origin_card, nullptr, target) {}
-        
-        void on_pick(card_pile_type pile, player *target, card *target_card);
-        game_formatted_string status_text() const;
-    };
 }
 
 #endif

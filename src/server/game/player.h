@@ -52,6 +52,7 @@ namespace banggame {
         int8_t m_num_drawn_cards = 0;
 
         card *m_last_played_card = nullptr;
+        card *m_forced_card = nullptr;
 
         card_suit_type m_declared_suit = card_suit_type::none;
         player_flags m_player_flags = enums::flags_none<player_flags>;
@@ -127,6 +128,8 @@ namespace banggame {
         void set_role(player_role role);
 
         void set_last_played_card(card *c);
+
+        void set_forced_card(card *c);
 
         void verify_modifiers(card *c, const std::vector<card *> &modifiers);
         void play_modifiers(const std::vector<card *> &modifiers);

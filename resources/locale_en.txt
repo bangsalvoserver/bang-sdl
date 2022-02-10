@@ -61,7 +61,6 @@ STATUS_CLAUS_THE_SAINT              {0} ... Choose two cards to draw and the oth
 STATUS_VERA_CUSTER                  {0} ... Choose which character to copy
 STATUS_YOUL_GRINNER                 Give {0} a card
 STATUS_DUTCH_WILL                   {0} ... Choose which card to draw
-STATUS_SHOP_CHOOSE_TARGET           Choose who to play {0} to
 STATUS_THEDALTONS                   {0} ... Discard a blue card
 STATUS_CAN_PLAY_CARD                You can play {0}
 STATUS_DAMAGING                     {0} takes 1 damage for {1}

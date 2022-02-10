@@ -62,57 +62,11 @@ namespace banggame {
     }
 
     void effect_josh_mccloud::on_play(card *origin_card, player *target) {
-        using namespace enums::flag_operators;
-
-        constexpr auto is_self_or_none = [](target_type type) {
-            using namespace enums::flag_operators;
-            return type == (target_type::self | target_type::player) || type == enums::flags_none<target_type>;
-        };
-
         auto *card = target->m_game->draw_shop_card();
-        switch (card->color) {
-        case card_color_type::black:
-            if (target->m_game->has_scenario(scenario_flags::judge)) {
-                target->m_game->move_to(card, card_pile_type::shop_discard);
-            } else if (std::ranges::all_of(card->equips, is_self_or_none, &equip_holder::target)) {
-                target->equip_card(card);
-            } else {
-                target->m_game->queue_request<request_type::shop_choose_target>(card, target);
-            }
-            break;
-        case card_color_type::brown:
-            if (std::ranges::all_of(card->effects, is_self_or_none, &effect_holder::target)) {
-                target->m_game->move_to(card, card_pile_type::shop_discard);
-                for (auto &e : card->effects) {
-                    switch(e.target) {
-                    case target_type::self | target_type::player:
-                        e.on_play(card, target, target);
-                        break;
-                    case enums::flags_none<target_type>:
-                        e.on_play(card, target);
-                        break;
-                    }
-                }
-            } else {
-                target->m_game->queue_request<request_type::shop_choose_target>(card, target);
-            }
-            break;
-        }
-    }
-
-    void request_shop_choose_target::on_pick(card_pile_type pile, player *target_player, card *target_card) {
-        target->m_game->pop_request(request_type::shop_choose_target);
-        if (origin_card->color == card_color_type::black) {
-            target_player->equip_card(origin_card);
+        if (card->color == card_color_type::black && target->m_game->has_scenario(scenario_flags::judge)) {
+            target->m_game->move_to(card, card_pile_type::shop_discard);
         } else {
-            target->m_game->move_to(origin_card, card_pile_type::shop_discard);
-            for (auto &e : origin_card->effects) {
-                e.on_play(origin_card, target, target_player);
-            }
+            target->set_forced_card(card);
         }
-    }
-
-    game_formatted_string request_shop_choose_target::status_text() const {
-        return {"STATUS_SHOP_CHOOSE_TARGET", origin_card};
     }
 }

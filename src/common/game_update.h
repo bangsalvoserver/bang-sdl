@@ -93,7 +93,7 @@ namespace banggame {
         (bool) instant
     )};
 
-    struct last_played_card_id {REFLECTABLE(
+    struct card_id_args {REFLECTABLE(
         (int) card_id
     )};
 
@@ -173,7 +173,8 @@ namespace banggame {
         (show_card, show_card_update)
         (hide_card, hide_card_update)
         (tap_card, tap_card_update)
-        (last_played_card, last_played_card_id)
+        (last_played_card, card_id_args)
+        (force_play_card, card_id_args)
         (player_add, player_user_update)
         (player_hp, player_hp_update)
         (player_gold, player_gold_update)
@@ -184,6 +185,7 @@ namespace banggame {
         (request_status, request_status_args)
         (request_respond, request_respond_args)
         (status_clear)
+        (confirm_play)
     )
 
     using game_update = enums::enum_variant<game_update_type>;

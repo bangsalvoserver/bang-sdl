@@ -48,7 +48,8 @@ namespace banggame {
         void HANDLE_UPDATE(show_card,        const show_card_update &args);
         void HANDLE_UPDATE(hide_card,        const hide_card_update &args);
         void HANDLE_UPDATE(tap_card,         const tap_card_update &args);
-        void HANDLE_UPDATE(last_played_card, const last_played_card_id &args);
+        void HANDLE_UPDATE(last_played_card, const card_id_args &args);
+        void HANDLE_UPDATE(force_play_card,  const card_id_args &args);
         void HANDLE_UPDATE(player_add,       const player_user_update &args);
         void HANDLE_UPDATE(player_hp,        const player_hp_update &args);
         void HANDLE_UPDATE(player_gold,      const player_gold_update &args);
@@ -59,6 +60,7 @@ namespace banggame {
         void HANDLE_UPDATE(request_status,   const request_status_args &args);
         void HANDLE_UPDATE(request_respond,   const request_respond_args &args);
         void HANDLE_UPDATE(status_clear);
+        void HANDLE_UPDATE(confirm_play);
         
         void pop_update();
 
@@ -109,7 +111,6 @@ namespace banggame {
         std::default_random_engine rng;
 
         std::optional<request_status_args> m_current_request;
-        card_view *m_last_played_card = nullptr;
 
         bool has_player_flags(player_flags flags) {
             if (player_view *p = find_player(m_player_own_id)) {
