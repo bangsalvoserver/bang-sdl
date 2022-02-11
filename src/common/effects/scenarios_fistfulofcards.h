@@ -59,6 +59,10 @@ namespace banggame {
         void on_equip(card *target_card, player *target);
     };
 
+    struct effect_lawofthewest : event_based_effect {
+        void on_equip(card *target_card, player *target);
+    };
+
 }
 
 #endif

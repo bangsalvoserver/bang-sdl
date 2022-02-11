@@ -3570,9 +3570,13 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Legge del West",
-            "image": "05_leggedelwest"
+            "image": "05_leggedelwest",
+            "equip": [
+                {
+                    "class": "lawofthewest"
+                }
+            ]
         },
         {
             "name": "Liquore Forte",

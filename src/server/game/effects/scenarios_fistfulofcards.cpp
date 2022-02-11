@@ -125,4 +125,19 @@ namespace banggame {
             }
         });
     }
+
+    void effect_lawofthewest::on_equip(card *target_card, player *target) {
+        target->m_game->add_event<event_type::on_card_drawn>(target_card, [](player *origin, card *drawn_card) {
+            if (origin->m_num_drawn_cards == 2) {
+                origin->m_game->queue_delayed_action([=]{
+                    origin->m_game->send_card_update(*drawn_card, origin, show_card_flags::show_everyone | show_card_flags::short_pause);
+                    if (origin->is_possible_to_play(drawn_card)) {
+                        origin->set_forced_card(drawn_card);
+                    } else {
+                        origin->m_game->send_card_update(*drawn_card, origin);
+                    }
+                });
+            }
+        });
+    }
 }
