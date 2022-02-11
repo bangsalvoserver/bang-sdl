@@ -855,18 +855,21 @@ namespace banggame {
             m_current_card_targets.clear();
 
             m_game->instant_event<event_type::on_turn_end>(this);
+            if (m_extra_turns == 0) {
+                m_game->instant_event<event_type::post_turn_end>(this);
+            }
             m_game->queue_delayed_action([&]{
                 if (m_game->num_alive() > 0) {
-                    player *next_player = m_game->m_next_in_turn;
-                    m_game->m_next_in_turn = nullptr;
-                    if (!next_player) {
+                    if (m_extra_turns == 0) {
                         if (!check_player_flags(player_flags::ghost) && m_hp == 0 && m_game->has_scenario(scenario_flags::ghosttown)) {
                             --m_num_cards_to_draw;
                             m_game->player_death(nullptr, this);
                         }
-                        next_player = m_game->get_next_in_turn(this);
+                        m_game->get_next_in_turn(this)->start_of_turn();
+                    } else {
+                        --m_extra_turns;
+                        start_of_turn();
                     }
-                    next_player->start_of_turn();
                 }
             });
         }

@@ -3666,9 +3666,13 @@
             ]
         },
         {
-            "disabled": true,
             "name": "Vendetta",
-            "image": "05_vendetta"
+            "image": "05_vendetta",
+            "equip": [
+                {
+                    "class": "vendetta"
+                }
+            ]
         },
         {
             "name": "Per un Pugno di Carte",

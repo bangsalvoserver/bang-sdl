@@ -80,7 +80,6 @@ namespace banggame {
         player *m_playing = nullptr;
         player *m_first_player = nullptr;
         player *m_first_dead = nullptr;
-        player *m_next_in_turn = nullptr;
 
         game_options m_options;
 

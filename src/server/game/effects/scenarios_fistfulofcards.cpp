@@ -140,4 +140,17 @@ namespace banggame {
             }
         });
     }
+
+    void effect_vendetta::on_equip(card *target_card, player *p) {
+        p->m_game->add_event<event_type::post_turn_end>(target_card, [target_card, active = true](player *target) mutable {
+            if (active) {
+                target->m_game->queue_delayed_action([target, target_card] {
+                    target->m_game->draw_check_then(target, target_card, [target](card *drawn_card) {
+                        target->m_extra_turns += target->get_card_suit(drawn_card) == card_suit_type::hearts;
+                    });
+                });
+            }
+            active = !active;
+        });
+    }
 }

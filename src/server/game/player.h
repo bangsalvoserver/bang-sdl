@@ -50,6 +50,8 @@ namespace banggame {
         
         int8_t m_num_cards_to_draw = 2;
         int8_t m_num_drawn_cards = 0;
+        
+        int8_t m_extra_turns = 0;
 
         card *m_last_played_card = nullptr;
         card *m_forced_card = nullptr;

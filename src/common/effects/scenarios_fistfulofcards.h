@@ -63,6 +63,10 @@ namespace banggame {
         void on_equip(card *target_card, player *target);
     };
 
+    struct effect_vendetta : event_based_effect {
+        void on_equip(card *target_card, player *target);
+    };
+
 }
 
 #endif

@@ -181,6 +181,7 @@ namespace banggame {
         (brothel,       effect_brothel)
         (newidentity,   effect_newidentity)
         (lawofthewest,  effect_lawofthewest)
+        (vendetta,      effect_vendetta)
     )
     DEFINE_ENUM_TYPES_IN_NS(banggame, request_type,
         (none,          request_base)
