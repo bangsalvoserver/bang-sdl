@@ -146,8 +146,7 @@ namespace banggame {
         void start_of_turn();
         void request_drawing();
         
-        void pass_turn(player *next_player = nullptr);
-        void end_of_turn(player *next_player = nullptr);
+        void pass_turn();
 
         card_suit_type get_card_suit(card *drawn_card);
         card_value_type get_card_value(card *drawn_card);

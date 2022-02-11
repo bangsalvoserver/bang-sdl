@@ -50,6 +50,7 @@ namespace banggame {
                 origin->m_game->remove_events(origin_card);
             }
         });
-        origin->pass_turn(origin);
+        origin->m_game->m_next_in_turn = origin;
+        origin->pass_turn();
     }
 }

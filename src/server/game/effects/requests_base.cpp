@@ -63,12 +63,13 @@ namespace banggame {
             target->m_game->move_to(drawn_card, card_pile_type::discard_pile);
             target->m_game->queue_event<event_type::on_draw_check>(target, drawn_card);
         }
-        target->m_game->pop_request(request_type::check);
+        target->m_game->pop_request_noupdate(request_type::check);
         target->m_game->add_log("LOG_CHECK_DREW_CARD", target->m_game->m_current_check->origin_card, target, target_card);
         target->m_game->instant_event<event_type::trigger_tumbleweed>(target->m_game->m_current_check->origin_card, target_card);
         if (!target->m_game->top_request_is(request_type::tumbleweed)) {
             target->m_game->m_current_check->function(target_card);
             target->m_game->m_current_check.reset();
+            target->m_game->events_after_requests();
         }
     }
 
@@ -134,9 +135,7 @@ namespace banggame {
         }
         if (target->m_hand.size() <= target->max_cards_end_of_turn()) {
             target->m_game->pop_request(request_type::discard_pass);
-            target->m_game->queue_delayed_action([*this]{
-                target->end_of_turn(next_player);
-            });
+            target->m_game->queue_delayed_action(std::bind(&player::pass_turn, target));
         }
     }
 

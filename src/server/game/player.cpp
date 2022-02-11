@@ -847,11 +847,28 @@ namespace banggame {
         });
     }
 
-    void player::pass_turn(player *next_player) {
+    void player::pass_turn() {
         if (m_hand.size() > max_cards_end_of_turn()) {
-            m_game->queue_request<request_type::discard_pass>(this, next_player);
+            m_game->queue_request<request_type::discard_pass>(this);
         } else {
-            end_of_turn(next_player);
+            untap_inactive_cards();
+            m_current_card_targets.clear();
+
+            m_game->instant_event<event_type::on_turn_end>(this);
+            m_game->queue_delayed_action([&]{
+                if (m_game->num_alive() > 0) {
+                    player *next_player = m_game->m_next_in_turn;
+                    m_game->m_next_in_turn = nullptr;
+                    if (!next_player) {
+                        if (!check_player_flags(player_flags::ghost) && m_hp == 0 && m_game->has_scenario(scenario_flags::ghosttown)) {
+                            --m_num_cards_to_draw;
+                            m_game->player_death(nullptr, this);
+                        }
+                        next_player = m_game->get_next_in_turn(this);
+                    }
+                    next_player->start_of_turn();
+                }
+            });
         }
     }
 
@@ -860,26 +877,6 @@ namespace banggame {
             if (c->inactive) {
                 c->inactive = false;
                 m_game->add_public_update<game_update_type::tap_card>(c->id, false);
-            }
-        }
-    }
-
-    void player::end_of_turn(player *next_player) {
-        untap_inactive_cards();
-        m_current_card_targets.clear();
-
-        m_game->m_ignore_next_turn = false;
-        m_game->instant_event<event_type::on_turn_end>(this);
-        if (m_game->num_alive() > 0) {
-            if (!m_game->m_ignore_next_turn) {
-                if (!next_player) {
-                    if (!check_player_flags(player_flags::ghost) && m_hp == 0 && m_game->has_scenario(scenario_flags::ghosttown)) {
-                        --m_num_cards_to_draw;
-                        m_game->player_death(nullptr, this);
-                    }
-                    next_player = m_game->get_next_in_turn(this);
-                }
-                next_player->start_of_turn();
             }
         }
     }

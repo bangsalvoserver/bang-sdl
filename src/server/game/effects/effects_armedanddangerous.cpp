@@ -200,13 +200,15 @@ namespace banggame {
     }
 
     void effect_tumbleweed::on_play(card *origin_card, player *origin) {
-        origin->m_game->pop_request(request_type::tumbleweed);
+        origin->m_game->pop_request_noupdate(request_type::tumbleweed);
         origin->m_game->do_draw_check();
+        origin->m_game->events_after_requests();
     }
 
     void timer_tumbleweed::on_finished() {
-        target->m_game->pop_request(request_type::tumbleweed);
+        target->m_game->pop_request_noupdate(request_type::tumbleweed);
         target->m_game->m_current_check->function(drawn_card);
         target->m_game->m_current_check.reset();
+        target->m_game->events_after_requests();
     }
 }

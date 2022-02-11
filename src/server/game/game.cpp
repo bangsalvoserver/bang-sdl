@@ -701,7 +701,7 @@ struct to_end{};
             add_log("LOG_GAME_OVER");
             add_public_update<game_update_type::game_over>(winner_role);
         } else if (m_playing == target) {
-            target->end_of_turn();
+            get_next_in_turn(target)->start_of_turn();
         } else if (killer) {
             if (m_players.size() > 3) {
                 switch (target->m_role) {

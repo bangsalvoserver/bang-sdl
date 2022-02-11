@@ -6,21 +6,18 @@ namespace banggame {
     using namespace enums::flag_operators;
 
     void effect_don_bell::on_equip(card *target_card, player *p) {
-        p->m_game->add_event<event_type::on_turn_end>(target_card, [=](player *target) {
+        p->m_game->add_event<event_type::on_turn_end>(target_card, [=, active = true](player *target) mutable {
             if (p == target) {
-                if (target_card->max_usages == 0) {
-                    p->m_game->m_ignore_next_turn = true;
+                if (active) {
                     p->m_game->draw_check_then(p, target_card, [&](card *drawn_card) {
                         card_suit_type suit = p->get_card_suit(drawn_card);
                         if (suit == card_suit_type::diamonds || suit == card_suit_type::hearts) {
-                            ++target_card->max_usages;
-                            p->start_of_turn();
-                        } else {
-                            p->m_game->get_next_in_turn(p)->start_of_turn();
+                            active = false;
+                            p->m_game->m_next_in_turn = p;
                         }
                     });
                 } else {
-                    target_card->max_usages = 0;
+                    active = true;
                 }
             }
         });
