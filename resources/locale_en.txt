@@ -149,6 +149,7 @@ LOG_STOLEN_SELF_CARD                {0} redraws {1}
 LOG_DRAWN_WITH_CHARACTER            {1} draws using {0}
 LOG_DRAWN_FROM_GENERALSTORE         {0} draws {1} for {2}
 LOG_PLAYED_CHARACTER                {1} plays {0}'s effect
+LOG_RESPONDED_WITH_CHARACTER        {1} responds with {0}'s effect
 LOG_PLAYED_CARD                     {1} plays {0}
 LOG_PLAYED_CARD_ON                  {1} plays {0} on {2}
 LOG_PLAYED_TABLE_CARD               {1} plays {0} from the table

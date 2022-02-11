@@ -458,6 +458,9 @@ namespace banggame {
                 }
                 m_game->add_log(is_response ? "LOG_RESPONDED_WITH_CARD" : "LOG_PLAYED_TABLE_CARD", card_ptr, this);
                 break;
+            case card_pile_type::player_character:
+                m_game->add_log(is_response ? "LOG_RESPONDED_WITH_CHARACTER" : "LOG_PLAYED_CHARACTER", card_ptr, this);
+                break;
             case card_pile_type::shop_selection:
                 if (card_ptr->color == card_color_type::brown) {
                     m_game->move_to(card_ptr, card_pile_type::shop_discard);
@@ -568,20 +571,8 @@ namespace banggame {
         }
 
         switch(card_ptr->pile) {
-        case card_pile_type::player_character:
-            if (!card_ptr->effects.empty()) {
-                if (m_game->is_disabled(card_ptr)) throw game_error("ERROR_CARD_IS_DISABLED", card_ptr);
-                verify_modifiers(card_ptr, modifiers);
-                verify_card_targets(card_ptr, false, args.targets);
-                m_game->add_log("LOG_PLAYED_CHARACTER", card_ptr, this);
-                play_modifiers(modifiers);
-                do_play_card(card_ptr, false, args.targets);
-                set_last_played_card(nullptr);
-            }
-            break;
         case card_pile_type::player_hand:
-            switch (card_ptr->color) {
-            case card_color_type::brown:
+            if (card_ptr->color == card_color_type::brown) {
                 if (!modifiers.empty() && modifiers.front()->modifier == card_modifier_type::leevankliff) {
                     // Hack per usare il raii eliminare il limite di bang
                     // quando lee van kliff gioca l'effetto del personaggio su una carta bang.
@@ -605,10 +596,7 @@ namespace banggame {
                     do_play_card(card_ptr, false, args.targets);
                     set_last_played_card(card_ptr);
                 }
-                break;
-            case card_color_type::blue:
-            case card_color_type::green:
-            case card_color_type::orange: {
+            } else {
                 if (m_game->has_scenario(scenario_flags::judge)) throw game_error("ERROR_CANT_EQUIP_CARDS");
                 verify_equip_target(card_ptr, args.targets);
                 auto *target = m_game->get_player(args.targets.front().get<play_card_target_type::target_player>().front().player_id);
@@ -616,7 +604,7 @@ namespace banggame {
                 if (card_ptr->color == card_color_type::orange && m_game->m_cubes.size() < 3) {
                     throw game_error("ERROR_NOT_ENOUGH_CUBES");
                 }
-                if (target->immune_to(card_ptr)) {
+                if (target != this && target->immune_to(card_ptr)) {
                     discard_card(card_ptr);
                 } else {
                     target->equip_card(card_ptr);
@@ -643,10 +631,9 @@ namespace banggame {
                 }
                 set_last_played_card(nullptr);
                 m_game->queue_event<event_type::on_effect_end>(this, card_ptr);
-                break;
-            }
             }
             break;
+        case card_pile_type::player_character:
         case card_pile_type::player_table:
             if (m_game->is_disabled(card_ptr)) throw game_error("ERROR_CARD_IS_DISABLED", card_ptr);
             if (card_ptr->inactive) throw game_error("ERROR_CARD_INACTIVE", card_ptr);
@@ -679,16 +666,14 @@ namespace banggame {
                 cost = 0;
             }
             if (m_gold < cost) throw game_error("ERROR_NOT_ENOUGH_GOLD");
-            switch (card_ptr->color) {
-            case card_color_type::brown:
+            if (card_ptr->color == card_color_type::brown) {
                 verify_card_targets(card_ptr, false, args.targets);
                 play_modifiers(modifiers);
                 add_gold(-cost);
                 do_play_card(card_ptr, false, args.targets);
                 set_last_played_card(card_ptr);
                 m_game->queue_event<event_type::on_effect_end>(this, card_ptr);
-            break;
-            case card_color_type::black:
+            } else {
                 if (m_game->has_scenario(scenario_flags::judge)) throw game_error("ERROR_CANT_EQUIP_CARDS");
                 verify_equip_target(card_ptr, args.targets);
                 play_modifiers(modifiers);
@@ -703,7 +688,6 @@ namespace banggame {
                     m_game->add_log("LOG_BOUGHT_EQUIP_TO", card_ptr, this, target);
                 }
                 m_game->queue_event<event_type::on_effect_end>(this, card_ptr);
-                break;
             }
             m_game->queue_delayed_action([&]{
                 while (m_game->m_shop_selection.size() < 3) {
@@ -738,19 +722,13 @@ namespace banggame {
 
         if (m_game->is_disabled(card_ptr)) throw game_error("ERROR_CARD_IS_DISABLED", card_ptr);
         switch (card_ptr->pile) {
-        case card_pile_type::player_character:
-            if (card_ptr->responses.front().is(effect_type::drawing)) {
-                m_game->add_log("LOG_DRAWN_WITH_CHARACTER", card_ptr, this);
-            } else {
-                m_game->add_log("LOG_RESPONDED_WITH_CARD", card_ptr, this);
-            }
-            break;
         case card_pile_type::player_table:
             if (card_ptr->inactive) throw game_error("ERROR_CARD_INACTIVE", card_ptr);
             break;
         case card_pile_type::player_hand:
             if (card_ptr->color != card_color_type::brown) throw game_error("INVALID_ACTION");
             break;
+        case card_pile_type::player_character:
         case card_pile_type::scenario_card:
         case card_pile_type::specials:
             break;

@@ -62,6 +62,7 @@ namespace banggame {
         void on_click_hand_card(player_view *player, card_view *card);
         void on_click_character(player_view *player, card_view *card);
         void on_click_scenario_card(card_view *card);
+        void on_click_special(card_view *card);
         bool on_click_player(player_view *player);
 
         void on_click_confirm();

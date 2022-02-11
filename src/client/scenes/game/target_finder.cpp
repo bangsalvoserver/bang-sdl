@@ -134,11 +134,14 @@ void target_finder::set_forced_card(card_view *card) {
         return;
     }
 
-    switch (card->color) {
-    case card_color_type::blue:
-    case card_color_type::green:
-    case card_color_type::orange:
-    case card_color_type::black:
+    if (card->color == card_color_type::brown) {
+        if (card->modifier != card_modifier_type::none) {
+            add_modifier(card);
+        } else if (verify_modifier(card)) {
+            m_playing_card = card;
+            handle_auto_targets();
+        }
+    } else {
         if (card->equip_targets.empty()
             || card->equip_targets.front().target == enums::flags_none<target_type>) {
             m_playing_card = card;
@@ -148,15 +151,6 @@ void target_finder::set_forced_card(card_view *card) {
             m_playing_card = card;
             m_equipping = true;
         }
-        break;
-    case card_color_type::brown:
-        if (card->modifier != card_modifier_type::none) {
-            add_modifier(card);
-        } else if (verify_modifier(card)) {
-            m_playing_card = card;
-            handle_auto_targets();
-        }
-        break;
     }
 }
 
@@ -323,6 +317,12 @@ void target_finder::on_click_scenario_card(card_view *card) {
         && !m_playing_card && !card->targets.empty()) {
         m_playing_card = card;
         handle_auto_targets();
+    }
+}
+
+void target_finder::on_click_special(card_view *card) {
+    if (m_game->m_pending_updates.empty() && m_game->m_animations.empty() && !waiting_confirm()) {
+        on_click_scenario_card(card);
     }
 }
 

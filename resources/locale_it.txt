@@ -149,6 +149,7 @@ LOG_STOLEN_SELF_CARD                {0} ripesca {1}
 LOG_DRAWN_WITH_CHARACTER            {1} pesca usando {0}
 LOG_DRAWN_FROM_GENERALSTORE         {0} pesca {1} per {2}
 LOG_PLAYED_CHARACTER                {1} gioca l'effetto di {0}
+LOG_RESPONDED_WITH_CHARACTER        {1} risponde con l'effetto di {0}
 LOG_PLAYED_CARD                     {1} gioca {0}
 LOG_PLAYED_CARD_ON                  {1} gioca {0} su {2}
 LOG_PLAYED_TABLE_CARD               {1} gioca {0} da terra
