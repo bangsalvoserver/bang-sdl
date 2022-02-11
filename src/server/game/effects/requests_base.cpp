@@ -168,12 +168,13 @@ namespace banggame {
     }
 
     void request_bang::on_resolve() {
-        target->m_game->pop_request(request_type::bang);
+        target->m_game->pop_request_noupdate(request_type::bang);
         target->damage(origin_card, origin, bang_damage, is_bang_card);
         if (!target->m_game->m_requests.empty() && target->m_game->m_requests.back().is(request_type::damaging)) {
             auto &req = target->m_game->m_requests.back().get<request_type::damaging>();
             req.cleanup_function = std::move(cleanup_function);
         } else {
+            target->m_game->events_after_requests();
             cleanup();
         }
     }

@@ -177,19 +177,9 @@ namespace banggame {
             }
         }
 
-        bool pop_request(request_type type = request_type::none) {
-            if (type != request_type::none && !top_request_is(type)) return false;
-            pop_request_noupdate();
-            if (m_requests.empty()) {
-                add_public_update<game_update_type::status_clear>();
-                pop_events();
-            } else {
-                send_request_update();
-            }
-            return true;
-        }
-
         bool pop_request_noupdate(request_type type = request_type::none);
+        bool pop_request(request_type type = request_type::none);
+        void events_after_requests();
 
         void tick();
 

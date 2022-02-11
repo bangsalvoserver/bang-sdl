@@ -615,6 +615,23 @@ struct to_end{};
         return true;
     }
 
+    bool game::pop_request(request_type type) {
+        if (type != request_type::none && !top_request_is(type)) return false;
+        m_requests.front().cleanup();
+        m_requests.pop_front();
+        events_after_requests();
+        return true;
+    }
+
+    void game::events_after_requests() {
+        if (m_requests.empty()) {
+            add_public_update<game_update_type::status_clear>();
+            pop_events();
+        } else {
+            send_request_update();
+        }
+    }
+
     player *game::get_next_player(player *p) {
         auto it = m_players.begin() + (p - m_players.data());
         do {

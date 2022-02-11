@@ -822,14 +822,14 @@ namespace banggame {
             it->second.resolved = true;
         }
         m_game->queue_delayed_action([this]{
-            if (m_game->m_playing == this) {
+            if (m_game->m_playing == this && m_game->num_alive() > 1) {
                 if (alive()) {
                     if (std::ranges::all_of(m_predraw_checks | std::views::values, &predraw_check::resolved)) {
                         request_drawing();
                     } else {
                         m_game->queue_request<request_type::predraw>(this);
                     }
-                } else if (m_game->num_alive() > 1) {
+                } else {
                     m_game->get_next_in_turn(this)->start_of_turn();
                 }
             }
