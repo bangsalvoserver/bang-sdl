@@ -14,6 +14,10 @@ namespace banggame {
         void on_play(card *origin_card, player *origin, player *target, card *target_card);
     };
 
+    struct effect_add_gold : card_effect {
+        void on_play(card *origin_card, player *origin, player *target);
+    };
+
     struct effect_rum : card_effect {
         void on_play(card *origin_card, player *origin);
     };

@@ -140,8 +140,7 @@ void target_finder::set_forced_card(card_view *card) {
     case card_color_type::orange:
     case card_color_type::black:
         if (card->equip_targets.empty()
-            || card->equip_targets.front().target == enums::flags_none<target_type>
-            || bool(card->equip_targets.front().target & target_type::self)) {
+            || card->equip_targets.front().target == enums::flags_none<target_type>) {
             m_playing_card = card;
             m_targets.emplace_back(std::vector{target_pair{m_game->find_player(m_game->m_playing_id), nullptr, true}});
             send_play_card();
@@ -272,8 +271,7 @@ void target_finder::on_click_hand_card(player_view *player, card_view *card) {
                     m_playing_card = card;
                     m_equipping = true;
                     if (card->equip_targets.empty()
-                        || card->equip_targets.front().target == enums::flags_none<target_type>
-                        || bool(card->equip_targets.front().target & target_type::self)) {
+                        || card->equip_targets.front().target == enums::flags_none<target_type>) {
                         m_targets.push_back(std::vector{target_pair{player, nullptr, true}});
                         send_play_card();
                     }
@@ -659,8 +657,7 @@ bool target_finder::add_player_targets(const std::vector<target_pair> &targets) 
         if (std::ranges::all_of(targets, [&](player_view *target_player) {
             return std::ranges::all_of(util::enum_flag_values(type), [&](target_type value){
                 switch(value) {
-                case target_type::player: return !target_player->dead;
-                case target_type::dead: return target_player->dead;
+                case target_type::player: return !target_player->dead || bool(type & target_type::dead);
                 case target_type::self: return target_player->id == m_game->m_player_own_id;
                 case target_type::notself: return target_player->id != m_game->m_player_own_id;
                 case target_type::notsheriff: return target_player->m_role.role != player_role::sheriff;
@@ -676,6 +673,7 @@ bool target_finder::add_player_targets(const std::vector<target_pair> &targets) 
                 case target_type::fanning_target:
                     return !m_targets.empty() && !m_targets.back().empty()
                         && calc_distance(m_targets.back().back().player, target_player) <= 1;
+                case target_type::dead:
                 case target_type::everyone:
                     return true;
                 default:

@@ -1030,7 +1030,7 @@
             "discard_if_two_players": true,
             "equip": [
                 {
-                    "target": "dead",
+                    "target": "dead player",
                     "class": "ghost"
                 }
             ]

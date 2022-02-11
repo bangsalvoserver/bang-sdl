@@ -25,6 +25,10 @@ namespace banggame {
         origin->m_game->add_log("LOG_DISCARDED_CARD", origin, target, target_card);
     }
 
+    void effect_add_gold::on_play(card *origin_card, player *origin, player *target) {
+        target->add_gold(std::max<int>(args, 1));
+    }
+
     void effect_rum::on_play(card *origin_card, player *origin) {
         std::vector<card_suit_type> suits;
         for (int i=0; i < 3 + origin->m_num_checks; ++i) {

@@ -63,8 +63,8 @@ namespace banggame {
 
     void effect_josh_mccloud::on_play(card *origin_card, player *target) {
         auto *card = target->m_game->draw_shop_card();
-        if (card->color == card_color_type::black && target->m_game->has_scenario(scenario_flags::judge)) {
-            target->m_game->move_to(card, card_pile_type::shop_discard);
+        if (!target->is_possible_to_play(card)) {
+            target->m_game->move_to(card, card_pile_type::shop_discard, true, nullptr, show_card_flags::short_pause);
         } else {
             target->set_forced_card(card);
         }

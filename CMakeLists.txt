@@ -67,6 +67,7 @@ set(bangserver_srcs
     src/server/game/game.cpp
     src/server/game/make_all_cards.cpp
     src/server/game/player.cpp
+    src/server/game/possible_to_play.cpp
 )
 
 include_directories(src)

@@ -275,7 +275,7 @@ namespace banggame {
         player *target = m_game->get_player(tgts.front().player_id);
         std::ranges::for_each(util::enum_flag_values(c->equips.front().target), [&](target_type value) {
             switch (value) {
-            case target_type::player: if (!target->alive()) throw game_error("ERROR_TARGET_NOT_PLAYER"); break;
+            case target_type::player: if (!target->alive() && !bool(c->equips.front().target & target_type::dead)) throw game_error("ERROR_TARGET_NOT_PLAYER"); break;
             case target_type::dead: if (target->m_hp != 0) throw game_error("ERROR_TARGET_NOT_DEAD"); break;
             case target_type::notsheriff: if (target->m_role == player_role::sheriff) throw game_error("ERROR_TARGET_SHERIFF"); break;
             default: throw game_error("ERROR_INVALID_ACTION");
@@ -316,7 +316,7 @@ namespace banggame {
                     if (e.target != enums::flags_none<target_type>) throw game_error("ERROR_INVALID_ACTION");
                 },
                 [&](enums::enum_constant<play_card_target_type::target_player>, const std::vector<target_player_id> &args) {
-                    if (!bool(e.target & (target_type::player | target_type::dead))) throw game_error("ERROR_INVALID_ACTION");
+                    if (!bool(e.target & target_type::player)) throw game_error("ERROR_INVALID_ACTION");
                     if (bool(e.target & target_type::everyone)) {
                         std::vector<target_player_id> ids;
                         if (bool(e.target & target_type::notself)) {
@@ -346,7 +346,7 @@ namespace banggame {
                             case target_type::self: if (target->id != id) throw game_error("ERROR_TARGET_NOT_SELF"); break;
                             case target_type::notself: if (target->id == id) throw game_error("ERROR_TARGET_SELF"); break;
                             case target_type::reachable:
-                                if (m_weapon_range > 0 && m_game->calc_distance(this, target) > m_weapon_range + m_range_mod)
+                                if (!m_weapon_range || m_game->calc_distance(this, target) > m_weapon_range + m_range_mod)
                                     throw game_error("ERROR_TARGET_NOT_IN_RANGE"); break;
                             case target_type::range_1: if (m_game->calc_distance(this, target) > 1 + m_range_mod) throw game_error("ERROR_TARGET_NOT_IN_RANGE"); break;
                             case target_type::range_2: if (m_game->calc_distance(this, target) > 2 + m_range_mod) throw game_error("ERROR_TARGET_NOT_IN_RANGE"); break;
@@ -606,61 +606,44 @@ namespace banggame {
                     set_last_played_card(card_ptr);
                 }
                 break;
-            case card_color_type::blue: {
-                if (m_game->has_scenario(scenario_flags::judge)) throw game_error("ERROR_CANT_EQUIP_CARDS");
-                verify_equip_target(card_ptr, args.targets);
-                auto *target = m_game->get_player(args.targets.front().get<play_card_target_type::target_player>().front().player_id);
-                if (auto *card = target->find_equipped_card(card_ptr)) throw game_error("ERROR_DUPLICATED_CARD", card);
-                target->equip_card(card_ptr);
-                set_last_played_card(nullptr);
-                if (this == target) {
-                    m_game->add_log("LOG_EQUIPPED_CARD", card_ptr, this);
-                } else {
-                    m_game->add_log("LOG_EQUIPPED_CARD_TO", card_ptr, this, target);
-                }
-                if (m_game->has_expansion(card_expansion_type::armedanddangerous) && can_receive_cubes()) {
-                    m_game->queue_request<request_type::add_cube>(card_ptr, this);
-                }
-                m_game->queue_event<event_type::on_equip>(this, target, card_ptr);
-                m_game->queue_event<event_type::on_effect_end>(this, card_ptr);
-                break;
-            }
-            case card_color_type::green: {
-                if (m_game->has_scenario(scenario_flags::judge)) throw game_error("ERROR_CANT_EQUIP_CARDS");
-                if (card *card = find_equipped_card(card_ptr)) throw game_error("ERROR_DUPLICATED_CARD", card);
-                auto suit = get_card_suit(card_ptr);
-                if (m_declared_suit != card_suit_type::none && suit != card_suit_type::none && suit != m_declared_suit) {
-                    throw game_error("ERROR_WRONG_DECLARED_SUIT");
-                }
-                card_ptr->inactive = true;
-                equip_card(card_ptr);
-                set_last_played_card(nullptr);
-                m_game->add_log("LOG_EQUIPPED_CARD", card_ptr, this);
-                m_game->queue_event<event_type::on_equip>(this, this, card_ptr);
-                m_game->queue_event<event_type::on_effect_end>(this, card_ptr);
-                m_game->add_public_update<game_update_type::tap_card>(card_ptr->id, true);
-                break;
-            }
+            case card_color_type::blue:
+            case card_color_type::green:
             case card_color_type::orange: {
                 if (m_game->has_scenario(scenario_flags::judge)) throw game_error("ERROR_CANT_EQUIP_CARDS");
                 verify_equip_target(card_ptr, args.targets);
                 auto *target = m_game->get_player(args.targets.front().get<play_card_target_type::target_player>().front().player_id);
-                if (card *card = target->find_equipped_card(card_ptr)) throw game_error("ERROR_DUPLICATED_CARD", card);
-                if (m_game->m_cubes.size() < 3) throw game_error("ERROR_NOT_ENOUGH_CUBES");
+                if (auto *card = target->find_equipped_card(card_ptr)) throw game_error("ERROR_DUPLICATED_CARD", card);
+                if (card_ptr->color == card_color_type::orange && m_game->m_cubes.size() < 3) {
+                    throw game_error("ERROR_NOT_ENOUGH_CUBES");
+                }
                 if (target->immune_to(card_ptr)) {
                     discard_card(card_ptr);
                 } else {
                     target->equip_card(card_ptr);
-                    add_cubes(card_ptr, 3);
                     m_game->queue_event<event_type::on_equip>(this, target, card_ptr);
                     if (this == target) {
                         m_game->add_log("LOG_EQUIPPED_CARD", card_ptr, this);
                     } else {
                         m_game->add_log("LOG_EQUIPPED_CARD_TO", card_ptr, this, target);
                     }
+                    switch (card_ptr->color) {
+                    case card_color_type::blue:
+                        if (m_game->has_expansion(card_expansion_type::armedanddangerous) && can_receive_cubes()) {
+                            m_game->queue_request<request_type::add_cube>(card_ptr, this);
+                        }
+                        break;
+                    case card_color_type::green:
+                        card_ptr->inactive = true;
+                        m_game->add_public_update<game_update_type::tap_card>(card_ptr->id, true);
+                        break;
+                    case card_color_type::orange:
+                        add_cubes(card_ptr, 3);
+                        break;
+                    }
                 }
                 set_last_played_card(nullptr);
                 m_game->queue_event<event_type::on_effect_end>(this, card_ptr);
+                break;
             }
             }
             break;

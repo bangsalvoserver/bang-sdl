@@ -11,7 +11,6 @@ namespace banggame {
         void add_move_card(card_view *card) {
             if (std::ranges::find(data, card, &decltype(data)::value_type::first) == data.end()) {
                 data.emplace_back(card, card->get_pos());
-                card->animating = true;
             }
         }
 
@@ -24,6 +23,7 @@ namespace banggame {
 
         void do_animation(float amt) {
             for (auto &[card, start] : data) {
+                card->animating = true;
                 sdl::point dest = card->pile->get_position_of(card);
                 card->set_pos(sdl::point{
                     (int) std::lerp(start.x, dest.x, amt),
@@ -45,7 +45,6 @@ namespace banggame {
 
         card_flip_animation(card_view *card, bool flips)
             : card(card), flips(flips) {
-            card->animating = true;
         }
 
         void end() {
@@ -54,6 +53,7 @@ namespace banggame {
         }
 
         void do_animation(float amt) {
+            card->animating = true;
             card->flip_amt = flips ? 1.f - amt : amt;
         }
 

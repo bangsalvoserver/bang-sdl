@@ -130,6 +130,7 @@ namespace banggame {
         void set_last_played_card(card *c);
 
         void set_forced_card(card *c);
+        bool is_possible_to_play(card *c);
 
         void verify_modifiers(card *c, const std::vector<card *> &modifiers);
         void play_modifiers(const std::vector<card *> &modifiers);

@@ -545,13 +545,12 @@ void game_scene::HANDLE_UPDATE(move_card, const move_card_update &args) {
     }
     if (bool(args.flags & show_card_flags::no_animation)) {
         anim.end();
-
+        pop_update();
+    } else {
         if (bool(args.flags & show_card_flags::short_pause)) {
             m_animations.emplace_back(20, std::in_place_type<pause_animation>);
-        } else {
-            pop_update();
         }
-    } else {
+
         m_animations.emplace_back(20, std::move(anim));
     }
 }
@@ -641,11 +640,11 @@ void game_scene::HANDLE_UPDATE(hide_card, const hide_card_update &args) {
             card->flip_amt = 0.f;
             pop_update();
         } else {
-            m_animations.emplace_back(10, std::in_place_type<card_flip_animation>, card, true);
-
             if (bool(args.flags & show_card_flags::short_pause)) {
                 m_animations.emplace_back(20, std::in_place_type<pause_animation>);
             }
+
+            m_animations.emplace_back(10, std::in_place_type<card_flip_animation>, card, true);
         }
     } else {
         pop_update();

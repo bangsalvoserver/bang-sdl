@@ -54,6 +54,7 @@ namespace banggame {
         (escape,        effect_escape)
         (sell_beer,     effect_sell_beer)
         (discard_black, effect_discard_black)
+        (add_gold,      effect_add_gold)
         (rum,           effect_rum)
         (bottle,        effect_empty)
         (pardner,       effect_empty)
