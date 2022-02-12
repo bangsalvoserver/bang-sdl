@@ -19,6 +19,7 @@ namespace banggame {
         card_pile_view table{sizes::player_hand_width};
 
         sdl::rect m_bounding_rect;
+        uint32_t border_color = 0;
 
         character_pile m_characters;
         card_pile_view m_backup_characters;

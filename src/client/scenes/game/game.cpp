@@ -111,6 +111,17 @@ void game_scene::render(sdl::renderer &renderer) {
         }
     }
 
+    m_target.set_border_colors();
+
+    if (!m_main_deck.empty() && m_main_deck.border_color) {
+        sdl::rect rect = m_main_deck.back()->get_rect();
+        card_textures::card_border().render_colored(renderer, sdl::rect{
+            rect.x - sizes::default_border_thickness,
+            rect.y - sizes::default_border_thickness,
+            rect.w + sizes::default_border_thickness * 2,
+            rect.h + sizes::default_border_thickness * 2
+        }, sdl::rgba(m_main_deck.border_color));
+    }
     for (card_view *card : m_main_deck | take_last<2>) {
         card->render(renderer);
     }
@@ -164,6 +175,15 @@ void game_scene::render(sdl::renderer &renderer) {
         }
     }
 
+    if (!m_discard_pile.empty() && m_discard_pile.border_color) {
+        sdl::rect rect = m_discard_pile.back()->get_rect();
+        card_textures::card_border().render_colored(renderer, sdl::rect{
+            rect.x - sizes::default_border_thickness,
+            rect.y - sizes::default_border_thickness,
+            rect.w + sizes::default_border_thickness * 2,
+            rect.h + sizes::default_border_thickness * 2
+        }, sdl::rgba(m_discard_pile.border_color));
+    }
     for (card_view *card : m_discard_pile | take_last<2>) {
         card->render(renderer);
     }
@@ -172,11 +192,14 @@ void game_scene::render(sdl::renderer &renderer) {
         card->render(renderer);
     }
 
+    for (card_view *card : m_shop_choice) {
+        card->render(renderer);
+    }
+
     if (!m_animations.empty()) {
         m_animations.front().render(renderer);
     }
 
-    m_target.render(renderer);
     m_ui.render(renderer);
 
     if (m_overlay && m_overlay->texture_front) {
@@ -194,7 +217,7 @@ void game_scene::handle_event(const sdl::event &event) {
         m_mouse_pt = {event.button.x, event.button.y};
         switch (event.button.button) {
         case SDL_BUTTON_LEFT:
-            if (m_pending_updates.empty() && m_animations.empty() && !m_target.waiting_confirm()) {
+            if (m_target.is_card_clickable()) {
                 handle_card_click();
             }
             break;

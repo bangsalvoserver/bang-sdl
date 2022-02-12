@@ -288,6 +288,12 @@ namespace sdl {
             render(renderer, rect);
         }
 
+        void render_colored(sdl::renderer &renderer, const rect &rect, const color &col) const {
+            SDL_SetTextureColorMod(m_texture, col.r, col.g, col.b);
+            render(renderer, rect);
+            SDL_SetTextureColorMod(m_texture, 0xff, 0xff, 0xff);
+        }
+
         explicit operator bool() const noexcept{
             return bool(m_surface);
         }

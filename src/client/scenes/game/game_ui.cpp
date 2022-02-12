@@ -92,7 +92,9 @@ void game_ui::show_error(const std::string &message) {
 void game_ui::add_special(card_view *card) {
     m_special_btns.emplace_back(std::piecewise_construct,
         std::make_tuple(_(card->name), [&target = parent->m_target, card]{
-            target.on_click_special(card);
+            if (target.is_card_clickable()) {
+                target.on_click_scenario_card(card);
+            }
         }), std::make_tuple(card));
 
     resize(parent->parent->width(), parent->parent->height());

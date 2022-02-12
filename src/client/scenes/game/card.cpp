@@ -13,6 +13,10 @@ namespace banggame {
             s_character = apply_card_mask(get_card_resource("back_character"));
             s_role = apply_card_mask(get_card_resource("back_role"));
             s_goldrush = apply_card_mask(get_card_resource("back_goldrush"));
+
+            s_card_border = get_card_resource("card_border");
+            s_cube = get_card_resource("cube");
+            s_cube_border = get_card_resource("cube_border");
         }
     }
 
@@ -23,6 +27,9 @@ namespace banggame {
             s_character.clear();
             s_role.clear();
             s_goldrush.clear();
+            s_card_border.clear();
+            s_cube.clear();
+            s_cube_border.clear();
         }
     }
     
@@ -90,14 +97,19 @@ namespace banggame {
         set_texture_front(card_textures::apply_card_mask(get_card_resource(role_string)));
     }
 
-    sdl::texture cube_widget::cube_texture{get_card_resource("cube")};
-
     void cube_widget::render(sdl::renderer &renderer, bool skip_if_animating) {
+        auto do_render = [&](const sdl::texture &tex, sdl::color color = sdl::rgb(0xffffff)) {
+            sdl::rect rect = tex.get_rect();
+            rect.x = pos.x - rect.w / 2;
+            rect.y = pos.y - rect.h / 2;
+            tex.render_colored(renderer, rect, color);
+        };
+
         if (!skip_if_animating || !animating) {
-            m_rect = cube_texture.get_rect();
-            m_rect.x = pos.x - m_rect.w / 2;
-            m_rect.y = pos.y - m_rect.h / 2;
-            cube_texture.render(renderer, m_rect);
+            if (border_color) {
+                do_render(card_textures::cube_border(), sdl::rgba(border_color));
+            }
+            do_render(card_textures::cube());
         }
     }
 
@@ -108,22 +120,42 @@ namespace banggame {
         }
         m_pos = new_pos;
     }
-    
-    void card_view::do_render(sdl::renderer &renderer, const sdl::texture &tex) {
-        m_rect = tex.get_rect();
-        sdl::scale_rect(m_rect, sizes::card_width);
-        
-        m_rect.x = m_pos.x - m_rect.w / 2;
-        m_rect.y = m_pos.y - m_rect.h / 2;
 
-        sdl::rect rect = m_rect;
-        float wscale = std::abs(1.f - 2.f * flip_amt);
-        rect.x += rect.w * (1.f - wscale) * 0.5f;
-        rect.w *= wscale;
-        SDL_RenderCopyEx(renderer.get(), tex.get_texture(renderer), nullptr, &rect, rotation, nullptr, SDL_FLIP_NONE);
+    void card_view::render(sdl::renderer &renderer, bool skip_if_animating) {
+        auto do_render = [&](const sdl::texture &tex) {
+            m_rect = tex.get_rect();
+            sdl::scale_rect(m_rect, sizes::card_width);
 
-        for (auto *cube : cubes) {
-            cube->render(renderer);
+            m_rect.x = m_pos.x - m_rect.w / 2;
+            m_rect.y = m_pos.y - m_rect.h / 2;
+
+            sdl::rect rect = m_rect;
+            float wscale = std::abs(1.f - 2.f * flip_amt);
+            rect.x += rect.w * (1.f - wscale) * 0.5f;
+            rect.w *= wscale;
+
+            if (border_color) {
+                card_textures::card_border().render_colored(renderer, sdl::rect{
+                    rect.x - sizes::default_border_thickness,
+                    rect.y - sizes::default_border_thickness,
+                    rect.w + sizes::default_border_thickness * 2,
+                    rect.h + sizes::default_border_thickness * 2
+                }, sdl::rgba(border_color));
+            }
+
+            SDL_RenderCopyEx(renderer.get(), tex.get_texture(renderer), nullptr, &rect, rotation, nullptr, SDL_FLIP_NONE);
+
+            for (auto *cube : cubes) {
+                cube->render(renderer);
+            }
+        };
+
+        if (!skip_if_animating || !animating) {
+            if (flip_amt > 0.5f && texture_front_scaled) {
+                do_render(texture_front_scaled);
+            } else if (texture_back) {
+                do_render(*texture_back);
+            }
         }
     }
 

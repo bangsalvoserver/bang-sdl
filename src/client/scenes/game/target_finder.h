@@ -32,7 +32,7 @@ namespace banggame {
     public:
         target_finder(game_scene *parent) : m_game(parent) {}
         
-        void render(sdl::renderer &renderer);
+        void set_border_colors();
 
         bool is_current_player_targeted() const;
         bool can_respond_with(card_view *card) const;
@@ -54,6 +54,8 @@ namespace banggame {
             return m_waiting_confirm;
         }
 
+        bool is_card_clickable() const;
+
         void on_click_discard_pile();
         void on_click_main_deck();
         void on_click_selection_card(card_view *card);
@@ -62,7 +64,6 @@ namespace banggame {
         void on_click_hand_card(player_view *player, card_view *card);
         void on_click_character(player_view *player, card_view *card);
         void on_click_scenario_card(card_view *card);
-        void on_click_special(card_view *card);
         bool on_click_player(player_view *player);
 
         void on_click_confirm();

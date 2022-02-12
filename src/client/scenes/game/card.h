@@ -24,6 +24,11 @@ namespace banggame {
         static inline sdl::texture s_role;
         static inline sdl::texture s_goldrush;
 
+        static inline sdl::texture s_card_border;
+
+        static inline sdl::texture s_cube;
+        static inline sdl::texture s_cube_border;
+
         static inline int s_counter = 0;
 
     public:
@@ -36,6 +41,9 @@ namespace banggame {
         static const sdl::texture &character() { return s_character; }
         static const sdl::texture &role() { return s_role; }
         static const sdl::texture &goldrush() { return s_goldrush; }
+        static const sdl::texture &card_border() { return s_card_border; }
+        static const sdl::texture &cube() { return s_cube; }
+        static const sdl::texture &cube_border() { return s_cube_border; }
     };
 
     struct card_view;
@@ -47,6 +55,8 @@ namespace banggame {
         int hflip;
 
     public:
+        uint32_t border_color = 0;
+
         explicit card_pile_view(int width = 0, bool hflip = false)
             : m_width(width)
             , hflip(hflip ? -1 : 1) {}
@@ -71,16 +81,11 @@ namespace banggame {
         sdl::point pos;
 
         bool animating = false;
+        uint32_t border_color = 0;
 
         cube_widget(int id) : id(id) {}
 
         void render(sdl::renderer &renderer, bool skip_if_animating = true);
-
-        const sdl::rect get_rect() const { return m_rect; }
-
-    private:
-        static sdl::texture cube_texture;
-        sdl::rect m_rect;
     };
 
     class card_view : public card_info {
@@ -97,6 +102,8 @@ namespace banggame {
 
         bool inactive = false;
 
+        uint32_t border_color = 0;
+
         void set_pos(const sdl::point &pos);
         const sdl::point &get_pos() const {
             return m_pos;
@@ -106,12 +113,7 @@ namespace banggame {
             return m_rect;
         }
 
-        void render(sdl::renderer &renderer, bool skip_if_animating = true) {
-            if (!skip_if_animating || !animating) {
-                if (flip_amt > 0.5f && texture_front_scaled) do_render(renderer, texture_front_scaled);
-                else if (texture_back) do_render(renderer, *texture_back);
-            }
-        }
+        void render(sdl::renderer &renderer, bool skip_if_animating = true);
 
         sdl::texture texture_front;
         sdl::texture texture_front_scaled;
@@ -129,8 +131,6 @@ namespace banggame {
     private:
         sdl::point m_pos;
         sdl::rect m_rect;
-        
-        void do_render(sdl::renderer &renderer, const sdl::texture &front);
     };
 
     struct role_card : card_view {

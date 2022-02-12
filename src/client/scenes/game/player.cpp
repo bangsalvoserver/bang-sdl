@@ -82,8 +82,9 @@ namespace banggame {
     }
 
     void player_view::render(sdl::renderer &renderer) {
-        renderer.set_draw_color(sdl::rgba(sizes::player_view_border_rgba));
+        renderer.set_draw_color(sdl::rgba(border_color ? border_color : sizes::player_view_border_rgba));
         renderer.draw_rect(m_bounding_rect);
+
         m_role.render(renderer);
         if (!m_backup_characters.empty()) {
             m_backup_characters.front()->render(renderer);

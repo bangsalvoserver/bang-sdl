@@ -59,8 +59,10 @@ namespace sizes {
 
     constexpr uint32_t target_finder_current_card_rgba = 0xff0000ff;
     constexpr uint32_t target_finder_target_rgba = 0xff00ffff;
-    constexpr uint32_t target_finder_can_respond_rgba = 0x0000ffff;
-    constexpr uint32_t target_finder_can_pick_rgba = 0xffff00ff;
+    constexpr uint32_t target_finder_can_respond_rgba = 0x00ffffff;
+    constexpr uint32_t target_finder_can_pick_rgba = 0x00ff00ff;
+
+    constexpr int default_border_thickness = 5;
 }
 
 #endif

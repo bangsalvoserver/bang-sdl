@@ -14,62 +14,58 @@ void target_finder::add_action(Ts && ... args) {
     m_game->parent->add_message<client_message_type::game_action>(enums::enum_constant<T>{}, std::forward<Ts>(args) ...);
 }
 
-void target_finder::render(sdl::renderer &renderer) {
-    renderer.set_draw_color(sdl::rgba(sizes::target_finder_can_pick_rgba));
+void target_finder::set_border_colors() {
     for (auto [pile, player, card] : m_picking_highlights) {
         switch (pile) {
         case card_pile_type::player_hand:
         case card_pile_type::player_table:
         case card_pile_type::player_character:
         case card_pile_type::selection:
-            renderer.draw_rect(card->get_rect());
+            card->border_color = sizes::target_finder_can_pick_rgba;
             break;
         case card_pile_type::player:
-            renderer.draw_rect(player->m_bounding_rect);
+            player->border_color = sizes::target_finder_can_pick_rgba;
             break;
         case card_pile_type::main_deck:
-            if (!m_game->m_main_deck.empty()) renderer.draw_rect(m_game->m_main_deck.back()->get_rect());
+            m_game->m_main_deck.border_color = sizes::target_finder_can_pick_rgba;
             break;
         case card_pile_type::discard_pile:
-            if (!m_game->m_discard_pile.empty()) renderer.draw_rect(m_game->m_discard_pile.back()->get_rect());
+            m_game->m_discard_pile.border_color = sizes::target_finder_can_pick_rgba;
             break;
         }
     }
-    renderer.set_draw_color(sdl::rgba(sizes::target_finder_can_respond_rgba));
     for (auto *card : m_response_highlights) {
-        if (card->texture_front) {
-            renderer.draw_rect(card->get_rect());
-        }
+        card->border_color = sizes::target_finder_can_respond_rgba;
     }
-    renderer.set_draw_color(sdl::rgba(sizes::target_finder_current_card_rgba));
     for (auto *card : m_modifiers) {
-        renderer.draw_rect(card->get_rect());
+        card->border_color = sizes::target_finder_current_card_rgba;
     }
 
-    for (card_view *card : m_game->m_shop_choice) {
-        card->render(renderer);
+    if (m_playing_card) {
+        m_playing_card->border_color = sizes::target_finder_current_card_rgba;
     }
 
-    if (m_playing_card && m_playing_card->texture_front) {
-        renderer.draw_rect(m_playing_card->get_rect());
-    }
-    renderer.set_draw_color(sdl::rgba(sizes::target_finder_target_rgba));
     for (auto &l : m_targets) {
         for (auto [player, card, is_auto] : l) {
             if (!is_auto) {
                 if (card) {
                     if (std::ranges::find(m_selected_cubes, card, &cube_widget::owner) == m_selected_cubes.end()) {
-                        renderer.draw_rect(card->get_rect());
+                        card->border_color = sizes::target_finder_target_rgba;
                     }
                 } else if (player) {
-                    renderer.draw_rect(player->m_bounding_rect);
+                    player->border_color = sizes::target_finder_target_rgba;
                 }
             }
         }
     }
     for (auto *cube : m_selected_cubes) {
-        renderer.draw_rect(cube->get_rect());
+        cube->border_color = sizes::target_finder_target_rgba;
     }
+}
+
+bool target_finder::is_card_clickable() const {
+    return (!m_game->m_current_request || is_current_player_targeted())
+        && m_game->m_pending_updates.empty() && m_game->m_animations.empty() && !waiting_confirm();
 }
 
 bool target_finder::is_current_player_targeted() const {
@@ -87,12 +83,12 @@ bool target_finder::can_pick(card_pile_type pile, player_view *player, card_view
 }
 
 void target_finder::set_response_highlights(const request_respond_args &args) {
-    m_response_highlights.clear();
+    clear_status();
+
     for (int id : args.respond_ids) {
         m_response_highlights.push_back(m_game->find_card(id));
     }
 
-    m_picking_highlights.clear();
     for (const picking_args &args : args.pick_ids) {
         m_picking_highlights.emplace_back(args.pile,
             args.player_id ? m_game->find_player(args.player_id) : nullptr,
@@ -101,11 +97,49 @@ void target_finder::set_response_highlights(const request_respond_args &args) {
 }
 
 void target_finder::clear_status() {
+    for (card_view *card : m_response_highlights) {
+        card->border_color = 0;
+    }
+    for (auto &[pile, player, card] : m_picking_highlights) {
+        switch (pile) {
+        case card_pile_type::player_hand:
+        case card_pile_type::player_table:
+        case card_pile_type::player_character:
+        case card_pile_type::selection:
+            card->border_color = 0;
+            break;
+        case card_pile_type::player:
+            player->border_color = 0;
+            break;
+        case card_pile_type::main_deck:
+            m_game->m_main_deck.border_color = 0;
+            break;
+        case card_pile_type::discard_pile:
+            m_game->m_discard_pile.border_color = 0;
+            break;
+        }
+    }
+
     m_response_highlights.clear();
     m_picking_highlights.clear();
 }
 
 void target_finder::clear_targets() {
+    if (m_playing_card) {
+        m_playing_card->border_color = 0;
+    }
+    for (card_view *card : m_modifiers) {
+        card->border_color = 0;
+    }
+    for (auto &vec : m_targets) {
+        for (auto &[player, card, autotarget] : vec) {
+            if (card) card->border_color = 0;
+            else if (player) player->border_color = 0;
+        }
+    }
+    for (cube_widget *cube : m_selected_cubes) {
+        cube->border_color = 0;
+    }
     m_game->m_shop_choice.clear();
     static_cast<target_status &>(*this) = {};
     if (m_forced_card) {
@@ -322,12 +356,6 @@ void target_finder::on_click_scenario_card(card_view *card) {
         && !m_playing_card && !card->targets.empty()) {
         m_playing_card = card;
         handle_auto_targets();
-    }
-}
-
-void target_finder::on_click_special(card_view *card) {
-    if (m_game->m_pending_updates.empty() && m_game->m_animations.empty() && !waiting_confirm()) {
-        on_click_scenario_card(card);
     }
 }
 
