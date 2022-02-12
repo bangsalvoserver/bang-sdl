@@ -212,14 +212,12 @@ void target_finder::on_click_selection_card(card_view *card) {
 }
 
 void target_finder::on_click_shop_card(card_view *card) {
-    if (!m_playing_card) {
-        if (is_current_player_targeted()) {
-            if (card->color == card_color_type::none) {
-                m_playing_card = card;
-                m_response = true;
-                handle_auto_targets();
-            }
-        } else if (m_game->m_playing_id == m_game->m_player_own_id) {
+    if (!m_playing_card && m_game->m_playing_id == m_game->m_player_own_id) {
+        int cost = card->buy_cost;
+        if (std::ranges::find(m_modifiers, card_modifier_type::discount, &card_view::modifier) != m_modifiers.end()) {
+            --cost;
+        }
+        if (m_game->find_player(m_game->m_player_own_id)->gold >= cost) {
             if (card->color == card_color_type::black) {
                 if (verify_modifier(card)) {
                     if (card->equip_targets.empty()

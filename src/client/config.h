@@ -25,7 +25,7 @@ public:
         (banggame::card_expansion_type) expansions
     )
 
-    config() : expansions(enums::flags_none<decltype(expansions)>) {}
+    config() = default;
 
     config(const std::string &filename) {
         std::ifstream ifs(filename);
