@@ -418,17 +418,17 @@ namespace banggame {
                                 }
                                 break;
                             case target_type::missed:
-                                if (card_ptr->responses.empty() || !card_ptr->responses.front().is(effect_type::missedcard)) {
+                                if (target_card->responses.empty() || !target_card->responses.front().is(effect_type::missedcard)) {
                                     throw game_error("ERROR_TARGET_NOT_MISSED");
                                 }
                                 break;
                             case target_type::beer:
-                                if (card_ptr->effects.empty() || !card_ptr->effects.front().is(effect_type::beer)) {
+                                if (target_card->effects.empty() || !target_card->effects.front().is(effect_type::beer)) {
                                     throw game_error("ERROR_TARGET_NOT_BEER");
                                 }
                                 break;
                             case target_type::bronco:
-                                if (card_ptr->equips.empty() || !card_ptr->equips.back().is(equip_type::bronco)) {
+                                if (target_card->equips.empty() || !target_card->equips.back().is(equip_type::bronco)) {
                                     throw game_error("ERROR_TARGET_NOT_BRONCO");
                                 }
                                 break;
