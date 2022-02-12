@@ -572,30 +572,28 @@ namespace banggame {
 
         switch(card_ptr->pile) {
         case card_pile_type::player_hand:
-            if (card_ptr->color == card_color_type::brown) {
-                if (!modifiers.empty() && modifiers.front()->modifier == card_modifier_type::leevankliff) {
-                    // Hack per usare il raii eliminare il limite di bang
-                    // quando lee van kliff gioca l'effetto del personaggio su una carta bang.
-                    // Se le funzioni di verifica throwano viene chiamato il distruttore
-                    struct banglimit_remover {
-                        int8_t &num;
-                        banglimit_remover(int8_t &num) : num(num) { ++num; }
-                        ~banglimit_remover() { --num; }
-                    } _banglimit_remover{m_bangs_per_turn};
-                    if (m_game->is_disabled(modifiers.front())) throw game_error("ERROR_CARD_IS_DISABLED", modifiers.front());
-                    verify_card_targets(m_last_played_card, false, args.targets);
-                    m_game->move_to(card_ptr, card_pile_type::discard_pile);
-                    m_game->queue_event<event_type::on_play_hand_card>(this, card_ptr);
-                    do_play_card(m_last_played_card, false, args.targets);
-                    set_last_played_card(nullptr);
-                } else {
-                    if (m_game->is_disabled(card_ptr)) throw game_error("ERROR_CARD_IS_DISABLED", card_ptr);
-                    verify_modifiers(card_ptr, modifiers);
-                    verify_card_targets(card_ptr, false, args.targets);
-                    play_modifiers(modifiers);
-                    do_play_card(card_ptr, false, args.targets);
-                    set_last_played_card(card_ptr);
-                }
+            if (!modifiers.empty() && modifiers.front()->modifier == card_modifier_type::leevankliff) {
+                // Uso il raii eliminare il limite di bang
+                // quando lee van kliff gioca l'effetto del personaggio su una carta bang.
+                // Se le funzioni di verifica throwano viene chiamato il distruttore
+                struct banglimit_remover {
+                    int8_t &num;
+                    banglimit_remover(int8_t &num) : num(num) { ++num; }
+                    ~banglimit_remover() { --num; }
+                } _banglimit_remover{m_bangs_per_turn};
+                if (m_game->is_disabled(modifiers.front())) throw game_error("ERROR_CARD_IS_DISABLED", modifiers.front());
+                verify_card_targets(m_last_played_card, false, args.targets);
+                m_game->move_to(card_ptr, card_pile_type::discard_pile);
+                m_game->queue_event<event_type::on_play_hand_card>(this, card_ptr);
+                do_play_card(m_last_played_card, false, args.targets);
+                set_last_played_card(nullptr);
+            } else if (card_ptr->color == card_color_type::brown) {
+                if (m_game->is_disabled(card_ptr)) throw game_error("ERROR_CARD_IS_DISABLED", card_ptr);
+                verify_modifiers(card_ptr, modifiers);
+                verify_card_targets(card_ptr, false, args.targets);
+                play_modifiers(modifiers);
+                do_play_card(card_ptr, false, args.targets);
+                set_last_played_card(card_ptr);
             } else {
                 if (m_game->has_scenario(scenario_flags::judge)) throw game_error("ERROR_CANT_EQUIP_CARDS");
                 verify_equip_target(card_ptr, args.targets);

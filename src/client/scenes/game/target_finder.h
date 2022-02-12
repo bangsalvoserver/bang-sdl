@@ -72,6 +72,8 @@ namespace banggame {
         }
     
     private:
+        bool is_bangcard(card_view *card);
+
         void add_modifier(card_view *card);
         bool verify_modifier(card_view *card);
 

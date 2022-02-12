@@ -261,14 +261,19 @@ void target_finder::on_click_hand_card(player_view *player, card_view *card) {
                         m_playing_card = card;
                         handle_auto_targets();
                     }
-                } else {
-                    m_playing_card = card;
-                    m_equipping = true;
+                } else if (m_modifiers.empty()) {
                     if (card->equip_targets.empty()
                         || card->equip_targets.front().target == enums::flags_none<target_type>) {
                         m_targets.push_back(std::vector{target_pair{player, nullptr, true}});
+                        m_playing_card = card;
                         send_play_card();
+                    } else {
+                        m_playing_card = card;
+                        m_equipping = true;
                     }
+                } else if (verify_modifier(card)) {
+                    m_playing_card = card;
+                    handle_auto_targets();
                 }
             }
         } else {
@@ -380,14 +385,20 @@ void target_finder::add_modifier(card_view *card) {
     }
 }
 
+bool target_finder::is_bangcard(card_view *card) {
+    return m_game->has_player_flags(player_flags::treat_any_as_bang)
+        || (m_game->has_player_flags(player_flags::treat_missed_as_bang)
+            && !card->response_targets.empty() && card->response_targets.front().type == effect_type::missedcard)
+        || std::ranges::find(card->targets, effect_type::bangcard, &card_target_data::type) != card->targets.end();
+}
+
 bool target_finder::verify_modifier(card_view *card) {
     return std::ranges::all_of(m_modifiers, [&](card_view *c) {
         switch (c->modifier) {
         case card_modifier_type::bangcard:
-            return std::ranges::find(card->targets, effect_type::bangcard, &card_target_data::type) != card->targets.end();
+            return is_bangcard(card);
         case card_modifier_type::leevankliff:
-            return !card->targets.empty() && card->targets.front().type == effect_type::bangcard
-                && m_last_played_card;
+            return is_bangcard(card) && m_last_played_card;
         case card_modifier_type::discount:
             return card->expansion == card_expansion_type::goldrush;
         case card_modifier_type::shopchoice:
@@ -557,9 +568,6 @@ void target_finder::add_card_target(target_pair target) {
 
     bool from_hand = target.card->pile == &target.player->hand;
 
-    bool is_bang = !target.card->targets.empty() && target.card->targets.front().type == effect_type::bangcard;
-    bool is_missed = !target.card->response_targets.empty() && target.card->response_targets.front().type == effect_type::missedcard;
-
     player_view *own_player = m_game->find_player(m_game->m_player_own_id);
 
     if (!std::ranges::all_of(util::enum_flag_values(cur_target),
@@ -582,10 +590,8 @@ void target_finder::add_card_target(target_pair target) {
             case target_type::hand: return from_hand;
             case target_type::blue: return target.card->color == card_color_type::blue;
             case target_type::clubs: return target.card->suit == card_suit_type::clubs;
-            case target_type::bang:
-                return m_game->has_player_flags(player_flags::treat_any_as_bang)
-                    || is_bang || (m_game->has_player_flags(player_flags::treat_missed_as_bang) && is_missed);
-            case target_type::missed: return is_missed;
+            case target_type::bang: return is_bangcard(target.card);
+            case target_type::missed: return !target.card->response_targets.empty() && target.card->response_targets.front().type == effect_type::missedcard;
             case target_type::beer: return !target.card->targets.empty() && target.card->targets.front().type == effect_type::beer;
             case target_type::bronco: return !target.card->equip_targets.empty() && target.card->equip_targets.back().type == equip_type::bronco;
             case target_type::cube_slot: return target.card->color == card_color_type::orange;
