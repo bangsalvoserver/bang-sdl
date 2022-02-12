@@ -1,7 +1,5 @@
 #include "player.h"
 
-#include "card_resources.h"
-
 namespace banggame {
     void player_view::set_position(sdl::point pos, bool flipped) {
         m_bounding_rect.w = table.width() + sizes::card_width * 3 + 40;
