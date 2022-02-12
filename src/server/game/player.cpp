@@ -177,11 +177,9 @@ namespace banggame {
 
     static void check_orange_card_empty(player *owner, card *target) {
         if (target->cubes.empty() && target->pile != card_pile_type::player_character && target->pile != card_pile_type::player_backup) {
-            owner->m_game->queue_delayed_action([=]{
-                owner->m_game->move_to(target, card_pile_type::discard_pile);
-                owner->m_game->instant_event<event_type::post_discard_orange_card>(owner, target);
-                owner->unequip_if_enabled(target);
-            });
+            owner->m_game->move_to(target, card_pile_type::discard_pile);
+            owner->m_game->instant_event<event_type::post_discard_orange_card>(owner, target);
+            owner->unequip_if_enabled(target);
         }
     }
 

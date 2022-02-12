@@ -53,14 +53,13 @@ namespace banggame {
         if (target->can_escape(origin, origin_card, flags)) {
             origin->m_game->queue_request<request_type::rust>(origin_card, origin, target, flags);
         } else {
-            target->m_game->queue_delayed_action([=]{
-                target->move_cubes(target->m_characters.front(), origin->m_characters.front(), 1);
-                for (auto &c : target->m_table | std::views::reverse) {
-                    if (c->color == card_color_type::orange) {
-                        target->move_cubes(c, origin->m_characters.front(), 1);
-                    }
-                }
-            });
+            auto view = target->m_table | std::views::filter([](card *c){ return c->color == card_color_type::orange; });
+            std::vector<card *> orange_cards{view.begin(), view.end()};
+            
+            orange_cards.push_back(target->m_characters.front());
+            for (card *c : orange_cards) {
+                target->move_cubes(c, origin->m_characters.front(), 1);
+            }
         }
     }
 
