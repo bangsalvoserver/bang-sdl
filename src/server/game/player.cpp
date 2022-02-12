@@ -855,7 +855,8 @@ namespace banggame {
             m_current_card_targets.clear();
 
             m_game->instant_event<event_type::on_turn_end>(this);
-            if (m_extra_turns == 0) {
+            if (!check_player_flags(player_flags::extra_turn)) {
+                add_player_flags(player_flags::extra_turn);
                 m_game->instant_event<event_type::post_turn_end>(this);
             }
             m_game->queue_delayed_action([&]{
@@ -865,6 +866,7 @@ namespace banggame {
                             --m_num_cards_to_draw;
                             m_game->player_death(nullptr, this);
                         }
+                        remove_player_flags(player_flags::extra_turn);
                         m_game->get_next_in_turn(this)->start_of_turn();
                     } else {
                         --m_extra_turns;
@@ -873,6 +875,13 @@ namespace banggame {
                 }
             });
         }
+    }
+
+    void player::skip_turn() {
+        untap_inactive_cards();
+        remove_player_flags(player_flags::extra_turn);
+        m_game->instant_event<event_type::on_skip_turn>(this);
+        m_game->get_next_in_turn(this)->start_of_turn();
     }
 
     void player::untap_inactive_cards() {

@@ -124,6 +124,7 @@ namespace banggame {
         (dead)
         (ghost)
         (start_of_turn)
+        (extra_turn)
         (disable_player_distances)
         (see_everyone_range_1)
         (treat_missed_as_bang)

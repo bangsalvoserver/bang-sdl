@@ -149,6 +149,7 @@ namespace banggame {
         void request_drawing();
         
         void pass_turn();
+        void skip_turn();
 
         card_suit_type get_card_suit(card *drawn_card);
         card_value_type get_card_value(card *drawn_card);

@@ -133,9 +133,9 @@ namespace banggame {
     }
 
     void effect_vera_custer::on_equip(card *target_card, player *p) {
-        p->m_game->add_event<event_type::before_turn_start>(target_card, [=](player *target) {
+        p->m_game->add_event<event_type::before_turn_start>(target_card, [=, &usages = target_card->usages](player *target) {
             if (p == target) {
-                ++p->m_characters.front()->usages;
+                ++usages;
                 if (p->m_game->num_alive() == 2 && p->m_game->get_next_player(p)->m_characters.size() == 1) {
                     vera_custer_copy_character(p, p->m_game->get_next_player(p)->m_characters.front());
                 } else if (p->m_game->num_alive() > 2) {
@@ -143,8 +143,8 @@ namespace banggame {
                 }
             }
         });
-        p->m_game->add_event<event_type::on_turn_end>(target_card, [p](player *target) {
-            if (p == target && p->m_characters.front()->usages == 0) {
+        p->m_game->add_event<event_type::on_skip_turn>(target_card, [p, &usages = target_card->usages](player *target) {
+            if (p == target && usages == 0) {
                 if (p->m_characters.size() > 1) {
                     auto *c = p->m_characters.back();
                     p->unequip_if_enabled(c);
