@@ -312,6 +312,9 @@ void game_scene::find_overlay() {
         return (it == pile.rend()) ? nullptr : *it;
     };
 
+    if (m_overlay = find_clicked(m_shop_choice)) {
+        return;
+    }
     if (m_overlay = find_clicked(m_selection)) {
         return;
     }
