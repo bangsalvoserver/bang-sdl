@@ -397,8 +397,7 @@ namespace banggame {
                             switch (value) {
                             case target_type::card:
                                 if (!target->alive()) throw game_error("ERROR_TARGET_NOT_CARD");
-                                if (target_card->color == card_color_type::black
-                                    && !bool(e.target & target_type::black)) throw game_error("ERROR_TARGET_BLACK_CARD");
+                                if ((target_card->color == card_color_type::black) != bool(e.target & target_type::black)) throw game_error("ERROR_TARGET_BLACK_CARD");
                                 break;
                             case target_type::self: if (target->id != id) throw game_error("ERROR_TARGET_NOT_SELF"); break;
                             case target_type::notself: if (target->id == id) throw game_error("ERROR_TARGET_SELF"); break;

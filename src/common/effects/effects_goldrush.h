@@ -10,7 +10,7 @@ namespace banggame {
     };
 
     struct effect_discard_black : card_effect {
-        void verify(card *origin_card, player *origin, player *target, card *target_card);
+        void verify(card *origin_card, player *origin, player *target, card *target_card) const;
         void on_play(card *origin_card, player *origin, player *target, card *target_card);
     };
 

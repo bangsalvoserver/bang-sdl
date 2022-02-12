@@ -573,7 +573,7 @@ void target_finder::add_card_target(target_pair target) {
     if (!std::ranges::all_of(util::enum_flag_values(cur_target),
         [&](target_type value) {
             switch (value) {
-            case target_type::card: return target.card->color != card_color_type::black || bool(cur_target & target_type::black);
+            case target_type::card: return (target.card->color == card_color_type::black) == bool(cur_target & target_type::black);
             case target_type::black:
             case target_type::everyone:
             case target_type::new_target:

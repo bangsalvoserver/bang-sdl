@@ -13,7 +13,7 @@ namespace banggame {
         origin->m_game->queue_event<event_type::on_effect_end>(origin, target_card);
     }
 
-    void effect_discard_black::verify(card *origin_card, player *origin, player *target, card *target_card) {
+    void effect_discard_black::verify(card *origin_card, player *origin, player *target, card *target_card) const {
         if (origin->m_gold < target_card->buy_cost + 1) {
             throw game_error("ERROR_NOT_ENOUGH_GOLD");
         }
