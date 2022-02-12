@@ -85,17 +85,17 @@ namespace banggame {
             if (hp > 5) {
                 sdl::rect hp_marker_rect = m_backup_characters.front()->get_rect();
                 hp_marker_rect.y += sizes::one_hp_size * 5;
-                card_textures::character().render(renderer, hp_marker_rect);
+                card_textures::get().backface_character.render(renderer, hp_marker_rect);
             }
         }
         for (card_view *c : m_characters) {
             c->render(renderer);
         }
         if (gold > 0) {
-            sdl::rect gold_rect = card_textures::gold().get_rect();
+            sdl::rect gold_rect = card_textures::get().gold_icon.get_rect();
             gold_rect.x = m_characters.get_pos().x - gold_rect.w / 2;
             gold_rect.y = m_characters.get_pos().y - sizes::gold_yoffset;
-            card_textures::gold().render(renderer, gold_rect);
+            card_textures::get().gold_icon.render(renderer, gold_rect);
 
             sdl::rect gold_text_rect = m_gold_text.get_rect();
             gold_text_rect.x = gold_rect.x + (gold_rect.w - gold_text_rect.w) / 2;

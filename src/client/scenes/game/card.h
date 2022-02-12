@@ -16,36 +16,31 @@
 namespace banggame {
 
     struct card_textures {
+    public:
+        sdl::surface card_mask;
+
+        sdl::texture backface_maindeck;
+        sdl::texture backface_character;
+        sdl::texture backface_role;
+        sdl::texture backface_goldrush;
+
+        sdl::texture card_border;
+
+        sdl::texture cube_icon;
+        sdl::texture cube_border;
+
+        sdl::texture gold_icon;
+
+        sdl::surface apply_card_mask(const sdl::surface &source) const;
+
+        static const card_textures &get() {
+            return *s_instance;
+        }
+
     private:
-        sdl::surface s_card_mask;
-
-        sdl::texture s_main_deck;
-        sdl::texture s_character;
-        sdl::texture s_role;
-        sdl::texture s_goldrush;
-
-        sdl::texture s_card_border;
-
-        sdl::texture s_cube;
-        sdl::texture s_cube_border;
-
-        sdl::texture s_gold;
-
-        static inline card_textures *instance = nullptr;
-
         card_textures();
 
-    public:
-        static sdl::surface apply_card_mask(const sdl::surface &source);
-        
-        static const sdl::texture &main_deck() { return instance->s_main_deck; }
-        static const sdl::texture &character() { return instance->s_character; }
-        static const sdl::texture &role() { return instance->s_role; }
-        static const sdl::texture &goldrush() { return instance->s_goldrush; }
-        static const sdl::texture &card_border() { return instance->s_card_border; }
-        static const sdl::texture &cube() { return instance->s_cube; }
-        static const sdl::texture &cube_border() { return instance->s_cube_border; }
-        static const sdl::texture &gold() { return instance->s_gold; }
+        static inline card_textures *s_instance = nullptr;
 
         friend class game_scene;
     };

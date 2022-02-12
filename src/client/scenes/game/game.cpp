@@ -115,7 +115,7 @@ void game_scene::render(sdl::renderer &renderer) {
 
     if (!m_main_deck.empty() && m_main_deck.border_color) {
         sdl::rect rect = m_main_deck.back()->get_rect();
-        card_textures::card_border().render_colored(renderer, sdl::rect{
+        card_textures::get().card_border.render_colored(renderer, sdl::rect{
             rect.x - sizes::default_border_thickness,
             rect.y - sizes::default_border_thickness,
             rect.w + sizes::default_border_thickness * 2,
@@ -177,7 +177,7 @@ void game_scene::render(sdl::renderer &renderer) {
 
     if (!m_discard_pile.empty() && m_discard_pile.border_color) {
         sdl::rect rect = m_discard_pile.back()->get_rect();
-        card_textures::card_border().render_colored(renderer, sdl::rect{
+        card_textures::get().card_border.render_colored(renderer, sdl::rect{
             rect.x - sizes::default_border_thickness,
             rect.y - sizes::default_border_thickness,
             rect.w + sizes::default_border_thickness * 2,
@@ -497,16 +497,16 @@ void game_scene::HANDLE_UPDATE(add_cards, const add_cards_update &args) {
 
     switch (args.pile) {
     case card_pile_type::main_deck:
-        add_cards_to(m_main_deck, &card_textures::main_deck());
+        add_cards_to(m_main_deck, &card_textures::get().backface_maindeck);
         update_main_deck_count();
         break;
     case card_pile_type::player_character:
-        add_cards_to(find_player(args.player_id)->m_characters, &card_textures::character());
+        add_cards_to(find_player(args.player_id)->m_characters, &card_textures::get().backface_character);
         break;
     case card_pile_type::player_backup:
-        add_cards_to(find_player(args.player_id)->m_backup_characters, &card_textures::character());
+        add_cards_to(find_player(args.player_id)->m_backup_characters, &card_textures::get().backface_character);
         break;
-    case card_pile_type::shop_deck:         add_cards_to(m_shop_deck, &card_textures::goldrush()); break;
+    case card_pile_type::shop_deck:         add_cards_to(m_shop_deck, &card_textures::get().backface_goldrush); break;
     case card_pile_type::scenario_deck:     add_cards_to(m_scenario_deck); break;
     case card_pile_type::hidden_deck:       add_cards_to(m_hidden_deck); break;
     case card_pile_type::specials:          add_cards_to(m_specials); break;
@@ -735,7 +735,7 @@ void game_scene::HANDLE_UPDATE(player_add, const player_user_update &args) {
         m_player_own_id = args.player_id;
     }
     auto &p = m_players.try_emplace(args.player_id, args.player_id).first->second;
-    p.m_role.texture_back = &card_textures::role();
+    p.m_role.texture_back = &card_textures::get().backface_role;
 
     p.user_id = args.user_id;
     if (user_info *info = parent->get_user_info(args.user_id)) {

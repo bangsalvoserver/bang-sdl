@@ -12,34 +12,35 @@ namespace banggame {
     }
 
     card_textures::card_textures() {
-        instance = this;
+        card_mask = get_card_resource("mask");
 
-        s_card_mask = get_card_resource("mask");
+        backface_maindeck = apply_card_mask(get_card_resource("back_card"));
+        backface_character = apply_card_mask(get_card_resource("back_character"));
+        backface_role = apply_card_mask(get_card_resource("back_role"));
+        backface_goldrush = apply_card_mask(get_card_resource("back_goldrush"));
 
-        s_main_deck = apply_card_mask(get_card_resource("back_card"));
-        s_character = apply_card_mask(get_card_resource("back_character"));
-        s_role = apply_card_mask(get_card_resource("back_role"));
-        s_goldrush = apply_card_mask(get_card_resource("back_goldrush"));
+        card_border = get_card_resource("card_border");
 
-        s_card_border = get_card_resource("card_border");
-        s_cube = get_card_resource("cube");
-        s_cube_border = get_card_resource("cube_border");
+        cube_icon = get_card_resource("cube");
+        cube_border = get_card_resource("cube_border");
 
-        s_gold = get_card_resource("gold");
+        gold_icon = get_card_resource("gold");
+
+        s_instance = this;
     }
     
-    sdl::surface card_textures::apply_card_mask(const sdl::surface &source) {
-        sdl::surface ret(instance->s_card_mask.get()->w, instance->s_card_mask.get()->h);
+    sdl::surface card_textures::apply_card_mask(const sdl::surface &source) const {
+        sdl::surface ret(card_mask.get()->w, card_mask.get()->h);
         sdl::rect src_rect = source.get_rect();
         sdl::rect dst_rect = ret.get_rect();
         SDL_BlitSurface(source.get(), &src_rect, ret.get(), &dst_rect);
 
-        SDL_LockSurface(instance->s_card_mask.get());
+        SDL_LockSurface(card_mask.get());
         SDL_LockSurface(ret.get());
 
-        const uint32_t amask = instance->s_card_mask.get()->format->Amask;
+        const uint32_t amask = card_mask.get()->format->Amask;
 
-        uint32_t *mask_ptr = static_cast<uint32_t *>(instance->s_card_mask.get()->pixels);
+        uint32_t *mask_ptr = static_cast<uint32_t *>(card_mask.get()->pixels);
         uint32_t *surf_ptr = static_cast<uint32_t *>(ret.get()->pixels);
 
         int npixels = ret.get()->w * ret.get()->h;
@@ -51,7 +52,7 @@ namespace banggame {
         }
 
         SDL_UnlockSurface(ret.get());
-        SDL_UnlockSurface(instance->s_card_mask.get());
+        SDL_UnlockSurface(card_mask.get());
 
         return ret;
     }
@@ -83,13 +84,13 @@ namespace banggame {
             }
         }
 
-        set_texture_front(card_textures::apply_card_mask(card_base_surf));
+        set_texture_front(card_textures::get().apply_card_mask(card_base_surf));
     }
 
     void role_card::make_texture_front() {
         std::string role_string = "role_";
         role_string.append(enums::to_string(role));
-        set_texture_front(card_textures::apply_card_mask(get_card_resource(role_string)));
+        set_texture_front(card_textures::get().apply_card_mask(get_card_resource(role_string)));
     }
 
     void cube_widget::render(sdl::renderer &renderer, bool skip_if_animating) {
@@ -102,9 +103,9 @@ namespace banggame {
 
         if (!skip_if_animating || !animating) {
             if (border_color) {
-                do_render(card_textures::cube_border(), sdl::rgba(border_color));
+                do_render(card_textures::get().cube_border, sdl::rgba(border_color));
             }
-            do_render(card_textures::cube());
+            do_render(card_textures::get().cube_icon);
         }
     }
 
@@ -130,7 +131,7 @@ namespace banggame {
             rect.w *= wscale;
 
             if (border_color) {
-                card_textures::card_border().render_colored(renderer, sdl::rect{
+                card_textures::get().card_border.render_colored(renderer, sdl::rect{
                     rect.x - sizes::default_border_thickness,
                     rect.y - sizes::default_border_thickness,
                     rect.w + sizes::default_border_thickness * 2,
