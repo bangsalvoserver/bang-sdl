@@ -21,8 +21,6 @@ namespace banggame {
         (missed,        effect_missed)
         (missedcard,    effect_missed)
         (bangresponse,  effect_bangresponse)
-        (bangmissed,    effect_bangmissed)
-        (bangresponse_onturn, effect_bangresponse_onturn)
         (barrel,        effect_barrel)
         (destroy,       effect_destroy)
         (choose_card, effect_choose_card)

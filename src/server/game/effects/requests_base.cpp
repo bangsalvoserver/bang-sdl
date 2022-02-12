@@ -148,6 +148,15 @@ namespace banggame {
         }
     }
 
+    bool request_indians::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
+        return pile == card_pile_type::player_hand && target_player == target && target->is_bangcard(target_card);
+    }
+
+    void request_indians::on_pick(card_pile_type pile, player *target_player, card *target_card) {
+        target->discard_card(target_card);
+        target->m_game->pop_request(request_type::indians);
+    }
+
     void request_indians::on_resolve() {
         target->m_game->pop_request(request_type::indians);
         target->damage(origin_card, origin, 1);
@@ -155,6 +164,16 @@ namespace banggame {
 
     game_formatted_string request_indians::status_text() const {
         return {"STATUS_INDIANS", origin_card};
+    }
+
+    bool request_duel::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
+        return pile == card_pile_type::player_hand && target_player == target && target->is_bangcard(target_card);
+    }
+
+    void request_duel::on_pick(card_pile_type pile, player *target_player, card *target_card) {
+        target->discard_card(target_card);
+        target->m_game->pop_request_noupdate(request_type::duel);
+        target->m_game->queue_request<request_type::duel>(origin_card, origin, respond_to, target);
     }
 
     void request_duel::on_resolve() {

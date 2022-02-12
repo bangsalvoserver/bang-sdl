@@ -288,6 +288,13 @@ namespace banggame {
         return std::ranges::find(lower, upper, p, [](const auto &pair) { return pair.second; }) == upper;
     }
 
+    bool player::is_bangcard(card *card_ptr) {
+        return check_player_flags(player_flags::treat_any_as_bang)
+            || (check_player_flags(player_flags::treat_missed_as_bang)
+                && !card_ptr->responses.empty() && card_ptr->responses.front().is(effect_type::missedcard))
+            || (!card_ptr->effects.empty() && card_ptr->effects.front().is(effect_type::bangcard));
+    };
+
     void player::verify_card_targets(card *card_ptr, bool is_response, const std::vector<play_card_target> &targets) {
         card_suit_type suit = get_card_suit(m_chosen_card ? m_chosen_card : card_ptr);
         if (m_game->m_playing == this && m_declared_suit != card_suit_type::none && suit != card_suit_type::none && suit != m_declared_suit) {
@@ -386,24 +393,6 @@ namespace banggame {
                         card *target_card = m_game->find_card(args.front().card_id);
                         e.verify(card_ptr, this, target, target_card);
 
-                        auto is_missedcard = [](card *card_ptr) {
-                            return !card_ptr->responses.empty() && card_ptr->responses.front().is(effect_type::missedcard);
-                        };
-
-                        auto is_bangcard = [&](card *card_ptr) {
-                            return check_player_flags(player_flags::treat_any_as_bang)
-                                || (!card_ptr->effects.empty() && card_ptr->effects.front().is(effect_type::bangcard))
-                                || (check_player_flags(player_flags::treat_missed_as_bang) && is_missedcard(card_ptr));
-                        };
-
-                        auto is_beercard = [](card *card_ptr) {
-                            return !card_ptr->effects.empty() && card_ptr->effects.front().is(effect_type::beer);
-                        };
-
-                        auto is_bronco = [](card *card_ptr) {
-                            return !card_ptr->equips.empty() && card_ptr->equips.back().is(equip_type::bronco);
-                        };
-
                         std::ranges::for_each(util::enum_flag_values(e.target), [&](target_type value) {
                             switch (value) {
                             case target_type::card:
@@ -423,10 +412,26 @@ namespace banggame {
                             case target_type::hand: if (target_card->pile != card_pile_type::player_hand) throw game_error("ERROR_TARGET_NOT_HAND_CARD"); break;
                             case target_type::blue: if (target_card->color != card_color_type::blue) throw game_error("ERROR_TARGET_NOT_BLUE_CARD"); break;
                             case target_type::clubs: if (get_card_suit(target_card) != card_suit_type::clubs) throw game_error("ERROR_TARGET_NOT_CLUBS"); break;
-                            case target_type::bang: if (!is_bangcard(target_card)) throw game_error("ERROR_TARGET_NOT_BANG"); break;
-                            case target_type::missed: if (!is_missedcard(target_card)) throw game_error("ERROR_TARGET_NOT_MISSED"); break;
-                            case target_type::beer: if (!is_beercard(target_card)) throw game_error("ERROR_TARGET_NOT_BEER"); break;
-                            case target_type::bronco: if (!is_bronco(target_card)) throw game_error("ERROR_TARGET_NOT_BRONCO"); break;
+                            case target_type::bang:
+                                if (!is_bangcard(target_card)) {
+                                    throw game_error("ERROR_TARGET_NOT_BANG");
+                                }
+                                break;
+                            case target_type::missed:
+                                if (card_ptr->responses.empty() || !card_ptr->responses.front().is(effect_type::missedcard)) {
+                                    throw game_error("ERROR_TARGET_NOT_MISSED");
+                                }
+                                break;
+                            case target_type::beer:
+                                if (card_ptr->effects.empty() || !card_ptr->effects.front().is(effect_type::beer)) {
+                                    throw game_error("ERROR_TARGET_NOT_BEER");
+                                }
+                                break;
+                            case target_type::bronco:
+                                if (card_ptr->equips.empty() || !card_ptr->equips.back().is(equip_type::bronco)) {
+                                    throw game_error("ERROR_TARGET_NOT_BRONCO");
+                                }
+                                break;
                             case target_type::cube_slot:
                                 if (target_card != target->m_characters.front() && target_card->color != card_color_type::orange)
                                     throw game_error("ERROR_TARGET_NOT_CUBE_SLOT");
@@ -878,7 +883,7 @@ namespace banggame {
     void player::skip_turn() {
         untap_inactive_cards();
         remove_player_flags(player_flags::extra_turn);
-        m_game->instant_event<event_type::on_skip_turn>(this);
+        m_game->instant_event<event_type::on_turn_end>(this);
         m_game->get_next_in_turn(this)->start_of_turn();
     }
 

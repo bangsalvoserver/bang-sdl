@@ -93,6 +93,15 @@ namespace banggame {
         }
     }
 
+    bool effect_bangresponse::can_respond(card *origin_card, player *origin) const {
+        return origin->check_player_flags(player_flags::treat_missed_as_bang)
+            && effect_missed().can_respond(origin_card, origin);
+    }
+
+    void effect_bangresponse::on_play(card *origin_card, player *target) {
+        effect_missed().on_play(origin_card, target);
+    }
+
     static std::vector<card *> &barrels_used(request_holder &holder) {
         if (holder.is(request_type::bang)) {
             return holder.get<request_type::bang>().barrels_used;
@@ -140,50 +149,6 @@ namespace banggame {
     void effect_duel::on_play(card *origin_card, player *origin, player *target) {
         target->m_game->add_log("LOG_PLAYED_CARD_ON", origin_card, origin, target);
         target->m_game->queue_request<request_type::duel>(origin_card, origin, target, origin, flags);
-    }
-
-    bool effect_bangresponse::can_respond(card *origin_card, player *origin) const {
-        return origin->m_game->top_request_is(request_type::duel, origin)
-            || origin->m_game->top_request_is(request_type::indians, origin);
-    }
-
-    void effect_bangresponse::on_play(card *origin_card, player *target) {
-        switch (target->m_game->top_request().enum_index()) {
-        case request_type::duel: {
-            auto &req = target->m_game->top_request().get<request_type::duel>();
-            card *origin_card = req.origin_card;
-            player *origin = req.origin;
-            player *respond_to = req.respond_to;
-            player *target = req.target;
-            target->m_game->pop_request_noupdate(request_type::duel);
-            target->m_game->queue_request<request_type::duel>(origin_card, origin, respond_to, target);
-            break;
-        }
-        case request_type::indians:
-            target->m_game->pop_request(request_type::indians);
-        }
-    }
-
-    bool effect_bangresponse_onturn::can_respond(card *origin_card, player *origin) const {
-        return effect_bangresponse::can_respond(origin_card, origin)
-            && origin == origin->m_game->m_playing;
-    }
-
-    bool effect_bangmissed::can_respond(card *origin_card, player *origin) const {
-        return effect_missed().can_respond(origin_card, origin)
-            || effect_bangresponse().can_respond(origin_card, origin);
-    }
-
-    void effect_bangmissed::on_play(card *origin_card, player *target) {
-        switch (target->m_game->top_request().enum_index()) {
-        case request_type::bang:
-            effect_missed().on_play(origin_card, target);
-            break;
-        case request_type::duel:
-        case request_type::indians:
-            effect_bangresponse().on_play(origin_card, target);
-            break;
-        }
     }
 
     void effect_generalstore::on_play(card *origin_card, player *origin) {

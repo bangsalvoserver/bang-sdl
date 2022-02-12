@@ -45,7 +45,6 @@ namespace banggame {
         (on_turn_start,     std::function<void(player *origin)>)
         (on_turn_end,       std::function<void(player *origin)>)
         (post_turn_end,     std::function<void(player *origin)>)
-        (on_skip_turn,      std::function<void(player *origin)>)
         (on_request_draw,   std::function<void(player *origin)>)
         (on_draw_from_deck, std::function<void(player *origin)>)
         (post_draw_cards,   std::function<void(player *origin)>)

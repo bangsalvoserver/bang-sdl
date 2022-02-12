@@ -5,11 +5,16 @@
 namespace banggame {
 
     void effect_lemat::on_equip(card *origin_card, player *p) {
-        p->add_player_flags(player_flags::treat_any_as_bang);
-    }
-
-    void effect_lemat::on_unequip(card *origin_card, player *p) {
-        p->remove_player_flags(player_flags::treat_any_as_bang);
+        p->m_game->add_event<event_type::on_turn_start>(origin_card, [=](player *target) {
+            if (p == target) {
+                p->add_player_flags(player_flags::treat_any_as_bang);
+            }
+        });
+        p->m_game->add_event<event_type::on_turn_end>(origin_card, [=](player *target) {
+            if (p == target) {
+                p->remove_player_flags(player_flags::treat_any_as_bang);
+            }
+        });
     }
 
     void effect_snake::on_equip(card *target_card, player *target) {

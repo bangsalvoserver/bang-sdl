@@ -69,6 +69,9 @@ namespace banggame {
     struct request_indians : request_base {
         using request_base::request_base;
 
+        bool can_pick(card_pile_type pile, player *target_player, card *target_card) const;
+        void on_pick(card_pile_type pile, player *target_player, card *target_card);
+
         void on_resolve();
         game_formatted_string status_text() const;
     };
@@ -79,6 +82,9 @@ namespace banggame {
             , respond_to(respond_to) {}
 
         player *respond_to = nullptr;
+
+        bool can_pick(card_pile_type pile, player *target_player, card *target_card) const;
+        void on_pick(card_pile_type pile, player *target_player, card *target_card);
 
         void on_resolve();
         game_formatted_string status_text() const;

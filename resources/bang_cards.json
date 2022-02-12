@@ -1064,15 +1064,6 @@
                 {
                     "class": "banglimit"
                 }
-            ],
-            "responses": [
-                {
-                    "target": "self hand card",
-                    "class": "choose_card"
-                },
-                {
-                    "class": "bangresponse_onturn"
-                }
             ]
         },
         {
@@ -2418,15 +2409,6 @@
                 },
                 {
                     "class": "banglimit"
-                }
-            ],
-            "responses": [
-                {
-                    "target": "self hand bang card",
-                    "class": "choose_card"
-                },
-                {
-                    "class": "bangmissed"
                 }
             ]
         },

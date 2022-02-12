@@ -143,7 +143,7 @@ namespace banggame {
                 }
             }
         });
-        p->m_game->add_event<event_type::on_skip_turn>(target_card, [p, &usages = target_card->usages](player *target) {
+        p->m_game->add_event<event_type::on_turn_end>(target_card, [p, &usages = target_card->usages](player *target) {
             if (p == target && usages == 0) {
                 if (p->m_characters.size() > 1) {
                     auto *c = p->m_characters.back();

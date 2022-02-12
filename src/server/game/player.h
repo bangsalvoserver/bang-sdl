@@ -134,6 +134,8 @@ namespace banggame {
         void set_forced_card(card *c);
         bool is_possible_to_play(card *c);
 
+        bool is_bangcard(card *card_ptr);
+
         void verify_modifiers(card *c, const std::vector<card *> &modifiers);
         void play_modifiers(const std::vector<card *> &modifiers);
         void verify_equip_target(card *c, const std::vector<play_card_target> &targets);

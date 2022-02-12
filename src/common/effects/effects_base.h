@@ -39,22 +39,13 @@ namespace banggame {
     struct effect_duel : card_effect {
         void on_play(card *origin_card, player *origin, player *target);
     };
-
-    struct effect_bangresponse : card_effect {
-        bool can_respond(card *origin_card, player *origin) const;
-        void on_play(card *origin_card, player *origin);
-    };
-
-    struct effect_bangresponse_onturn : effect_bangresponse {
-        bool can_respond(card *origin_card, player *origin) const;
-    };
     
     struct effect_missed : card_effect {
         bool can_respond(card *origin_card, player *origin) const;
         void on_play(card *origin_card, player *origin);
     };
 
-    struct effect_bangmissed : card_effect {
+    struct effect_bangresponse : card_effect {
         bool can_respond(card *origin_card, player *origin) const;
         void on_play(card *origin_card, player *origin);
     };
