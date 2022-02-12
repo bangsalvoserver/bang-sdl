@@ -2,9 +2,12 @@
 
 using namespace sdl;
 
+DECLARE_RESOURCE(icon_checkbox_png)
+
 checkbox::checkbox(const std::string &label, const button_style &style)
     : m_style(style)
-    , m_text(label, style.text) {}
+    , m_text(label, style.text)
+    , m_checkbox_texture{sdl::surface(GET_RESOURCE(icon_checkbox_png))} {}
 
 void checkbox::render(renderer &renderer) {
     renderer.set_draw_color([&]{
@@ -21,7 +24,7 @@ void checkbox::render(renderer &renderer) {
     renderer.draw_rect(m_checkbox_rect);
     
     if (m_value) {
-        s_checkbox_texture.render(renderer, m_checkbox_rect);
+        m_checkbox_texture.render(renderer, m_checkbox_rect);
     }
 
     m_text.render(renderer);

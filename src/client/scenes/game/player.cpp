@@ -72,10 +72,6 @@ namespace banggame {
     void player_view::set_gold(int amount) {
         gold = amount;
 
-        if (!m_gold_texture) {
-            m_gold_texture = get_card_resource("gold");
-        }
-
         if (amount > 0) {
             m_gold_text.redraw(std::to_string(amount));
         }
@@ -97,11 +93,11 @@ namespace banggame {
         for (card_view *c : m_characters) {
             c->render(renderer);
         }
-        if (gold > 0 && m_gold_texture) {
-            sdl::rect gold_rect = m_gold_texture.get_rect();
+        if (gold > 0) {
+            sdl::rect gold_rect = card_textures::gold().get_rect();
             gold_rect.x = m_characters.get_pos().x - gold_rect.w / 2;
             gold_rect.y = m_characters.get_pos().y - sizes::gold_yoffset;
-            m_gold_texture.render(renderer, gold_rect);
+            card_textures::gold().render(renderer, gold_rect);
 
             sdl::rect gold_text_rect = m_gold_text.get_rect();
             gold_text_rect.x = gold_rect.x + (gold_rect.w - gold_text_rect.w) / 2;

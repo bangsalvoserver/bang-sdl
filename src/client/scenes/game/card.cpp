@@ -6,45 +6,34 @@
 namespace banggame {
 
     card_textures::card_textures() {
-        if (s_counter++ == 0) {
-            s_card_mask = get_card_resource("mask");
+        instance = this;
 
-            s_main_deck = apply_card_mask(get_card_resource("back_card"));
-            s_character = apply_card_mask(get_card_resource("back_character"));
-            s_role = apply_card_mask(get_card_resource("back_role"));
-            s_goldrush = apply_card_mask(get_card_resource("back_goldrush"));
+        s_card_mask = get_card_resource("mask");
 
-            s_card_border = get_card_resource("card_border");
-            s_cube = get_card_resource("cube");
-            s_cube_border = get_card_resource("cube_border");
-        }
-    }
+        s_main_deck = apply_card_mask(get_card_resource("back_card"));
+        s_character = apply_card_mask(get_card_resource("back_character"));
+        s_role = apply_card_mask(get_card_resource("back_role"));
+        s_goldrush = apply_card_mask(get_card_resource("back_goldrush"));
 
-    card_textures::~card_textures() {
-        if (--s_counter == 0) {
-            s_card_mask.clear();
-            s_main_deck.clear();
-            s_character.clear();
-            s_role.clear();
-            s_goldrush.clear();
-            s_card_border.clear();
-            s_cube.clear();
-            s_cube_border.clear();
-        }
+        s_card_border = get_card_resource("card_border");
+        s_cube = get_card_resource("cube");
+        s_cube_border = get_card_resource("cube_border");
+
+        s_gold = get_card_resource("gold");
     }
     
     sdl::surface card_textures::apply_card_mask(const sdl::surface &source) {
-        sdl::surface ret(s_card_mask.get()->w, s_card_mask.get()->h);
+        sdl::surface ret(instance->s_card_mask.get()->w, instance->s_card_mask.get()->h);
         sdl::rect src_rect = source.get_rect();
         sdl::rect dst_rect = ret.get_rect();
         SDL_BlitSurface(source.get(), &src_rect, ret.get(), &dst_rect);
 
-        SDL_LockSurface(s_card_mask.get());
+        SDL_LockSurface(instance->s_card_mask.get());
         SDL_LockSurface(ret.get());
 
-        const uint32_t amask = s_card_mask.get()->format->Amask;
+        const uint32_t amask = instance->s_card_mask.get()->format->Amask;
 
-        uint32_t *mask_ptr = static_cast<uint32_t *>(s_card_mask.get()->pixels);
+        uint32_t *mask_ptr = static_cast<uint32_t *>(instance->s_card_mask.get()->pixels);
         uint32_t *surf_ptr = static_cast<uint32_t *>(ret.get()->pixels);
 
         int npixels = ret.get()->w * ret.get()->h;
@@ -56,7 +45,7 @@ namespace banggame {
         }
 
         SDL_UnlockSurface(ret.get());
-        SDL_UnlockSurface(s_card_mask.get());
+        SDL_UnlockSurface(instance->s_card_mask.get());
 
         return ret;
     }

@@ -3,8 +3,6 @@
 
 #include "button.h"
 
-DECLARE_RESOURCE(icon_checkbox_png)
-
 namespace sdl {
     class checkbox : public event_handler {
     private:
@@ -17,7 +15,7 @@ namespace sdl {
         bool m_locked = false;
         button_callback_fun m_ontoggle;
 
-        static inline sdl::texture s_checkbox_texture{sdl::surface(GET_RESOURCE(icon_checkbox_png))};
+        sdl::texture m_checkbox_texture;
         
         enum button_state {
             state_up,

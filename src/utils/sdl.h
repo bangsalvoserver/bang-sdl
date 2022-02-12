@@ -203,10 +203,6 @@ namespace sdl {
         }
 
         ~surface() {
-            clear();
-        }
-
-        void clear() {
             if (m_value) {
                 SDL_FreeSurface(m_value);
                 m_value = nullptr;
@@ -251,16 +247,8 @@ namespace sdl {
         }
 
         ~texture() {
-            clear();
-        }
-
-        void clear() {
             if (m_texture) {
                 SDL_DestroyTexture(m_texture);
-                m_texture = nullptr;
-            }
-            if (m_surface) {
-                m_surface.clear();
             }
         }
 

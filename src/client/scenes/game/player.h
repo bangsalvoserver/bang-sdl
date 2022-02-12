@@ -43,8 +43,6 @@ namespace banggame {
             using namespace enums::flag_operators;
             return (m_player_flags & flags) == flags;
         }
-        
-        static inline sdl::texture m_gold_texture;
 
         void set_position(sdl::point pos, bool flipped = false);
 

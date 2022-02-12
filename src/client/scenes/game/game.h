@@ -16,7 +16,7 @@
 
 namespace banggame {
 
-    class game_scene : public scene_base, private card_textures {
+    class game_scene : public scene_base {
     public:
         game_scene(class game_manager *parent);
 
@@ -68,6 +68,8 @@ namespace banggame {
 
         void handle_card_click();
         void find_overlay();
+
+        card_textures m_card_textures;
 
         game_ui m_ui;
         target_finder m_target;
