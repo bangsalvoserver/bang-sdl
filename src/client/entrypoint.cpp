@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include "utils/sdl.h"
 #include "utils/sdlnet.h"
 
@@ -12,7 +10,7 @@ constexpr int window_height = 700;
 
 DECLARE_RESOURCE(bang_png)
 
-int main(int argc, char **argv) {
+extern "C" __declspec(dllexport) long __stdcall entrypoint(const char *base_path) {
     sdl::initializer sdl_init(SDL_INIT_VIDEO);
     sdl::ttf_initializer sdl_ttf_init;
     sdl::img_initializer sdl_img_init(IMG_INIT_PNG | IMG_INIT_JPG);
@@ -30,9 +28,7 @@ int main(int argc, char **argv) {
     game_manager mgr(std::string(SDL_GetPrefPath(nullptr, "bang-sdl")) + "config.json");
     mgr.resize(window_width, window_height);
 
-    if (argc > 1) {
-        mgr.connect(argv[1]);
-    }
+    banggame::globals::base_path = base_path;
 
     sdl::event event;
     bool quit = false;

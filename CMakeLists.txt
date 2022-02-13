@@ -17,7 +17,7 @@ pkg_check_modules(jsoncpp REQUIRED jsoncpp IMPORTED_TARGET)
 
 set(bangclient_srcs
     src/client/intl.cpp
-    src/client/main.cpp
+    src/client/entrypoint.cpp
     src/client/manager.cpp
     src/client/user_info.cpp
     src/client/scenes/game/card.cpp
@@ -72,17 +72,11 @@ set(bangserver_srcs
 include_directories(src)
 add_subdirectory(resources)
 
-if(WIN32 AND CMAKE_BUILD_TYPE STREQUAL "Release")
-    add_executable(bangclient WIN32 ${bangclient_srcs})
-else()
-    add_executable(bangclient ${bangclient_srcs})
-endif()
+add_library(bangclient SHARED ${bangclient_srcs})
+target_compile_definitions(bangclient PRIVATE SDL_MAIN_HANDLED)
 
 target_link_libraries(bangclient PkgConfig::SDL2 PkgConfig::SDL2_net PkgConfig::SDL2_ttf PkgConfig::SDL2_image PkgConfig::SDL2_gfx PkgConfig::jsoncpp)
 target_link_libraries(bangclient resources_obj locale_headers)
-if(WIN32)
-    target_sources(bangclient PRIVATE resources/icons/bang.rc)
-endif()
 
 find_package(fmt REQUIRED)
 if (TARGET fmt::fmt-header-only)
@@ -93,17 +87,30 @@ endif()
 
 add_dependencies(bangclient cards_pak)
 
-add_library(bangserverlib SHARED ${bangserver_srcs})
-target_link_libraries(bangserverlib PkgConfig::SDL2_net PkgConfig::jsoncpp)
+add_library(banggame SHARED ${bangserver_srcs})
+target_link_libraries(banggame PkgConfig::SDL2_net PkgConfig::jsoncpp)
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
-    target_link_libraries(bangserverlib bang_cards)
-    target_compile_definitions(bangserverlib PRIVATE BANG_CARDS_JSON_LINKED)
-    target_compile_definitions(bangserverlib PRIVATE DISABLE_TESTING)
+    target_link_libraries(banggame bang_cards)
+    target_compile_definitions(banggame PRIVATE BANG_CARDS_JSON_LINKED)
+    target_compile_definitions(banggame PRIVATE DISABLE_TESTING)
 endif()
-target_link_libraries(bangclient bangserverlib)
+target_link_libraries(bangclient banggame)
 
 add_executable(bangserver src/server/main.cpp)
-target_link_libraries(bangserver bangserverlib)
+target_link_libraries(bangserver banggame)
 if(WIN32 AND MINGW)
     target_link_options(bangserver PRIVATE -mconsole)
+endif()
+
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    if (WIN32)
+        add_executable(banglauncher WIN32 src/client/main.c resources/icons/bang.rc)
+        if (MINGW)
+            target_link_options(banglauncher PRIVATE -mconsole)
+        endif()
+    else()
+        add_executable(banglauncher src/client/main.c)
+    endif()
+
+    target_link_libraries(banglauncher bangclient)
 endif()

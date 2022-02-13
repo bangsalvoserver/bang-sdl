@@ -59,8 +59,8 @@ jobs:
       working-directory: ${{github.workspace}}
       run: |
         mkdir -p bang
-        ldd build/bangclient.exe | grep -i -v /c/windows/ | gawk 'match($0, /=> (.+\.dll)/, a) { print a[1]}' | xargs cp -n -t bang
-        cp -t bang build/bangclient.exe build/bangserver.exe build/cards.pak
+        ldd build/libbangclient.dll | grep -i -v /c/windows/ | gawk 'match($0, /=> (.+\.dll)/, a) { print a[1]}' | xargs cp -n -t bang
+        cp -t bang build/libbangclient.dll build/bangserver.exe build/cards.pak
         zip -r bang.zip bang
     
     - name: Create Release

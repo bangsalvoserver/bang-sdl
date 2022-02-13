@@ -9,12 +9,17 @@
 #include "utils/resource.h"
 
 #include "common/holders.h"
+#include "common/options.h"
 
 #ifdef BANG_CARDS_JSON_LINKED
 DECLARE_RESOURCE(bang_cards_json)
 #endif
 
 namespace banggame {
+
+    namespace globals {
+        std::string base_path;
+    }
 
     struct invalid_effect : std::runtime_error {
         using std::runtime_error::runtime_error;
@@ -95,7 +100,7 @@ namespace banggame {
         const auto bang_cards_resource = GET_RESOURCE(bang_cards_json);
         util::isviewstream bang_cards_stream({bang_cards_resource.data, bang_cards_resource.length});
 #else
-        std::ifstream bang_cards_stream(std::string(SDL_GetBasePath()) + "../resources/bang_cards.json");
+        std::ifstream bang_cards_stream(globals::base_path + "../resources/bang_cards.json");
 #endif
 
         using namespace enums::flag_operators;

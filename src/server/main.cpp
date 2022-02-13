@@ -2,9 +2,12 @@
 #include <iostream>
 
 #include "server.h"
+#include "common/options.h"
 
 int main(int argc, char **argv) {
     sdlnet::initializer init;
+
+    banggame::globals::base_path = SDL_GetBasePath();
 
     bang_server server;
     
