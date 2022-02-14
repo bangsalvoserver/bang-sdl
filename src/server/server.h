@@ -1,6 +1,7 @@
 #ifndef __SERVER_H__
 #define __SERVER_H__
 
+#include <filesystem>
 #include <functional>
 #include <thread>
 #include <map>
@@ -11,7 +12,7 @@ using message_callback_t = std::function<void(const std::string &)>;
 
 class bang_server {
 public:
-    bang_server();
+    bang_server(const std::filesystem::path &base_path);
     bang_server(const bang_server &) = delete;
 
     void set_message_callback(message_callback_t &&fun) {
@@ -41,6 +42,8 @@ private:
 
     message_callback_t m_message_callback;
     message_callback_t m_error_callback;
+
+    std::filesystem::path m_base_path;
 
     void print_message(const std::string &msg) {
         if (m_message_callback) m_message_callback(msg);

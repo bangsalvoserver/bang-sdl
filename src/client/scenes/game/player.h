@@ -3,6 +3,8 @@
 
 #include "card.h"
 
+#include "../widgets/stattext.h"
+
 namespace banggame {
     struct player_view {
         int id;

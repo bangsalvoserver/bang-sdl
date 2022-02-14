@@ -12,10 +12,6 @@
 #include "user_info.h"
 
 struct config {
-private:
-    std::string m_filename;
-
-public:
     REFLECTABLE(
         (std::vector<std::string>) recent_servers,
         (std::string) user_name,
@@ -25,10 +21,13 @@ public:
         (banggame::card_expansion_type) expansions
     )
 
-    config() = default;
+    static inline const std::filesystem::path filename = std::filesystem::path(SDL_GetPrefPath(nullptr, "bang-sdl")) / "config.json";
 
-    config(const std::string &filename) {
-        std::ifstream ifs(filename);
+    config() = default;
+    
+    void load() {
+        std::ifstream ifs{filename};
+        if (ifs.fail()) return;
         try {
             Json::Value value;
             ifs >> value;
@@ -42,11 +41,10 @@ public:
             profile_image.clear();
             profile_image_data.clear();
         }
-        m_filename = filename;
     }
 
     void save() {
-        std::ofstream ofs(m_filename);
+        std::ofstream ofs{filename};
         ofs << json::serialize(*this);
     }
 };

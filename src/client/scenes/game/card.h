@@ -5,11 +5,11 @@
 #include "common/game_update.h"
 
 #include "utils/sdl.h"
+#include "utils/unpacker.h"
 
 #include "sizes.h"
 
-#include "../widgets/stattext.h"
-
+#include <filesystem>
 #include <vector>
 #include <list>
 
@@ -33,14 +33,21 @@ namespace banggame {
 
         sdl::surface apply_card_mask(const sdl::surface &source) const;
 
+        sdl::surface get_card_resource(std::string_view name) const {
+            return sdl::surface(card_resources[name]);
+        }
+
         static const card_textures &get() {
             return *s_instance;
         }
 
     private:
-        card_textures();
+        card_textures(const std::filesystem::path &base_path);
 
         static inline card_textures *s_instance = nullptr;
+
+        std::ifstream cards_pak_data;
+        const unpacker<std::ifstream> card_resources;
 
         friend class game_scene;
     };

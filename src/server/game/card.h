@@ -1,6 +1,7 @@
 #ifndef __CARD_H__
 #define __CARD_H__
 
+#include <filesystem>
 #include <vector>
 #include <string>
 
@@ -64,7 +65,7 @@ namespace banggame {
         std::vector<card> wildwestshow;
     };
 
-    all_cards_t make_all_cards();
+    all_cards_t make_all_cards(const std::filesystem::path &base_path);
 
 }
 

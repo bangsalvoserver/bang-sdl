@@ -12,9 +12,11 @@ DECLARE_RESOURCE(background_png)
 
 using namespace banggame;
 
-game_manager::game_manager(const std::string &config_filename)
+game_manager::game_manager(const std::filesystem::path &base_path)
     : m_background(sdl::surface(GET_RESOURCE(background_png)))
-    , m_config(config_filename) {
+    , m_base_path(base_path)
+{
+    m_config.load();
     switch_scene<scene_type::connect>();
 }
 
@@ -105,7 +107,7 @@ void game_manager::handle_event(const sdl::event &event) {
 }
 
 bool game_manager::start_listenserver() {
-    m_listenserver = std::make_unique<bang_server>();
+    m_listenserver = std::make_unique<bang_server>(m_base_path);
     m_listenserver->set_message_callback([this](const std::string &msg) {
         m_scene->add_chat_message(std::string("SERVER: ") + msg); 
     });

@@ -1,18 +1,13 @@
 #include "card.h"
 
-#include "utils/unpacker.h"
 #include "common/options.h"
 
 namespace banggame {
 
-    static sdl::surface get_card_resource(std::string_view name) {
-        static std::ifstream cards_pak_data(globals::base_path + "cards.pak", std::ios::in | std::ios::binary);
-        static const unpacker card_resources(cards_pak_data);
-
-        return sdl::surface(card_resources[name]);
-    }
-
-    card_textures::card_textures() {
+    card_textures::card_textures(const std::filesystem::path &base_path)
+        : cards_pak_data(base_path / "cards.pak", std::ios::in | std::ios::binary)
+        , card_resources(cards_pak_data)
+    {
         card_mask = get_card_resource("mask");
 
         backface_maindeck = apply_card_mask(get_card_resource("back_card"));
@@ -59,11 +54,11 @@ namespace banggame {
     }
 
     void card_view::make_texture_front() {
-        auto card_base_surf = get_card_resource(image);
+        auto card_base_surf = card_textures::get().get_card_resource(image);
 
         if (value != card_value_type::none) {
             sdl::rect card_rect = card_base_surf.get_rect();
-            auto card_value_surf = get_card_resource(enums::to_string(value));
+            auto card_value_surf = card_textures::get().get_card_resource(enums::to_string(value));
             sdl::rect value_rect = card_value_surf.get_rect();
 
             value_rect.x = 15;
@@ -74,7 +69,7 @@ namespace banggame {
             if (suit != card_suit_type::none) {
                 std::string suit_string = "suit_";
                 suit_string.append(enums::to_string(suit));
-                auto card_suit_surf = get_card_resource(suit_string);
+                auto card_suit_surf = card_textures::get().get_card_resource(suit_string);
                 
                 sdl::rect suit_rect = card_suit_surf.get_rect();
 
@@ -91,7 +86,7 @@ namespace banggame {
     void role_card::make_texture_front() {
         std::string role_string = "role_";
         role_string.append(enums::to_string(role));
-        set_texture_front(card_textures::get().apply_card_mask(get_card_resource(role_string)));
+        set_texture_front(card_textures::get().apply_card_mask(card_textures::get().get_card_resource(role_string)));
     }
 
     void cube_widget::render(sdl::renderer &renderer, bool skip_if_animating) {

@@ -17,10 +17,6 @@ DECLARE_RESOURCE(bang_cards_json)
 
 namespace banggame {
 
-    namespace globals {
-        std::string base_path;
-    }
-
     struct invalid_effect : std::runtime_error {
         using std::runtime_error::runtime_error;
     };
@@ -95,12 +91,12 @@ namespace banggame {
 #endif
     }
 
-    all_cards_t make_all_cards() {
+    all_cards_t make_all_cards(const std::filesystem::path &base_path) {
 #ifdef BANG_CARDS_JSON_LINKED
         const auto bang_cards_resource = GET_RESOURCE(bang_cards_json);
         util::isviewstream bang_cards_stream({bang_cards_resource.data, bang_cards_resource.length});
 #else
-        std::ifstream bang_cards_stream(globals::base_path + "../resources/bang_cards.json");
+        std::ifstream bang_cards_stream(base_path / "../resources/bang_cards.json");
 #endif
 
         using namespace enums::flag_operators;

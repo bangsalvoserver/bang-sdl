@@ -11,8 +11,8 @@ using namespace banggame;
 using namespace enums::flag_operators;
 using namespace std::string_literals;
 
-game_manager::game_manager()
-    : all_cards(make_all_cards()) {}
+game_manager::game_manager(const std::filesystem::path &base_path)
+    : all_cards(make_all_cards(base_path)) {}
 
 void game_manager::parse_message(const sdlnet::ip_address &addr, const std::vector<std::byte> &bytes) {
     try {

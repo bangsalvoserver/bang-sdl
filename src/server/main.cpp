@@ -7,9 +7,7 @@
 int main(int argc, char **argv) {
     sdlnet::initializer init;
 
-    banggame::globals::base_path = SDL_GetBasePath();
-
-    bang_server server;
+    bang_server server(SDL_GetBasePath());
     
     server.set_message_callback([](const std::string &message) {
         std::cout << message << '\n';

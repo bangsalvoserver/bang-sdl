@@ -10,6 +10,7 @@ using namespace enums::flag_operators;
 
 game_scene::game_scene(class game_manager *parent)
     : scene_base(parent)
+    , m_card_textures(parent->get_base_path())
     , m_ui(this)
     , m_target(this)
 {

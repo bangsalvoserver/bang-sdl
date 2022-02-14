@@ -25,10 +25,8 @@ extern "C" __declspec(dllexport) long __stdcall entrypoint(const char *base_path
     sdl::renderer renderer(window, -1, SDL_RENDERER_ACCELERATED);
     SDL_SetRenderDrawBlendMode(renderer.get(), SDL_BLENDMODE_BLEND);
 
-    game_manager mgr(std::string(SDL_GetPrefPath(nullptr, "bang-sdl")) + "config.json");
+    game_manager mgr{base_path};
     mgr.resize(window_width, window_height);
-
-    banggame::globals::base_path = base_path;
 
     sdl::event event;
     bool quit = false;

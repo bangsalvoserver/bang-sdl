@@ -60,7 +60,7 @@ using message_callback_t = std::function<void(const std::string &)>;
 
 class game_manager {
 public:
-    game_manager();
+    game_manager(const std::filesystem::path &base_path);
     
     void parse_message(const sdlnet::ip_address &addr, const std::vector<std::byte> &msg);
     int pending_messages();

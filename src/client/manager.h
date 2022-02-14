@@ -29,7 +29,7 @@ DEFINE_ENUM_TYPES(scene_type,
 
 class game_manager {
 public:
-    game_manager(const std::string &config_filename);
+    game_manager(const std::filesystem::path &base_path);
     ~game_manager();
 
     void resize(int width, int height);
@@ -59,6 +59,8 @@ public:
     config &get_config() {
         return m_config;
     }
+
+    const std::filesystem::path &get_base_path() const { return m_base_path; }
 
     int width() const noexcept { return m_width; }
     int height() const noexcept { return m_height; }
@@ -102,6 +104,8 @@ private:
     std::map<int, user_info> m_users;
 
     sdl::texture m_background;
+
+    std::filesystem::path m_base_path;
 
     int m_width;
     int m_height;

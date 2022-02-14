@@ -8,8 +8,9 @@
 using namespace std::string_literals;
 using namespace std::placeholders;
 
-bang_server::bang_server()
-    : m_sockset(banggame::server_max_clients) {}
+bang_server::bang_server(const std::filesystem::path &base_path)
+    : m_sockset(banggame::server_max_clients)
+    , m_base_path(base_path) {}
 
 bool bang_server::start() {
     try {
@@ -24,7 +25,7 @@ bool bang_server::start() {
     m_sockset.add(m_socket);
 
     m_thread = std::jthread([this](std::stop_token token) {
-        game_manager mgr;
+        game_manager mgr{m_base_path};
         mgr.set_error_callback(std::bind(&bang_server::print_error, this, _1));
         while(!token.stop_requested()) {
             if (m_sockset.check(0)) {
