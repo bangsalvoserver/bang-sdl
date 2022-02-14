@@ -111,7 +111,7 @@ void connect_scene::handle_event(const sdl::event &event) {
 
 void connect_scene::do_connect(const std::string &address) {
     if (m_username_box.get_value().empty()) {
-        parent->show_error(_("ERROR_NO_USERNAME"));
+        parent->add_chat_message(message_type::error, _("ERROR_NO_USERNAME"));
     } else {
         parent->get_config().user_name = m_username_box.get_value();
         parent->connect(address);
@@ -138,7 +138,7 @@ void connect_scene::do_browse_propic() {
             cfg.profile_image.assign(ret);
             resize(parent->width(), parent->height());
         } catch (const std::runtime_error &e) {
-            parent->show_error(e.what());
+            parent->add_chat_message(message_type::error, e.what());
         }
     }
 }

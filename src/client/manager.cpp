@@ -55,7 +55,7 @@ void game_manager::connect(const std::string &host) {
 
         add_message<client_message_type::connect>(m_config.user_name, m_config.profile_image_data);
     } catch (const sdlnet::net_error &e) {
-        show_error(e.what());
+        add_chat_message(message_type::error, e.what());
     }
 }
 
@@ -64,7 +64,7 @@ void game_manager::disconnect() {
     sock_set.erase(sock);
     sock.close();
     switch_scene<scene_type::connect>();
-    show_error(_("ERROR_DISCONNECTED"));
+    add_chat_message(message_type::error, _("ERROR_DISCONNECTED"));
     if (m_listenserver) {
         m_listenserver.reset();
     }
@@ -121,21 +121,17 @@ void game_manager::enable_chat() {
     m_chat.enable();
 }
 
-void game_manager::add_chat_message(const std::string &message) {
-    m_chat.add_message(message_type::chat, message);
-}
-
-void game_manager::show_error(const std::string &message) {
-    m_chat.add_message(message_type::error, message);
+void game_manager::add_chat_message(message_type type, const std::string &message) {
+    m_chat.add_message(type, message);
 }
 
 bool game_manager::start_listenserver() {
     m_listenserver = std::make_unique<bang_server>(m_base_path);
     m_listenserver->set_message_callback([this](const std::string &msg) {
-        add_chat_message(std::string("SERVER: ") + msg); 
+        add_chat_message(message_type::server_log, std::string("SERVER: ") + msg); 
     });
     m_listenserver->set_error_callback([this](const std::string &msg) {
-        show_error(std::string("SERVER: ") + msg);
+        add_chat_message(message_type::error, std::string("SERVER: ") + msg);
     });
     if (m_listenserver->start()) {
         return true;
@@ -204,7 +200,7 @@ void game_manager::HANDLE_MESSAGE(lobby_chat, const lobby_chat_args &args) {
         msg += ": ";
         msg += args.message;
 
-        add_chat_message(msg);
+        add_chat_message(message_type::chat, msg);
     }
 }
 

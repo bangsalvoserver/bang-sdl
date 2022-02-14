@@ -23,6 +23,8 @@ namespace sdl {
     constexpr uint32_t error_text_rgb = 0xff0000;
     constexpr int error_text_ptsize = 14;
 
+    constexpr uint32_t server_log_rgb = 0x0000ff;
+
 }
 
 #endif

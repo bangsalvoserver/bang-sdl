@@ -7,7 +7,8 @@
 
 enum class message_type {
     chat,
-    error
+    error,
+    server_log
 };
 
 struct chat_message {

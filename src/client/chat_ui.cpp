@@ -51,6 +51,12 @@ sdl::text_style chat_ui::get_text_style(message_type type) {
             .text_ptsize = sdl::error_text_ptsize,
             .wrap_length = m_rect.w
         };
+    case message_type::server_log:
+        return {
+            .text_color = sdl::rgb(sdl::server_log_rgb),
+            .text_ptsize = sdl::chat_text_ptsize,
+            .wrap_length = m_rect.w
+        };
     case message_type::chat:
     default:
         return {

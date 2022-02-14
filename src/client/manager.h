@@ -83,8 +83,7 @@ public:
 
     void enable_chat();
 
-    void add_chat_message(const std::string &message);
-    void show_error(const std::string &message);
+    void add_chat_message(message_type type, const std::string &message);
 
 private:
     void HANDLE_MESSAGE(client_accepted);

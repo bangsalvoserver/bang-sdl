@@ -374,7 +374,7 @@ void game_scene::handle_game_update(const game_update &update) {
 }
 
 void game_scene::add_user(int id, const user_info &args) {
-    parent->add_chat_message(_("GAME_USER_CONNECTED", args.name));
+    parent->add_chat_message(message_type::server_log, _("GAME_USER_CONNECTED", args.name));
 }
 
 void game_scene::remove_user(int id) {
@@ -386,7 +386,7 @@ void game_scene::remove_user(int id) {
     }
     user_info *info = parent->get_user_info(id);
     if (info) {
-        parent->add_chat_message(_("GAME_USER_DISCONNECTED", info->name));
+        parent->add_chat_message(message_type::server_log, _("GAME_USER_DISCONNECTED", info->name));
     }
 }
 
@@ -447,7 +447,7 @@ std::string game_scene::evaluate_format_string(const game_formatted_string &str)
 }
 
 void game_scene::HANDLE_UPDATE(game_error, const game_formatted_string &args) {
-    parent->show_error(evaluate_format_string(args));
+    parent->add_chat_message(message_type::error, evaluate_format_string(args));
     pop_update();
 }
 
