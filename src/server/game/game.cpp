@@ -156,7 +156,7 @@ namespace banggame {
                 req.target() ? req.target()->id : 0,
                 req.flags(),
                 req.status_text());
-            if (owner) {
+            if (owner && (!req.target() || req.target() == owner)) {
                 ADD_TO_RET(request_respond, make_request_respond(owner));
             }
         }
