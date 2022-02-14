@@ -3727,6 +3727,7 @@
             "count": 3,
             "image": "04_bottiglia",
             "color": "brown",
+            "buy_cost": 2,
             "modifier": "shopchoice",
             "effects": [
                 {
@@ -3764,6 +3765,7 @@
             "count": 3,
             "image": "04_complice",
             "color": "brown",
+            "buy_cost": 2,
             "modifier": "shopchoice",
             "effects": [
                 {
@@ -3930,7 +3932,6 @@
             "name": "Bottiglia come Panico!",
             "image": "04_bottiglia_panico",
             "color": "brown",
-            "buy_cost": 2,
             "effects": [
                 {
                     "class": "bottle"
@@ -3946,7 +3947,6 @@
             "name": "Bottiglia come Birra",
             "image": "04_bottiglia_birra",
             "color": "brown",
-            "buy_cost": 2,
             "effects": [
                 {
                     "class": "bottle"
@@ -3962,7 +3962,6 @@
             "name": "Bottiglia come Bang!",
             "image": "04_bottiglia_bang",
             "color": "brown",
-            "buy_cost": 2,
             "effects": [
                 {
                     "class": "bottle"
@@ -3978,7 +3977,6 @@
             "name": "Complice come Emporio",
             "image": "04_complice_emporio",
             "color": "brown",
-            "buy_cost": 2,
             "effects": [
                 {
                     "class": "pardner"
@@ -3993,7 +3991,6 @@
             "name": "Complice come Duello",
             "image": "04_complice_duello",
             "color": "brown",
-            "buy_cost": 2,
             "effects": [
                 {
                     "class": "pardner"
@@ -4009,7 +4006,6 @@
             "name": "Complice come Cat Balou",
             "image": "04_complice_catbalou",
             "color": "brown",
-            "buy_cost": 2,
             "effects": [
                 {
                     "class": "pardner"

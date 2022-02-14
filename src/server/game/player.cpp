@@ -659,6 +659,7 @@ namespace banggame {
                     break;
                 case card_modifier_type::shopchoice:
                     if (c->effects.front().type != card_ptr->effects.front().type) throw game_error("ERROR_INVALID_ACTION");
+                    cost += c->buy_cost;
                     break;
                 }
             }
