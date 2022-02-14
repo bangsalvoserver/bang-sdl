@@ -72,6 +72,8 @@ bool bang_server::start() {
             }
             SDL_Delay(1000 / banggame::fps);
         }
+
+        print_message("Server shut down");
     });
 
     return true;
