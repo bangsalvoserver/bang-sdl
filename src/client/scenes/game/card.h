@@ -31,6 +31,9 @@ namespace banggame {
 
         sdl::texture gold_icon;
 
+        sdl::texture bullet_icon;
+        sdl::texture bullet_border;
+
         sdl::surface apply_card_mask(const sdl::surface &source) const;
 
         sdl::surface get_card_resource(std::string_view name) const {

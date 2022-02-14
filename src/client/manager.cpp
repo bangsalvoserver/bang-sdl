@@ -13,7 +13,8 @@ DECLARE_RESOURCE(background_png)
 using namespace banggame;
 
 game_manager::game_manager(const std::filesystem::path &base_path)
-    : m_background(sdl::surface(GET_RESOURCE(background_png)))
+    : m_chat(this)
+    , m_background(sdl::surface(GET_RESOURCE(background_png)))
     , m_base_path(base_path)
 {
     m_config.load();
@@ -54,7 +55,7 @@ void game_manager::connect(const std::string &host) {
 
         add_message<client_message_type::connect>(m_config.user_name, m_config.profile_image_data);
     } catch (const sdlnet::net_error &e) {
-        m_scene->show_error(e.what());
+        show_error(e.what());
     }
 }
 
@@ -62,7 +63,8 @@ void game_manager::disconnect() {
     m_users.clear();
     sock_set.erase(sock);
     sock.close();
-    switch_scene<scene_type::connect>()->show_error(_("ERROR_DISCONNECTED"));
+    switch_scene<scene_type::connect>();
+    show_error(_("ERROR_DISCONNECTED"));
     if (m_listenserver) {
         m_listenserver.reset();
     }
@@ -74,6 +76,13 @@ void game_manager::resize(int width, int height) {
     m_height = height;
 
     m_scene->resize(m_width, m_height);
+
+    m_chat.set_rect(sdl::rect{
+        width - 200,
+        height - 400,
+        190,
+        350
+    });
 }
 
 static void render_tiled(sdl::renderer &renderer, const sdl::texture &texture, const sdl::rect &dst_rect) {
@@ -98,6 +107,8 @@ void game_manager::render(sdl::renderer &renderer) {
     render_tiled(renderer, m_background, sdl::rect{0, 0, width(), height()});
     
     m_scene->render(renderer);
+
+    m_chat.render(renderer);
 }
 
 void game_manager::handle_event(const sdl::event &event) {
@@ -106,13 +117,25 @@ void game_manager::handle_event(const sdl::event &event) {
     }
 }
 
+void game_manager::enable_chat() {
+    m_chat.enable();
+}
+
+void game_manager::add_chat_message(const std::string &message) {
+    m_chat.add_message(message_type::chat, message);
+}
+
+void game_manager::show_error(const std::string &message) {
+    m_chat.add_message(message_type::error, message);
+}
+
 bool game_manager::start_listenserver() {
     m_listenserver = std::make_unique<bang_server>(m_base_path);
     m_listenserver->set_message_callback([this](const std::string &msg) {
-        m_scene->add_chat_message(std::string("SERVER: ") + msg); 
+        add_chat_message(std::string("SERVER: ") + msg); 
     });
     m_listenserver->set_error_callback([this](const std::string &msg) {
-        m_scene->show_error(std::string("SERVER: ") + msg);
+        show_error(std::string("SERVER: ") + msg);
     });
     if (m_listenserver->start()) {
         return true;
@@ -181,7 +204,7 @@ void game_manager::HANDLE_MESSAGE(lobby_chat, const lobby_chat_args &args) {
         msg += ": ";
         msg += args.message;
 
-        m_scene->add_chat_message(msg);
+        add_chat_message(msg);
     }
 }
 

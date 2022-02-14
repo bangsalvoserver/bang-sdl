@@ -8,43 +8,34 @@ using namespace enums::flag_operators;
 
 game_ui::game_ui(game_scene *parent)
     : parent(parent)
-    , m_chat(parent->parent)
     , m_game_log(sdl::text_list_style{
         .text = {
             .text_ptsize = sdl::chat_log_ptsize
         }
     })
-    , m_confirm_btn(_("GAME_CONFIRM"), [&target = parent->m_target] {
-        target.on_click_confirm();
-    })
-    , m_leave_btn(_("BUTTON_EXIT"), [&mgr = *parent->parent] {
-        mgr.add_message<client_message_type::lobby_leave>();
-    })
-    , m_restart_btn(_("GAME_RESTART"), [&mgr = *parent->parent] {
-        mgr.add_message<client_message_type::game_start>();
-    })
-    , m_error_text(sdl::text_style{
-        .text_color = sdl::rgb(sdl::game_error_text_rgb)
-    }) {}
+    , m_confirm_btn(_("GAME_CONFIRM"), std::bind(&target_finder::on_click_confirm, &parent->m_target))
+    , m_leave_btn(_("BUTTON_EXIT"), std::bind(&game_manager::add_message<client_message_type::lobby_leave>, parent->parent))
+    , m_restart_btn(_("GAME_RESTART"), std::bind(&game_manager::add_message<client_message_type::game_start>, parent->parent))
+    , m_chat_btn(_("BUTTON_CHAT"), std::bind(&game_manager::enable_chat, parent->parent)) {}
 
 void game_ui::resize(int width, int height) {
-    m_chat.resize(width, height);
-    m_game_log.set_rect(sdl::rect{width - 220, height - 310, 210, 250});
+    m_game_log.set_rect(sdl::rect{20, height - 450, 190, 400});
 
-    int x = 340;
+    int x = (width - m_special_btns.size() * 110 - 100) / 2;
+    m_confirm_btn.set_rect(sdl::rect{x, height - 40, 100, 25});
+
     for (auto &[btn, card] : m_special_btns) {
-        btn.set_rect(sdl::rect{x, height - 50, 100, 25});
         x += 110;
+        btn.set_rect(sdl::rect{x, height - 40, 100, 25});
     }
-    
-    m_confirm_btn.set_rect(sdl::rect{x, height - 50, 100, 25});
 
     m_leave_btn.set_rect(sdl::rect{20, 20, 100, 25});
     m_restart_btn.set_rect(sdl::rect{140, 20, 100, 25});
+
+    m_chat_btn.set_rect(sdl::rect{width - 120, height - 40, 100, 25});
 }
 
 void game_ui::render(sdl::renderer &renderer) {
-    m_chat.render(renderer);
     m_game_log.render(renderer);
 
     m_confirm_btn.set_toggled(parent->m_target.can_confirm());
@@ -58,6 +49,8 @@ void game_ui::render(sdl::renderer &renderer) {
     m_leave_btn.render(renderer);
     m_restart_btn.render(renderer);
 
+    m_chat_btn.render(renderer);
+
     auto draw_status = [&](sdl::stattext &text) {
         if (text.get_value().empty()) return;
 
@@ -67,26 +60,12 @@ void game_ui::render(sdl::renderer &renderer) {
         text.set_rect(rect);
         text.render(renderer);
     };
-
-    if (m_error_timeout > 0) {
-        draw_status(m_error_text);
-        --m_error_timeout;
-    } else {
-        draw_status(m_status_text);
-    }
-}
-
-void game_ui::add_message(const std::string &message) {
-    m_chat.add_message(message);
+    
+    draw_status(m_status_text);
 }
 
 void game_ui::add_game_log(const std::string &message) {
     m_game_log.add_message(message);
-}
-
-void game_ui::show_error(const std::string &message) {
-    m_error_text.redraw(message);
-    m_error_timeout = 200;
 }
 
 void game_ui::add_special(card_view *card) {

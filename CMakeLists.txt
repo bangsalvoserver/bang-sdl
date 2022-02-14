@@ -20,6 +20,7 @@ set(bangclient_srcs
     src/client/entrypoint.cpp
     src/client/manager.cpp
     src/client/user_info.cpp
+    src/client/chat_ui.cpp
     src/client/scenes/game/card.cpp
     src/client/scenes/game/player.cpp
     src/client/scenes/game/game.cpp
@@ -29,7 +30,6 @@ set(bangclient_srcs
     src/client/scenes/widgets/checkbox.cpp
     src/client/scenes/widgets/textbox.cpp
     src/client/scenes/widgets/text_list.cpp
-    src/client/scenes/widgets/chat_ui.cpp
     src/client/scenes/connect.cpp
     src/client/scenes/lobby_list.cpp
     src/client/scenes/lobby.cpp
@@ -76,7 +76,7 @@ add_library(bangclient SHARED ${bangclient_srcs})
 target_compile_definitions(bangclient PRIVATE SDL_MAIN_HANDLED)
 
 target_link_libraries(bangclient PkgConfig::SDL2 PkgConfig::SDL2_net PkgConfig::SDL2_ttf PkgConfig::SDL2_image PkgConfig::SDL2_gfx PkgConfig::jsoncpp)
-target_link_libraries(bangclient resources_obj locale_headers)
+target_link_libraries(bangclient resources_obj fonts_obj locale_headers)
 
 find_package(fmt REQUIRED)
 if (TARGET fmt::fmt-header-only)

@@ -21,8 +21,6 @@ public:
     
     virtual void handle_event(const sdl::event &event) {}
 
-    virtual void show_error(const std::string &message) {}
-
     virtual void set_lobby_list(const std::vector<lobby_data> &args) {}
 
     virtual void set_lobby_info(const lobby_info &args) {}
@@ -34,8 +32,6 @@ public:
     virtual void add_user(int id, const user_info &args) {}
 
     virtual void remove_user(int id) {}
-
-    virtual void add_chat_message(const std::string &message) {}
 
     virtual void handle_game_update(const banggame::game_update &update) {}
 

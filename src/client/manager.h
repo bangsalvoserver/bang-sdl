@@ -17,6 +17,7 @@
 #include "config.h"
 #include "user_info.h"
 #include "intl.h"
+#include "chat_ui.h"
 
 DEFINE_ENUM_TYPES(scene_type,
     (connect, connect_scene)
@@ -50,6 +51,7 @@ public:
 
     template<scene_type E>
     auto *switch_scene() {
+        m_chat.disable();
         using type = enums::enum_type_t<E>;
         m_scene = std::make_unique<type>(this);
         m_scene->resize(m_width, m_height);
@@ -79,6 +81,11 @@ public:
         }
     }
 
+    void enable_chat();
+
+    void add_chat_message(const std::string &message);
+    void show_error(const std::string &message);
+
 private:
     void HANDLE_MESSAGE(client_accepted);
     void HANDLE_MESSAGE(lobby_list, const std::vector<lobby_data> &args);
@@ -93,6 +100,8 @@ private:
     void HANDLE_MESSAGE(game_update, const banggame::game_update &args);
 
     std::unique_ptr<scene_base> m_scene;
+
+    chat_ui m_chat;
 
     std::list<client_message> m_out_queue;
 

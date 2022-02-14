@@ -11,12 +11,8 @@ DECLARE_RESOURCE(icon_default_user_png)
 recent_server_line::recent_server_line(connect_scene *parent, const std::string &address)
     : parent(parent)
     , m_address_text(address)
-    , m_connect_btn(_("BUTTON_CONNECT"), [parent, &address]{
-        parent->do_connect(address);
-    })
-    , m_delete_btn(_("BUTTON_DELETE"), [this]{
-        this->parent->do_delete_address(this);
-    }) {}
+    , m_connect_btn(_("BUTTON_CONNECT"), std::bind(&connect_scene::do_connect, parent, address))
+    , m_delete_btn(_("BUTTON_DELETE"), std::bind(&connect_scene::do_delete_address, parent, this)) {}
 
 void recent_server_line::set_rect(const sdl::rect &rect) {
     m_address_text.set_point(sdl::point(rect.x, rect.y));
@@ -37,13 +33,7 @@ connect_scene::connect_scene(game_manager *parent)
     , m_connect_btn(_("BUTTON_CONNECT"), [this]{
         do_connect(m_address_box.get_value());
     })
-    , m_create_server_btn(_("BUTTON_CREATE_SERVER"), [this]{
-        do_create_server();
-    })
-    , m_error_text(sdl::text_style{
-        .text_color = sdl::rgb(sdl::error_text_rgb),
-        .text_ptsize = sdl::error_text_ptsize
-    })
+    , m_create_server_btn(_("BUTTON_CREATE_SERVER"), std::bind(&connect_scene::do_create_server, this))
 {
     m_username_box.set_value(parent->get_config().user_name);
     m_address_box.set_onenter([this]{
@@ -66,7 +56,7 @@ void connect_scene::resize(int width, int height) {
     label_rect.y = 50 + (25 - label_rect.h) / 2;
     m_username_label.set_rect(label_rect);
     
-    m_username_box.set_rect(sdl::rect{120 + sizes::propic_size + label_rect.w, 50, width - 220 - sizes::propic_size - label_rect.w, 25});
+    m_username_box.set_rect(sdl::rect{125 + label_rect.w + sizes::propic_size, 50, width - 225 - sizes::propic_size - label_rect.w, 25});
 
     auto propic_rect = m_propic.get_rect();
     m_propic_pos.x = 115 + label_rect.w + (sizes::propic_size - propic_rect.w) / 2;
@@ -77,7 +67,7 @@ void connect_scene::resize(int width, int height) {
     sdl::rect rect{100, 150, width - 200, 25};
     for (auto &line : m_recents) {
         line.set_rect(rect);
-        rect.y += 50;
+        rect.y += 35;
     }
 
     label_rect = m_address_label.get_rect();
@@ -85,11 +75,9 @@ void connect_scene::resize(int width, int height) {
     label_rect.y = rect.y;
     m_address_label.set_rect(label_rect);
 
-    m_address_box.set_rect(sdl::rect{rect.x + label_rect.w + 10, rect.y, rect.w - 120 - label_rect.w, rect.h});
+    m_address_box.set_rect(sdl::rect{rect.x + label_rect.w + 15, rect.y, rect.w - 125 - label_rect.w, rect.h});
     
     m_connect_btn.set_rect(sdl::rect{rect.x + rect.w - 100, rect.y, 100, rect.h});
-
-    m_error_text.set_point(sdl::point{(width - m_error_text.get_rect().w) / 2, rect.y + 50});
 }
 
 void connect_scene::render(sdl::renderer &renderer) {
@@ -106,7 +94,6 @@ void connect_scene::render(sdl::renderer &renderer) {
     m_address_box.render(renderer);
     m_connect_btn.render(renderer);
     m_create_server_btn.render(renderer);
-    m_error_text.render(renderer);
 }
 
 void connect_scene::handle_event(const sdl::event &event) {
@@ -122,15 +109,9 @@ void connect_scene::handle_event(const sdl::event &event) {
     }
 }
 
-void connect_scene::show_error(const std::string &error) {
-    int y = m_error_text.get_rect().y;
-    m_error_text.redraw(error);
-    m_error_text.set_point(sdl::point{(parent->width() - m_error_text.get_rect().w)/ 2, y});
-}
-
 void connect_scene::do_connect(const std::string &address) {
     if (m_username_box.get_value().empty()) {
-        show_error(_("ERROR_NO_USERNAME"));
+        parent->show_error(_("ERROR_NO_USERNAME"));
     } else {
         parent->get_config().user_name = m_username_box.get_value();
         parent->connect(address);
@@ -157,7 +138,7 @@ void connect_scene::do_browse_propic() {
             cfg.profile_image.assign(ret);
             resize(parent->width(), parent->height());
         } catch (const std::runtime_error &e) {
-            show_error(e.what());
+            parent->show_error(e.what());
         }
     }
 }

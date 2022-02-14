@@ -27,7 +27,7 @@ namespace sizes {
     constexpr int shop_choice_width = 130;
     constexpr int shop_choice_offset = 20;
 
-    constexpr int cube_pile_size = 15;
+    constexpr int cube_pile_size = 50;
     constexpr int cube_pile_xoffset = 70;
 
     constexpr int cube_xdiff = -20;
@@ -36,33 +36,28 @@ namespace sizes {
 
     constexpr int scenario_deck_xoff = 40;
 
-    constexpr uint32_t player_view_border_rgba = 0x000000ff;
-
-    constexpr int turn_indicator_border = 3;
-    constexpr uint32_t turn_indicator_rgba = 0x0000ffff;
-
-    constexpr int request_origin_indicator_border = 6;
-    constexpr uint32_t request_origin_indicator_rgba = 0x00ffffff;
-
-    constexpr int request_target_indicator_border = 9;
-    constexpr uint32_t request_target_indicator_rgba = 0xff0000ff;
-
     constexpr int player_ellipse_x_distance = 250;
     constexpr int player_ellipse_y_distance = 180;
 
     constexpr int propic_size = 50;
 
-    constexpr int status_text_y_distance = 50;
-    constexpr uint32_t status_text_background_rgba = 0xffffff80;
-
     constexpr int card_overlay_timer = 60;
 
-    constexpr uint32_t target_finder_current_card_rgba = 0xff0000ff;
-    constexpr uint32_t target_finder_target_rgba = 0xff00ffff;
-    constexpr uint32_t target_finder_can_respond_rgba = 0x00ffffff;
-    constexpr uint32_t target_finder_can_pick_rgba = 0x00ff00ff;
-
     constexpr int default_border_thickness = 5;
+
+    constexpr int status_text_y_distance = 45;
+    constexpr uint32_t status_text_background_rgba = 0xffffff80;
+
+    constexpr uint32_t player_view_border_rgba = 0x2d1000ff;
+
+    constexpr uint32_t turn_indicator_rgba = 0x1ed760ff;
+    constexpr uint32_t request_origin_indicator_rgba = 0xffff00ff;
+    constexpr uint32_t request_target_indicator_rgba = 0xff0000ff;
+
+    constexpr uint32_t target_finder_current_card_rgba = 0x306effee;
+    constexpr uint32_t target_finder_target_rgba = 0xff0000aa;
+    constexpr uint32_t target_finder_can_respond_rgba = 0x1ed760aa;
+    constexpr uint32_t target_finder_can_pick_rgba = 0xffffffaa;
 }
 
 #endif

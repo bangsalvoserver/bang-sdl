@@ -29,8 +29,6 @@ public:
 
     void handle_event(const sdl::event &event) override;
 
-    void show_error(const std::string &message) override;
-
     void do_connect(const std::string &address);
 
     void do_delete_address(recent_server_line *addr);
@@ -49,8 +47,6 @@ private:
     sdl::textbox m_address_box;
     sdl::button m_connect_btn;
     sdl::button m_create_server_btn;
-
-    sdl::stattext m_error_text;
 
     std::list<recent_server_line> m_recents;
 };

@@ -7,7 +7,7 @@ BUTTON_MAKE_LOBBY                   Make lobby
 BUTTON_START                        Start
 BUTTON_EXIT                         Exit
 BUTTON_DISCONNECT                   Disconnect
-BUTTON_SEND                         Send
+BUTTON_CHAT                         Chat
 LABEL_USERNAME                      Name:
 LABEL_NEW_ADDRESS                   New address:
 ERROR_NO_USERNAME                   Specify the user name
@@ -80,7 +80,7 @@ banggame::card_expansion_type::dodgecity            Dodge City
 banggame::card_expansion_type::valleyofshadows      Valley of Shadows
 banggame::card_expansion_type::wildwestshow         Wild West Show
 banggame::card_expansion_type::goldrush             Gold Rush
-banggame::card_expansion_type::armedanddangerous    Armed & Dangerous
+banggame::card_expansion_type::armedanddangerous    Armed And Dangerous
 banggame::card_expansion_type::highnoon             High Noon
 banggame::card_expansion_type::fistfulofcards       Fistful of Cards
 banggame::card_expansion_type::canyondiablo         Canyon Diablo

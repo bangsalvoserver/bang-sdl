@@ -11,7 +11,7 @@ namespace banggame {
 
         int user_id;
         
-        explicit player_view(int id) : id(id) {}
+        explicit player_view(int id);
 
         int hp = 0;
         int gold = 0;
@@ -56,9 +56,6 @@ namespace banggame {
         void set_profile_image(sdl::texture *image);
 
         void render(sdl::renderer &renderer);
-        void render_turn_indicator(sdl::renderer &renderer);
-        void render_request_origin_indicator(sdl::renderer &renderer);
-        void render_request_target_indicator(sdl::renderer &renderer);
     };
 }
 #endif

@@ -25,8 +25,11 @@ void game_scene::init(const game_started_args &args) {
 }
 
 static sdl::point cube_pile_offset(auto &rng) {
-    std::normal_distribution<float> dist{0, sizes::cube_pile_size};
-    return {int(dist(rng)), int(dist(rng))};
+    std::uniform_int_distribution<int> dist{
+        -sizes::cube_pile_size / 2,
+        sizes::cube_pile_size / 2
+    };
+    return {dist(rng), dist(rng)};
 }
 
 void game_scene::update_main_deck_count() {
@@ -156,16 +159,6 @@ void game_scene::render(sdl::renderer &renderer) {
     }
 
     for (auto &[player_id, p] : m_players) {
-        if (player_id == m_playing_id) {
-            p.render_turn_indicator(renderer);
-        }
-        if (m_current_request && m_current_request->origin_id == player_id) {
-            p.render_request_origin_indicator(renderer);
-        }
-        if (m_current_request && m_current_request->target_id == player_id) {
-            p.render_request_target_indicator(renderer);
-        }
-
         p.render(renderer);
 
         for (card_view *card : p.table) {
@@ -173,6 +166,28 @@ void game_scene::render(sdl::renderer &renderer) {
         }
         for (card_view *card : p.hand) {
             card->render(renderer);
+        }
+
+        int x = p.m_bounding_rect.x + p.m_bounding_rect.w - 5;
+
+        auto render_bullet = [&](sdl::color color) {
+            sdl::rect rect = card_textures::get().bullet_icon.get_rect();
+            rect.x = x - rect.w;
+            rect.y = p.m_bounding_rect.y + 5;
+            card_textures::get().bullet_border.render_colored(renderer, rect, color);
+            card_textures::get().bullet_icon.render(renderer, rect);
+        };
+
+        if (player_id == m_playing_id) {
+            render_bullet(sdl::rgba(sizes::turn_indicator_rgba));
+            x -= 22;
+        }
+        if (m_current_request && m_current_request->origin_id == player_id) {
+            render_bullet(sdl::rgba(sizes::request_origin_indicator_rgba));
+            x -= 22;
+        }
+        if (m_current_request && m_current_request->target_id == player_id) {
+            render_bullet(sdl::rgba(sizes::request_target_indicator_rgba));
         }
     }
 
@@ -359,7 +374,7 @@ void game_scene::handle_game_update(const game_update &update) {
 }
 
 void game_scene::add_user(int id, const user_info &args) {
-    m_ui.add_message(_("GAME_USER_CONNECTED", args.name));
+    parent->add_chat_message(_("GAME_USER_CONNECTED", args.name));
 }
 
 void game_scene::remove_user(int id) {
@@ -371,7 +386,7 @@ void game_scene::remove_user(int id) {
     }
     user_info *info = parent->get_user_info(id);
     if (info) {
-        m_ui.add_message(_("GAME_USER_DISCONNECTED", info->name));
+        parent->add_chat_message(_("GAME_USER_DISCONNECTED", info->name));
     }
 }
 
@@ -389,15 +404,6 @@ void game_scene::pop_update() {
         std::cerr << "Error: " << error.what() << '\n';
         parent->disconnect();
     }
-}
-
-void game_scene::add_chat_message(const std::string &message) {
-    m_ui.add_message(message);
-}
-
-void game_scene::show_error(const std::string &message) {
-    play_bell();
-    m_ui.show_error(message);
 }
 
 void game_scene::HANDLE_UPDATE(game_over, const game_over_update &args) {
@@ -441,7 +447,7 @@ std::string game_scene::evaluate_format_string(const game_formatted_string &str)
 }
 
 void game_scene::HANDLE_UPDATE(game_error, const game_formatted_string &args) {
-    show_error(evaluate_format_string(args));
+    parent->show_error(evaluate_format_string(args));
     pop_update();
 }
 

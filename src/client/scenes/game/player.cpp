@@ -1,6 +1,14 @@
 #include "player.h"
 
+DECLARE_RESOURCE(bkant_bold_ttf)
+
 namespace banggame {
+    player_view::player_view(int id)
+        : id(id)
+        , m_username_text(sdl::text_style{
+            .text_font = GET_RESOURCE(bkant_bold_ttf)
+        }) {}
+
     void player_view::set_position(sdl::point pos, bool flipped) {
         m_bounding_rect.w = table.width() + sizes::card_width * 3 + 40;
         m_bounding_rect.h = sizes::player_view_height;
@@ -15,7 +23,7 @@ namespace banggame {
             m_bounding_rect.y + m_bounding_rect.h - sizes::card_width - 10});
         m_role.set_pos(sdl::point(
             m_characters.get_pos().x + sizes::card_width + 10,
-            m_characters.get_pos().y));
+            m_characters.get_pos().y + 16));
         set_hp_marker_position(hp);
         if (flipped) {
             hand.set_pos(sdl::point{hand.get_pos().x, hand.get_pos().y + sizes::card_yoffset});
@@ -35,18 +43,13 @@ namespace banggame {
         m_username_text.redraw(value);
         sdl::rect username_rect = m_username_text.get_rect();
         username_rect.x = m_role.get_pos().x - (username_rect.w) / 2;
-        username_rect.y = m_bounding_rect.y + 20;
+        username_rect.y = m_bounding_rect.y + 43;
         m_username_text.set_rect(username_rect);
     }
 
     void player_view::set_profile_image(sdl::texture *image) {
         m_profile_image = image;
         if (!image ||!*image) return;
-
-        sdl::point profile_image_pos = sdl::point{
-            (m_role.get_rect().y + m_username_text.get_rect().y + m_username_text.get_rect().h) / 2,
-            m_role.get_pos().x
-        };
 
         m_profile_rect = m_profile_image->get_rect();
         if (m_profile_rect.w > m_profile_rect.h) {
@@ -58,7 +61,7 @@ namespace banggame {
         }
 
         m_profile_rect.x = m_role.get_pos().x - m_profile_rect.w / 2;
-        m_profile_rect.y = m_bounding_rect.y + 70 - m_profile_rect.h / 2;
+        m_profile_rect.y = m_bounding_rect.y + 94 - m_profile_rect.h / 2;
     }
 
     void player_view::set_hp_marker_position(float hp) {
@@ -76,8 +79,14 @@ namespace banggame {
     }
 
     void player_view::render(sdl::renderer &renderer) {
-        renderer.set_draw_color(sdl::rgba(border_color ? border_color : sizes::player_view_border_rgba));
+        renderer.set_draw_color(sdl::rgb((border_color ? border_color : sizes::player_view_border_rgba) >> 8));
         renderer.draw_rect(m_bounding_rect);
+        renderer.draw_rect(sdl::rect{
+            m_bounding_rect.x + 1,
+            m_bounding_rect.y + 1,
+            m_bounding_rect.w - 2,
+            m_bounding_rect.h - 2
+        });
 
         m_role.render(renderer);
         if (!m_backup_characters.empty()) {
@@ -109,27 +118,5 @@ namespace banggame {
         if (m_profile_image && *m_profile_image) {
             m_profile_image->render(renderer, m_profile_rect);
         }
-    }
-
-    inline void draw_border(sdl::renderer &renderer, const sdl::rect &rect, int border, const sdl::color &color) {
-        renderer.set_draw_color(color);
-        renderer.draw_rect(sdl::rect{
-            rect.x - border,
-            rect.y - border,
-            rect.w + 2 * border,
-            rect.h + 2 * border
-        });
-    }
-
-    void player_view::render_turn_indicator(sdl::renderer &renderer) {
-        draw_border(renderer, m_bounding_rect, sizes::turn_indicator_border, sdl::rgba(sizes::turn_indicator_rgba));
-    }
-
-    void player_view::render_request_origin_indicator(sdl::renderer &renderer) {
-        draw_border(renderer, m_bounding_rect, sizes::request_origin_indicator_border, sdl::rgba(sizes::request_origin_indicator_rgba));
-    }
-
-    void player_view::render_request_target_indicator(sdl::renderer &renderer) {
-        draw_border(renderer, m_bounding_rect, sizes::request_target_indicator_border, sdl::rgba(sizes::request_target_indicator_rgba));
     }
 }

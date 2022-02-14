@@ -1,9 +1,11 @@
 #ifndef __GAME_UI_H__
 #define __GAME_UI_H__
 
-#include "../widgets/chat_ui.h"
 #include "common/game_action.h"
 #include "card.h"
+
+#include "../widgets/text_list.h"
+#include "../widgets/button.h"
 
 namespace banggame {
 
@@ -14,9 +16,7 @@ namespace banggame {
         void resize(int width, int height);
         void render(sdl::renderer &renderer);
 
-        void add_message(const std::string &message);
         void add_game_log(const std::string &message);
-        void show_error(const std::string &message);
 
         void set_status(const std::string &message) {
             m_status_text.redraw(message);
@@ -33,13 +33,9 @@ namespace banggame {
     private:
         class game_scene *parent;
 
-        chat_ui m_chat;
         sdl::text_list m_game_log;
 
         sdl::stattext m_status_text;
-
-        sdl::stattext m_error_text;
-        int m_error_timeout = 0;
 
         sdl::button m_confirm_btn;
 
@@ -47,6 +43,8 @@ namespace banggame {
 
         sdl::button m_leave_btn;
         sdl::button m_restart_btn;
+
+        sdl::button m_chat_btn;
     };
 
 }

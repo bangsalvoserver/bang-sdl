@@ -207,8 +207,10 @@ namespace sdl {
 
         void render_colored(sdl::renderer &renderer, const rect &rect, const color &col) const {
             SDL_SetTextureColorMod(m_texture.get(), col.r, col.g, col.b);
+            SDL_SetTextureAlphaMod(m_texture.get(), col.a);
             render(renderer, rect);
             SDL_SetTextureColorMod(m_texture.get(), 0xff, 0xff, 0xff);
+            SDL_SetTextureAlphaMod(m_texture.get(), 0xff);
         }
 
         explicit operator bool() const noexcept{

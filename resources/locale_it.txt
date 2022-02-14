@@ -7,7 +7,7 @@ BUTTON_MAKE_LOBBY                   Crea lobby
 BUTTON_START                        Avvia
 BUTTON_EXIT                         Esci
 BUTTON_DISCONNECT                   Disconnetti
-BUTTON_SEND                         Invia
+BUTTON_CHAT                         Chat
 LABEL_USERNAME                      Nome:
 LABEL_NEW_ADDRESS                   Nuovo indirizzo:
 ERROR_NO_USERNAME                   Specificare un nome utente
@@ -80,7 +80,7 @@ banggame::card_expansion_type::dodgecity            Dodge City
 banggame::card_expansion_type::valleyofshadows      La Valle Delle Ombre
 banggame::card_expansion_type::wildwestshow         Wild West Show
 banggame::card_expansion_type::goldrush             Corsa all'Oro
-banggame::card_expansion_type::armedanddangerous    Armed & Dangerous
+banggame::card_expansion_type::armedanddangerous    Armed And Dangerous
 banggame::card_expansion_type::highnoon             Mezzogiorno di Fuoco
 banggame::card_expansion_type::fistfulofcards       Per un Pugno di Carte
 banggame::card_expansion_type::canyondiablo         Canyon Diablo

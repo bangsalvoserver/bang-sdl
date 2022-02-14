@@ -27,10 +27,6 @@ namespace banggame {
         void handle_event(const sdl::event &event) override;
 
         void handle_game_update(const game_update &update) override;
-        
-        void add_chat_message(const std::string &message) override;
-        
-        void show_error(const std::string &message) override;
 
         void add_user(int id, const user_info &args) override;
 

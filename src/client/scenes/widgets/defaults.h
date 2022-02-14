@@ -13,15 +13,15 @@ namespace sdl {
     constexpr uint32_t default_button_toggled_rgb = 0xbbbbff;
     constexpr uint32_t default_button_border_rgb = 0x0;
     
-    constexpr int chat_text_ptsize = 14;
+    constexpr int chat_message_lifetime = 600;
+
+    constexpr int chat_text_ptsize = 12;
     constexpr int default_text_list_yoffset = 6;
 
     constexpr int chat_log_ptsize = 12;
 
     constexpr uint32_t error_text_rgb = 0xff0000;
-    constexpr int error_text_ptsize = 20;
-
-    constexpr uint32_t game_error_text_rgb = 0x800000;
+    constexpr int error_text_ptsize = 14;
 
 }
 

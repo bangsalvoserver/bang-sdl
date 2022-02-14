@@ -22,6 +22,9 @@ namespace banggame {
 
         gold_icon = get_card_resource("gold");
 
+        bullet_icon = get_card_resource("icon_bullet");
+        bullet_border = get_card_resource("icon_bullet_border");
+
         s_instance = this;
     }
     

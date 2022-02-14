@@ -7,13 +7,9 @@ lobby_line::lobby_line(lobby_list_scene *parent, const lobby_data &args)
     : parent(parent)
     , m_id(args.lobby_id)
     , m_name_text(args.name)
-    , m_players_text([&]{
-        return std::to_string(args.num_players) + '/' + std::to_string(banggame::lobby_max_players);
-    }())
+    , m_players_text(std::to_string(args.num_players) + '/' + std::to_string(banggame::lobby_max_players))
     , m_state_text(_(args.state))
-    , m_join_btn(_("BUTTON_JOIN"), [parent, args] {
-        parent->do_join(args.lobby_id);
-    }) {}
+    , m_join_btn(_("BUTTON_JOIN"), std::bind(&lobby_list_scene::do_join, parent, args.lobby_id)) {}
 
 void lobby_line::set_rect(const sdl::rect &rect) {
     m_name_text.set_point(sdl::point{rect.x, rect.y});
@@ -31,17 +27,11 @@ void lobby_line::render(sdl::renderer &renderer) {
 
 lobby_list_scene::lobby_list_scene(game_manager *parent)
     : scene_base(parent)
-    , m_make_lobby_btn(_("BUTTON_MAKE_LOBBY"), [this] {
-        do_make_lobby();
-    })
-    , m_disconnect_btn(_("BUTTON_DISCONNECT"), [parent] {
-        parent->disconnect();
-    })
+    , m_make_lobby_btn(_("BUTTON_MAKE_LOBBY"), std::bind(&lobby_list_scene::do_make_lobby, this))
+    , m_disconnect_btn(_("BUTTON_DISCONNECT"), std::bind(&game_manager::disconnect, parent))
 {
     m_lobby_name_box.set_value(parent->get_config().lobby_name);
-    m_lobby_name_box.set_onenter([this] {
-        do_make_lobby();
-    });
+    m_lobby_name_box.set_onenter(std::bind(&lobby_list_scene::do_make_lobby, this));
     parent->add_message<client_message_type::lobby_list>();
 }
 

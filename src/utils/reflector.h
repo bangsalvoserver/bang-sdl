@@ -2,6 +2,8 @@
 #define __REFLECTOR_H__
 
 #include <boost/preprocessor.hpp>
+#include <utility>
+#include <cstddef>
 
 #define REM(...) __VA_ARGS__
 #define EAT(...)
