@@ -115,7 +115,21 @@ namespace banggame {
         }
     };
 
-    struct pause_animation {};
+    struct pause_animation {
+        card_view *card = nullptr;
+
+        void render(sdl::renderer &renderer) {
+            if (card) card->render(renderer, false);
+        }
+
+        void do_animation(float) {
+            if (card) card->animating = true;
+        }
+
+        void end() {
+            if (card) card->animating = false;
+        }
+    };
 
     class animation {
     private:

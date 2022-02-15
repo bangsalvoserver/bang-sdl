@@ -17,6 +17,7 @@ namespace banggame {
     )};
 
     DEFINE_ENUM_FLAGS_IN_NS(banggame, show_card_flags,
+        (pause_before_move)
         (short_pause)
         (no_animation)
         (show_everyone)
