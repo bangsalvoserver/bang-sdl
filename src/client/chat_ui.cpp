@@ -11,6 +11,8 @@ chat_ui::chat_ui(game_manager *parent)
 }
 
 void chat_ui::set_rect(const sdl::rect &rect) {
+    std::scoped_lock lock{m_messages_mutex};
+
     m_rect = rect;
 
     int y = rect.y + rect.h - 35;
@@ -31,6 +33,8 @@ void chat_ui::set_rect(const sdl::rect &rect) {
 }
 
 void chat_ui::render(sdl::renderer &renderer) {
+    std::scoped_lock lock{m_messages_mutex};
+
     for (auto it = m_messages.rbegin(); it != m_messages.rend(); ++it) {
         if (--it->lifetime <= 0) {
             m_messages.erase(m_messages.begin(), it.base());
@@ -67,7 +71,10 @@ sdl::text_style chat_ui::get_text_style(message_type type) {
 }
 
 void chat_ui::add_message(message_type type, const std::string &message) {
-    m_messages.emplace_back(sdl::stattext{message, get_text_style(type)}, sdl::chat_message_lifetime);
+    {
+        std::scoped_lock lock{m_messages_mutex};
+        m_messages.emplace_back(sdl::stattext{message, get_text_style(type)}, sdl::chat_message_lifetime);
+    }
     set_rect(m_rect);
 }
 

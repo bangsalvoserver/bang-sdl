@@ -4,6 +4,7 @@
 #include "scenes/widgets/textbox.h"
 
 #include <list>
+#include <mutex>
 
 enum class message_type {
     chat,
@@ -46,6 +47,8 @@ private:
     sdl::rect m_rect;
 
     std::list<chat_message> m_messages;
+    mutable std::mutex m_messages_mutex;
+
     chat_textbox m_chat_box;
 };
 
