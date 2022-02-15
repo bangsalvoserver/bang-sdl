@@ -53,6 +53,7 @@ namespace sizes {
     constexpr uint32_t turn_indicator_rgba = 0x55753aff;
     constexpr uint32_t request_origin_indicator_rgba = 0xffff00ff;
     constexpr uint32_t request_target_indicator_rgba = 0xff0000ff;
+    constexpr uint32_t winner_indicator_rgba = 0xbba14fff;
 
     constexpr uint32_t target_finder_current_card_rgba = 0x306effee;
     constexpr uint32_t target_finder_target_rgba = 0xff0000aa;

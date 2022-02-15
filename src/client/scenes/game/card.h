@@ -33,6 +33,7 @@ namespace banggame {
         sdl::texture icon_turn;
         sdl::texture icon_origin;
         sdl::texture icon_target;
+        sdl::texture icon_winner;
 
         sdl::surface apply_card_mask(const sdl::surface &source) const;
 

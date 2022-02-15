@@ -25,6 +25,8 @@ namespace banggame {
         icon_origin = get_card_resource("icon_origin");
         icon_target = get_card_resource("icon_target");
 
+        icon_winner = get_card_resource("icon_winner");
+
         s_instance = this;
     }
     

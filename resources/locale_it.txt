@@ -23,7 +23,7 @@ GAME_RESTART                        Riavvia
 GAME_USER_CONNECTED                 {} si è connesso
 GAME_USER_DISCONNECTED              {} si è disconnesso
 USERNAME_DISCONNECTED               (Disconnesso)
-STATUS_GAME_OVER                    Game Over. Vincitore: {}
+STATUS_GAME_OVER                    Partita Finita
 STATUS_YOUR_TURN                    Tocca a te ... Pesca dal mazzo
 STATUS_CARD_FROM_HAND               carta dalla mano
 STATUS_UNKNOWN_CARD                 (carta sconosciuta)

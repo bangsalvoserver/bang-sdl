@@ -177,16 +177,22 @@ void game_scene::render(sdl::renderer &renderer) {
             texture.render_colored(renderer, rect, color);
         };
 
-        if (player_id == m_playing_id) {
-            render_icon(card_textures::get().icon_turn, sdl::rgba(sizes::turn_indicator_rgba));
-            x -= 32;
-        }
-        if (m_current_request && m_current_request->target_id == player_id) {
-            render_icon(card_textures::get().icon_target, sdl::rgba(sizes::request_target_indicator_rgba));
-            x -= 32;
-        }
-        if (m_current_request && m_current_request->origin_id == player_id) {
-            render_icon(card_textures::get().icon_origin, sdl::rgba(sizes::request_origin_indicator_rgba));
+        if (m_winner_role == player_role::unknown) {
+            if (player_id == m_playing_id) {
+                render_icon(card_textures::get().icon_turn, sdl::rgba(sizes::turn_indicator_rgba));
+                x -= 32;
+            }
+            if (m_current_request && m_current_request->target_id == player_id) {
+                render_icon(card_textures::get().icon_target, sdl::rgba(sizes::request_target_indicator_rgba));
+                x -= 32;
+            }
+            if (m_current_request && m_current_request->origin_id == player_id) {
+                render_icon(card_textures::get().icon_origin, sdl::rgba(sizes::request_origin_indicator_rgba));
+            }
+        } else if (p.m_role.role == m_winner_role
+            || (p.m_role.role == player_role::deputy && m_winner_role == player_role::sheriff)
+            || (p.m_role.role == player_role::sheriff && m_winner_role == player_role::deputy)) {
+            render_icon(card_textures::get().icon_winner, sdl::rgba(sizes::winner_indicator_rgba));
         }
     }
 
@@ -406,7 +412,8 @@ void game_scene::pop_update() {
 }
 
 void game_scene::HANDLE_UPDATE(game_over, const game_over_update &args) {
-    m_ui.set_status(_("STATUS_GAME_OVER", _(args.winner_role)));
+    m_ui.set_status(_("STATUS_GAME_OVER"));
+    m_winner_role = args.winner_role;
     
     if (parent->get_user_own_id() == parent->get_lobby_owner_id()) {
         m_ui.enable_restart(true);

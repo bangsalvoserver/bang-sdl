@@ -109,6 +109,7 @@ namespace banggame {
         std::default_random_engine rng;
 
         std::optional<request_status_args> m_current_request;
+        player_role m_winner_role = player_role::unknown;
 
         bool has_player_flags(player_flags flags) {
             if (player_view *p = find_player(m_player_own_id)) {
