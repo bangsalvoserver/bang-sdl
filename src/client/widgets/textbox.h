@@ -4,12 +4,12 @@
 #include "event_handler.h"
 #include "stattext.h"
 
-namespace sdl {
+namespace widgets {
 
     struct textbox_style {
         text_style text;
-        color background_color = rgb(0xffffff);
-        color border_color = rgb(0x0);
+        sdl::color background_color = sdl::rgb(0xffffff);
+        sdl::color border_color = sdl::rgb(0x0);
         int margin = 4;
     };
 
@@ -31,7 +31,7 @@ namespace sdl {
         }
 
     protected:
-        bool handle_event(const event &event);
+        bool handle_event(const sdl::event &event);
 
         void on_gain_focus() override;
         void on_lose_focus() override;
@@ -39,7 +39,7 @@ namespace sdl {
     public:
         textbox(const textbox_style &style = {});
 
-        void render(renderer &renderer);
+        void render(sdl::renderer &renderer);
 
         const sdl::rect &get_rect() const noexcept {
             return m_border_rect;

@@ -26,7 +26,7 @@ void chat_ui::set_rect(const sdl::rect &rect) {
         }
         it->text.set_rect(text_rect);
 
-        y -= text_rect.h + sdl::default_text_list_yoffset;
+        y -= text_rect.h + widgets::default_text_list_yoffset;
     }
 
     m_chat_box.set_rect(sdl::rect{rect.x, rect.y + rect.h - 25, rect.w, 25});
@@ -47,24 +47,24 @@ void chat_ui::render(sdl::renderer &renderer) {
     }
 }
 
-sdl::text_style chat_ui::get_text_style(message_type type) {
+widgets::text_style chat_ui::get_text_style(message_type type) {
     switch (type) {
     case message_type::error:
         return {
-            .text_color = sdl::rgb(sdl::error_text_rgb),
-            .text_ptsize = sdl::error_text_ptsize,
+            .text_color = sdl::rgb(widgets::error_text_rgb),
+            .text_ptsize = widgets::error_text_ptsize,
             .wrap_length = m_rect.w
         };
     case message_type::server_log:
         return {
-            .text_color = sdl::rgb(sdl::server_log_rgb),
-            .text_ptsize = sdl::chat_text_ptsize,
+            .text_color = sdl::rgb(widgets::server_log_rgb),
+            .text_ptsize = widgets::chat_text_ptsize,
             .wrap_length = m_rect.w
         };
     case message_type::chat:
     default:
         return {
-            .text_ptsize = sdl::chat_text_ptsize,
+            .text_ptsize = widgets::chat_text_ptsize,
             .wrap_length = m_rect.w
         };
     }
@@ -73,7 +73,7 @@ sdl::text_style chat_ui::get_text_style(message_type type) {
 void chat_ui::add_message(message_type type, const std::string &message) {
     {
         std::scoped_lock lock{m_messages_mutex};
-        m_messages.emplace_back(sdl::stattext{message, get_text_style(type)}, sdl::chat_message_lifetime);
+        m_messages.emplace_back(widgets::stattext{message, get_text_style(type)}, widgets::chat_message_lifetime);
     }
     set_rect(m_rect);
 }
@@ -87,7 +87,7 @@ void chat_ui::send_chat_message() {
 
 void chat_ui::enable() {
     m_chat_box.enable();
-    sdl::event_handler::set_focus(&m_chat_box);
+    widgets::event_handler::set_focus(&m_chat_box);
 }
 
 void chat_ui::disable() {

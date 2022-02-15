@@ -1,5 +1,5 @@
 #include "game.h"
-#include "../../manager.h"
+#include "../manager.h"
 #include "../widgets/os_api.h"
 
 #include <iostream>
@@ -26,8 +26,8 @@ void game_scene::init(const game_started_args &args) {
 
 static sdl::point cube_pile_offset(auto &rng) {
     std::uniform_int_distribution<int> dist{
-        -sizes::cube_pile_size / 2,
-        sizes::cube_pile_size / 2
+        -options::cube_pile_size / 2,
+        options::cube_pile_size / 2
     };
     return {dist(rng), dist(rng)};
 }
@@ -44,35 +44,35 @@ void game_scene::resize(int width, int height) {
     scene_base::resize(width, height);
 
     m_main_deck.set_pos(sdl::point{
-        width / 2 + sizes::deck_xoffset,
+        width / 2 + options::deck_xoffset,
         height / 2});
 
     update_main_deck_count();
 
     m_discard_pile.set_pos(sdl::point{
-        m_main_deck.get_pos().x - sizes::discard_xoffset,
+        m_main_deck.get_pos().x - options::discard_xoffset,
         m_main_deck.get_pos().y});
     
     m_selection.set_pos(sdl::point{
         width / 2,
-        height / 2 + sizes::selection_yoffset});
+        height / 2 + options::selection_yoffset});
 
     m_shop_deck.set_pos(sdl::point{
-        width / 2 + sizes::shop_xoffset - sizes::shop_selection_width - sizes::card_width,
+        width / 2 + options::shop_xoffset - options::shop_selection_width - options::card_width,
         height / 2});
 
     m_shop_discard.set_pos(m_shop_deck.get_pos());
 
     m_shop_selection.set_pos(sdl::point{
-        width / 2 + sizes::shop_xoffset - sizes::shop_selection_width / 2,
+        width / 2 + options::shop_xoffset - options::shop_selection_width / 2,
         height / 2});
     
     m_shop_choice.set_pos(sdl::point{
         m_shop_selection.get_pos().x,
-        m_shop_selection.get_pos().y + sizes::shop_choice_offset});
+        m_shop_selection.get_pos().y + options::shop_choice_offset});
 
     m_scenario_card.set_pos(sdl::point{
-        width / 2 + sizes::deck_xoffset + sizes::card_width + sizes::card_xoffset,
+        width / 2 + options::deck_xoffset + options::card_width + options::card_xoffset,
         height / 2});
 
     move_player_views();
@@ -81,7 +81,7 @@ void game_scene::resize(int width, int height) {
         if (!cube.owner) {
             auto diff = cube_pile_offset(rng);
             cube.pos = sdl::point{
-                width / 2 + diff.x + sizes::cube_pile_xoffset,
+                width / 2 + diff.x + options::cube_pile_xoffset,
                 height / 2 + diff.y
             };
         }
@@ -93,7 +93,7 @@ void game_scene::resize(int width, int height) {
 template<int N> constexpr auto take_last = std::views::reverse | std::views::take(N) | std::views::reverse;
 
 void game_scene::render(sdl::renderer &renderer) {
-    if (m_mouse_motion_timer >= sizes::card_overlay_timer) {
+    if (m_mouse_motion_timer >= options::card_overlay_timer) {
         if (!m_overlay) {
             find_overlay();
         }
@@ -120,10 +120,10 @@ void game_scene::render(sdl::renderer &renderer) {
     if (!m_main_deck.empty() && m_main_deck.border_color) {
         sdl::rect rect = m_main_deck.back()->get_rect();
         card_textures::get().card_border.render_colored(renderer, sdl::rect{
-            rect.x - sizes::default_border_thickness,
-            rect.y - sizes::default_border_thickness,
-            rect.w + sizes::default_border_thickness * 2,
-            rect.h + sizes::default_border_thickness * 2
+            rect.x - options::default_border_thickness,
+            rect.y - options::default_border_thickness,
+            rect.w + options::default_border_thickness * 2,
+            rect.h + options::default_border_thickness * 2
         }, sdl::rgba(m_main_deck.border_color));
     }
     for (card_view *card : m_main_deck | take_last<2>) {
@@ -179,30 +179,30 @@ void game_scene::render(sdl::renderer &renderer) {
 
         if (m_winner_role == player_role::unknown) {
             if (player_id == m_playing_id) {
-                render_icon(card_textures::get().icon_turn, sdl::rgba(sizes::turn_indicator_rgba));
+                render_icon(card_textures::get().icon_turn, sdl::rgba(options::turn_indicator_rgba));
                 x -= 32;
             }
             if (m_current_request && m_current_request->target_id == player_id) {
-                render_icon(card_textures::get().icon_target, sdl::rgba(sizes::request_target_indicator_rgba));
+                render_icon(card_textures::get().icon_target, sdl::rgba(options::request_target_indicator_rgba));
                 x -= 32;
             }
             if (m_current_request && m_current_request->origin_id == player_id) {
-                render_icon(card_textures::get().icon_origin, sdl::rgba(sizes::request_origin_indicator_rgba));
+                render_icon(card_textures::get().icon_origin, sdl::rgba(options::request_origin_indicator_rgba));
             }
         } else if (p.m_role.role == m_winner_role
             || (p.m_role.role == player_role::deputy && m_winner_role == player_role::sheriff)
             || (p.m_role.role == player_role::sheriff && m_winner_role == player_role::deputy)) {
-            render_icon(card_textures::get().icon_winner, sdl::rgba(sizes::winner_indicator_rgba));
+            render_icon(card_textures::get().icon_winner, sdl::rgba(options::winner_indicator_rgba));
         }
     }
 
     if (!m_discard_pile.empty() && m_discard_pile.border_color) {
         sdl::rect rect = m_discard_pile.back()->get_rect();
         card_textures::get().card_border.render_colored(renderer, sdl::rect{
-            rect.x - sizes::default_border_thickness,
-            rect.y - sizes::default_border_thickness,
-            rect.w + sizes::default_border_thickness * 2,
-            rect.h + sizes::default_border_thickness * 2
+            rect.x - options::default_border_thickness,
+            rect.y - options::default_border_thickness,
+            rect.w + options::default_border_thickness * 2,
+            rect.h + options::default_border_thickness * 2
         }, sdl::rgba(m_discard_pile.border_color));
     }
     for (card_view *card : m_discard_pile | take_last<2>) {
@@ -600,7 +600,7 @@ void game_scene::HANDLE_UPDATE(add_cubes, const add_cubes_update &args) {
 
         auto pos = cube_pile_offset(rng);
         cube.pos = sdl::point{
-            parent->width() / 2 + pos.x + sizes::cube_pile_xoffset,
+            parent->width() / 2 + pos.x + options::cube_pile_xoffset,
             parent->height() / 2 + pos.y
         };
     }
@@ -618,13 +618,13 @@ void game_scene::HANDLE_UPDATE(move_cube, const move_cube_update &args) {
     sdl::point diff;
     if (args.card_id) {
         cube.owner = find_card(args.card_id);
-        diff.x = sizes::cube_xdiff;
-        diff.y = sizes::cube_ydiff + sizes::cube_yoff * cube.owner->cubes.size();
+        diff.x = options::cube_xdiff;
+        diff.y = options::cube_ydiff + options::cube_yoff * cube.owner->cubes.size();
         cube.owner->cubes.push_back(&cube);
     } else {
         cube.owner = nullptr;
         diff = cube_pile_offset(rng);
-        diff.x += parent->width() / 2 + sizes::cube_pile_xoffset;
+        diff.x += parent->width() / 2 + options::cube_pile_xoffset;
         diff.y += parent->height() / 2;
     }
     cube_move_animation anim(&cube, diff);
@@ -719,8 +719,8 @@ void game_scene::move_player_views() {
     auto own_player = m_player_own_id ? m_players.find(m_player_own_id) : m_players.begin();
     if (own_player == m_players.end()) return;
 
-    int xradius = (parent->width() / 2) - sizes::player_ellipse_x_distance;
-    int yradius = (parent->height() / 2) - sizes::player_ellipse_y_distance;
+    int xradius = (parent->width() / 2) - options::player_ellipse_x_distance;
+    int yradius = (parent->height() / 2) - options::player_ellipse_y_distance;
 
     double angle = 0.f;
     for(auto it = own_player;;) {
@@ -738,7 +738,7 @@ void game_scene::move_player_views() {
         [](const auto &pair) { return pair.second.m_role.role; }); it != m_players.end()) {
         auto player_rect = it->second.m_bounding_rect;
         m_scenario_deck.set_pos(sdl::point{
-            player_rect.x + player_rect.w + sizes::scenario_deck_xoff,
+            player_rect.x + player_rect.w + options::scenario_deck_xoff,
             player_rect.y + player_rect.h / 2});
     }
 }

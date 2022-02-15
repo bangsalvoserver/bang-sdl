@@ -1,7 +1,7 @@
 #include "utils/sdl.h"
 #include "utils/sdlnet.h"
 
-#include "common/options.h"
+#include "common/net_options.h"
 
 #include "manager.h"
 

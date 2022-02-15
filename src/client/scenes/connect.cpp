@@ -3,7 +3,6 @@
 #include "../manager.h"
 #include "../tinyfd/tinyfiledialogs.h"
 
-#include "game/sizes.h"
 #include "utils/resource.h"
 
 DECLARE_RESOURCE(icon_default_user_png)
@@ -56,10 +55,10 @@ void connect_scene::resize(int width, int height) {
     label_rect.y = 50 + (25 - label_rect.h) / 2;
     m_username_label.set_rect(label_rect);
     
-    m_username_box.set_rect(sdl::rect{125 + label_rect.w + sizes::propic_size, 50, width - 225 - sizes::propic_size - label_rect.w, 25});
+    m_username_box.set_rect(sdl::rect{125 + label_rect.w + widgets::propic_size, 50, width - 225 - widgets::propic_size - label_rect.w, 25});
 
     auto propic_rect = m_propic.get_rect();
-    m_propic_pos.x = 115 + label_rect.w + (sizes::propic_size - propic_rect.w) / 2;
+    m_propic_pos.x = 115 + label_rect.w + (widgets::propic_size - propic_rect.w) / 2;
     m_propic_pos.y = m_username_box.get_rect().y + (m_username_box.get_rect().h - propic_rect.h) / 2;
 
     m_create_server_btn.set_rect(sdl::rect{(width - 200) / 2, 100, 200, 25});

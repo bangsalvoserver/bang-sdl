@@ -1,7 +1,7 @@
-#ifndef __SIZES_H__
-#define __SIZES_H__
+#ifndef __OPTIONS_H__
+#define __OPTIONS_H__
 
-namespace sizes {
+namespace banggame::options {
     constexpr int card_width = 60;
     constexpr int card_xoffset = 10;
     constexpr int card_yoffset = 55;
@@ -38,8 +38,6 @@ namespace sizes {
 
     constexpr int player_ellipse_x_distance = 250;
     constexpr int player_ellipse_y_distance = 180;
-
-    constexpr int propic_size = 50;
 
     constexpr int card_overlay_timer = 60;
 

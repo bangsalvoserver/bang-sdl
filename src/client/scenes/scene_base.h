@@ -5,8 +5,8 @@
 
 #include "utils/sdl.h"
 
-#include "widgets/button.h"
-#include "widgets/textbox.h"
+#include "../widgets/button.h"
+#include "../widgets/textbox.h"
 
 #include "../user_info.h"
 

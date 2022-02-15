@@ -1,7 +1,7 @@
 #ifndef __SCENE_GAME_H__
 #define __SCENE_GAME_H__
 
-#include "../scene_base.h"
+#include "../scenes/scene_base.h"
 
 #include "animation.h"
 #include "game_ui.h"
@@ -76,19 +76,19 @@ namespace banggame {
         card_pile_view m_shop_deck;
         card_pile_view m_shop_discard;
         card_pile_view m_hidden_deck;
-        card_pile_view m_shop_selection{sizes::shop_selection_width, true};
-        card_pile_view m_shop_choice{sizes::shop_choice_width};
+        card_pile_view m_shop_selection{options::shop_selection_width, true};
+        card_pile_view m_shop_choice{options::shop_choice_width};
 
         card_pile_view m_main_deck;
         card_pile_view m_discard_pile;
 
-        sdl::stattext m_main_deck_count;
+        widgets::stattext m_main_deck_count;
         void update_main_deck_count();
 
         card_pile_view m_scenario_deck;
         card_pile_view m_scenario_card;
 
-        card_pile_view m_selection{sizes::selection_width};
+        card_pile_view m_selection{options::selection_width};
 
         card_pile_view m_specials;
 

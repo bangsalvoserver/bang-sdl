@@ -1,7 +1,7 @@
 #ifndef __CHAT_UI_H__
 #define __CHAT_UI_H__
 
-#include "scenes/widgets/textbox.h"
+#include "widgets/textbox.h"
 
 #include <list>
 #include <mutex>
@@ -13,13 +13,13 @@ enum class message_type {
 };
 
 struct chat_message {
-    sdl::stattext text;
+    widgets::stattext text;
     int lifetime;
 };
 
-struct chat_textbox : sdl::textbox {
+struct chat_textbox : widgets::textbox {
     void on_lose_focus() override {
-        sdl::textbox::on_lose_focus();
+        widgets::textbox::on_lose_focus();
 
         disable();
     }
@@ -42,7 +42,7 @@ public:
 private:
     class game_manager *parent;
 
-    sdl::text_style get_text_style(message_type type);
+    widgets::text_style get_text_style(message_type type);
 
     sdl::rect m_rect;
 

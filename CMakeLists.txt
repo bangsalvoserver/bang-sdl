@@ -21,18 +21,19 @@ set(bangclient_srcs
     src/client/manager.cpp
     src/client/user_info.cpp
     src/client/chat_ui.cpp
-    src/client/scenes/game/card.cpp
-    src/client/scenes/game/player.cpp
-    src/client/scenes/game/game.cpp
-    src/client/scenes/game/game_ui.cpp
-    src/client/scenes/game/target_finder.cpp
-    src/client/scenes/widgets/button.cpp
-    src/client/scenes/widgets/checkbox.cpp
-    src/client/scenes/widgets/textbox.cpp
-    src/client/scenes/widgets/text_list.cpp
+    src/client/game/card.cpp
+    src/client/game/player.cpp
+    src/client/game/game.cpp
+    src/client/game/game_ui.cpp
+    src/client/game/target_finder.cpp
     src/client/scenes/connect.cpp
     src/client/scenes/lobby_list.cpp
     src/client/scenes/lobby.cpp
+    src/client/widgets/button.cpp
+    src/client/widgets/checkbox.cpp
+    src/client/widgets/textbox.cpp
+    src/client/widgets/text_list.cpp
+    src/client/widgets/os_api.cpp
     src/client/tinyfd/tinyfiledialogs.c
 )
 

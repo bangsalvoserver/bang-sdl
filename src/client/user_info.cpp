@@ -1,6 +1,6 @@
 #include "user_info.h"
 
-#include "scenes/game/sizes.h"
+#include "widgets/defaults.h"
 
 #include <cstring>
 
@@ -28,12 +28,12 @@ std::vector<std::byte> encode_profile_image(const sdl::surface &image) {
     sdl::rect rect = image.get_rect();
     int scale = 1;
     if (rect.w > rect.h) {
-        if (rect.w > sizes::propic_size) {
-            return do_encode(sdl::scale_surface(image, rect.w / sizes::propic_size));
+        if (rect.w > widgets::propic_size) {
+            return do_encode(sdl::scale_surface(image, rect.w / widgets::propic_size));
         }
     } else {
-        if (rect.h > sizes::propic_size) {
-            return do_encode(sdl::scale_surface(image, rect.h / sizes::propic_size));
+        if (rect.h > widgets::propic_size) {
+            return do_encode(sdl::scale_surface(image, rect.h / widgets::propic_size));
         }
     }
     return do_encode(image);

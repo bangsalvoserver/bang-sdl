@@ -4,15 +4,15 @@
 #include "event_handler.h"
 #include "stattext.h"
 
-namespace sdl {
+namespace widgets {
 
     struct button_style {
         text_style text;
-        color up_color = sdl::rgb(sdl::default_button_up_rgb);
-        color hover_color = sdl::rgb(sdl::default_button_hover_rgb);
-        color down_color = sdl::rgb(sdl::default_button_down_rgb);
-        color toggled_color = sdl::rgb(sdl::default_button_toggled_rgb);
-        color border_color = sdl::rgb(sdl::default_button_border_rgb);
+        sdl::color up_color = sdl::rgb(default_button_up_rgb);
+        sdl::color hover_color = sdl::rgb(default_button_hover_rgb);
+        sdl::color down_color = sdl::rgb(default_button_down_rgb);
+        sdl::color toggled_color = sdl::rgb(default_button_toggled_rgb);
+        sdl::color border_color = sdl::rgb(default_button_border_rgb);
     };
 
     class button : public event_handler {
@@ -21,7 +21,7 @@ namespace sdl {
         stattext m_text;
 
         sdl::rect m_border_rect;
-        point m_text_pos;
+        sdl::point m_text_pos;
 
         button_callback_fun m_onclick;
 
@@ -34,12 +34,12 @@ namespace sdl {
         bool toggled = false;
     
     protected:
-        bool handle_event(const event &event) override;
+        bool handle_event(const sdl::event &event) override;
         
     public:
         button(const std::string &label, button_callback_fun &&onclick = nullptr, const button_style &style = {});
         
-        void render(renderer &renderer);
+        void render(sdl::renderer &renderer);
 
         void set_onclick(button_callback_fun &&onclick) {
             m_onclick = std::move(onclick);

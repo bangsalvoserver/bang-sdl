@@ -9,7 +9,7 @@
 #include "utils/utils.h"
 #include "utils/binary_serial.h"
 
-#include "common/options.h"
+#include "common/net_options.h"
 #include "common/net_enums.h"
 
 #include "game/game.h"

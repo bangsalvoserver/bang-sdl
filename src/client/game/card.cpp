@@ -1,6 +1,6 @@
 #include "card.h"
 
-#include "common/options.h"
+#include "common/net_options.h"
 
 namespace banggame {
 
@@ -121,7 +121,7 @@ namespace banggame {
     void card_view::render(sdl::renderer &renderer, bool skip_if_animating) {
         auto do_render = [&](const sdl::texture &tex) {
             m_rect = tex.get_rect();
-            sdl::scale_rect(m_rect, sizes::card_width);
+            sdl::scale_rect(m_rect, options::card_width);
 
             m_rect.x = m_pos.x - m_rect.w / 2;
             m_rect.y = m_pos.y - m_rect.h / 2;
@@ -133,10 +133,10 @@ namespace banggame {
 
             if (border_color) {
                 card_textures::get().card_border.render_colored(renderer, sdl::rect{
-                    rect.x - sizes::default_border_thickness,
-                    rect.y - sizes::default_border_thickness,
-                    rect.w + sizes::default_border_thickness * 2,
-                    rect.h + sizes::default_border_thickness * 2
+                    rect.x - options::default_border_thickness,
+                    rect.y - options::default_border_thickness,
+                    rect.w + options::default_border_thickness * 2,
+                    rect.h + options::default_border_thickness * 2
                 }, sdl::rgba(border_color));
             }
 
@@ -169,7 +169,7 @@ namespace banggame {
         if (size() == 1 || m_width == 0) {
             return pos;
         }
-        float xoffset = std::min(float(m_width) / (size() - 1), float(sizes::card_width + sizes::card_xoffset)) * hflip;
+        float xoffset = std::min(float(m_width) / (size() - 1), float(options::card_width + options::card_xoffset)) * hflip;
 
         return sdl::point{(int)(pos.x + xoffset *
             (std::ranges::distance(begin(), std::ranges::find(*this, card)) - (size() - 1) * .5f)),
@@ -178,7 +178,7 @@ namespace banggame {
 
     sdl::point character_pile::get_position_of(card_view *card) const {
         int diff = std::ranges::distance(begin(), std::ranges::find(*this, card));
-        return sdl::point{pos.x + sizes::character_offset * diff, pos.y + sizes::character_offset * diff};
+        return sdl::point{pos.x + options::character_offset * diff, pos.y + options::character_offset * diff};
     }
 
     void card_pile_view::erase_card(card_view *card) {

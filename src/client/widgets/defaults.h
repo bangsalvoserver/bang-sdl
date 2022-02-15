@@ -1,7 +1,7 @@
 #ifndef __DEFAULTS_H__
 #define __DEFAULTS_H__
 
-namespace sdl {
+namespace widgets {
 
     constexpr uint32_t default_text_rgb = 0x0;
     constexpr uint32_t default_text_bg_rgba = 0xffffff80;
@@ -13,7 +13,7 @@ namespace sdl {
     constexpr uint32_t default_button_toggled_rgb = 0xbbbbff;
     constexpr uint32_t default_button_border_rgb = 0x0;
     
-    constexpr int chat_message_lifetime = 600;
+    constexpr int chat_message_lifetime = 1000;
 
     constexpr int chat_text_ptsize = 12;
     constexpr int default_text_list_yoffset = 6;
@@ -24,6 +24,8 @@ namespace sdl {
     constexpr int error_text_ptsize = 14;
 
     constexpr uint32_t server_log_rgb = 0x0000ff;
+
+    constexpr int propic_size = 50;
 
 }
 

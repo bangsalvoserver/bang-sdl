@@ -17,8 +17,8 @@ namespace banggame {
         int gold = 0;
         bool dead = false;
 
-        card_pile_view hand{sizes::player_hand_width};
-        card_pile_view table{sizes::player_hand_width};
+        card_pile_view hand{options::player_hand_width};
+        card_pile_view table{options::player_hand_width};
 
         sdl::rect m_bounding_rect;
         uint32_t border_color = 0;
@@ -28,9 +28,9 @@ namespace banggame {
         
         role_card m_role;
 
-        sdl::stattext m_username_text;
+        widgets::stattext m_username_text;
 
-        sdl::stattext m_gold_text;
+        widgets::stattext m_gold_text;
 
         sdl::texture *m_profile_image = nullptr;
         sdl::rect m_profile_rect;

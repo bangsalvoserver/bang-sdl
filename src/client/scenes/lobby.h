@@ -3,13 +3,13 @@
 
 #include "scene_base.h"
 
-#include "widgets/checkbox.h"
+#include "../widgets/checkbox.h"
 
 #include "common/card_enums.h"
 
 #include <list>
 
-struct expansion_box : sdl::checkbox {
+struct expansion_box : widgets::checkbox {
     expansion_box(const std::string &label, banggame::card_expansion_type flag, banggame::card_expansion_type check);
     banggame::card_expansion_type m_flag;
 };
@@ -27,7 +27,7 @@ public:
     void render(sdl::renderer &renderer);
 
 private:
-    sdl::stattext m_name_text;
+    widgets::stattext m_name_text;
     const sdl::texture *m_profile_image = nullptr;
     sdl::rect m_profile_rect;
 
@@ -52,12 +52,12 @@ public:
 private:
     std::vector<lobby_player_item> m_player_list;
 
-    sdl::stattext m_lobby_name_text;
+    widgets::stattext m_lobby_name_text;
     
-    sdl::button m_leave_btn;
-    sdl::button m_start_btn;
+    widgets::button m_leave_btn;
+    widgets::button m_start_btn;
 
-    sdl::button m_chat_btn;
+    widgets::button m_chat_btn;
 
     std::list<expansion_box> m_checkboxes;
 

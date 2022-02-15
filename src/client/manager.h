@@ -12,7 +12,7 @@
 #include "scenes/connect.h"
 #include "scenes/lobby_list.h"
 #include "scenes/lobby.h"
-#include "scenes/game/game.h"
+#include "game/game.h"
 
 #include "config.h"
 #include "user_info.h"

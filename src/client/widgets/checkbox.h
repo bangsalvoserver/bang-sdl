@@ -3,7 +3,8 @@
 
 #include "button.h"
 
-namespace sdl {
+namespace widgets {
+    
     class checkbox : public event_handler {
     private:
         button_style m_style;
@@ -26,12 +27,12 @@ namespace sdl {
         bool m_value = false;
 
     protected:
-        bool handle_event(const event &event) override;
+        bool handle_event(const sdl::event &event) override;
 
     public:
         checkbox(const std::string &label, const button_style &style = {});
 
-        void render(renderer &renderer);
+        void render(sdl::renderer &renderer);
 
         void set_rect(const sdl::rect &rect);
 

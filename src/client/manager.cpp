@@ -6,7 +6,7 @@
 #include "utils/message_header.h"
 #include "utils/binary_serial.h"
 
-#include "common/options.h"
+#include "common/net_options.h"
 
 DECLARE_RESOURCE(background_png)
 
@@ -112,7 +112,7 @@ void game_manager::render(sdl::renderer &renderer) {
 }
 
 void game_manager::handle_event(const sdl::event &event) {
-    if (!sdl::event_handler::handle_events(event)) {
+    if (!widgets::event_handler::handle_events(event)) {
         m_scene->handle_event(event);
     }
 }

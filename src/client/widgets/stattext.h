@@ -9,13 +9,13 @@
 
 DECLARE_RESOURCE(arial_ttf)
 
-namespace sdl {
+namespace widgets {
     struct text_style {
-        color text_color = rgb(sdl::default_text_rgb);
+        sdl::color text_color = sdl::rgb(widgets::default_text_rgb);
         resource_view text_font = GET_RESOURCE(arial_ttf);
-        int text_ptsize = sdl::default_text_ptsize;
+        int text_ptsize = widgets::default_text_ptsize;
         int wrap_length = 0;
-        color bg_color = rgba(sdl::default_text_bg_rgba);
+        sdl::color bg_color = sdl::rgba(widgets::default_text_bg_rgba);
         int bg_border_x = 5;
         int bg_border_y = 2;
     };
@@ -23,11 +23,11 @@ namespace sdl {
     class stattext {
     private:
         text_style m_style;
-        font m_font;
+        sdl::font m_font;
 
-        texture m_tex;
+        sdl::texture m_tex;
 
-        rect m_rect;
+        sdl::rect m_rect;
 
         std::string m_value;
 
@@ -48,7 +48,7 @@ namespace sdl {
         void redraw(const std::string &label) {
             if (label != m_value) {
                 m_value = label;
-                m_tex = make_text_surface(label, m_font, m_wrap_length, m_style.text_color);
+                m_tex = sdl::make_text_surface(label, m_font, m_wrap_length, m_style.text_color);
                 m_rect = m_tex.get_rect();
             }
         }
@@ -57,7 +57,7 @@ namespace sdl {
             return m_value;
         }
 
-        void render(renderer &renderer, bool render_background = true) {
+        void render(sdl::renderer &renderer, bool render_background = true) {
             if (m_tex) {
                 if (render_background) {
                     renderer.set_draw_color(m_style.bg_color);
@@ -70,7 +70,7 @@ namespace sdl {
             }
         }
 
-        void render_cropped(renderer &renderer, const sdl::rect &crop_rect) {
+        void render_cropped(sdl::renderer &renderer, const sdl::rect &crop_rect) {
             if (m_tex) {
                 m_rect.x = crop_rect.x;
                 m_rect.y = crop_rect.y;
@@ -85,11 +85,11 @@ namespace sdl {
             }
         }
 
-        void set_rect(const rect &rect) noexcept {
+        void set_rect(const sdl::rect &rect) noexcept {
             m_rect = rect;
         }
 
-        const rect &get_rect() const noexcept {
+        const sdl::rect &get_rect() const noexcept {
             return m_rect;
         }
 
@@ -101,7 +101,7 @@ namespace sdl {
             return m_wrap_length;
         }
 
-        void set_point(const point &pt) {
+        void set_point(const sdl::point &pt) {
             m_rect.x = pt.x;
             m_rect.y = pt.y;
         }

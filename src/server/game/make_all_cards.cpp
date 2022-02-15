@@ -9,7 +9,7 @@
 #include "utils/resource.h"
 
 #include "common/holders.h"
-#include "common/options.h"
+#include "common/net_options.h"
 
 #ifdef BANG_CARDS_JSON_LINKED
 DECLARE_RESOURCE(bang_cards_json)

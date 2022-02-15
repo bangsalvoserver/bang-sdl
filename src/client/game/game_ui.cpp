@@ -1,16 +1,16 @@
 #include "game_ui.h"
 #include "game.h"
 
-#include "../../manager.h"
+#include "../manager.h"
 
 using namespace banggame;
 using namespace enums::flag_operators;
 
 game_ui::game_ui(game_scene *parent)
     : parent(parent)
-    , m_game_log(sdl::text_list_style{
+    , m_game_log(widgets::text_list_style{
         .text = {
-            .text_ptsize = sdl::chat_log_ptsize
+            .text_ptsize = widgets::chat_log_ptsize
         }
     })
     , m_confirm_btn(_("GAME_CONFIRM"), std::bind(&target_finder::on_click_confirm, &parent->m_target))
@@ -51,12 +51,12 @@ void game_ui::render(sdl::renderer &renderer) {
 
     m_chat_btn.render(renderer);
 
-    auto draw_status = [&](sdl::stattext &text) {
+    auto draw_status = [&](widgets::stattext &text) {
         if (text.get_value().empty()) return;
 
         sdl::rect rect = text.get_rect();
         rect.x = (parent->parent->width() - rect.w) / 2;
-        rect.y = (parent->parent->height() - rect.h) - sizes::status_text_y_distance;
+        rect.y = (parent->parent->height() - rect.h) - options::status_text_y_distance;
         text.set_rect(rect);
         text.render(renderer);
     };

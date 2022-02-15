@@ -21,11 +21,11 @@ private:
 
     int m_id;
 
-    sdl::stattext m_name_text;
-    sdl::stattext m_players_text;
-    sdl::stattext m_state_text;
+    widgets::stattext m_name_text;
+    widgets::stattext m_players_text;
+    widgets::stattext m_state_text;
 
-    sdl::button m_join_btn;
+    widgets::button m_join_btn;
 };
 
 class lobby_list_scene : public scene_base {
@@ -44,10 +44,10 @@ public:
 private:
     std::list<lobby_line> m_lobby_lines;
 
-    sdl::textbox m_lobby_name_box;
-    sdl::button m_make_lobby_btn;
+    widgets::textbox m_lobby_name_box;
+    widgets::button m_make_lobby_btn;
 
-    sdl::button m_disconnect_btn;
+    widgets::button m_disconnect_btn;
 };
 
 #endif

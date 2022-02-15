@@ -8,9 +8,9 @@
 struct recent_server_line {
     class connect_scene *parent;
     
-    sdl::stattext m_address_text;
-    sdl::button m_connect_btn;
-    sdl::button m_delete_btn;
+    widgets::stattext m_address_text;
+    widgets::button m_connect_btn;
+    widgets::button m_delete_btn;
 
     recent_server_line(class connect_scene *parent, const std::string &address);
 
@@ -38,15 +38,15 @@ public:
     void do_create_server();
 
 private:
-    sdl::stattext m_username_label;
-    sdl::textbox m_username_box;
+    widgets::stattext m_username_label;
+    widgets::textbox m_username_box;
     sdl::texture m_propic;
     sdl::point m_propic_pos;
 
-    sdl::stattext m_address_label;
-    sdl::textbox m_address_box;
-    sdl::button m_connect_btn;
-    sdl::button m_create_server_btn;
+    widgets::stattext m_address_label;
+    widgets::textbox m_address_box;
+    widgets::button m_connect_btn;
+    widgets::button m_create_server_btn;
 
     std::list<recent_server_line> m_recents;
 };

@@ -1,6 +1,6 @@
 #include "checkbox.h"
 
-using namespace sdl;
+using namespace widgets;
 
 DECLARE_RESOURCE(icon_checkbox_png)
 
@@ -9,7 +9,7 @@ checkbox::checkbox(const std::string &label, const button_style &style)
     , m_text(label, style.text)
     , m_checkbox_texture{sdl::surface(GET_RESOURCE(icon_checkbox_png))} {}
 
-void checkbox::render(renderer &renderer) {
+void checkbox::render(sdl::renderer &renderer) {
     renderer.set_draw_color([&]{
         switch (m_state) {
         case state_hover:   return m_style.hover_color;
@@ -40,10 +40,10 @@ void checkbox::set_rect(const sdl::rect &rect) {
     m_text.set_rect(text_rect);
 }
 
-bool checkbox::handle_event(const event &event) {
+bool checkbox::handle_event(const sdl::event &event) {
     switch (event.type) {
     case SDL_MOUSEMOTION:
-        if (point_in_rect(point{event.motion.x, event.motion.y}, m_checkbox_rect)) {
+        if (sdl::point_in_rect(sdl::point{event.motion.x, event.motion.y}, m_checkbox_rect)) {
             if (m_state == state_up) {
                 m_state = state_hover;
             }
@@ -55,7 +55,7 @@ bool checkbox::handle_event(const event &event) {
         break;
     case SDL_MOUSEBUTTONDOWN:
         if (event.button.button == SDL_BUTTON_LEFT
-            && point_in_rect(point{event.motion.x, event.motion.y}, m_checkbox_rect)) {
+            && sdl::point_in_rect(sdl::point{event.motion.x, event.motion.y}, m_checkbox_rect)) {
             m_state = state_down;
             set_focus(this);
             return true;
@@ -64,7 +64,7 @@ bool checkbox::handle_event(const event &event) {
     case SDL_MOUSEBUTTONUP:
         if (event.button.button == SDL_BUTTON_LEFT
             && m_state == state_down) {
-            if (point_in_rect(point{event.motion.x, event.motion.y}, m_checkbox_rect)) {
+            if (sdl::point_in_rect(sdl::point{event.motion.x, event.motion.y}, m_checkbox_rect)) {
                 m_state = state_hover;
                 if (!m_locked) {
                     m_value = !m_value;

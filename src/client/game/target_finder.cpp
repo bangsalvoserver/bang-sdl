@@ -1,7 +1,7 @@
 #include "target_finder.h"
 
 #include "game.h"
-#include "../../manager.h"
+#include "../manager.h"
 #include "../widgets/os_api.h"
 
 #include <cassert>
@@ -21,28 +21,28 @@ void target_finder::set_border_colors() {
         case card_pile_type::player_table:
         case card_pile_type::player_character:
         case card_pile_type::selection:
-            card->border_color = sizes::target_finder_can_pick_rgba;
+            card->border_color = options::target_finder_can_pick_rgba;
             break;
         case card_pile_type::player:
-            player->border_color = sizes::target_finder_can_pick_rgba;
+            player->border_color = options::target_finder_can_pick_rgba;
             break;
         case card_pile_type::main_deck:
-            m_game->m_main_deck.border_color = sizes::target_finder_can_pick_rgba;
+            m_game->m_main_deck.border_color = options::target_finder_can_pick_rgba;
             break;
         case card_pile_type::discard_pile:
-            m_game->m_discard_pile.border_color = sizes::target_finder_can_pick_rgba;
+            m_game->m_discard_pile.border_color = options::target_finder_can_pick_rgba;
             break;
         }
     }
     for (auto *card : m_response_highlights) {
-        card->border_color = sizes::target_finder_can_respond_rgba;
+        card->border_color = options::target_finder_can_respond_rgba;
     }
     for (auto *card : m_modifiers) {
-        card->border_color = sizes::target_finder_current_card_rgba;
+        card->border_color = options::target_finder_current_card_rgba;
     }
 
     if (m_playing_card) {
-        m_playing_card->border_color = sizes::target_finder_current_card_rgba;
+        m_playing_card->border_color = options::target_finder_current_card_rgba;
     }
 
     for (auto &l : m_targets) {
@@ -50,16 +50,16 @@ void target_finder::set_border_colors() {
             if (!is_auto) {
                 if (card) {
                     if (std::ranges::find(m_selected_cubes, card, &cube_widget::owner) == m_selected_cubes.end()) {
-                        card->border_color = sizes::target_finder_target_rgba;
+                        card->border_color = options::target_finder_target_rgba;
                     }
                 } else if (player) {
-                    player->border_color = sizes::target_finder_target_rgba;
+                    player->border_color = options::target_finder_target_rgba;
                 }
             }
         }
     }
     for (auto *cube : m_selected_cubes) {
-        cube->border_color = sizes::target_finder_target_rgba;
+        cube->border_color = options::target_finder_target_rgba;
     }
 }
 
@@ -624,7 +624,7 @@ void target_finder::add_card_target(target_pair target) {
             default: return false;
             }
         })) {
-        if (bool(cur_target & target_type::card)) play_bell();
+        if (bool(cur_target & target_type::card)) widgets::play_bell();
         return;
     }
     
@@ -713,7 +713,7 @@ bool target_finder::add_player_targets(const std::vector<target_pair> &targets) 
                 }
             });
         }, &target_pair::player)) return true;
-        if (bool(type & target_type::player)) play_bell();
+        if (bool(type & target_type::player)) widgets::play_bell();
         return false;
     };
     if (m_equipping) {

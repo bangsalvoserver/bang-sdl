@@ -2,7 +2,7 @@
 #include <iostream>
 
 #include "server.h"
-#include "common/options.h"
+#include "common/net_options.h"
 
 int main(int argc, char **argv) {
     sdlnet::initializer init;

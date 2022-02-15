@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <functional>
 
-namespace sdl {
+namespace widgets {
 
     using button_callback_fun = std::function<void()>;
 

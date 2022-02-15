@@ -2,14 +2,14 @@
 
 #include <ranges>
 
-namespace sdl {
+namespace widgets {
 
-    void text_list::set_rect(const rect &new_rect) {
+    void text_list::set_rect(const sdl::rect &new_rect) {
         m_rect = new_rect;
 
         int y = m_rect.y + m_rect.h;
         for (auto it = m_messages.rbegin(); it != m_messages.rend(); ++it) {
-            rect text_rect = it->get_rect();
+            sdl::rect text_rect = it->get_rect();
             text_rect.x = m_rect.x;
             text_rect.y = y - text_rect.h;
             if (text_rect.y < m_rect.y) {
@@ -22,7 +22,7 @@ namespace sdl {
         }
     }
 
-    void text_list::render(renderer &renderer) {
+    void text_list::render(sdl::renderer &renderer) {
         for (auto &obj : m_messages) {
             obj.render(renderer);
         }

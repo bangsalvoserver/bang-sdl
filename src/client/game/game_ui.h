@@ -22,7 +22,7 @@ namespace banggame {
             m_status_text.redraw(message);
         }
         void clear_status() {
-            m_status_text = sdl::stattext();
+            m_status_text = widgets::stattext();
         }
         void enable_restart(bool value) {
             m_restart_btn.set_enabled(value);
@@ -33,18 +33,18 @@ namespace banggame {
     private:
         class game_scene *parent;
 
-        sdl::text_list m_game_log;
+        widgets::text_list m_game_log;
 
-        sdl::stattext m_status_text;
+        widgets::stattext m_status_text;
 
-        sdl::button m_confirm_btn;
+        widgets::button m_confirm_btn;
 
-        std::list<std::pair<sdl::button, card_view*>> m_special_btns;
+        std::list<std::pair<widgets::button, card_view*>> m_special_btns;
 
-        sdl::button m_leave_btn;
-        sdl::button m_restart_btn;
+        widgets::button m_leave_btn;
+        widgets::button m_restart_btn;
 
-        sdl::button m_chat_btn;
+        widgets::button m_chat_btn;
     };
 
 }

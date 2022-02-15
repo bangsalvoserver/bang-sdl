@@ -8,7 +8,7 @@ DECLARE_RESOURCE(perdido_ttf)
 using namespace enums::flag_operators;
 
 lobby_player_item::lobby_player_item(int id, const user_info &args)
-    : m_name_text(args.name, sdl::text_style{
+    : m_name_text(args.name, widgets::text_style{
         .text_font = GET_RESOURCE(bkant_bold_ttf)
     })
     , m_profile_image(&args.profile_image)
@@ -18,19 +18,19 @@ void lobby_player_item::resize(int x, int y) {
     if (m_profile_image && *m_profile_image) {
         m_profile_rect = m_profile_image->get_rect();
         if (m_profile_rect.w > m_profile_rect.h) {
-            m_profile_rect.h = m_profile_rect.h * sizes::propic_size / m_profile_rect.h;
-            m_profile_rect.w = sizes::propic_size;
+            m_profile_rect.h = m_profile_rect.h * widgets::propic_size / m_profile_rect.h;
+            m_profile_rect.w = widgets::propic_size;
         } else {
-            m_profile_rect.w = m_profile_rect.w * sizes::propic_size / m_profile_rect.h;
-            m_profile_rect.h = sizes::propic_size;
+            m_profile_rect.w = m_profile_rect.w * widgets::propic_size / m_profile_rect.h;
+            m_profile_rect.h = widgets::propic_size;
         }
 
-        m_profile_rect.x = x + (sizes::propic_size - m_profile_rect.w) / 2;
-        m_profile_rect.y = y + (sizes::propic_size - m_profile_rect.h) / 2;
+        m_profile_rect.x = x + (widgets::propic_size - m_profile_rect.w) / 2;
+        m_profile_rect.y = y + (widgets::propic_size - m_profile_rect.h) / 2;
     }
     m_name_text.set_point(sdl::point{
-        x + sizes::propic_size + 10,
-        y + (sizes::propic_size - m_name_text.get_rect().h) / 2});
+        x + widgets::propic_size + 10,
+        y + (widgets::propic_size - m_name_text.get_rect().h) / 2});
 }
 
 void lobby_player_item::render(sdl::renderer &renderer) {
@@ -41,7 +41,7 @@ void lobby_player_item::render(sdl::renderer &renderer) {
 }
 
 expansion_box::expansion_box(const std::string &label, banggame::card_expansion_type flag, banggame::card_expansion_type check)
-    : sdl::checkbox(label, sdl::button_style{
+    : widgets::checkbox(label, widgets::button_style{
         .text = {
             .text_font = GET_RESOURCE(perdido_ttf)
         }
@@ -54,7 +54,7 @@ expansion_box::expansion_box(const std::string &label, banggame::card_expansion_
 
 lobby_scene::lobby_scene(game_manager *parent)
     : scene_base(parent)
-    , m_lobby_name_text(sdl::text_style {
+    , m_lobby_name_text(widgets::text_style {
         .text_font = GET_RESOURCE(bkant_bold_ttf)
     })
     , m_leave_btn(_("BUTTON_EXIT"), std::bind(&game_manager::add_message<client_message_type::lobby_leave>, parent))
@@ -119,7 +119,7 @@ void lobby_scene::resize(int width, int height) {
     int y = 60;
     for (auto &line : m_player_list) {
         line.resize(width / 2, y);
-        y += sizes::propic_size + 10;
+        y += widgets::propic_size + 10;
     }
 
     m_leave_btn.set_rect(sdl::rect{20, 20, 100, 25});

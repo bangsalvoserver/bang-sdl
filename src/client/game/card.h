@@ -7,7 +7,7 @@
 #include "utils/sdl.h"
 #include "utils/unpacker.h"
 
-#include "sizes.h"
+#include "options.h"
 
 #include <filesystem>
 #include <vector>
@@ -133,7 +133,7 @@ namespace banggame {
         void set_texture_front(sdl::texture &&tex) {
             texture_front = std::move(tex);
             texture_front_scaled = sdl::scale_surface(texture_front.get_surface(),
-                texture_front.get_rect().w / sizes::card_width);
+                texture_front.get_rect().w / options::card_width);
         }
         
         void make_texture_front();

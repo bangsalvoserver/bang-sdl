@@ -1,5 +1,5 @@
-#ifndef __OPTIONS_H__
-#define __OPTIONS_H__
+#ifndef __NET_OPTIONS_H__
+#define __NET_OPTIONS_H__
 
 #include <cstdint>
 
