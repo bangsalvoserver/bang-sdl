@@ -106,15 +106,13 @@ namespace banggame {
     }
 
     void effect_thunderer::on_play(card *origin_card, player *origin) {
-        origin->add_bang_mod([=](request_bang &req) {
-            card *bang_card = origin->m_chosen_card ? origin->m_chosen_card : req.origin_card;
-            origin->m_game->add_event<event_type::on_play_card_end>(bang_card,
-                [origin, origin_card = req.origin_card, bang_card](player *p, card *c) {
-                    if (p == origin && c == origin_card) {
-                        origin->m_game->move_to(bang_card, card_pile_type::player_hand, true, origin, show_card_flags::short_pause);
-                        origin->m_game->remove_events(bang_card);
-                    }
-                });
+        origin->add_bang_mod([](request_bang &req) {
+            card *bang_card = req.origin->m_chosen_card ? req.origin->m_chosen_card : req.origin_card;
+            req.origin->m_game->move_to(bang_card, card_pile_type::player_hand, true, req.origin, show_card_flags::short_pause | show_card_flags::show_everyone);
+
+            req.cleanup_function = [origin = req.origin, bang_card]{
+                origin->m_game->send_card_update(*bang_card, origin);
+            };
         });
     }
 
