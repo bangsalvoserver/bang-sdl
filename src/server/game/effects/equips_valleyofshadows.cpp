@@ -17,6 +17,11 @@ namespace banggame {
         });
     }
 
+    void effect_lemat::on_unequip(card *origin_card, player *p) {
+        p->m_game->remove_events(origin_card);
+        p->remove_player_flags(player_flags::treat_any_as_bang);
+    }
+
     void effect_snake::on_equip(card *target_card, player *target) {
         target->add_predraw_check(target_card, 0, [=](card *drawn_card) {
             if (target->get_card_suit(drawn_card) == card_suit_type::spades) {
