@@ -8,22 +8,22 @@ namespace banggame {
         : cards_pak_data(base_path / "cards.pak", std::ios::in | std::ios::binary)
         , card_resources(cards_pak_data)
     {
-        card_mask = get_card_resource("mask");
+        card_mask = get_card_resource("card_mask");
+        card_border = get_card_resource("card_border");
 
-        backface_maindeck = apply_card_mask(get_card_resource("back_card"));
+        backface_maindeck = apply_card_mask(get_card_resource("back_maindeck"));
         backface_character = apply_card_mask(get_card_resource("back_character"));
         backface_role = apply_card_mask(get_card_resource("back_role"));
         backface_goldrush = apply_card_mask(get_card_resource("back_goldrush"));
 
-        card_border = get_card_resource("card_border");
+        sprite_cube = get_card_resource("sprite_cube");
+        sprite_cube_border = get_card_resource("sprite_cube_border");
 
-        cube_icon = get_card_resource("cube");
-        cube_border = get_card_resource("cube_border");
+        icon_gold = get_card_resource("icon_gold");
 
-        gold_icon = get_card_resource("gold");
-
-        bullet_icon = get_card_resource("icon_bullet");
-        bullet_border = get_card_resource("icon_bullet_border");
+        icon_turn = get_card_resource("icon_turn");
+        icon_origin = get_card_resource("icon_origin");
+        icon_target = get_card_resource("icon_target");
 
         s_instance = this;
     }
@@ -102,9 +102,9 @@ namespace banggame {
 
         if (!skip_if_animating || !animating) {
             if (border_color) {
-                do_render(card_textures::get().cube_border, sdl::rgba(border_color));
+                do_render(card_textures::get().sprite_cube_border, sdl::rgba(border_color));
             }
-            do_render(card_textures::get().cube_icon);
+            do_render(card_textures::get().sprite_cube);
         }
     }
 

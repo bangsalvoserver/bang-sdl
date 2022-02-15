@@ -170,24 +170,23 @@ void game_scene::render(sdl::renderer &renderer) {
 
         int x = p.m_bounding_rect.x + p.m_bounding_rect.w - 5;
 
-        auto render_bullet = [&](sdl::color color) {
-            sdl::rect rect = card_textures::get().bullet_icon.get_rect();
+        auto render_icon = [&](const sdl::texture &texture, sdl::color color = sdl::rgba(0xffffffff)) {
+            sdl::rect rect = texture.get_rect();
             rect.x = x - rect.w;
             rect.y = p.m_bounding_rect.y + 5;
-            card_textures::get().bullet_border.render_colored(renderer, rect, color);
-            card_textures::get().bullet_icon.render(renderer, rect);
+            texture.render_colored(renderer, rect, color);
         };
 
         if (player_id == m_playing_id) {
-            render_bullet(sdl::rgba(sizes::turn_indicator_rgba));
-            x -= 22;
-        }
-        if (m_current_request && m_current_request->origin_id == player_id) {
-            render_bullet(sdl::rgba(sizes::request_origin_indicator_rgba));
-            x -= 22;
+            render_icon(card_textures::get().icon_turn, sdl::rgba(sizes::turn_indicator_rgba));
+            x -= 32;
         }
         if (m_current_request && m_current_request->target_id == player_id) {
-            render_bullet(sdl::rgba(sizes::request_target_indicator_rgba));
+            render_icon(card_textures::get().icon_target, sdl::rgba(sizes::request_target_indicator_rgba));
+            x -= 32;
+        }
+        if (m_current_request && m_current_request->origin_id == player_id) {
+            render_icon(card_textures::get().icon_origin, sdl::rgba(sizes::request_origin_indicator_rgba));
         }
     }
 

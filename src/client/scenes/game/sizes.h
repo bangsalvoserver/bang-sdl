@@ -50,7 +50,7 @@ namespace sizes {
 
     constexpr uint32_t player_view_border_rgba = 0x2d1000ff;
 
-    constexpr uint32_t turn_indicator_rgba = 0x1ed760ff;
+    constexpr uint32_t turn_indicator_rgba = 0x55753aff;
     constexpr uint32_t request_origin_indicator_rgba = 0xffff00ff;
     constexpr uint32_t request_target_indicator_rgba = 0xff0000ff;
 

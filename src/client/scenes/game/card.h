@@ -18,21 +18,21 @@ namespace banggame {
     struct card_textures {
     public:
         sdl::surface card_mask;
+        sdl::texture card_border;
 
         sdl::texture backface_maindeck;
         sdl::texture backface_character;
         sdl::texture backface_role;
         sdl::texture backface_goldrush;
 
-        sdl::texture card_border;
+        sdl::texture sprite_cube;
+        sdl::texture sprite_cube_border;
 
-        sdl::texture cube_icon;
-        sdl::texture cube_border;
+        sdl::texture icon_gold;
 
-        sdl::texture gold_icon;
-
-        sdl::texture bullet_icon;
-        sdl::texture bullet_border;
+        sdl::texture icon_turn;
+        sdl::texture icon_origin;
+        sdl::texture icon_target;
 
         sdl::surface apply_card_mask(const sdl::surface &source) const;
 
