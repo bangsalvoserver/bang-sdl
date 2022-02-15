@@ -78,9 +78,9 @@ void game_manager::resize(int width, int height) {
     m_scene->resize(m_width, m_height);
 
     m_chat.set_rect(sdl::rect{
-        width - 200,
+        width - 250,
         height - 400,
-        190,
+        240,
         350
     });
 }
@@ -149,6 +149,10 @@ void game_manager::HANDLE_MESSAGE(client_accepted) {
         }
     }
     switch_scene<scene_type::lobby_list>();
+}
+
+void game_manager::HANDLE_MESSAGE(lobby_error, const std::string &message) {
+    add_chat_message(message_type::error, _(message));
 }
 
 void game_manager::HANDLE_MESSAGE(lobby_list, const std::vector<lobby_data> &args) {

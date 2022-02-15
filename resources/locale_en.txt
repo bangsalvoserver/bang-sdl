@@ -88,6 +88,7 @@ banggame::card_expansion_type::ghostcards           Ghost cards
 lobby_state::waiting                Waiting
 lobby_state::playing                Playing
 lobby_state::finished               Finished
+ERROR_INVALID_LOBBY                 Invalid Lobby ID
 ERROR_PLAYER_IN_LOBBY               Player already in a lobby
 ERROR_PLAYER_NOT_IN_LOBBY           Player not in a lobby
 ERROR_PLAYER_NOT_LOBBY_OWNER        Not owner of lobby

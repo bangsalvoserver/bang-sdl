@@ -87,6 +87,7 @@ public:
 
 private:
     void HANDLE_MESSAGE(client_accepted);
+    void HANDLE_MESSAGE(lobby_error, const std::string &message);
     void HANDLE_MESSAGE(lobby_list, const std::vector<lobby_data> &args);
     void HANDLE_MESSAGE(lobby_update, const lobby_data &args);
     void HANDLE_MESSAGE(lobby_edited, const lobby_info &args);

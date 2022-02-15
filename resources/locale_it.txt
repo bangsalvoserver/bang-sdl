@@ -88,6 +88,7 @@ banggame::card_expansion_type::ghostcards           Carte Fantasma
 lobby_state::waiting                In attesa
 lobby_state::playing                In gioco
 lobby_state::finished               Partita finita
+ERROR_INVALID_LOBBY                 ID lobby non valido
 ERROR_PLAYER_IN_LOBBY               Giocatore già in una lobby
 ERROR_PLAYER_NOT_IN_LOBBY           Giocatore non in una lobby
 ERROR_PLAYER_NOT_LOBBY_OWNER        Non proprietario della lobby
