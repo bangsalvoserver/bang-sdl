@@ -265,6 +265,11 @@ void game_scene::handle_event(const sdl::event &event) {
         m_mouse_motion_timer = 0;
         m_mouse_pt = {event.motion.x, event.motion.y};
         break;
+    case SDL_KEYDOWN:
+        if (event.key.keysym.sym == SDLK_RETURN) {
+            parent->enable_chat();
+        }
+        break;
     }
 }
 
