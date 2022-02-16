@@ -55,7 +55,7 @@ namespace banggame {
     };
 
     struct request_poker_draw : request_base, allowed_piles<card_pile_type::selection> {
-        request_poker_draw(card *origin_card, player *origin)
+        request_poker_draw(card *origin_card, player *target)
             : request_base(origin_card, nullptr, target) {}
 
         int num_cards = 2;

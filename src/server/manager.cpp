@@ -282,7 +282,7 @@ void game_manager::HANDLE_MESSAGE(game_action, game_user *user, const game_actio
 }
 
 void lobby::send_updates(game_manager &mgr) {
-    while (!game.m_updates.empty()) {
+    while (state == lobby_state::playing && !game.m_updates.empty()) {
         const auto &data = game.m_updates.front();
         if (data.first) {
             if (auto it = std::ranges::find(users, data.first, &game_user::controlling); it != users.end()) {
@@ -293,8 +293,9 @@ void lobby::send_updates(game_manager &mgr) {
         }
         if (data.second.is(game_update_type::game_over)) {
             state = lobby_state::finished;
+        } else {
+            game.m_updates.pop_front();
         }
-        game.m_updates.pop_front();
     }
 }
 

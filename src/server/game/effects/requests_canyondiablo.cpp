@@ -30,6 +30,7 @@ namespace banggame {
         if (target->m_game->m_selection.empty()) {
             target->m_game->player_death(origin, target);
             target->m_game->pop_request(request_type::lastwill);
+            target->m_game->check_game_over(origin, target);
         } else {
             target->m_game->pop_request_noupdate(request_type::lastwill);
             target->m_game->add_request<request_type::lastwill_target>(origin_card, target);
@@ -52,6 +53,7 @@ namespace banggame {
             
             target->m_game->player_death(origin, target);
             target->m_game->pop_request(request_type::lastwill_target);
+            target->m_game->check_game_over(origin, target);
         }
     }
 

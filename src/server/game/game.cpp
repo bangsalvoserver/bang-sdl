@@ -693,14 +693,13 @@ struct to_end{};
         }();
 
         if (winner_role != player_role::unknown) {
-            m_requests.clear();
-            m_pending_events.clear();
             add_public_update<game_update_type::status_clear>();
             for (const auto &p : m_players) {
                 add_public_update<game_update_type::player_show_role>(p.id, p.m_role);
             }
             add_log("LOG_GAME_OVER");
             add_public_update<game_update_type::game_over>(winner_role);
+            m_game_over = true;
         } else if (m_playing == target) {
             get_next_in_turn(target)->start_of_turn();
         } else if (killer) {

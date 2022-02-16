@@ -219,10 +219,8 @@ namespace banggame {
         if (target->m_game->top_request_is(request_type::death)) {
             target->m_game->player_death(origin, target);
             target->m_game->pop_request(request_type::death);
-        }
-        target->m_game->queue_delayed_action([origin = origin, target = target]{
             target->m_game->check_game_over(origin, target);
-        });
+        }
     }
 
     game_formatted_string request_death::status_text() const {

@@ -83,6 +83,8 @@ namespace banggame {
 
         game_options m_options;
 
+        bool m_game_over = false;
+
         int m_id_counter = 0;
 
         game() {

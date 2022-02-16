@@ -823,15 +823,11 @@ namespace banggame {
             it->second.resolved = true;
         }
         m_game->queue_delayed_action([this]{
-            if (m_game->m_playing == this && m_game->num_alive() > 1) {
-                if (alive()) {
-                    if (std::ranges::all_of(m_predraw_checks | std::views::values, &predraw_check::resolved)) {
-                        request_drawing();
-                    } else {
-                        m_game->queue_request<request_type::predraw>(this);
-                    }
+            if (alive() && m_game->m_playing == this && !m_game->m_game_over) {
+                if (std::ranges::all_of(m_predraw_checks | std::views::values, &predraw_check::resolved)) {
+                    request_drawing();
                 } else {
-                    m_game->get_next_in_turn(this)->start_of_turn();
+                    m_game->queue_request<request_type::predraw>(this);
                 }
             }
         });
@@ -861,18 +857,16 @@ namespace banggame {
                 m_game->instant_event<event_type::post_turn_end>(this);
             }
             m_game->queue_delayed_action([&]{
-                if (m_game->num_alive() > 0) {
-                    if (m_extra_turns == 0) {
-                        if (!check_player_flags(player_flags::ghost) && m_hp == 0 && m_game->has_scenario(scenario_flags::ghosttown)) {
-                            --m_num_cards_to_draw;
-                            m_game->player_death(nullptr, this);
-                        }
-                        remove_player_flags(player_flags::extra_turn);
-                        m_game->get_next_in_turn(this)->start_of_turn();
-                    } else {
-                        --m_extra_turns;
-                        start_of_turn();
+                if (m_extra_turns == 0) {
+                    if (!check_player_flags(player_flags::ghost) && m_hp == 0 && m_game->has_scenario(scenario_flags::ghosttown)) {
+                        --m_num_cards_to_draw;
+                        m_game->player_death(nullptr, this);
                     }
+                    remove_player_flags(player_flags::extra_turn);
+                    m_game->get_next_in_turn(this)->start_of_turn();
+                } else {
+                    --m_extra_turns;
+                    start_of_turn();
                 }
             });
         }
