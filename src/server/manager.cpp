@@ -5,7 +5,7 @@
 
 #include "utils/binary_serial.h"
 
-#include "common/net_enums.h"
+#include "net_enums.h"
 
 using namespace banggame;
 using namespace enums::flag_operators;

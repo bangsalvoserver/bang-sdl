@@ -5,6 +5,8 @@
 
 #include "manager.h"
 
+#include "game/os_api.h"
+
 using namespace std::string_literals;
 using namespace std::placeholders;
 
@@ -70,7 +72,7 @@ bool bang_server::start() {
                     }
                 }
             }
-            SDL_Delay(1000 / banggame::fps);
+            os_api::wait_for(1000 / banggame::fps);
         }
 
         print_message("Server shut down");

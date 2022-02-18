@@ -1,7 +1,7 @@
 #ifndef __GAME_UI_H__
 #define __GAME_UI_H__
 
-#include "common/game_action.h"
+#include "game/game_action.h"
 #include "card.h"
 
 #include "../widgets/text_list.h"

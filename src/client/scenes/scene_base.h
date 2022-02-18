@@ -1,7 +1,7 @@
 #ifndef __SCENE_BASE_H__
 #define __SCENE_BASE_H__
 
-#include "common/net_enums.h"
+#include "server/net_enums.h"
 
 #include "utils/sdl.h"
 

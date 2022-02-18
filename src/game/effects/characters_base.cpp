@@ -1,0 +1,116 @@
+#include "characters_base.h"
+
+#include "../game.h"
+
+namespace banggame {
+    using namespace enums::flag_operators;
+
+    void effect_calamity_janet::on_equip(card *origin_card, player *p) {
+        p->add_player_flags(player_flags::treat_missed_as_bang);
+    }
+
+    void effect_calamity_janet::on_unequip(card *origin_card, player *p) {
+        p->remove_player_flags(player_flags::treat_missed_as_bang);
+    }
+
+    void effect_slab_the_killer::on_equip(card *target_card, player *p) {
+        p->m_game->add_event<event_type::on_play_bang>(target_card, [p](player *target) {
+            if (p == target) {
+                target->add_bang_mod([](request_bang &req) {
+                    ++req.bang_strength;
+                });
+            }
+        });
+    }
+
+    void effect_black_jack::on_equip(card *target_card, player *target) {
+        target->m_game->add_event<event_type::on_card_drawn>(target_card, [target](player *origin, card *drawn_card) {
+            if (origin == target && origin->m_num_drawn_cards == 2) {
+                card_suit_type suit = target->get_card_suit(drawn_card);
+                target->m_game->send_card_update(*drawn_card, nullptr, show_card_flags::short_pause);
+                target->m_game->send_card_update(*drawn_card, target);
+                if (suit == card_suit_type::hearts || suit == card_suit_type::diamonds) {
+                    origin->m_game->queue_delayed_action([=]{
+                        ++origin->m_num_drawn_cards;
+                        card *drawn_card = origin->m_game->draw_phase_one_card_to(card_pile_type::player_hand, origin);
+                        origin->m_game->instant_event<event_type::on_card_drawn>(target, drawn_card);
+                    });
+                }
+            }
+        });
+    }
+
+    void effect_kit_carlson::on_equip(card *target_card, player *target) {
+        target->m_game->add_event<event_type::on_draw_from_deck>(target_card, [=](player *origin) {
+            if (target == origin && target->m_num_cards_to_draw < 3) {
+                target->m_game->pop_request_noupdate(request_type::draw);
+                for (int i=0; i<3; ++i) {
+                    target->m_game->draw_phase_one_card_to(card_pile_type::selection, target);
+                }
+                target->m_game->queue_request<request_type::kit_carlson>(target_card, target);
+            }
+        });
+    }
+
+    void request_kit_carlson::on_pick(card_pile_type pile, player *target_player, card *target_card) {
+        ++target->m_num_drawn_cards;
+        target->add_to_hand(target_card);
+        target->m_game->instant_event<event_type::on_card_drawn>(target, target_card);
+        if (target->m_num_drawn_cards >= target->m_num_cards_to_draw) {
+            while (!target->m_game->m_selection.empty()) {
+                target->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::main_deck, false);
+            }
+            target->m_game->pop_request(request_type::kit_carlson);
+        }
+    }
+
+    game_formatted_string request_kit_carlson::status_text() const {
+        return {"STATUS_KIT_CARLSON", origin_card};
+    }
+
+    void effect_el_gringo::on_equip(card *target_card, player *p) {
+        p->m_game->add_event<event_type::on_hit>(target_card, [=](card *origin_card, player *origin, player *target, int damage, bool is_bang) {
+            if (origin && p == target && p->m_game->m_playing != p) {
+                while(damage-- && !origin->m_hand.empty()) {
+                    target->steal_card(origin, origin->random_hand_card());
+                }
+                target->m_game->queue_event<event_type::on_effect_end>(p, target_card);
+            }
+        });
+    }
+
+    void effect_suzy_lafayette::on_equip(card *target_card, player *p) {
+        p->m_game->add_event<event_type::on_effect_end>(target_card, [p](player *origin, card *target_card) {
+            if (p->m_hand.empty()) {
+                p->m_game->draw_card_to(card_pile_type::player_hand, p);
+            }
+        });
+    }
+
+    void effect_vulture_sam::on_equip(card *target_card, player *p) {
+        p->m_game->add_event<event_type::on_player_death>(target_card, [p](player *origin, player *target) {
+            if (p != target) {
+                for (auto it = target->m_table.begin(); it != target->m_table.end(); ) {
+                    card *target_card = *it;
+                    if (target_card->color != card_color_type::black) {
+                        it = target->move_card_to(target_card, card_pile_type::player_hand, true, p);
+                    } else {
+                        ++it;
+                    }
+                }
+                while (!target->m_hand.empty()) {
+                    p->add_to_hand(target->m_hand.front());
+                }
+            }
+        });
+    }
+
+    void effect_greg_digger::on_equip(card *target_card, player *p) {
+        p->m_game->add_event<event_type::on_player_death>(target_card, [p](player *origin, player *target) {
+            if (p != target) {
+                p->heal(2);
+            }
+        });
+    }
+
+}

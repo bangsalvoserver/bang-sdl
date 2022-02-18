@@ -1,9 +1,11 @@
 #include "utils/sdl.h"
 #include "utils/sdlnet.h"
 
-#include "common/net_options.h"
+#include "server/net_options.h"
 
 #include "manager.h"
+
+#include "game/os_api.h"
 
 constexpr int window_width = 900;
 constexpr int window_height = 700;
@@ -51,7 +53,7 @@ extern "C" __declspec(dllexport) long __stdcall entrypoint(const char *base_path
                 break;
             }
         }
-        SDL_Delay(1000 / banggame::fps);
+        os_api::wait_for(1000 / banggame::fps);
     }
 
     return 0;

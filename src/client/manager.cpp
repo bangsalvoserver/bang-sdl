@@ -6,7 +6,7 @@
 #include "utils/message_header.h"
 #include "utils/binary_serial.h"
 
-#include "common/net_options.h"
+#include "server/net_options.h"
 
 DECLARE_RESOURCE(background_png)
 

@@ -2,12 +2,12 @@
 #include <iostream>
 
 #include "server.h"
-#include "common/net_options.h"
+#include "net_options.h"
 
 int main(int argc, char **argv) {
     sdlnet::initializer init;
 
-    bang_server server(SDL_GetBasePath());
+    bang_server server(std::filesystem::path(argv[0]).parent_path());
     
     server.set_message_callback([](const std::string &message) {
         std::cout << message << '\n';

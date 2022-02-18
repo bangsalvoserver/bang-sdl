@@ -1,6 +1,6 @@
 #include "card.h"
 
-#include "common/net_options.h"
+#include "server/net_options.h"
 
 namespace banggame {
 

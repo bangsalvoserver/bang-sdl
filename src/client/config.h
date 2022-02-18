@@ -7,7 +7,7 @@
 #include "utils/json_serial.h"
 #include "utils/resource.h"
 
-#include "common/card_enums.h"
+#include "game/card_enums.h"
 
 #include "user_info.h"
 

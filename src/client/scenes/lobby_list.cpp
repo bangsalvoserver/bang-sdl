@@ -1,7 +1,7 @@
 #include "lobby_list.h"
 
 #include "../manager.h"
-#include "common/net_options.h"
+#include "server/net_options.h"
 
 lobby_line::lobby_line(lobby_list_scene *parent, const lobby_data &args)
     : parent(parent)

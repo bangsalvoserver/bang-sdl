@@ -1,8 +1,8 @@
 #ifndef __CLIENT_CARD_H__
 #define __CLIENT_CARD_H__
 
-#include "common/card_enums.h"
-#include "common/game_update.h"
+#include "game/card_enums.h"
+#include "game/game_update.h"
 
 #include "utils/sdl.h"
 #include "utils/unpacker.h"

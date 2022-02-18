@@ -6,8 +6,7 @@
 #include <memory>
 
 #include "server/server.h"
-
-#include "common/net_enums.h"
+#include "server/net_enums.h"
 
 #include "scenes/connect.h"
 #include "scenes/lobby_list.h"

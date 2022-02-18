@@ -5,7 +5,7 @@
 
 #include "../widgets/checkbox.h"
 
-#include "common/card_enums.h"
+#include "game/card_enums.h"
 
 #include <list>
 

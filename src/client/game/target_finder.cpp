@@ -2,7 +2,7 @@
 
 #include "game.h"
 #include "../manager.h"
-#include "../widgets/os_api.h"
+#include "game/os_api.h"
 
 #include <cassert>
 
@@ -624,7 +624,7 @@ void target_finder::add_card_target(target_pair target) {
             default: return false;
             }
         })) {
-        if (bool(cur_target & target_type::card)) widgets::play_bell();
+        if (bool(cur_target & target_type::card)) os_api::play_bell();
         return;
     }
     
@@ -713,7 +713,7 @@ bool target_finder::add_player_targets(const std::vector<target_pair> &targets) 
                 }
             });
         }, &target_pair::player)) return true;
-        if (bool(type & target_type::player)) widgets::play_bell();
+        if (bool(type & target_type::player)) os_api::play_bell();
         return false;
     };
     if (m_equipping) {
