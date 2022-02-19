@@ -410,7 +410,7 @@ void game_scene::pop_update() {
             }, update);
         }
     } catch (const std::exception &error) {
-        std::cerr << "Error: " << error.what() << '\n';
+        parent->add_chat_message(message_type::error, std::string("Error: ") + error.what());
         parent->disconnect();
     }
 }

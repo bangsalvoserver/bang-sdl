@@ -15,11 +15,8 @@ add_library(asio INTERFACE)
 target_include_directories(asio INTERFACE ${Boost_INCLUDE_DIRS})
 target_link_libraries(asio INTERFACE ${Boost_LIBRARIES})
 if(MINGW)
-    target_link_libraries(asio INTERFACE ws2_32 wsock32)
+    target_link_libraries(asio INTERFACE wsock32 ws2_32)
 endif()
-
-pkg_check_modules(SDL2_net REQUIRED SDL2_net IMPORTED_TARGET)
-target_link_libraries(asio INTERFACE PkgConfig::SDL2_net)
 
 pkg_check_modules(jsoncpp REQUIRED jsoncpp IMPORTED_TARGET)
 
@@ -73,7 +70,6 @@ set(banggame_srcs
     src/game/make_all_cards.cpp
     src/game/player.cpp
     src/game/possible_to_play.cpp
-    src/game/os_api.cpp
 )
 
 set(bangnet_srcs
@@ -108,16 +104,12 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
 endif()
 
 add_library(bangnet SHARED ${bangnet_srcs})
-target_link_libraries(banggame PkgConfig::SDL2_net)
-target_link_libraries(bangnet banggame)
+target_link_libraries(bangnet asio banggame)
 
 target_link_libraries(bangclient bangnet)
 
 add_executable(bangserver src/server/main.cpp)
 target_link_libraries(bangserver bangnet)
-if(WIN32 AND MINGW)
-    target_link_options(bangserver PRIVATE -mconsole)
-endif()
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     if (WIN32)

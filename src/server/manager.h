@@ -16,15 +16,15 @@
 
 struct lobby;
 
-struct game_user : util::id_counter<game_user> {
-    sdlnet::ip_address addr;
+struct game_user {
+    int client_id;
     std::string name;
     std::vector<std::byte> profile_image;
     lobby *in_lobby = nullptr;
     banggame::player *controlling = nullptr;
 
-    game_user(sdlnet::ip_address addr, std::string name, std::vector<std::byte> profile_image = {})
-        : addr(std::move(addr))
+    game_user(int client_id, std::string name, std::vector<std::byte> profile_image = {})
+        : client_id(client_id)
         , name(std::move(name))
         , profile_image(std::move(profile_image)) {}
 };
@@ -44,7 +44,7 @@ struct lobby : util::id_counter<lobby> {
 };
 
 struct server_message_pair {
-    sdlnet::ip_address addr;
+    int client_id;
     server_message value;
 };
 
@@ -62,26 +62,30 @@ class game_manager {
 public:
     game_manager(const std::filesystem::path &base_path);
     
-    void parse_message(const sdlnet::ip_address &addr, const std::vector<std::byte> &msg);
+    void handle_message(int client_id, const client_message &msg);
     int pending_messages();
     server_message_pair pop_message();
 
-    void client_disconnected(const sdlnet::ip_address &addr);
+    void client_disconnected(int client_id);
 
     template<server_message_type E, typename ... Ts>
-    void send_message(const sdlnet::ip_address &addr, Ts && ... args) {
-        m_out_queue.emplace_back(addr, make_message<E>(std::forward<Ts>(args) ... ));
+    void send_message(int client_id, Ts && ... args) {
+        m_out_queue.emplace_back(client_id, make_message<E>(std::forward<Ts>(args) ... ));
     }
 
     template<server_message_type E, typename ... Ts>
     void broadcast_message(const lobby &lobby, Ts && ... args) {
         auto msg = make_message<E>(std::forward<Ts>(args) ... );
         for (game_user *u : lobby.users) {
-            m_out_queue.emplace_back(u->addr, msg);
+            m_out_queue.emplace_back(u->client_id, msg);
         }
     }
 
     void tick();
+
+    void set_message_callback(message_callback_t &&fun) {
+        m_message_callback = std::move(fun);
+    }
 
     void set_error_callback(message_callback_t &&fun) {
         m_error_callback = std::move(fun);
@@ -91,7 +95,7 @@ private:
     lobby_data make_lobby_data(const lobby &l);
     void send_lobby_update(const lobby &l);
 
-    void HANDLE_MESSAGE(connect,        const sdlnet::ip_address &addr, const connect_args &value);
+    void HANDLE_MESSAGE(connect,        int client_id, const connect_args &value);
     void HANDLE_MESSAGE(lobby_list,     game_user *user);
     void HANDLE_MESSAGE(lobby_make,     game_user *user, const lobby_info &value);
     void HANDLE_MESSAGE(lobby_edit,     game_user *user, const lobby_info &args);
@@ -102,13 +106,18 @@ private:
     void HANDLE_MESSAGE(game_start,     game_user *user);
     void HANDLE_MESSAGE(game_action,    game_user *user, const banggame::game_action &value);
 
-    std::map<sdlnet::ip_address, game_user> users;
+    std::map<int, game_user> users;
     std::list<lobby> m_lobbies;
     std::list<server_message_pair> m_out_queue;
 
     banggame::all_cards_t all_cards;
 
+    message_callback_t m_message_callback;
     message_callback_t m_error_callback;
+
+    void print_message(const std::string &msg) {
+        if (m_message_callback) m_message_callback(msg);
+    }
 
     void print_error(const std::string &msg) {
         if (m_error_callback) m_error_callback(msg);

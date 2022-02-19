@@ -6,14 +6,16 @@
 #include <thread>
 #include <map>
 
-#include "utils/sdlnet.h"
+#include "utils/connection.h"
+
+#include "server/net_enums.h"
+#include "server/net_options.h"
 
 using message_callback_t = std::function<void(const std::string &)>;
 
 class bang_server {
 public:
-    bang_server(const std::filesystem::path &base_path);
-    bang_server(const bang_server &) = delete;
+    bang_server(boost::asio::io_context &ctx, const std::filesystem::path &base_path);
 
     void set_message_callback(message_callback_t &&fun) {
         m_message_callback = std::move(fun);
@@ -26,24 +28,33 @@ public:
     bool start();
 
     void join() {
-        m_thread.join();
+        if (m_game_thread.joinable()) {
+            m_game_thread.join();
+        }
     }
     
     void stop() {
-        m_thread.request_stop();
+        m_game_thread.request_stop();
+        m_acceptor.close();
     }
 
 private:
-    sdlnet::socket_set m_sockset;
-    sdlnet::tcp_server_socket m_socket;
-    std::map<sdlnet::ip_address, sdlnet::tcp_peer_socket> m_clients;
+    boost::asio::io_context &m_ctx;
+    boost::asio::ip::tcp::acceptor m_acceptor;
 
-    std::jthread m_thread;
+    void start_accepting();
+
+    using connection_type = net::connection<client_message, server_message, banggame::bang_header>;
+    std::map<int, connection_type::pointer> m_clients;
+
+    int m_client_id_counter = 0;
+
+    std::filesystem::path m_base_path;
+
+    std::jthread m_game_thread;
 
     message_callback_t m_message_callback;
     message_callback_t m_error_callback;
-
-    std::filesystem::path m_base_path;
 
     void print_message(const std::string &msg) {
         if (m_message_callback) m_message_callback(msg);

@@ -3,9 +3,6 @@
 #include <sstream>
 #include <iostream>
 
-#include "utils/message_header.h"
-#include "utils/binary_serial.h"
-
 #include "server/net_options.h"
 
 DECLARE_RESOURCE(background_png)
@@ -13,9 +10,8 @@ DECLARE_RESOURCE(background_png)
 using namespace banggame;
 
 game_manager::game_manager(const std::filesystem::path &base_path)
-    : m_chat(this)
+    : m_base_path(base_path)
     , m_background(sdl::surface(GET_RESOURCE(background_png)))
-    , m_base_path(base_path)
 {
     m_config.load();
     switch_scene<scene_type::connect>();
@@ -23,51 +19,67 @@ game_manager::game_manager(const std::filesystem::path &base_path)
 
 game_manager::~game_manager() {
     m_config.save();
+    
+    if (m_con) {
+        m_ctx.stop();
+    }
 }
 
 void game_manager::update_net() {
-    while (sock.isopen() && sock_set.check(0)) {
-        try {
-            enums::visit_indexed([&](auto && ... args) {
-                handle_message(std::forward<decltype(args)>(args)...);
-            }, binary::deserialize<server_message>(recv_message_bytes(sock)));
-        } catch (sdlnet::socket_disconnected) {
+    if (m_con) {
+        if (m_con->connected()) {
+            while (m_con->incoming_messages()) {
+                try {
+                    enums::visit_indexed([&](auto && ... args) {
+                        handle_message(std::forward<decltype(args)>(args)...);
+                    }, m_con->pop_message());
+                } catch (const std::exception &error) {
+                    add_chat_message(message_type::error, std::string("Error: ") + error.what());
+                }
+            }
+        } else {
             disconnect();
-        } catch (const binary::read_error &error) {
-            std::cerr << "Deserialization error: " << error.what() << '\n';
-        } catch (const std::exception &error) {
-            std::cerr << "Error (" << error.what() << ")\n";
-        }
-    }
-    if (sock.isopen()) {
-        while (!m_out_queue.empty()) {
-            send_message_bytes(sock, binary::serialize(m_out_queue.front()));
-            m_out_queue.pop_front();
         }
     }
 }
 
 void game_manager::connect(const std::string &host) {
     try {
-        sock.open(sdlnet::ip_address(host, banggame::server_port));
-        sock_set.add(sock);
-        connected_ip = host;
+        m_con = connection_type::make(m_ctx, host, banggame::server_port);
 
+        if (!m_listenserver) {
+            m_ctx_thread = std::jthread([&]{ m_ctx.run(); });
+        }
+
+        m_connected_address = host;
         add_message<client_message_type::connect>(m_config.user_name, m_config.profile_image_data);
-    } catch (const sdlnet::net_error &e) {
-        add_chat_message(message_type::error, e.what());
+    } catch (boost::system::system_error &error) {
+        add_chat_message(message_type::error, error.code().message());
     }
 }
 
 void game_manager::disconnect() {
-    m_users.clear();
-    sock_set.erase(sock);
-    sock.close();
-    switch_scene<scene_type::connect>();
-    add_chat_message(message_type::error, _("ERROR_DISCONNECTED"));
+    m_ctx.stop();
+
+    if (m_con) {
+        m_con.reset();
+    }
+
     if (m_listenserver) {
         m_listenserver.reset();
     }
+
+    if (m_ctx_thread.joinable()) {
+        m_ctx_thread.join();
+    }
+
+    m_ctx.restart();
+
+    m_connected_address.clear();
+    m_users.clear();
+
+    switch_scene<scene_type::connect>();
+    add_chat_message(message_type::error, _("ERROR_DISCONNECTED"));
 }
 
 
@@ -126,7 +138,7 @@ void game_manager::add_chat_message(message_type type, const std::string &messag
 }
 
 bool game_manager::start_listenserver() {
-    m_listenserver = std::make_unique<bang_server>(m_base_path);
+    m_listenserver = std::make_unique<bang_server>(m_ctx, m_base_path);
     m_listenserver->set_message_callback([this](const std::string &msg) {
         add_chat_message(message_type::server_log, std::string("SERVER: ") + msg); 
     });
@@ -134,6 +146,7 @@ bool game_manager::start_listenserver() {
         add_chat_message(message_type::error, std::string("SERVER: ") + msg);
     });
     if (m_listenserver->start()) {
+        m_ctx_thread = std::jthread([&]{ m_ctx.run(); });
         return true;
     } else {
         m_listenserver.reset();
@@ -142,10 +155,10 @@ bool game_manager::start_listenserver() {
 }
 
 void game_manager::HANDLE_MESSAGE(client_accepted) {
-    if (!connected_ip.empty() && !m_listenserver) {
-        auto it = std::ranges::find(m_config.recent_servers, connected_ip);
+    if (!m_connected_address.empty() && !m_listenserver) {
+        auto it = std::ranges::find(m_config.recent_servers, m_connected_address);
         if (it == m_config.recent_servers.end()) {
-            m_config.recent_servers.push_back(connected_ip);
+            m_config.recent_servers.push_back(m_connected_address);
         }
     }
     switch_scene<scene_type::lobby_list>();

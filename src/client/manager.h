@@ -18,6 +18,8 @@
 #include "intl.h"
 #include "chat_ui.h"
 
+#include "utils/connection.h"
+
 DEFINE_ENUM_TYPES(scene_type,
     (connect, connect_scene)
     (lobby_list, lobby_list_scene)
@@ -40,7 +42,9 @@ public:
 
     template<client_message_type E, typename ... Ts>
     void add_message(Ts && ... args) {
-        m_out_queue.emplace_back(enums::enum_constant<E>{}, std::forward<Ts>(args) ...);
+        if (m_con) {
+            m_con->push_message(enums::enum_constant<E>{}, std::forward<Ts>(args) ...);
+        }
     }
 
     void update_net();
@@ -98,22 +102,14 @@ private:
     void HANDLE_MESSAGE(game_started, const game_started_args &args);
     void HANDLE_MESSAGE(game_update, const banggame::game_update &args);
 
-    std::unique_ptr<scene_base> m_scene;
-
-    chat_ui m_chat;
-
-    std::list<client_message> m_out_queue;
-
-    sdlnet::tcp_socket sock;
-    sdlnet::socket_set sock_set{1};
-    std::string connected_ip;
-
-    std::unique_ptr<bang_server> m_listenserver;
-    std::map<int, user_info> m_users;
+private:
+    std::filesystem::path m_base_path;
+    config m_config;
 
     sdl::texture m_background;
+    std::unique_ptr<scene_base> m_scene;
 
-    std::filesystem::path m_base_path;
+    chat_ui m_chat{this};
 
     int m_width;
     int m_height;
@@ -121,7 +117,18 @@ private:
     int m_user_own_id = 0;
     int m_lobby_owner_id = 0;
 
-    config m_config;
+private:
+    boost::asio::io_context m_ctx;
+
+    using connection_type = net::connection<server_message, client_message, banggame::bang_header>;
+    connection_type::pointer m_con;
+    std::string m_connected_address;
+
+    std::map<int, user_info> m_users;
+    
+    std::unique_ptr<bang_server> m_listenserver;
+
+    std::jthread m_ctx_thread;
 };
 
 #endif

@@ -8,6 +8,7 @@
 #include <string>
 #include <cstring>
 #include <stdexcept>
+#include <span>
 #include <map>
 
 namespace binary {
@@ -16,11 +17,12 @@ namespace binary {
 
     using byte_vector = std::vector<std::byte>;
 
-    constexpr size_t default_packet_size = 1024;
+    using short_size_t = uint16_t;
 
     template<typename T>
     concept serializable = requires(T value, byte_vector &out) {
         serializer<T>{}(value, out);
+        { serializer<T>{}.get_size(value) } -> std::convertible_to<size_t>;
     };
 
     template<std::integral T>
@@ -30,13 +32,21 @@ namespace binary {
                 (out.push_back(static_cast<std::byte>((value & (static_cast<T>(0xff) << (8 * (sizeof(T) - I - 1)))) >> (8 * (sizeof(T) - I - 1)))), ...);
             }(std::make_index_sequence<sizeof(T)>());
         }
+
+        size_t get_size(const T &value) const {
+            return sizeof(T);
+        }
     };
 
     template<> struct serializer<std::string> {
         void operator()(const std::string &value, byte_vector &out) const {
-            serializer<uint16_t>{}(value.size(), out);
+            serializer<short_size_t>{}(value.size(), out);
             const auto *pos = reinterpret_cast<const std::byte *>(value.data());
             out.insert(out.end(), pos, pos + value.size());
+        }
+
+        size_t get_size(const std::string &value) const {
+            return sizeof(short_size_t) + value.size();
         }
     };
 
@@ -46,46 +56,81 @@ namespace binary {
             using underlying = std::underlying_type_t<T>;
             return serializer<underlying>{}(static_cast<underlying>(value), out);
         }
+
+        size_t get_size(const T &value) const {
+            return sizeof(std::underlying_type_t<T>);
+        }
     };
 
     template<serializable T>
     struct serializer<std::vector<T>> {
         void operator()(const std::vector<T> &value, byte_vector &out) const {
-            serializer<uint16_t>{}(value.size(), out);
+            serializer<short_size_t>{}(value.size(), out);
             for (const T &obj : value) {
                 serializer<T>{}(obj, out);
             }
+        }
+
+        size_t get_size(const std::vector<T> &value) const {
+            size_t ret = sizeof(short_size_t);
+            for (const T &obj : value) {
+                ret += serializer<T>{}.get_size(obj);
+            }
+            return ret;
         }
     };
 
     template<> struct serializer<byte_vector> {
         void operator()(const byte_vector &value, byte_vector &out) const {
-            serializer<uint16_t>{}(value.size(), out);
+            serializer<short_size_t>{}(value.size(), out);
             out.insert(out.end(), value.begin(), value.end());
+        }
+
+        size_t get_size(const byte_vector &value) const {
+            return sizeof(short_size_t) + value.size();
         }
     };
 
     template<serializable T>
     struct serializer<std::map<std::string, T>> {
         void operator()(const std::map<std::string, T> &value, byte_vector &out) const {
-            serializer<uint16_t>(value.size(), out);
+            serializer<short_size_t>(value.size(), out);
             for (const auto &[key, value] : value) {
                 serializer<std::string>{}(key, out);
                 serializer<T>{}(value, out);
             }
         }
+
+        size_t get_size(const std::map<std::string, T> &value) const {
+            size_t ret = sizeof(short_size_t);
+            for (const auto &[key, value] : value) {
+                ret += serializer<std::string>{}.get_size(key);
+                ret += serializer<T>{}.get_size(value);
+            }
+            return ret;
+        }
     };
 
     template<> struct serializer<std::monostate> {
         void operator()(const std::monostate &value, byte_vector &out) const {}
+
+        size_t get_size(const std::monostate &value) const {
+            return 0;
+        }
     };
 
     template<serializable ... Ts>
     struct serializer<std::variant<Ts ...>> {
         void operator()(const std::variant<Ts ...> &value, byte_vector &out) const {
-            serializer<uint16_t>{}(value.index(), out);
+            serializer<short_size_t>{}(value.index(), out);
             std::visit([&](const auto &value) {
                 return serializer<std::remove_cvref_t<decltype(value)>>{}(value, out);
+            }, value);
+        }
+
+        size_t get_size(const std::variant<Ts ...> &value) const {
+            return sizeof(short_size_t) + std::visit([&](const auto &value) {
+                return serializer<std::remove_cvref_t<decltype(value)>>{}.get_size(value);
             }, value);
         }
     };
@@ -95,6 +140,11 @@ namespace binary {
         void operator()(const enums::enum_variant<T> &value, byte_vector &out) const {
             using type = enums::enum_variant_base<T>;
             serializer<type>{}(static_cast<const type &>(value), out);
+        }
+
+        size_t get_size(const enums::enum_variant<T> &value) const {
+            using type = enums::enum_variant_base<T>;
+            return serializer<type>{}.get_size(static_cast<const type &>(value));
         }
     };
 
@@ -109,13 +159,31 @@ namespace binary {
                 }(), ...);
             }(std::make_index_sequence<reflector::num_fields<T>>());
         }
+
+        size_t get_size(const T &value) const {
+            return [&]<size_t ... I>(std::index_sequence<I ...>) {
+                return ([&]{
+                    const auto field_data = reflector::get_field_data<I>(value);
+                    const auto &field = field_data.get();
+                    return serializer<std::remove_cvref_t<decltype(field)>>{}.get_size(field);
+                }() + ...);
+            }(std::make_index_sequence<reflector::num_fields<T>>());
+        }
     };
 
     template<serializable T>
+    size_t get_size(const T &value) {
+        return serializer<T>{}.get_size(value);
+    }
+
+    template<serializable T>
     byte_vector serialize(const T &value) {
+        serializer<T> s;
+
         byte_vector ret;
-        ret.reserve(default_packet_size);
-        serializer<T>{}(value, ret);
+        ret.reserve(s.get_size(value));
+        s(value, ret);
+
         return ret;
     }
 
@@ -152,7 +220,7 @@ namespace binary {
 
     template<> struct deserializer<std::string> {
         std::string operator()(byte_ptr &pos, byte_ptr end) const {
-            auto size = deserializer<uint16_t>{}(pos, end);
+            auto size = deserializer<short_size_t>{}(pos, end);
             check_length(pos, end, size);
             std::string ret(size, '\0');
             std::memcpy(ret.data(), pos, size);
@@ -172,10 +240,10 @@ namespace binary {
     template<deserializable T>
     struct deserializer<std::vector<T>> {
         std::vector<T> operator()(byte_ptr &pos, byte_ptr end) const {
-            auto size = deserializer<uint16_t>{}(pos, end);
+            auto size = deserializer<short_size_t>{}(pos, end);
             std::vector<T> ret;
             ret.reserve(size);
-            for (uint16_t i=0; i<size; ++i) {
+            for (short_size_t i=0; i<size; ++i) {
                 ret.push_back(deserializer<T>{}(pos, end));
             }
             return ret;
@@ -184,7 +252,7 @@ namespace binary {
 
     template<> struct deserializer<byte_vector> {
         byte_vector operator()(byte_ptr &pos, byte_ptr end) const {
-            auto size = deserializer<uint16_t>{}(pos, end);
+            auto size = deserializer<short_size_t>{}(pos, end);
             check_length(pos, end, size);
             byte_vector ret;
             ret.reserve(size);
@@ -197,9 +265,9 @@ namespace binary {
     template<deserializable T>
     struct deserializer<std::map<std::string, T>> {
         std::map<std::string, T> operator()(byte_ptr &pos, byte_ptr end) const {
-            auto size = deserializer<uint16_t>{}(pos, end);
+            auto size = deserializer<short_size_t>{}(pos, end);
             std::map<std::string, T> ret;
-            for (uint16_t i=0; i<size; ++i) {
+            for (short_size_t i=0; i<size; ++i) {
                 std::string key = deserializer<std::string>{}(pos, end);
                 T value = deserializer<T>{}(pos, end);
                 ret.emplace(std::move(key), std::move(value));
@@ -218,7 +286,7 @@ namespace binary {
     struct deserializer<std::variant<Ts...>> {
         using variant_type = std::variant<Ts...>;
         variant_type operator()(byte_ptr &pos, byte_ptr end) const {
-            auto index = deserializer<uint16_t>{}(pos, end);
+            auto index = deserializer<short_size_t>{}(pos, end);
             constexpr auto lut = []<size_t ... I>(std::index_sequence<I...>){
                 return std::array { +[](byte_ptr &pos, byte_ptr end) -> variant_type {
                     return deserializer<std::variant_alternative_t<I, variant_type>>{}(pos, end);
@@ -234,7 +302,7 @@ namespace binary {
     template<enums::reflected_enum T>
     struct deserializer<enums::enum_variant<T>> {
         enums::enum_variant<T> operator()(byte_ptr &pos, byte_ptr end) const {
-            auto index = deserializer<uint16_t>{}(pos, end);
+            auto index = deserializer<short_size_t>{}(pos, end);
             constexpr auto lut = []<T ... Es>(enums::enum_sequence<Es ...>) {
                 return std::array { +[](byte_ptr &pos, byte_ptr end) {
                     constexpr T enum_value = Es;
@@ -267,7 +335,7 @@ namespace binary {
     };
 
     template<deserializable T>
-    T deserialize(const byte_vector &data) {
+    T deserialize(const std::span<const std::byte> &data) {
         byte_ptr pos = data.data();
         byte_ptr end = pos + data.size();
         T obj = deserializer<T>{}(pos, end);

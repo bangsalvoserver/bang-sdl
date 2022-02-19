@@ -1,78 +1,76 @@
 #include "server.h"
 
-#include "utils/message_header.h"
 #include "utils/binary_serial.h"
 
 #include "manager.h"
 
-#include "game/os_api.h"
-
 using namespace std::string_literals;
 using namespace std::placeholders;
 
-bang_server::bang_server(const std::filesystem::path &base_path)
-    : m_sockset(banggame::server_max_clients)
+bang_server::bang_server(boost::asio::io_context &ctx, const std::filesystem::path &base_path)
+    : m_ctx(ctx)
+    , m_acceptor(ctx)
     , m_base_path(base_path) {}
+
+void bang_server::start_accepting() {
+    m_acceptor.async_accept(
+        [this](const boost::system::error_code &ec, boost::asio::ip::tcp::socket peer) {
+            if (!ec) {
+                auto client = connection_type::make(std::move(peer));
+                print_message("Connection from "s + client->address_string());
+                
+                m_clients.emplace(++m_client_id_counter, std::move(client));
+            }
+            if (ec != boost::asio::error::operation_aborted) {
+                start_accepting();
+            }
+        });
+}
 
 bool bang_server::start() {
     try {
-        m_socket.listen(banggame::server_port);
-    } catch (const sdlnet::net_error &error) {
-        print_error(error.what());
+        boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), banggame::server_port);
+        m_acceptor.open(endpoint.protocol());
+        m_acceptor.bind(endpoint);
+        m_acceptor.listen(banggame::server_max_clients);
+    } catch (const boost::system::system_error &error) {
+        print_error(error.code().message());
         return false;
     }
 
     print_message("Server listening on port "s + std::to_string(banggame::server_port));
 
-    m_sockset.add(m_socket);
+    start_accepting();
 
-    m_thread = std::jthread([this](std::stop_token token) {
+    m_game_thread = std::jthread([this](std::stop_token token) {
         game_manager mgr{m_base_path};
+        mgr.set_message_callback(std::bind(&bang_server::print_message, this, _1));
         mgr.set_error_callback(std::bind(&bang_server::print_error, this, _1));
-        while(!token.stop_requested()) {
-            if (m_sockset.check(0)) {
-                for (auto it = m_clients.begin(); it != m_clients.end();) {
-                    try {
-                        if (m_sockset.ready(it->second)) {
-                            mgr.parse_message(it->first, recv_message_bytes(it->second));
-                        }
-                        ++it;
-                    } catch (sdlnet::socket_disconnected) {
-                        mgr.client_disconnected(it->first);
-                        print_message(it->first.ip_string() + " Disconnected"s);
-                        m_sockset.erase(it->second);
-                        it = m_clients.erase(it);
-                    } catch (const std::exception &e) {
-                        mgr.client_disconnected(it->first);
-                        print_error(it->first.ip_string() + ": "s + e.what());
-                        m_sockset.erase(it->second);
-                        it = m_clients.erase(it);
+        while (!token.stop_requested()) {
+            auto end = std::chrono::steady_clock::now() + std::chrono::milliseconds(1000) / banggame::fps;
+
+            for (auto it = m_clients.begin(); it != m_clients.end();) {
+                if (it->second->connected()) {
+                    while (it->second->incoming_messages()) {
+                        mgr.handle_message(it->first, it->second->pop_message());
                     }
-                }
-                if (m_sockset.ready(m_socket)) {
-                    auto peer = m_socket.accept();
-                    m_sockset.add(peer);
-                    print_message(peer.addr.ip_string() + " Connected"s);
-                    m_clients.emplace(peer.addr, std::move(peer));
+                    ++it;
+                } else {
+                    mgr.client_disconnected(it->first);
+                    it = m_clients.erase(it);
                 }
             }
             mgr.tick();
             while (mgr.pending_messages()) {
                 auto msg = mgr.pop_message();
                 
-                auto it = m_clients.find(msg.addr);
+                auto it = m_clients.find(msg.client_id);
                 if (it != m_clients.end()) {
-                    try {
-                        send_message_bytes(it->second, binary::serialize(msg.value));
-                    } catch (sdlnet::socket_disconnected) {
-                        mgr.client_disconnected(it->first);
-                        print_message(it->first.ip_string() + " Disconnected"s);
-                        m_sockset.erase(it->second);
-                        m_clients.erase(it);
-                    }
+                    it->second->push_message(std::move(msg.value));
                 }
             }
-            os_api::wait_for(1000 / banggame::fps);
+            
+            std::this_thread::sleep_until(end);
         }
 
         print_message("Server shut down");

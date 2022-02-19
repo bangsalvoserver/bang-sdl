@@ -1,11 +1,8 @@
 #include "utils/sdl.h"
-#include "utils/sdlnet.h"
 
 #include "server/net_options.h"
 
 #include "manager.h"
-
-#include "game/os_api.h"
 
 constexpr int window_width = 900;
 constexpr int window_height = 700;
@@ -16,7 +13,6 @@ extern "C" __declspec(dllexport) long __stdcall entrypoint(const char *base_path
     sdl::initializer sdl_init(SDL_INIT_VIDEO);
     sdl::ttf_initializer sdl_ttf_init;
     sdl::img_initializer sdl_img_init(IMG_INIT_PNG | IMG_INIT_JPG);
-    sdlnet::initializer sdl_net_init;
 
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
 
@@ -33,6 +29,8 @@ extern "C" __declspec(dllexport) long __stdcall entrypoint(const char *base_path
     sdl::event event;
     bool quit = false;
     while (!quit) {
+        auto end = std::chrono::steady_clock::now() + std::chrono::milliseconds(1000) / banggame::fps;
+
         mgr.render(renderer);
         SDL_RenderPresent(renderer.get());
 
@@ -53,7 +51,8 @@ extern "C" __declspec(dllexport) long __stdcall entrypoint(const char *base_path
                 break;
             }
         }
-        os_api::wait_for(1000 / banggame::fps);
+        
+        std::this_thread::sleep_until(end);
     }
 
     return 0;

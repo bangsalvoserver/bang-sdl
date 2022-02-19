@@ -2,7 +2,6 @@
 #define __UTILS_H__
 
 #include "enum_variant.h"
-#include "sdlnet.h"
 #include "svstream.h"
 
 #include <iostream>

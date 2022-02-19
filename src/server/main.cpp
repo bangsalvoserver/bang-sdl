@@ -1,13 +1,12 @@
-#include <SDL2/SDL.h>
 #include <iostream>
 
 #include "server.h"
 #include "net_options.h"
 
 int main(int argc, char **argv) {
-    sdlnet::initializer init;
+    boost::asio::io_context ctx;
 
-    bang_server server(std::filesystem::path(argv[0]).parent_path());
+    bang_server server(ctx, std::filesystem::path(argv[0]).parent_path());
     
     server.set_message_callback([](const std::string &message) {
         std::cout << message << '\n';
@@ -18,7 +17,10 @@ int main(int argc, char **argv) {
     });
 
     if (server.start()) {
+        std::thread ctx_thread([&]{ ctx.run(); });
+
         server.join();
+        ctx_thread.join();
     }
 
     return 0;
