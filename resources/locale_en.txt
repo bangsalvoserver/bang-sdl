@@ -1,5 +1,6 @@
 BANG_TITLE                          Bang!
 BUTTON_CONNECT                      Connect
+BUTTON_CANCEL                       Cancel
 BUTTON_CREATE_SERVER                Create Server
 BUTTON_DELETE                       Delete
 BUTTON_JOIN                         Join
@@ -12,6 +13,8 @@ LABEL_USERNAME                      Name:
 LABEL_NEW_ADDRESS                   New address:
 ERROR_NO_USERNAME                   Specify the user name
 ERROR_DISCONNECTED                  Disconnected from the server
+ERROR_CONNECTION_CANCELED           Connection canceled
+CONNECTING_TO                       Connecting to {} ...
 DIALOG_IMAGE_FILES                  Image Files
 GAME_CONFIRM                        Confirm
 GAME_PASS                           Pass turn

@@ -9,6 +9,7 @@
 #include "server/net_enums.h"
 
 #include "scenes/connect.h"
+#include "scenes/loading.h"
 #include "scenes/lobby_list.h"
 #include "scenes/lobby.h"
 #include "game/game.h"
@@ -22,6 +23,7 @@
 
 DEFINE_ENUM_TYPES(scene_type,
     (connect, connect_scene)
+    (loading, loading_scene)
     (lobby_list, lobby_list_scene)
     (lobby, lobby_scene)
     (game, banggame::game_scene)
@@ -50,7 +52,7 @@ public:
     void update_net();
 
     void connect(const std::string &host);
-    void disconnect();
+    void disconnect(const std::string &message);
 
     template<scene_type E>
     auto *switch_scene() {
@@ -123,6 +125,7 @@ private:
     using connection_type = net::connection<server_message, client_message, banggame::bang_header>;
     connection_type::pointer m_con;
     std::string m_connected_address;
+    std::atomic<bool> m_loading = false;
 
     std::map<int, user_info> m_users;
     

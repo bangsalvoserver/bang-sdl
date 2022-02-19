@@ -28,7 +28,7 @@ void lobby_line::render(sdl::renderer &renderer) {
 lobby_list_scene::lobby_list_scene(game_manager *parent)
     : scene_base(parent)
     , m_make_lobby_btn(_("BUTTON_MAKE_LOBBY"), std::bind(&lobby_list_scene::do_make_lobby, this))
-    , m_disconnect_btn(_("BUTTON_DISCONNECT"), std::bind(&game_manager::disconnect, parent))
+    , m_disconnect_btn(_("BUTTON_DISCONNECT"), std::bind(&game_manager::disconnect, parent, std::string()))
 {
     m_lobby_name_box.set_value(parent->get_config().lobby_name);
     m_lobby_name_box.set_onenter(std::bind(&lobby_list_scene::do_make_lobby, this));

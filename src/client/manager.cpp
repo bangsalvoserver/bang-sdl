@@ -26,7 +26,7 @@ game_manager::~game_manager() {
 }
 
 void game_manager::update_net() {
-    if (m_con) {
+    if (!m_loading && m_con) {
         if (m_con->connected()) {
             while (m_con->incoming_messages()) {
                 try {
@@ -38,27 +38,39 @@ void game_manager::update_net() {
                 }
             }
         } else {
-            disconnect();
+            disconnect(m_connected_address.empty() ? std::string() : _("ERROR_DISCONNECTED"));
         }
     }
 }
 
 void game_manager::connect(const std::string &host) {
-    try {
-        m_con = connection_type::make(m_ctx, host, banggame::server_port);
-
-        if (!m_listenserver) {
-            m_ctx_thread = std::jthread([&]{ m_ctx.run(); });
+    if (host.empty()) return;
+    
+    m_loading = true;
+    m_con = connection_type::make(m_ctx);
+    
+    m_con->connect(host, banggame::server_port, [this, host](const boost::system::error_code &ec) {
+        m_loading = false;
+        if (!ec) {
+            m_connected_address = host;
+            m_con->start();
+            add_message<client_message_type::connect>(m_config.user_name, m_config.profile_image_data);
+        } else {
+            m_con->disconnect();
+            if (ec != boost::asio::error::operation_aborted) {
+                add_chat_message(message_type::error, ec.message());
+            }
         }
+    });
 
-        m_connected_address = host;
-        add_message<client_message_type::connect>(m_config.user_name, m_config.profile_image_data);
-    } catch (boost::system::system_error &error) {
-        add_chat_message(message_type::error, error.code().message());
+    if (!m_listenserver) {
+        m_ctx_thread = std::jthread([&]{ m_ctx.run(); });
     }
+
+    switch_scene<scene_type::loading>()->init(host);
 }
 
-void game_manager::disconnect() {
+void game_manager::disconnect(const std::string &message) {
     m_ctx.stop();
 
     if (m_con) {
@@ -79,7 +91,9 @@ void game_manager::disconnect() {
     m_users.clear();
 
     switch_scene<scene_type::connect>();
-    add_chat_message(message_type::error, _("ERROR_DISCONNECTED"));
+    if (!message.empty()) {
+        add_chat_message(message_type::error, message);
+    }
 }
 
 
@@ -155,7 +169,7 @@ bool game_manager::start_listenserver() {
 }
 
 void game_manager::HANDLE_MESSAGE(client_accepted) {
-    if (!m_connected_address.empty() && !m_listenserver) {
+    if (!m_listenserver) {
         auto it = std::ranges::find(m_config.recent_servers, m_connected_address);
         if (it == m_config.recent_servers.end()) {
             m_config.recent_servers.push_back(m_connected_address);

@@ -26,27 +26,35 @@ namespace net {
 
         template<typename ... Ts>
         static pointer make(Ts && ... args) {
-            pointer ret(new connection(std::forward<Ts>(args) ... ));
-            ret->start_reading();
-            return ret;
+            return pointer(new connection(std::forward<Ts>(args) ... ));
         }
 
     private:
         connection(boost::asio::ip::tcp::socket &&socket)
             : m_socket(std::move(socket)) {}
 
-        connection(boost::asio::io_context &ctx, const std::string &host, uint16_t port)
-            : m_socket(ctx)
-        {
-            boost::asio::ip::tcp::resolver resolver(ctx);
-            auto result = resolver.resolve(boost::asio::ip::tcp::v4(), host, std::to_string(port));
-            
-            m_socket.connect(*result);
-        }
+        connection(boost::asio::io_context &ctx)
+            : m_socket(ctx) {}
 
     public:
         ~connection() {
             disconnect();
+        }
+
+        void connect(const std::string &host, uint16_t port, auto &&on_complete) {
+            auto resolver = new boost::asio::ip::tcp::resolver(m_socket.get_executor());
+            resolver->async_resolve(boost::asio::ip::tcp::v4(), host, std::to_string(port),
+                [this,
+                    self = this->shared_from_this(),
+                    resolver = std::unique_ptr<boost::asio::ip::tcp::resolver>(resolver),
+                    on_complete = std::move(on_complete)]
+                (const boost::system::error_code &ec, boost::asio::ip::tcp::resolver::results_type results) {
+                    if (!ec) {
+                        m_socket.async_connect(*results, std::move(on_complete));
+                    } else {
+                        on_complete(ec);
+                    }
+                });
         }
         
         bool connected() const {
@@ -82,6 +90,10 @@ namespace net {
                     write_next_message();
                 }
             });
+        }
+
+        void start() {
+            start_reading();
         }
 
     private:

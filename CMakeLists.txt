@@ -32,6 +32,7 @@ set(bangclient_srcs
     src/client/game/game_ui.cpp
     src/client/game/target_finder.cpp
     src/client/scenes/connect.cpp
+    src/client/scenes/loading.cpp
     src/client/scenes/lobby_list.cpp
     src/client/scenes/lobby.cpp
     src/client/widgets/button.cpp
