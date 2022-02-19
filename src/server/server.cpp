@@ -46,8 +46,12 @@ bool bang_server::start() {
         game_manager mgr{m_base_path};
         mgr.set_message_callback(std::bind(&bang_server::print_message, this, _1));
         mgr.set_error_callback(std::bind(&bang_server::print_error, this, _1));
+
+        using frames = std::chrono::duration<int64_t, std::ratio<1, banggame::fps>>;
+        auto next_frame = std::chrono::high_resolution_clock::now() + frames{0};
+
         while (!token.stop_requested()) {
-            auto end = std::chrono::steady_clock::now() + std::chrono::milliseconds(1000) / banggame::fps;
+            next_frame += frames{1};
 
             for (auto it = m_clients.begin(); it != m_clients.end();) {
                 if (it->second->connected()) {
@@ -70,7 +74,7 @@ bool bang_server::start() {
                 }
             }
             
-            std::this_thread::sleep_until(end);
+            std::this_thread::sleep_until(next_frame);
         }
 
         print_message("Server shut down");

@@ -28,8 +28,12 @@ extern "C" __declspec(dllexport) long __stdcall entrypoint(const char *base_path
 
     sdl::event event;
     bool quit = false;
+
+    using frames = std::chrono::duration<int64_t, std::ratio<1, banggame::fps>>;
+    auto next_frame = std::chrono::high_resolution_clock::now() + frames{0};
+
     while (!quit) {
-        auto end = std::chrono::steady_clock::now() + std::chrono::milliseconds(1000) / banggame::fps;
+        next_frame += frames{1};
 
         mgr.render(renderer);
         SDL_RenderPresent(renderer.get());
@@ -52,7 +56,7 @@ extern "C" __declspec(dllexport) long __stdcall entrypoint(const char *base_path
             }
         }
         
-        std::this_thread::sleep_until(end);
+        std::this_thread::sleep_until(next_frame);
     }
 
     return 0;
