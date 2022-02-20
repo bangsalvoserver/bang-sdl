@@ -25,8 +25,8 @@ GAME_SELL_BEER                      Vendi birra
 GAME_DISCARD_BLACK                  Scarta nera
 GAME_DISCARD_BRONCO                 Scarta Bronco
 GAME_RESTART                        Riavvia
-GAME_USER_CONNECTED                 {} si è connesso
-GAME_USER_DISCONNECTED              {} si è disconnesso
+GAME_USER_CONNECTED                 {} è entrato
+GAME_USER_DISCONNECTED              {} è uscito
 USERNAME_DISCONNECTED               (Disconnesso)
 STATUS_GAME_OVER                    Partita Finita
 STATUS_YOUR_TURN                    Tocca a te ... Pesca dal mazzo

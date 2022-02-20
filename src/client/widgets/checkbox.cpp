@@ -1,13 +1,12 @@
 #include "checkbox.h"
 
-using namespace widgets;
+#include "../global_resources.h"
 
-DECLARE_RESOURCE(icon_checkbox_png)
+using namespace widgets;
 
 checkbox::checkbox(const std::string &label, const button_style &style)
     : m_style(style)
-    , m_text(label, style.text)
-    , m_checkbox_texture{sdl::surface(GET_RESOURCE(icon_checkbox_png))} {}
+    , m_text(label, style.text) {}
 
 void checkbox::render(sdl::renderer &renderer) {
     renderer.set_draw_color([&]{
@@ -24,7 +23,7 @@ void checkbox::render(sdl::renderer &renderer) {
     renderer.draw_rect(m_checkbox_rect);
     
     if (m_value) {
-        m_checkbox_texture.render(renderer, m_checkbox_rect);
+        global_resources::get().icon_checkbox.render(renderer, m_checkbox_rect);
     }
 
     m_text.render(renderer);

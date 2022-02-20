@@ -1,5 +1,6 @@
 #include "game.h"
 #include "../manager.h"
+#include "../global_resources.h"
 
 #include <iostream>
 #include <numbers>
@@ -391,7 +392,7 @@ void game_scene::remove_user(int id) {
     if (it != m_players.end()) {
         it->second.user_id = 0;
         it->second.set_username(_("USERNAME_DISCONNECTED"));
-        it->second.set_profile_image(nullptr);
+        it->second.set_profile_image(&global_resources::get().icon_disconnected);
     }
     user_info *info = parent->get_user_info(id);
     if (info) {
@@ -759,7 +760,7 @@ void game_scene::HANDLE_UPDATE(player_add, const player_user_update &args) {
         p.set_profile_image(&info->profile_image);
     } else {
         p.set_username(_("USERNAME_DISCONNECTED"));
-        p.set_profile_image(nullptr);
+        p.set_profile_image(&global_resources::get().icon_disconnected);
     }
 
     move_player_views();

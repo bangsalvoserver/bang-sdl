@@ -25,8 +25,8 @@ GAME_SELL_BEER                      Sell beer
 GAME_DISCARD_BLACK                  Discard black
 GAME_DISCARD_BRONCO                 Discard Bronco
 GAME_RESTART                        Restart
-GAME_USER_CONNECTED                 {} connected
-GAME_USER_DISCONNECTED              {} disconnected
+GAME_USER_CONNECTED                 {} joined
+GAME_USER_DISCONNECTED              {} left
 USERNAME_DISCONNECTED               (Disconnected)
 STATUS_GAME_OVER                    Game Over
 STATUS_YOUR_TURN                    Your turn ... Draw from the deck

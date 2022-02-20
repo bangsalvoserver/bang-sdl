@@ -26,6 +26,7 @@ set(bangclient_srcs
     src/client/manager.cpp
     src/client/user_info.cpp
     src/client/chat_ui.cpp
+    src/client/global_resources.cpp
     src/client/game/card.cpp
     src/client/game/player.cpp
     src/client/game/game.cpp

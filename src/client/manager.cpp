@@ -4,14 +4,12 @@
 #include <iostream>
 
 #include "server/net_options.h"
-
-DECLARE_RESOURCE(background_png)
+#include "global_resources.h"
 
 using namespace banggame;
 
 game_manager::game_manager(const std::filesystem::path &base_path)
     : m_base_path(base_path)
-    , m_background(sdl::surface(GET_RESOURCE(background_png)))
 {
     m_config.load();
     switch_scene<scene_type::connect>();
@@ -133,7 +131,7 @@ static void render_tiled(sdl::renderer &renderer, const sdl::texture &texture, c
 }
 
 void game_manager::render(sdl::renderer &renderer) {
-    render_tiled(renderer, m_background, sdl::rect{0, 0, width(), height()});
+    render_tiled(renderer, global_resources::get().texture_background, sdl::rect{0, 0, width(), height()});
     
     m_scene->render(renderer);
 

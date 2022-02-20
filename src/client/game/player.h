@@ -32,7 +32,7 @@ namespace banggame {
 
         widgets::stattext m_gold_text;
 
-        sdl::texture *m_profile_image = nullptr;
+        const sdl::texture *m_profile_image = nullptr;
         sdl::rect m_profile_rect;
 
         player_flags m_player_flags = enums::flags_none<player_flags>;
@@ -53,7 +53,7 @@ namespace banggame {
         void set_gold(int amount);
 
         void set_username(const std::string &name);
-        void set_profile_image(sdl::texture *image);
+        void set_profile_image(const sdl::texture *image);
 
         void render(sdl::renderer &renderer);
     };

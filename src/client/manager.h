@@ -108,7 +108,6 @@ private:
     std::filesystem::path m_base_path;
     config m_config;
 
-    sdl::texture m_background;
     std::unique_ptr<scene_base> m_scene;
 
     chat_ui m_chat{this};

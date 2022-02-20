@@ -47,7 +47,7 @@ namespace banggame {
         m_username_text.set_rect(username_rect);
     }
 
-    void player_view::set_profile_image(sdl::texture *image) {
+    void player_view::set_profile_image(const sdl::texture *image) {
         m_profile_image = image;
         if (!image ||!*image) return;
 

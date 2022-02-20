@@ -28,6 +28,7 @@ compile_resources(resources_obj
     icons/icon_checkbox.png
     icons/icon_default_user.png
     icons/icon_loading.png
+    icons/icon_disconnected.png
     icons/bang.png
     background.png)
 

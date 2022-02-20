@@ -15,8 +15,6 @@ namespace widgets {
         
         bool m_locked = false;
         button_callback_fun m_ontoggle;
-
-        sdl::texture m_checkbox_texture;
         
         enum button_state {
             state_up,

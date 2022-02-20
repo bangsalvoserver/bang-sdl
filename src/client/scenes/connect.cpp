@@ -1,11 +1,9 @@
 #include "connect.h"
 
 #include "../manager.h"
+#include "../global_resources.h"
+
 #include "../tinyfd/tinyfiledialogs.h"
-
-#include "utils/resource.h"
-
-DECLARE_RESOURCE(icon_default_user_png)
 
 recent_server_line::recent_server_line(connect_scene *parent, const std::string &address)
     : parent(parent)
@@ -43,7 +41,7 @@ connect_scene::connect_scene(game_manager *parent)
     }
 
     if (parent->get_config().profile_image_data.empty()) {
-        m_propic = sdl::surface(GET_RESOURCE(icon_default_user_png));
+        m_propic = {};
     } else {
         m_propic = decode_profile_image(parent->get_config().profile_image_data);
     }
@@ -57,7 +55,9 @@ void connect_scene::resize(int width, int height) {
     
     m_username_box.set_rect(sdl::rect{125 + label_rect.w + widgets::propic_size, 50, width - 225 - widgets::propic_size - label_rect.w, 25});
 
-    auto propic_rect = m_propic.get_rect();
+    const sdl::texture &propic = m_propic ? m_propic : global_resources::get().icon_default_user;
+
+    auto propic_rect = propic.get_rect();
     m_propic_pos.x = 115 + label_rect.w + (widgets::propic_size - propic_rect.w) / 2;
     m_propic_pos.y = m_username_box.get_rect().y + (m_username_box.get_rect().h - propic_rect.h) / 2;
 
@@ -83,7 +83,8 @@ void connect_scene::render(sdl::renderer &renderer) {
     m_username_label.render(renderer);
     m_username_box.render(renderer);
 
-    m_propic.render(renderer, m_propic_pos);
+    const sdl::texture &propic = m_propic ? m_propic : global_resources::get().icon_default_user;
+    propic.render(renderer, m_propic_pos);
 
     for (auto &line : m_recents) {
         line.render(renderer);
@@ -96,15 +97,18 @@ void connect_scene::render(sdl::renderer &renderer) {
 }
 
 void connect_scene::handle_event(const sdl::event &event) {
-    if (event.type == SDL_MOUSEBUTTONDOWN) {
-        sdl::point mouse_pt{event.button.x, event.button.y};
-        sdl::rect profile_rect = m_propic.get_rect();
-        profile_rect.x = m_propic_pos.x;
-        profile_rect.y = m_propic_pos.y;
-        if (mouse_pt.x >= profile_rect.x && mouse_pt.x <= profile_rect.x + profile_rect.w
-            && mouse_pt.y >= profile_rect.y && mouse_pt.y <= profile_rect.y + profile_rect.h) {
-            do_browse_propic();
-        }
+    if (event.type == SDL_MOUSEBUTTONDOWN && sdl::point_in_rect(
+        sdl::point{
+            event.button.x,
+            event.button.y},
+        sdl::rect{
+            115 + m_username_label.get_rect().w,
+            m_username_box.get_rect().y + (m_username_box.get_rect().h - widgets::propic_size) / 2,
+            widgets::propic_size,
+            widgets::propic_size
+        }))
+    {
+        do_browse_propic();
     }
 }
 

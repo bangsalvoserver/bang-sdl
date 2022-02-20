@@ -17,7 +17,6 @@ private:
     widgets::stattext m_loading_text;
     widgets::button m_cancel_btn;
 
-    sdl::texture m_loading_tex;
     sdl::rect m_loading_rect;
     float m_loading_rotation = 0.f;
 };
