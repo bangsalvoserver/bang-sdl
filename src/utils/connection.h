@@ -4,11 +4,14 @@
 #include <boost/asio.hpp>
 #include <vector>
 #include <memory>
+#include <chrono>
 
 #include "tsqueue.h"
 #include "binary_serial.h"
 
 namespace net {
+
+    constexpr auto timeout = std::chrono::seconds(5);
 
     template<typename T>
     concept header = requires (const T value) {
@@ -30,11 +33,15 @@ namespace net {
         }
 
     private:
-        connection(boost::asio::ip::tcp::socket &&socket)
-            : m_socket(std::move(socket)) {}
+        connection(boost::asio::io_context &ctx, boost::asio::ip::tcp::socket &&socket)
+            : m_socket(std::move(socket))
+            , m_strand(ctx)
+            , m_timer(ctx) {}
 
         connection(boost::asio::io_context &ctx)
-            : m_socket(ctx) {}
+            : m_socket(ctx)
+            , m_strand(ctx)
+            , m_timer(ctx) {}
 
     public:
         ~connection() {
@@ -83,13 +90,18 @@ namespace net {
 
         template<typename ... Ts>
         void push_message(Ts && ... args) {
-            boost::asio::post(m_socket.get_executor(), [this, self = this->shared_from_this(), ... args = std::forward<Ts>(args)] () mutable {
-                bool empty = m_out_queue.empty();
-                m_out_queue.emplace_back(std::forward<Ts>(args) ... );
-                if (empty) {
-                    write_next_message();
-                }
-            });
+            boost::asio::post(m_socket.get_executor(),
+                boost::asio::bind_executor(m_strand,
+                    [this,
+                        self = this->shared_from_this(),
+                        ... args = std::forward<Ts>(args)]
+                    () mutable {
+                        bool empty = m_out_queue.empty();
+                        m_out_queue.push_back(wrap_message(std::forward<Ts>(args) ... ));
+                        if (empty) {
+                            write_next_message();
+                        }
+                    }));
         }
 
         void start() {
@@ -104,9 +116,17 @@ namespace net {
                     if (!ec) {
                         HeaderType h = binary::deserialize<HeaderType>(m_buffer);
                         if (h.validate()) {
+                            m_timer.expires_after(timeout);
+                            m_timer.async_wait([this, self](const boost::system::error_code &ec) {
+                                if (!ec) {
+                                    disconnect();
+                                }
+                            });
+
                             m_buffer.resize(h.length);
                             boost::asio::async_read(m_socket, boost::asio::buffer(m_buffer),
                                 [this, self = std::move(self)](const boost::system::error_code &ec, size_t nbytes) {
+                                    m_timer.cancel();
                                     if (!ec) {
                                         try {
                                             m_in_queue.push_back(binary::deserialize<InputMessage>(m_buffer));
@@ -127,8 +147,9 @@ namespace net {
                 });
         }
 
-        void write_next_message() {
-            const auto &msg = m_out_queue.front();
+        template<typename ... Ts>
+        std::vector<std::byte> wrap_message(Ts && ... args) {
+            const OutputMessage msg(std::forward<Ts>(args) ... );
             
             HeaderType h;
             h.length = binary::get_size(msg);
@@ -137,9 +158,13 @@ namespace net {
             data.reserve(sizeof(h) + h.length);
 
             binary::serializer<HeaderType>{}(h, data);
-            binary::serializer<std::remove_cvref_t<decltype(msg)>>{}(msg, data);
+            binary::serializer<OutputMessage>{}(msg, data);
 
-            boost::asio::async_write(m_socket, boost::asio::buffer(data),
+            return data;
+        }
+
+        void write_next_message() {
+            boost::asio::async_write(m_socket, boost::asio::buffer(m_out_queue.front()),
                 [this, self = this->shared_from_this()](const boost::system::error_code &ec, size_t nbytes) {
                     if (!ec) {
                         m_out_queue.pop_front();
@@ -154,9 +179,12 @@ namespace net {
 
     private:
         boost::asio::ip::tcp::socket m_socket;
+        boost::asio::io_context::strand m_strand;
+
+        boost::asio::basic_waitable_timer<std::chrono::system_clock> m_timer;
 
         util::tsqueue<InputMessage> m_in_queue;
-        util::tsqueue<OutputMessage> m_out_queue;
+        std::deque<std::vector<std::byte>> m_out_queue;
 
         std::vector<std::byte> m_buffer;
     };

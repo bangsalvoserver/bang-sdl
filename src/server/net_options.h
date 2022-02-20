@@ -11,6 +11,7 @@ namespace banggame {
 
     struct bang_header {
         static constexpr uint32_t magic_number = 0x42414e47;
+        static constexpr uint32_t max_length = 0x40000; // max packet 256 kiB
 
         REFLECTABLE(
             (uint32_t) magic,
@@ -20,7 +21,8 @@ namespace banggame {
         bang_header() : magic(magic_number) {}
         
         bool validate() const {
-            return magic == magic_number;
+            return magic == magic_number
+                && length <= max_length;
         }
     };
 

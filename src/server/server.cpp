@@ -16,7 +16,7 @@ void bang_server::start_accepting() {
     m_acceptor.async_accept(
         [this](const boost::system::error_code &ec, boost::asio::ip::tcp::socket peer) {
             if (!ec) {
-                auto client = connection_type::make(std::move(peer));
+                auto client = connection_type::make(m_ctx, std::move(peer));
                 client->start();
                 
                 print_message("Connection from "s + client->address_string());
