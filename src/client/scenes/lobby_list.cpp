@@ -63,7 +63,9 @@ void lobby_list_scene::do_join(int lobby_id) {
 }
 
 void lobby_list_scene::do_make_lobby() {
-    if (!m_lobby_name_box.get_value().empty()) {
+    if (m_lobby_name_box.get_value().empty()) {
+        parent->add_chat_message(message_type::error, _("ERROR_NO_LOBBY_NAME"));
+    } else {
         parent->get_config().lobby_name = m_lobby_name_box.get_value();
         parent->add_message<client_message_type::lobby_make>(m_lobby_name_box.get_value(), parent->get_config().expansions);
     }

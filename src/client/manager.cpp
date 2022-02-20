@@ -44,7 +44,10 @@ void game_manager::update_net() {
 }
 
 void game_manager::connect(const std::string &host) {
-    if (host.empty()) return;
+    if (host.empty()) {
+        add_chat_message(message_type::error, _("ERROR_NO_ADDRESS"));
+        return;
+    }
     
     m_loading = true;
     m_con = connection_type::make(m_ctx);

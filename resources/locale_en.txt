@@ -12,6 +12,8 @@ BUTTON_CHAT                         Chat
 LABEL_USERNAME                      Name:
 LABEL_NEW_ADDRESS                   New address:
 ERROR_NO_USERNAME                   Specify the user name
+ERROR_NO_ADDRESS                    Specify an address
+ERROR_NO_LOBBY_NAME                 Specify a lobby name
 ERROR_DISCONNECTED                  Disconnected from the server
 ERROR_CONNECTION_CANCELED           Connection canceled
 CONNECTING_TO                       Connecting to {} ...
