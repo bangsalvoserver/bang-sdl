@@ -28,7 +28,8 @@ public:
 
 private:
     widgets::stattext m_name_text;
-    const sdl::texture *m_profile_image = nullptr;
+    
+    const sdl::texture *m_profile_image;
     sdl::rect m_profile_rect;
 
     int m_user_id;

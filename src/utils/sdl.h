@@ -181,6 +181,11 @@ namespace sdl {
         
         texture(surface &&surf) : m_surface(std::move(surf)) {}
 
+        void reset() {
+            m_surface.reset();
+            m_texture.reset();
+        }
+
         rect get_rect() const {
             return m_surface.get_rect();
         }

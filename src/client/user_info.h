@@ -5,17 +5,29 @@
 #include <string>
 
 #include "utils/sdl.h"
+#include "utils/binary_serial.h"
 
-sdl::surface decode_profile_image(const std::vector<std::byte> &data);
-std::vector<std::byte> encode_profile_image(const sdl::surface &image);
+sdl::surface scale_profile_image(sdl::surface &&image);
+
+namespace binary {
+
+    template<> struct serializer<sdl::surface> {
+        void operator()(const sdl::surface &image, byte_vector &out) const;
+        size_t get_size(const sdl::surface &image) const;
+    };
+
+    template<> struct deserializer<sdl::surface> {
+        sdl::surface operator()(byte_ptr &pos, byte_ptr end) const;
+    };
+}
 
 struct user_info {
     std::string name;
     sdl::texture profile_image;
 
-    user_info(std::string name, const std::vector<std::byte> &data)
+    user_info(std::string name, sdl::surface &&data)
         : name(std::move(name))
-        , profile_image(decode_profile_image(data)) {}
+        , profile_image(std::move(data)) {}
 };
 
 #endif

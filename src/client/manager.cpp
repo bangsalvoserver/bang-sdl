@@ -55,7 +55,7 @@ void game_manager::connect(const std::string &host) {
         if (!ec) {
             m_connected_address = host;
             m_con->start();
-            add_message<client_message_type::connect>(m_config.user_name, m_config.profile_image_data);
+            add_message<client_message_type::connect>(m_config.user_name, binary::serialize(m_config.profile_image_data.get_surface()));
         } else {
             m_con->disconnect();
             if (ec != boost::asio::error::operation_aborted) {
@@ -198,7 +198,7 @@ void game_manager::HANDLE_MESSAGE(lobby_edited, const lobby_info &args) {
 void game_manager::HANDLE_MESSAGE(lobby_players, const std::vector<lobby_player_data> &args) {
     m_scene->clear_users();
     for (const auto &obj : args) {
-        const auto &u = m_users.try_emplace(obj.user_id, obj.name, obj.profile_image).first->second;
+        const auto &u = m_users.try_emplace(obj.user_id, obj.name, binary::deserialize<sdl::surface>(obj.profile_image)).first->second;
         m_scene->add_user(obj.user_id, u);
     }
 }
@@ -211,7 +211,7 @@ void game_manager::HANDLE_MESSAGE(lobby_entered, const lobby_entered_args &args)
 }
 
 void game_manager::HANDLE_MESSAGE(lobby_joined, const lobby_player_data &args) {
-    const auto &u = m_users.try_emplace(args.user_id, args.name, args.profile_image).first->second;
+    const auto &u = m_users.try_emplace(args.user_id, args.name, binary::deserialize<sdl::surface>(args.profile_image)).first->second;
     m_scene->add_user(args.user_id, u);
 }
 

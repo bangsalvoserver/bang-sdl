@@ -1,5 +1,7 @@
 #include "player.h"
 
+#include "../global_resources.h"
+
 DECLARE_RESOURCE(bkant_bold_ttf)
 
 namespace banggame {
@@ -7,7 +9,10 @@ namespace banggame {
         : id(id)
         , m_username_text(widgets::text_style{
             .text_font = GET_RESOURCE(bkant_bold_ttf)
-        }) {}
+        })
+    {
+        m_profile_image = &global_resources::get().icon_default_user;
+    }
 
     void player_view::set_position(sdl::point pos, bool flipped) {
         m_bounding_rect.w = table.width() + options::card_width * 3 + 40;
@@ -34,9 +39,7 @@ namespace banggame {
         }
 
         set_username(m_username_text.get_value());
-        if (m_profile_image) {
-            set_profile_image(m_profile_image);
-        }
+        set_profile_image(m_profile_image);
     }
 
     void player_view::set_username(const std::string &value) {
@@ -48,8 +51,11 @@ namespace banggame {
     }
 
     void player_view::set_profile_image(const sdl::texture *image) {
-        m_profile_image = image;
-        if (!image ||!*image) return;
+        if (!image || !*image) {
+            m_profile_image = &global_resources::get().icon_default_user;
+        } else {
+            m_profile_image = image;
+        }
 
         m_profile_rect = m_profile_image->get_rect();
         if (m_profile_rect.w > m_profile_rect.h) {
@@ -115,8 +121,6 @@ namespace banggame {
 
         m_username_text.render(renderer);
 
-        if (m_profile_image && *m_profile_image) {
-            m_profile_image->render(renderer, m_profile_rect);
-        }
+        m_profile_image->render(renderer, m_profile_rect);
     }
 }

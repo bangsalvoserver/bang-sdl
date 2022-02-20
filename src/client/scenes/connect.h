@@ -40,7 +40,8 @@ public:
 private:
     widgets::stattext m_username_label;
     widgets::textbox m_username_box;
-    sdl::texture m_propic;
+
+    const sdl::texture *m_propic = nullptr;
     sdl::point m_propic_pos;
 
     widgets::stattext m_address_label;

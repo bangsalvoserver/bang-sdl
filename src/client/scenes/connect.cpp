@@ -40,11 +40,9 @@ connect_scene::connect_scene(game_manager *parent)
         m_recents.emplace_back(this, obj);
     }
 
-    if (parent->get_config().profile_image_data.empty()) {
-        m_propic = {};
-    } else {
-        m_propic = decode_profile_image(parent->get_config().profile_image_data);
-    }
+    m_propic = parent->get_config().profile_image_data
+        ? &parent->get_config().profile_image_data
+        : &global_resources::get().icon_default_user;
 }
 
 void connect_scene::resize(int width, int height) {
@@ -55,9 +53,7 @@ void connect_scene::resize(int width, int height) {
     
     m_username_box.set_rect(sdl::rect{125 + label_rect.w + widgets::propic_size, 50, width - 225 - widgets::propic_size - label_rect.w, 25});
 
-    const sdl::texture &propic = m_propic ? m_propic : global_resources::get().icon_default_user;
-
-    auto propic_rect = propic.get_rect();
+    auto propic_rect = m_propic->get_rect();
     m_propic_pos.x = 115 + label_rect.w + (widgets::propic_size - propic_rect.w) / 2;
     m_propic_pos.y = m_username_box.get_rect().y + (m_username_box.get_rect().h - propic_rect.h) / 2;
 
@@ -83,8 +79,7 @@ void connect_scene::render(sdl::renderer &renderer) {
     m_username_label.render(renderer);
     m_username_box.render(renderer);
 
-    const sdl::texture &propic = m_propic ? m_propic : global_resources::get().icon_default_user;
-    propic.render(renderer, m_propic_pos);
+    m_propic->render(renderer, m_propic_pos);
 
     for (auto &line : m_recents) {
         line.render(renderer);
@@ -136,8 +131,8 @@ void connect_scene::do_browse_propic() {
     const char *ret = tinyfd_openFileDialog(_("BANG_TITLE").c_str(), cfg.profile_image.c_str(), 2, filters, _("DIALOG_IMAGE_FILES").c_str(), 0);
     if (ret) {
         try {
-            cfg.profile_image_data = encode_profile_image(sdl::surface(resource(ret)));
-            m_propic = decode_profile_image(cfg.profile_image_data);
+            cfg.profile_image_data = scale_profile_image(sdl::surface(resource(ret)));
+            m_propic = &cfg.profile_image_data;
             cfg.profile_image.assign(ret);
             resize(parent->width(), parent->height());
         } catch (const std::runtime_error &e) {
@@ -147,7 +142,9 @@ void connect_scene::do_browse_propic() {
 }
 
 void connect_scene::do_create_server() {
-    if (parent->start_listenserver()) {
+    if (m_username_box.get_value().empty()) {
+        parent->add_chat_message(message_type::error, _("ERROR_NO_USERNAME"));
+    } else if (parent->start_listenserver()) {
         do_connect("localhost");
     }
 }
