@@ -31,6 +31,10 @@ namespace banggame {
         }
     }
 
+    bool request_move_bomb::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
+        return pile == card_pile_type::player && target_player->alive();
+    }
+
     void request_move_bomb::on_pick(card_pile_type pile, player *target_player, card *target_card) {
         if (!target_player->immune_to(origin_card)) {
             if (target_player == target) {

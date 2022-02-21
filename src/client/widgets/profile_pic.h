@@ -13,10 +13,17 @@ namespace widgets {
     public:
         profile_pic();
 
+        profile_pic(const sdl::texture &tex) {
+            set_texture(tex);
+        }
+        profile_pic(sdl::texture &&) = delete;
+
         void set_texture(const sdl::texture &tex);
         void set_texture(sdl::texture &&) = delete;
 
         void set_pos(sdl::point pt);
+        sdl::point get_pos() const;
+        
         void render(sdl::renderer &renderer);
 
         void set_onclick(button_callback_fun &&fun) {

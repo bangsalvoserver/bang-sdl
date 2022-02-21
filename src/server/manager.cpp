@@ -98,13 +98,13 @@ void game_manager::HANDLE_MESSAGE(lobby_make, game_user *user, const lobby_info 
     new_lobby.users.push_back(user);
     user->in_lobby = &new_lobby;
 
+    static_cast<lobby_info &>(new_lobby) = value;
     new_lobby.owner = user;
-    new_lobby.name = value.name;
     new_lobby.state = lobby_state::waiting;
-    new_lobby.expansions = value.expansions;
     send_lobby_update(new_lobby);
 
     send_message<server_message_type::lobby_entered>(user->client_id, value, user->client_id, user->client_id);
+    send_message<server_message_type::lobby_add_user>(user->client_id, user->client_id, user->name, user->profile_image);
 }
 
 void game_manager::HANDLE_MESSAGE(lobby_edit, game_user *user, const lobby_info &args) {
@@ -121,8 +121,7 @@ void game_manager::HANDLE_MESSAGE(lobby_edit, game_user *user, const lobby_info 
         throw lobby_error("ERROR_LOBBY_NOT_WAITING");
     }
 
-    lobby_ptr->name = args.name;
-    lobby_ptr->expansions = args.expansions;
+    static_cast<lobby_info &>(*lobby_ptr) = args;
     for (game_user *p : lobby_ptr->users) {
         if (p != user) {
             send_message<server_message_type::lobby_edited>(p->client_id, args);
@@ -141,12 +140,12 @@ void game_manager::HANDLE_MESSAGE(lobby_join, game_user *user, const lobby_join_
         user->in_lobby = &*lobby_it;
         send_lobby_update(*lobby_it);
 
+        send_message<server_message_type::lobby_entered>(user->client_id, *lobby_it, user->client_id, lobby_it->owner->client_id);
         for (game_user *p : lobby_it->users) {
-            if (p == user) {
-                send_message<server_message_type::lobby_entered>(p->client_id, lobby_info{lobby_it->name, lobby_it->expansions}, user->client_id, lobby_it->owner->client_id);
-            } else {
-                send_message<server_message_type::lobby_joined>(p->client_id, user->client_id, user->name, user->profile_image);
+            if (p != user) {
+                send_message<server_message_type::lobby_add_user>(p->client_id, user->client_id, user->name, user->profile_image);
             }
+            send_message<server_message_type::lobby_add_user>(user->client_id, p->client_id, p->name, p->profile_image);
         }
         if (lobby_it->state != lobby_state::waiting) {
             auto dc_player = std::ranges::find_if(lobby_it->game.m_players, [&](const player &p) {
@@ -155,12 +154,6 @@ void game_manager::HANDLE_MESSAGE(lobby_join, game_user *user, const lobby_join_
             if (dc_player != lobby_it->game.m_players.end()) {
                 user->controlling = &*dc_player;
             }
-
-            std::vector<lobby_player_data> vec;
-            for (game_user *l_u : lobby_it->users) {
-                vec.emplace_back(l_u->client_id, l_u->name, l_u->profile_image);
-            }
-            send_message<server_message_type::lobby_players>(user->client_id, std::move(vec));
 
             send_message<server_message_type::game_started>(user->client_id, lobby_it->game.m_options.expansions);
             for (const player &p : lobby_it->game.m_players) {
@@ -180,19 +173,6 @@ void game_manager::HANDLE_MESSAGE(lobby_join, game_user *user, const lobby_join_
     }
 }
 
-void game_manager::HANDLE_MESSAGE(lobby_players, game_user *user) {
-    if (!user->in_lobby) {
-        throw lobby_error("ERROR_PLAYER_NOT_IN_LOBBY");
-    }
-
-    std::vector<lobby_player_data> vec;
-    for (game_user *u : user->in_lobby->users) {
-        vec.emplace_back(u->client_id, u->name, u->profile_image);
-    }
-
-    send_message<server_message_type::lobby_players>(user->client_id, std::move(vec));
-}
-
 void game_manager::client_disconnected(int client_id) {
     if (auto it = users.find(client_id); it != users.end()) {
         handle_message(MESSAGE_TAG(lobby_leave){}, &it->second);
@@ -206,7 +186,7 @@ void game_manager::HANDLE_MESSAGE(lobby_leave, game_user *user) {
     auto lobby_it = std::ranges::find(m_lobbies, user->in_lobby, [](const lobby &l) { return &l; });
     if (lobby_it != m_lobbies.end()) {
         auto player_it = std::ranges::find(lobby_it->users, user);
-        broadcast_message<server_message_type::lobby_left>(*lobby_it, (*player_it)->client_id);
+        broadcast_message<server_message_type::lobby_remove_user>(*lobby_it, (*player_it)->client_id);
         lobby_it->users.erase(player_it);
         user->in_lobby = nullptr;
         send_lobby_update(*lobby_it);
@@ -215,7 +195,7 @@ void game_manager::HANDLE_MESSAGE(lobby_leave, game_user *user) {
             m_lobbies.erase(lobby_it);
         } else if (lobby_it->state == lobby_state::waiting && user == lobby_it->owner) {
             for (game_user *u : lobby_it->users) {
-                broadcast_message<server_message_type::lobby_left>(*lobby_it, u->client_id);
+                broadcast_message<server_message_type::lobby_remove_user>(*lobby_it, u->client_id);
                 u->in_lobby = nullptr;
             }
             m_lobbies.erase(lobby_it);

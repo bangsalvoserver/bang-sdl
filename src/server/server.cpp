@@ -16,12 +16,16 @@ void bang_server::start_accepting() {
     m_acceptor.async_accept(
         [this](const boost::system::error_code &ec, boost::asio::ip::tcp::socket peer) {
             if (!ec) {
-                auto client = connection_type::make(m_ctx, std::move(peer));
-                client->start();
-                
-                print_message(client->address_string() + " connected");
-                
-                m_clients.emplace(++m_client_id_counter, std::move(client));
+                if (m_clients.size() < banggame::server_max_clients) {
+                    auto client = connection_type::make(m_ctx, std::move(peer));
+                    client->start();
+                    
+                    print_message(client->address_string() + " connected");
+                    
+                    m_clients.emplace(++m_client_id_counter, std::move(client));
+                } else {
+                    peer.close();
+                }
             }
             if (ec != boost::asio::error::operation_aborted) {
                 start_accepting();
@@ -34,7 +38,7 @@ bool bang_server::start() {
         boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), banggame::server_port);
         m_acceptor.open(endpoint.protocol());
         m_acceptor.bind(endpoint);
-        m_acceptor.listen(banggame::server_max_clients);
+        m_acceptor.listen();
     } catch (const boost::system::system_error &error) {
         print_error(ansi_to_utf8(error.code().message()));
         return false;

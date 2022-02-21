@@ -18,7 +18,7 @@ struct expansion_box : widgets::checkbox {
 
 class lobby_player_item {
 public:
-    lobby_player_item(int id, const user_info &args);
+    lobby_player_item(int id, const user_info &args, bool is_owner = false);
 
     int user_id() const {
         return m_user_id;
@@ -32,6 +32,7 @@ private:
     widgets::profile_pic m_propic;
 
     int m_user_id;
+    bool m_is_owner;
 };
 
 class lobby_scene : public scene_base {
@@ -42,7 +43,6 @@ public:
     void resize(int width, int height) override;
     void render(sdl::renderer &renderer) override;
 
-    void clear_users() override;
     void add_user(int id, const user_info &args) override;
     void remove_user(int id) override;
 

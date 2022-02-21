@@ -8,13 +8,13 @@ DECLARE_RESOURCE(perdido_ttf)
 
 using namespace enums::flag_operators;
 
-lobby_player_item::lobby_player_item(int id, const user_info &args)
+lobby_player_item::lobby_player_item(int id, const user_info &args, bool is_owner)
     : m_name_text(args.name, widgets::text_style{
         .text_font = GET_RESOURCE(bkant_bold_ttf)
     })
-    , m_user_id(id) {
-        m_propic.set_texture(args.profile_image);
-    }
+    , m_propic(args.profile_image)
+    , m_user_id(id)
+    , m_is_owner(is_owner) {}
 
 void lobby_player_item::resize(int x, int y) {
     m_propic.set_pos(sdl::point{
@@ -30,6 +30,13 @@ void lobby_player_item::resize(int x, int y) {
 void lobby_player_item::render(sdl::renderer &renderer) {
     m_propic.render(renderer);
     m_name_text.render(renderer);
+
+    if (m_is_owner) {
+        sdl::rect rect = global_resources::get().icon_owner.get_rect();
+        rect.x = m_propic.get_pos().x - 60;
+        rect.y = m_propic.get_pos().y - rect.h / 2;
+        global_resources::get().icon_owner.render(renderer, rect);
+    }
 }
 
 expansion_box::expansion_box(const std::string &label, banggame::card_expansion_type flag, banggame::card_expansion_type check)
@@ -131,12 +138,8 @@ void lobby_scene::render(sdl::renderer &renderer) {
     m_chat_btn.render(renderer);
 }
 
-void lobby_scene::clear_users() {
-    m_player_list.clear();
-}
-
 void lobby_scene::add_user(int id, const user_info &args) {
-    m_player_list.emplace_back(id, args);
+    m_player_list.emplace_back(id, args, id == parent->get_lobby_owner_id());
 
     resize(parent->width(), parent->height());
 }

@@ -8,6 +8,7 @@ DECLARE_RESOURCE(icon_checkbox_png)
 DECLARE_RESOURCE(icon_default_user_png)
 DECLARE_RESOURCE(icon_disconnected_png)
 DECLARE_RESOURCE(icon_loading_png)
+DECLARE_RESOURCE(icon_owner_png)
 
 global_resources::global_resources() {
     s_instance = this;
@@ -18,4 +19,5 @@ global_resources::global_resources() {
     icon_default_user = sdl::texture(sdl::surface(GET_RESOURCE(icon_default_user_png)));
     icon_disconnected = sdl::texture(sdl::surface(GET_RESOURCE(icon_disconnected_png)));
     icon_loading = sdl::texture(sdl::surface(GET_RESOURCE(icon_loading_png)));
+    icon_owner = sdl::texture(sdl::surface(GET_RESOURCE(icon_owner_png)));
 }

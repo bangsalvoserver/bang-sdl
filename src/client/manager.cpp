@@ -177,28 +177,19 @@ void game_manager::HANDLE_MESSAGE(lobby_edited, const lobby_info &args) {
     m_scene->set_lobby_info(args);
 }
 
-void game_manager::HANDLE_MESSAGE(lobby_players, const std::vector<lobby_player_data> &args) {
-    m_scene->clear_users();
-    for (const auto &obj : args) {
-        const auto &u = m_users.try_emplace(obj.user_id, obj.name, binary::deserialize<sdl::surface>(obj.profile_image)).first->second;
-        m_scene->add_user(obj.user_id, u);
-    }
-}
-
 void game_manager::HANDLE_MESSAGE(lobby_entered, const lobby_entered_args &args) {
     m_lobby_owner_id = args.owner_id;
     m_user_own_id = args.user_id;
 
-    switch_scene<scene_type::lobby>(args);    
-    add_message<client_message_type::lobby_players>();
+    switch_scene<scene_type::lobby>(args);
 }
 
-void game_manager::HANDLE_MESSAGE(lobby_joined, const lobby_player_data &args) {
+void game_manager::HANDLE_MESSAGE(lobby_add_user, const lobby_add_user_args &args) {
     const auto &u = m_users.try_emplace(args.user_id, args.name, binary::deserialize<sdl::surface>(args.profile_image)).first->second;
     m_scene->add_user(args.user_id, u);
 }
 
-void game_manager::HANDLE_MESSAGE(lobby_left, const lobby_left_args &args) {
+void game_manager::HANDLE_MESSAGE(lobby_remove_user, const lobby_remove_user_args &args) {
     if (args.user_id == m_user_own_id) {
         m_users.clear();
         switch_scene<scene_type::lobby_list>();

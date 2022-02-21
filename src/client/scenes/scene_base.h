@@ -27,8 +27,6 @@ public:
 
     virtual void handle_lobby_update(const lobby_data &args) {}
 
-    virtual void clear_users() {}
-
     virtual void add_user(int id, const user_info &args) {}
 
     virtual void remove_user(int id) {}

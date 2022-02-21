@@ -28,23 +28,23 @@ void profile_pic::set_texture(const sdl::texture &tex) {
         m_texture = &global_resources::get().icon_default_user;
     }
 
-    sdl::point center{
-        m_rect.x + m_rect.w / 2,
-        m_rect.y + m_rect.h / 2
-    };
-
+    sdl::point pos = get_pos();
     m_rect = m_texture->get_rect();
     if (m_rect.w > m_rect.h) {
         sdl::scale_rect_width(m_rect, size);
     } else {
         sdl::scale_rect_height(m_rect, size);
     }
-    set_pos(center);
+    set_pos(pos);
 }
 
 void profile_pic::set_pos(sdl::point pt) {
     m_rect.x = pt.x - m_rect.w / 2;
     m_rect.y = pt.y - m_rect.h / 2;
+}
+
+sdl::point profile_pic::get_pos() const {
+    return sdl::point{m_rect.x + m_rect.w / 2, m_rect.y + m_rect.h / 2};
 }
 
 void profile_pic::render(sdl::renderer &renderer) {

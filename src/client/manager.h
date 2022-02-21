@@ -95,9 +95,8 @@ private:
     void HANDLE_MESSAGE(lobby_update, const lobby_data &args);
     void HANDLE_MESSAGE(lobby_edited, const lobby_info &args);
     void HANDLE_MESSAGE(lobby_entered, const lobby_entered_args &args);
-    void HANDLE_MESSAGE(lobby_players, const std::vector<lobby_player_data> &args);
-    void HANDLE_MESSAGE(lobby_joined, const lobby_player_data &args);
-    void HANDLE_MESSAGE(lobby_left, const lobby_left_args &args);
+    void HANDLE_MESSAGE(lobby_add_user, const lobby_add_user_args &args);
+    void HANDLE_MESSAGE(lobby_remove_user, const lobby_remove_user_args &args);
     void HANDLE_MESSAGE(lobby_chat, const lobby_chat_args &args);
     void HANDLE_MESSAGE(game_started, const game_started_args &args);
     void HANDLE_MESSAGE(game_update, const banggame::game_update &args);

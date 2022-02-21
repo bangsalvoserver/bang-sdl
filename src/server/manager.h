@@ -31,12 +31,10 @@ struct game_user {
 
 class game_manager;
 
-struct lobby : util::id_counter<lobby> {
+struct lobby : util::id_counter<lobby>, lobby_info {
     std::vector<game_user *> users;
     game_user *owner;
-    std::string name;
     lobby_state state;
-    banggame::card_expansion_type expansions;
 
     banggame::game game;
     void start_game(const banggame::all_cards_t &all_cards);
@@ -100,7 +98,6 @@ private:
     void HANDLE_MESSAGE(lobby_make,     game_user *user, const lobby_info &value);
     void HANDLE_MESSAGE(lobby_edit,     game_user *user, const lobby_info &args);
     void HANDLE_MESSAGE(lobby_join,     game_user *user, const lobby_join_args &value);
-    void HANDLE_MESSAGE(lobby_players,  game_user *user);
     void HANDLE_MESSAGE(lobby_leave,    game_user *user);
     void HANDLE_MESSAGE(lobby_chat,     game_user *user, const lobby_chat_client_args &value);
     void HANDLE_MESSAGE(game_start,     game_user *user);

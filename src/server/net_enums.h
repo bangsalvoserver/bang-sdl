@@ -27,7 +27,6 @@ DEFINE_ENUM_TYPES(client_message_type,
     (lobby_make, lobby_info)
     (lobby_edit, lobby_info)
     (lobby_join, lobby_join_args)
-    (lobby_players)
     (lobby_leave)
     (lobby_chat, lobby_chat_client_args)
     (game_start)
@@ -49,7 +48,7 @@ struct lobby_data {REFLECTABLE(
     (lobby_state) state
 )};
 
-struct lobby_player_data {REFLECTABLE(
+struct lobby_add_user_args {REFLECTABLE(
     (int) user_id,
     (std::string) name,
     (std::vector<std::byte>) profile_image
@@ -61,7 +60,7 @@ struct lobby_entered_args {REFLECTABLE(
     (int) owner_id
 )};
 
-struct lobby_left_args {REFLECTABLE(
+struct lobby_remove_user_args {REFLECTABLE(
     (int) user_id
 )};
 
@@ -80,10 +79,9 @@ DEFINE_ENUM_TYPES(server_message_type,
     (lobby_list, std::vector<lobby_data>)
     (lobby_update, lobby_data)
     (lobby_entered, lobby_entered_args)
-    (lobby_players, std::vector<lobby_player_data>)
     (lobby_edited, lobby_info)
-    (lobby_joined, lobby_player_data)
-    (lobby_left, lobby_left_args)
+    (lobby_add_user, lobby_add_user_args)
+    (lobby_remove_user, lobby_remove_user_args)
     (lobby_chat, lobby_chat_args)
     (game_started, game_started_args)
     (game_update, game_update)

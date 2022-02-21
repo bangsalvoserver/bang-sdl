@@ -11,6 +11,7 @@ public:
     sdl::texture icon_default_user;
     sdl::texture icon_disconnected;
     sdl::texture icon_loading;
+    sdl::texture icon_owner;
 
     static const global_resources &get() {
         return *s_instance;
