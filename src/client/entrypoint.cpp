@@ -13,7 +13,6 @@ extern "C" __declspec(dllexport) long __stdcall entrypoint(const char *base_path
     sdl::ttf_initializer sdl_ttf_init;
     sdl::img_initializer sdl_img_init(IMG_INIT_PNG | IMG_INIT_JPG);
 
-
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
 
     sdl::window window(_("BANG_TITLE").c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, window_width, window_height, SDL_WINDOW_RESIZABLE);
@@ -24,7 +23,11 @@ extern "C" __declspec(dllexport) long __stdcall entrypoint(const char *base_path
     global_resources resources;
     SDL_SetWindowIcon(window.get(), global_resources::get().icon_bang.get());
 
-    game_manager mgr{base_path};
+    boost::asio::io_context ctx;
+    auto idle_work(boost::asio::make_work_guard(ctx));
+    std::thread ctx_thread([&]{ ctx.run(); });
+
+    game_manager mgr{ctx, base_path};
     mgr.resize(window_width, window_height);
 
     sdl::event event;
@@ -59,6 +62,9 @@ extern "C" __declspec(dllexport) long __stdcall entrypoint(const char *base_path
         
         std::this_thread::sleep_until(next_frame);
     }
+
+    ctx.stop();
+    ctx_thread.join();
 
     return 0;
 }

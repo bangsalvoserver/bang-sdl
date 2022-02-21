@@ -19,7 +19,7 @@ void bang_server::start_accepting() {
                 auto client = connection_type::make(m_ctx, std::move(peer));
                 client->start();
                 
-                print_message("Connection from "s + client->address_string());
+                print_message(client->address_string() + " connected");
                 
                 m_clients.emplace(++m_client_id_counter, std::move(client));
             }
@@ -62,6 +62,7 @@ bool bang_server::start() {
                     }
                     ++it;
                 } else {
+                    print_message(it->second->address_string() + " disconnected");
                     mgr.client_disconnected(it->first);
                     it = m_clients.erase(it);
                 }

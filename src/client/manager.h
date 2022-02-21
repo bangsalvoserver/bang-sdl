@@ -33,7 +33,7 @@ DEFINE_ENUM_TYPES(scene_type,
 
 class game_manager {
 public:
-    game_manager(const std::filesystem::path &base_path);
+    game_manager(boost::asio::io_context &ctx, const std::filesystem::path &base_path);
     ~game_manager();
 
     void resize(int width, int height);
@@ -119,18 +119,16 @@ private:
     int m_lobby_owner_id = 0;
 
 private:
-    boost::asio::io_context m_ctx;
+    boost::asio::io_context &m_ctx;
 
     using connection_type = net::connection<server_message, client_message, banggame::bang_header>;
     connection_type::pointer m_con;
-    std::string m_connected_address;
     std::atomic<bool> m_loading = false;
 
     std::map<int, user_info> m_users;
     
     std::unique_ptr<bang_server> m_listenserver;
 
-    std::jthread m_ctx_thread;
 };
 
 #endif

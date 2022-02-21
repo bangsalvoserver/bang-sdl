@@ -8,8 +8,9 @@
 
 using namespace banggame;
 
-game_manager::game_manager(const std::filesystem::path &base_path)
+game_manager::game_manager(boost::asio::io_context &ctx, const std::filesystem::path &base_path)
     : m_base_path(base_path)
+    , m_ctx(ctx)
 {
     m_config.load();
     switch_scene<scene_type::connect>();
@@ -17,10 +18,6 @@ game_manager::game_manager(const std::filesystem::path &base_path)
 
 game_manager::~game_manager() {
     m_config.save();
-    
-    if (m_con) {
-        m_ctx.stop();
-    }
 }
 
 void game_manager::update_net() {
@@ -36,7 +33,7 @@ void game_manager::update_net() {
                 }
             }
         } else {
-            disconnect(m_connected_address.empty() ? std::string() : _("ERROR_DISCONNECTED"));
+            disconnect(m_con->address_string().empty() ? std::string() : _("ERROR_DISCONNECTED"));
         }
     }
 }
@@ -53,7 +50,6 @@ void game_manager::connect(const std::string &host) {
     m_con->connect(host, banggame::server_port, [this, host](const boost::system::error_code &ec) {
         m_loading = false;
         if (!ec) {
-            m_connected_address = host;
             m_con->start();
             add_message<client_message_type::connect>(m_config.user_name, binary::serialize(m_config.profile_image_data.get_surface()));
         } else {
@@ -64,17 +60,12 @@ void game_manager::connect(const std::string &host) {
         }
     });
 
-    if (!m_listenserver) {
-        m_ctx_thread = std::jthread([&]{ m_ctx.run(); });
-    }
-
     switch_scene<scene_type::loading>()->init(host);
 }
 
 void game_manager::disconnect(const std::string &message) {
-    m_ctx.stop();
-
     if (m_con) {
+        m_con->disconnect();
         m_con.reset();
     }
 
@@ -82,13 +73,6 @@ void game_manager::disconnect(const std::string &message) {
         m_listenserver.reset();
     }
 
-    if (m_ctx_thread.joinable()) {
-        m_ctx_thread.join();
-    }
-
-    m_ctx.restart();
-
-    m_connected_address.clear();
     m_users.clear();
 
     switch_scene<scene_type::connect>();
@@ -161,7 +145,6 @@ bool game_manager::start_listenserver() {
         add_chat_message(message_type::error, std::string("SERVER: ") + msg);
     });
     if (m_listenserver->start()) {
-        m_ctx_thread = std::jthread([&]{ m_ctx.run(); });
         return true;
     } else {
         m_listenserver.reset();
@@ -171,9 +154,9 @@ bool game_manager::start_listenserver() {
 
 void game_manager::HANDLE_MESSAGE(client_accepted) {
     if (!m_listenserver) {
-        auto it = std::ranges::find(m_config.recent_servers, m_connected_address);
+        auto it = std::ranges::find(m_config.recent_servers, m_con->address_string());
         if (it == m_config.recent_servers.end()) {
-            m_config.recent_servers.push_back(m_connected_address);
+            m_config.recent_servers.push_back(m_con->address_string());
         }
     }
     switch_scene<scene_type::lobby_list>();

@@ -62,7 +62,6 @@ server_message_pair game_manager::pop_message() {
 void game_manager::HANDLE_MESSAGE(connect, int client_id, const connect_args &args) {
     if (users.try_emplace(client_id, client_id, args.user_name, args.profile_image).second) {
         send_message<server_message_type::client_accepted>(client_id);
-        print_message(args.user_name + " connected");
     }
 }
 
@@ -197,7 +196,6 @@ void game_manager::HANDLE_MESSAGE(lobby_players, game_user *user) {
 void game_manager::client_disconnected(int client_id) {
     if (auto it = users.find(client_id); it != users.end()) {
         handle_message(MESSAGE_TAG(lobby_leave){}, &it->second);
-        print_message(it->second.name + " disconnected");
         users.erase(it);
     }
 }
