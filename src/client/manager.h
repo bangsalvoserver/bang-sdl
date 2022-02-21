@@ -52,15 +52,13 @@ public:
     void update_net();
 
     void connect(const std::string &host);
-    void disconnect(const std::string &message);
+    void disconnect(const std::string &message = {});
 
-    template<scene_type E>
-    auto *switch_scene() {
+    template<scene_type E, typename ... Ts>
+    void switch_scene(Ts && ... args) {
         m_chat.disable();
-        using type = enums::enum_type_t<E>;
-        m_scene = std::make_unique<type>(this);
+        m_scene = std::make_unique<enums::enum_type_t<E>>(this, std::forward<Ts>(args) ...);
         m_scene->resize(m_width, m_height);
-        return static_cast<type *>(m_scene.get());
     }
 
     config &get_config() {

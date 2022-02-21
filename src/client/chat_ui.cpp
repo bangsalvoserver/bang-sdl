@@ -5,7 +5,7 @@
 chat_ui::chat_ui(game_manager *parent)
     : parent(parent)
 {
-    m_chat_box.set_onenter(std::bind(&chat_ui::send_chat_message, this));
+    m_chat_box.set_onenter([this]{ send_chat_message(); });
 
     m_chat_box.disable();
 }

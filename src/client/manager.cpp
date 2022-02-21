@@ -52,15 +52,13 @@ void game_manager::connect(const std::string &host) {
         if (!ec) {
             m_con->start();
             add_message<client_message_type::connect>(m_config.user_name, binary::serialize(m_config.profile_image_data.get_surface()));
-        } else {
+        } else if (ec != boost::asio::error::operation_aborted) {
             m_con->disconnect();
-            if (ec != boost::asio::error::operation_aborted) {
-                add_chat_message(message_type::error, ec.message());
-            }
+            add_chat_message(message_type::error, ec.message());
         }
     });
 
-    switch_scene<scene_type::loading>()->init(host);
+    switch_scene<scene_type::loading>(host);
 }
 
 void game_manager::disconnect(const std::string &message) {
@@ -75,10 +73,10 @@ void game_manager::disconnect(const std::string &message) {
 
     m_users.clear();
 
-    switch_scene<scene_type::connect>();
     if (!message.empty()) {
         add_chat_message(message_type::error, message);
     }
+    switch_scene<scene_type::connect>();
 }
 
 
@@ -190,7 +188,8 @@ void game_manager::HANDLE_MESSAGE(lobby_entered, const lobby_entered_args &args)
     m_lobby_owner_id = args.owner_id;
     m_user_own_id = args.user_id;
 
-    switch_scene<scene_type::lobby>()->init(args);
+    switch_scene<scene_type::lobby>(args);    
+    add_message<client_message_type::lobby_players>();
 }
 
 void game_manager::HANDLE_MESSAGE(lobby_joined, const lobby_player_data &args) {
@@ -220,7 +219,7 @@ void game_manager::HANDLE_MESSAGE(lobby_chat, const lobby_chat_args &args) {
 }
 
 void game_manager::HANDLE_MESSAGE(game_started, const game_started_args &args) {
-    switch_scene<scene_type::game>()->init(args);
+    switch_scene<scene_type::game>(args);
 }
 
 void game_manager::HANDLE_MESSAGE(game_update, const game_update &args) {

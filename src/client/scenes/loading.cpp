@@ -3,14 +3,12 @@
 #include "../manager.h"
 #include "../global_resources.h"
 
-loading_scene::loading_scene(game_manager *parent)
+loading_scene::loading_scene(game_manager *parent, const std::string &address)
     : scene_base(parent)
-    , m_cancel_btn(_("BUTTON_CANCEL"), std::bind(&game_manager::disconnect, parent, _("ERROR_CONNECTION_CANCELED"))) {}
-
-void loading_scene::init(const std::string &address) {
-    m_loading_text.redraw(_("CONNECTING_TO", address));
-    resize(parent->width(), parent->height());
-}
+    , m_loading_text(_("CONNECTING_TO", address))
+    , m_cancel_btn(_("BUTTON_CANCEL"), [parent]{
+        parent->disconnect(_("ERROR_CONNECTION_CANCELED"));
+    }) {}
 
 void loading_scene::resize(int width, int height) {
     sdl::rect rect = m_loading_text.get_rect();

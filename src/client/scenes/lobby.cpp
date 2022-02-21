@@ -44,28 +44,24 @@ expansion_box::expansion_box(const std::string &label, banggame::card_expansion_
     set_value(bool(flag & check));
 }
 
-lobby_scene::lobby_scene(game_manager *parent)
-    : scene_base(parent)
-    , m_lobby_name_text(widgets::text_style {
-        .text_font = GET_RESOURCE(bkant_bold_ttf)
-    })
-    , m_leave_btn(_("BUTTON_EXIT"), std::bind(&game_manager::add_message<client_message_type::lobby_leave>, parent))
-    , m_start_btn(_("BUTTON_START"), std::bind(&game_manager::add_message<client_message_type::game_start>, parent))
-    , m_chat_btn(_("BUTTON_CHAT"), std::bind(&game_manager::enable_chat, parent)) {}
-
 template<banggame::card_expansion_type E> using has_label = std::bool_constant<E != banggame::card_expansion_type::base>;
 using card_expansions_with_label = enums::filter_enum_sequence<has_label, enums::make_enum_sequence<banggame::card_expansion_type>>;
 
-void lobby_scene::init(const lobby_entered_args &args) {
-    m_lobby_name_text.redraw(args.info.name);
-    
-    parent->add_message<client_message_type::lobby_players>();
-    
+lobby_scene::lobby_scene(game_manager *parent, const lobby_entered_args &args)
+    : scene_base(parent)
+    , m_lobby_name_text(args.info.name, widgets::text_style {
+        .text_font = GET_RESOURCE(bkant_bold_ttf)
+    })
+    , m_leave_btn(_("BUTTON_EXIT"), [parent]{ parent->add_message<client_message_type::lobby_leave>(); })
+    , m_start_btn(_("BUTTON_START"), [parent]{ parent->add_message<client_message_type::game_start>(); })
+    , m_chat_btn(_("BUTTON_CHAT"), [parent]{ parent->enable_chat(); })
+{
     if (parent->get_lobby_owner_id() == parent->get_user_own_id()) {
         [this, expansions = args.info.expansions]
         <banggame::card_expansion_type ... Es>(enums::enum_sequence<Es ...>){
             (m_checkboxes.emplace_back(_(Es), Es, expansions).set_ontoggle(
-                std::bind(&lobby_scene::send_lobby_edited, this)), ...);
+                [this]{ send_lobby_edited(); }
+            ), ...);
         }(card_expansions_with_label());
     } else {
         m_start_btn.disable();
@@ -75,8 +71,6 @@ void lobby_scene::init(const lobby_entered_args &args) {
             (m_checkboxes.emplace_back(_(Es), Es, expansions).set_locked(true), ...);
         }(card_expansions_with_label());
     }
-
-    resize(parent->width(), parent->height());
 }
 
 void lobby_scene::set_lobby_info(const lobby_info &info) {

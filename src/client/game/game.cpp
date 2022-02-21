@@ -8,7 +8,7 @@
 using namespace banggame;
 using namespace enums::flag_operators;
 
-game_scene::game_scene(class game_manager *parent)
+game_scene::game_scene(class game_manager *parent, const game_started_args &args)
     : scene_base(parent)
     , m_card_textures(parent->get_base_path())
     , m_ui(this)
@@ -18,9 +18,7 @@ game_scene::game_scene(class game_manager *parent)
     rng.seed(rd());
 
     m_ui.enable_restart(false);
-}
-
-void game_scene::init(const game_started_args &args) {
+    
     m_expansions = args.expansions;
 }
 

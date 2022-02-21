@@ -8,8 +8,10 @@
 recent_server_line::recent_server_line(connect_scene *parent, const std::string &address)
     : parent(parent)
     , m_address_text(address)
-    , m_connect_btn(_("BUTTON_CONNECT"), std::bind(&connect_scene::do_connect, parent, address))
-    , m_delete_btn(_("BUTTON_DELETE"), std::bind(&connect_scene::do_delete_address, parent, this)) {}
+    , m_connect_btn(_("BUTTON_CONNECT"), [this]{
+        this->parent->do_connect(m_address_text.get_value());
+    })
+    , m_delete_btn(_("BUTTON_DELETE"), [this]{ this->parent->do_delete_address(this); }) {}
 
 void recent_server_line::set_rect(const sdl::rect &rect) {
     m_address_text.set_point(sdl::point(rect.x, rect.y));
@@ -30,7 +32,7 @@ connect_scene::connect_scene(game_manager *parent)
     , m_connect_btn(_("BUTTON_CONNECT"), [this]{
         do_connect(m_address_box.get_value());
     })
-    , m_create_server_btn(_("BUTTON_CREATE_SERVER"), std::bind(&connect_scene::do_create_server, this))
+    , m_create_server_btn(_("BUTTON_CREATE_SERVER"), [this]{ do_create_server(); })
 {
     m_username_box.set_value(parent->get_config().user_name);
     m_address_box.set_onenter([this]{
@@ -40,7 +42,7 @@ connect_scene::connect_scene(game_manager *parent)
         m_recents.emplace_back(this, obj);
     }
 
-    m_propic.set_onclick(std::bind(&connect_scene::do_browse_propic, this));
+    m_propic.set_onclick([this]{ do_browse_propic(); });
     m_propic.set_texture(parent->get_config().profile_image_data);
 }
 

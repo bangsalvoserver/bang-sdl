@@ -135,7 +135,7 @@ namespace banggame {
         }
         if (target->m_hand.size() <= target->max_cards_end_of_turn()) {
             target->m_game->pop_request(request_type::discard_pass);
-            target->m_game->queue_delayed_action(std::bind(&player::pass_turn, target));
+            target->m_game->queue_delayed_action([target = target]{ target->pass_turn(); });
         }
     }
 

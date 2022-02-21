@@ -78,9 +78,12 @@ namespace net {
 
         void disconnect() {
             if (m_socket.is_open()) {
-                boost::system::error_code ec;
-                m_socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
-                m_socket.close(ec);
+                boost::asio::post(m_socket.get_executor(),
+                [this, self = shared_from_this()]{
+                    boost::system::error_code ec;
+                    m_socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+                    m_socket.close(ec);
+                });
             }
         }
 

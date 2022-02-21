@@ -13,10 +13,10 @@ game_ui::game_ui(game_scene *parent)
             .text_ptsize = widgets::chat_log_ptsize
         }
     })
-    , m_confirm_btn(_("GAME_CONFIRM"), std::bind(&target_finder::on_click_confirm, &parent->m_target))
-    , m_leave_btn(_("BUTTON_EXIT"), std::bind(&game_manager::add_message<client_message_type::lobby_leave>, parent->parent))
-    , m_restart_btn(_("GAME_RESTART"), std::bind(&game_manager::add_message<client_message_type::game_start>, parent->parent))
-    , m_chat_btn(_("BUTTON_CHAT"), std::bind(&game_manager::enable_chat, parent->parent)) {}
+    , m_confirm_btn(_("GAME_CONFIRM"), [parent]{ parent->m_target.on_click_confirm(); })
+    , m_leave_btn(_("BUTTON_EXIT"), [parent]{ parent->parent->add_message<client_message_type::lobby_leave>(); })
+    , m_restart_btn(_("GAME_RESTART"), [parent]{ parent->parent->add_message<client_message_type::game_start>(); })
+    , m_chat_btn(_("BUTTON_CHAT"), [parent]{ parent->parent->enable_chat(); }) {}
 
 void game_ui::resize(int width, int height) {
     m_game_log.set_rect(sdl::rect{20, height - 450, 190, 400});
