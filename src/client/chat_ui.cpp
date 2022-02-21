@@ -71,9 +71,11 @@ widgets::text_style chat_ui::get_text_style(message_type type) {
 }
 
 void chat_ui::add_message(message_type type, const std::string &message) {
+    constexpr size_t max_messages = 100;
     {
         std::scoped_lock lock{m_messages_mutex};
         m_messages.emplace_back(widgets::stattext{message, get_text_style(type)}, widgets::chat_message_lifetime);
+        if (m_messages.size() > max_messages) m_messages.pop_front();
     }
     set_rect(m_rect);
 }
