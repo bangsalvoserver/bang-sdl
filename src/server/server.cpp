@@ -85,3 +85,12 @@ bool bang_server::start() {
 
     return true;
 }
+
+void bang_server::stop() {
+    m_game_thread.request_stop();
+    m_acceptor.close();
+
+    for (auto &[id, con] : m_clients) {
+        con->disconnect();
+    }
+}

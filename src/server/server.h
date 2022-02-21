@@ -35,10 +35,7 @@ public:
         }
     }
     
-    void stop() {
-        m_game_thread.request_stop();
-        m_acceptor.close();
-    }
+    void stop();
 
 private:
     boost::asio::io_context &m_ctx;

@@ -68,6 +68,7 @@ void game_manager::disconnect(const std::string &message) {
     }
 
     if (m_listenserver) {
+        m_listenserver->stop();
         m_listenserver.reset();
     }
 
