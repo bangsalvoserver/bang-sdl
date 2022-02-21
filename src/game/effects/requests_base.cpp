@@ -153,6 +153,7 @@ namespace banggame {
     }
 
     void request_indians::on_pick(card_pile_type pile, player *target_player, card *target_card) {
+        target->m_game->queue_event<event_type::on_play_hand_card>(target, target_card);
         target->discard_card(target_card);
         target->m_game->pop_request(request_type::indians);
     }
@@ -171,6 +172,7 @@ namespace banggame {
     }
 
     void request_duel::on_pick(card_pile_type pile, player *target_player, card *target_card) {
+        target->m_game->queue_event<event_type::on_play_hand_card>(target, target_card);
         target->discard_card(target_card);
         target->m_game->pop_request_noupdate(request_type::duel);
         target->m_game->queue_request<request_type::duel>(origin_card, origin, respond_to, target);
