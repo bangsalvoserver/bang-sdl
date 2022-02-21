@@ -40,9 +40,8 @@ connect_scene::connect_scene(game_manager *parent)
         m_recents.emplace_back(this, obj);
     }
 
-    m_propic = parent->get_config().profile_image_data
-        ? &parent->get_config().profile_image_data
-        : &global_resources::get().icon_default_user;
+    m_propic.set_onclick(std::bind(&connect_scene::do_browse_propic, this));
+    m_propic.set_texture(parent->get_config().profile_image_data);
 }
 
 void connect_scene::resize(int width, int height) {
@@ -51,11 +50,16 @@ void connect_scene::resize(int width, int height) {
     label_rect.y = 50 + (25 - label_rect.h) / 2;
     m_username_label.set_rect(label_rect);
     
-    m_username_box.set_rect(sdl::rect{125 + label_rect.w + widgets::propic_size, 50, width - 225 - widgets::propic_size - label_rect.w, 25});
+    m_username_box.set_rect(sdl::rect{
+        125 + label_rect.w + widgets::profile_pic::size,
+        50,
+        width - 225 - widgets::profile_pic::size - label_rect.w,
+        25});
 
-    auto propic_rect = m_propic->get_rect();
-    m_propic_pos.x = 115 + label_rect.w + (widgets::propic_size - propic_rect.w) / 2;
-    m_propic_pos.y = m_username_box.get_rect().y + (m_username_box.get_rect().h - propic_rect.h) / 2;
+    m_propic.set_pos(sdl::point{
+        115 + label_rect.w + widgets::profile_pic::size / 2,
+        m_username_box.get_rect().y + m_username_box.get_rect().h / 2
+    });
 
     m_create_server_btn.set_rect(sdl::rect{(width - 200) / 2, 100, 200, 25});
 
@@ -78,8 +82,7 @@ void connect_scene::resize(int width, int height) {
 void connect_scene::render(sdl::renderer &renderer) {
     m_username_label.render(renderer);
     m_username_box.render(renderer);
-
-    m_propic->render(renderer, m_propic_pos);
+    m_propic.render(renderer);
 
     for (auto &line : m_recents) {
         line.render(renderer);
@@ -89,22 +92,6 @@ void connect_scene::render(sdl::renderer &renderer) {
     m_address_box.render(renderer);
     m_connect_btn.render(renderer);
     m_create_server_btn.render(renderer);
-}
-
-void connect_scene::handle_event(const sdl::event &event) {
-    if (event.type == SDL_MOUSEBUTTONDOWN && sdl::point_in_rect(
-        sdl::point{
-            event.button.x,
-            event.button.y},
-        sdl::rect{
-            115 + m_username_label.get_rect().w,
-            m_username_box.get_rect().y + (m_username_box.get_rect().h - widgets::propic_size) / 2,
-            widgets::propic_size,
-            widgets::propic_size
-        }))
-    {
-        do_browse_propic();
-    }
 }
 
 void connect_scene::do_connect(const std::string &address) {
@@ -131,8 +118,8 @@ void connect_scene::do_browse_propic() {
     const char *ret = tinyfd_openFileDialog(_("BANG_TITLE").c_str(), cfg.profile_image.c_str(), 2, filters, _("DIALOG_IMAGE_FILES").c_str(), 0);
     if (ret) {
         try {
-            cfg.profile_image_data = scale_profile_image(sdl::surface(resource(ret)));
-            m_propic = &cfg.profile_image_data;
+            cfg.profile_image_data = widgets::profile_pic::scale_profile_image(sdl::surface(resource(ret)));
+            m_propic.set_texture(cfg.profile_image_data);
             cfg.profile_image.assign(ret);
             resize(parent->width(), parent->height());
         } catch (const std::runtime_error &e) {

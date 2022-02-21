@@ -392,7 +392,7 @@ void game_scene::remove_user(int id) {
     if (it != m_players.end()) {
         it->second.user_id = 0;
         it->second.set_username(_("USERNAME_DISCONNECTED"));
-        it->second.set_profile_image(&global_resources::get().icon_disconnected);
+        it->second.m_propic.set_texture(global_resources::get().icon_disconnected);
     }
     user_info *info = parent->get_user_info(id);
     if (info) {
@@ -757,10 +757,10 @@ void game_scene::HANDLE_UPDATE(player_add, const player_user_update &args) {
     p.user_id = args.user_id;
     if (user_info *info = parent->get_user_info(args.user_id)) {
         p.set_username(info->name);
-        p.set_profile_image(&info->profile_image);
+        p.m_propic.set_texture(info->profile_image);
     } else {
         p.set_username(_("USERNAME_DISCONNECTED"));
-        p.set_profile_image(&global_resources::get().icon_disconnected);
+        p.m_propic.set_texture(global_resources::get().icon_disconnected);
     }
 
     move_player_views();

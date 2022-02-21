@@ -13,33 +13,22 @@ lobby_player_item::lobby_player_item(int id, const user_info &args)
         .text_font = GET_RESOURCE(bkant_bold_ttf)
     })
     , m_user_id(id) {
-        if (args.profile_image) {
-            m_profile_image = &args.profile_image;
-        } else {
-            m_profile_image = &global_resources::get().icon_default_user;
-        }
+        m_propic.set_texture(args.profile_image);
     }
 
 void lobby_player_item::resize(int x, int y) {
-    m_profile_rect = m_profile_image->get_rect();
-    if (m_profile_rect.w > m_profile_rect.h) {
-        m_profile_rect.h = m_profile_rect.h * widgets::propic_size / m_profile_rect.h;
-        m_profile_rect.w = widgets::propic_size;
-    } else {
-        m_profile_rect.w = m_profile_rect.w * widgets::propic_size / m_profile_rect.h;
-        m_profile_rect.h = widgets::propic_size;
-    }
-
-    m_profile_rect.x = x + (widgets::propic_size - m_profile_rect.w) / 2;
-    m_profile_rect.y = y + (widgets::propic_size - m_profile_rect.h) / 2;
+    m_propic.set_pos(sdl::point{
+        x + widgets::profile_pic::size / 2,
+        y + widgets::profile_pic::size / 2
+    });
 
     m_name_text.set_point(sdl::point{
-        x + widgets::propic_size + 10,
-        y + (widgets::propic_size - m_name_text.get_rect().h) / 2});
+        x + widgets::profile_pic::size + 10,
+        y + (widgets::profile_pic::size - m_name_text.get_rect().h) / 2});
 }
 
 void lobby_player_item::render(sdl::renderer &renderer) {
-    m_profile_image->render(renderer, m_profile_rect);
+    m_propic.render(renderer);
     m_name_text.render(renderer);
 }
 
@@ -122,7 +111,7 @@ void lobby_scene::resize(int width, int height) {
     int y = 60;
     for (auto &line : m_player_list) {
         line.resize(width / 2, y);
-        y += widgets::propic_size + 10;
+        y += widgets::profile_pic::size + 10;
     }
 
     m_leave_btn.set_rect(sdl::rect{20, 20, 100, 25});

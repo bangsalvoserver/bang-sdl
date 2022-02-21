@@ -4,6 +4,7 @@
 #include "scene_base.h"
 
 #include "../widgets/checkbox.h"
+#include "../widgets/profile_pic.h"
 
 #include "game/card_enums.h"
 
@@ -28,9 +29,7 @@ public:
 
 private:
     widgets::stattext m_name_text;
-    
-    const sdl::texture *m_profile_image;
-    sdl::rect m_profile_rect;
+    widgets::profile_pic m_propic;
 
     int m_user_id;
 };

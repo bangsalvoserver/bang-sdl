@@ -7,8 +7,6 @@
 #include "utils/sdl.h"
 #include "utils/binary_serial.h"
 
-sdl::surface scale_profile_image(sdl::surface &&image);
-
 namespace binary {
 
     template<> struct serializer<sdl::surface> {

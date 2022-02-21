@@ -261,9 +261,14 @@ namespace sdl {
             && pt.y >= rect.y && pt.y <= (rect.y + rect.h);
     };
 
-    inline void scale_rect(rect &rect, int new_width) {
+    inline void scale_rect_width(rect &rect, int new_width) {
         rect.h = new_width * rect.h / rect.w;
         rect.w = new_width;
+    }
+
+    inline void scale_rect_height(rect &rect, int new_height) {
+        rect.w = new_height * rect.w / rect.h;
+        rect.h = new_height;
     }
 
     inline surface scale_surface(const surface &surf, int scale) {

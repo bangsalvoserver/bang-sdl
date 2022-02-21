@@ -4,27 +4,12 @@
 
 #include <cstring>
 
-constexpr uint8_t profile_pic_magic_num = 0x8f;
-
-sdl::surface scale_profile_image(sdl::surface &&image) {
-    sdl::rect rect = image.get_rect();
-    int scale = 1;
-    if (rect.w > rect.h) {
-        if (rect.w > widgets::propic_size) {
-            return sdl::scale_surface(image, rect.w / widgets::propic_size);
-        }
-    } else {
-        if (rect.h > widgets::propic_size) {
-            return sdl::scale_surface(image, rect.h / widgets::propic_size);
-        }
-    }
-    return std::move(image);
-}
+constexpr uint8_t surface_magic_num = 0x8f;
 
 namespace binary {
 
 void serializer<sdl::surface>::operator()(const sdl::surface &image, byte_vector &out) const {
-    serializer<uint8_t>{}(profile_pic_magic_num, out);
+    serializer<uint8_t>{}(surface_magic_num, out);
     if (image) {
         const auto w = image.get_rect().w;
         const auto h = image.get_rect().h;
@@ -56,7 +41,7 @@ size_t serializer<sdl::surface>::get_size(const sdl::surface &image) const {
 
 sdl::surface deserializer<sdl::surface>::operator()(byte_ptr &pos, byte_ptr end) const {
     uint8_t m = deserializer<uint8_t>{}(pos, end);
-    if (m != profile_pic_magic_num) {
+    if (m != surface_magic_num) {
         throw binary::read_error("Magic number mismatch");
     }
 

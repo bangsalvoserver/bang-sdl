@@ -40,6 +40,7 @@ set(bangclient_srcs
     src/client/widgets/checkbox.cpp
     src/client/widgets/textbox.cpp
     src/client/widgets/text_list.cpp
+    src/client/widgets/profile_pic.cpp
     src/client/tinyfd/tinyfiledialogs.c
 )
 

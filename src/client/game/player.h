@@ -4,6 +4,7 @@
 #include "card.h"
 
 #include "../widgets/stattext.h"
+#include "../widgets/profile_pic.h"
 
 namespace banggame {
     struct player_view {
@@ -32,8 +33,7 @@ namespace banggame {
 
         widgets::stattext m_gold_text;
 
-        const sdl::texture *m_profile_image = nullptr;
-        sdl::rect m_profile_rect;
+        widgets::profile_pic m_propic;
 
         player_flags m_player_flags = enums::flags_none<player_flags>;
 
@@ -53,7 +53,6 @@ namespace banggame {
         void set_gold(int amount);
 
         void set_username(const std::string &name);
-        void set_profile_image(const sdl::texture *image);
 
         void render(sdl::renderer &renderer);
     };

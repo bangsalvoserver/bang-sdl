@@ -121,7 +121,7 @@ namespace banggame {
     void card_view::render(sdl::renderer &renderer, bool skip_if_animating) {
         auto do_render = [&](const sdl::texture &tex) {
             m_rect = tex.get_rect();
-            sdl::scale_rect(m_rect, options::card_width);
+            sdl::scale_rect_width(m_rect, options::card_width);
 
             m_rect.x = m_pos.x - m_rect.w / 2;
             m_rect.y = m_pos.y - m_rect.h / 2;

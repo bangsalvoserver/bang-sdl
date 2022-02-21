@@ -10,9 +10,7 @@ namespace banggame {
         , m_username_text(widgets::text_style{
             .text_font = GET_RESOURCE(bkant_bold_ttf)
         })
-    {
-        m_profile_image = &global_resources::get().icon_default_user;
-    }
+    {}
 
     void player_view::set_position(sdl::point pos, bool flipped) {
         m_bounding_rect.w = table.width() + options::card_width * 3 + 40;
@@ -38,8 +36,12 @@ namespace banggame {
             hand.set_pos(sdl::point{hand.get_pos().x, hand.get_pos().y - options::card_yoffset});
         }
 
+        m_propic.set_pos(sdl::point{
+            m_role.get_pos().x,
+            m_bounding_rect.y + 94
+        });
+
         set_username(m_username_text.get_value());
-        set_profile_image(m_profile_image);
     }
 
     void player_view::set_username(const std::string &value) {
@@ -48,26 +50,6 @@ namespace banggame {
         username_rect.x = m_role.get_pos().x - (username_rect.w) / 2;
         username_rect.y = m_bounding_rect.y + 43;
         m_username_text.set_rect(username_rect);
-    }
-
-    void player_view::set_profile_image(const sdl::texture *image) {
-        if (!image || !*image) {
-            m_profile_image = &global_resources::get().icon_default_user;
-        } else {
-            m_profile_image = image;
-        }
-
-        m_profile_rect = m_profile_image->get_rect();
-        if (m_profile_rect.w > m_profile_rect.h) {
-            m_profile_rect.h = m_profile_rect.h * widgets::propic_size / m_profile_rect.w;
-            m_profile_rect.w = widgets::propic_size;
-        } else {
-            m_profile_rect.w = m_profile_rect.w * widgets::propic_size / m_profile_rect.h;
-            m_profile_rect.h = widgets::propic_size;
-        }
-
-        m_profile_rect.x = m_role.get_pos().x - m_profile_rect.w / 2;
-        m_profile_rect.y = m_bounding_rect.y + 94 - m_profile_rect.h / 2;
     }
 
     void player_view::set_hp_marker_position(float hp) {
@@ -121,6 +103,6 @@ namespace banggame {
 
         m_username_text.render(renderer);
 
-        m_profile_image->render(renderer, m_profile_rect);
+        m_propic.render(renderer);
     }
 }

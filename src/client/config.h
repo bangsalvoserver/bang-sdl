@@ -4,6 +4,8 @@
 #include <fstream>
 #include <vector>
 
+#include "widgets/profile_pic.h"
+
 #include "utils/json_serial.h"
 #include "utils/resource.h"
 
@@ -47,7 +49,7 @@ struct config {
             ifs >> value;
             *this = json::deserialize<config>(value);
             if (!profile_image.empty() && !profile_image_data) {
-                profile_image_data = sdl::texture(scale_profile_image(sdl::surface(resource(profile_image))));
+                profile_image_data = sdl::texture(widgets::profile_pic::scale_profile_image(sdl::surface(resource(profile_image))));
             }
         } catch (const Json::RuntimeError &error) {
             // ignore

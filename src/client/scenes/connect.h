@@ -3,6 +3,8 @@
 
 #include "scene_base.h"
 
+#include "../widgets/profile_pic.h"
+
 #include <list>
 
 struct recent_server_line {
@@ -27,8 +29,6 @@ public:
     
     void render(sdl::renderer &renderer) override;
 
-    void handle_event(const sdl::event &event) override;
-
     void do_connect(const std::string &address);
 
     void do_delete_address(recent_server_line *addr);
@@ -40,9 +40,7 @@ public:
 private:
     widgets::stattext m_username_label;
     widgets::textbox m_username_box;
-
-    const sdl::texture *m_propic = nullptr;
-    sdl::point m_propic_pos;
+    widgets::profile_pic m_propic;
 
     widgets::stattext m_address_label;
     widgets::textbox m_address_box;
