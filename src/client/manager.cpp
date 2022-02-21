@@ -54,7 +54,7 @@ void game_manager::connect(const std::string &host) {
             add_message<client_message_type::connect>(m_config.user_name, binary::serialize(m_config.profile_image_data.get_surface()));
         } else if (ec != boost::asio::error::operation_aborted) {
             m_con->disconnect();
-            add_chat_message(message_type::error, ec.message());
+            add_chat_message(message_type::error, ansi_to_utf8(ec.message()));
         }
     });
 

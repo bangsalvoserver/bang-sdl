@@ -11,6 +11,8 @@
 #include "server/net_enums.h"
 #include "server/net_options.h"
 
+#include "ansicvt.h"
+
 using message_callback_t = std::function<void(const std::string &)>;
 
 class bang_server {

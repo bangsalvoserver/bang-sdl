@@ -36,7 +36,7 @@ bool bang_server::start() {
         m_acceptor.bind(endpoint);
         m_acceptor.listen(banggame::server_max_clients);
     } catch (const boost::system::system_error &error) {
-        print_error(error.code().message());
+        print_error(ansi_to_utf8(error.code().message()));
         return false;
     }
 

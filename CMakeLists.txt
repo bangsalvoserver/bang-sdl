@@ -78,6 +78,7 @@ set(banggame_srcs
 set(bangnet_srcs
     src/server/server.cpp
     src/server/manager.cpp
+    src/server/ansicvt.cpp
 )
 
 include_directories(src)
