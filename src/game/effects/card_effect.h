@@ -40,10 +40,8 @@ namespace banggame {
         effect_flags flags;
     };
 
-    struct timer_base : request_base {
-        timer_base(card *origin_card, player *origin, player *target, int duration = 200)
-            : request_base(origin_card, origin, target)
-            , duration(duration) {}
+    struct timer_request {
+        timer_request(int duration = 200) : duration(duration) {}
 
         int duration;
     };

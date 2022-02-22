@@ -5,12 +5,12 @@
 namespace banggame {
     
     void timer_damaging::on_finished() {
-        if (origin->m_hp <= damage) {
-            origin->m_game->pop_request_noupdate(request_type::damaging);
+        if (target->m_hp <= damage) {
+            target->m_game->pop_request_noupdate(request_type::damaging);
         } else {
-            origin->m_game->pop_request(request_type::damaging);
+            target->m_game->pop_request(request_type::damaging);
         }
-        origin->damage(origin_card, source, damage, is_bang, true);
+        target->damage(origin_card, origin, damage, is_bang, true);
         cleanup();
     }
 

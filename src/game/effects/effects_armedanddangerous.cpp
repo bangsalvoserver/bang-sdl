@@ -198,7 +198,7 @@ namespace banggame {
     }
 
     bool effect_tumbleweed::can_respond(card *origin_card, player *origin) const {
-        return origin->m_game->top_request_is(request_type::tumbleweed);
+        return origin->m_game->top_request_is(request_type::tumbleweed, origin);
     }
 
     void effect_tumbleweed::on_play(card *origin_card, player *origin) {

@@ -64,16 +64,15 @@ namespace banggame {
         game_formatted_string status_text() const;
     };
 
-    struct timer_damaging : timer_base {
-        timer_damaging(card *origin_card, player *source, player *target, int damage, bool is_bang)
-            : timer_base(origin_card, target, nullptr, 140)
+    struct timer_damaging : request_base, timer_request {
+        timer_damaging(card *origin_card, player *origin, player *target, int damage, bool is_bang)
+            : request_base(origin_card, origin, target)
+            , timer_request(140)
             , damage(damage)
-            , is_bang(is_bang)
-            , source(source) {}
+            , is_bang(is_bang) {}
         
         int damage;
         bool is_bang;
-        player *source = nullptr;
 
         std::function<void()> cleanup_function;
 
@@ -101,8 +100,8 @@ namespace banggame {
         game_formatted_string status_text() const;
     };
 
-    struct timer_lemonade_jim : timer_base {
-        using timer_base::timer_base;
+    struct timer_lemonade_jim : request_base, timer_request {
+        using request_base::request_base;
         game_formatted_string status_text() const;
     };
 

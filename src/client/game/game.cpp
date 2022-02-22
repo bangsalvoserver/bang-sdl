@@ -180,11 +180,11 @@ void game_scene::render(sdl::renderer &renderer) {
                 render_icon(media_pak::get().icon_turn, sdl::rgba(options::turn_indicator_rgba));
                 x -= 32;
             }
-            if (m_current_request && m_current_request->target_id == player_id) {
+            if (m_request_target_id == player_id) {
                 render_icon(media_pak::get().icon_target, sdl::rgba(options::request_target_indicator_rgba));
                 x -= 32;
             }
-            if (m_current_request && m_current_request->origin_id == player_id) {
+            if (m_request_origin_id == player_id) {
                 render_icon(media_pak::get().icon_origin, sdl::rgba(options::request_origin_indicator_rgba));
             }
         } else if (p.m_role.role == m_winner_role
@@ -836,26 +836,18 @@ void game_scene::HANDLE_UPDATE(switch_turn, const switch_turn_update &args) {
 }
 
 void game_scene::HANDLE_UPDATE(request_status, const request_status_args &args) {
-    m_current_request = args;
-    m_target.clear_status();
-
-    if (!args.target_id || args.target_id == m_player_own_id) {
-        m_ui.set_status(evaluate_format_string(args.status_text));
-    } else {
-        m_ui.clear_status();
-    }
-
-    pop_update();
-}
-
-void game_scene::HANDLE_UPDATE(request_respond, const request_respond_args &args) {
+    m_request_origin_id = args.origin_id;
+    m_request_target_id = args.target_id;
     m_target.set_response_highlights(args);
+
+    m_ui.set_status(evaluate_format_string(args.status_text));
 
     pop_update();
 }
 
 void game_scene::HANDLE_UPDATE(status_clear) {
-    m_current_request.reset();
+    m_request_origin_id = 0;
+    m_request_target_id = 0;
 
     m_ui.clear_status();
     m_target.clear_status();

@@ -33,14 +33,14 @@ namespace banggame {
         game_formatted_string status_text() const;
     };
 
-    struct timer_al_preacher : timer_base {
-        using timer_base::timer_base;
+    struct timer_al_preacher : request_base, timer_request {
+        using request_base::request_base;
         game_formatted_string status_text() const;
     };
 
-    struct timer_tumbleweed : timer_base {
+    struct timer_tumbleweed : request_base, timer_request {
         timer_tumbleweed(card *origin_card, player *target, card *drawn_card, card *drawing_card)
-            : timer_base(origin_card, nullptr, target)
+            : request_base(origin_card, nullptr, target)
             , target_card(drawing_card)
             , drawn_card(drawn_card) {}
         

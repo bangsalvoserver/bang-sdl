@@ -90,7 +90,7 @@ namespace banggame {
                 origin->m_game->instant_event<event_type::on_missed>(req.origin_card, req.origin, req.target, req.is_bang_card);
                 origin->m_game->pop_request(request_type::bang);
             } else {
-                origin->m_game->send_request_respond();
+                origin->m_game->send_request_update();
             }
         } else {
             origin->m_game->pop_request(request_type::ricochet);
@@ -125,7 +125,7 @@ namespace banggame {
 
     void effect_barrel::on_play(card *origin_card, player *target) {
         barrels_used(target->m_game->top_request()).push_back(origin_card);
-        target->m_game->send_request_respond();
+        target->m_game->send_request_update();
         target->m_game->draw_check_then(target, origin_card, [=](card *drawn_card) {
             if (target->get_card_suit(drawn_card) == card_suit_type::hearts) {
                 effect_missed().on_play(origin_card, target);
@@ -227,7 +227,7 @@ namespace banggame {
     }
 
     bool effect_drawing::can_respond(card *origin_card, player *origin) const {
-        return origin->m_game->top_request_is(request_type::draw);
+        return origin->m_game->top_request_is(request_type::draw, origin);
     }
 
     void effect_steal::on_play(card *origin_card, player *origin, player *target, card *target_card) {

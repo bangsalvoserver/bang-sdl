@@ -52,7 +52,6 @@ namespace banggame {
         void HANDLE_UPDATE(player_status,     const player_status_update &args);
         void HANDLE_UPDATE(switch_turn,      const switch_turn_update &args);
         void HANDLE_UPDATE(request_status,   const request_status_args &args);
-        void HANDLE_UPDATE(request_respond,   const request_respond_args &args);
         void HANDLE_UPDATE(status_clear);
         void HANDLE_UPDATE(confirm_play);
         
@@ -103,10 +102,11 @@ namespace banggame {
         
         int m_player_own_id = 0;
         int m_playing_id = 0;
+        int m_request_origin_id = 0;
+        int m_request_target_id = 0;
         
         std::default_random_engine rng;
 
-        std::optional<request_status_args> m_current_request;
         player_role m_winner_role = player_role::unknown;
 
         bool has_player_flags(player_flags flags) {

@@ -165,7 +165,7 @@ namespace banggame {
 
     bool request_holder::tick() {
         return enums::visit([&](auto &req) {
-            if constexpr (std::is_base_of_v<timer_base, std::remove_cvref_t<decltype(req)>>) {
+            if constexpr (std::is_base_of_v<timer_request, std::remove_cvref_t<decltype(req)>>) {
                 if (req.duration && --req.duration == 0) {
                     if constexpr (requires { req.on_finished(); }) {
                         auto copy = std::move(req);

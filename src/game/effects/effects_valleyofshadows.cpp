@@ -74,14 +74,14 @@ namespace banggame {
     bool effect_saved::can_respond(card *origin_card, player *origin) const {
         if (origin->m_game->top_request_is(request_type::damaging)) {
             auto &req = origin->m_game->top_request().get<request_type::damaging>();
-            return req.origin != origin;
+            return req.target != origin;
         }
         return false;
     }
 
     void effect_saved::on_play(card *origin_card, player *origin) {
         auto &req = origin->m_game->top_request().get<request_type::damaging>();
-        player *saved = req.origin;
+        player *saved = req.target;
         if (0 == --req.damage) {
             origin->m_game->pop_request(request_type::damaging);
         }
@@ -93,7 +93,7 @@ namespace banggame {
     }
 
     bool effect_escape::can_respond(card *origin_card, player *origin) const {
-        return !origin->m_game->m_requests.empty()
+        return !origin->m_game->m_requests.empty() && origin->m_game->top_request().target() == origin
             && bool(origin->m_game->top_request().flags() & effect_flags::escapable);
     }
 

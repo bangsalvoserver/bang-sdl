@@ -140,21 +140,18 @@ namespace banggame {
         (int) player_id
     )};
 
-    struct request_status_args {REFLECTABLE(
-        (request_type) type,
-        (int) origin_id,
-        (int) target_id,
-        (effect_flags) flags,
-        (game_formatted_string) status_text
-    )};
-
     struct picking_args {REFLECTABLE(
         (card_pile_type) pile,
         (int) player_id,
         (int) card_id
     )};
 
-    struct request_respond_args {REFLECTABLE(
+    struct request_status_args {REFLECTABLE(
+        (request_type) type,
+        (int) origin_id,
+        (int) target_id,
+        (effect_flags) flags,
+        (game_formatted_string) status_text,
         (std::vector<int>) respond_ids,
         (std::vector<picking_args>) pick_ids
     )};
@@ -181,7 +178,6 @@ namespace banggame {
         (player_status, player_status_update)
         (switch_turn, switch_turn_update)
         (request_status, request_status_args)
-        (request_respond, request_respond_args)
         (status_clear)
         (confirm_play)
     )

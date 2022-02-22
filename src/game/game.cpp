@@ -149,16 +149,7 @@ namespace banggame {
             ADD_TO_RET(switch_turn, m_playing->id);
         }
         if (!m_requests.empty()) {
-            auto &req = top_request();
-            ADD_TO_RET(request_status,
-                req.enum_index(),
-                req.origin() ? req.origin()->id : 0,
-                req.target() ? req.target()->id : 0,
-                req.flags(),
-                req.status_text());
-            if (owner && (!req.target() || req.target() == owner)) {
-                ADD_TO_RET(request_respond, make_request_respond(owner));
-            }
+            ADD_TO_RET(request_status, make_request_update(owner));
         }
 
 #undef ADD_TO_RET
@@ -421,8 +412,17 @@ struct to_end{};
         }
     }
 
-    request_respond_args game::make_request_respond(player *p) {
-        request_respond_args ret;
+    request_status_args game::make_request_update(player *p) {
+        const auto &req = top_request();
+        request_status_args ret{
+            req.enum_index(),
+            req.origin() ? req.origin()->id : 0,
+            req.target() ? req.target()->id : 0,
+            req.flags(),
+            req.status_text()
+        };
+
+        if (!p) return ret;
 
         auto add_ids_for = [&](auto &&cards) {
             for (card *c : cards) {
@@ -438,8 +438,10 @@ struct to_end{};
         add_ids_for(m_scenario_cards | std::views::reverse | std::views::take(1));
         add_ids_for(m_specials);
 
+        if (req.target() != p) return ret;
+
         auto maybe_add_pick_id = [&](card_pile_type pile, player *target_player, card *target_card) {
-            if (top_request().can_pick(pile, target_player, target_card)) {
+            if (req.can_pick(pile, target_player, target_card)) {
                 ret.pick_ids.emplace_back(pile,
                     target_player ? target_player->id : 0,
                     target_card ? target_card->id : 0);
@@ -459,26 +461,11 @@ struct to_end{};
         return ret;
     }
 
-    void game::send_request_respond() {
-        if (player *target = top_request().target()) {
-            add_private_update<game_update_type::request_respond>(target, make_request_respond(target));
-        } else {
-            for (auto &p : m_players) {
-                add_private_update<game_update_type::request_respond>(&p, make_request_respond(&p));
-            }
-        }
-    }
-
     void game::send_request_update() {
-        const auto &req = top_request();
-        add_public_update<game_update_type::request_status>(
-            req.enum_index(),
-            req.origin() ? req.origin()->id : 0,
-            req.target() ? req.target()->id : 0,
-            req.flags(),
-            req.status_text()
-        );
-        send_request_respond();
+        add_public_update<game_update_type::request_status>(make_request_update(nullptr));
+        for (auto &p : m_players) {
+            add_private_update<game_update_type::request_status>(&p, make_request_update(&p));
+        }
     }
 
     std::vector<card *> &game::get_pile(card_pile_type pile, player *owner) {
@@ -805,7 +792,7 @@ struct to_end{};
     void game::handle_action(ACTION_TAG(pick_card), player *p, const pick_card_args &args) {
         if (!m_requests.empty()) {
             auto &req = top_request();
-            if (!req.target() || p == req.target()) {
+            if (p == req.target()) {
                 add_private_update<game_update_type::confirm_play>(p);
                 player *target_player = args.player_id ? get_player(args.player_id) : nullptr;
                 card *target_card = args.card_id ? find_card(args.card_id) : nullptr;

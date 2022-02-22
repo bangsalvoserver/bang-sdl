@@ -85,7 +85,7 @@ namespace banggame {
     bool effect_ms_abigail::can_respond(card *origin_card, player *origin) const {
         if (!origin->m_game->m_requests.empty()) {
             auto &req = origin->m_game->top_request();
-            return can_escape(req.origin(), req.origin_card(), req.flags());
+            return req.target() == origin && can_escape(req.origin(), req.origin_card(), req.flags());
         }
         return false;
     }

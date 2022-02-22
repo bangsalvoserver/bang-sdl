@@ -34,12 +34,12 @@ namespace banggame {
         
         void set_border_colors();
 
-        bool is_current_player_targeted() const;
         bool can_respond_with(card_view *card) const;
         bool can_pick(card_pile_type pile, player_view *player, card_view *card) const;
+        bool can_play_in_turn(player_view *player, card_view *card) const;
         bool can_confirm() const;
 
-        void set_response_highlights(const request_respond_args &args);
+        void set_response_highlights(const request_status_args &args);
         void clear_status();
         void clear_targets();
 

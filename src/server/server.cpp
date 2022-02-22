@@ -54,7 +54,7 @@ bool bang_server::start() {
         mgr.set_error_callback(std::bind(&bang_server::print_error, this, _1));
 
         using frames = std::chrono::duration<int64_t, std::ratio<1, banggame::fps>>;
-        auto next_frame = std::chrono::high_resolution_clock::now() + frames{0};
+        auto next_frame = std::chrono::steady_clock::now() + frames{0};
 
         while (!token.stop_requested()) {
             next_frame += frames{1};

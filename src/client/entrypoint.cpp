@@ -34,7 +34,7 @@ extern "C" __declspec(dllexport) long __stdcall entrypoint(const char *base_path
     bool quit = false;
 
     using frames = std::chrono::duration<int64_t, std::ratio<1, banggame::fps>>;
-    auto next_frame = std::chrono::high_resolution_clock::now() + frames{0};
+    auto next_frame = std::chrono::steady_clock::now() + frames{0};
 
     while (!quit) {
         next_frame += frames{1};

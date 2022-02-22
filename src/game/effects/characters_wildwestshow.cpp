@@ -156,7 +156,7 @@ namespace banggame {
         target->m_characters.resize(1);
         target->m_game->add_public_update<game_update_type::player_clear_characters>(target->id);
         on_pre_equip(target_card, target);
-        target->m_game->send_request_respond();
+        target->m_game->send_request_update();
     }
 
 }
