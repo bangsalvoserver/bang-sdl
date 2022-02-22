@@ -13,7 +13,7 @@ namespace banggame {
         card *target_card;
 
         void on_resolve();
-        game_formatted_string status_text() const;
+        game_formatted_string status_text(player *owner) const;
     };
 
     struct request_steal : request_base {
@@ -24,7 +24,7 @@ namespace banggame {
         card *target_card;
 
         void on_resolve();
-        game_formatted_string status_text() const;
+        game_formatted_string status_text(player *owner) const;
     };
 
     struct request_bandidos : request_base {
@@ -35,7 +35,7 @@ namespace banggame {
         bool can_pick(card_pile_type pile, player *target, card *target_card) const;
         void on_pick(card_pile_type pile, player *target, card *target_card);
         void on_resolve();
-        game_formatted_string status_text() const;
+        game_formatted_string status_text(player *owner) const;
     };
 
     struct request_tornado : request_base {
@@ -43,7 +43,7 @@ namespace banggame {
         
         bool can_pick(card_pile_type pile, player *target, card *target_card) const;
         void on_pick(card_pile_type pile, player *target, card *target_card);
-        game_formatted_string status_text() const;
+        game_formatted_string status_text(player *owner) const;
     };
 
     struct request_poker : request_base {
@@ -51,7 +51,7 @@ namespace banggame {
 
         bool can_pick(card_pile_type pile, player *target, card *target_card) const;
         void on_pick(card_pile_type pile, player *target, card *target_card);
-        game_formatted_string status_text() const;
+        game_formatted_string status_text(player *owner) const;
     };
 
     struct request_poker_draw : request_base, allowed_piles<card_pile_type::selection> {
@@ -61,7 +61,7 @@ namespace banggame {
         int num_cards = 2;
 
         void on_pick(card_pile_type pile, player *target, card *target_card);
-        game_formatted_string status_text() const;
+        game_formatted_string status_text(player *owner) const;
     };
 
     struct timer_damaging : request_base, timer_request {
@@ -78,7 +78,7 @@ namespace banggame {
 
         void on_finished();
         void cleanup();
-        game_formatted_string status_text() const;
+        game_formatted_string status_text(player *owner) const;
     };
 
     struct request_saved : request_base {
@@ -90,19 +90,19 @@ namespace banggame {
 
         bool can_pick(card_pile_type pile, player *target, card *target_card) const;
         void on_pick(card_pile_type pile, player *target, card *target_card);
-        game_formatted_string status_text() const;
+        game_formatted_string status_text(player *owner) const;
     };
     
     struct request_ricochet : request_destroy {
         using request_destroy::request_destroy;
 
         std::vector<card *> barrels_used;
-        game_formatted_string status_text() const;
+        game_formatted_string status_text(player *owner) const;
     };
 
     struct timer_lemonade_jim : request_base, timer_request {
         using request_base::request_base;
-        game_formatted_string status_text() const;
+        game_formatted_string status_text(player *owner) const;
     };
 
 }

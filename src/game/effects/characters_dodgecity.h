@@ -21,8 +21,9 @@ namespace banggame {
         request_claus_the_saint(card *origin_card, player *target)
             : request_base(origin_card, nullptr, target) {}
 
+        player *get_next_target() const;
         void on_pick(card_pile_type pile, player *target, card *target_card);
-        game_formatted_string status_text() const;
+        game_formatted_string status_text(player *owner) const;
     };
 
     struct effect_greg_digger : event_based_effect {
@@ -56,7 +57,7 @@ namespace banggame {
         
         bool can_pick(card_pile_type pile, player *target, card *target_card) const;
         void on_pick(card_pile_type pile, player *target, card *target_card);
-        game_formatted_string status_text() const;
+        game_formatted_string status_text(player *owner) const;
     };
 }
 

@@ -64,8 +64,12 @@ namespace banggame {
         }
     }
 
-    game_formatted_string request_kit_carlson::status_text() const {
-        return {"STATUS_KIT_CARLSON", origin_card};
+    game_formatted_string request_kit_carlson::status_text(player *owner) const {
+        if (owner == target) {
+            return {"STATUS_KIT_CARLSON", origin_card};
+        } else {
+            return {"STATUS_KIT_CARLSON_OTHER", target, origin_card};
+        }
     }
 
     void effect_el_gringo::on_equip(card *target_card, player *p) {

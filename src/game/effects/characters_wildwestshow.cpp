@@ -96,8 +96,12 @@ namespace banggame {
         target->m_game->queue_event<event_type::on_effect_end>(origin, origin_card);
     }
 
-    game_formatted_string request_youl_grinner::status_text() const {
-        return {"STATUS_YOUL_GRINNER", origin_card};
+    game_formatted_string request_youl_grinner::status_text(player *owner) const {
+        if (target == owner) {
+            return {"STATUS_YOUL_GRINNER", origin_card};
+        } else {
+            return {"STATUS_YOUL_GRINNER_OTHER", target, origin_card};
+        }
     }
 
     struct flint_westwood_handler {

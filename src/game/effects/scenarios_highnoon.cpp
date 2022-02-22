@@ -40,8 +40,12 @@ namespace banggame {
         target->m_game->pop_request(request_type::thedaltons);
     }
 
-    game_formatted_string request_thedaltons::status_text() const {
-        return {"STATUS_THEDALTONS", origin_card};
+    game_formatted_string request_thedaltons::status_text(player *owner) const {
+        if (target == owner) {
+            return {"STATUS_THEDALTONS", origin_card};
+        } else {
+            return {"STATUS_THEDALTONS_OTHER", target, origin_card};
+        }
     }
 
     void effect_thedoctor::on_equip(card *target_card, player *target) {
@@ -164,8 +168,12 @@ namespace banggame {
         target->m_game->pop_request(request_type::handcuffs);
     }
 
-    game_formatted_string request_handcuffs::status_text() const {
-        return {"STATUS_HANDCUFFS", origin_card};
+    game_formatted_string request_handcuffs::status_text(player *owner) const {
+        if (target == owner) {
+            return {"STATUS_HANDCUFFS", origin_card};
+        } else {
+            return {"STATUS_HANDCUFFS_OTHER", target, origin_card};
+        }
     }
 
     void effect_newidentity::on_equip(card *target_card, player *target) {
@@ -209,7 +217,11 @@ namespace banggame {
         target->m_game->pop_request(request_type::newidentity);
     }
 
-    game_formatted_string request_newidentity::status_text() const {
-        return {"STATUS_NEWIDENTITY", origin_card};
+    game_formatted_string request_newidentity::status_text(player *owner) const {
+        if (target == owner) {
+            return {"STATUS_NEWIDENTITY", origin_card};
+        } else {
+            return {"STATUS_NEWIDENTITY_OTHER", target, origin_card};
+        }
     }
 }

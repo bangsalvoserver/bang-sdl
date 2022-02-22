@@ -87,16 +87,24 @@ namespace banggame {
         }
     }
 
-    game_formatted_string request_peyote::status_text() const {
-        return {"STATUS_PEYOTE", origin_card};
+    game_formatted_string request_peyote::status_text(player *owner) const {
+        if (target == owner) {
+            return {"STATUS_PEYOTE", origin_card};
+        } else {
+            return {"STATUS_PEYOTE_OTHER", target, origin_card};
+        }
     }
 
     void effect_ricochet::on_play(card *origin_card, player *origin, player *target, card *target_card) {
         target->m_game->queue_request<request_type::ricochet>(origin_card, origin, target, target_card, flags);
     }
 
-    game_formatted_string request_ricochet::status_text() const {
-        return {"STATUS_RICOCHET", origin_card, target_card};
+    game_formatted_string request_ricochet::status_text(player *owner) const {
+        if (target == owner) {
+            return {"STATUS_RICOCHET", origin_card, target_card};
+        } else {
+            return {"STATUS_RICOCHET_OTHER", target, origin_card, target_card};
+        }
     }
 
     void effect_russianroulette::on_equip(card *target_card, player *target) {

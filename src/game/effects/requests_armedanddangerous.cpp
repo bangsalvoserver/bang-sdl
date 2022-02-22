@@ -23,11 +23,19 @@ namespace banggame {
         }
     }
 
-    game_formatted_string request_add_cube::status_text() const {
-        if (origin_card) {
-            return {"STATUS_ADD_CUBE_FOR", origin_card};
+    game_formatted_string request_add_cube::status_text(player *owner) const {
+        if (owner == target) {
+            if (origin_card) {
+                return {"STATUS_ADD_CUBE_FOR", origin_card};
+            } else {
+                return "STATUS_ADD_CUBE";
+            }
         } else {
-            return "STATUS_ADD_CUBE";
+            if (origin_card) {
+                return {"STATUS_ADD_CUBE_FOR_OTHER", target, origin_card};
+            } else {
+                return {"STATUS_ADD_CUBE_OTHER", target};
+            }
         }
     }
 
@@ -50,8 +58,12 @@ namespace banggame {
         }
     }
 
-    game_formatted_string request_move_bomb::status_text() const {
-        return {"STATUS_MOVE_BOMB", origin_card};
+    game_formatted_string request_move_bomb::status_text(player *owner) const {
+        if (target == owner) {
+            return {"STATUS_MOVE_BOMB", origin_card};
+        } else {
+            return {"STATUS_MOVE_BOMB_OTHER", target, origin_card};
+        }
     }
 
     void request_rust::on_resolve() {
@@ -60,16 +72,28 @@ namespace banggame {
         effect_rust{}.on_play(origin_card, origin, target);
     }
 
-    game_formatted_string request_rust::status_text() const {
-        return {"STATUS_RUST", origin_card};
+    game_formatted_string request_rust::status_text(player *owner) const {
+        if (target == owner) {
+            return {"STATUS_RUST", origin_card};
+        } else {
+            return {"STATUS_RUST_OTHER", target, origin_card};
+        }
     }
 
-    game_formatted_string timer_al_preacher::status_text() const {
-        return {"STATUS_CAN_PLAY_CARD", origin_card};
+    game_formatted_string timer_al_preacher::status_text(player *owner) const {
+        if (target == owner) {
+            return {"STATUS_CAN_PLAY_CARD", origin_card};
+        } else {
+            return {"STATUS_CAN_PLAY_CARD_OTHER", target, origin_card};
+        }
     }
 
-    game_formatted_string timer_tumbleweed::status_text() const {
-        return {"STATUS_CAN_PLAY_TUMBLEWEED", target->m_game->m_current_check->origin, origin_card, target_card, drawn_card};
+    game_formatted_string timer_tumbleweed::status_text(player *owner) const {
+        if (target == owner) {
+            return {"STATUS_CAN_PLAY_TUMBLEWEED", target->m_game->m_current_check->origin, origin_card, target_card, drawn_card};
+        } else {
+            return {"STATUS_CAN_PLAY_TUMBLEWEED_OTHER", target->m_game->m_current_check->origin, origin_card, target_card, drawn_card, target};
+        }
     }
 
 }

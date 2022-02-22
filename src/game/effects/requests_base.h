@@ -11,14 +11,14 @@ namespace banggame {
         
         bool can_pick(card_pile_type pile, player *target, card *target_card) const;
         void on_pick(card_pile_type pile, player *target, card *target_card);
-        game_formatted_string status_text() const;
+        game_formatted_string status_text(player *owner) const;
     };
 
     struct request_predraw : request_base {
         request_predraw(player *target)
             : request_base(nullptr, nullptr, target) {}
         
-        game_formatted_string status_text() const;
+        game_formatted_string status_text(player *owner) const;
     };
 
     struct request_draw : request_base {
@@ -27,7 +27,7 @@ namespace banggame {
 
         bool can_pick(card_pile_type pile, player *target, card *target_card) const;
         void on_pick(card_pile_type pile, player *target, card *target_card);
-        game_formatted_string status_text() const;
+        game_formatted_string status_text(player *owner) const;
     };
 
     struct request_check : request_base, allowed_piles<card_pile_type::selection> {
@@ -35,7 +35,7 @@ namespace banggame {
             : request_base(origin_card, nullptr, target) {}
 
         void on_pick(card_pile_type pile, player *target, card *target_card);
-        game_formatted_string status_text() const;
+        game_formatted_string status_text(player *owner) const;
     };
 
     struct request_generalstore : request_base, allowed_piles<card_pile_type::selection> {
@@ -43,7 +43,7 @@ namespace banggame {
             : request_base(origin_card, origin, target) {}
 
         void on_pick(card_pile_type pile, player *target, card *target_card);
-        game_formatted_string status_text() const;
+        game_formatted_string status_text(player *owner) const;
     };
 
     struct request_discard : request_base {
@@ -54,7 +54,7 @@ namespace banggame {
         
         bool can_pick(card_pile_type pile, player *target, card *target_card) const;
         void on_pick(card_pile_type pile, player *target, card *target_card);
-        game_formatted_string status_text() const;
+        game_formatted_string status_text(player *owner) const;
     };
 
     struct request_discard_pass : request_base {
@@ -63,7 +63,7 @@ namespace banggame {
 
         bool can_pick(card_pile_type pile, player *target, card *target_card) const;
         void on_pick(card_pile_type pile, player *target, card *target_card);
-        game_formatted_string status_text() const;
+        game_formatted_string status_text(player *owner) const;
     };
 
     struct request_indians : request_base {
@@ -73,7 +73,7 @@ namespace banggame {
         void on_pick(card_pile_type pile, player *target_player, card *target_card);
 
         void on_resolve();
-        game_formatted_string status_text() const;
+        game_formatted_string status_text(player *owner) const;
     };
 
     struct request_duel : request_base {
@@ -87,7 +87,7 @@ namespace banggame {
         void on_pick(card_pile_type pile, player *target_player, card *target_card);
 
         void on_resolve();
-        game_formatted_string status_text() const;
+        game_formatted_string status_text(player *owner) const;
     };
 
     struct request_bang : request_base {
@@ -103,7 +103,7 @@ namespace banggame {
 
         void on_resolve();
         void cleanup();
-        game_formatted_string status_text() const;
+        game_formatted_string status_text(player *owner) const;
     };
 
     struct request_death : request_base {
@@ -113,7 +113,7 @@ namespace banggame {
         std::vector<card *> draw_attempts;
         
         void on_resolve();
-        game_formatted_string status_text() const;
+        game_formatted_string status_text(player *owner) const;
     };
 
 }

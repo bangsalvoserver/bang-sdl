@@ -15,7 +15,7 @@ namespace banggame {
         card *target_card;
 
         void on_resolve();
-        game_formatted_string status_text() const;
+        game_formatted_string status_text(player *owner) const;
     };
 
     struct request_lastwill : request_base {
@@ -27,7 +27,7 @@ namespace banggame {
         void on_resolve();
         bool can_pick(card_pile_type pile, player *target, card *target_card) const;
         void on_pick(card_pile_type pile, player *target, card *target_card);
-        game_formatted_string status_text() const;
+        game_formatted_string status_text(player *owner) const;
     };
 
     struct request_lastwill_target : request_base {
@@ -36,7 +36,7 @@ namespace banggame {
         
         bool can_pick(card_pile_type pile, player *target, card *target_card) const;
         void on_pick(card_pile_type pile, player *target, card *target_card);
-        game_formatted_string status_text() const;
+        game_formatted_string status_text(player *owner) const;
     };
 
 }

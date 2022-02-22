@@ -14,7 +14,7 @@ namespace banggame {
         
         bool can_pick(card_pile_type pile, player *target, card *target_card) const;
         void on_pick(card_pile_type pile, player *target, card *target_card);
-        game_formatted_string status_text() const;
+        game_formatted_string status_text(player *owner) const;
     };
 
     struct request_move_bomb : request_base {
@@ -23,19 +23,19 @@ namespace banggame {
 
         bool can_pick(card_pile_type pile, player *target, card *target_card) const;
         void on_pick(card_pile_type pile, player *target, card *target_card);
-        game_formatted_string status_text() const;
+        game_formatted_string status_text(player *owner) const;
     };
 
     struct request_rust : request_base {
         using request_base::request_base;
 
         void on_resolve();
-        game_formatted_string status_text() const;
+        game_formatted_string status_text(player *owner) const;
     };
 
     struct timer_al_preacher : request_base, timer_request {
         using request_base::request_base;
-        game_formatted_string status_text() const;
+        game_formatted_string status_text(player *owner) const;
     };
 
     struct timer_tumbleweed : request_base, timer_request {
@@ -48,7 +48,7 @@ namespace banggame {
         card *drawn_card;
 
         void on_finished();
-        game_formatted_string status_text() const;
+        game_formatted_string status_text(player *owner) const;
     };
 }
 

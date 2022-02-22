@@ -291,7 +291,7 @@ namespace banggame {
         player *origin() const;
         player *target() const;
         effect_flags flags() const;
-        game_formatted_string status_text() const;
+        game_formatted_string status_text(player *owner) const;
 
         bool resolvable() const;
         void on_resolve();

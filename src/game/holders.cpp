@@ -117,10 +117,10 @@ namespace banggame {
         return enums::visit(&request_base::flags, *this);
     }
 
-    game_formatted_string request_holder::status_text() const {
-        return enums::visit([](const auto &req) -> game_formatted_string {
-            if constexpr (requires { req.status_text(); }) {
-                return req.status_text();
+    game_formatted_string request_holder::status_text(player *owner) const {
+        return enums::visit([owner](const auto &req) -> game_formatted_string {
+            if constexpr (requires { req.status_text(owner); }) {
+                return req.status_text(owner);
             }
             throw std::runtime_error("missing status_text()");
         }, *this);

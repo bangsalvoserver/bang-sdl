@@ -10,8 +10,12 @@ namespace banggame {
         card_sharper_handler{origin_card, origin, target, chosen_card, target_card}.on_resolve();
     }
 
-    game_formatted_string request_card_sharper::status_text() const {
-        return {"STATUS_CARD_SHARPER", origin_card, target_card, chosen_card};
+    game_formatted_string request_card_sharper::status_text(player *owner) const {
+        if (target == owner) {
+            return {"STATUS_CARD_SHARPER", origin_card, target_card, chosen_card};
+        } else {
+            return {"STATUS_CARD_SHARPER_OTHER", target, origin_card, target_card, chosen_card};
+        }
     }
 
     bool request_lastwill::can_pick(card_pile_type pile, player *p, card *target_card) const {
@@ -37,8 +41,12 @@ namespace banggame {
         }
     }
 
-    game_formatted_string request_lastwill::status_text() const {
-        return {"STATUS_LASTWILL", origin_card};
+    game_formatted_string request_lastwill::status_text(player *owner) const {
+        if (target == owner) {
+            return {"STATUS_LASTWILL", origin_card};
+        } else {
+            return {"STATUS_LASTWILL_OTHER", target, origin_card};
+        }
     }
 
     bool request_lastwill_target::can_pick(card_pile_type pile, player *p, card *) const {
@@ -57,7 +65,11 @@ namespace banggame {
         }
     }
 
-    game_formatted_string request_lastwill_target::status_text() const {
-        return {"STATUS_LASTWILL_TARGET", origin_card};
+    game_formatted_string request_lastwill_target::status_text(player *owner) const {
+        if (target == owner) {
+            return {"STATUS_LASTWILL_TARGET", origin_card};
+        } else {
+            return {"STATUS_LASTWILL_TARGET_OTHER", target, origin_card};
+        }
     }
 }

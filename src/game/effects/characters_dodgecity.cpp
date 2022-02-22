@@ -34,15 +34,16 @@ namespace banggame {
         });
     }
 
+    player *request_claus_the_saint::get_next_target() const {
+        int index = target->m_game->num_alive() - target->m_game->m_selection.size();
+        auto p = target;
+        for (int i=0; i<index; ++i) {
+            p = target->m_game->get_next_player(p);
+        }
+        return p;
+    }
+
     void request_claus_the_saint::on_pick(card_pile_type pile, player *target_player, card *target_card) {
-        auto get_next_target = [&]{
-            int index = target->m_game->num_alive() - target->m_game->m_selection.size();
-            auto p = target;
-            for (int i=0; i<index; ++i) {
-                p = target->m_game->get_next_player(p);
-            }
-            return p;
-        };
         if (target->m_num_drawn_cards < target->m_num_cards_to_draw) {
             ++target->m_num_drawn_cards;
             target->add_to_hand(target_card);
@@ -53,11 +54,25 @@ namespace banggame {
         if (target->m_game->m_selection.size() == 1) {
             get_next_target()->add_to_hand(target->m_game->m_selection.front());
             target->m_game->pop_request(request_type::claus_the_saint);
+        } else {
+            target->m_game->send_request_update();
         }
     }
 
-    game_formatted_string request_claus_the_saint::status_text() const {
-        return {"STATUS_CLAUS_THE_SAINT", origin_card};
+    game_formatted_string request_claus_the_saint::status_text(player *owner) const {
+        if (owner == target) {
+            if (target->m_num_drawn_cards < target->m_num_cards_to_draw) {
+                return {"STATUS_CLAUS_THE_SAINT_DRAW", origin_card};
+            } else {
+                return {"STATUS_CLAUS_THE_SAINT_GIVE", origin_card, get_next_target()};
+            }
+        } else if (target->m_num_drawn_cards < target->m_num_cards_to_draw) {
+            return {"STATUS_CLAUS_THE_SAINT_DRAW_OTHER", target, origin_card};
+        } else if (auto p = get_next_target(); p != owner) {
+            return {"STATUS_CLAUS_THE_SAINT_GIVE_OTHER", target, origin_card, p};
+        } else {
+            return {"STATUS_CLAUS_THE_SAINT_GIVE_YOU", target, origin_card};
+        }
     }
     
     void effect_herb_hunter::on_equip(card *target_card, player *p) {
@@ -169,7 +184,11 @@ namespace banggame {
         }
     }
 
-    game_formatted_string request_vera_custer::status_text() const {
-        return {"STATUS_VERA_CUSTER", origin_card};
+    game_formatted_string request_vera_custer::status_text(player *owner) const {
+        if (owner == target) {
+            return {"STATUS_VERA_CUSTER", origin_card};
+        } else {
+            return {"STATUS_VERA_CUSTER_OTHER", target, origin_card};
+        }
     }
 }

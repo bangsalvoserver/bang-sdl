@@ -419,7 +419,7 @@ struct to_end{};
             req.origin() ? req.origin()->id : 0,
             req.target() ? req.target()->id : 0,
             req.flags(),
-            req.status_text()
+            req.status_text(p)
         };
 
         if (!p) return ret;

@@ -51,8 +51,12 @@ namespace banggame {
         }
     }
 
-    game_formatted_string request_dutch_will::status_text() const {
-        return {"STATUS_DUTCH_WILL", origin_card};
+    game_formatted_string request_dutch_will::status_text(player *owner) const {
+        if (target == owner) {
+            return {"STATUS_DUTCH_WILL", origin_card};
+        } else {
+            return {"STATUS_DUTCH_WILL_OTHER", target, origin_card};
+        }
     }
 
     void effect_josh_mccloud::on_play(card *origin_card, player *target) {

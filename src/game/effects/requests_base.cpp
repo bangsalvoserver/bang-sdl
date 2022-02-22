@@ -19,8 +19,12 @@ namespace banggame {
         target->m_game->pop_request(request_type::characterchoice);
     }
 
-    game_formatted_string request_characterchoice::status_text() const {
-        return "STATUS_CHARACTERCHOICE";
+    game_formatted_string request_characterchoice::status_text(player *owner) const {
+        if (owner == target) {
+            return "STATUS_CHARACTERCHOICE";
+        } else {
+            return {"STATUS_CHARACTERCHOICE_OTHER", target};
+        }
     }
 
     bool request_draw::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
@@ -33,11 +37,15 @@ namespace banggame {
         target->draw_from_deck();
     }
 
-    game_formatted_string request_draw::status_text() const {
-        return "STATUS_YOUR_TURN";
+    game_formatted_string request_draw::status_text(player *owner) const {
+        if (owner == target) {
+            return "STATUS_YOUR_TURN";
+        } else {
+            return {"STATUS_YOUR_TURN_OTHER", target};
+        }
     }
 
-    game_formatted_string request_predraw::status_text() const {
+    game_formatted_string request_predraw::status_text(player *owner) const {
         using predraw_check_pair = decltype(player::m_predraw_checks)::value_type;
         auto unresolved = target->m_predraw_checks
             | std::views::filter([](const predraw_check_pair &pair) {
@@ -51,9 +59,15 @@ namespace banggame {
                 return pair.second.priority == value;
             });
         if (std::ranges::distance(top_priority) == 1) {
-            return {"STATUS_PREDRAW_FOR", top_priority.begin()->first};
-        } else {
+            if (owner == target) {
+                return {"STATUS_PREDRAW_FOR", top_priority.begin()->first};
+            } else {
+                return {"STATUS_PREDRAW_FOR_OTHER", target, top_priority.begin()->first};
+            }
+        } else if (owner == target) {
             return "STATUS_PREDRAW";
+        } else {
+            return {"STATUS_PREDRAW_OTHER", target};
         }
     }
 
@@ -73,8 +87,12 @@ namespace banggame {
         }
     }
 
-    game_formatted_string request_check::status_text() const {
-        return {"STATUS_CHECK", origin_card};
+    game_formatted_string request_check::status_text(player *owner) const {
+        if (target == owner) {
+            return {"STATUS_CHECK", origin_card};
+        } else {
+            return {"STATUS_CHECK_OTHER", target, origin_card};
+        }
     }
 
     void request_generalstore::on_pick(card_pile_type pile, player *target_player, card *target_card) {
@@ -93,8 +111,12 @@ namespace banggame {
         }
     }
 
-    game_formatted_string request_generalstore::status_text() const {
-        return {"STATUS_GENERALSTORE", origin_card};
+    game_formatted_string request_generalstore::status_text(player *owner) const {
+        if (target == owner) {
+            return {"STATUS_GENERALSTORE", origin_card};
+        } else {
+            return {"STATUS_GENERALSTORE_OTHER", target, origin_card};
+        }
     }
 
     bool request_discard::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
@@ -110,8 +132,12 @@ namespace banggame {
         target->m_game->queue_event<event_type::on_effect_end>(target, origin_card);
     }
 
-    game_formatted_string request_discard::status_text() const {
-        return {"STATUS_DISCARD", origin_card};
+    game_formatted_string request_discard::status_text(player *owner) const {
+        if (target == owner) {
+            return {"STATUS_DISCARD", origin_card};
+        } else {
+            return {"STATUS_DISCARD_OTHER", target, origin_card};
+        }
     }
 
     bool request_discard_pass::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
@@ -136,15 +162,23 @@ namespace banggame {
         if (target->m_hand.size() <= target->max_cards_end_of_turn()) {
             target->m_game->pop_request(request_type::discard_pass);
             target->m_game->queue_delayed_action([target = target]{ target->pass_turn(); });
+        } else {
+            target->m_game->send_request_update();
         }
     }
 
-    game_formatted_string request_discard_pass::status_text() const {
+    game_formatted_string request_discard_pass::status_text(player *owner) const {
         int diff = target->m_hand.size() - target->max_cards_end_of_turn();
         if (diff > 1) {
-            return {"STATUS_DISCARD_PASS_PLURAL", diff};
-        } else {
+            if (target == owner) {
+                return {"STATUS_DISCARD_PASS_PLURAL", diff};
+            } else {
+                return {"STATUS_DISCARD_PASS_PLURAL_OTHER", target, diff};
+            }
+        } else if (target == owner) {
             return "STATUS_DISCARD_PASS";
+        } else {
+            return {"STATUS_DISCARD_PASS_OTHER", target};
         }
     }
 
@@ -163,8 +197,12 @@ namespace banggame {
         target->damage(origin_card, origin, 1);
     }
 
-    game_formatted_string request_indians::status_text() const {
-        return {"STATUS_INDIANS", origin_card};
+    game_formatted_string request_indians::status_text(player *owner) const {
+        if (target == owner) {
+            return {"STATUS_INDIANS", origin_card};
+        } else {
+            return {"STATUS_INDIANS_OTHER", target, origin_card};
+        }
     }
 
     bool request_duel::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
@@ -183,8 +221,12 @@ namespace banggame {
         target->damage(origin_card, origin, 1);
     }
 
-    game_formatted_string request_duel::status_text() const {
-        return {"STATUS_DUEL", origin_card};
+    game_formatted_string request_duel::status_text(player *owner) const {
+        if (target == owner) {
+            return {"STATUS_DUEL", origin_card};
+        } else {
+            return {"STATUS_DUEL_OTHER", target, origin_card};
+        }
     }
 
     void request_bang::on_resolve() {
@@ -206,8 +248,10 @@ namespace banggame {
         }
     }
 
-    game_formatted_string request_bang::status_text() const {
-        if (unavoidable) {
+    game_formatted_string request_bang::status_text(player *owner) const {
+        if (target != owner) {
+            return {"STATUS_BANG_OTHER", target, origin_card};
+        } else if (unavoidable) {
             return {"STATUS_BANG_UNAVOIDABLE", origin_card};
         } else if (bang_strength > 1) {
             return {"STATUS_BANG_MULTIPLE_MISSED", origin_card, bang_strength};
@@ -225,7 +269,11 @@ namespace banggame {
         }
     }
 
-    game_formatted_string request_death::status_text() const {
-        return "STATUS_DEATH";
+    game_formatted_string request_death::status_text(player *owner) const {
+        if (target == owner) {
+            return "STATUS_DEATH";
+        } else {
+            return {"STATUS_DEATH_OTHER", target};
+        }
     }
 }

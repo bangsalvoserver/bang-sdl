@@ -21,8 +21,8 @@ namespace banggame {
         }
     }
 
-    game_formatted_string timer_damaging::status_text() const {
-        return {damage > 1 ? "STATUS_DAMAGING_PLURAL" : "STATUS_DAMAGING", origin, origin_card, damage};
+    game_formatted_string timer_damaging::status_text(player *owner) const {
+        return {damage > 1 ? "STATUS_DAMAGING_PLURAL" : "STATUS_DAMAGING", target, origin_card, damage};
     }
 
     void request_destroy::on_resolve() {
@@ -30,8 +30,12 @@ namespace banggame {
         target->m_game->pop_request();
     }
 
-    game_formatted_string request_destroy::status_text() const {
-        return {"STATUS_DESTROY", origin_card, with_owner{target_card}};
+    game_formatted_string request_destroy::status_text(player *owner) const {
+        if (target == owner) {
+            return {"STATUS_DESTROY", origin_card, with_owner{target_card}};
+        } else {
+            return {"STATUS_DESTROY_OTHER", target, origin_card, with_owner{target_card}};
+        }
     }
 
     void request_steal::on_resolve() {
@@ -39,8 +43,12 @@ namespace banggame {
         target->m_game->pop_request(request_type::steal);
     }
 
-    game_formatted_string request_steal::status_text() const {
-        return {"STATUS_STEAL", origin_card, with_owner{target_card}};
+    game_formatted_string request_steal::status_text(player *owner) const {
+        if (target == owner) {
+            return {"STATUS_STEAL", origin_card, with_owner{target_card}};
+        } else {
+            return {"STATUS_STEAL_OTHER", target, origin_card, with_owner{target_card}};
+        }
     }
 
     bool request_bandidos::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
@@ -60,8 +68,12 @@ namespace banggame {
         target->damage(origin_card, origin, 1);
     }
 
-    game_formatted_string request_bandidos::status_text() const {
-        return {"STATUS_BANDIDOS", origin_card};
+    game_formatted_string request_bandidos::status_text(player *owner) const {
+        if (target == owner) {
+            return {"STATUS_BANDIDOS", origin_card};
+        } else {
+            return {"STATUS_BANDIDOS_OTHER", target, origin_card};
+        }
     }
 
     bool request_tornado::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
@@ -75,8 +87,12 @@ namespace banggame {
         target->m_game->pop_request(request_type::tornado);
     }
 
-    game_formatted_string request_tornado::status_text() const {
-        return {"STATUS_TORNADO", origin_card};
+    game_formatted_string request_tornado::status_text(player *owner) const {
+        if (target == owner) {
+            return {"STATUS_TORNADO", origin_card};
+        } else {
+            return {"STATUS_TORNADO_OTHER", target, origin_card};
+        }
     }
 
     bool request_poker::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
@@ -88,8 +104,12 @@ namespace banggame {
         target->m_game->pop_request(request_type::poker);
     }
 
-    game_formatted_string request_poker::status_text() const {
-        return {"STATUS_POKER", origin_card};
+    game_formatted_string request_poker::status_text(player *owner) const {
+        if (target == owner) {
+            return {"STATUS_POKER", origin_card};
+        } else {
+            return {"STATUS_POKER_OTHER", target, origin_card};
+        }
     }
 
     void request_poker_draw::on_pick(card_pile_type pile, player *target_player, card *target_card) {
@@ -103,8 +123,12 @@ namespace banggame {
         }
     }
 
-    game_formatted_string request_poker_draw::status_text() const {
-        return {"STATUS_POKER_DRAW", origin_card};
+    game_formatted_string request_poker_draw::status_text(player *owner) const {
+        if (target == owner) {
+            return {"STATUS_POKER_DRAW", origin_card};
+        } else {
+            return {"STATUS_POKER_DRAW_OTHER", target, origin_card};
+        }
     }
 
     bool request_saved::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
@@ -128,11 +152,19 @@ namespace banggame {
         }
     }
 
-    game_formatted_string request_saved::status_text() const {
-        return {"STATUS_SAVED", origin_card, saved};
+    game_formatted_string request_saved::status_text(player *owner) const {
+        if (target == owner) {
+            return {"STATUS_SAVED", origin_card, saved};
+        } else {
+            return {"STATUS_SAVED_OTHER", target, origin_card, saved};
+        }
     }
 
-    game_formatted_string timer_lemonade_jim::status_text() const {
-        return {"STATUS_CAN_PLAY_CARD", origin_card};
+    game_formatted_string timer_lemonade_jim::status_text(player *owner) const {
+        if (target == owner) {
+            return {"STATUS_CAN_PLAY_CARD", origin_card};
+        } else {
+            return {"STATUS_CAN_PLAY_CARD_OTHER", target, origin_card};
+        }
     }
 }

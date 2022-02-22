@@ -30,51 +30,93 @@ GAME_USER_DISCONNECTED              {} left
 USERNAME_DISCONNECTED               (Disconnected)
 STATUS_GAME_OVER                    Game Over
 STATUS_YOUR_TURN                    Your turn ... Draw from the deck
+STATUS_YOUR_TURN_OTHER              {}'s turn
 STATUS_CARD_FROM_HAND               card from hand
 STATUS_UNKNOWN_CARD                 (unknown card)
 STATUS_UNKNOWN_PLAYER               (unknown player)
 STATUS_CHARACTERCHOICE              Choose your character
+STATUS_CHARACTERCHOICE_OTHER        {} must chooce their character
 STATUS_PREDRAW                      "Draw!" a card before drawing
+STATUS_PREDRAW_OTHER                {} must "draw!" a card before drawing
 STATUS_PREDRAW_FOR                  "Draw!" for {}
+STATUS_PREDRAW_FOR_OTHER            {0} must "draw!" for {1}
 STATUS_CHECK                        Choose which card to "draw!" for {0}
-STATUS_GENERALSTORE                 Draw a card for {0}
-STATUS_DISCARD                      Discard a card for {0}
+STATUS_CHECK_OTHER                  {0} must choose which card to "draw!" for {1}
+STATUS_GENERALSTORE                 {0} ... Choose a card
+STATUS_GENERALSTORE_OTHER           {1} ... {0} must choose a card
+STATUS_DISCARD                      {0} ... Discard a card
+STATUS_DISCARD_OTHER                {1} ... {0} must discard a card
 STATUS_DISCARD_PASS                 Discard a card before passing the turn
+STATUS_DISCARD_PASS_OTHER           {0} must discard a card before passing the turn
 STATUS_DISCARD_PASS_PLURAL          Discard {} cards before passing the turn
+STATUS_DISCARD_PASS_PLURAL_OTHER    {0} must discard {1} cards before passing the turn
 STATUS_BANG                         {0} ... Respond with Mancato or Resolve
 STATUS_BANG_MULTIPLE_MISSED         {0} ... Respond with {1} Mancato or Resolve
 STATUS_BANG_UNAVOIDABLE             {0} ... This shot is unavoidable! Respond with Resolve
+STATUS_BANG_OTHER                   {0} must respond to {1}
 STATUS_INDIANS                      {0} ... Respond with Bang or Resolve
+STATUS_INDIANS_OTHER                {0} must respond to {1}
 STATUS_DUEL                         {0} ... Respond with Bang or Resolve
+STATUS_DUEL_OTHER                   {0} must respond to {1}
 STATUS_DESTROY                      {0} to discard {1} ... Respond with Fuga or Resolve
+STATUS_DESTROY_OTHER                {0} must respond to {1} to discard {2}
 STATUS_STEAL                        {0} to steal {1} ... Respond with Fuga or Resolve
+STATUS_STEAL_OTHER                  {0} must respond to {1} to discard {2}
 STATUS_DEATH                        You're about to die. Play Birra or Resolve
+STATUS_DEATH_OTHER                  {0} is about to die
 STATUS_BANDIDOS                     {0} ... Discard two cards or Resolve
+STATUS_BANDIDOS_OTHER               {0} must respond to {1}
 STATUS_TORNADO                      {0} ... Discard a card to draw two
+STATUS_TORNADO_OTHER                {1} ... {0} must discard a card to draw two
 STATUS_POKER                        {0} ... Discard a card
+STATUS_POKER_OTHER                  {1} ... {0} must discard a card
 STATUS_POKER_DRAW                   {0} ... Choose which cards to draw
+STATUS_POKER_DRAW_OTHER             {1} ... {0} must choose which cards to draw
 STATUS_SAVED                        {0} ... Choose whether to draw from the deck or from the hand of {1}
+STATUS_SAVED_OTHER                  {1} ... {0} must choose whether to draw from the deck or from the hand of {2}
 STATUS_ADD_CUBE                     Choose which card to put a cube onto
+STATUS_ADD_CUBE_OTHER               {0} must choose which card to put a cube onto
 STATUS_ADD_CUBE_FOR                 Choose which card to put a cube onto, for {0}
+STATUS_ADD_CUBE_FOR_OTHER           {0} must choose which card to put a cube onto, for {1}
 STATUS_MOVE_BOMB                    Choose which player to move {0} onto
+STATUS_MOVE_BOMB_OTHER              {0} must choose which player to move {1} onto
 STATUS_RUST                         {0} ... Respond with Fuga or Resolve
+STATUS_RUST_OTHER                   {0} must respond to {1}
 STATUS_RICOCHET                     {0} on {1} ... Respond with Mancato or Resolve
+STATUS_RICOCHET_OTHER               {0} must respond to {1} on {2}
 STATUS_PEYOTE                       {0} ... Declare Red or Black
-STATUS_HANDCUFFS                    {0} ... Declare a Suit
+STATUS_PEYOTE_OTHER                 {1} ... {0} must declare Red or Black
+STATUS_HANDCUFFS                    {0} ... Declare a suit
+STATUS_HANDCUFFS_OTHER              {1} ... {0} must declare a suit
 STATUS_KIT_CARLSON                  {0} ... Choose which cards to draw
-STATUS_CLAUS_THE_SAINT              {0} ... Choose two cards to draw and the others to gift in turn.
+STATUS_KIT_CARLSON_OTHER            {1} ... {0} must choose which cards to draw
+STATUS_CLAUS_THE_SAINT_DRAW         {0} ... Choose two cards to draw
+STATUS_CLAUS_THE_SAINT_GIVE         {0} ... Choose which card to give to {1}
+STATUS_CLAUS_THE_SAINT_DRAW_OTHER   {1} ... {0} must choose two cards to draw
+STATUS_CLAUS_THE_SAINT_GIVE_OTHER   {1} ... {0} must choose which card to give to {2}
+STATUS_CLAUS_THE_SAINT_GIVE_YOU     {1} ... {0} must choose which card to give to you
 STATUS_VERA_CUSTER                  {0} ... Choose which character to copy
+STATUS_VERA_CUSTER_OTHER            {0} must choose which character to copy, per {2}
 STATUS_YOUL_GRINNER                 Give {0} a card
+STATUS_YOUL_GRINNER_OTHER           {0} must give {1} a card
 STATUS_DUTCH_WILL                   {0} ... Choose which card to draw
+STATUS_DUTCH_WILL_OTHER             {1} ... {0} must choose which card to draw
 STATUS_THEDALTONS                   {0} ... Discard a blue card
+STATUS_THEDALTONS_OTHER             {0} must discard a blue card
 STATUS_CAN_PLAY_CARD                You can play {0}
+STATUS_CAN_PLAY_CARD_OTHER          {0} can play {1}
 STATUS_DAMAGING                     {0} takes 1 damage for {1}
 STATUS_DAMAGING_PLURAL              {0} takes {2} damage for {1}
 STATUS_CAN_PLAY_TUMBLEWEED          {0} "draws!" {3} for {2} ... You can play {1}
+STATUS_CAN_PLAY_TUMBLEWEED_OTHER    {0} "draws!" {3} for {2} ... {4} can play {1}
 STATUS_CARD_SHARPER                 {0} to switch {1} with {2} ... Respond with Fuga or Resolve
+STATUS_CARD_SHARPER_OTHER           {0} must respond to {1} to switch {2} with {3}
 STATUS_LASTWILL                     {0} ... Choose up to three cards to give
+STATUS_LASTWILL_OTHER               {1} ... {0} must choose up to three cards to give
 STATUS_LASTWILL_TARGET              {0} ... Choose who to give the cards
+STATUS_LASTWILL_TARGET_OTHER        {1} ... {0} must choose who to give the cards
 STATUS_NEWIDENTITY                  {0} ... Choose which character to switch to
+STATUS_NEWIDENTITY_OTHER            {1} ... {0} must choose which character to switch to
 banggame::player_role::sheriff      Sheriff
 banggame::player_role::deputy       Deputy
 banggame::player_role::outlaw       Outlaw

@@ -44,7 +44,7 @@ namespace banggame {
             : request_base(origin_card, nullptr, target) {}
 
         void on_pick(card_pile_type pile, player *target, card *target_card);
-        game_formatted_string status_text() const;
+        game_formatted_string status_text(player *owner) const;
     };
 
     struct effect_ricochet : card_effect {
