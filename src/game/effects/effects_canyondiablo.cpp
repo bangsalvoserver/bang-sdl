@@ -6,7 +6,6 @@ namespace banggame {
     using namespace enums::flag_operators;
 
     void effect_graverobber::on_play(card *origin_card, player *origin) {
-        origin->m_game->move_to(origin_card, card_pile_type::selection);
         for (int i=0; i<origin->m_game->num_alive(); ++i) {
             if (origin->m_game->m_discards.empty()) {
                 origin->m_game->draw_card_to(card_pile_type::selection);
@@ -14,7 +13,6 @@ namespace banggame {
                 origin->m_game->move_to(origin->m_game->m_discards.back(), card_pile_type::selection);
             }
         }
-        origin->m_game->move_to(origin_card, card_pile_type::discard_pile);
         origin->m_game->queue_request<request_type::generalstore>(origin_card, origin, origin);
     }
 

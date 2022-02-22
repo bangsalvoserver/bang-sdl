@@ -50,10 +50,11 @@ namespace banggame {
         void on_equip(card *target_card, player *target);
     };
 
-    struct request_vera_custer : request_base, allowed_piles<card_pile_type::player_character> {
+    struct request_vera_custer : request_base {
         request_vera_custer(card *origin_card, player *target)
             : request_base(origin_card, nullptr, target) {}
         
+        bool can_pick(card_pile_type pile, player *target, card *target_card) const;
         void on_pick(card_pile_type pile, player *target, card *target_card);
         game_formatted_string status_text() const;
     };

@@ -12,6 +12,7 @@
 namespace banggame {
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, effect_type,
+        (play_card_action, effect_play_card_action)
         (pass_turn,     effect_pass_turn)
         (resolve,       effect_resolve)
         (predraw,       effect_predraw)

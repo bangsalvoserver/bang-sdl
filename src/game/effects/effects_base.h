@@ -5,6 +5,10 @@
 
 namespace banggame {
 
+    struct effect_play_card_action : card_effect {
+        void on_play(card *origin_card, player *origin);
+    };
+
     struct effect_pass_turn : card_effect {
         void on_play(card *origin_card, player *origin);
     };

@@ -5,6 +5,10 @@
 namespace banggame {
     using namespace enums::flag_operators;
 
+    void effect_play_card_action::on_play(card *origin_card, player *origin) {
+        origin->play_card_action(origin_card, args == 1);
+    }
+
     void effect_pass_turn::on_play(card *origin_card, player *origin) {
         origin->pass_turn();
     }
@@ -195,7 +199,6 @@ namespace banggame {
         if (origin != target && target->can_escape(origin, origin_card, flags)) {
             target->m_game->queue_request<request_type::destroy>(origin_card, origin, target, target_card, flags);
         } else {
-            target->m_game->instant_event<event_type::on_discard_card>(origin, target, target_card);
             auto fun = [=]{
                 if (origin->alive()) {
                     if (origin != target) {
@@ -206,11 +209,19 @@ namespace banggame {
                     target->discard_card(target_card);
                 }
             };
-            if (auto pos = std::ranges::find(target->m_game->m_pending_events, enums::indexof(event_type::on_effect_end), &event_args::index);
-                pos != target->m_game->m_pending_events.end()) {
-                target->m_game->m_pending_events.emplace(pos, std::in_place_index<enums::indexof(event_type::delayed_action)>, std::move(fun));
+            // check henry block
+            size_t nreqs = target->m_game->m_requests.size();
+            target->m_game->instant_event<event_type::on_discard_card>(origin, target, target_card);
+            if (target->m_game->m_requests.size() > nreqs) {
+                // check suzy lafayette
+                if (auto pos = std::ranges::find(target->m_game->m_pending_events, enums::indexof(event_type::on_effect_end), &event_args::index);
+                    pos != target->m_game->m_pending_events.end()) {
+                    target->m_game->m_pending_events.emplace(pos, std::in_place_index<enums::indexof(event_type::delayed_action)>, std::move(fun));
+                } else {
+                    target->m_game->queue_delayed_action(std::move(fun));
+                }
             } else {
-                target->m_game->queue_delayed_action(std::move(fun));
+                fun();
             }
         }
     }
@@ -223,7 +234,6 @@ namespace banggame {
         if (origin != target && target->can_escape(origin, origin_card, flags)) {
             target->m_game->queue_request<request_type::steal>(origin_card, origin, target, target_card, flags);
         } else {
-            target->m_game->instant_event<event_type::on_discard_card>(origin, target, target_card);
             auto fun = [=]{
                 if (origin->alive()) {
                     if (origin != target) {
@@ -234,11 +244,19 @@ namespace banggame {
                     origin->steal_card(target, target_card);
                 }
             };
-            if (auto pos = std::ranges::find(target->m_game->m_pending_events, enums::indexof(event_type::on_effect_end), &event_args::index);
-                pos != target->m_game->m_pending_events.end()) {
-                target->m_game->m_pending_events.emplace(pos, std::in_place_index<enums::indexof(event_type::delayed_action)>, std::move(fun));
+            // check henry block
+            size_t nreqs = target->m_game->m_requests.size();
+            target->m_game->instant_event<event_type::on_discard_card>(origin, target, target_card);
+            if (target->m_game->m_requests.size() > nreqs) {
+                // check suzy lafayette
+                if (auto pos = std::ranges::find(target->m_game->m_pending_events, enums::indexof(event_type::on_effect_end), &event_args::index);
+                    pos != target->m_game->m_pending_events.end()) {
+                    target->m_game->m_pending_events.emplace(pos, std::in_place_index<enums::indexof(event_type::delayed_action)>, std::move(fun));
+                } else {
+                    target->m_game->queue_delayed_action(std::move(fun));
+                }
             } else {
-                target->m_game->queue_delayed_action(std::move(fun));
+                fun();
             }
         }
     }

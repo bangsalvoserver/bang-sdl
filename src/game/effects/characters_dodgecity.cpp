@@ -158,6 +158,10 @@ namespace banggame {
         });
     }
 
+    bool request_vera_custer::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
+        return pile == card_pile_type::player_character && target_player->alive();
+    }
+
     void request_vera_custer::on_pick(card_pile_type pile, player *target_player, card *target_card) {
         if (target_card != target->m_characters.front()) {
             target->m_game->pop_request(request_type::vera_custer);

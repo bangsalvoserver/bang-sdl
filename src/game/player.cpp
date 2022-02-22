@@ -444,38 +444,42 @@ namespace banggame {
         });
     }
 
-    void player::do_play_card(card *card_ptr, bool is_response, const std::vector<play_card_target> &targets) {
-        auto play_card_action = [this, is_response](card *card_ptr) {
-            switch (card_ptr->pile) {
-            case card_pile_type::player_hand:
+    void player::play_card_action(card *card_ptr, bool is_response) {
+        switch (card_ptr->pile) {
+        case card_pile_type::player_hand:
+            m_game->move_to(card_ptr, card_pile_type::discard_pile);
+            m_game->queue_event<event_type::on_play_hand_card>(this, card_ptr);
+            [[fallthrough]];
+        case card_pile_type::scenario_card:
+            m_game->add_log(is_response ? "LOG_RESPONDED_WITH_CARD" : "LOG_PLAYED_CARD", card_ptr, this);
+            break;
+        case card_pile_type::player_table:
+            if (card_ptr->color == card_color_type::green) {
                 m_game->move_to(card_ptr, card_pile_type::discard_pile);
-                m_game->queue_event<event_type::on_play_hand_card>(this, card_ptr);
-                [[fallthrough]];
-            case card_pile_type::scenario_card:
-                m_game->add_log(is_response ? "LOG_RESPONDED_WITH_CARD" : "LOG_PLAYED_CARD", card_ptr, this);
-                break;
-            case card_pile_type::player_table:
-                if (card_ptr->color == card_color_type::green) {
-                    m_game->move_to(card_ptr, card_pile_type::discard_pile);
-                }
-                m_game->add_log(is_response ? "LOG_RESPONDED_WITH_CARD" : "LOG_PLAYED_TABLE_CARD", card_ptr, this);
-                break;
-            case card_pile_type::player_character:
-                m_game->add_log(is_response ? "LOG_RESPONDED_WITH_CHARACTER" : "LOG_PLAYED_CHARACTER", card_ptr, this);
-                break;
-            case card_pile_type::shop_selection:
-                if (card_ptr->color == card_color_type::brown) {
-                    m_game->move_to(card_ptr, card_pile_type::shop_discard);
-                }
-                m_game->add_log("LOG_BOUGHT_CARD", card_ptr, this);
-                break;
-            case card_pile_type::hidden_deck:
-                break;
             }
-        };
+            m_game->add_log(is_response ? "LOG_RESPONDED_WITH_CARD" : "LOG_PLAYED_TABLE_CARD", card_ptr, this);
+            break;
+        case card_pile_type::player_character:
+            m_game->add_log(is_response ? "LOG_RESPONDED_WITH_CHARACTER" : "LOG_PLAYED_CHARACTER", card_ptr, this);
+            break;
+        case card_pile_type::shop_selection:
+            if (card_ptr->color == card_color_type::brown) {
+                m_game->move_to(card_ptr, card_pile_type::shop_discard);
+            }
+            m_game->add_log("LOG_BOUGHT_CARD", card_ptr, this);
+            break;
+        case card_pile_type::hidden_deck:
+            break;
+        }
+    }
 
+    void player::do_play_card(card *card_ptr, bool is_response, const std::vector<play_card_target> &targets) {
         assert(card_ptr != nullptr);
-        play_card_action(card_ptr);
+        
+        auto &effects = is_response ? card_ptr->responses : card_ptr->effects;
+        if (std::ranges::find(effects, effect_type::play_card_action, &effect_holder::type) == effects.end()) {
+            play_card_action(card_ptr, is_response);
+        }
 
         if (card_ptr->max_usages != 0) {
             ++card_ptr->usages;
@@ -489,7 +493,6 @@ namespace banggame {
             add_gold(-card_ptr->cost);
         }
         
-        auto &effects = is_response ? card_ptr->responses : card_ptr->effects;
         auto effect_it = effects.begin();
         auto effect_end = effects.end();
         for (auto &t : targets) {

@@ -140,6 +140,8 @@ namespace banggame {
         void play_modifiers(const std::vector<card *> &modifiers);
         void verify_equip_target(card *c, const std::vector<play_card_target> &targets);
         void verify_card_targets(card *c, bool is_response, const std::vector<play_card_target> &targets);
+
+        void play_card_action(card *c, bool is_response);
         void do_play_card(card *c, bool is_response, const std::vector<play_card_target> &targets);
 
         void play_card(const play_card_args &args);

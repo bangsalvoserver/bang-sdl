@@ -42,7 +42,7 @@ namespace banggame {
     }
 
     bool request_lastwill_target::can_pick(card_pile_type pile, player *p, card *) const {
-        return pile == card_pile_type::player && p != target;
+        return pile == card_pile_type::player && p != target && p->alive();
     }
 
     void request_lastwill_target::on_pick(card_pile_type pile, player *p, card *) {

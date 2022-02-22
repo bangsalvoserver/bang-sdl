@@ -703,6 +703,9 @@
                     "class": "destroy"
                 },
                 {
+                    "class": "play_card_action"
+                },
+                {
                     "target": "card",
                     "class": "steal",
                     "escapable": true
@@ -721,6 +724,9 @@
                 {
                     "target": "self hand card",
                     "class": "destroy"
+                },
+                {
+                    "class": "play_card_action"
                 },
                 {
                     "target": "everyone notself card",
@@ -762,6 +768,9 @@
                     "class": "destroy"
                 },
                 {
+                    "class": "play_card_action"
+                },
+                {
                     "target": "player notself",
                     "class": "bang",
                     "escapable": true
@@ -782,6 +791,9 @@
                     "class": "destroy"
                 },
                 {
+                    "class": "play_card_action"
+                },
+                {
                     "target": "player",
                     "class": "heal"
                 }
@@ -799,6 +811,9 @@
                 {
                     "target": "self hand card",
                     "class": "destroy"
+                },
+                {
+                    "class": "play_card_action"
                 },
                 {
                     "target": "player self",
@@ -1867,6 +1882,9 @@
             "effects": [
                 {
                     "class": "graverobber"
+                },
+                {
+                    "class": "play_card_action"
                 }
             ]
         },
@@ -1996,7 +2014,7 @@
                 "8Q",
                 "6Q"
             ],
-            "image": "01_bang",
+            "image": "20_bang",
             "expansion": "canyondiablo",
             "color": "brown",
             "effects": [
