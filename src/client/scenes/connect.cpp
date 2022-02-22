@@ -1,7 +1,7 @@
 #include "connect.h"
 
 #include "../manager.h"
-#include "../global_resources.h"
+#include "../media_pak.h"
 
 #include "../tinyfd/tinyfiledialogs.h"
 

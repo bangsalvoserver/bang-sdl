@@ -3,7 +3,7 @@
 #include "server/net_options.h"
 
 #include "manager.h"
-#include "global_resources.h"
+#include "media_pak.h"
 
 constexpr int window_width = 900;
 constexpr int window_height = 700;
@@ -20,8 +20,8 @@ extern "C" __declspec(dllexport) long __stdcall entrypoint(const char *base_path
     sdl::renderer renderer(window, -1, SDL_RENDERER_ACCELERATED);
     SDL_SetRenderDrawBlendMode(renderer.get(), SDL_BLENDMODE_BLEND);
     
-    global_resources resources;
-    SDL_SetWindowIcon(window.get(), global_resources::get().icon_bang.get());
+    media_pak resources(base_path);
+    SDL_SetWindowIcon(window.get(), media_pak::get().icon_bang.get());
 
     boost::asio::io_context ctx;
     auto idle_work(boost::asio::make_work_guard(ctx));

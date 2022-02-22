@@ -4,7 +4,7 @@
 #include <iostream>
 
 #include "server/net_options.h"
-#include "global_resources.h"
+#include "media_pak.h"
 
 using namespace banggame;
 
@@ -114,7 +114,7 @@ static void render_tiled(sdl::renderer &renderer, const sdl::texture &texture, c
 }
 
 void game_manager::render(sdl::renderer &renderer) {
-    render_tiled(renderer, global_resources::get().texture_background, sdl::rect{0, 0, width(), height()});
+    render_tiled(renderer, media_pak::get().texture_background, sdl::rect{0, 0, width(), height()});
     
     m_scene->render(renderer);
 

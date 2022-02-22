@@ -1,16 +1,13 @@
 #include "lobby.h"
 
 #include "../manager.h"
-#include "../global_resources.h"
-
-DECLARE_RESOURCE(bkant_bold_ttf)
-DECLARE_RESOURCE(perdido_ttf)
+#include "../media_pak.h"
 
 using namespace enums::flag_operators;
 
 lobby_player_item::lobby_player_item(int id, const user_info &args, bool is_owner)
     : m_name_text(args.name, widgets::text_style{
-        .text_font = GET_RESOURCE(bkant_bold_ttf)
+        .text_font = &media_pak::font_bkant_bold
     })
     , m_propic(args.profile_image)
     , m_user_id(id)
@@ -32,17 +29,17 @@ void lobby_player_item::render(sdl::renderer &renderer) {
     m_name_text.render(renderer);
 
     if (m_is_owner) {
-        sdl::rect rect = global_resources::get().icon_owner.get_rect();
+        sdl::rect rect = media_pak::get().icon_owner.get_rect();
         rect.x = m_propic.get_pos().x - 60;
         rect.y = m_propic.get_pos().y - rect.h / 2;
-        global_resources::get().icon_owner.render(renderer, rect);
+        media_pak::get().icon_owner.render(renderer, rect);
     }
 }
 
 expansion_box::expansion_box(const std::string &label, banggame::card_expansion_type flag, banggame::card_expansion_type check)
     : widgets::checkbox(label, widgets::button_style{
         .text = {
-            .text_font = GET_RESOURCE(perdido_ttf)
+            .text_font = &media_pak::font_perdido
         }
     })
     , m_flag(flag)
@@ -57,7 +54,7 @@ using card_expansions_with_label = enums::filter_enum_sequence<has_label, enums:
 lobby_scene::lobby_scene(game_manager *parent, const lobby_entered_args &args)
     : scene_base(parent)
     , m_lobby_name_text(args.info.name, widgets::text_style {
-        .text_font = GET_RESOURCE(bkant_bold_ttf)
+        .text_font = &media_pak::font_bkant_bold
     })
     , m_leave_btn(_("BUTTON_EXIT"), [parent]{ parent->add_message<client_message_type::lobby_leave>(); })
     , m_start_btn(_("BUTTON_START"), [parent]{ parent->add_message<client_message_type::game_start>(); })

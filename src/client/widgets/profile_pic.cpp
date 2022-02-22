@@ -1,5 +1,5 @@
 #include "profile_pic.h"
-#include "../global_resources.h"
+#include "../media_pak.h"
 
 namespace widgets {
 
@@ -18,14 +18,14 @@ sdl::surface profile_pic::scale_profile_image(sdl::surface &&image) {
 }
 
 profile_pic::profile_pic() {
-    set_texture(global_resources::get().icon_default_user);
+    set_texture(media_pak::get().icon_default_user);
 }
 
 void profile_pic::set_texture(const sdl::texture &tex) {
     if (tex) {
         m_texture = &tex;
     } else {
-        m_texture = &global_resources::get().icon_default_user;
+        m_texture = &media_pak::get().icon_default_user;
     }
 
     sdl::point pos = get_pos();

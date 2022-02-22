@@ -1,14 +1,12 @@
 #include "player.h"
 
-#include "../global_resources.h"
-
-DECLARE_RESOURCE(bkant_bold_ttf)
+#include "../media_pak.h"
 
 namespace banggame {
     player_view::player_view(int id)
         : id(id)
         , m_username_text(widgets::text_style{
-            .text_font = GET_RESOURCE(bkant_bold_ttf)
+            .text_font = &media_pak::font_bkant_bold
         })
     {}
 
@@ -89,10 +87,10 @@ namespace banggame {
             c->render(renderer);
         }
         if (gold > 0) {
-            sdl::rect gold_rect = card_textures::get().icon_gold.get_rect();
+            sdl::rect gold_rect = media_pak::get().icon_gold.get_rect();
             gold_rect.x = m_characters.get_pos().x - gold_rect.w / 2;
             gold_rect.y = m_characters.get_pos().y - options::gold_yoffset;
-            card_textures::get().icon_gold.render(renderer, gold_rect);
+            media_pak::get().icon_gold.render(renderer, gold_rect);
 
             sdl::rect gold_text_rect = m_gold_text.get_rect();
             gold_text_rect.x = gold_rect.x + (gold_rect.w - gold_text_rect.w) / 2;

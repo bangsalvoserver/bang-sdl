@@ -1,6 +1,6 @@
 #include "checkbox.h"
 
-#include "../global_resources.h"
+#include "../media_pak.h"
 
 using namespace widgets;
 
@@ -23,7 +23,7 @@ void checkbox::render(sdl::renderer &renderer) {
     renderer.draw_rect(m_checkbox_rect);
     
     if (m_value) {
-        global_resources::get().icon_checkbox.render(renderer, m_checkbox_rect);
+        media_pak::get().icon_checkbox.render(renderer, m_checkbox_rect);
     }
 
     m_text.render(renderer);

@@ -25,16 +25,6 @@ namespace banggame {
         sdl::texture backface_role;
         sdl::texture backface_goldrush;
 
-        sdl::texture sprite_cube;
-        sdl::texture sprite_cube_border;
-
-        sdl::texture icon_gold;
-
-        sdl::texture icon_turn;
-        sdl::texture icon_origin;
-        sdl::texture icon_target;
-        sdl::texture icon_winner;
-
         sdl::surface apply_card_mask(const sdl::surface &source) const;
 
         sdl::surface get_card_resource(std::string_view name) const {

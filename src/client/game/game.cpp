@@ -1,6 +1,6 @@
 #include "game.h"
 #include "../manager.h"
-#include "../global_resources.h"
+#include "../media_pak.h"
 
 #include <iostream>
 #include <numbers>
@@ -177,20 +177,20 @@ void game_scene::render(sdl::renderer &renderer) {
 
         if (m_winner_role == player_role::unknown) {
             if (player_id == m_playing_id) {
-                render_icon(card_textures::get().icon_turn, sdl::rgba(options::turn_indicator_rgba));
+                render_icon(media_pak::get().icon_turn, sdl::rgba(options::turn_indicator_rgba));
                 x -= 32;
             }
             if (m_current_request && m_current_request->target_id == player_id) {
-                render_icon(card_textures::get().icon_target, sdl::rgba(options::request_target_indicator_rgba));
+                render_icon(media_pak::get().icon_target, sdl::rgba(options::request_target_indicator_rgba));
                 x -= 32;
             }
             if (m_current_request && m_current_request->origin_id == player_id) {
-                render_icon(card_textures::get().icon_origin, sdl::rgba(options::request_origin_indicator_rgba));
+                render_icon(media_pak::get().icon_origin, sdl::rgba(options::request_origin_indicator_rgba));
             }
         } else if (p.m_role.role == m_winner_role
             || (p.m_role.role == player_role::deputy && m_winner_role == player_role::sheriff)
             || (p.m_role.role == player_role::sheriff && m_winner_role == player_role::deputy)) {
-            render_icon(card_textures::get().icon_winner, sdl::rgba(options::winner_indicator_rgba));
+            render_icon(media_pak::get().icon_winner, sdl::rgba(options::winner_indicator_rgba));
         }
     }
 
@@ -390,7 +390,7 @@ void game_scene::remove_user(int id) {
     if (it != m_players.end()) {
         it->second.user_id = 0;
         it->second.set_username(_("USERNAME_DISCONNECTED"));
-        it->second.m_propic.set_texture(global_resources::get().icon_disconnected);
+        it->second.m_propic.set_texture(media_pak::get().icon_disconnected);
     }
     user_info *info = parent->get_user_info(id);
     if (info) {
@@ -758,7 +758,7 @@ void game_scene::HANDLE_UPDATE(player_add, const player_user_update &args) {
         p.m_propic.set_texture(info->profile_image);
     } else {
         p.set_username(_("USERNAME_DISCONNECTED"));
-        p.m_propic.set_texture(global_resources::get().icon_disconnected);
+        p.m_propic.set_texture(media_pak::get().icon_disconnected);
     }
 
     move_player_views();

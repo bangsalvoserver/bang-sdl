@@ -9,6 +9,7 @@
 #include <cstring>
 #include <iostream>
 #include <fstream>
+#include <filesystem>
 
 template<typename T>
 T read_data(const char **pos) {
@@ -93,26 +94,33 @@ public:
 
         std::vector<packed_data> items;
 
-        uint64_t nitems = read_data<uint64_t>(ifs);
+        uint64_t nitems = read_data<uint64_t>(m_stream);
         for (; nitems!=0; --nitems) {
             packed_data item;
 
-            uint64_t len = read_data<uint64_t>(ifs);
+            uint64_t len = read_data<uint64_t>(m_stream);
             item.name.assign(len, '\0');
-            ifs.read(item.name.data(), len);
+            m_stream.read(item.name.data(), len);
 
-            item.pos = read_data<uint64_t>(ifs);
-            item.size = read_data<uint64_t>(ifs);
+            item.pos = read_data<uint64_t>(m_stream);
+            item.size = read_data<uint64_t>(m_stream);
 
             items.push_back(item);
         }
 
         for (const auto &item : items) {
-            m_data.try_emplace(item.name, (uint64_t)ifs.tellg() + item.pos, item.size);
+            m_data.try_emplace(item.name, (uint64_t)m_stream.tellg() + item.pos, item.size);
         }
     }
 
     resource operator[](std::string_view key) const {
+        auto it = seek(key);
+        resource ret(it->second.size, '\0');
+        m_stream.read(ret.data(), ret.size());
+        return ret;
+    }
+
+    decltype(m_data)::const_iterator seek(std::string_view key) const {
         auto it = m_data.find(key);
         if (it == m_data.end()) {
             std::string str_err = "Impossibile trovare risorsa: ";
@@ -120,13 +128,18 @@ public:
             throw std::out_of_range(str_err);
         }
         m_stream.seekg(it->second.pos, std::ios::beg);
-        resource ret;
-        ret.assign(it->second.size, '\0');
-        m_stream.read(ret.data(), ret.size());
-        return ret;
+        return it;
     }
 };
 
 template<typename Resource> unpacker(Resource &&) -> unpacker<std::remove_reference_t<Resource>>;
+
+inline std::ifstream ifstream_or_throw(const std::filesystem::path &path) {
+    std::ifstream stream(path, std::ios::in | std::ios::binary);
+    if (!stream) {
+        throw std::runtime_error(std::string("Could not open ") + path.string());
+    }
+    return stream;
+}
 
 #endif

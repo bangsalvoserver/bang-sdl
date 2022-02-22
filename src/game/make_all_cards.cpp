@@ -5,14 +5,10 @@
 
 #include <json/json.h>
 
-#include "utils/svstream.h"
 #include "utils/resource.h"
+#include "utils/unpacker.h"
 
 #include "holders.h"
-
-#ifdef BANG_CARDS_JSON_LINKED
-DECLARE_RESOURCE(bang_cards_json)
-#endif
 
 namespace banggame {
 
@@ -91,19 +87,16 @@ namespace banggame {
     }
 
     all_cards_t make_all_cards(const std::filesystem::path &base_path) {
-#ifdef BANG_CARDS_JSON_LINKED
-        const auto bang_cards_resource = GET_RESOURCE(bang_cards_json);
-        util::isviewstream bang_cards_stream({bang_cards_resource.data, bang_cards_resource.length});
-#else
-        std::ifstream bang_cards_stream(base_path / "../resources/bang_cards.json");
-#endif
-
         using namespace enums::flag_operators;
 
         all_cards_t ret;
-
         Json::Value json_cards;
-        bang_cards_stream >> json_cards;
+        {
+            auto cards_pak_stream = ifstream_or_throw(base_path / "cards.pak");
+            unpacker cards_pak(cards_pak_stream);
+            cards_pak.seek("bang_cards");
+            cards_pak_stream >> json_cards;
+        }
 
         const auto is_disabled = [](const Json::Value &value) {
             return value.isMember("disabled") && value["disabled"].asBool();

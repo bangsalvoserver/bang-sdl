@@ -1,44 +1,3 @@
-function(compile_resources target_name)
-    foreach(file IN LISTS ARGN)
-        get_filename_component(varname "${file}" NAME)
-        string(MAKE_C_IDENTIFIER "${varname}" varname)
-
-        set(resource_c_file "${CMAKE_CURRENT_BINARY_DIR}/${file}.c")
-        list(APPEND out_list "${resource_c_file}")
-
-        add_custom_command(
-            OUTPUT "${resource_c_file}"
-            COMMAND ${CMAKE_COMMAND}
-                -D "resource_file_name=${CMAKE_CURRENT_SOURCE_DIR}/${file}"
-                -D "source_file_name=${resource_c_file}"
-                -D "variable_name=__resource__${varname}"
-                -P "${CMAKE_CURRENT_SOURCE_DIR}/EmbedResource.cmake"
-            DEPENDS "${file}"
-            VERBATIM
-        )
-    endforeach()
-    add_library(${target_name} OBJECT ${out_list})
-endfunction()
-
-if (CMAKE_BUILD_TYPE STREQUAL "Release")
-    compile_resources(bang_cards bang_cards.json)
-endif()
-
-compile_resources(resources_obj
-    icons/icon_checkbox.png
-    icons/icon_default_user.png
-    icons/icon_loading.png
-    icons/icon_disconnected.png
-    icons/icon_owner.png
-    icons/bang.png
-    background.png)
-
-compile_resources(fonts_obj
-    fonts/arial.ttf
-    fonts/bkant_bold.ttf
-    fonts/perdido.ttf
-)
-
 add_executable(compile_locale compile_locale.cpp)
 function(compile_locales target_name)
     string(APPEND all_locales_content "// Auto generated file.\n")
@@ -72,14 +31,65 @@ compile_locales(locale_headers locale_it.txt locale_en.txt)
 target_include_directories(locale_headers INTERFACE "${CMAKE_CURRENT_BINARY_DIR}")
 
 add_executable(packer pack.cpp)
-file(GLOB_RECURSE card_files "${CMAKE_CURRENT_SOURCE_DIR}/cards/*.png")
-add_custom_command(
-    OUTPUT "${CMAKE_BINARY_DIR}/cards.pak"
-    COMMAND packer
-        "${CMAKE_CURRENT_SOURCE_DIR}/cards/"
-        "${CMAKE_BINARY_DIR}/cards.pak"
+function(pack_resources target_name out_file in_files)
+    foreach(file ${in_files})
+        if (IS_ABSOLUTE "${file}")
+            list(APPEND abs_files "${file}")
+        else()
+            list(APPEND abs_files "${CMAKE_CURRENT_SOURCE_DIR}/${file}")
+        endif()
+    endforeach()
+    add_custom_command(
+        OUTPUT "${out_file}"
+        COMMAND packer
         -q
-    DEPENDS ${card_files} packer
-    VERBATIM
+        "${out_file}"
+        ${abs_files}
+        DEPENDS ${abs_files} packer
+        VERBATIM
+    )
+    add_custom_target("${target_name}" DEPENDS "${out_file}")
+endfunction()
+
+set(bang_cards_json "${CMAKE_CURRENT_SOURCE_DIR}/cards/bang_cards.json")
+file(READ "${bang_cards_json}" bang_cards_json_content)
+string(JSON num_of_keys LENGTH "${bang_cards_json_content}")
+math(EXPR max_index "${num_of_keys} - 1")
+foreach(IDX RANGE 0 ${max_index})
+    string(JSON member_name MEMBER "${bang_cards_json_content}" ${IDX})
+    string(JSON current_member GET "${bang_cards_json_content}" "${member_name}")
+    string(JSON num_of_values LENGTH "${current_member}")
+    math(EXPR max_value_index "${num_of_values} - 1")
+    foreach(IDX RANGE 0 ${max_value_index})
+        string(JSON current_card GET "${current_member}" ${IDX})
+        string(JSON card_image ERROR_VARIABLE image_not_found GET "${current_card}" "image")
+        if (NOT image_not_found)
+            list(APPEND card_files "cards/${member_name}/${card_image}.png")
+        endif()
+    endforeach()
+endforeach()
+
+list(APPEND card_files "${bang_cards_json}")
+pack_resources(cards_pak "${CMAKE_BINARY_DIR}/cards.pak" "${card_files}")
+
+set(media_files
+    media/background.png
+    media/icon_bang.png
+    media/icon_checkbox.png
+    media/icon_default_user.png
+    media/icon_disconnected.png
+    media/icon_loading.png
+    media/icon_owner.png
+    media/icon_gold.png
+    media/icon_turn.png
+    media/icon_origin.png
+    media/icon_target.png
+    media/icon_winner.png
+    media/sprite_cube.png
+    media/sprite_cube_border.png
+    media/fonts/arial.ttf
+    media/fonts/bkant_bold.ttf
+    media/fonts/perdido.ttf
 )
-add_custom_target(cards_pak DEPENDS "${CMAKE_BINARY_DIR}/cards.pak")
+
+pack_resources(media_pak "${CMAKE_BINARY_DIR}/media.pak" "${media_files}")

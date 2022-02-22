@@ -44,7 +44,7 @@ namespace intl {
 
     std::string translate(std::string_view str) {
         return std::string(enums::visit_enum([&](auto enum_const) {
-            constexpr auto strings = enums::enum_data_v<decltype(enum_const)::value>;
+            static constexpr auto strings = enums::enum_data_v<decltype(enum_const)::value>;
             auto it = strings.find(str);
             if (it == strings.end()) {
                 return str;

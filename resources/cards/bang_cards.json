@@ -3309,28 +3309,6 @@
             ]
         }
     ],
-    "roles": [
-        {
-            "name": "Fuorilegge",
-            "image": "01_fuorilegge",
-            "class": "outlaw"
-        },
-        {
-            "name": "Rinnegato",
-            "image": "01_rinnegato",
-            "class": "renegade"
-        },
-        {
-            "name": "Sceriffo",
-            "image": "01_sceriffo",
-            "class": "sheriff"
-        },
-        {
-            "name": "Vice",
-            "image": "01_vice",
-            "class": "deputy"
-        }
-    ],
     "highnoon": [
         {
             "name": "Benedizione",
@@ -4140,5 +4118,34 @@
                 }
             ]
         }
+    ],
+    "misc": [
+        { "image": "back_character" },
+        { "image": "back_goldrush" },
+        { "image": "back_maindeck" },
+        { "image": "back_role" },
+        { "image": "card_border" },
+        { "image": "card_mask" },
+        { "image": "role_deputy" },
+        { "image": "role_outlaw" },
+        { "image": "role_renegade" },
+        { "image": "role_sheriff" },
+        { "image": "suit_clubs" },
+        { "image": "suit_diamonds" },
+        { "image": "suit_hearts" },
+        { "image": "suit_spades" },
+        { "image": "value_2" },
+        { "image": "value_3" },
+        { "image": "value_4" },
+        { "image": "value_5" },
+        { "image": "value_6" },
+        { "image": "value_7" },
+        { "image": "value_8" },
+        { "image": "value_9" },
+        { "image": "value_10" },
+        { "image": "value_J" },
+        { "image": "value_K" },
+        { "image": "value_Q" },
+        { "image": "value_A" }
     ]
 }

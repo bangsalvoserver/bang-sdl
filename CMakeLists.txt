@@ -26,7 +26,7 @@ set(bangclient_srcs
     src/client/manager.cpp
     src/client/user_info.cpp
     src/client/chat_ui.cpp
-    src/client/global_resources.cpp
+    src/client/media_pak.cpp
     src/client/game/card.cpp
     src/client/game/player.cpp
     src/client/game/game.cpp
@@ -88,7 +88,7 @@ add_library(bangclient SHARED ${bangclient_srcs})
 target_compile_definitions(bangclient PRIVATE SDL_MAIN_HANDLED)
 
 target_link_libraries(bangclient PkgConfig::SDL2 PkgConfig::SDL2_ttf PkgConfig::SDL2_image PkgConfig::SDL2_gfx PkgConfig::jsoncpp)
-target_link_libraries(bangclient resources_obj fonts_obj locale_headers)
+target_link_libraries(bangclient locale_headers)
 
 find_package(fmt REQUIRED)
 if (TARGET fmt::fmt-header-only)
@@ -97,13 +97,11 @@ else()
     target_link_libraries(bangclient fmt::fmt)
 endif()
 
-add_dependencies(bangclient cards_pak)
+add_dependencies(bangclient cards_pak media_pak)
 
 add_library(banggame SHARED ${banggame_srcs})
 target_link_libraries(banggame PkgConfig::jsoncpp)
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
-    target_link_libraries(banggame bang_cards)
-    target_compile_definitions(banggame PRIVATE BANG_CARDS_JSON_LINKED)
     target_compile_definitions(banggame PRIVATE DISABLE_TESTING)
 endif()
 
@@ -117,7 +115,7 @@ target_link_libraries(bangserver bangnet)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     if (WIN32)
-        add_executable(banglauncher WIN32 src/client/main.c resources/icons/bang.rc)
+        add_executable(banglauncher WIN32 src/client/main.c resources/bang.rc)
         if (MINGW)
             target_link_options(banglauncher PRIVATE -mconsole)
         endif()

@@ -1,11 +1,12 @@
 #include "card.h"
 
 #include "server/net_options.h"
+#include "../media_pak.h"
 
 namespace banggame {
 
     card_textures::card_textures(const std::filesystem::path &base_path)
-        : cards_pak_data(base_path / "cards.pak", std::ios::in | std::ios::binary)
+        : cards_pak_data(ifstream_or_throw(base_path / "cards.pak"))
         , card_resources(cards_pak_data)
     {
         card_mask = get_card_resource("card_mask");
@@ -15,17 +16,6 @@ namespace banggame {
         backface_character = apply_card_mask(get_card_resource("back_character"));
         backface_role = apply_card_mask(get_card_resource("back_role"));
         backface_goldrush = apply_card_mask(get_card_resource("back_goldrush"));
-
-        sprite_cube = get_card_resource("sprite_cube");
-        sprite_cube_border = get_card_resource("sprite_cube_border");
-
-        icon_gold = get_card_resource("icon_gold");
-
-        icon_turn = get_card_resource("icon_turn");
-        icon_origin = get_card_resource("icon_origin");
-        icon_target = get_card_resource("icon_target");
-
-        icon_winner = get_card_resource("icon_winner");
 
         s_instance = this;
     }
@@ -104,9 +94,9 @@ namespace banggame {
 
         if (!skip_if_animating || !animating) {
             if (border_color) {
-                do_render(card_textures::get().sprite_cube_border, sdl::rgba(border_color));
+                do_render(media_pak::get().sprite_cube_border, sdl::rgba(border_color));
             }
-            do_render(card_textures::get().sprite_cube);
+            do_render(media_pak::get().sprite_cube);
         }
     }
 

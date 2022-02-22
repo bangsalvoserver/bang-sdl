@@ -1,7 +1,7 @@
 #include "loading.h"
 
 #include "../manager.h"
-#include "../global_resources.h"
+#include "../media_pak.h"
 
 loading_scene::loading_scene(game_manager *parent, const std::string &address)
     : scene_base(parent)
@@ -22,7 +22,7 @@ void loading_scene::resize(int width, int height) {
         100, 25
     });
 
-    m_loading_rect = global_resources::get().icon_loading.get_rect();
+    m_loading_rect = media_pak::get().icon_loading.get_rect();
     m_loading_rect.x = (width - m_loading_rect.w) / 2;
     m_loading_rect.y = rect.y - m_loading_rect.h - 10;
 }
@@ -31,7 +31,7 @@ void loading_scene::render(sdl::renderer &renderer) {
     m_loading_text.render(renderer);
     m_cancel_btn.render(renderer);
 
-    SDL_RenderCopyEx(renderer.get(), global_resources::get().icon_loading.get_texture(renderer), nullptr,
+    SDL_RenderCopyEx(renderer.get(), media_pak::get().icon_loading.get_texture(renderer), nullptr,
         &m_loading_rect, m_loading_rotation, nullptr, SDL_FLIP_NONE);
     m_loading_rotation += 10.f;
 }

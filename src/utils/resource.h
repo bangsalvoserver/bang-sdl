@@ -18,10 +18,12 @@ extern const unsigned long long int RESOURCE_LENGTH(name);
 #define GET_RESOURCE(name) resource_view{RESOURCE_NAME(name), RESOURCE_LENGTH(name)}
 
 struct resource : std::vector<char> {
+    using std::vector<char>::vector;
+    
     explicit resource(const std::string &filename) {
         std::ifstream file(filename, std::ios::in | std::ios::binary | std::ios::ate);
         if (file.fail()) {
-            throw std::runtime_error("Impossibile caricare la risorsa " + filename);
+            throw std::runtime_error("Could not open " + filename);
         }
         assign(file.tellg(), '\0');
         file.seekg(std::ios::beg);
@@ -31,6 +33,10 @@ struct resource : std::vector<char> {
     resource() = default;
 
     operator resource_view() const noexcept {
+        return {data(), size()};
+    }
+
+    operator std::string_view() const noexcept {
         return {data(), size()};
     }
 };

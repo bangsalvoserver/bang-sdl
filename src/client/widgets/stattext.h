@@ -4,15 +4,14 @@
 #include "utils/sdl.h"
 
 #include "defaults.h"
+#include "../media_pak.h"
 
 #include <string>
-
-DECLARE_RESOURCE(arial_ttf)
 
 namespace widgets {
     struct text_style {
         sdl::color text_color = sdl::rgb(widgets::default_text_rgb);
-        resource_view text_font = GET_RESOURCE(arial_ttf);
+        resource media_pak::* text_font = &media_pak::font_arial;
         int text_ptsize = widgets::default_text_ptsize;
         int wrap_length = 0;
         sdl::color bg_color = sdl::rgba(widgets::default_text_bg_rgba);
@@ -36,7 +35,7 @@ namespace widgets {
     public:
         stattext(const text_style &style = {})
             : m_style(style)
-            , m_font(style.text_font, style.text_ptsize)
+            , m_font(media_pak::get().*(style.text_font), style.text_ptsize)
             , m_wrap_length(style.wrap_length) {}
 
         stattext(const std::string &label, const text_style &style = {})
