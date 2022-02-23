@@ -18,6 +18,12 @@ namespace banggame {
         void on_play(card *origin_card, player *origin);
     };
 
+    struct effect_mth_add : card_effect {
+        void on_play(card *origin_card, player *origin) {}
+        void on_play(card *origin_card, player *origin, player *target) {}
+        void on_play(card *origin_card, player *origin, player *target, card *target_card) {}
+    };
+
     struct effect_predraw : card_effect {
         bool can_respond(card *origin_card, player *origin) const;
         void on_play(card *origin_card, player *origin);

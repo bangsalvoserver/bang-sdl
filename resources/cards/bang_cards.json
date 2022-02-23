@@ -1334,11 +1334,11 @@
             "effects": [
                 {
                     "target": "player self",
-                    "class": "draw_atend"
+                    "class": "mth_add"
                 },
                 {
                     "target": "player self",
-                    "class": "draw_atend"
+                    "class": "mth_add"
                 },
                 {
                     "class": "changewws"
@@ -1355,12 +1355,13 @@
                 },
                 {
                     "target": "player self",
-                    "class": "draw_atend"
+                    "class": "mth_add"
                 },
                 {
                     "class": "repeatable"
                 }
-            ]
+            ],
+            "multitarget": "draw_atend"
         },
         {
             "name": "Cat Balou",
@@ -1585,23 +1586,21 @@
             "effects": [
                 {
                     "target": "table card",
-                    "class": "squaw_destroy",
+                    "class": "mth_add",
                     "escapable": true
                 }
             ],
             "optional": [
                 {
-                    "class": "pay_cube",
+                    "class": "mth_add",
                     "target": "cube_slot self"
                 },
                 {
-                    "class": "pay_cube",
+                    "class": "mth_add",
                     "target": "cube_slot self"
-                },
-                {
-                    "class": "squaw_steal"
                 }
-            ]
+            ],
+            "multitarget": "squaw"
         },
         {
             "name": "Asso nella Manica",
@@ -1899,14 +1898,15 @@
             "effects": [
                 {
                     "target": "self table blue card",
-                    "class": "card_sharper_choose"
+                    "class": "mth_add"
                 },
                 {
                     "target": "notself table blue card",
-                    "class": "card_sharper_switch",
+                    "class": "mth_add",
                     "escapable": true
                 }
-            ]
+            ],
+            "multitarget": "card_sharper"
         },
         {
             "name": "Miraggio",
@@ -3018,13 +3018,14 @@
             "effects": [
                 {
                     "target": "self hand card",
-                    "class": "flint_westwood_choose"
+                    "class": "mth_add"
                 },
                 {
                     "target": "notself hand card",
-                    "class": "flint_westwood"
+                    "class": "mth_add"
                 }
-            ]
+            ],
+            "multitarget": "flint_westwood"
         },
         {
             "name": "Gary Looter",
@@ -3603,7 +3604,7 @@
                 },
                 {
                     "target": "self player",
-                    "class": "draw_atend"
+                    "class": "mth_add"
                 }
             ],
             "optional": [
@@ -3613,12 +3614,13 @@
                 },
                 {
                     "target": "self player",
-                    "class": "draw_atend"
+                    "class": "mth_add"
                 },
                 {
                     "class": "repeatable"
                 }
-            ]
+            ],
+            "multitarget": "draw_atend"
         },
         {
             "name": "Rimbalzo",

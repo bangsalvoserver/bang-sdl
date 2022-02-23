@@ -7,7 +7,7 @@ namespace banggame {
     void request_card_sharper::on_resolve() {
         target->m_game->pop_request(request_type::card_sharper);
         
-        card_sharper_handler{origin_card, origin, target, chosen_card, target_card}.on_resolve();
+        handler_card_sharper{}.on_resolve(origin_card, origin, target, chosen_card, target_card);
     }
 
     game_formatted_string request_card_sharper::status_text(player *owner) const {

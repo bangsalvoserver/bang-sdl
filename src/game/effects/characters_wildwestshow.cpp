@@ -104,24 +104,14 @@ namespace banggame {
         }
     }
 
-    struct flint_westwood_handler {
-        card *chosen_card;
+    void handler_flint_westwood::on_play(card *origin_card, player *origin, mth_target_list targets) {
+        auto chosen_card = std::get<card *>(targets[0]);
+        auto target = std::get<player *>(targets[1]);
 
-        void operator()(player *, card *) {}
-    };
-    
-    void effect_flint_westwood_choose::on_play(card *origin_card, player *origin, player *target, card *target_card) {
-        origin->m_game->add_event<event_type::on_play_card_end>(origin_card, flint_westwood_handler{target_card});
-    }
-
-    void effect_flint_westwood::on_play(card *origin_card, player *origin, player *target, card *target_card) {
-        int num_cards = 2;
-        for (int i=0; !target->m_hand.empty() && i<2; ++i) {
+        for (int i=2; i && !target->m_hand.empty(); --i) {
             origin->steal_card(target, target->random_hand_card());
         }
-        target->steal_card(origin, origin->m_game->m_event_handlers.find(origin_card)->
-            second.get<event_type::on_play_card_end>().target<flint_westwood_handler>()->chosen_card);
-        origin->m_game->remove_events(origin_card);
+        target->steal_card(origin, chosen_card);
     }
 
     void effect_greygory_deck::on_pre_equip(card *target_card, player *target) {

@@ -36,12 +36,8 @@ namespace banggame {
         game_formatted_string status_text(player *owner) const;
     };
 
-    struct effect_flint_westwood_choose : card_effect {
-        void on_play(card *origin_card, player *origin, player *target, card *target_card);
-    };
-
-    struct effect_flint_westwood : card_effect {
-        void on_play(card *origin_card, player *origin, player *target, card *target_card);
+    struct handler_flint_westwood {
+        void on_play(card *origin_card, player *origin, mth_target_list targets);
     };
 
     struct effect_greygory_deck : event_based_effect {

@@ -266,11 +266,9 @@ namespace banggame {
         target->m_game->add_log("LOG_CHOSE_CARD_FOR", origin_card, origin, target_card);
         target->m_chosen_card = target_card;
 
-        target->m_game->add_event<event_type::on_play_card_end>(target_card, [=](player *p, card *c) {
+        target->m_game->add_event<event_type::on_effect_end>(target_card, [=](player *p, card *c) {
             if (p == origin && c == origin_card) {
-                origin->m_game->queue_delayed_action([=]{
-                    origin->m_chosen_card = nullptr;
-                });
+                origin->m_chosen_card = nullptr;
                 origin->m_game->remove_events(target_card);
             }
         });

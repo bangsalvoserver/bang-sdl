@@ -40,20 +40,10 @@ namespace banggame {
         }
     }
 
-    void effect_card_sharper_choose::verify(card *origin_card, player *origin, player *target, card *target_card) const {
-        // hack che crea e ricrea l'evento solo per archiviare chosen_card
-        origin->m_game->add_event<event_type::on_play_card_end>(origin_card, card_sharper_handler{origin_card, origin, nullptr, target_card, nullptr});
-    }
+    void handler_card_sharper::verify(card *origin_card, player *origin, mth_target_list targets) const {
+        auto chosen_card = std::get<card *>(targets[0]);
+        auto [target, target_card] = targets[1];
 
-    void effect_card_sharper_choose::on_play(card *origin_card, player *origin, player *target, card *target_card) {
-        origin->m_game->add_event<event_type::on_play_card_end>(origin_card, card_sharper_handler{origin_card, origin, nullptr, target_card, nullptr});
-    }
-
-    void effect_card_sharper_switch::verify(card *origin_card, player *origin, player *target, card *target_card) const {
-        auto *chosen_card = origin->m_game->m_event_handlers.find(origin_card)->second
-            .get<event_type::on_play_card_end>().target<card_sharper_handler>()->chosen_card;
-        origin->m_game->remove_events(origin_card);
-        
         if (auto *c = origin->find_equipped_card(target_card)) {
             throw game_error("ERROR_DUPLICATED_CARD", c);
         }
@@ -62,25 +52,18 @@ namespace banggame {
         }
     }
 
-    void effect_card_sharper_switch::on_play(card *origin_card, player *origin, player *target, card *target_card) {
-        auto *handler = origin->m_game->m_event_handlers.find(origin_card)->second
-            .get<event_type::on_play_card_end>().target<card_sharper_handler>();
-        handler->target = target;
-        handler->target_card = target_card;
-    }
+    void handler_card_sharper::on_play(card *origin_card, player *origin, mth_target_list targets) {
+        auto chosen_card = std::get<card *>(targets[0]);
+        auto [target, target_card] = targets[1];
 
-    void card_sharper_handler::operator()(player *p, card *c) {
-        if (p == origin && c == origin_card) {
-            if (target->can_escape(origin, origin_card, effect_flags::escapable)) {
-                origin->m_game->queue_request<request_type::card_sharper>(origin_card, origin, target, chosen_card, target_card);
-            } else {
-                on_resolve();
-            }
-            p->m_game->remove_events(origin_card);
+        if (target->can_escape(origin, origin_card, effect_flags::escapable)) {
+            origin->m_game->queue_request<request_type::card_sharper>(origin_card, origin, target, chosen_card, target_card);
+        } else {
+            on_resolve(origin_card, origin, target, chosen_card, target_card);
         }
     }
 
-    void card_sharper_handler::on_resolve() {
+    void handler_card_sharper::on_resolve(card *origin_card, player *origin, player *target, card *chosen_card, card *target_card) {
         target->unequip_if_enabled(target_card);
         origin->equip_card(target_card);
         if (chosen_card->owner == origin) {

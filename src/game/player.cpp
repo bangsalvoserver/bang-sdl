@@ -155,7 +155,7 @@ namespace banggame {
     }
 
     bool player::can_escape(player *origin, card *origin_card, effect_flags flags) const {
-        // hack per determinare se e' necessario attivare request di fuga
+        // controlla se e' necessario attivare request di fuga
         if (bool(flags & effect_flags::escapable)
             && m_game->has_expansion(card_expansion_type::valleyofshadows)) return true;
         auto it = std::ranges::find_if(m_characters, [](const auto &vec) {
@@ -309,6 +309,8 @@ namespace banggame {
         } else {
             if (diff != 0 && diff != card_ptr->optionals.size()) throw game_error("ERROR_INVALID_TARGETS");
         }
+
+        mth_target_list target_list;
         std::ranges::for_each(targets, [&, it = effects.begin(), end = effects.end()] (const play_card_target &target) mutable {
             const effect_holder &e = *it++;
             if (it == end) {
@@ -319,6 +321,7 @@ namespace banggame {
                 [&](enums::enum_constant<play_card_target_type::target_none>) {
                     e.verify(card_ptr, this);
                     if (e.target != enums::flags_none<target_type>) throw game_error("ERROR_INVALID_ACTION");
+                    if (e.is(effect_type::mth_add)) target_list.emplace_back(nullptr, nullptr);
                 },
                 [&](enums::enum_constant<play_card_target_type::target_player>, const std::vector<target_player_id> &args) {
                     if (!bool(e.target & target_type::player)) throw game_error("ERROR_INVALID_ACTION");
@@ -344,6 +347,7 @@ namespace banggame {
                         throw game_error("ERROR_INVALID_TARGETS");
                     } else {
                         player *target = m_game->get_player(args.front().player_id);
+                        if (e.is(effect_type::mth_add)) target_list.emplace_back(target, nullptr);
                         e.verify(card_ptr, this, target);
                         std::ranges::for_each(util::enum_flag_values(e.target), [&](target_type value) {
                             switch (value) {
@@ -389,6 +393,7 @@ namespace banggame {
                     } else {
                         player *target = m_game->get_player(args.front().player_id);
                         card *target_card = m_game->find_card(args.front().card_id);
+                        if (e.is(effect_type::mth_add)) target_list.emplace_back(target, target_card);
                         e.verify(card_ptr, this, target, target_card);
 
                         std::ranges::for_each(util::enum_flag_values(e.target), [&](target_type value) {
@@ -442,6 +447,18 @@ namespace banggame {
                 }
             }, target);
         });
+
+        if (card_ptr->multi_target_handler != mth_type::none) {
+            enums::visit_enum([&](auto enum_const) {
+                constexpr mth_type E = decltype(enum_const)::value;
+                if constexpr (enums::has_type<E>) {
+                    using handler_type = enums::enum_type_t<E>;
+                    if constexpr (requires (handler_type handler) { handler.verify(card_ptr, this, target_list); }) {
+                        handler_type{}.verify(card_ptr, this, std::move(target_list));
+                    }
+                }
+            }, card_ptr->multi_target_handler);
+        }
     }
 
     void player::play_card_action(card *card_ptr, bool is_response) {
@@ -495,15 +512,19 @@ namespace banggame {
         
         auto effect_it = effects.begin();
         auto effect_end = effects.end();
+
+        mth_target_list target_list;
         for (auto &t : targets) {
             enums::visit_indexed(util::overloaded{
                 [&](enums::enum_constant<play_card_target_type::target_none>) {
+                    if (effect_it->is(effect_type::mth_add)) target_list.emplace_back(nullptr, nullptr);
                     effect_it->on_play(card_ptr, this);
                 },
                 [&](enums::enum_constant<play_card_target_type::target_player>, const std::vector<target_player_id> &args) {
                     effect_it->flags |= effect_flags::single_target & static_cast<effect_flags>(-(args.size() == 1));
                     for (const auto &target : args) {
                         auto *p = m_game->get_player(target.player_id);
+                        if (effect_it->is(effect_type::mth_add)) target_list.emplace_back(p, nullptr);
                         m_current_card_targets.emplace(card_ptr, p);
                         if (p != this && check_immunity(p)) {
                             if (effect_it->is(effect_type::bangcard)) {
@@ -524,6 +545,7 @@ namespace banggame {
                         if (p != this && check_immunity(p)) continue;
                         m_current_card_targets.emplace(card_ptr, p);
                         auto *target_card = m_game->find_card(target.card_id);
+                        if (effect_it->is(effect_type::mth_add)) target_list.emplace_back(p, target_card);
                         if (p != this && target_card->pile == card_pile_type::player_hand) {
                             effect_it->on_play(card_ptr, this, p, p->random_hand_card());
                         } else {
@@ -539,7 +561,15 @@ namespace banggame {
             }
         }
 
-        m_game->instant_event<event_type::on_play_card_end>(this, card_ptr);
+        if (card_ptr->multi_target_handler != mth_type::none) {
+            enums::visit_enum([&](auto enum_const) {
+                constexpr mth_type E = decltype(enum_const)::value;
+                if constexpr (enums::has_type<E>) {
+                    using handler_type = enums::enum_type_t<E>;
+                    handler_type{}.on_play(card_ptr, this, std::move(target_list));
+                }
+            }, card_ptr->multi_target_handler);
+        }
         m_game->queue_event<event_type::on_effect_end>(this, card_ptr);
     }
 

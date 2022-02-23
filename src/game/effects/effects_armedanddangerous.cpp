@@ -5,26 +5,9 @@
 namespace banggame {
     using namespace enums::flag_operators;
 
-    struct draw_atend_handler {
-        player *origin;
-        int ncards = 1;
-
-        void operator()(player *target, card *origin_card) {
-            if (origin == target) {
-                for (int i=0; i<ncards; ++i) {
-                    target->m_game->draw_card_to(card_pile_type::player_hand, target);
-                }
-                target->m_game->remove_events(origin_card);
-            }
-        }
-    };
-
-    void effect_draw_atend::on_play(card *origin_card, player *origin, player *target) {
-        auto it = origin->m_game->m_event_handlers.find(origin_card);
-        if (it == origin->m_game->m_event_handlers.end()) {
-            origin->m_game->add_event<event_type::on_play_card_end>(origin_card, draw_atend_handler{target});
-        } else {
-            ++it->second.get<event_type::on_play_card_end>().target<draw_atend_handler>()->ncards;
+    void handler_draw_atend::on_play(card *origin_card, player *origin, mth_target_list targets) {
+        for (auto [target, _] : targets) {
+            target->m_game->draw_card_to(card_pile_type::player_hand, target);
         }
     }
 
@@ -82,7 +65,7 @@ namespace banggame {
     void effect_belltower::on_play(card *origin_card, player *origin) {
         origin->add_player_flags(player_flags::see_everyone_range_1);
 
-        origin->m_game->add_event<event_type::on_play_card_end>(origin_card, [=](player *p, card *target_card) {
+        origin->m_game->add_event<event_type::on_effect_end>(origin_card, [=](player *p, card *target_card) {
             if (p == origin && origin_card != target_card) {
                 origin->remove_player_flags(player_flags::see_everyone_range_1);
                 origin->m_game->remove_events(origin_card);
@@ -157,38 +140,33 @@ namespace banggame {
         origin->add_to_hand(origin_card);
     }
 
-    struct squaw_handler {
-        card *origin_card;
-        player *origin;
-        player *target;
-        card *target_card;
-        effect_flags flags;
-        bool steal;
-
-        void operator()(player *p, card *c) {
-            if (p == origin && c == origin_card) {
-                if (steal) {
-                    effect_steal e;
-                    e.flags = flags;
-                    e.on_play(origin_card, origin, target, target_card);
-                } else {
-                    effect_destroy e;
-                    e.flags = flags;
-                    e.on_play(origin_card, origin, target, target_card);
+    void handler_squaw::verify(card *origin_card, player *origin, mth_target_list targets) const {
+        if (targets.size() == 3) {
+            auto discarded_card = std::get<card *>(targets[0]);
+            for (auto [target, target_card] : targets | std::views::drop(1)) {
+                if (target_card == discarded_card) {
+                    throw game_error("ERROR_INVALID_ACTION");
                 }
-                origin->m_game->remove_events(origin_card);
-            }
+                effect_pay_cube().verify(origin_card, origin, target, target_card);
+            };
         }
-    };
-
-    void effect_squaw_destroy::on_play(card *origin_card, player *origin, player *target, card *target_card) {
-        origin->m_game->add_event<event_type::on_play_card_end>(origin_card,
-            squaw_handler{origin_card, origin, target, target_card, flags, false});
     }
 
-    void effect_squaw_steal::on_play(card *origin_card, player *origin) {
-        origin->m_game->m_event_handlers.find(origin_card)->second
-            .get<event_type::on_play_card_end>().target<squaw_handler>()->steal = true;
+    void handler_squaw::on_play(card *origin_card, player *origin, mth_target_list targets) {
+        auto [target, target_card] = targets[0];
+
+        if (targets.size() == 3) {
+            effect_pay_cube().on_play(origin_card, origin, std::get<player *>(targets[1]), std::get<card *>(targets[1]));
+            effect_pay_cube().on_play(origin_card, origin, std::get<player *>(targets[2]), std::get<card *>(targets[2]));
+
+            effect_steal e;
+            e.flags = effect_flags::escapable | effect_flags::single_target;
+            e.on_play(origin_card, origin, target, target_card);
+        } else {
+            effect_destroy e;
+            e.flags = effect_flags::escapable | effect_flags::single_target;
+            e.on_play(origin_card, origin, target, target_card);
+        }
     }
 
     void effect_tumbleweed::on_equip(card *target_card, player *origin) {

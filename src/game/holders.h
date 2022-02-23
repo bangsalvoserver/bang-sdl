@@ -15,6 +15,7 @@ namespace banggame {
         (play_card_action, effect_play_card_action)
         (pass_turn,     effect_pass_turn)
         (resolve,       effect_resolve)
+        (mth_add,       effect_mth_add)
         (predraw,       effect_predraw)
         (bang,          effect_bang)
         (bangcard,      effect_bangcard)
@@ -35,7 +36,6 @@ namespace banggame {
         (heal_notfull,  effect_heal_notfull)
         (indians,       effect_indians)
         (draw,          effect_draw)
-        (draw_atend,    effect_draw_atend)
         (draw_discard,  effect_draw_discard)
         (draw_rest,     effect_draw_rest)
         (draw_skip,     effect_draw_skip)
@@ -70,8 +70,6 @@ namespace banggame {
         (bigfifty,      effect_bigfifty)
         (flintlock,     effect_flintlock)
         (duck,          effect_duck)
-        (squaw_destroy, effect_squaw_destroy)
-        (squaw_steal,   effect_squaw_steal)
         (tumbleweed,    effect_tumbleweed)
         (changewws,     effect_empty)
         (sniper,        effect_sniper)
@@ -79,8 +77,6 @@ namespace banggame {
         (peyotechoice,  effect_empty)
         (handcuffschoice, effect_empty)
         (teren_kill,    effect_teren_kill)
-        (flint_westwood_choose, effect_flint_westwood_choose)
-        (flint_westwood, effect_flint_westwood)
         (greygory_deck, effect_greygory_deck)
         (lemonade_jim,  effect_lemonade_jim)
         (josh_mccloud,  effect_josh_mccloud)
@@ -91,8 +87,6 @@ namespace banggame {
         (graverobber,   effect_graverobber)
         (mirage,        effect_mirage)
         (disarm,        effect_disarm)
-        (card_sharper_choose, effect_card_sharper_choose)
-        (card_sharper_switch, effect_card_sharper_switch)
         (sacrifice,     effect_sacrifice)
     )
 
@@ -222,6 +216,14 @@ namespace banggame {
         (al_preacher,   timer_al_preacher)
         (damaging,      timer_damaging)
         (tumbleweed,    timer_tumbleweed)
+    )
+
+    DEFINE_ENUM_TYPES_IN_NS(banggame, mth_type,
+        (none)
+        (flint_westwood,    handler_flint_westwood)
+        (draw_atend,        handler_draw_atend)
+        (squaw,             handler_squaw)
+        (card_sharper,      handler_card_sharper)
     )
 
     namespace detail {

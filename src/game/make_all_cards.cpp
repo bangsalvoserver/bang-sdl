@@ -70,6 +70,9 @@ namespace banggame {
         if (json_card.isMember("modifier")) {
             out.modifier = enums::from_string<card_modifier_type>(json_card["modifier"].asString());
         }
+        if (json_card.isMember("multitarget")) {
+            out.multi_target_handler = enums::from_string<mth_type>(json_card["multitarget"].asString());
+        }
         if (json_card.isMember("usages")) {
             out.max_usages = json_card["usages"].asInt();
         }

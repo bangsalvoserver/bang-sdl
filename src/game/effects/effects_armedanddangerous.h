@@ -5,8 +5,8 @@
 
 namespace banggame {
 
-    struct effect_draw_atend : card_effect {
-        void on_play(card *origin_card, player *origin, player *target);
+    struct handler_draw_atend {
+        void on_play(card *origin_card, player *origin, mth_target_list targets);
     };
 
     struct effect_pay_cube : card_effect {
@@ -69,12 +69,9 @@ namespace banggame {
         void on_play(card *origin_card, player *origin);
     };
 
-    struct effect_squaw_destroy : card_effect {
-        void on_play(card *origin_card, player *origin, player *target, card *target_card);
-    };
-
-    struct effect_squaw_steal : card_effect {
-        void on_play(card *origin_card, player *origin);
+    struct handler_squaw {
+        void verify(card *origin_card, player *origin, mth_target_list targets) const;
+        void on_play(card *origin_card, player *origin, mth_target_list targets);
     };
 }
 

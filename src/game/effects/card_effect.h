@@ -57,6 +57,8 @@ namespace banggame {
         void on_unequip(card *target_card, player *target) {}
     };
 
+    using mth_target_list = std::vector<std::pair<player *, card *>>;
+
 }
 
 
