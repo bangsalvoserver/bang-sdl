@@ -3322,7 +3322,7 @@
                 {
                     "target": "card",
                     "player_filter": "self",
-                    "card_filter": "cube_slot table",
+                    "card_filter": "cube_slot_card table",
                     "class": "red_ringo"
                 }
             ],
