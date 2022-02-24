@@ -11,17 +11,35 @@ namespace banggame {
 
     class game_scene;
 
-    struct target_pair {
-        player_view *player = nullptr;
-        card_view *card = nullptr;
-        bool auto_target = false;
+    struct target_none {
+        bool operator == (target_none) const noexcept { return true; }
     };
+    struct target_player {
+        player_view *player;
+        bool operator == (const target_player &) const = default;
+    };
+    struct target_other_players {
+        bool operator == (target_other_players) const noexcept { return true; }
+    };
+    struct target_card {
+        player_view *player;
+        card_view *card;
+        bool operator == (const target_card &) const = default;
+    };
+    using target_cards = std::vector<target_card>;
+
+    using target_variant_base = std::variant<target_none, target_player, target_other_players, target_card, target_cards>;
+    struct target_variant {
+        target_variant_base value{target_none{}};
+        bool autotarget = false;
+    };
+    using target_vector = std::vector<target_variant>;
 
     struct target_status {
         card_view *m_playing_card = nullptr;
         std::vector<card_view *> m_modifiers;
 
-        std::vector<std::vector<target_pair>> m_targets;
+        target_vector m_targets;
         std::vector<cube_widget *> m_selected_cubes;
 
         bool m_equipping = false;
@@ -79,9 +97,12 @@ namespace banggame {
         bool verify_modifier(card_view *card);
 
         void handle_auto_targets();
-        void add_card_target(target_pair target);
-        void add_character_target(target_pair target);
-        bool add_player_targets(const std::vector<target_pair> &targets);
+
+        bool verify_player_target(target_player_filter filter, player_view *target_player);
+        bool verify_card_target(const card_target_data &args, target_card target);
+
+        void add_card_target(target_card target);
+        void add_character_target(target_card target);
         
         int calc_distance(player_view *from, player_view *to);
 
@@ -91,8 +112,8 @@ namespace banggame {
         void send_pick_card(card_pile_type pile, player_view *player = nullptr, card_view *card = nullptr);
         void send_play_card();
 
-        target_type get_target_type(int index);
-        int num_targets_for(target_type type);
+        const card_target_data &get_target_data(int index);
+        int num_targets_for(const card_target_data &data);
         int get_target_index();
         
     private:

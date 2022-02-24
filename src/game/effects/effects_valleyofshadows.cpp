@@ -10,14 +10,6 @@ namespace banggame {
             ++req.bang_damage;
         });
     }
-
-    void effect_draw_again_if_needed::on_play(card *origin_card, player *target) {
-        target->m_game->queue_delayed_action([=]{
-            if (target->m_num_drawn_cards < target->m_num_cards_to_draw && target->m_game->m_playing == target) {
-                target->request_drawing();
-            }
-        });
-    }
     
     void effect_backfire::verify(card *origin_card, player *origin) const {
         if (origin->m_game->m_requests.empty() || !origin->m_game->top_request().origin()) {
@@ -100,4 +92,25 @@ namespace banggame {
     void effect_escape::on_play(card *origin_card, player *origin) {
         origin->m_game->pop_request();
     }
+
+    void handler_fanning::verify(card *origin_card, player *origin, mth_target_list targets) const {
+        player *target_players[] = {
+            std::get<player *>(targets[0]),
+            std::get<player *>(targets[1])
+        };
+        if (origin->m_game->calc_distance(target_players[0], target_players[1]) > 1
+            && target_players[0] != target_players[1])
+        {
+            throw game_error("ERROR_TARGET_NOT_IN_RANGE");
+        }
+    }
+
+    void handler_fanning::on_play(card *origin_card, player *origin, mth_target_list targets) {
+        for (auto [target, _] : targets) {
+            effect_bang e;
+            e.flags |= effect_flags::escapable;
+            e.on_play(origin_card, origin, target);
+        }
+    }
+
 }

@@ -165,7 +165,7 @@ ERROR_TARGET_SHERIFF                You can't play this card on the sheriff
 ERROR_TARGET_NOT_SELF               You can only play this card on yourself
 ERROR_TARGET_SELF                   You can't play this card on youtself
 ERROR_TARGET_NOT_IN_RANGE           Target out of range
-ERROR_TARGET_NOT_NEW                Target repeated
+ERROR_TARGETS_NOT_UNIQUE            Targets are not unique
 ERROR_TARGET_NOT_CARD               Target is not a card
 ERROR_TARGET_BLACK_CARD             You can't target black cards
 ERROR_TARGET_NOT_TABLE_CARD         You can only play this card on table cards

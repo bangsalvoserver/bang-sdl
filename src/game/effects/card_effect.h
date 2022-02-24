@@ -13,9 +13,11 @@ namespace banggame {
     struct card;
 
     struct card_effect {
-        target_type target = enums::flags_none<target_type>;
-        short args = 0;
+        target_player_filter player_filter = enums::flags_none<target_player_filter>;
+        target_card_filter card_filter = enums::flags_none<target_card_filter>;
+        play_card_target_type target = play_card_target_type::none;
         effect_flags flags = no_effect_flags;
+        short args = 0;
     };
 
     struct effect_empty : card_effect {

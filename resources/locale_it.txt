@@ -165,7 +165,7 @@ ERROR_TARGET_SHERIFF                Non puoi giocare questa carta sullo sceriffo
 ERROR_TARGET_NOT_SELF               Puoi giocare questa carta solo su tè stesso
 ERROR_TARGET_SELF                   Non puoi giocare questa carta su tè stesso
 ERROR_TARGET_NOT_IN_RANGE           Target fuori raggio
-ERROR_TARGET_NOT_NEW                Target ripetuto
+ERROR_TARGETS_NOT_UNIQUE            I target non sono unici
 ERROR_TARGET_NOT_CARD               Il target non è una carta
 ERROR_TARGET_BLACK_CARD             Non puoi bersagliare le carte nere
 ERROR_TARGET_NOT_TABLE_CARD         Puoi giocare questa carta solo sulle carte sul tavolo

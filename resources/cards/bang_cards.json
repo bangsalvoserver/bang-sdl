@@ -78,7 +78,8 @@
             "color": "blue",
             "equip": [
                 {
-                    "target": "player notsheriff",
+                    "target": "player",
+                    "player_filter": "notsheriff",
                     "class": "jail"
                 }
             ],
@@ -203,7 +204,8 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player reachable notself",
+                    "target": "player",
+                    "player_filter": "reachable notself",
                     "class": "bangcard"
                 },
                 {
@@ -231,13 +233,15 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "beer"
                 }
             ],
             "responses": [
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "beer"
                 },
                 {
@@ -275,11 +279,13 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "draw"
                 },
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "draw"
                 },
                 {
@@ -299,7 +305,8 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player notself",
+                    "target": "player",
+                    "player_filter": "notself",
                     "class": "duel",
                     "escapable": true
                 }
@@ -330,7 +337,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player everyone notself",
+                    "target": "other_players",
                     "class": "bang",
                     "escapable": true
                 }
@@ -347,7 +354,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player everyone notself",
+                    "target": "other_players",
                     "class": "indians",
                     "escapable": true
                 }
@@ -391,7 +398,8 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "card range_1",
+                    "target": "card",
+                    "player_filter": "range_1",
                     "class": "steal",
                     "escapable": true
                 }
@@ -407,7 +415,12 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player everyone",
+                    "target": "player",
+                    "player_filter": "self",
+                    "class": "heal"
+                },
+                {
+                    "target": "other_players",
                     "class": "heal"
                 }
             ]
@@ -422,15 +435,18 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "draw"
                 },
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "draw"
                 },
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "draw"
                 },
                 {
@@ -559,7 +575,8 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player reachable notself",
+                    "target": "player",
+                    "player_filter": "reachable notself",
                     "class": "bangcard"
                 },
                 {
@@ -583,13 +600,15 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "beer"
                 }
             ],
             "responses": [
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "beer"
                 },
                 {
@@ -637,7 +656,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player everyone notself",
+                    "target": "other_players",
                     "class": "indians",
                     "escapable": true
                 }
@@ -667,7 +686,8 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "card range_1",
+                    "target": "card",
+                    "player_filter": "range_1",
                     "class": "steal",
                     "escapable": true
                 }
@@ -683,7 +703,8 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player notself range_1",
+                    "target": "player",
+                    "player_filter": "notself range_1",
                     "class": "bang",
                     "escapable": true
                 }
@@ -699,7 +720,9 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "self hand card",
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "hand",
                     "class": "destroy"
                 },
                 {
@@ -722,14 +745,16 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "self hand card",
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "hand",
                     "class": "destroy"
                 },
                 {
                     "class": "play_card_action"
                 },
                 {
-                    "target": "everyone notself card",
+                    "target": "cards_other_players",
                     "class": "destroy",
                     "escapable": true
                 }
@@ -746,7 +771,8 @@
             "color": "brown",
             "responses": [
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "draw"
                 },
                 {
@@ -764,14 +790,17 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "self hand card",
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "hand",
                     "class": "destroy"
                 },
                 {
                     "class": "play_card_action"
                 },
                 {
-                    "target": "player notself",
+                    "target": "player",
+                    "player_filter": "notself",
                     "class": "bang",
                     "escapable": true
                 }
@@ -787,7 +816,9 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "self hand card",
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "hand",
                     "class": "destroy"
                 },
                 {
@@ -809,14 +840,17 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "self hand card",
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "hand",
                     "class": "destroy"
                 },
                 {
                     "class": "play_card_action"
                 },
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "heal",
                     "args": 2
                 }
@@ -835,7 +869,8 @@
                     "class": "missed"
                 },
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "draw"
                 }
             ]
@@ -850,7 +885,8 @@
             "color": "green",
             "effects": [
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "heal"
                 }
             ]
@@ -909,11 +945,13 @@
             "color": "green",
             "effects": [
                 {
-                    "target": "player notself range_1",
+                    "target": "player",
+                    "player_filter": "notself range_1",
                     "class": "bang"
                 },
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "draw"
                 }
             ]
@@ -928,7 +966,8 @@
             "color": "green",
             "effects": [
                 {
-                    "target": "player notself",
+                    "target": "player",
+                    "player_filter": "notself",
                     "class": "bang"
                 }
             ]
@@ -943,7 +982,7 @@
             "color": "green",
             "effects": [
                 {
-                    "target": "player everyone notself",
+                    "target": "other_players",
                     "class": "bang"
                 }
             ]
@@ -958,7 +997,8 @@
             "color": "green",
             "effects": [
                 {
-                    "target": "player reachable notself",
+                    "target": "player",
+                    "player_filter": "reachable notself",
                     "class": "bang"
                 }
             ]
@@ -988,15 +1028,18 @@
             "color": "green",
             "effects": [
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "draw"
                 },
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "draw"
                 },
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "draw"
                 },
                 {
@@ -1014,7 +1057,8 @@
             "color": "green",
             "effects": [
                 {
-                    "target": "player notself range_1",
+                    "target": "player",
+                    "player_filter": "notself range_1",
                     "class": "bang"
                 }
             ]
@@ -1045,7 +1089,8 @@
             "discard_if_two_players": true,
             "equip": [
                 {
-                    "target": "dead player",
+                    "target": "player",
+                    "player_filter": "dead",
                     "class": "ghost"
                 }
             ]
@@ -1069,11 +1114,14 @@
             ],
             "effects": [
                 {
-                    "target": "self hand card",
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "hand",
                     "class": "choose_card"
                 },
                 {
-                    "target": "player reachable notself",
+                    "target": "player",
+                    "player_filter": "reachable notself",
                     "class": "bangcard"
                 },
                 {
@@ -1144,7 +1192,13 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player everyone",
+                    "target": "player",
+                    "player_filter": "self",
+                    "class": "bandidos",
+                    "escapable": true
+                },
+                {
+                    "target": "other_players",
                     "class": "bandidos",
                     "escapable": true
                 }
@@ -1237,19 +1291,22 @@
             "discard_if_two_players": true,
             "effects": [
                 {
-                    "target": "player reachable notself",
-                    "class": "bang",
+                    "target": "player",
+                    "player_filter": "reachable notself",
+                    "class": "mth_add",
                     "escapable": true
                 },
                 {
-                    "target": "player notself fanning_target",
-                    "class": "bang",
+                    "target": "player",
+                    "player_filter": "notself",
+                    "class": "mth_add",
                     "escapable": true
                 },
                 {
                     "class": "banglimit"
                 }
-            ]
+            ],
+            "multitarget": "fanning"
         },
         {
             "name": "Tomahawk",
@@ -1261,7 +1318,8 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player notself range_2",
+                    "target": "player",
+                    "player_filter": "notself range_2",
                     "class": "bang",
                     "escapable": true
                 }
@@ -1277,7 +1335,12 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player everyone",
+                    "target": "player",
+                    "player_filter": "self",
+                    "class": "tornado"
+                },
+                {
+                    "target": "other_players",
                     "class": "tornado"
                 }
             ]
@@ -1292,7 +1355,8 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "heal"
                 }
             ]
@@ -1310,7 +1374,8 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player reachable notself",
+                    "target": "player",
+                    "player_filter": "reachable notself",
                     "class": "bangcard"
                 },
                 {
@@ -1333,11 +1398,13 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "mth_add"
                 },
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "mth_add"
                 },
                 {
@@ -1346,15 +1413,20 @@
             ],
             "optional": [
                 {
-                    "class": "pay_cube",
-                    "target": "cube_slot self"
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "cube_slot",
+                    "class": "pay_cube"
                 },
                 {
-                    "class": "pay_cube",
-                    "target": "cube_slot self"
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "cube_slot",
+                    "class": "pay_cube"
                 },
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "mth_add"
                 },
                 {
@@ -1389,25 +1461,33 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "heal"
                 }
             ],
             "optional": [
                 {
-                    "class": "pay_cube",
-                    "target": "cube_slot self"
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "cube_slot",
+                    "class": "pay_cube"
                 },
                 {
-                    "class": "pay_cube",
-                    "target": "cube_slot self"
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "cube_slot",
+                    "class": "pay_cube"
                 },
                 {
-                    "class": "pay_cube",
-                    "target": "cube_slot self"
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "cube_slot",
+                    "class": "pay_cube"
                 },
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "heal"
                 },
                 {
@@ -1425,18 +1505,22 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player reachable notself",
+                    "target": "player",
+                    "player_filter": "reachable notself",
                     "class": "bang",
                     "escapable": true
                 }
             ],
             "optional": [
                 {
-                    "class": "pay_cube",
-                    "target": "cube_slot self"
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "cube_slot",
+                    "class": "pay_cube"
                 },
                 {
-                    "target": "player reachable notself new_target",
+                    "target": "player",
+                    "player_filter": "reachable notself",
                     "class": "bang",
                     "escapable": true
                 },
@@ -1455,19 +1539,24 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player reachable notself",
+                    "target": "player",
+                    "player_filter": "reachable notself",
                     "class": "bang",
                     "escapable": true
                 }
             ],
             "optional": [
                 {
-                    "class": "pay_cube",
-                    "target": "cube_slot self"
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "cube_slot",
+                    "class": "pay_cube"
                 },
                 {
-                    "class": "pay_cube",
-                    "target": "cube_slot self"
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "cube_slot",
+                    "class": "pay_cube"
                 },
                 {
                     "class": "flintlock"
@@ -1484,18 +1573,22 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player notself",
+                    "target": "player",
+                    "player_filter": "notself",
                     "class": "indians",
                     "escapable": true
                 }
             ],
             "optional": [
                 {
-                    "class": "pay_cube",
-                    "target": "cube_slot self"
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "cube_slot",
+                    "class": "pay_cube"
                 },
                 {
-                    "target": "player notself new_target",
+                    "target": "player",
+                    "player_filter": "notself",
                     "class": "indians",
                     "escapable": true
                 },
@@ -1519,12 +1612,16 @@
             ],
             "optional": [
                 {
-                    "class": "pay_cube",
-                    "target": "cube_slot self"
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "cube_slot",
+                    "class": "pay_cube"
                 },
                 {
-                    "class": "pay_cube",
-                    "target": "cube_slot self"
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "cube_slot",
+                    "class": "pay_cube"
                 },
                 {
                     "class": "duck"
@@ -1569,7 +1666,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player everyone notself",
+                    "target": "other_players",
                     "class": "rust",
                     "escapable": true
                 }
@@ -1585,19 +1682,24 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "table card",
+                    "target": "card",
+                    "card_filter": "table",
                     "class": "mth_add",
                     "escapable": true
                 }
             ],
             "optional": [
                 {
-                    "class": "mth_add",
-                    "target": "cube_slot self"
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "cube_slot",
+                    "class": "mth_add"
                 },
                 {
-                    "class": "mth_add",
-                    "target": "cube_slot self"
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "cube_slot",
+                    "class": "mth_add"
                 }
             ],
             "multitarget": "squaw"
@@ -1616,7 +1718,8 @@
                     "args": 2
                 },
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "draw"
                 }
             ]
@@ -1632,8 +1735,7 @@
             "usages": 1,
             "effects": [
                 {
-                    "class": "pay_cube",
-                    "args": 1
+                    "class": "pay_cube"
                 },
                 {
                     "class": "bandolier"
@@ -1803,7 +1905,8 @@
                     "args": 3
                 },
                 {
-                    "target": "table card",
+                    "target": "card",
+                    "card_filter": "table",
                     "class": "destroy"
                 }
             ]
@@ -1822,7 +1925,8 @@
                     "args": 3
                 },
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "heal"
                 }
             ]
@@ -1841,7 +1945,9 @@
                     "args": 3
                 },
                 {
-                    "target": "notself hand card",
+                    "target": "card",
+                    "player_filter": "notself",
+                    "card_filter": "hand",
                     "class": "steal"
                 }
             ]
@@ -1897,11 +2003,15 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "self table blue card",
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "table blue",
                     "class": "mth_add"
                 },
                 {
-                    "target": "notself table blue card",
+                    "target": "card",
+                    "player_filter": "notself",
+                    "card_filter": "table blue",
                     "class": "mth_add",
                     "escapable": true
                 }
@@ -1935,11 +2045,13 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "damage"
                 },
                 {
-                    "target": "player notself",
+                    "target": "player",
+                    "player_filter": "notself",
                     "class": "heal_notfull"
                 }
             ]
@@ -1985,7 +2097,8 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player reachable notself",
+                    "target": "player",
+                    "player_filter": "reachable notself",
                     "class": "bang",
                     "escapable": true
                 }
@@ -2019,7 +2132,8 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player reachable notself",
+                    "target": "player",
+                    "player_filter": "reachable notself",
                     "class": "bangcard"
                 },
                 {
@@ -2042,7 +2156,8 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "card range_1",
+                    "target": "card",
+                    "player_filter": "range_1",
                     "class": "steal",
                     "escapable": true
                 }
@@ -2058,13 +2173,15 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "beer"
                 }
             ],
             "responses": [
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "beer"
                 },
                 {
@@ -2105,15 +2222,19 @@
             ],
             "effects": [
                 {
-                    "target": "self hand bang card",
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "hand bang",
                     "class": "choose_card"
                 },
                 {
-                    "target": "self hand card",
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "hand",
                     "class": "destroy"
                 },
                 {
-                    "target": "player everyone notself",
+                    "target": "other_players",
                     "class": "bang"
                 }
             ]
@@ -2250,7 +2371,7 @@
             "color": "green",
             "effects": [
                 {
-                    "target": "player everyone notself",
+                    "target": "other_players",
                     "class": "indians"
                 }
             ]
@@ -2265,7 +2386,7 @@
             "color": "green",
             "effects": [
                 {
-                    "target": "everyone notself card",
+                    "target": "cards_other_players",
                     "class": "destroy"
                 }
             ]
@@ -2285,7 +2406,8 @@
             ],
             "optional": [
                 {
-                    "target": "player notself range_1",
+                    "target": "player",
+                    "player_filter": "notself range_1",
                     "class": "bang",
                     "escapable": true
                 }
@@ -2301,11 +2423,13 @@
             "color": "green",
             "effects": [
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "heal_notfull"
                 },
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "draw"
                 }
             ]
@@ -2336,7 +2460,8 @@
             "color": "green",
             "effects": [
                 {
-                    "target": "card range_1",
+                    "target": "card",
+                    "player_filter": "range_1",
                     "class": "steal"
                 }
             ]
@@ -2351,15 +2476,18 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "draw"
                 },
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "draw"
                 },
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "damage"
                 }
             ]
@@ -2374,7 +2502,8 @@
             "color": "brown",
             "responses": [
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "draw"
                 },
                 {
@@ -2418,11 +2547,14 @@
             ],
             "effects": [
                 {
-                    "target": "self hand bang card",
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "hand bang",
                     "class": "choose_card"
                 },
                 {
-                    "target": "player reachable notself",
+                    "target": "player",
+                    "player_filter": "reachable notself",
                     "class": "bangcard"
                 },
                 {
@@ -2454,7 +2586,9 @@
                     "class": "draw_done"
                 },
                 {
-                    "target": "notself hand card",
+                    "target": "card",
+                    "player_filter": "notself",
+                    "card_filter": "hand",
                     "class": "steal"
                 },
                 {
@@ -2519,7 +2653,8 @@
                     "class": "drawing"
                 },
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "draw_discard"
                 },
                 {
@@ -2548,29 +2683,39 @@
             "expansion": "base",
             "effects": [
                 {
-                    "target": "self hand card",
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "hand",
                     "class": "destroy"
                 },
                 {
-                    "target": "self hand card",
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "hand",
                     "class": "destroy"
                 },
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "heal"
                 }
             ],
             "responses": [
                 {
-                    "target": "self hand card",
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "hand",
                     "class": "destroy"
                 },
                 {
-                    "target": "self hand card",
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "hand",
                     "class": "destroy"
                 },
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "heal"
                 },
                 {
@@ -2653,7 +2798,9 @@
             "usages": 1,
             "effects": [
                 {
-                    "target": "self hand card",
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "hand",
                     "class": "destroy"
                 },
                 {
@@ -2701,15 +2848,18 @@
             "expansion": "dodgecity",
             "effects": [
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "damage"
                 },
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "draw"
                 },
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "draw"
                 }
             ]
@@ -2721,15 +2871,20 @@
             "expansion": "dodgecity",
             "effects": [
                 {
-                    "target": "self hand card",
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "hand",
                     "class": "destroy"
                 },
                 {
-                    "target": "self hand card",
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "hand",
                     "class": "destroy"
                 },
                 {
-                    "target": "player reachable notself",
+                    "target": "player",
+                    "player_filter": "reachable notself",
                     "class": "bang"
                 }
             ]
@@ -2741,7 +2896,9 @@
             "expansion": "dodgecity",
             "responses": [
                 {
-                    "target": "self hand card",
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "hand",
                     "class": "destroy"
                 },
                 {
@@ -2781,15 +2938,19 @@
             "usages": 2,
             "effects": [
                 {
-                    "target": "self hand blue card",
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "hand blue",
                     "class": "destroy"
                 },
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "draw"
                 },
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "draw"
                 }
             ]
@@ -2818,7 +2979,8 @@
                     "class": "draw_done"
                 },
                 {
-                    "target": "table card",
+                    "target": "card",
+                    "card_filter": "table",
                     "class": "steal"
                 }
             ]
@@ -2876,11 +3038,14 @@
             "usages": 1,
             "effects": [
                 {
-                    "target": "self hand clubs card",
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "hand clubs",
                     "class": "choose_card"
                 },
                 {
-                    "target": "player reachable notself",
+                    "target": "player",
+                    "player_filter": "reachable notself",
                     "class": "bang"
                 }
             ]
@@ -2904,11 +3069,13 @@
             "usages": 1,
             "effects": [
                 {
-                    "target": "self hand bang card",
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "hand bang",
                     "class": "choose_card"
                 },
                 {
-                    "target": "player everyone notself",
+                    "target": "other_players",
                     "class": "bang"
                 }
             ]
@@ -2923,17 +3090,9 @@
                     "class": "drawing"
                 },
                 {
-                    "class": "draw_skip"
-                },
-                {
-                    "class": "draw_done"
-                },
-                {
-                    "target": "player notself reachable new_target",
-                    "class": "bang"
-                },
-                {
-                    "class": "draw_again_if_needed"
+                    "target": "player",
+                    "player_filter": "notself reachable",
+                    "class": "evelyn_shebang"
                 }
             ]
         },
@@ -2963,11 +3122,14 @@
                     "class": "lemonade_jim"
                 },
                 {
-                    "target": "self hand card",
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "hand",
                     "class": "destroy"
                 },
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "heal"
                 }
             ]
@@ -2979,7 +3141,9 @@
             "expansion": "valleyofshadows",
             "responses": [
                 {
-                    "target": "self hand missed card",
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "hand missed",
                     "class": "choose_card"
                 },
                 {
@@ -3017,11 +3181,15 @@
             "usages": 1,
             "effects": [
                 {
-                    "target": "self hand card",
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "hand",
                     "class": "mth_add"
                 },
                 {
-                    "target": "notself hand card",
+                    "target": "card",
+                    "player_filter": "notself",
+                    "card_filter": "hand",
                     "class": "mth_add"
                 }
             ],
@@ -3113,15 +3281,20 @@
                     "class": "al_preacher"
                 },
                 {
-                    "class": "pay_cube",
-                    "target": "cube_slot self"
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "cube_slot",
+                    "class": "pay_cube"
                 },
                 {
-                    "class": "pay_cube",
-                    "target": "cube_slot self"
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "cube_slot",
+                    "class": "pay_cube"
                 },
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "draw"
                 }
             ]
@@ -3134,11 +3307,15 @@
             "usages": 1,
             "effects": [
                 {
-                    "target": "self hand card",
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "hand",
                     "class": "destroy"
                 },
                 {
-                    "target": "cube_slot self card",
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "cube_slot_card",
                     "class": "add_cube",
                     "args": 2
                 }
@@ -3163,7 +3340,8 @@
             "usages": 1,
             "effects": [
                 {
-                    "target": "cube_slot card",
+                    "target": "card",
+                    "card_filter": "cube_slot_card",
                     "class": "frankie_canton"
                 }
             ]
@@ -3187,15 +3365,20 @@
             "usages": 1,
             "effects": [
                 {
-                    "target": "cube_slot self",
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "cube_slot",
                     "class": "pay_cube"
                 },
                 {
-                    "target": "cube_slot self",
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "cube_slot",
                     "class": "pay_cube"
                 },
                 {
-                    "target": "player reachable notself",
+                    "target": "player",
+                    "player_filter": "reachable notself",
                     "class": "bang"
                 }
             ]
@@ -3224,13 +3407,17 @@
             ],
             "effects": [
                 {
-                    "target": "cube_slot self table card",
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "cube_slot table",
                     "class": "red_ringo"
                 }
             ],
             "optional": [
                 {
-                    "target": "cube_slot self table card can_repeat",
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "cube_slot_card table can_repeat",
                     "class": "red_ringo"
                 }
             ]
@@ -3266,7 +3453,8 @@
             "cost": 2,
             "effects": [
                 {
-                    "target": "player reachable notself",
+                    "target": "player",
+                    "player_filter": "reachable notself",
                     "class": "bang"
                 }
             ]
@@ -3311,7 +3499,8 @@
             "cost": 1,
             "effects": [
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "draw"
                 }
             ]
@@ -3486,15 +3675,20 @@
             "image": "05_cecchino",
             "effects": [
                 {
-                    "target": "self hand bang card",
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "hand bang",
                     "class": "destroy"
                 },
                 {
-                    "target": "self hand bang card",
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "hand bang",
                     "class": "destroy"
                 },
                 {
-                    "target": "player reachable notself",
+                    "target": "player",
+                    "player_filter": "reachable notself",
                     "class": "sniper"
                 }
             ]
@@ -3521,11 +3715,13 @@
                     "class": "startofturn"
                 },
                 {
-                    "target": "self player",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "damage"
                 },
                 {
-                    "target": "notself player",
+                    "target": "player",
+                    "player_filter": "notself",
                     "class": "heal_notfull"
                 }
             ]
@@ -3565,7 +3761,8 @@
                     "class": "drawing"
                 },
                 {
-                    "target": "self player",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "heal"
                 },
                 {
@@ -3599,21 +3796,27 @@
                     "class": "startofturn"
                 },
                 {
-                    "target": "self hand card",
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "hand",
                     "class": "destroy"
                 },
                 {
-                    "target": "self player",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "mth_add"
                 }
             ],
             "optional": [
                 {
-                    "target": "self hand card",
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "hand",
                     "class": "destroy"
                 },
                 {
-                    "target": "self player",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "mth_add"
                 },
                 {
@@ -3627,11 +3830,15 @@
             "image": "05_rimbalzo",
             "effects": [
                 {
-                    "target": "self hand bang card",
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "hand bang",
                     "class": "destroy"
                 },
                 {
-                    "target": "notself table card",
+                    "target": "card",
+                    "player_filter": "notself",
+                    "card_filter": "table",
                     "class": "ricochet"
                 }
             ]
@@ -3843,7 +4050,8 @@
             "usages": 2,
             "effects": [
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "draw"
                 }
             ]
@@ -3880,19 +4088,23 @@
             "buy_cost": 4,
             "effects": [
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "draw"
                 },
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "draw"
                 },
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "draw"
                 },
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "draw"
                 },
                 {
@@ -3909,13 +4121,15 @@
             "cost": 2,
             "effects": [
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "heal"
                 }
             ],
             "responses": [
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "heal"
                 },
                 {
@@ -3935,7 +4149,8 @@
                     "class": "bottle"
                 },
                 {
-                    "target": "card range_1",
+                    "target": "card",
+                    "player_filter": "range_1",
                     "class": "steal"
                 }
             ]
@@ -3950,7 +4165,8 @@
                     "class": "bottle"
                 },
                 {
-                    "target": "player self",
+                    "target": "player",
+                    "player_filter": "self",
                     "class": "heal"
                 }
             ]
@@ -3965,7 +4181,8 @@
                     "class": "bottle"
                 },
                 {
-                    "target": "player reachable notself",
+                    "target": "player",
+                    "player_filter": "reachable notself",
                     "class": "bang"
                 }
             ]
@@ -3994,7 +4211,8 @@
                     "class": "pardner"
                 },
                 {
-                    "target": "player notself",
+                    "target": "player",
+                    "player_filter": "notself",
                     "class": "duel"
                 }
             ]
@@ -4105,7 +4323,9 @@
             "expansion": "goldrush",
             "effects": [
                 {
-                    "target": "self hand beer card",
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "hand beer",
                     "class": "sell_beer"
                 }
             ]
@@ -4115,7 +4335,9 @@
             "expansion": "goldrush",
             "effects": [
                 {
-                    "target": "notself table black card",
+                    "target": "card",
+                    "player_filter": "notself",
+                    "card_filter": "table black",
                     "class": "discard_black"
                 }
             ]
@@ -4125,15 +4347,21 @@
             "expansion": "canyondiablo",
             "effects": [
                 {
-                    "target": "self hand card",
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "hand",
                     "class": "destroy"
                 },
                 {
-                    "target": "self hand card",
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "hand",
                     "class": "destroy"
                 },
                 {
-                    "target": "notself table bronco card",
+                    "target": "card",
+                    "player_filter": "notself",
+                    "card_filter": "table bronco",
                     "class": "destroy"
                 }
             ]

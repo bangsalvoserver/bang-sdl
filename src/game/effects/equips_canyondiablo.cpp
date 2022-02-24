@@ -16,7 +16,7 @@ namespace banggame {
 
     void effect_indianguide::on_equip(card *target_card, player *p) {
         p->m_game->add_event<event_type::apply_immunity_modifier>(target_card, [p](card *origin_card, player *origin, bool &value) {
-            value = value || (origin == p && !origin_card->effects.empty() && origin_card->effects.front().is(effect_type::indians));
+            value = value || (origin == p && origin_card->effects.empty() && origin_card->effects.front().is(effect_type::indians));
         });
     }
 

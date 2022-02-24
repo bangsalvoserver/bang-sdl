@@ -7,23 +7,6 @@
 
 namespace banggame {
 
-    struct target_player_id {REFLECTABLE(
-        (int) player_id
-    )};
-
-    struct target_card_id {REFLECTABLE(
-        (int) player_id,
-        (int) card_id
-    )};
-
-    DEFINE_ENUM_TYPES_IN_NS(banggame, play_card_target_type,
-        (target_none)
-        (target_player, std::vector<target_player_id>)
-        (target_card, std::vector<target_card_id>)
-    )
-
-    using play_card_target = enums::enum_variant<play_card_target_type>;
-
     struct pick_card_args {REFLECTABLE(
         (card_pile_type) pile,
         (int) player_id,

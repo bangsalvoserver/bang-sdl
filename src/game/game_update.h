@@ -41,14 +41,17 @@ namespace banggame {
 
     struct card_target_data {REFLECTABLE(
         (effect_type) type,
-        (target_type) target,
-        (int) args
+        (play_card_target_type) target,
+        (target_player_filter) player_filter,
+        (target_card_filter) card_filter,
+        (short) args
     )};
 
     struct equip_target_data {REFLECTABLE(
         (equip_type) type,
-        (target_type) target,
-        (int) args
+        (play_card_target_type) target,
+        (target_player_filter) player_filter,
+        (short) args
     )};
 
     struct card_info {REFLECTABLE(

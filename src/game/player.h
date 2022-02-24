@@ -60,8 +60,6 @@ namespace banggame {
         player_flags m_player_flags = enums::flags_none<player_flags>;
 
         int8_t m_gold = 0;
-        
-        std::multimap<card *, player *> m_current_card_targets;
 
         explicit player(game *game);
 
@@ -138,6 +136,10 @@ namespace banggame {
 
         void verify_modifiers(card *c, const std::vector<card *> &modifiers);
         void play_modifiers(const std::vector<card *> &modifiers);
+
+        void verify_effect_player_target(target_player_filter filter, player *target);
+        void verify_effect_card_target(const effect_holder &effect, player *target, card *target_card);
+
         void verify_equip_target(card *c, const std::vector<play_card_target> &targets);
         void verify_card_targets(card *c, bool is_response, const std::vector<play_card_target> &targets);
 

@@ -66,10 +66,8 @@ namespace banggame {
         (outlaw)
         (renegade)
     )
-    
-    DEFINE_ENUM_FLAGS_IN_NS(banggame, target_type,
-        (card)
-        (player)
+
+    DEFINE_ENUM_FLAGS_IN_NS(banggame, target_player_filter,
         (dead)
         (self)
         (notself)
@@ -77,7 +75,9 @@ namespace banggame {
         (range_1)
         (range_2)
         (reachable)
-        (everyone)
+    )
+
+    DEFINE_ENUM_FLAGS_IN_NS(banggame, target_card_filter,
         (table)
         (hand)
         (blue)
@@ -87,11 +87,20 @@ namespace banggame {
         (missed)
         (beer)
         (bronco)
-        (fanning_target)
-        (new_target)
         (cube_slot)
+        (cube_slot_card)
         (can_repeat)
     )
+
+    DEFINE_ENUM_TYPES_IN_NS(banggame, play_card_target_type,
+        (none)
+        (player, int)
+        (card, int)
+        (other_players)
+        (cards_other_players, std::vector<int>)
+    )
+
+    using play_card_target = enums::enum_variant<play_card_target_type>;
 
     DEFINE_ENUM_FLAGS_IN_NS(banggame, effect_flags,
         (escapable)

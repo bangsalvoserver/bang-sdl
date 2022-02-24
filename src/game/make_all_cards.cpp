@@ -33,10 +33,29 @@ namespace banggame {
                 effect.args = json_effect["args"].asInt();
             }
             if (json_effect.isMember("target")) {
-                effect.target = enums::flags_from_string<target_type>(json_effect["target"].asString());
-                if (effect.target != enums::flags_none<target_type>
-                    && !bool(effect.target & (target_type::card | target_type::player | target_type::cube_slot))) {
-                    throw invalid_effect("Invalid target: " + json_effect["target"].asString());
+                effect.target = enums::from_string<play_card_target_type>(json_effect["target"].asString());
+                if (effect.target == enums::invalid_enum_v<play_card_target_type>) {
+                    throw invalid_effect("Invalid target type: " + json_effect["target"].asString());
+                }
+            }
+            if (json_effect.isMember("player_filter")) {
+                if (effect.target == play_card_target_type::player || effect.target == play_card_target_type::card) {
+                    effect.player_filter = enums::flags_from_string<target_player_filter>(json_effect["player_filter"].asString());
+                    if (effect.player_filter == enums::invalid_enum_v<target_player_filter>) {
+                        throw invalid_effect("Invalid player filter: " + json_effect["player_filter"].asString());
+                    }
+                } else {
+                    throw invalid_effect(std::string("Target type ") + std::string(enums::to_string(effect.target)) + " cannot have a player filter");
+                }
+            }
+            if (json_effect.isMember("card_filter")) {
+                if (effect.target == play_card_target_type::card) {
+                    effect.card_filter = enums::flags_from_string<target_card_filter>(json_effect["card_filter"].asString());
+                    if (effect.card_filter == enums::invalid_enum_v<target_card_filter>) {
+                        throw invalid_effect("Invalid card filter: " + json_effect["card_filter"].asString());
+                    }
+                } else {
+                    throw invalid_effect(std::string("Target type ") + std::string(enums::to_string(effect.target)) + " cannot have a card filter");
                 }
             }
             if (json_effect.isMember("escapable") && json_effect["escapable"].asBool()) {

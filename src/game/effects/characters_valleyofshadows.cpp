@@ -52,4 +52,21 @@ namespace banggame {
     void effect_lemonade_jim::on_play(card *origin_card, player *origin) {
         origin->m_game->pop_request(request_type::lemonade_jim);
     }
+
+    void effect_evelyn_shebang::verify(card *origin_card, player *origin, player *target) const {
+        // TODO check target unico
+    }
+
+    void effect_evelyn_shebang::on_play(card *origin_card, player *origin, player *target) {
+        origin->m_game->pop_request_noupdate(request_type::draw);
+        ++origin->m_num_drawn_cards;
+
+        effect_bang().on_play(origin_card, origin, target);
+
+        origin->m_game->queue_delayed_action([=]{
+            if (origin->m_num_drawn_cards < origin->m_num_cards_to_draw && origin->m_game->m_playing == origin) {
+                origin->request_drawing();
+            }
+        });
+    }
 }

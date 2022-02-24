@@ -15,7 +15,15 @@ namespace banggame {
             for (const auto &value : vec) {
                 T obj;
                 obj.type = value.type;
-                obj.target = value.target;
+                if constexpr (requires { obj.target; }) {
+                    obj.target = value.target;
+                }
+                if constexpr (requires { obj.player_filter; }) {
+                    obj.player_filter = value.player_filter;
+                }
+                if constexpr (requires { obj.card_filter; }) {
+                    obj.card_filter = value.card_filter;
+                }
                 obj.args = value.args;
                 out.push_back(std::move(obj));
             }
