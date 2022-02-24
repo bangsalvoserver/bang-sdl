@@ -155,14 +155,17 @@ namespace banggame {
     void handler_squaw::on_play(card *origin_card, player *origin, mth_target_list targets) {
         auto [target, target_card] = targets[0];
 
+        bool immune = target->immune_to(origin_card);
         if (targets.size() == 3) {
             effect_pay_cube().on_play(origin_card, origin, std::get<player *>(targets[1]), std::get<card *>(targets[1]));
             effect_pay_cube().on_play(origin_card, origin, std::get<player *>(targets[2]), std::get<card *>(targets[2]));
 
-            effect_steal e;
-            e.flags = effect_flags::escapable | effect_flags::single_target;
-            e.on_play(origin_card, origin, target, target_card);
-        } else {
+            if (!immune) {
+                effect_steal e;
+                e.flags = effect_flags::escapable | effect_flags::single_target;
+                e.on_play(origin_card, origin, target, target_card);
+            }
+        } else if (!immune) {
             effect_destroy e;
             e.flags = effect_flags::escapable | effect_flags::single_target;
             e.on_play(origin_card, origin, target, target_card);

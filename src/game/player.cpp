@@ -581,10 +581,14 @@ namespace banggame {
                     auto *target = target_card->owner;
                     if (effect_it->is(effect_type::mth_add)) {
                         target_list.emplace_back(target, target_card);
-                    } else if (target != this && target_card->pile == card_pile_type::player_hand) {
-                        effect_it->on_play(card_ptr, this, target, target->random_hand_card());
-                    } else {
+                    } else if (target == this) {
                         effect_it->on_play(card_ptr, this, target, target_card);
+                    } else if (!check_immunity(target)) {
+                        if (target_card->pile == card_pile_type::player_hand) {
+                            effect_it->on_play(card_ptr, this, target, target->random_hand_card());
+                        } else {
+                            effect_it->on_play(card_ptr, this, target, target_card);
+                        }
                     }
                     effect_it->flags &= ~effect_flags::single_target;
                 },
@@ -593,7 +597,7 @@ namespace banggame {
                     for (int id : target_card_ids) {
                         auto *target_card = m_game->find_card(id);
                         auto *target = target_card->owner;
-                        if (target != this && target_card->pile == card_pile_type::player_hand) {
+                        if (target_card->pile == card_pile_type::player_hand) {
                             effect_it->on_play(card_ptr, this, target, target->random_hand_card());
                         } else {
                             effect_it->on_play(card_ptr, this, target, target_card);
