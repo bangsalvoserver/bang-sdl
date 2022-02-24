@@ -60,10 +60,16 @@ namespace banggame {
     };
 
     struct effect_beer : card_effect {
+        void on_play(card *origin_card, player *origin) {
+            on_play(origin_card, origin, origin);
+        }
         void on_play(card *origin_card, player *origin, player *target);
     };
 
     struct effect_heal : card_effect {
+        void on_play(card *origin_card, player *origin) {
+            on_play(origin_card, origin, origin);
+        }
         void on_play(card *origin_card, player *origin, player *target);
     };
 
@@ -85,6 +91,9 @@ namespace banggame {
     };
 
     struct effect_draw : card_effect {
+        void on_play(card *origin_card, player *origin) {
+            on_play(origin_card, origin, origin);
+        }
         void on_play(card *origin_card, player *origin, player *target);
     };
 

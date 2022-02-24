@@ -233,15 +233,11 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player",
-                    "player_filter": "self",
                     "class": "beer"
                 }
             ],
             "responses": [
                 {
-                    "target": "player",
-                    "player_filter": "self",
                     "class": "beer"
                 },
                 {
@@ -279,14 +275,8 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player",
-                    "player_filter": "self",
-                    "class": "draw"
-                },
-                {
-                    "target": "player",
-                    "player_filter": "self",
-                    "class": "draw"
+                    "class": "draw",
+                    "args": 2
                 },
                 {
                     "class": "changewws"
@@ -415,8 +405,6 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player",
-                    "player_filter": "self",
                     "class": "heal"
                 },
                 {
@@ -435,19 +423,8 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player",
-                    "player_filter": "self",
-                    "class": "draw"
-                },
-                {
-                    "target": "player",
-                    "player_filter": "self",
-                    "class": "draw"
-                },
-                {
-                    "target": "player",
-                    "player_filter": "self",
-                    "class": "draw"
+                    "class": "draw",
+                    "args": 3
                 },
                 {
                     "class": "changewws"
@@ -600,15 +577,11 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player",
-                    "player_filter": "self",
                     "class": "beer"
                 }
             ],
             "responses": [
                 {
-                    "target": "player",
-                    "player_filter": "self",
                     "class": "beer"
                 },
                 {
@@ -771,8 +744,6 @@
             "color": "brown",
             "responses": [
                 {
-                    "target": "player",
-                    "player_filter": "self",
                     "class": "draw"
                 },
                 {
@@ -849,8 +820,6 @@
                     "class": "play_card_action"
                 },
                 {
-                    "target": "player",
-                    "player_filter": "self",
                     "class": "heal",
                     "args": 2
                 }
@@ -869,8 +838,6 @@
                     "class": "missed"
                 },
                 {
-                    "target": "player",
-                    "player_filter": "self",
                     "class": "draw"
                 }
             ]
@@ -885,8 +852,6 @@
             "color": "green",
             "effects": [
                 {
-                    "target": "player",
-                    "player_filter": "self",
                     "class": "heal"
                 }
             ]
@@ -950,8 +915,6 @@
                     "class": "bang"
                 },
                 {
-                    "target": "player",
-                    "player_filter": "self",
                     "class": "draw"
                 }
             ]
@@ -1028,19 +991,8 @@
             "color": "green",
             "effects": [
                 {
-                    "target": "player",
-                    "player_filter": "self",
-                    "class": "draw"
-                },
-                {
-                    "target": "player",
-                    "player_filter": "self",
-                    "class": "draw"
-                },
-                {
-                    "target": "player",
-                    "player_filter": "self",
-                    "class": "draw"
+                    "class": "draw",
+                    "args": 3
                 },
                 {
                     "class": "changewws"
@@ -1355,8 +1307,6 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player",
-                    "player_filter": "self",
                     "class": "heal"
                 }
             ]
@@ -1461,8 +1411,6 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player",
-                    "player_filter": "self",
                     "class": "heal"
                 }
             ],
@@ -1486,8 +1434,6 @@
                     "class": "pay_cube"
                 },
                 {
-                    "target": "player",
-                    "player_filter": "self",
                     "class": "heal"
                 },
                 {
@@ -1718,8 +1664,6 @@
                     "args": 2
                 },
                 {
-                    "target": "player",
-                    "player_filter": "self",
                     "class": "draw"
                 }
             ]
@@ -1925,8 +1869,6 @@
                     "args": 3
                 },
                 {
-                    "target": "player",
-                    "player_filter": "self",
                     "class": "heal"
                 }
             ]
@@ -2173,15 +2115,11 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player",
-                    "player_filter": "self",
                     "class": "beer"
                 }
             ],
             "responses": [
                 {
-                    "target": "player",
-                    "player_filter": "self",
                     "class": "beer"
                 },
                 {
@@ -2428,8 +2366,6 @@
                     "class": "heal_notfull"
                 },
                 {
-                    "target": "player",
-                    "player_filter": "self",
                     "class": "draw"
                 }
             ]
@@ -2476,14 +2412,8 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player",
-                    "player_filter": "self",
-                    "class": "draw"
-                },
-                {
-                    "target": "player",
-                    "player_filter": "self",
-                    "class": "draw"
+                    "class": "draw",
+                    "args": 2
                 },
                 {
                     "target": "player",
@@ -2502,8 +2432,6 @@
             "color": "brown",
             "responses": [
                 {
-                    "target": "player",
-                    "player_filter": "self",
                     "class": "draw"
                 },
                 {
@@ -2695,8 +2623,6 @@
                     "class": "destroy"
                 },
                 {
-                    "target": "player",
-                    "player_filter": "self",
                     "class": "heal"
                 }
             ],
@@ -2714,8 +2640,6 @@
                     "class": "destroy"
                 },
                 {
-                    "target": "player",
-                    "player_filter": "self",
                     "class": "heal"
                 },
                 {
@@ -2853,14 +2777,8 @@
                     "class": "damage"
                 },
                 {
-                    "target": "player",
-                    "player_filter": "self",
-                    "class": "draw"
-                },
-                {
-                    "target": "player",
-                    "player_filter": "self",
-                    "class": "draw"
+                    "class": "draw",
+                    "args": 2
                 }
             ]
         },
@@ -2944,14 +2862,8 @@
                     "class": "destroy"
                 },
                 {
-                    "target": "player",
-                    "player_filter": "self",
-                    "class": "draw"
-                },
-                {
-                    "target": "player",
-                    "player_filter": "self",
-                    "class": "draw"
+                    "class": "draw",
+                    "args": 2
                 }
             ]
         },
@@ -3128,8 +3040,6 @@
                     "class": "destroy"
                 },
                 {
-                    "target": "player",
-                    "player_filter": "self",
                     "class": "heal"
                 }
             ]
@@ -3293,8 +3203,6 @@
                     "class": "pay_cube"
                 },
                 {
-                    "target": "player",
-                    "player_filter": "self",
                     "class": "draw"
                 }
             ]
@@ -3499,8 +3407,6 @@
             "cost": 1,
             "effects": [
                 {
-                    "target": "player",
-                    "player_filter": "self",
                     "class": "draw"
                 }
             ]
@@ -3761,8 +3667,6 @@
                     "class": "drawing"
                 },
                 {
-                    "target": "player",
-                    "player_filter": "self",
                     "class": "heal"
                 },
                 {
@@ -4050,8 +3954,6 @@
             "usages": 2,
             "effects": [
                 {
-                    "target": "player",
-                    "player_filter": "self",
                     "class": "draw"
                 }
             ]
@@ -4088,24 +3990,8 @@
             "buy_cost": 4,
             "effects": [
                 {
-                    "target": "player",
-                    "player_filter": "self",
-                    "class": "draw"
-                },
-                {
-                    "target": "player",
-                    "player_filter": "self",
-                    "class": "draw"
-                },
-                {
-                    "target": "player",
-                    "player_filter": "self",
-                    "class": "draw"
-                },
-                {
-                    "target": "player",
-                    "player_filter": "self",
-                    "class": "draw"
+                    "class": "draw",
+                    "args": 4
                 },
                 {
                     "class": "changewws"
@@ -4121,15 +4007,11 @@
             "cost": 2,
             "effects": [
                 {
-                    "target": "player",
-                    "player_filter": "self",
                     "class": "heal"
                 }
             ],
             "responses": [
                 {
-                    "target": "player",
-                    "player_filter": "self",
                     "class": "heal"
                 },
                 {
@@ -4165,8 +4047,6 @@
                     "class": "bottle"
                 },
                 {
-                    "target": "player",
-                    "player_filter": "self",
                     "class": "heal"
                 }
             ]

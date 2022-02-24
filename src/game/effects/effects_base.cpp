@@ -275,8 +275,10 @@ namespace banggame {
     }
 
     void effect_draw::on_play(card *origin_card, player *origin, player *target) {
-        card *drawn_card = target->m_game->draw_card_to(card_pile_type::player_hand, target);
-        target->m_game->add_log("LOG_DRAWN_CARD", target, drawn_card);
+        for (int i=0; i<std::max<int>(1, args); ++i) {
+            card *drawn_card = target->m_game->draw_card_to(card_pile_type::player_hand, target);
+            target->m_game->add_log("LOG_DRAWN_CARD", target, drawn_card);
+        }
     }
 
     void effect_draw_discard::verify(card *origin_card, player *origin, player *target) const {
