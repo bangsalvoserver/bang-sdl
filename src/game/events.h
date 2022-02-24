@@ -26,6 +26,7 @@ namespace banggame {
         (apply_volcanic_modifier, std::function<void(player *origin, bool &value)>)
         (apply_immunity_modifier, std::function<void(card *origin_card, player *target, bool &value)>)
         (apply_initial_cards_modifier, std::function<void(player *origin, int &value)>)
+        (verify_target_unique, std::function<void(card *origin_card, player *origin, player *target)>)
         (on_discard_card,   std::function<void(player *origin, player *target, card *target_card)>)
         (on_hit,            std::function<void(card *origin_card, player *origin, player *target, int damage, bool is_bang)>)
         (on_missed,         std::function<void(card *origin_card, player *origin, player *target, bool is_bang)>)

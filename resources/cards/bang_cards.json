@@ -2997,6 +2997,11 @@
             "image": "07_evelynshebang",
             "hp": 4,
             "expansion": "valleyofshadows",
+            "equip": [
+                {
+                    "class": "evelyn_shebang"
+                }
+            ],
             "responses": [
                 {
                     "class": "drawing"

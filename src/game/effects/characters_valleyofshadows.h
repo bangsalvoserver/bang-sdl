@@ -23,7 +23,7 @@ namespace banggame {
         void on_equip(card *target_card, player *target);
     };
     
-    struct effect_evelyn_shebang : card_effect {
+    struct effect_evelyn_shebang : event_based_effect {
         void verify(card *origin_card, player *origin, player *target) const;
         void on_play(card *origin_card, player *origin, player *target);
     };

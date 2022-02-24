@@ -141,6 +141,7 @@ namespace banggame {
         (madam_yto,     effect_madam_yto)
         (greygory_deck, effect_greygory_deck)
         (lemonade_jim,  effect_lemonade_jim)
+        (evelyn_shebang, effect_evelyn_shebang)
         (julie_cutter,  effect_julie_cutter)
         (bloody_mary,   effect_bloody_mary)
         (red_ringo,     effect_red_ringo)

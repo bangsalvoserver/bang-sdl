@@ -54,10 +54,22 @@ namespace banggame {
     }
 
     void effect_evelyn_shebang::verify(card *origin_card, player *origin, player *target) const {
-        // TODO check target unico
+        origin->m_game->instant_event<event_type::verify_target_unique>(origin_card, origin, target);
     }
 
     void effect_evelyn_shebang::on_play(card *origin_card, player *origin, player *target) {
+        origin->m_game->add_event<event_type::verify_target_unique>(origin_card, [=](card *e_origin_card, player *e_origin, player *e_target) {
+            if (e_origin_card == origin_card && e_origin == origin && e_target == target) {
+                throw game_error("ERROR_TARGETS_NOT_UNIQUE");
+            }
+        });
+
+        origin->m_game->add_event<event_type::on_turn_end>(origin_card, [=](player *e_origin) {
+            if (origin == e_origin) {
+                origin->m_game->remove_events(origin_card);
+            }
+        });
+
         origin->m_game->pop_request_noupdate(request_type::draw);
         ++origin->m_num_drawn_cards;
 
