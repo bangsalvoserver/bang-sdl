@@ -48,6 +48,10 @@ sdl::point profile_pic::get_pos() const {
 }
 
 void profile_pic::render(sdl::renderer &renderer) {
+    if (m_border_color.a != 0) {
+        renderer.set_draw_color(m_border_color);
+        renderer.fill_rect(sdl::rect{m_rect.x - 2, m_rect.y - 2, m_rect.w + 4, m_rect.h + 2});
+    }
     m_texture->render(renderer, m_rect);
 }
 

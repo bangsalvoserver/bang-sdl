@@ -5,15 +5,15 @@
 
 using namespace enums::flag_operators;
 
-lobby_player_item::lobby_player_item(int id, const user_info &args, bool is_owner)
-    : m_name_text(args.name, widgets::text_style{
+lobby_scene::lobby_player_item::lobby_player_item(lobby_scene *parent, int id, const user_info &args)
+    : parent(parent)
+    , m_user_id(id)
+    , m_name_text(args.name, widgets::text_style{
         .text_font = &media_pak::font_bkant_bold
     })
-    , m_propic(args.profile_image)
-    , m_user_id(id)
-    , m_is_owner(is_owner) {}
+    , m_propic(args.profile_image) {}
 
-void lobby_player_item::resize(int x, int y) {
+void lobby_scene::lobby_player_item::resize(int x, int y) {
     m_propic.set_pos(sdl::point{
         x + widgets::profile_pic::size / 2,
         y + widgets::profile_pic::size / 2
@@ -24,19 +24,24 @@ void lobby_player_item::resize(int x, int y) {
         y + (widgets::profile_pic::size - m_name_text.get_rect().h) / 2});
 }
 
-void lobby_player_item::render(sdl::renderer &renderer) {
+void lobby_scene::lobby_player_item::render(sdl::renderer &renderer) {
+    if (parent->parent->get_user_own_id() == m_user_id) {
+        m_propic.set_border_color(sdl::rgba(widgets::propic_border_rgba));
+    } else {
+        m_propic.set_border_color({});
+    }
     m_propic.render(renderer);
     m_name_text.render(renderer);
 
-    if (m_is_owner) {
+    if (parent->parent->get_lobby_owner_id() == m_user_id) {
         sdl::rect rect = media_pak::get().icon_owner.get_rect();
         rect.x = m_propic.get_pos().x - 60;
         rect.y = m_propic.get_pos().y - rect.h / 2;
-        media_pak::get().icon_owner.render(renderer, rect);
+        media_pak::get().icon_owner.render_colored(renderer, rect, sdl::rgba(widgets::propic_border_rgba));
     }
 }
 
-expansion_box::expansion_box(const std::string &label, banggame::card_expansion_type flag, banggame::card_expansion_type check)
+lobby_scene::expansion_box::expansion_box(const std::string &label, banggame::card_expansion_type flag, banggame::card_expansion_type check)
     : widgets::checkbox(label, widgets::button_style{
         .text = {
             .text_font = &media_pak::font_perdido
@@ -136,7 +141,7 @@ void lobby_scene::render(sdl::renderer &renderer) {
 }
 
 void lobby_scene::add_user(int id, const user_info &args) {
-    m_player_list.emplace_back(id, args, id == parent->get_lobby_owner_id());
+    m_player_list.emplace_back(this, id, args);
 
     resize(parent->width(), parent->height());
 }

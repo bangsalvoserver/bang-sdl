@@ -25,6 +25,8 @@ namespace widgets {
 
     constexpr uint32_t server_log_rgb = 0x0000ff;
 
+    constexpr uint32_t propic_border_rgba = 0xa79c78ff;
+
 }
 
 #endif

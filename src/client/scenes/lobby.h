@@ -10,31 +10,6 @@
 
 #include <list>
 
-struct expansion_box : widgets::checkbox {
-    expansion_box(const std::string &label, banggame::card_expansion_type flag, banggame::card_expansion_type check);
-    banggame::card_expansion_type m_flag;
-};
-
-
-class lobby_player_item {
-public:
-    lobby_player_item(int id, const user_info &args, bool is_owner = false);
-
-    int user_id() const {
-        return m_user_id;
-    }
-
-    void resize(int x, int y);
-    void render(sdl::renderer &renderer);
-
-private:
-    widgets::stattext m_name_text;
-    widgets::profile_pic m_propic;
-
-    int m_user_id;
-    bool m_is_owner;
-};
-
 class lobby_scene : public scene_base {
 public:
     lobby_scene(class game_manager *parent, const lobby_entered_args &args);
@@ -49,6 +24,31 @@ public:
     void send_lobby_edited();
 
 private:
+    class lobby_player_item {
+    public:
+        lobby_player_item(lobby_scene *parent, int id, const user_info &args);
+
+        int user_id() const {
+            return m_user_id;
+        }
+
+        void resize(int x, int y);
+        void render(sdl::renderer &renderer);
+
+    private:
+        lobby_scene *parent;
+
+        int m_user_id;
+
+        widgets::stattext m_name_text;
+        widgets::profile_pic m_propic;
+    };
+
+    struct expansion_box : widgets::checkbox {
+        expansion_box(const std::string &label, banggame::card_expansion_type flag, banggame::card_expansion_type check);
+        banggame::card_expansion_type m_flag;
+    };
+
     std::vector<lobby_player_item> m_player_list;
 
     widgets::stattext m_lobby_name_text;

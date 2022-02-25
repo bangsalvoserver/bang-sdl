@@ -23,6 +23,10 @@ namespace widgets {
 
         void set_pos(sdl::point pt);
         sdl::point get_pos() const;
+
+        void set_border_color(sdl::color color) noexcept {
+            m_border_color = color;
+        }
         
         void render(sdl::renderer &renderer);
 
@@ -37,6 +41,8 @@ namespace widgets {
         const sdl::texture *m_texture = nullptr;
 
         sdl::rect m_rect;
+
+        sdl::color m_border_color{};
 
         button_callback_fun m_onclick;
     };
