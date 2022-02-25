@@ -101,6 +101,7 @@ namespace banggame {
         void add_gold(int amount);
 
         bool immune_to(card *c);
+        bool can_respond_with(card *c);
 
         void add_bang_mod(bang_modifier &&mod) {
             m_bang_mods.push_back(std::move(mod));

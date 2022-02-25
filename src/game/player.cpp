@@ -146,6 +146,13 @@ namespace banggame {
         return value;
     }
 
+    bool player::can_respond_with(card *c) {
+        return !m_game->is_disabled(c) && !c->responses.empty()
+            && std::ranges::all_of(c->responses, [&](const effect_holder &e) {
+                return e.can_respond(c, this);
+            });
+    }
+
     bool player::can_receive_cubes() const {
         if (m_game->m_cubes.empty()) return false;
         if (m_characters.front()->cubes.size() < 4) return true;
@@ -801,11 +808,8 @@ namespace banggame {
         
         card *card_ptr = m_game->find_card(args.card_id);
 
-        if (std::ranges::none_of(card_ptr->responses, [=, this](const effect_holder &e){
-            return e.can_respond(card_ptr, this);
-        })) return;
+        if (!can_respond_with(card_ptr)) throw game_error("ERROR_INVALID_ACTION");
 
-        if (m_game->is_disabled(card_ptr)) throw game_error("ERROR_CARD_IS_DISABLED", card_ptr);
         switch (card_ptr->pile) {
         case card_pile_type::player_table:
             if (card_ptr->inactive) throw game_error("ERROR_CARD_INACTIVE", card_ptr);

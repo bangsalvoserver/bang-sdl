@@ -434,9 +434,9 @@ struct to_end{};
 
         auto add_ids_for = [&](auto &&cards) {
             for (card *c : cards) {
-                if (!is_disabled(c) && std::ranges::any_of(c->responses, [&](const effect_holder &e) {
-                    return e.can_respond(c, p);
-                })) ret.respond_ids.push_back(c->id);
+                if (p->can_respond_with(c)) {
+                    ret.respond_ids.push_back(c->id);
+                }
             }
         };
 

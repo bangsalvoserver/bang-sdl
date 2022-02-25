@@ -43,7 +43,7 @@ namespace banggame {
             if constexpr (requires { value.can_respond(origin_card, target); }) {
                 return value.can_respond(origin_card, target);
             }
-            return false;
+            return true;
         }, *this);
     }
 

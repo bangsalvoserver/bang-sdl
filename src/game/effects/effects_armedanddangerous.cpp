@@ -11,6 +11,10 @@ namespace banggame {
         }
     }
 
+    bool effect_pay_cube::can_respond(card *origin_card, player *origin) const {
+        return origin_card->cubes.size() >= std::max<short>(1, args);
+    }
+
     void effect_pay_cube::verify(card *origin_card, player *origin, player *target, card *target_card) const {
         if (target_card->cubes.size() < std::max<short>(1, args)) {
             throw game_error("ERROR_NOT_ENOUGH_CUBES_ON", origin_card);
