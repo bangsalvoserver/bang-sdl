@@ -56,7 +56,6 @@ namespace banggame {
         std::list<event_args> m_pending_events;
 
         std::map<int, card> m_cards;
-        std::map<int, character> m_characters;
         
         std::vector<card *> m_deck;
         std::vector<card *> m_discards;

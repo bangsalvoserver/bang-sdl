@@ -92,12 +92,6 @@ namespace banggame {
         if (json_card.isMember("multitarget")) {
             out.multi_target_handler = enums::from_string<mth_type>(json_card["multitarget"].asString());
         }
-        if (json_card.isMember("usages")) {
-            out.max_usages = json_card["usages"].asInt();
-        }
-        if (json_card.isMember("cost")) {
-            out.cost = json_card["cost"].asInt();
-        }
         if (json_card.isMember("discard_if_two_players")) {
             out.discard_if_two_players = json_card["discard_if_two_players"].asBool();
         }
@@ -150,11 +144,10 @@ namespace banggame {
 
         for (const auto &json_character : json_cards["characters"]) {
             if (is_disabled(json_character)) continue;
-            character c;
+            card c;
             c.expansion = enums::from_string<card_expansion_type>(json_character["expansion"].asString());
             if (c.expansion != enums::invalid_enum_v<card_expansion_type>) {
                 make_all_effects(c, json_character);
-                c.max_hp = json_character["hp"].asInt();
                 ret.characters.push_back(c);
             }
         }

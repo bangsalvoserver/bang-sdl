@@ -29,6 +29,16 @@ namespace banggame {
         target->add_gold(std::max<int>(args, 1));
     }
 
+    void effect_pay_gold::verify(card *origin_card, player *origin) const {
+        if (origin->m_gold < args) {
+            throw game_error("ERROR_NOT_ENOUGH_GOLD");
+        }
+    }
+
+    void effect_pay_gold::on_play(card *origin_card, player *origin) {
+        origin->add_gold(-args);
+    }
+
     void effect_rum::on_play(card *origin_card, player *origin) {
         std::vector<card_suit_type> suits;
         for (int i=0; i < 3 + origin->m_num_checks; ++i) {

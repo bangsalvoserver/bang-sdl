@@ -13,6 +13,7 @@ namespace banggame {
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, effect_type,
         (play_card_action, effect_play_card_action)
+        (max_usages,    effect_max_usages)
         (pass_turn,     effect_pass_turn)
         (resolve,       effect_resolve)
         (mth_add,       effect_empty)
@@ -52,6 +53,7 @@ namespace banggame {
         (sell_beer,     effect_sell_beer)
         (discard_black, effect_discard_black)
         (add_gold,      effect_add_gold)
+        (pay_gold,      effect_pay_gold)
         (rum,           effect_rum)
         (bottle,        effect_empty)
         (pardner,       effect_empty)
@@ -90,6 +92,7 @@ namespace banggame {
     )
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, equip_type,
+        (max_hp,        effect_max_hp)
         (mustang,       effect_mustang)
         (scope,         effect_scope)
         (jail,          effect_jail)

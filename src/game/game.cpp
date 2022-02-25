@@ -58,8 +58,6 @@ namespace banggame {
     card *game::find_card(int card_id) {
         if (auto it = m_cards.find(card_id); it != m_cards.end()) {
             return &it->second;
-        } else if (auto it = m_characters.find(card_id); it != m_characters.end()) {
-            return &it->second;
         }
         throw game_error("server.find_card: ID not found"_nonloc);
     }
@@ -134,7 +132,7 @@ namespace banggame {
                 ADD_TO_RET(player_show_role, p.id, p.m_role, true);
             }
 
-            add_cards(m_characters
+            add_cards(m_cards
                 | std::views::values
                 | std::views::filter([&](const card &c) {
                     return c.owner == &p;
@@ -327,11 +325,11 @@ struct to_end{};
 
         add_log("LOG_GAME_START");
 
-        std::vector<character *> character_ptrs;
+        std::vector<card *> character_ptrs;
         for (const auto &c : all_cards.characters) {
             if (m_players.size() <= 2 && c.discard_if_two_players) continue;
             if (bool(c.expansion & options.expansions)) {
-                auto it = m_characters.emplace(get_next_id(), c).first;
+                auto it = m_cards.emplace(get_next_id(), c).first;
                 character_ptrs.emplace_back(&it->second)->id = it->first;
             }
         }
@@ -339,7 +337,7 @@ struct to_end{};
         std::ranges::shuffle(character_ptrs, rng);
         swap_testing<to_begin>(character_ptrs);
 
-        auto add_character_to = [&](character *c, player &p) {
+        auto add_character_to = [&](card *c, player &p) {
             p.m_characters.push_back(c);
             c->pile = card_pile_type::player_character;
             c->owner = &p;
@@ -379,7 +377,7 @@ struct to_end{};
             for (auto &p : m_players) {
                 send_card_update(*p.m_characters.front(), &p, show_card_flags::no_animation | show_card_flags::show_everyone);
                 p.equip_if_enabled(p.m_characters.front());
-                p.m_hp = p.m_max_hp = static_cast<character *>(p.m_characters.front())->max_hp + (p.m_role == player_role::sheriff);
+                p.m_hp = p.m_max_hp;
                 add_public_update<game_update_type::player_hp>(p.id, p.m_hp, false, true);
 
                 move_to(p.m_characters.back(), card_pile_type::player_backup, false, &p, show_card_flags::no_animation);

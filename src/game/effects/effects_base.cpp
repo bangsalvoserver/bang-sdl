@@ -9,6 +9,20 @@ namespace banggame {
         origin->play_card_action(origin_card, args == 1);
     }
 
+    void effect_max_usages::verify(card *origin_card, player *origin) const {
+        if (origin_card->usages >= args) {
+            throw game_error("ERROR_MAX_USAGES", origin_card, args);
+        }
+    }
+
+    bool effect_max_usages::can_respond(card *origin_card, player *origin) const {
+        return origin_card->usages < args;
+    }
+
+    void effect_max_usages::on_play(card *origin_card, player *origin) {
+        ++origin_card->usages;
+    }
+
     void effect_pass_turn::on_play(card *origin_card, player *origin) {
         origin->pass_turn();
     }

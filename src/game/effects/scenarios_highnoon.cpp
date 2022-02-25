@@ -209,7 +209,6 @@ namespace banggame {
             }
             
             target->m_hp = 2;
-            target->m_max_hp = static_cast<const character *>(target_card)->max_hp + (target->m_role == player_role::sheriff);
             target->m_game->add_public_update<game_update_type::player_hp>(target->id, target->m_hp, false, false);
         } else {
             target->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::player_backup, false, target);

@@ -5,6 +5,10 @@
 
 namespace banggame {
 
+    struct effect_max_hp : card_effect {
+        void on_equip(card *target_card, player *target);
+    };
+
     struct effect_mustang : card_effect {
         void on_equip(card *target_card, player *target);
         void on_unequip(card *target_card, player *target);

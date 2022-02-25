@@ -127,7 +127,7 @@ namespace banggame {
 
     static void vera_custer_copy_character(player *target, card *c) {
         if (c != target->m_characters.back()) {
-            auto copy_it = target->m_game->m_characters.emplace(target->m_game->get_next_id(), *c).first;
+            auto copy_it = target->m_game->m_cards.emplace(target->m_game->get_next_id(), *c).first;
             copy_it->second.id = copy_it->first;
             copy_it->second.usages = 0;
             copy_it->second.pile = card_pile_type::player_character;
@@ -135,7 +135,7 @@ namespace banggame {
 
             if (target->m_characters.size() == 2) {
                 target->unequip_if_enabled(target->m_characters.back());
-                target->m_game->m_characters.erase(target->m_characters.back()->id);
+                target->m_game->m_cards.erase(target->m_characters.back()->id);
                 target->m_characters.pop_back();
             }
             target->m_game->add_public_update<game_update_type::player_clear_characters>(target->id);
@@ -167,7 +167,7 @@ namespace banggame {
                     c->owner = nullptr;
                     p->m_characters.pop_back();
                     p->m_game->add_public_update<game_update_type::player_clear_characters>(p->id);
-                    p->m_game->m_characters.erase(c->id);
+                    p->m_game->m_cards.erase(c->id);
                 }
             }
         });

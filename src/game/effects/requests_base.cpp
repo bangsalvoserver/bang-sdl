@@ -12,7 +12,7 @@ namespace banggame {
         target->m_game->move_to(target_card, card_pile_type::player_character, true, target, show_card_flags::show_everyone);
         target->equip_if_enabled(target_card);
 
-        target->m_hp = target->m_max_hp = static_cast<character *>(target_card)->max_hp + (target->m_role == player_role::sheriff);
+        target->m_hp = target->m_max_hp;
         target->m_game->add_public_update<game_update_type::player_hp>(target->id, target->m_hp, false, true);
 
         target->m_game->move_to(target->m_hand.front(), card_pile_type::player_backup, false, target);

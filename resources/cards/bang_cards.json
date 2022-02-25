@@ -1656,8 +1656,11 @@
             "image": "17_bandoliera",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "usages": 1,
             "effects": [
+                {
+                    "class": "max_usages",
+                    "args": 1
+                },
                 {
                     "class": "pay_cube"
                 },
@@ -2126,7 +2129,6 @@
             "image": "20_bulldog",
             "expansion": "canyondiablo",
             "color": "blue",
-            "usages": 1,
             "equip": [
                 {
                     "class": "weapon",
@@ -2134,6 +2136,10 @@
                 }
             ],
             "effects": [
+                {
+                    "class": "max_usages",
+                    "args": 1
+                },
                 {
                     "target": "card",
                     "player_filter": "self",
@@ -2409,9 +2415,12 @@
         {
             "name": "Bart Cassidy",
             "image": "01_bartcassidy",
-            "hp": 4,
             "expansion": "base",
             "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                },
                 {
                     "class": "boots"
                 }
@@ -2424,6 +2433,10 @@
             "expansion": "base",
             "equip": [
                 {
+                    "class": "max_hp",
+                    "args": 4
+                },
+                {
                     "class": "black_jack"
                 }
             ]
@@ -2431,9 +2444,12 @@
         {
             "name": "Calamity Janet",
             "image": "01_calamityjanet",
-            "hp": 4,
             "expansion": "base",
             "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                },
                 {
                     "class": "calamity_janet"
                 }
@@ -2458,9 +2474,12 @@
         {
             "name": "El Gringo",
             "image": "01_elgringo",
-            "hp": 3,
             "expansion": "base",
             "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 3
+                },
                 {
                     "class": "el_gringo"
                 }
@@ -2469,8 +2488,13 @@
         {
             "name": "Jesse Jones",
             "image": "01_jessejones",
-            "hp": 4,
             "expansion": "base",
+            "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                }
+            ],
             "responses": [
                 {
                     "class": "drawing"
@@ -2495,8 +2519,13 @@
         {
             "name": "Jourdonnais",
             "image": "01_jourdonnais",
-            "hp": 4,
             "expansion": "base",
+            "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                }
+            ],
             "responses": [
                 {
                     "class": "barrel"
@@ -2506,9 +2535,12 @@
         {
             "name": "Kit Carlson",
             "image": "01_kitcarlson",
-            "hp": 4,
             "expansion": "base",
             "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                },
                 {
                     "class": "kit_carlson"
                 }
@@ -2517,9 +2549,12 @@
         {
             "name": "Lucky Duke",
             "image": "01_luckyduke",
-            "hp": 4,
             "expansion": "base",
             "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                },
                 {
                     "class": "horsecharm"
                 }
@@ -2528,9 +2563,12 @@
         {
             "name": "Paul Regret",
             "image": "01_paulregret",
-            "hp": 3,
             "expansion": "base",
             "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 3
+                },
                 {
                     "class": "mustang"
                 }
@@ -2539,8 +2577,13 @@
         {
             "name": "Pedro Ramirez",
             "image": "01_pedroramirez",
-            "hp": 4,
             "expansion": "base",
+            "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                }
+            ],
             "responses": [
                 {
                     "class": "drawing"
@@ -2561,9 +2604,12 @@
         {
             "name": "Rose Doolan",
             "image": "01_rosedoolan",
-            "hp": 4,
             "expansion": "base",
             "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                },
                 {
                     "class": "scope"
                 }
@@ -2572,8 +2618,13 @@
         {
             "name": "Sid Ketchum",
             "image": "01_sidketchum",
-            "hp": 4,
             "expansion": "base",
+            "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                }
+            ],
             "effects": [
                 {
                     "target": "card",
@@ -2615,9 +2666,12 @@
         {
             "name": "Slab the Killer",
             "image": "01_slab",
-            "hp": 4,
             "expansion": "base",
             "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                },
                 {
                     "class": "slab_the_killer"
                 }
@@ -2626,9 +2680,12 @@
         {
             "name": "Suzy Lafayette",
             "image": "01_suzylafayette",
-            "hp": 4,
             "expansion": "base",
             "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                },
                 {
                     "class": "suzy_lafayette"
                 }
@@ -2637,10 +2694,13 @@
         {
             "name": "Vulture Sam",
             "image": "01_vulturesam",
-            "hp": 4,
             "expansion": "base",
             "discard_if_two_players": true,
             "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                },
                 {
                     "class": "vulture_sam"
                 }
@@ -2649,9 +2709,12 @@
         {
             "name": "Willy the Kid",
             "image": "01_willythekid",
-            "hp": 4,
             "expansion": "base",
             "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                },
                 {
                     "class": "volcanic"
                 }
@@ -2660,9 +2723,12 @@
         {
             "name": "Claus \"The Saint\"",
             "image": "02_clausthesaint",
-            "hp": 3,
             "expansion": "thebullet",
             "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 3
+                },
                 {
                     "class": "claus_the_saint"
                 }
@@ -2671,9 +2737,12 @@
         {
             "name": "Johnny Kisch",
             "image": "02_johnnykisch",
-            "hp": 4,
             "expansion": "thebullet",
             "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                },
                 {
                     "class": "johnny_kisch"
                 }
@@ -2682,10 +2751,18 @@
         {
             "name": "Uncle Will",
             "image": "02_unclewill",
-            "hp": 4,
             "expansion": "thebullet",
-            "usages": 1,
+            "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                }
+            ],
             "effects": [
+                {
+                    "class": "max_usages",
+                    "args": 1
+                },
                 {
                     "target": "card",
                     "player_filter": "self",
@@ -2700,9 +2777,12 @@
         {
             "name": "Apache Kid",
             "image": "03_apache_kid",
-            "hp": 3,
             "expansion": "dodgecity",
             "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 3
+                },
                 {
                     "class": "calumet"
                 }
@@ -2711,9 +2791,12 @@
         {
             "name": "Belle Star",
             "image": "03_belle_star",
-            "hp": 4,
             "expansion": "dodgecity",
             "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                },
                 {
                     "class": "bellestar"
                 }
@@ -2722,9 +2805,12 @@
         {
             "name": "Bill Noface",
             "image": "03_bill_noface",
-            "hp": 4,
             "expansion": "dodgecity",
             "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                },
                 {
                     "class": "bill_noface"
                 }
@@ -2733,8 +2819,13 @@
         {
             "name": "Chuck Wengam",
             "image": "03_chuck_wengam",
-            "hp": 4,
             "expansion": "dodgecity",
+            "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                }
+            ],
             "effects": [
                 {
                     "target": "player",
@@ -2750,8 +2841,13 @@
         {
             "name": "Doc Holyday",
             "image": "03_doc_holyday",
-            "hp": 4,
             "expansion": "dodgecity",
+            "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                }
+            ],
             "effects": [
                 {
                     "target": "card",
@@ -2775,8 +2871,13 @@
         {
             "name": "Elena Fuente",
             "image": "03_elena_fuente",
-            "hp": 3,
             "expansion": "dodgecity",
+            "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 3
+                }
+            ],
             "responses": [
                 {
                     "target": "card",
@@ -2792,10 +2893,13 @@
         {
             "name": "Greg Digger",
             "image": "03_greg_digger",
-            "hp": 4,
             "expansion": "dodgecity",
             "discard_if_two_players": true,
             "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                },
                 {
                     "class": "greg_digger"
                 }
@@ -2804,10 +2908,13 @@
         {
             "name": "Herb Hunter",
             "image": "03_herb_hunter",
-            "hp": 4,
             "expansion": "dodgecity",
             "discard_if_two_players": true,
             "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                },
                 {
                     "class": "herb_hunter"
                 }
@@ -2816,10 +2923,18 @@
         {
             "name": "Jos\u00e8 Delgado",
             "image": "03_jose_delgado",
-            "hp": 4,
             "expansion": "dodgecity",
-            "usages": 2,
+            "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                }
+            ],
             "effects": [
+                {
+                    "class": "max_usages",
+                    "args": 2
+                },
                 {
                     "target": "card",
                     "player_filter": "self",
@@ -2835,9 +2950,12 @@
         {
             "name": "Molly Stark",
             "image": "03_molly_stark",
-            "hp": 4,
             "expansion": "dodgecity",
             "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                },
                 {
                     "class": "molly_stark"
                 }
@@ -2846,8 +2964,13 @@
         {
             "name": "Pat Brennan",
             "image": "03_pat_brennan",
-            "hp": 4,
             "expansion": "dodgecity",
+            "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                }
+            ],
             "responses": [
                 {
                     "class": "drawing"
@@ -2869,6 +2992,10 @@
             "expansion": "dodgecity",
             "equip": [
                 {
+                    "class": "max_hp",
+                    "args": 4
+                },
+                {
                     "class": "pickaxe"
                 }
             ]
@@ -2876,9 +3003,12 @@
         {
             "name": "Sean Mallory",
             "image": "03_sean_mallory",
-            "hp": 3,
             "expansion": "dodgecity",
             "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 3
+                },
                 {
                     "class": "gunbelt",
                     "args": 10
@@ -2888,9 +3018,12 @@
         {
             "name": "Tequila Joe",
             "image": "03_tequila_joe",
-            "hp": 4,
             "expansion": "dodgecity",
             "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                },
                 {
                     "class": "tequila_joe"
                 }
@@ -2899,9 +3032,12 @@
         {
             "name": "Vera Custer",
             "image": "03_vera_custer",
-            "hp": 3,
             "expansion": "dodgecity",
             "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 3
+                },
                 {
                     "class": "vera_custer"
                 }
@@ -2910,10 +3046,18 @@
         {
             "name": "Black Flower",
             "image": "07_blackflower",
-            "hp": 4,
             "expansion": "valleyofshadows",
-            "usages": 1,
+            "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                }
+            ],
             "effects": [
+                {
+                    "class": "max_usages",
+                    "args": 1
+                },
                 {
                     "target": "card",
                     "player_filter": "self",
@@ -2930,9 +3074,12 @@
         {
             "name": "Colorado Bill",
             "image": "07_coloradobill",
-            "hp": 4,
             "expansion": "valleyofshadows",
             "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                },
                 {
                     "class": "colorado_bill"
                 }
@@ -2941,10 +3088,18 @@
         {
             "name": "Der Spot - Burst Ringer",
             "image": "07_derspot",
-            "hp": 4,
             "expansion": "valleyofshadows",
-            "usages": 1,
+            "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                }
+            ],
             "effects": [
+                {
+                    "class": "max_usages",
+                    "args": 1
+                },
                 {
                     "target": "card",
                     "player_filter": "self",
@@ -2960,9 +3115,12 @@
         {
             "name": "Evelyn Shebang",
             "image": "07_evelynshebang",
-            "hp": 4,
             "expansion": "valleyofshadows",
             "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                },
                 {
                     "class": "evelyn_shebang"
                 }
@@ -2981,9 +3139,12 @@
         {
             "name": "Henry Block",
             "image": "07_henryblock",
-            "hp": 4,
             "expansion": "valleyofshadows",
             "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                },
                 {
                     "class": "henry_block"
                 }
@@ -2992,9 +3153,12 @@
         {
             "name": "Lemonade Jim",
             "image": "07_lemonadejim",
-            "hp": 4,
             "expansion": "valleyofshadows",
             "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                },
                 {
                     "class": "lemonade_jim"
                 }
@@ -3017,8 +3181,13 @@
         {
             "name": "Mick Defender",
             "image": "07_mickdefender",
-            "hp": 4,
             "expansion": "valleyofshadows",
+            "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                }
+            ],
             "responses": [
                 {
                     "target": "card",
@@ -3034,9 +3203,12 @@
         {
             "name": "Tuco Franziskaner",
             "image": "07_tucofranziskaner",
-            "hp": 5,
             "expansion": "valleyofshadows",
             "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 5
+                },
                 {
                     "class": "tuco_franziskaner"
                 }
@@ -3045,9 +3217,12 @@
         {
             "name": "Big Spencer",
             "image": "06_bigspencer",
-            "hp": 9,
             "expansion": "wildwestshow",
             "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 9
+                },
                 {
                     "class": "big_spencer"
                 }
@@ -3056,10 +3231,18 @@
         {
             "name": "Flint Westwood",
             "image": "06_flintwestwood",
-            "hp": 4,
             "expansion": "wildwestshow",
-            "usages": 1,
+            "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                }
+            ],
             "effects": [
+                {
+                    "class": "max_usages",
+                    "args": 1
+                },
                 {
                     "target": "card",
                     "player_filter": "self",
@@ -3078,9 +3261,12 @@
         {
             "name": "Gary Looter",
             "image": "06_garylooter",
-            "hp": 5,
             "expansion": "wildwestshow",
             "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 5
+                },
                 {
                     "class": "gary_looter"
                 }
@@ -3089,10 +3275,12 @@
         {
             "name": "Greygory Deck",
             "image": "06_greygorydeck",
-            "hp": 4,
             "expansion": "wildwestshow",
-            "usages": 1,
             "responses": [
+                {
+                    "class": "max_usages",
+                    "args": 1
+                },
                 {
                     "class": "drawing"
                 },
@@ -3102,6 +3290,10 @@
             ],
             "equip": [
                 {
+                    "class": "max_hp",
+                    "args": 4
+                },
+                {
                     "class": "greygory_deck"
                 }
             ]
@@ -3109,9 +3301,12 @@
         {
             "name": "John Pain",
             "image": "06_johnpain",
-            "hp": 4,
             "expansion": "wildwestshow",
             "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                },
                 {
                     "class": "john_pain"
                 }
@@ -3120,15 +3315,25 @@
         {
             "name": "Lee Van Kliff",
             "image": "06_leevankliff",
-            "hp": 4,
             "expansion": "wildwestshow",
-            "modifier": "leevankliff"
+            "modifier": "leevankliff",
+            "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                }
+            ]
         },
         {
             "name": "Teren Kill",
             "image": "06_terenkill",
-            "hp": 3,
             "expansion": "wildwestshow",
+            "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 3
+                }
+            ],
             "responses": [
                 {
                     "class": "teren_kill"
@@ -3138,9 +3343,12 @@
         {
             "name": "Youl Grinner",
             "image": "06_youlgrinner",
-            "hp": 4,
             "expansion": "wildwestshow",
             "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                },
                 {
                     "class": "youl_grinner"
                 }
@@ -3149,9 +3357,12 @@
         {
             "name": "Al Preacher",
             "image": "17_alpreacher",
-            "hp": 4,
             "expansion": "armedanddangerous",
             "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                },
                 {
                     "class": "al_preacher"
                 }
@@ -3180,10 +3391,18 @@
         {
             "name": "Bass Greeves",
             "image": "17_bassgreeves",
-            "hp": 4,
             "expansion": "armedanddangerous",
-            "usages": 1,
+            "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                }
+            ],
             "effects": [
+                {
+                    "class": "max_usages",
+                    "args": 1
+                },
                 {
                     "target": "card",
                     "player_filter": "self",
@@ -3202,9 +3421,12 @@
         {
             "name": "Bloody Mary",
             "image": "17_bloodymary",
-            "hp": 4,
             "expansion": "armedanddangerous",
             "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                },
                 {
                     "class": "bloody_mary"
                 }
@@ -3213,10 +3435,18 @@
         {
             "name": "Frankie Canton",
             "image": "17_frankiecanton",
-            "hp": 4,
             "expansion": "armedanddangerous",
-            "usages": 1,
+            "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                }
+            ],
             "effects": [
+                {
+                    "class": "max_usages",
+                    "args": 1
+                },
                 {
                     "target": "card",
                     "card_filter": "cube_slot_card",
@@ -3227,9 +3457,12 @@
         {
             "name": "Julie Cutter",
             "image": "17_juliecutter",
-            "hp": 4,
             "expansion": "armedanddangerous",
             "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                },
                 {
                     "class": "julie_cutter"
                 }
@@ -3238,10 +3471,18 @@
         {
             "name": "Mexicali Kid",
             "image": "17_mexicalikid",
-            "hp": 4,
             "expansion": "armedanddangerous",
-            "usages": 1,
+            "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                }
+            ],
             "effects": [
+                {
+                    "class": "max_usages",
+                    "args": 1
+                },
                 {
                     "target": "card",
                     "player_filter": "self",
@@ -3264,8 +3505,13 @@
         {
             "name": "Ms. Abigail",
             "image": "17_msabigail",
-            "hp": 4,
             "expansion": "armedanddangerous",
+            "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                }
+            ],
             "responses": [
                 {
                     "class": "ms_abigail"
@@ -3275,15 +3521,21 @@
         {
             "name": "Red Ringo",
             "image": "17_redringo",
-            "hp": 5,
             "expansion": "armedanddangerous",
-            "usages": 1,
             "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 5
+                },
                 {
                     "class": "red_ringo"
                 }
             ],
             "effects": [
+                {
+                    "class": "max_usages",
+                    "args": 1
+                },
                 {
                     "target": "card",
                     "player_filter": "self",
@@ -3303,9 +3555,12 @@
         {
             "name": "Don Bell",
             "image": "04_don_bell",
-            "hp": 4,
             "expansion": "goldrush",
             "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                },
                 {
                     "class": "don_bell"
                 }
@@ -3314,9 +3569,12 @@
         {
             "name": "Dutch Will",
             "image": "04_dutch_will",
-            "hp": 4,
             "expansion": "goldrush",
             "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                },
                 {
                     "class": "dutch_will"
                 }
@@ -3325,11 +3583,22 @@
         {
             "name": "Jacky Murieta",
             "image": "04_jacky_murieta",
-            "hp": 4,
             "expansion": "goldrush",
-            "usages": 1,
-            "cost": 2,
+            "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                }
+            ],
             "effects": [
+                {
+                    "class": "max_usages",
+                    "args": 1
+                },
+                {
+                    "class": "pay_gold",
+                    "args": 2
+                },
                 {
                     "target": "player",
                     "player_filter": "reachable notself",
@@ -3340,10 +3609,18 @@
         {
             "name": "Josh McCloud",
             "image": "04_josh_mccloud",
-            "hp": 4,
             "expansion": "goldrush",
-            "cost": 2,
+            "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                }
+            ],
             "effects": [
+                {
+                    "class": "pay_gold",
+                    "args": 2
+                },
                 {
                     "class": "josh_mccloud"
                 }
@@ -3352,9 +3629,12 @@
         {
             "name": "Madame Yto",
             "image": "04_madame_yto",
-            "hp": 4,
             "expansion": "goldrush",
             "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                },
                 {
                     "class": "madam_yto"
                 }
@@ -3363,19 +3643,40 @@
         {
             "name": "Pretty Luzena",
             "image": "04_pretty_luzena",
-            "hp": 4,
             "expansion": "goldrush",
-            "usages": 1,
-            "modifier": "discount"
+            "modifier": "discount",
+            "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                }
+            ],
+            "effects": [
+                {
+                    "class": "max_usages",
+                    "args": 1
+                }
+            ]
         },
         {
             "name": "Raddie Snake",
             "image": "04_raddie_snake",
-            "hp": 4,
             "expansion": "goldrush",
-            "usages": 2,
-            "cost": 1,
+            "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                }
+            ],
             "effects": [
+                {
+                    "class": "max_usages",
+                    "args": 2
+                },
+                {
+                    "class": "pay_gold",
+                    "args": 1
+                },
                 {
                     "class": "draw"
                 }
@@ -3384,9 +3685,12 @@
         {
             "name": "Simeon Picos",
             "image": "04_simeon_picos",
-            "hp": 4,
             "expansion": "goldrush",
             "equip": [
+                {
+                    "class": "max_hp",
+                    "args": 4
+                },
                 {
                     "class": "luckycharm"
                 }
@@ -3920,9 +4224,15 @@
             "image": "04_setaccio",
             "color": "black",
             "buy_cost": 3,
-            "cost": 1,
-            "usages": 2,
             "effects": [
+                {
+                    "class": "max_usages",
+                    "args": 2
+                },
+                {
+                    "class": "pay_gold",
+                    "args": 1
+                },
                 {
                     "class": "draw"
                 }
@@ -3974,8 +4284,11 @@
             "image": "04_zaino",
             "color": "black",
             "buy_cost": 3,
-            "cost": 2,
             "effects": [
+                {
+                    "class": "pay_gold",
+                    "args": 2
+                },
                 {
                     "class": "heal"
                 }

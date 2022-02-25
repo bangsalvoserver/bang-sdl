@@ -21,6 +21,7 @@ namespace banggame {
 
         m_game->move_to(target, card_pile_type::player_table, true, this, show_card_flags::show_everyone);
         equip_if_enabled(target);
+        target->usages = 0;
     }
 
     void player::equip_if_enabled(card *target_card) {
@@ -167,7 +168,7 @@ namespace banggame {
             && m_game->has_expansion(card_expansion_type::valleyofshadows)) return true;
         auto it = std::ranges::find_if(m_characters, [](const auto &vec) {
             return !vec.empty() && vec.front().type == effect_type::ms_abigail;
-        }, &character::responses);
+        }, &card::responses);
         return it != m_characters.end()
             && (*it)->responses.front().get<effect_type::ms_abigail>().can_escape(origin, origin_card, flags);
     }
@@ -399,8 +400,6 @@ namespace banggame {
         }
 
         auto &effects = is_response ? card_ptr->responses : card_ptr->effects;
-        if (card_ptr->cost > m_gold) throw game_error("ERROR_NOT_ENOUGH_GOLD");
-        if (card_ptr->max_usages != 0 && card_ptr->usages >= card_ptr->max_usages) throw game_error("ERROR_MAX_USAGES", card_ptr, card_ptr->max_usages);
 
         int diff = targets.size() - effects.size();
         if (!card_ptr->optionals.empty() && card_ptr->optionals.back().is(effect_type::repeatable)) {
@@ -523,17 +522,9 @@ namespace banggame {
             play_card_action(card_ptr, is_response);
         }
 
-        if (card_ptr->max_usages != 0) {
-            ++card_ptr->usages;
-        }
-
         auto check_immunity = [&](player *target) {
             return target->immune_to(m_chosen_card ? m_chosen_card : card_ptr);
         };
-        
-        if (card_ptr->cost > 0) {
-            add_gold(-card_ptr->cost);
-        }
         
         auto effect_it = effects.begin();
         auto effect_end = effects.end();
@@ -745,7 +736,7 @@ namespace banggame {
                 if (m_game->is_disabled(c)) throw game_error("ERROR_CARD_IS_DISABLED", c);
                 switch (c->modifier) {
                 case card_modifier_type::discount:
-                    if (c->usages >= c->max_usages) throw game_error("ERROR_MAX_USAGES", c, c->max_usages);
+                    if (c->usages) throw game_error("ERROR_MAX_USAGES", c, 1);
                     --cost;
                     break;
                 case card_modifier_type::shopchoice:

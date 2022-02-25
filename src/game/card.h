@@ -25,11 +25,9 @@ namespace banggame {
         std::string name;
         std::string image;
         int8_t usages = 0;
-        int8_t max_usages = 0;
         bool discard_if_two_players = false;
 
         int8_t buy_cost = 0;
-        int8_t cost = 0;
         
         card_suit_type suit = card_suit_type::none;
         card_value_type value = card_value_type::none;
@@ -51,13 +49,9 @@ namespace banggame {
         return {view.begin(), view.end()};
     };
 
-    struct character : card {
-        int max_hp;
-    };
-
     struct all_cards_t {
         std::vector<card> deck;
-        std::vector<character> characters;
+        std::vector<card> characters;
         std::vector<card> goldrush;
         std::vector<card> hidden;
         std::vector<card> specials;

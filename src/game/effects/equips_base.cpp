@@ -12,6 +12,12 @@ namespace banggame {
         target->remove_predraw_check(target_card);
     }
 
+    void effect_max_hp::on_equip(card *target_card, player *target) {
+        if (target_card == target->m_characters.front()) {
+            target->m_max_hp = args + (target->m_role == player_role::sheriff);
+        }
+    }
+
     void effect_mustang::on_equip(card *target_card, player *target) {
         ++target->m_distance_mod;
         target->send_player_status();
