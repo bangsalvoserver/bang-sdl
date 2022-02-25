@@ -5,12 +5,18 @@ namespace banggame {
         if (event.index() == enums::indexof(event_type::delayed_action)) {
             std::invoke(std::get<0>(std::get<enums::indexof(event_type::delayed_action)>(event)));
         } else {
-            for (auto &[card_id, e] : m_event_handlers) {
-                if (e.index() == event.index()) {
-                    enums::visit_indexed([&]<event_type T>(enums::enum_constant<T>, auto &fun) {
-                        std::apply(fun, std::get<enums::indexof(T)>(event));
-                    }, e);
+            std::vector<event_function *> handlers;
+
+            for (event_function &handler : m_event_handlers | std::views::values) {
+                if (handler.index() == event.index()) {
+                    handlers.push_back(&handler);
                 }
+            }
+
+            for (event_function *h : handlers) {
+                enums::visit_indexed([&]<event_type T>(enums::enum_constant<T>, auto &fun) {
+                    std::apply(fun, std::get<enums::indexof(T)>(event));
+                }, *h);
             }
         }
     }
