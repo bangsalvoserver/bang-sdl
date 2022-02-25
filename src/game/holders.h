@@ -109,6 +109,7 @@ namespace banggame {
         (shotgun,       effect_shotgun)
         (bounty,        effect_bounty)
         (el_gringo,     effect_el_gringo)
+        (buy_cost,      effect_empty)
         (horsecharm,    effect_horsecharm)
         (luckycharm,    effect_luckycharm)
         (gunbelt,       effect_gunbelt)

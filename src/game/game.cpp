@@ -38,7 +38,6 @@ namespace banggame {
         info.suit = c.suit;
         info.value = c.value;
         info.color = c.color;
-        info.buy_cost = c.buy_cost;
         make_card_info_effects(info.targets, c.effects);
         make_card_info_effects(info.response_targets, c.responses);
         make_card_info_effects(info.optional_targets, c.optionals);

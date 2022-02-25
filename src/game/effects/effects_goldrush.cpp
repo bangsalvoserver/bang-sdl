@@ -14,13 +14,13 @@ namespace banggame {
     }
 
     void effect_discard_black::verify(card *origin_card, player *origin, player *target, card *target_card) const {
-        if (origin->m_gold < target_card->buy_cost + 1) {
+        if (origin->m_gold < get_buy_cost(target_card) + 1) {
             throw game_error("ERROR_NOT_ENOUGH_GOLD");
         }
     }
 
     void effect_discard_black::on_play(card *origin_card, player *origin, player *target, card *target_card) {
-        origin->add_gold(-target_card->buy_cost - 1);
+        origin->add_gold(-get_buy_cost(target_card) - 1);
         target->discard_card(target_card);
         origin->m_game->add_log("LOG_DISCARDED_CARD", origin, target, target_card);
     }

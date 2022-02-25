@@ -26,8 +26,6 @@ namespace banggame {
         std::string image;
         int8_t usages = 0;
         bool discard_if_two_players = false;
-
-        int8_t buy_cost = 0;
         
         card_suit_type suit = card_suit_type::none;
         card_value_type value = card_value_type::none;
@@ -43,6 +41,11 @@ namespace banggame {
         bool testing = false;
 #endif
     };
+
+    inline int get_buy_cost(card *c) {
+        return !c->equips.empty() && c->equips.back().is(equip_type::buy_cost)
+            ? c->equips.back().args : 0;
+    }
 
     inline std::vector<int> make_id_vector(auto &&range) {
         auto view = range | std::views::transform(&card::id);

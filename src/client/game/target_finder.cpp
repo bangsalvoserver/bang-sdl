@@ -252,7 +252,8 @@ void target_finder::on_click_shop_card(card_view *card) {
         && m_game->m_request_origin_id == 0
         && m_game->m_request_target_id == 0)
     {
-        int cost = card->buy_cost;
+        int cost = !card->equip_targets.empty() && card->equip_targets.back().type == equip_type::buy_cost
+            ? card->equip_targets.back().args : 0;
         if (std::ranges::find(m_modifiers, card_modifier_type::discount, &card_view::modifier) != m_modifiers.end()) {
             --cost;
         }

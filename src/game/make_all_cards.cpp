@@ -158,8 +158,7 @@ namespace banggame {
             c.expansion = card_expansion_type::goldrush;
             make_all_effects(c, json_card);
             c.color = enums::from_string<card_color_type>(json_card["color"].asString());
-            c.buy_cost = json_card["buy_cost"].asInt();
-            int count = json_card["count"].asInt();
+            int count = json_card.isMember("count") ? json_card["count"].asInt() : 1;
             for (int i=0; i<count; ++i) {
                 ret.goldrush.push_back(c);
             }
@@ -200,7 +199,6 @@ namespace banggame {
             card c;
             c.expansion = enums::flags_from_string<card_expansion_type>(json_card["expansion"].asString());
             if (json_card.isMember("color")) c.color = enums::from_string<card_color_type>(json_card["color"].asString());
-            if (json_card.isMember("buy_cost")) c.buy_cost = json_card["buy_cost"].asInt();
             make_all_effects(c, json_card);
             ret.hidden.push_back(c);
         }

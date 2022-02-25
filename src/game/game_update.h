@@ -66,8 +66,7 @@ namespace banggame {
         (card_modifier_type) modifier,
         (card_suit_type) suit,
         (card_value_type) value,
-        (card_color_type) color,
-        (int8_t) buy_cost
+        (card_color_type) color
     )
         card_info() = default;
     };
