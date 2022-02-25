@@ -18,9 +18,8 @@ void serializer<sdl::surface>::operator()(const sdl::surface &image, byte_vector
         serializer<uint8_t>{}(w, out);
         serializer<uint8_t>{}(h, out);
         serializer<uint8_t>{}(bpp, out);
-        out.insert(out.end(),
-            static_cast<std::byte *>(image.get()->pixels),
-            static_cast<std::byte *>(image.get()->pixels) + nbytes);
+        out.resize(out.size() + nbytes);
+        std::memcpy(out.data() + out.size() - nbytes, image.get()->pixels, nbytes);
     } else {
         serializer<uint8_t>{}(0, out);
         serializer<uint8_t>{}(0, out);

@@ -41,8 +41,8 @@ namespace binary {
     template<> struct serializer<std::string> {
         void operator()(const std::string &value, byte_vector &out) const {
             serializer<short_size_t>{}(value.size(), out);
-            const auto *pos = reinterpret_cast<const std::byte *>(value.data());
-            out.insert(out.end(), pos, pos + value.size());
+            out.resize(out.size() + value.size());
+            std::memcpy(out.data() + out.size() - value.size(), value.data(), value.size());
         }
 
         size_t get_size(const std::string &value) const {
@@ -72,18 +72,23 @@ namespace binary {
         }
 
         size_t get_size(const std::vector<T> &value) const {
-            size_t ret = sizeof(short_size_t);
-            for (const T &obj : value) {
-                ret += serializer<T>{}.get_size(obj);
+            if constexpr (std::integral<T>) {
+                return sizeof(short_size_t) + sizeof(T) * value.size();
+            } else {
+                size_t ret = sizeof(short_size_t);
+                for (const T &obj : value) {
+                    ret += serializer<T>{}.get_size(obj);
+                }
+                return ret;
             }
-            return ret;
         }
     };
 
     template<> struct serializer<byte_vector> {
         void operator()(const byte_vector &value, byte_vector &out) const {
             serializer<short_size_t>{}(value.size(), out);
-            out.insert(out.end(), value.begin(), value.end());
+            out.resize(out.size() + value.size());
+            std::memcpy(out.data() + out.size() - value.size(), value.data(), value.size());
         }
 
         size_t get_size(const byte_vector &value) const {
@@ -94,7 +99,7 @@ namespace binary {
     template<serializable T>
     struct serializer<std::map<std::string, T>> {
         void operator()(const std::map<std::string, T> &value, byte_vector &out) const {
-            serializer<short_size_t>(value.size(), out);
+            serializer<short_size_t>{}(value.size(), out);
             for (const auto &[key, value] : value) {
                 serializer<std::string>{}(key, out);
                 serializer<T>{}(value, out);
@@ -254,11 +259,8 @@ namespace binary {
         byte_vector operator()(byte_ptr &pos, byte_ptr end) const {
             auto size = deserializer<short_size_t>{}(pos, end);
             check_length(pos, end, size);
-            byte_vector ret;
-            ret.reserve(size);
-            ret.insert(ret.end(), pos, pos + size);
             pos += size;
-            return ret;
+            return byte_vector(pos - size, pos);
         }
     };
 
