@@ -11,18 +11,22 @@ namespace banggame {
         }
     }
 
+    void effect_select_cube::verify(card *origin_card, player *origin, player *target, card *target_card) const {
+        if (target_card->cubes.size() < std::max<short>(1, args)) {
+            throw game_error("ERROR_NOT_ENOUGH_CUBES_ON", target_card);
+        }
+    }
+
+    void effect_select_cube::on_play(card *origin_card, player *origin, player *target, card *target_card) {
+        target->pay_cubes(target_card, std::max<short>(1, args));
+    }
+
     bool effect_pay_cube::can_respond(card *origin_card, player *origin) const {
         return origin_card->cubes.size() >= std::max<short>(1, args);
     }
 
-    void effect_pay_cube::verify(card *origin_card, player *origin, player *target, card *target_card) const {
-        if (target_card->cubes.size() < std::max<short>(1, args)) {
-            throw game_error("ERROR_NOT_ENOUGH_CUBES_ON", origin_card);
-        }
-    }
-
-    void effect_pay_cube::on_play(card *origin_card, player *origin, player *target, card *target_card) {
-        target->pay_cubes(target_card, std::max<short>(1, args));
+    void effect_pay_cube::on_play(card *origin_card, player *origin) {
+        origin->pay_cubes(origin_card, std::max<short>(1, args));
     }
 
     void effect_add_cube::on_play(card *origin_card, player *origin, player *target, card *target_card) {
@@ -151,7 +155,7 @@ namespace banggame {
                 if (target_card == discarded_card) {
                     throw game_error("ERROR_INVALID_ACTION");
                 }
-                effect_pay_cube().verify(origin_card, origin, target, target_card);
+                effect_select_cube().verify(origin_card, origin, target, target_card);
             };
         }
     }
@@ -161,8 +165,8 @@ namespace banggame {
 
         bool immune = target->immune_to(origin_card);
         if (targets.size() == 3) {
-            effect_pay_cube().on_play(origin_card, origin, std::get<player *>(targets[1]), std::get<card *>(targets[1]));
-            effect_pay_cube().on_play(origin_card, origin, std::get<player *>(targets[2]), std::get<card *>(targets[2]));
+            effect_select_cube().on_play(origin_card, origin, std::get<player *>(targets[1]), std::get<card *>(targets[1]));
+            effect_select_cube().on_play(origin_card, origin, std::get<player *>(targets[2]), std::get<card *>(targets[2]));
 
             if (!immune) {
                 effect_steal e;

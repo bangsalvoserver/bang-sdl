@@ -58,6 +58,7 @@ namespace banggame {
         (bottle,        effect_empty)
         (pardner,       effect_empty)
         (goldrush,      effect_goldrush)
+        (select_cube,   effect_select_cube)
         (pay_cube,      effect_pay_cube)
         (add_cube,      effect_add_cube)
         (reload,        effect_reload)

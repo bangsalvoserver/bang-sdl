@@ -9,20 +9,14 @@ namespace banggame {
         void on_play(card *origin_card, player *origin, mth_target_list targets);
     };
 
+    struct effect_select_cube : card_effect {
+        void verify(card *origin_card, player *origin, player *target, card *target_card) const;
+        void on_play(card *origin_card, player *origin, player *target, card *target_card);
+    };
+
     struct effect_pay_cube : card_effect {
         bool can_respond(card *origin_card, player *origin) const;
-        
-        void verify(card *origin_card, player *origin) const {
-            verify(origin_card, origin, origin, origin_card);
-        }
-
-        void verify(card *origin_card, player *origin, player *target, card *target_card) const;
-
-        void on_play(card *origin_card, player *origin) {
-            on_play(origin_card, origin, origin, origin_card);
-        }
-
-        void on_play(card *origin_card, player *origin, player *target, card *target_card);
+        void on_play(card *origin_card, player *origin);
     };
 
     struct effect_add_cube : card_effect {

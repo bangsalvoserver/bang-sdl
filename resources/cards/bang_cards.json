@@ -1346,13 +1346,13 @@
                     "target": "card",
                     "player_filter": "self",
                     "card_filter": "cube_slot",
-                    "class": "pay_cube"
+                    "class": "select_cube"
                 },
                 {
                     "target": "card",
                     "player_filter": "self",
                     "card_filter": "cube_slot",
-                    "class": "pay_cube"
+                    "class": "select_cube"
                 },
                 {
                     "target": "player",
@@ -1399,19 +1399,19 @@
                     "target": "card",
                     "player_filter": "self",
                     "card_filter": "cube_slot",
-                    "class": "pay_cube"
+                    "class": "select_cube"
                 },
                 {
                     "target": "card",
                     "player_filter": "self",
                     "card_filter": "cube_slot",
-                    "class": "pay_cube"
+                    "class": "select_cube"
                 },
                 {
                     "target": "card",
                     "player_filter": "self",
                     "card_filter": "cube_slot",
-                    "class": "pay_cube"
+                    "class": "select_cube"
                 },
                 {
                     "class": "heal"
@@ -1442,7 +1442,7 @@
                     "target": "card",
                     "player_filter": "self",
                     "card_filter": "cube_slot",
-                    "class": "pay_cube"
+                    "class": "select_cube"
                 },
                 {
                     "target": "player",
@@ -1476,13 +1476,13 @@
                     "target": "card",
                     "player_filter": "self",
                     "card_filter": "cube_slot",
-                    "class": "pay_cube"
+                    "class": "select_cube"
                 },
                 {
                     "target": "card",
                     "player_filter": "self",
                     "card_filter": "cube_slot",
-                    "class": "pay_cube"
+                    "class": "select_cube"
                 },
                 {
                     "class": "flintlock"
@@ -1510,7 +1510,7 @@
                     "target": "card",
                     "player_filter": "self",
                     "card_filter": "cube_slot",
-                    "class": "pay_cube"
+                    "class": "select_cube"
                 },
                 {
                     "target": "player",
@@ -1541,13 +1541,13 @@
                     "target": "card",
                     "player_filter": "self",
                     "card_filter": "cube_slot",
-                    "class": "pay_cube"
+                    "class": "select_cube"
                 },
                 {
                     "target": "card",
                     "player_filter": "self",
                     "card_filter": "cube_slot",
-                    "class": "pay_cube"
+                    "class": "select_cube"
                 },
                 {
                     "class": "duck"
@@ -3375,13 +3375,13 @@
                     "target": "card",
                     "player_filter": "self",
                     "card_filter": "cube_slot",
-                    "class": "pay_cube"
+                    "class": "select_cube"
                 },
                 {
                     "target": "card",
                     "player_filter": "self",
                     "card_filter": "cube_slot",
-                    "class": "pay_cube"
+                    "class": "select_cube"
                 },
                 {
                     "class": "draw"
@@ -3487,13 +3487,13 @@
                     "target": "card",
                     "player_filter": "self",
                     "card_filter": "cube_slot",
-                    "class": "pay_cube"
+                    "class": "select_cube"
                 },
                 {
                     "target": "card",
                     "player_filter": "self",
                     "card_filter": "cube_slot",
-                    "class": "pay_cube"
+                    "class": "select_cube"
                 },
                 {
                     "target": "player",
