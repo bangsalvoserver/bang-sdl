@@ -17,11 +17,6 @@ namespace banggame {
         bool can_respond(card *origin_card, player *origin) const;
         void on_play(card *origin_card, player *origin);
     };
-
-    struct effect_predraw : card_effect {
-        bool can_respond(card *origin_card, player *origin) const;
-        void on_play(card *origin_card, player *origin);
-    };
     
     struct effect_bang : card_effect {
         void on_play(card *origin_card, player *origin, player *target);

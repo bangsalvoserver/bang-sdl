@@ -44,6 +44,27 @@ namespace banggame {
             return {"STATUS_YOUR_TURN_OTHER", target};
         }
     }
+    
+    bool request_predraw::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
+        if (pile == card_pile_type::player_table && target == target_player) {
+            int top_priority = std::ranges::max(target->m_predraw_checks
+                | std::views::values
+                | std::views::filter(std::not_fn(&player::predraw_check::resolved))
+                | std::views::transform(&player::predraw_check::priority));
+            auto it = target->m_predraw_checks.find(target_card);
+            if (it != target->m_predraw_checks.end()
+                && !it->second.resolved
+                && it->second.priority == top_priority) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    void request_predraw::on_pick(card_pile_type pile, player *target_player, card *target_card) {
+        target->m_game->pop_request(request_type::predraw);
+        target->m_game->draw_check_then(target, target_card, target->m_predraw_checks.find(target_card)->second.check_fun);
+    }
 
     game_formatted_string request_predraw::status_text(player *owner) const {
         using predraw_check_pair = decltype(player::m_predraw_checks)::value_type;

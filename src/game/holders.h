@@ -16,7 +16,6 @@ namespace banggame {
         (pass_turn,     effect_pass_turn)
         (resolve,       effect_resolve)
         (mth_add,       effect_empty)
-        (predraw,       effect_predraw)
         (bang,          effect_bang)
         (bangcard,      effect_bangcard)
         (banglimit,     effect_banglimit)

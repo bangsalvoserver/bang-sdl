@@ -27,11 +27,6 @@
                 {
                     "class": "dynamite"
                 }
-            ],
-            "responses": [
-                {
-                    "class": "predraw"
-                }
             ]
         },
         {
@@ -81,11 +76,6 @@
                     "target": "player",
                     "player_filter": "notsheriff",
                     "class": "jail"
-                }
-            ],
-            "responses": [
-                {
-                    "class": "predraw"
                 }
             ]
         },
@@ -470,11 +460,6 @@
             "equip": [
                 {
                     "class": "dynamite"
-                }
-            ],
-            "responses": [
-                {
-                    "class": "predraw"
                 }
             ]
         },
@@ -1093,11 +1078,6 @@
                 {
                     "target": "player",
                     "class": "snake"
-                }
-            ],
-            "responses": [
-                {
-                    "class": "predraw"
                 }
             ]
         },
@@ -1723,11 +1703,6 @@
                     "target": "player",
                     "class": "bomb"
                 }
-            ],
-            "responses": [
-                {
-                    "class": "predraw"
-                }
             ]
         },
         {
@@ -2235,11 +2210,6 @@
                     "target": "player",
                     "class": "taxman"
                 }
-            ],
-            "responses": [
-                {
-                    "class": "predraw"
-                }
             ]
         },
         {
@@ -2254,11 +2224,6 @@
                 {
                     "target": "player",
                     "class": "brothel"
-                }
-            ],
-            "responses": [
-                {
-                    "class": "predraw"
                 }
             ]
         },
