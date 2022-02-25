@@ -16,6 +16,16 @@
 namespace banggame {
 
     struct card_textures {
+    private:
+        card_textures(const std::filesystem::path &base_path);
+
+        static inline card_textures *s_instance = nullptr;
+
+        std::ifstream cards_pak_data;
+        const unpacker<std::ifstream> card_resources;
+
+        friend class game_scene;
+
     public:
         sdl::surface card_mask;
         sdl::texture card_border;
@@ -24,6 +34,9 @@ namespace banggame {
         sdl::texture backface_character;
         sdl::texture backface_role;
         sdl::texture backface_goldrush;
+
+        std::array<sdl::surface, enums::size_v<card_value_type> - 1> value_icons;
+        std::array<sdl::surface, enums::size_v<card_suit_type> - 1> suit_icons;
 
         sdl::surface apply_card_mask(const sdl::surface &source) const;
 
@@ -34,16 +47,6 @@ namespace banggame {
         static const card_textures &get() {
             return *s_instance;
         }
-
-    private:
-        card_textures(const std::filesystem::path &base_path);
-
-        static inline card_textures *s_instance = nullptr;
-
-        std::ifstream cards_pak_data;
-        const unpacker<std::ifstream> card_resources;
-
-        friend class game_scene;
     };
 
     struct card_view;
@@ -119,12 +122,6 @@ namespace banggame {
         sdl::texture texture_front_scaled;
 
         const sdl::texture *texture_back = nullptr;
-
-        void set_texture_front(sdl::texture &&tex) {
-            texture_front = std::move(tex);
-            texture_front_scaled = sdl::scale_surface(texture_front.get_surface(),
-                texture_front.get_rect().w / options::card_width);
-        }
         
         void make_texture_front();
 

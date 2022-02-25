@@ -3,20 +3,49 @@
 #include "server/net_options.h"
 #include "../media_pak.h"
 
+#include <fmt/format.h>
+
 namespace banggame {
+
+    template<typename T>
+    concept first_is_none = requires {
+        requires enums::reflected_enum<T>;
+        T::none;
+        requires static_cast<int>(T::none) == 0;
+    };
+
+    template<typename ESeq> struct remove_first{};
+
+    template<first_is_none auto None, first_is_none auto ... Es>
+    struct remove_first<enums::enum_sequence<None, Es ...>> : enums::enum_sequence<Es ...> {};
+
+    template<first_is_none T>
+    struct skip_none : remove_first<enums::make_enum_sequence<T>> {};
 
     card_textures::card_textures(const std::filesystem::path &base_path)
         : cards_pak_data(ifstream_or_throw(base_path / "cards.pak"))
         , card_resources(cards_pak_data)
+
+        , card_mask             (get_card_resource("card_mask"))
+        , card_border           (get_card_resource("card_border"))
+
+        , backface_maindeck     (apply_card_mask(get_card_resource("back_maindeck")))
+        , backface_character    (apply_card_mask(get_card_resource("back_character")))
+        , backface_role         (apply_card_mask(get_card_resource("back_role")))
+        , backface_goldrush     (apply_card_mask(get_card_resource("back_goldrush")))
+
+        , value_icons([&]<card_value_type ... Es>(enums::enum_sequence<Es ...>) {
+            return std::array {
+                get_card_resource(enums::to_string(Es)) ...
+            };
+        }(skip_none<card_value_type>()))
+
+        , suit_icons([&]<card_suit_type ... Es>(enums::enum_sequence<Es ...>) {
+            return std::array {
+                get_card_resource(fmt::format("suit_{}", enums::to_string(Es))) ...
+            };
+        }(skip_none<card_suit_type>()))
     {
-        card_mask = get_card_resource("card_mask");
-        card_border = get_card_resource("card_border");
-
-        backface_maindeck = apply_card_mask(get_card_resource("back_maindeck"));
-        backface_character = apply_card_mask(get_card_resource("back_character"));
-        backface_role = apply_card_mask(get_card_resource("back_role"));
-        backface_goldrush = apply_card_mask(get_card_resource("back_goldrush"));
-
         s_instance = this;
     }
     
@@ -49,39 +78,49 @@ namespace banggame {
     }
 
     void card_view::make_texture_front() {
-        auto card_base_surf = card_textures::get().get_card_resource(image);
+        auto do_make_texture = [&](float scale) {
+            auto card_base_surf = card_textures::get().get_card_resource(image);
 
-        if (value != card_value_type::none) {
-            sdl::rect card_rect = card_base_surf.get_rect();
-            auto card_value_surf = card_textures::get().get_card_resource(enums::to_string(value));
-            sdl::rect value_rect = card_value_surf.get_rect();
+            if (value != card_value_type::none && suit != card_suit_type::none) {
+                sdl::rect card_rect = card_base_surf.get_rect();
 
-            value_rect.x = 15;
-            value_rect.y = card_rect.h - value_rect.h - 15;
+                const auto &card_value_surf = card_textures::get().value_icons[enums::indexof(value) - 1];
+                sdl::rect value_rect = card_value_surf.get_rect();
+
+                value_rect.w *= scale;
+                value_rect.h *= scale;
+                value_rect.x = 15;
+                value_rect.y = card_rect.h - value_rect.h - 15;
+                    
+                SDL_BlitScaled(card_value_surf.get(), nullptr, card_base_surf.get(), &value_rect);
                 
-            SDL_BlitSurface(card_value_surf.get(), nullptr, card_base_surf.get(), &value_rect);
-            
-            if (suit != card_suit_type::none) {
-                std::string suit_string = "suit_";
-                suit_string.append(enums::to_string(suit));
-                auto card_suit_surf = card_textures::get().get_card_resource(suit_string);
-                
+                const auto &card_suit_surf = card_textures::get().suit_icons[enums::indexof(suit) - 1];
                 sdl::rect suit_rect = card_suit_surf.get_rect();
 
+                suit_rect.w *= scale;
+                suit_rect.h *= scale;
                 suit_rect.x = value_rect.x + value_rect.w;
                 suit_rect.y = card_rect.h - suit_rect.h - 15;
 
-                SDL_BlitSurface(card_suit_surf.get(), nullptr, card_base_surf.get(), &suit_rect);
+                SDL_BlitScaled(card_suit_surf.get(), nullptr, card_base_surf.get(), &suit_rect);
             }
-        }
 
-        set_texture_front(card_textures::get().apply_card_mask(card_base_surf));
+            return card_base_surf;
+        };
+
+        texture_front = card_textures::get().apply_card_mask(do_make_texture(1.f));
+
+        sdl::surface scaled = card_textures::get().apply_card_mask(do_make_texture(1.5f));
+        texture_front_scaled = sdl::scale_surface(scaled, scaled.get_rect().w / options::card_width);
     }
 
     void role_card::make_texture_front() {
         std::string role_string = "role_";
         role_string.append(enums::to_string(role));
-        set_texture_front(card_textures::get().apply_card_mask(card_textures::get().get_card_resource(role_string)));
+        
+        texture_front = card_textures::get().apply_card_mask(card_textures::get().get_card_resource(role_string));
+        texture_front_scaled = sdl::scale_surface(texture_front.get_surface(),
+            texture_front.get_rect().w / options::card_width);
     }
 
     void cube_widget::render(sdl::renderer &renderer, bool skip_if_animating) {
