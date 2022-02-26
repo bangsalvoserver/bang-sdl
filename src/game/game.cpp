@@ -135,39 +135,29 @@ namespace banggame {
         }
     }
 
-struct to_begin{};
-struct to_end{};
-
-#ifndef DISABLE_TESTING
-    static auto get_iterator(to_begin, auto &vec) {
-        return vec.begin();
-    }
-
-    static auto get_iterator(to_end, auto &vec) {
-        return vec.rbegin();
-    }
-
-    template<typename Tag, std::derived_from<card> T>
-    static void swap_testing(std::vector<T *> &vec) {
-        auto pos = get_iterator(Tag{}, vec);
-        for (auto &ptr : vec | std::views::filter(&T::testing)) {
-            std::swap(ptr, *pos++);
-        }
-    }
-#else
-    template<typename Tag, std::derived_from<card> T>
-    static void swap_testing(std::vector<T *> &vec) {}
-#endif
-
     void game::start_game(const game_options &options, const all_cards_t &all_cards) {
         m_options = options;
+
+#ifndef DISABLE_TESTING
+        std::vector<card *> testing_cards;
+#endif
         
-        auto add_card = [&](card_pile_type pile, const card_data &c) {
+        auto add_card = [&](card_pile_type pile, const card_deck_info &c) {
             auto it = m_cards.emplace(get_next_id(), c).first;
-            auto *new_card = get_pile(pile).emplace_back(&it->second);
+            auto *new_card = &it->second;
             new_card->id = it->first;
             new_card->owner = nullptr;
             new_card->pile = pile;
+
+#ifndef DISABLE_TESTING
+            if (c.testing) {
+                testing_cards.push_back(new_card);
+            } else {
+                get_pile(pile).push_back(new_card);
+            }
+#else
+            get_pile(pile).push_back(new_card);
+#endif
         };
 
         for (const auto &c : all_cards.specials) {
@@ -188,8 +178,12 @@ struct to_end{};
         }
 
         add_public_update<game_update_type::add_cards>(make_id_vector(m_deck), card_pile_type::main_deck);
+
         shuffle_cards_and_ids(m_deck);
-        swap_testing<to_end>(m_deck);
+#ifndef DISABLE_TESTING
+        m_deck.insert(m_deck.end(), testing_cards.begin(), testing_cards.end());
+        testing_cards.clear();
+#endif
 
         if (has_expansion(card_expansion_type::goldrush)) {
             for (const auto &c : all_cards.goldrush) {
@@ -198,7 +192,10 @@ struct to_end{};
             }
             add_public_update<game_update_type::add_cards>(make_id_vector(m_shop_deck), card_pile_type::shop_deck);
             shuffle_cards_and_ids(m_shop_deck);
-            swap_testing<to_end>(m_shop_deck);
+#ifndef DISABLE_TESTING
+            m_shop_deck.insert(m_shop_deck.end(), testing_cards.begin(), testing_cards.end());
+            testing_cards.clear();
+#endif
         }
 
         if (has_expansion(card_expansion_type::armedanddangerous)) {
@@ -233,13 +230,15 @@ struct to_end{};
 
         if (!m_scenario_deck.empty()) {
             shuffle_cards_and_ids(m_scenario_deck);
+#ifndef DISABLE_TESTING
+            m_scenario_deck.insert(m_scenario_deck.end(), testing_cards.begin(), testing_cards.end());
+            testing_cards.clear();
+#endif
             if (m_scenario_deck.size() > 12) {
                 m_scenario_deck.resize(12);
             }
             m_scenario_deck.push_back(last_scenario_cards[std::uniform_int_distribution<>(0, last_scenario_cards.size() - 1)(rng)]);
             std::swap(m_scenario_deck.back(), m_scenario_deck.front());
-
-            swap_testing<to_end>(m_scenario_deck);
 
             add_public_update<game_update_type::add_cards>(make_id_vector(m_scenario_deck), card_pile_type::scenario_deck);
 
@@ -294,12 +293,25 @@ struct to_end{};
             if (m_players.size() <= 2 && c.discard_if_two_players) continue;
             if (bool(c.expansion & options.expansions)) {
                 auto it = m_cards.emplace(get_next_id(), c).first;
-                character_ptrs.emplace_back(&it->second)->id = it->first;
+                auto *new_card = &it->second;
+                new_card->id = it->first;
+#ifndef DISABLE_TESTING
+                if (c.testing) {
+                    testing_cards.push_back(new_card);
+                } else {
+                    character_ptrs.push_back(new_card);
+                }
+#else
+                character_ptrs.push_back(new_card);
+#endif
             }
         }
 
         std::ranges::shuffle(character_ptrs, rng);
-        swap_testing<to_begin>(character_ptrs);
+#ifndef DISABLE_TESTING
+        character_ptrs.insert(character_ptrs.begin(), testing_cards.begin(), testing_cards.end());
+        testing_cards.clear();
+#endif
 
         auto add_character_to = [&](card *c, player &p) {
             p.m_characters.push_back(c);
@@ -689,10 +701,10 @@ struct to_end{};
         }
 
         if (target->m_characters.size() > 1) {
-            add_public_update<game_update_type::player_clear_characters>(target->id);
+            add_public_update<game_update_type::remove_cards>(make_id_vector(target->m_characters | std::views::drop(1)));
+            target->m_characters.resize(1);
         }
 
-        target->m_characters.resize(1);
         target->add_player_flags(player_flags::dead);
         target->m_hp = 0;
 

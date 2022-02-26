@@ -147,8 +147,10 @@ namespace banggame {
             c->pile = card_pile_type::none;
             c->owner = nullptr;
         }
-        target->m_characters.resize(1);
-        target->m_game->add_public_update<game_update_type::player_clear_characters>(target->id);
+        if (target->m_characters.size() > 1) {
+            target->m_game->add_public_update<game_update_type::remove_cards>(make_id_vector(target->m_characters | std::views::drop(1)));
+            target->m_characters.resize(1);
+        }
         on_pre_equip(target_card, target);
         target->m_game->send_request_update();
     }

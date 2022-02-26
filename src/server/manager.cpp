@@ -14,7 +14,7 @@ struct lobby_error : std::runtime_error {
 };
 
 game_manager::game_manager(const std::filesystem::path &base_path)
-    : all_cards(make_all_cards(base_path)) {}
+    : all_cards(base_path) {}
 
 void game_manager::handle_message(int client_id, const client_message &msg) {
     try {

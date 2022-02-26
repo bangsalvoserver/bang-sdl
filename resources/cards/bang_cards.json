@@ -3818,6 +3818,54 @@
             ]
         },
         {
+            "hidden": true,
+            "expansion": "thebullet",
+            "name": "Manette: Dichiaro Cuori",
+            "image": "05_manette_hearts",
+            "responses": [
+                {
+                    "class": "handcuffschoice",
+                    "args": 1
+                }
+            ]
+        },
+        {
+            "hidden": true,
+            "expansion": "thebullet",
+            "name": "Manette: Dichiaro Quadri",
+            "image": "05_manette_diamonds",
+            "responses": [
+                {
+                    "class": "handcuffschoice",
+                    "args": 2
+                }
+            ]
+        },
+        {
+            "hidden": true,
+            "expansion": "thebullet",
+            "name": "Manette: Dichiaro Fiori",
+            "image": "05_manette_clubs",
+            "responses": [
+                {
+                    "class": "handcuffschoice",
+                    "args": 3
+                }
+            ]
+        },
+        {
+            "hidden": true,
+            "expansion": "thebullet",
+            "name": "Manette: Dichiaro Picche",
+            "image": "05_manette_spades",
+            "responses": [
+                {
+                    "class": "handcuffschoice",
+                    "args": 4
+                }
+            ]
+        },
+        {
             "name": "Nuova Identit\u00e0",
             "image": "05_nuovaidentita",
             "expansion": "thebullet",
@@ -3961,6 +4009,28 @@
             "equip": [
                 {
                     "class": "peyote"
+                }
+            ]
+        },
+        {
+            "hidden": true,
+            "name": "Peyote: Dichiaro Rosso",
+            "image": "05_peyote_rosso",
+            "responses": [
+                {
+                    "class": "peyotechoice",
+                    "args": 1
+                }
+            ]
+        },
+        {
+            "hidden": true,
+            "name": "Peyote: Dichiaro Nero",
+            "image": "05_peyote_nero",
+            "responses": [
+                {
+                    "class": "peyotechoice",
+                    "args": 2
                 }
             ]
         },
@@ -4127,6 +4197,52 @@
             ]
         },
         {
+            "hidden": true,
+            "name": "Bottiglia come Panico!",
+            "image": "04_bottiglia_panico",
+            "color": "brown",
+            "effects": [
+                {
+                    "class": "bottle"
+                },
+                {
+                    "target": "card",
+                    "player_filter": "range_1",
+                    "class": "steal"
+                }
+            ]
+        },
+        {
+            "hidden": true,
+            "name": "Bottiglia come Birra",
+            "image": "04_bottiglia_birra",
+            "color": "brown",
+            "effects": [
+                {
+                    "class": "bottle"
+                },
+                {
+                    "class": "heal"
+                }
+            ]
+        },
+        {
+            "hidden": true,
+            "name": "Bottiglia come Bang!",
+            "image": "04_bottiglia_bang",
+            "color": "brown",
+            "effects": [
+                {
+                    "class": "bottle"
+                },
+                {
+                    "target": "player",
+                    "player_filter": "reachable notself",
+                    "class": "bang"
+                }
+            ]
+        },
+        {
             "name": "Calumet",
             "image": "04_calumet",
             "color": "black",
@@ -4170,6 +4286,51 @@
                 {
                     "class": "buy_cost",
                     "args": 2
+                }
+            ]
+        },
+        {
+            "hidden": true,
+            "name": "Complice come Emporio",
+            "image": "04_complice_emporio",
+            "color": "brown",
+            "effects": [
+                {
+                    "class": "pardner"
+                },
+                {
+                    "class": "generalstore"
+                }
+            ]
+        },
+        {
+            "hidden": true,
+            "name": "Complice come Duello",
+            "image": "04_complice_duello",
+            "color": "brown",
+            "effects": [
+                {
+                    "class": "pardner"
+                },
+                {
+                    "target": "player",
+                    "player_filter": "notself",
+                    "class": "duel"
+                }
+            ]
+        },
+        {
+            "hidden": true,
+            "name": "Complice come Cat Balou",
+            "image": "04_complice_catbalou",
+            "color": "brown",
+            "effects": [
+                {
+                    "class": "pardner"
+                },
+                {
+                    "target": "card",
+                    "class": "destroy"
                 }
             ]
         },
@@ -4348,165 +4509,6 @@
                 {
                     "class": "buy_cost",
                     "args": 3
-                }
-            ]
-        }
-    ],
-    "hidden": [
-        {
-            "expansion": "goldrush",
-            "name": "Bottiglia come Panico!",
-            "image": "04_bottiglia_panico",
-            "color": "brown",
-            "effects": [
-                {
-                    "class": "bottle"
-                },
-                {
-                    "target": "card",
-                    "player_filter": "range_1",
-                    "class": "steal"
-                }
-            ]
-        },
-        {
-            "expansion": "goldrush",
-            "name": "Bottiglia come Birra",
-            "image": "04_bottiglia_birra",
-            "color": "brown",
-            "effects": [
-                {
-                    "class": "bottle"
-                },
-                {
-                    "class": "heal"
-                }
-            ]
-        },
-        {
-            "expansion": "goldrush",
-            "name": "Bottiglia come Bang!",
-            "image": "04_bottiglia_bang",
-            "color": "brown",
-            "effects": [
-                {
-                    "class": "bottle"
-                },
-                {
-                    "target": "player",
-                    "player_filter": "reachable notself",
-                    "class": "bang"
-                }
-            ]
-        },
-        {
-            "expansion": "goldrush",
-            "name": "Complice come Emporio",
-            "image": "04_complice_emporio",
-            "color": "brown",
-            "effects": [
-                {
-                    "class": "pardner"
-                },
-                {
-                    "class": "generalstore"
-                }
-            ]
-        },
-        {
-            "expansion": "goldrush",
-            "name": "Complice come Duello",
-            "image": "04_complice_duello",
-            "color": "brown",
-            "effects": [
-                {
-                    "class": "pardner"
-                },
-                {
-                    "target": "player",
-                    "player_filter": "notself",
-                    "class": "duel"
-                }
-            ]
-        },
-        {
-            "expansion": "goldrush",
-            "name": "Complice come Cat Balou",
-            "image": "04_complice_catbalou",
-            "color": "brown",
-            "effects": [
-                {
-                    "class": "pardner"
-                },
-                {
-                    "target": "card",
-                    "class": "destroy"
-                }
-            ]
-        },
-        {
-            "expansion": "highnoon thebullet",
-            "name": "Manette: Dichiaro Cuori",
-            "image": "05_manette_hearts",
-            "responses": [
-                {
-                    "class": "handcuffschoice",
-                    "args": 1
-                }
-            ]
-        },
-        {
-            "expansion": "highnoon thebullet",
-            "name": "Manette: Dichiaro Quadri",
-            "image": "05_manette_diamonds",
-            "responses": [
-                {
-                    "class": "handcuffschoice",
-                    "args": 2
-                }
-            ]
-        },
-        {
-            "expansion": "highnoon thebullet",
-            "name": "Manette: Dichiaro Fiori",
-            "image": "05_manette_clubs",
-            "responses": [
-                {
-                    "class": "handcuffschoice",
-                    "args": 3
-                }
-            ]
-        },
-        {
-            "expansion": "highnoon thebullet",
-            "name": "Manette: Dichiaro Picche",
-            "image": "05_manette_spades",
-            "responses": [
-                {
-                    "class": "handcuffschoice",
-                    "args": 4
-                }
-            ]
-        },
-        {
-            "expansion": "fistfulofcards",
-            "name": "Peyote: Dichiaro Rosso",
-            "image": "05_peyote_rosso",
-            "responses": [
-                {
-                    "class": "peyotechoice",
-                    "args": 1
-                }
-            ]
-        },
-        {
-            "expansion": "fistfulofcards",
-            "name": "Peyote: Dichiaro Nero",
-            "image": "05_peyote_nero",
-            "responses": [
-                {
-                    "class": "peyotechoice",
-                    "args": 2
                 }
             ]
         }

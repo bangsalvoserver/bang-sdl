@@ -531,6 +531,18 @@ void game_scene::HANDLE_UPDATE(add_cards, const add_cards_update &args) {
     pop_update();
 }
 
+void game_scene::HANDLE_UPDATE(remove_cards, const remove_cards_update &args) {
+    for (int id : args.card_ids) {
+        auto *c = find_card(id);
+        if (c && c->pile) {
+            c->pile->erase_card(c);
+        }
+        m_cards.erase(id);
+    }
+
+    pop_update();
+}
+
 void game_scene::HANDLE_UPDATE(move_card, const move_card_update &args) {
     card_view *card = find_card(args.card_id);
     if (!card) {
@@ -782,17 +794,6 @@ void game_scene::HANDLE_UPDATE(player_hp, const player_hp_update &args) {
 
 void game_scene::HANDLE_UPDATE(player_gold, const player_gold_update &args) {
     find_player(args.player_id)->set_gold(args.gold);
-    pop_update();
-}
-
-void game_scene::HANDLE_UPDATE(player_clear_characters, const player_clear_characters_update &args) {
-    auto &p = *find_player(args.player_id);
-
-    while (p.m_characters.size() > 1) {
-        m_cards.erase(p.m_characters.back()->id);
-        p.m_characters.pop_back();
-    }
-
     pop_update();
 }
 

@@ -91,7 +91,7 @@ namespace banggame {
             }
         } else {
             if (m_game->has_scenario(scenario_flags::judge)) return false;
-            if (!target_card->equips.empty() && target_card->equips.front().target != play_card_target_type::none) {
+            if (!target_card->self_equippable()) {
                 return !make_equip_set(this, target_card, target_card->equips.front().player_filter).empty();
             }
             return true;

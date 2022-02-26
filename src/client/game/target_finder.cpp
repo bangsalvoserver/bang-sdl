@@ -212,7 +212,7 @@ void target_finder::set_forced_card(card_view *card) {
             handle_auto_targets();
         }
     } else {
-        if (card->equips.empty() || card->equips.front().target == play_card_target_type::none) {
+        if (card->self_equippable()) {
             m_playing_card = card;
             m_targets.emplace_back(target_player{m_game->find_player(m_game->m_playing_id)}, true);
             send_play_card();
@@ -252,14 +252,14 @@ void target_finder::on_click_shop_card(card_view *card) {
         && m_game->m_request_origin_id == 0
         && m_game->m_request_target_id == 0)
     {
-        int cost = get_buy_cost(card);
+        int cost = card->buy_cost();
         if (std::ranges::find(m_modifiers, card_modifier_type::discount, &card_view::modifier) != m_modifiers.end()) {
             --cost;
         }
         if (m_game->find_player(m_game->m_player_own_id)->gold >= cost) {
             if (card->color == card_color_type::black) {
                 if (verify_modifier(card)) {
-                    if (card->equips.empty() || card->equips.front().target == play_card_target_type::none) {
+                    if (card->self_equippable()) {
                         m_playing_card = card;
                         m_targets.emplace_back(target_player{m_game->find_player(m_game->m_playing_id)}, true);
                         send_play_card();
@@ -316,7 +316,7 @@ void target_finder::on_click_hand_card(player_view *player, card_view *card) {
                     handle_auto_targets();
                 }
             } else if (m_modifiers.empty()) {
-                if (card->equips.empty() || card->equips.front().target == play_card_target_type::none) {
+                if (card->self_equippable()) {
                     m_targets.emplace_back(target_player{player}, true);
                     m_playing_card = card;
                     send_play_card();

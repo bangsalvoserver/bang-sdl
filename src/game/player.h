@@ -10,9 +10,19 @@
 namespace banggame {
 
     struct game;
+    struct player;
     
     using draw_check_function = std::function<void(card *drawn_card)>;
     using bang_modifier = std::function<void(request_bang &req)>;
+
+    struct card : card_data {
+        int8_t usages = 0;
+        bool inactive = false;
+        std::vector<int> cubes;
+
+        card_pile_type pile = card_pile_type::none;
+        player *owner = nullptr;
+    };
 
     struct player {
         game *m_game;

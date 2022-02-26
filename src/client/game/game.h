@@ -35,6 +35,7 @@ namespace banggame {
         void HANDLE_UPDATE(game_error,       const game_formatted_string &args);
         void HANDLE_UPDATE(game_log,         const game_formatted_string &args);
         void HANDLE_UPDATE(add_cards,        const add_cards_update &args);
+        void HANDLE_UPDATE(remove_cards,     const remove_cards_update &args);
         void HANDLE_UPDATE(move_card,        const move_card_update &args);
         void HANDLE_UPDATE(add_cubes,        const add_cubes_update &args);
         void HANDLE_UPDATE(move_cube,        const move_cube_update &args);
@@ -47,7 +48,6 @@ namespace banggame {
         void HANDLE_UPDATE(player_add,       const player_user_update &args);
         void HANDLE_UPDATE(player_hp,        const player_hp_update &args);
         void HANDLE_UPDATE(player_gold,      const player_gold_update &args);
-        void HANDLE_UPDATE(player_clear_characters, const player_clear_characters_update &args);
         void HANDLE_UPDATE(player_show_role, const player_show_role_update &args);
         void HANDLE_UPDATE(player_status,     const player_status_update &args);
         void HANDLE_UPDATE(switch_turn,      const switch_turn_update &args);

@@ -1,4 +1,4 @@
-#include "card.h"
+#include "make_all_cards.h"
 
 #include <stdexcept>
 #include <iostream>
@@ -67,7 +67,7 @@ namespace banggame {
         return ret;
     }
     
-    static void make_all_effects(card_data &out, const Json::Value &json_card) {
+    static void make_all_effects(card_deck_info &out, const Json::Value &json_card) {
         out.name = json_card["name"].asString();
         out.image = json_card["image"].asString();
         try {
@@ -95,6 +95,9 @@ namespace banggame {
         if (json_card.isMember("discard_if_two_players")) {
             out.discard_if_two_players = json_card["discard_if_two_players"].asBool();
         }
+        if (json_card.isMember("hidden")) {
+            out.hidden = json_card["hidden"].asBool();
+        }
 #ifndef DISABLE_TESTING
         if (json_card.isMember("testing")) {
             out.testing = json_card["testing"].asBool();
@@ -102,10 +105,9 @@ namespace banggame {
 #endif
     }
 
-    all_cards_t make_all_cards(const std::filesystem::path &base_path) {
+    all_cards_t::all_cards_t(const std::filesystem::path &base_path) {
         using namespace enums::flag_operators;
 
-        all_cards_t ret;
         Json::Value json_cards;
         {
             auto cards_pak_stream = ifstream_or_throw(base_path / "cards.pak");
@@ -120,7 +122,7 @@ namespace banggame {
 
         for (const auto &json_card : json_cards["cards"]) {
             if (is_disabled(json_card)) continue;
-            card_data c;
+            card_deck_info c;
             c.expansion = enums::flags_from_string<card_expansion_type>(json_card["expansion"].asString());
             if (c.expansion != enums::invalid_enum_v<card_expansion_type>) {
                 make_all_effects(c, json_card);
@@ -137,81 +139,95 @@ namespace banggame {
                             return str.starts_with(enums::get_data(e));
                         }
                     );
-                    ret.deck.push_back(c);
+                    deck.push_back(c);
                 }
             }
         }
 
         for (const auto &json_character : json_cards["characters"]) {
             if (is_disabled(json_character)) continue;
-            card_data c;
+            card_deck_info c;
             c.expansion = enums::from_string<card_expansion_type>(json_character["expansion"].asString());
             if (c.expansion != enums::invalid_enum_v<card_expansion_type>) {
                 make_all_effects(c, json_character);
-                ret.characters.push_back(c);
+                characters.push_back(c);
             }
         }
 
         for (const auto &json_card : json_cards["goldrush"]) {
             if (is_disabled(json_card)) continue;
-            card_data c;
+            card_deck_info c;
             c.expansion = card_expansion_type::goldrush;
             make_all_effects(c, json_card);
             c.color = enums::from_string<card_color_type>(json_card["color"].asString());
-            int count = json_card.isMember("count") ? json_card["count"].asInt() : 1;
-            for (int i=0; i<count; ++i) {
-                ret.goldrush.push_back(c);
+            if (c.hidden) {
+                hidden.push_back(c);
+            } else {
+                int count = json_card.isMember("count") ? json_card["count"].asInt() : 1;
+                for (int i=0; i<count; ++i) {
+                    goldrush.push_back(c);
+                }
             }
         }
 
         for (const auto &json_card : json_cards["highnoon"]) {
             if (is_disabled(json_card)) continue;
-            card_data c;
+            card_deck_info c;
             c.expansion = card_expansion_type::highnoon;
             if (json_card.isMember("expansion")) {
                 c.expansion |= enums::flags_from_string<card_expansion_type>(json_card["expansion"].asString());
             }
             make_all_effects(c, json_card);
-            ret.highnoon.push_back(c);
+            if (c.hidden) {
+                hidden.push_back(c);
+            } else {
+                highnoon.push_back(c);
+            }
         }
 
         for (const auto &json_card : json_cards["fistfulofcards"]) {
             if (is_disabled(json_card)) continue;
-            card_data c;
+            card_deck_info c;
             c.expansion = card_expansion_type::fistfulofcards;
             make_all_effects(c, json_card);
-            ret.fistfulofcards.push_back(c);
+            if (c.hidden) {
+                hidden.push_back(c);
+            } else {
+                fistfulofcards.push_back(c);
+            }
         }
 
         for (const auto &json_card : json_cards["wildwestshow"]) {
             if (is_disabled(json_card)) continue;
-            card_data c;
+            card_deck_info c;
             c.expansion = card_expansion_type::wildwestshow;
             if (json_card.isMember("expansion")) {
                 c.expansion |= enums::flags_from_string<card_expansion_type>(json_card["expansion"].asString());
             }
             make_all_effects(c, json_card);
-            ret.wildwestshow.push_back(c);
+            wildwestshow.push_back(c);
         }
 
         for (const auto &json_card : json_cards["hidden"]) {
             if (is_disabled(json_card)) continue;
-            card_data c;
+            card_deck_info c;
             c.expansion = enums::flags_from_string<card_expansion_type>(json_card["expansion"].asString());
             if (json_card.isMember("color")) c.color = enums::from_string<card_color_type>(json_card["color"].asString());
             make_all_effects(c, json_card);
-            ret.hidden.push_back(c);
+            hidden.push_back(c);
         }
 
         for (const auto &json_card : json_cards["specials"]) {
             if (is_disabled(json_card)) continue;
-            card_data c;
+            card_deck_info c;
             c.expansion = enums::flags_from_string<card_expansion_type>(json_card["expansion"].asString());
             make_all_effects(c, json_card);
-            ret.specials.push_back(c);
+            if (c.hidden) {
+                hidden.push_back(c);
+            } else {
+                specials.push_back(c);
+            }
         }
-
-        return ret;
     };
 
 }

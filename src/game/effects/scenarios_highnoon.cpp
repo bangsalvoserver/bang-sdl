@@ -193,10 +193,10 @@ namespace banggame {
             for (card *c : target->m_characters) {
                 target->unequip_if_enabled(c);
             }
-            while (target->m_characters.size() > 1) {
-                target->m_characters.pop_back();
+            if (target->m_characters.size() > 1) {
+                target->m_game->add_public_update<game_update_type::remove_cards>(make_id_vector(target->m_characters | std::views::drop(1)));
+                target->m_characters.resize(1);
             }
-            target->m_game->add_public_update<game_update_type::player_clear_characters>(target->id);
 
             card *old_character = target->m_characters.front();
             target->m_game->move_to(old_character, card_pile_type::player_backup, false, target);

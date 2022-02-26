@@ -15,6 +15,10 @@ namespace banggame {
         (int) player_id
     )};
 
+    struct remove_cards_update {REFLECTABLE(
+        (std::vector<int>) card_ids
+    )};
+
     DEFINE_ENUM_FLAGS_IN_NS(banggame, show_card_flags,
         (pause_before_move)
         (short_pause)
@@ -41,10 +45,6 @@ namespace banggame {
     struct show_card_update {REFLECTABLE(
         (card_data) info,
         (show_card_flags) flags
-    )};
-
-    struct player_clear_characters_update {REFLECTABLE(
-        (int) player_id
     )};
 
     struct hide_card_update {REFLECTABLE(
@@ -130,6 +130,7 @@ namespace banggame {
         (game_error, game_formatted_string)
         (game_log, game_formatted_string)
         (add_cards, add_cards_update)
+        (remove_cards, remove_cards_update)
         (move_card, move_card_update)
         (add_cubes, add_cubes_update)
         (move_cube, move_cube_update)
@@ -142,7 +143,6 @@ namespace banggame {
         (player_add, player_user_update)
         (player_hp, player_hp_update)
         (player_gold, player_gold_update)
-        (player_clear_characters, player_clear_characters_update)
         (player_show_role, player_show_role_update)
         (player_status, player_status_update)
         (switch_turn, switch_turn_update)

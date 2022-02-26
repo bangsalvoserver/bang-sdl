@@ -134,11 +134,11 @@ namespace banggame {
             copy_it->second.owner = target;
 
             if (target->m_characters.size() == 2) {
+                target->m_game->add_public_update<game_update_type::remove_cards>(make_id_vector(target->m_characters | std::views::drop(1)));
                 target->unequip_if_enabled(target->m_characters.back());
                 target->m_game->m_cards.erase(target->m_characters.back()->id);
                 target->m_characters.pop_back();
             }
-            target->m_game->add_public_update<game_update_type::player_clear_characters>(target->id);
             target->m_game->add_public_update<game_update_type::add_cards>(
                 std::vector{copy_it->second.id}, card_pile_type::player_character, target->id);
             target->m_game->send_card_update(copy_it->second, target, show_card_flags::no_animation | show_card_flags::show_everyone);
@@ -160,14 +160,11 @@ namespace banggame {
         });
         p->m_game->add_event<event_type::on_turn_end>(target_card, [p, &usages = target_card->usages](player *target) {
             if (p == target && usages == 0) {
-                if (p->m_characters.size() > 1) {
-                    auto *c = p->m_characters.back();
-                    p->unequip_if_enabled(c);
-                    c->pile = card_pile_type::none;
-                    c->owner = nullptr;
+                if (p->m_characters.size() == 2) {
+                    p->m_game->add_public_update<game_update_type::remove_cards>(make_id_vector(p->m_characters | std::views::drop(1)));
+                    p->unequip_if_enabled(p->m_characters.back());
+                    p->m_game->m_cards.erase(p->m_characters.back()->id);
                     p->m_characters.pop_back();
-                    p->m_game->add_public_update<game_update_type::player_clear_characters>(p->id);
-                    p->m_game->m_cards.erase(c->id);
                 }
             }
         });

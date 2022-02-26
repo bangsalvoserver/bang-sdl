@@ -731,7 +731,7 @@ namespace banggame {
             }
             [[fallthrough]];
         case card_pile_type::shop_selection: {
-            int cost = get_buy_cost(card_ptr);
+            int cost = card_ptr->buy_cost();
             for (card *c : modifiers) {
                 if (m_game->is_disabled(c)) throw game_error("ERROR_CARD_IS_DISABLED", c);
                 switch (c->modifier) {
@@ -741,7 +741,7 @@ namespace banggame {
                     break;
                 case card_modifier_type::shopchoice:
                     if (c->effects.front().type != card_ptr->effects.front().type) throw game_error("ERROR_INVALID_ACTION");
-                    cost += get_buy_cost(c);
+                    cost += c->buy_cost();
                     break;
                 }
             }
