@@ -171,14 +171,14 @@ namespace banggame {
     }
 
     bool request_vera_custer::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
-        return pile == card_pile_type::player_character && target_player->alive();
+        return pile == card_pile_type::player_character
+            && target_player->alive() && target_player != target
+            && (target_player->m_characters.size() == 1 || target_card != target_player->m_characters.front());
     }
 
     void request_vera_custer::on_pick(card_pile_type pile, player *target_player, card *target_card) {
-        if (target_card != target->m_characters.front()) {
-            target->m_game->pop_request(request_type::vera_custer);
-            vera_custer_copy_character(target, target_card);
-        }
+        target->m_game->pop_request(request_type::vera_custer);
+        vera_custer_copy_character(target, target_card);
     }
 
     game_formatted_string request_vera_custer::status_text(player *owner) const {

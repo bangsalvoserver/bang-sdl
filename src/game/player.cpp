@@ -800,6 +800,14 @@ namespace banggame {
         card *card_ptr = m_game->find_card(args.card_id);
 
         if (!can_respond_with(card_ptr)) throw game_error("ERROR_INVALID_ACTION");
+        
+        bool was_forced_card = false;
+        if (m_forced_card) {
+            if (card_ptr != m_forced_card) {
+                throw game_error("ERROR_INVALID_ACTION");
+            }
+            was_forced_card = true;
+        }
 
         switch (card_ptr->pile) {
         case card_pile_type::player_table:
@@ -819,6 +827,9 @@ namespace banggame {
         verify_card_targets(card_ptr, true, args.targets);
         do_play_card(card_ptr, true, args.targets);
         set_last_played_card(nullptr);
+        if (was_forced_card) {
+            m_forced_card = nullptr;
+        }
     }
 
     void player::draw_from_deck() {

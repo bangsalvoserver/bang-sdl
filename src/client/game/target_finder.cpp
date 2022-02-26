@@ -642,7 +642,9 @@ bool target_finder::verify_card_target(const effect_holder &args, target_card ta
         case target_card_filter::beer: return !target.card->effects.empty() && target.card->effects.front().is(effect_type::beer);
         case target_card_filter::bronco: return !target.card->equips.empty() && target.card->equips.back().is(equip_type::bronco);
         case target_card_filter::cube_slot:
-        case target_card_filter::cube_slot_card: return target.card->color == card_color_type::orange;
+        case target_card_filter::cube_slot_card:
+            return target.card->color == card_color_type::orange
+                || target.card == target.player->m_characters.front();
         default: return false;
         }
     });
@@ -695,18 +697,22 @@ void target_finder::add_card_target(target_card target) {
 
 void target_finder::add_character_target(target_card target) {
     if (m_equipping) return;
-    
-    auto type = get_effect_holder(get_target_index());
-    if (!bool(type.card_filter & (target_card_filter::cube_slot | target_card_filter::cube_slot_card))) return;
-    if (bool(type.card_filter & target_card_filter::table)) return;
 
+    const auto &effect = get_effect_holder(get_target_index());
+    if (!bool(effect.card_filter & (target_card_filter::cube_slot | target_card_filter::cube_slot_card))) return;
+    
     if (std::ranges::find(target.player->m_characters, target.card) != target.player->m_characters.end()) {
         target.card = target.player->m_characters.front();
     } else {
         return;
     }
 
-    if(bool(type.card_filter & target_card_filter::cube_slot_card)) {
+    if (!verify_card_target(effect, target)) {
+        play_bell();
+        return;
+    }
+
+    if(bool(effect.card_filter & target_card_filter::cube_slot_card)) {
         m_targets.emplace_back(target);
         handle_auto_targets();
     } else {
