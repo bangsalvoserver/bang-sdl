@@ -70,6 +70,11 @@ namespace banggame {
         void verify(card *origin_card, player *origin, mth_target_list targets) const;
         void on_play(card *origin_card, player *origin, mth_target_list targets);
     };
+
+    struct effect_move_bomb : card_effect {
+        bool can_respond(card *origin_card, player *origin) const;
+        void on_play(card *origin_card, player *origin, player *target);
+    };
 }
 
 #endif

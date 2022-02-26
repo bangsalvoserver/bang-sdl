@@ -1706,6 +1706,12 @@
                     "target": "player",
                     "class": "bomb"
                 }
+            ],
+            "responses": [
+                {
+                    "target": "player",
+                    "class": "move_bomb"
+                }
             ]
         },
         {

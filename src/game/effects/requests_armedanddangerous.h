@@ -21,8 +21,6 @@ namespace banggame {
         request_move_bomb(card *origin_card, player *target)
             : request_base(origin_card, nullptr, target) {}
 
-        bool can_pick(card_pile_type pile, player *target, card *target_card) const;
-        void on_pick(card_pile_type pile, player *target, card *target_card);
         game_formatted_string status_text(player *owner) const;
     };
 

@@ -39,25 +39,6 @@ namespace banggame {
         }
     }
 
-    bool request_move_bomb::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
-        return pile == card_pile_type::player && target_player->alive();
-    }
-
-    void request_move_bomb::on_pick(card_pile_type pile, player *target_player, card *target_card) {
-        if (!target_player->immune_to(origin_card)) {
-            if (target_player == target) {
-                target->m_game->pop_request(request_type::move_bomb);
-            } else if (!target_player->find_equipped_card(origin_card)) {
-                target->unequip_if_enabled(origin_card);
-                target_player->equip_card(origin_card);
-                target->m_game->pop_request(request_type::move_bomb);
-            }
-        } else {
-            target->discard_card(origin_card);
-            target->m_game->pop_request(request_type::move_bomb);
-        }
-    }
-
     game_formatted_string request_move_bomb::status_text(player *owner) const {
         if (target == owner) {
             return {"STATUS_MOVE_BOMB", origin_card};

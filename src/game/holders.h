@@ -74,6 +74,7 @@ namespace banggame {
         (bigfifty,      effect_bigfifty)
         (flintlock,     effect_flintlock)
         (duck,          effect_duck)
+        (move_bomb,     effect_move_bomb)
         (tumbleweed,    effect_tumbleweed)
         (changewws,     effect_empty)
         (sniper,        effect_sniper)

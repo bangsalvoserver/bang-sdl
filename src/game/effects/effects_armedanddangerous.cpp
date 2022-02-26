@@ -208,4 +208,23 @@ namespace banggame {
         target->m_game->m_current_check.reset();
         target->m_game->events_after_requests();
     }
+
+    bool effect_move_bomb::can_respond(card *origin_card, player *origin) const {
+        return origin->m_game->top_request_is(request_type::move_bomb, origin);
+    }
+
+    void effect_move_bomb::on_play(card *origin_card, player *origin, player *target) {
+        if (!target->immune_to(origin_card)) {
+            if (target == origin) {
+                origin->m_game->pop_request(request_type::move_bomb);
+            } else if (!target->find_equipped_card(origin_card)) {
+                origin->unequip_if_enabled(origin_card);
+                target->equip_card(origin_card);
+                origin->m_game->pop_request(request_type::move_bomb);
+            }
+        } else {
+            origin->discard_card(origin_card);
+            origin->m_game->pop_request(request_type::move_bomb);
+        }
+    }
 }

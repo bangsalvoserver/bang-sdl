@@ -11,6 +11,7 @@ namespace banggame {
                 target->pay_cubes(target_card, 2);
             } else {
                 target->m_game->add_request<request_type::move_bomb>(target_card, target);
+                target->set_forced_card(target_card);
             }
             target->next_predraw_check(target_card);
         });

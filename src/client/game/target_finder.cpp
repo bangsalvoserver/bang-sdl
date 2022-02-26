@@ -204,8 +204,12 @@ void target_finder::set_forced_card(card_view *card) {
         return;
     }
 
-    if (card->color == card_color_type::brown) {
-        if (card->modifier != card_modifier_type::none) {
+    if (card->pile == &m_game->find_player(m_game->m_player_own_id)->table || card->color == card_color_type::brown) {
+        if (can_respond_with(card)) {
+            m_playing_card = card;
+            m_response = true;
+            handle_auto_targets();
+        } else if (card->modifier != card_modifier_type::none) {
             add_modifier(card);
         } else if (verify_modifier(card)) {
             m_playing_card = card;
