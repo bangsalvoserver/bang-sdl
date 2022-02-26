@@ -21,12 +21,17 @@ game_ui::game_ui(game_scene *parent)
 void game_ui::resize(int width, int height) {
     m_game_log.set_rect(sdl::rect{20, height - 450, 190, 400});
 
-    int x = (width - m_special_btns.size() * 110 - 100) / 2;
+    int x = (width - std::transform_reduce(m_special_btns.begin(), m_special_btns.end(), 100, std::plus(),
+        [](const button_card_pair &pair) {
+            return pair.first.get_rect().w + 10;
+        })) / 2;
     m_confirm_btn.set_rect(sdl::rect{x, height - 40, 100, 25});
+    x += 110;
 
     for (auto &[btn, card] : m_special_btns) {
-        x += 110;
-        btn.set_rect(sdl::rect{x, height - 40, 100, 25});
+        sdl::rect rect = btn.get_rect();
+        btn.set_rect(sdl::rect{x, height - 40, rect.w, 25});
+        x += rect.w + 10;
     }
 
     m_leave_btn.set_rect(sdl::rect{20, 20, 100, 25});
@@ -69,12 +74,22 @@ void game_ui::add_game_log(const std::string &message) {
 }
 
 void game_ui::add_special(card_view *card) {
-    m_special_btns.emplace_back(std::piecewise_construct,
+    auto &btn = m_special_btns.emplace_back(std::piecewise_construct,
         std::make_tuple(_(card->name), [&target = parent->m_target, card]{
             if (target.is_card_clickable()) {
                 target.on_click_scenario_card(card);
             }
-        }), std::make_tuple(card));
+        }), std::make_tuple(card)).first;
+
+    btn.set_rect(sdl::rect{0, 0, std::max(100, btn.get_text_rect().w + 10), 25});
 
     resize(parent->parent->width(), parent->parent->height());
+}
+
+void game_ui::remove_special(card_view *card) {
+    auto it = std::ranges::find(m_special_btns, card, &decltype(m_special_btns)::value_type::second);
+    if (it != m_special_btns.end()) {
+        m_special_btns.erase(it);
+        resize(parent->parent->width(), parent->parent->height());
+    }
 }

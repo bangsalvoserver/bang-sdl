@@ -688,6 +688,9 @@ void game_scene::HANDLE_UPDATE(hide_card, const hide_card_update &args) {
     card_view *card = find_card(args.card_id);
 
     if (card && card->known && (m_player_own_id == 0 || args.ignore_player_id != m_player_own_id)) {
+        if (card->pile == &m_specials) {
+            m_ui.remove_special(card);
+        }
         card->known = false;
         if (bool(args.flags & show_card_flags::no_animation)) {
             card->flip_amt = 0.f;

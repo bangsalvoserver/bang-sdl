@@ -22,7 +22,7 @@ GAME_CONFIRM                        Conferma
 GAME_PASS                           Passa
 GAME_RESOLVE                        Risolvi
 GAME_SELL_BEER                      Vendi birra
-GAME_DISCARD_BLACK                  Scarta nera
+GAME_DISCARD_BLACK                  Scarta equip
 GAME_DISCARD_BRONCO                 Scarta Bronco
 GAME_RESTART                        Riavvia
 GAME_USER_CONNECTED                 {} è entrato

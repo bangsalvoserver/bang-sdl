@@ -29,6 +29,7 @@ namespace banggame {
         }
 
         void add_special(card_view *card);
+        void remove_special(card_view *card);
 
     private:
         class game_scene *parent;
@@ -39,7 +40,8 @@ namespace banggame {
 
         widgets::button m_confirm_btn;
 
-        std::list<std::pair<widgets::button, card_view*>> m_special_btns;
+        using button_card_pair = std::pair<widgets::button, card_view*>;
+        std::list<button_card_pair> m_special_btns;
 
         widgets::button m_leave_btn;
         widgets::button m_restart_btn;

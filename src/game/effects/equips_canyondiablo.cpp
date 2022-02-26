@@ -6,6 +6,8 @@
 
 namespace banggame {
 
+    using namespace enums::flag_operators;
+
     void effect_packmule::on_equip(card *target_card, player *p) {
         p->m_game->add_event<event_type::apply_maxcards_adder>(target_card, [p](player *origin, int &value) {
             if (origin == p) {
@@ -70,5 +72,25 @@ namespace banggame {
             }
             target->next_predraw_check(target_card);
         });
+    }
+
+    void effect_bronco::on_pre_equip(card *origin_card, player *target) {
+        auto it = std::ranges::find_if(target->m_game->m_hidden_deck, [](card *c) {
+            return !c->effects.empty()
+                && c->effects.back().type == effect_type::destroy
+                && bool(c->effects.back().card_filter & target_card_filter::bronco);
+        });
+        if (it != target->m_game->m_hidden_deck.end()) {
+            card *discard_bronco = *it;
+            target->m_game->move_to(discard_bronco, card_pile_type::specials, false, nullptr, show_card_flags::no_animation);
+            target->m_game->send_card_update(*discard_bronco, nullptr, show_card_flags::no_animation);
+
+            target->m_game->add_event<event_type::post_discard_card>(origin_card, [=](player *p, card *c) {
+                if (p == target && c == origin_card) {
+                    target->m_game->move_to(discard_bronco, card_pile_type::hidden_deck, false, nullptr, show_card_flags::no_animation);
+                    target->m_game->remove_events(origin_card);
+                }
+            });
+        }
     }
 }

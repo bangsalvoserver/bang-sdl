@@ -57,6 +57,10 @@ namespace widgets {
             return m_border_rect;
         }
 
+        const sdl::rect &get_text_rect() const {
+            return m_text.get_rect();
+        }
+
         void set_toggled(bool down) {
             toggled = down;
         }

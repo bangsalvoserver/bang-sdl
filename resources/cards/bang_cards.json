@@ -4557,6 +4557,7 @@
             ]
         },
         {
+            "hidden": true,
             "name": "GAME_DISCARD_BRONCO",
             "expansion": "canyondiablo",
             "effects": [
