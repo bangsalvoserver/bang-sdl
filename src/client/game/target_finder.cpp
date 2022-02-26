@@ -603,7 +603,7 @@ void target_finder::handle_auto_targets() {
 bool target_finder::verify_player_target(target_player_filter filter, player_view *target_player) {
     player_view *own_player = m_game->find_player(m_game->m_player_own_id);
 
-    if (target_player->dead && !bool(filter & target_player_filter::dead)) return false;
+    if (target_player->dead != bool(filter & target_player_filter::dead)) return false;
 
     return std::ranges::all_of(util::enum_flag_values(filter), [&](target_player_filter value) {
         switch (value) {
@@ -627,7 +627,7 @@ bool target_finder::verify_player_target(target_player_filter filter, player_vie
 
 bool target_finder::verify_card_target(const effect_holder &args, target_card target) {
     if (!verify_player_target(args.player_filter, target.player)) return false;
-    if (target.card->color == card_color_type::black && !bool(args.card_filter & target_card_filter::black)) return false;
+    if ((target.card->color == card_color_type::black) != bool(args.card_filter & target_card_filter::black)) return false;
 
     return std::ranges::all_of(util::enum_flag_values(args.card_filter), [&](target_card_filter value) {
         switch (value) {

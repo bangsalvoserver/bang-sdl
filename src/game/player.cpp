@@ -288,7 +288,7 @@ namespace banggame {
     };
 
     void player::verify_effect_player_target(target_player_filter filter, player *target) {
-        if (!target->alive() && !bool(filter & target_player_filter::dead)) {
+        if (target->alive() == bool(filter & target_player_filter::dead)) {
             throw game_error("ERROR_TARGET_DEAD");
         }
 
@@ -334,7 +334,7 @@ namespace banggame {
     void player::verify_effect_card_target(const effect_holder &effect, player *target, card *target_card) {
         verify_effect_player_target(effect.player_filter, target);
 
-        if (target_card->color == card_color_type::black && !bool(effect.card_filter & target_card_filter::black)) {
+        if ((target_card->color == card_color_type::black) != bool(effect.card_filter & target_card_filter::black)) {
             throw game_error("ERROR_TARGET_BLACK_CARD");
         }
 
