@@ -177,25 +177,24 @@ namespace banggame {
             }
         }
 
-        add_public_update<game_update_type::add_cards>(make_id_vector(m_deck), card_pile_type::main_deck);
-
         shuffle_cards_and_ids(m_deck);
 #ifndef DISABLE_TESTING
         m_deck.insert(m_deck.end(), testing_cards.begin(), testing_cards.end());
         testing_cards.clear();
 #endif
+        add_public_update<game_update_type::add_cards>(make_id_vector(m_deck), card_pile_type::main_deck);
 
         if (has_expansion(card_expansion_type::goldrush)) {
             for (const auto &c : all_cards.goldrush) {
                 if (m_players.size() <= 2 && c.discard_if_two_players) continue;
                 add_card(card_pile_type::shop_deck, c);
             }
-            add_public_update<game_update_type::add_cards>(make_id_vector(m_shop_deck), card_pile_type::shop_deck);
             shuffle_cards_and_ids(m_shop_deck);
 #ifndef DISABLE_TESTING
             m_shop_deck.insert(m_shop_deck.end(), testing_cards.begin(), testing_cards.end());
             testing_cards.clear();
 #endif
+            add_public_update<game_update_type::add_cards>(make_id_vector(m_shop_deck), card_pile_type::shop_deck);
         }
 
         if (has_expansion(card_expansion_type::armedanddangerous)) {
