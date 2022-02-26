@@ -29,6 +29,10 @@ namespace banggame {
         (card_value_type) value,
         (card_color_type) color
     )
+        
+        bool is_character() const {
+            return !equips.empty() && equips.front().is(equip_type::max_hp);
+        }
 
         bool self_equippable() const {
             return equips.empty() || equips.front().target == play_card_target_type::none;

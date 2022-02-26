@@ -99,7 +99,7 @@ namespace banggame {
             add_cards(m_cards
                 | std::views::values
                 | std::views::filter([&](const card &c) {
-                    return c.owner == &p;
+                    return c.is_character() && c.owner == &p;
                 }), card_pile_type::player_backup, &p);
 
             move_cards(p.m_characters);
