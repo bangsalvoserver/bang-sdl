@@ -5,7 +5,7 @@
 #include <vector>
 #include <algorithm>
 
-#include "card.h"
+#include "game_update.h"
 
 namespace banggame {
 

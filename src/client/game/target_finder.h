@@ -99,21 +99,21 @@ namespace banggame {
         void handle_auto_targets();
 
         bool verify_player_target(target_player_filter filter, player_view *target_player);
-        bool verify_card_target(const card_target_data &args, target_card target);
+        bool verify_card_target(const effect_holder &args, target_card target);
 
         void add_card_target(target_card target);
         void add_character_target(target_card target);
         
         int calc_distance(player_view *from, player_view *to);
 
-        const std::vector<card_target_data> &get_current_card_targets() const;
-        const std::vector<card_target_data> &get_optional_targets() const;
+        const std::vector<effect_holder> &get_current_card_effects() const;
+        const std::vector<effect_holder> &get_optional_effects() const;
 
         void send_pick_card(card_pile_type pile, player_view *player = nullptr, card_view *card = nullptr);
         void send_play_card();
 
-        const card_target_data &get_target_data(int index);
-        int num_targets_for(const card_target_data &data);
+        const effect_holder &get_effect_holder(int index);
+        int num_targets_for(const effect_holder &data);
         int get_target_index();
         
     private:

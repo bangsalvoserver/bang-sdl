@@ -38,8 +38,6 @@ struct config {
     )
 
     static inline const std::filesystem::path filename = std::filesystem::path(SDL_GetPrefPath(nullptr, "bang-sdl")) / "config.json";
-
-    config() = default;
     
     void load() {
         std::ifstream ifs{filename};

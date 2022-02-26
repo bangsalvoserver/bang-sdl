@@ -642,7 +642,7 @@ void game_scene::HANDLE_UPDATE(show_card, const show_card_update &args) {
     card_view *card = find_card(args.info.id);
 
     if (card && !card->known) {
-        *static_cast<card_info *>(card) = args.info;
+        *static_cast<card_data *>(card) = args.info;
         card->known = true;
 
         if (!card->image.empty()) {

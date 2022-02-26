@@ -185,11 +185,11 @@ void target_finder::clear_targets() {
 
 bool target_finder::can_confirm() const {
     if (m_playing_card && !m_equipping) {
-        const int ntargets = get_current_card_targets().size();
-        const int noptionals = get_optional_targets().size();
+        const int neffects = get_current_card_effects().size();
+        const int noptionals = get_optional_effects().size();
         return noptionals != 0
-            && m_targets.size() >= ntargets
-            && ((m_targets.size() - ntargets) % noptionals == 0);
+            && m_targets.size() >= neffects
+            && ((m_targets.size() - neffects) % noptionals == 0);
     }
     return false;
 }
@@ -212,7 +212,7 @@ void target_finder::set_forced_card(card_view *card) {
             handle_auto_targets();
         }
     } else {
-        if (card->equip_targets.empty() || card->equip_targets.front().target == play_card_target_type::none) {
+        if (card->equips.empty() || card->equips.front().target == play_card_target_type::none) {
             m_playing_card = card;
             m_targets.emplace_back(target_player{m_game->find_player(m_game->m_playing_id)}, true);
             send_play_card();
@@ -252,15 +252,14 @@ void target_finder::on_click_shop_card(card_view *card) {
         && m_game->m_request_origin_id == 0
         && m_game->m_request_target_id == 0)
     {
-        int cost = !card->equip_targets.empty() && card->equip_targets.back().type == equip_type::buy_cost
-            ? card->equip_targets.back().args : 0;
+        int cost = get_buy_cost(card);
         if (std::ranges::find(m_modifiers, card_modifier_type::discount, &card_view::modifier) != m_modifiers.end()) {
             --cost;
         }
         if (m_game->find_player(m_game->m_player_own_id)->gold >= cost) {
             if (card->color == card_color_type::black) {
                 if (verify_modifier(card)) {
-                    if (card->equip_targets.empty() || card->equip_targets.front().target == play_card_target_type::none) {
+                    if (card->equips.empty() || card->equips.front().target == play_card_target_type::none) {
                         m_playing_card = card;
                         m_targets.emplace_back(target_player{m_game->find_player(m_game->m_playing_id)}, true);
                         send_play_card();
@@ -317,7 +316,7 @@ void target_finder::on_click_hand_card(player_view *player, card_view *card) {
                     handle_auto_targets();
                 }
             } else if (m_modifiers.empty()) {
-                if (card->equip_targets.empty() || card->equip_targets.front().target == play_card_target_type::none) {
+                if (card->equips.empty() || card->equips.front().target == play_card_target_type::none) {
                     m_targets.emplace_back(target_player{player}, true);
                     m_playing_card = card;
                     send_play_card();
@@ -346,7 +345,7 @@ void target_finder::on_click_character(player_view *player, card_view *card) {
         } else if (can_play_in_turn(player, card)) {
             if (card->modifier != card_modifier_type::none) {
                 add_modifier(card);
-            } else if (!card->targets.empty()) {
+            } else if (!card->effects.empty()) {
                 m_playing_card = card;
                 handle_auto_targets();
             }
@@ -389,13 +388,13 @@ bool target_finder::on_click_player(player_view *player) {
         return true;
     } else if (m_playing_card) {
         if (m_equipping) {
-            if (verify_target(m_playing_card->equip_targets[m_targets.size()])) {
+            if (verify_target(m_playing_card->equips[m_targets.size()])) {
                 m_targets.emplace_back(target_player{player});
                 send_play_card();
                 return true;
             }
         } else if (std::ranges::find(m_targets, target_variant_base{target_player{player}}, &target_variant::value) == m_targets.end()
-            && verify_target(get_target_data(get_target_index())))
+            && verify_target(get_effect_holder(get_target_index())))
         {
             m_targets.emplace_back(target_player{player});
             handle_auto_targets();
@@ -428,7 +427,7 @@ void target_finder::add_modifier(card_view *card) {
             })) {
                 if (card->modifier == card_modifier_type::shopchoice) {
                     for (card_view *c : m_game->m_hidden_deck) {
-                        if (!c->targets.empty() && c->targets.front().type == card->targets.front().type) {
+                        if (!c->effects.empty() && c->effects.front().is(card->effects.front().type)) {
                             m_game->m_shop_choice.push_back(c);
                         }
                     }
@@ -448,8 +447,8 @@ void target_finder::add_modifier(card_view *card) {
 bool target_finder::is_bangcard(card_view *card) {
     return m_game->has_player_flags(player_flags::treat_any_as_bang)
         || (m_game->has_player_flags(player_flags::treat_missed_as_bang)
-            && !card->response_targets.empty() && card->response_targets.front().type == effect_type::missedcard)
-        || std::ranges::find(card->targets, effect_type::bangcard, &card_target_data::type) != card->targets.end();
+            && !card->responses.empty() && card->responses.front().is(effect_type::missedcard))
+        || std::ranges::find(card->effects, effect_type::bangcard, &effect_holder::type) != card->effects.end();
 }
 
 bool target_finder::verify_modifier(card_view *card) {
@@ -469,7 +468,7 @@ bool target_finder::verify_modifier(card_view *card) {
     });
 }
 
-const std::vector<card_target_data> &target_finder::get_current_card_targets() const {
+const std::vector<effect_holder> &target_finder::get_current_card_effects() const {
     assert(!m_equipping);
 
     card_view *card = nullptr;
@@ -481,31 +480,31 @@ const std::vector<card_target_data> &target_finder::get_current_card_targets() c
     assert(card != nullptr);
 
     if (m_response) {
-        return card->response_targets;
+        return card->responses;
     } else {
-        return card->targets;
+        return card->effects;
     }
 }
 
-const std::vector<card_target_data> &target_finder::get_optional_targets() const {
+const std::vector<effect_holder> &target_finder::get_optional_effects() const {
     if (m_last_played_card && !m_modifiers.empty() && m_modifiers.front()->modifier == card_modifier_type::leevankliff) {
-        return m_last_played_card->optional_targets;
+        return m_last_played_card->optionals;
     } else {
-        return m_playing_card->optional_targets;
+        return m_playing_card->optionals;
     }
 }
 
-const card_target_data &target_finder::get_target_data(int index) {
-    auto &targets = get_current_card_targets();
-    if (index < targets.size()) {
-        return targets[index];
+const effect_holder &target_finder::get_effect_holder(int index) {
+    auto &effects = get_current_card_effects();
+    if (index < effects.size()) {
+        return effects[index];
     }
 
-    auto &optionals = get_optional_targets();
-    return optionals[(index - targets.size()) % optionals.size()];
+    auto &optionals = get_optional_effects();
+    return optionals[(index - effects.size()) % optionals.size()];
 }
 
-int target_finder::num_targets_for(const card_target_data &data) {
+int target_finder::num_targets_for(const effect_holder &data) {
     if (data.target == play_card_target_type::cards_other_players) {
         return std::ranges::count_if(m_game->m_players | std::views::values, [&](const player_view &p) {
             if (p.dead || p.id == m_game->m_player_own_id) return false;
@@ -524,7 +523,7 @@ int target_finder::get_target_index() {
         [](const auto &) -> size_t { return 1; },
         []<typename T>(const std::vector<T> &value) { return value.size(); }
     }, m_targets[index].value);
-    index += size >= num_targets_for(get_target_data(index));
+    index += size >= num_targets_for(get_effect_holder(index));
     return index;
 }
 
@@ -550,7 +549,7 @@ void target_finder::handle_auto_targets() {
     using namespace enums::flag_operators;
 
     auto *self_player = m_game->find_player(m_game->m_player_own_id);
-    auto do_handle_target = [&](const card_target_data &data) {
+    auto do_handle_target = [&](const effect_holder &data) {
         switch (data.target) {
         case play_card_target_type::none:
             m_targets.emplace_back(target_none{}, true);
@@ -568,30 +567,30 @@ void target_finder::handle_auto_targets() {
         return false;
     };
 
-    auto &targets = get_current_card_targets();
-    auto &optionals = get_optional_targets();
-    bool repeatable = !optionals.empty() && optionals.back().type == effect_type::repeatable;
-    if (targets.empty()) {
+    auto &effects = get_current_card_effects();
+    auto &optionals = get_optional_effects();
+    bool repeatable = !optionals.empty() && optionals.back().is(effect_type::repeatable);
+    if (effects.empty()) {
         clear_targets();
     } else {
-        auto target_it = targets.begin() + m_targets.size();
-        auto target_end = targets.end();
-        if (target_it >= target_end && !optionals.empty()) {
-            int diff = m_targets.size() - targets.size();
-            target_it = optionals.begin() + (repeatable ? diff % optionals.size() : diff);
+        auto effect_it = effects.begin() + m_targets.size();
+        auto target_end = effects.end();
+        if (effect_it >= target_end && !optionals.empty()) {
+            int diff = m_targets.size() - effects.size();
+            effect_it = optionals.begin() + (repeatable ? diff % optionals.size() : diff);
             target_end = optionals.end();
         }
-        for(;;++target_it) {
-            if (target_it == target_end) {
+        for(;;++effect_it) {
+            if (effect_it == target_end) {
                 if (optionals.empty() || (target_end == optionals.end() && !repeatable)) {
                     break;
                 }
-                target_it = optionals.begin();
+                effect_it = optionals.begin();
                 target_end = optionals.end();
             }
-            if (!do_handle_target(*target_it)) break;
+            if (!do_handle_target(*effect_it)) break;
         }
-        if (target_it == target_end && (optionals.empty() || !repeatable)) {
+        if (effect_it == target_end && (optionals.empty() || !repeatable)) {
             send_play_card();
         }
     }
@@ -622,7 +621,7 @@ bool target_finder::verify_player_target(target_player_filter filter, player_vie
     });
 }
 
-bool target_finder::verify_card_target(const card_target_data &args, target_card target) {
+bool target_finder::verify_card_target(const effect_holder &args, target_card target) {
     if (!verify_player_target(args.player_filter, target.player)) return false;
     if (target.card->color == card_color_type::black && !bool(args.card_filter & target_card_filter::black)) return false;
 
@@ -635,9 +634,9 @@ bool target_finder::verify_card_target(const card_target_data &args, target_card
         case target_card_filter::blue: return target.card->color == card_color_type::blue;
         case target_card_filter::clubs: return target.card->suit == card_suit_type::clubs;
         case target_card_filter::bang: return is_bangcard(target.card);
-        case target_card_filter::missed: return !target.card->response_targets.empty() && target.card->response_targets.front().type == effect_type::missedcard;
-        case target_card_filter::beer: return !target.card->targets.empty() && target.card->targets.front().type == effect_type::beer;
-        case target_card_filter::bronco: return !target.card->equip_targets.empty() && target.card->equip_targets.back().type == equip_type::bronco;
+        case target_card_filter::missed: return !target.card->responses.empty() && target.card->responses.front().is(effect_type::missedcard);
+        case target_card_filter::beer: return !target.card->effects.empty() && target.card->effects.front().is(effect_type::beer);
+        case target_card_filter::bronco: return !target.card->equips.empty() && target.card->equips.back().is(equip_type::bronco);
         case target_card_filter::cube_slot:
         case target_card_filter::cube_slot_card: return target.card->color == card_color_type::orange;
         default: return false;
@@ -649,7 +648,7 @@ void target_finder::add_card_target(target_card target) {
     if (m_equipping) return;
 
     int index = get_target_index();
-    auto cur_target = get_target_data(index);
+    auto cur_target = get_effect_holder(index);
 
     if (cur_target.target == play_card_target_type::card || cur_target.target == play_card_target_type::cards_other_players) {
         if (!verify_card_target(cur_target, target)) {
@@ -693,7 +692,7 @@ void target_finder::add_card_target(target_card target) {
 void target_finder::add_character_target(target_card target) {
     if (m_equipping) return;
     
-    auto type = get_target_data(get_target_index());
+    auto type = get_effect_holder(get_target_index());
     if (!bool(type.card_filter & (target_card_filter::cube_slot | target_card_filter::cube_slot_card))) return;
     if (bool(type.card_filter & target_card_filter::table)) return;
 

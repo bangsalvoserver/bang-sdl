@@ -91,7 +91,7 @@ namespace banggame {
         void render(sdl::renderer &renderer, bool skip_if_animating = true);
     };
 
-    class card_view : public card_info {
+    class card_view : public card_data {
     public:
         std::vector<cube_widget *> cubes;
 

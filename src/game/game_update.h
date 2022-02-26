@@ -1,8 +1,7 @@
 #ifndef __GAME_UPDATE_H__
 #define __GAME_UPDATE_H__
 
-#include "card_enums.h"
-#include "holders.h"
+#include "card.h"
 
 namespace banggame {
 
@@ -39,40 +38,8 @@ namespace banggame {
         (int) card_id
     )};
 
-    struct card_target_data {REFLECTABLE(
-        (effect_type) type,
-        (play_card_target_type) target,
-        (target_player_filter) player_filter,
-        (target_card_filter) card_filter,
-        (short) args
-    )};
-
-    struct equip_target_data {REFLECTABLE(
-        (equip_type) type,
-        (play_card_target_type) target,
-        (target_player_filter) player_filter,
-        (short) args
-    )};
-
-    struct card_info {REFLECTABLE(
-        (int) id,
-        (std::string) name,
-        (std::string) image,
-        (std::vector<card_target_data>) targets,
-        (std::vector<card_target_data>) response_targets,
-        (std::vector<card_target_data>) optional_targets,
-        (std::vector<equip_target_data>) equip_targets,
-        (card_expansion_type) expansion,
-        (card_modifier_type) modifier,
-        (card_suit_type) suit,
-        (card_value_type) value,
-        (card_color_type) color
-    )
-        card_info() = default;
-    };
-
     struct show_card_update {REFLECTABLE(
-        (card_info) info,
+        (card_data) info,
         (show_card_flags) flags
     )};
 

@@ -10,47 +10,12 @@ namespace banggame {
     using namespace enums::flag_operators;
     using namespace std::placeholders;
 
-    static card_info make_card_info(const card &c) {
-        auto make_card_info_effects = []<typename T>(std::vector<T> &out, const auto &vec) {
-            for (const auto &value : vec) {
-                T obj;
-                obj.type = value.type;
-                if constexpr (requires { obj.target; }) {
-                    obj.target = value.target;
-                }
-                if constexpr (requires { obj.player_filter; }) {
-                    obj.player_filter = value.player_filter;
-                }
-                if constexpr (requires { obj.card_filter; }) {
-                    obj.card_filter = value.card_filter;
-                }
-                obj.args = value.args;
-                out.push_back(std::move(obj));
-            }
-        };
-        
-        card_info info;
-        info.expansion = c.expansion;
-        info.id = c.id;
-        info.name = c.name;
-        info.image = c.image;
-        info.modifier = c.modifier;
-        info.suit = c.suit;
-        info.value = c.value;
-        info.color = c.color;
-        make_card_info_effects(info.targets, c.effects);
-        make_card_info_effects(info.response_targets, c.responses);
-        make_card_info_effects(info.optional_targets, c.optionals);
-        make_card_info_effects(info.equip_targets, c.equips);
-        return info;
-    }
-
     void game::send_card_update(const card &c, player *owner, show_card_flags flags) {
         if (!owner || bool(flags & show_card_flags::show_everyone)) {
-            add_public_update<game_update_type::show_card>(make_card_info(c), flags);
+            add_public_update<game_update_type::show_card>(c, flags);
         } else {
             add_public_update<game_update_type::hide_card>(c.id, flags, owner->id);
-            add_private_update<game_update_type::show_card>(owner, make_card_info(c), flags);
+            add_private_update<game_update_type::show_card>(owner, c, flags);
         }
     }
 
@@ -82,7 +47,7 @@ namespace banggame {
             }), card_pile_type::shop_deck);
 
         auto show_card = [&](card *c) {
-            ADD_TO_RET(show_card, make_card_info(*c), show_card_flags::no_animation);
+            ADD_TO_RET(show_card, *c, show_card_flags::no_animation);
         };
 
         add_cards(m_specials, card_pile_type::specials);
@@ -197,7 +162,7 @@ struct to_end{};
     void game::start_game(const game_options &options, const all_cards_t &all_cards) {
         m_options = options;
         
-        auto add_card = [&](card_pile_type pile, const card &c) {
+        auto add_card = [&](card_pile_type pile, const card_data &c) {
             auto it = m_cards.emplace(get_next_id(), c).first;
             auto *new_card = get_pile(pile).emplace_back(&it->second);
             new_card->id = it->first;

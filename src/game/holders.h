@@ -9,9 +9,12 @@
 #include "effects/scenarios.h"
 #include "effects/requests.h"
 
+#include "utils/reflector.h"
+
 namespace banggame {
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, effect_type,
+        (none,          card_effect)
         (play_card_action, effect_play_card_action)
         (max_usages,    effect_max_usages)
         (pass_turn,     effect_pass_turn)
@@ -93,6 +96,7 @@ namespace banggame {
     )
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, equip_type,
+        (none,          card_effect)
         (max_hp,        effect_max_hp)
         (mustang,       effect_mustang)
         (scope,         effect_scope)
@@ -249,16 +253,14 @@ namespace banggame {
     }
 
     template<detail::effect_enum E>
-    struct effect_base : card_effect {
+    struct effect_base : reflector::reflectable_base<card_effect> {
         using enum_type = E;
-        enum_type type;
-
-        effect_base(enum_type type) : type(type) {}
+        REFLECTABLE((enum_type) type)
 
         bool is(enum_type value) const { return type == value; }
 
         template<enum_type Value> auto get() const {
-            if (type != Value) throw std::runtime_error("Tipo non valido");
+            if (type != Value) throw std::runtime_error("Invalid type");
             enums::enum_type_t<Value> value;
             static_cast<card_effect &>(value) = static_cast<const card_effect &>(*this);
             return value;
@@ -279,7 +281,7 @@ namespace banggame {
         void verify(card *origin_card, player *origin, player *target, card *target_card) const;
         void on_play(card *origin_card, player *origin, player *target, card *target_card);
     };
-
+    
     struct equip_holder : effect_base<equip_type> {
         using effect_base<equip_type>::effect_base;
 

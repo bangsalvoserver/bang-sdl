@@ -12,13 +12,13 @@ namespace banggame {
     struct player;
     struct card;
 
-    struct card_effect {
-        target_player_filter player_filter = enums::flags_none<target_player_filter>;
-        target_card_filter card_filter = enums::flags_none<target_card_filter>;
-        play_card_target_type target = play_card_target_type::none;
-        effect_flags flags = no_effect_flags;
-        short args = 0;
-    };
+    struct card_effect {REFLECTABLE(
+        (target_player_filter) player_filter,
+        (target_card_filter) card_filter,
+        (play_card_target_type) target,
+        (effect_flags) flags,
+        (short) args
+    )};
 
     struct effect_empty : card_effect {
         void on_play(card *origin_card, player *origin) {}
