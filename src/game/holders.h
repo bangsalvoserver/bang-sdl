@@ -94,6 +94,7 @@ namespace banggame {
         (mirage,        effect_mirage)
         (disarm,        effect_disarm)
         (sacrifice,     effect_sacrifice)
+        (lastwill,      effect_lastwill)
     )
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, equip_type,
@@ -210,8 +211,6 @@ namespace banggame {
         (move_bomb,     request_move_bomb)
         (rust,          request_rust)
         (card_sharper,  request_card_sharper)
-        (lastwill,      request_lastwill)
-        (lastwill_target, request_lastwill_target)
         (ricochet,      request_ricochet)
         (peyote,        request_peyote)
         (handcuffs,     request_handcuffs)
@@ -235,6 +234,7 @@ namespace banggame {
         (fanning,           handler_fanning)
         (squaw,             handler_squaw)
         (card_sharper,      handler_card_sharper)
+        (lastwill,          handler_lastwill)
     )
 
     namespace detail {

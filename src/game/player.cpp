@@ -292,7 +292,7 @@ namespace banggame {
             throw game_error("ERROR_TARGET_DEAD");
         }
 
-        std::ranges::for_each(util::enum_flag_values(filter), [&](target_player_filter value) {
+        std::ranges::for_each(enums::enum_flag_values(filter), [&](target_player_filter value) {
             switch (value) {
             case target_player_filter::self:
                 if (target != this) {
@@ -338,7 +338,7 @@ namespace banggame {
             throw game_error("ERROR_TARGET_BLACK_CARD");
         }
 
-        std::ranges::for_each(util::enum_flag_values(effect.card_filter), [&](target_card_filter value) {
+        std::ranges::for_each(enums::enum_flag_values(effect.card_filter), [&](target_card_filter value) {
             switch (value) {
             case target_card_filter::table:
                 if (target_card->pile != card_pile_type::player_table) {
@@ -403,7 +403,12 @@ namespace banggame {
 
         int diff = targets.size() - effects.size();
         if (!card_ptr->optionals.empty() && card_ptr->optionals.back().is(effect_type::repeatable)) {
-            if (diff < 0 || diff % card_ptr->optionals.size() != 0) throw game_error("ERROR_INVALID_TARGETS");
+            if (diff < 0 || diff % card_ptr->optionals.size() != 0
+                || (card_ptr->optionals.back().args > 0
+                    && diff > (card_ptr->optionals.size() * card_ptr->optionals.back().args)))
+            {
+                throw game_error("ERROR_INVALID_TARGETS");
+            }
         } else {
             if (diff != 0 && diff != card_ptr->optionals.size()) throw game_error("ERROR_INVALID_TARGETS");
         }

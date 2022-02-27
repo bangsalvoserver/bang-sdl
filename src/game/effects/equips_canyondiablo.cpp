@@ -38,15 +38,6 @@ namespace banggame {
         });
     }
 
-    void effect_lastwill::on_equip(card *target_card, player *p) {
-        p->m_game->add_event<event_type::on_player_death_priority>(target_card, [=](player *origin, player *target) {
-            if (p == target) {
-                target->m_game->pop_request_noupdate(request_type::death);
-                target->m_game->add_request<request_type::lastwill>(target_card, target);
-            }
-        });
-    }
-
     void effect_brothel::on_equip(card *target_card, player *target) {
         target->add_predraw_check(target_card, -2, [=](card *drawn_card) {
             target->discard_card(target_card);

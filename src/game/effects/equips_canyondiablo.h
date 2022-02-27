@@ -17,10 +17,6 @@ namespace banggame {
         void on_equip(card *target_card, player *target);
     };
 
-    struct effect_lastwill : event_based_effect {
-        void on_equip(card *target_card, player *target);
-    };
-
     struct effect_brothel : predraw_check_effect {
         void on_equip(card *target_card, player *target);
     };

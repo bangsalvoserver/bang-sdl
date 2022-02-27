@@ -75,9 +75,9 @@ namespace banggame {
         void on_equip(card *target_card, player *target);
     };
 
-    struct request_handcuffs : request_base, allowed_piles<card_pile_type::selection> {
+    struct request_handcuffs : selection_picker {
         request_handcuffs(card *origin_card, player *target)
-            : request_base(origin_card, nullptr, target) {}
+            : selection_picker(origin_card, nullptr, target) {}
 
         void on_pick(card_pile_type pile, player *target, card *target_card);
         game_formatted_string status_text(player *owner) const;

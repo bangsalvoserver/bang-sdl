@@ -2176,9 +2176,40 @@
             "equip": [
                 {
                     "target": "player",
-                    "class": "lastwill"
+                    "class": "none"
                 }
-            ]
+            ],
+            "responses": [
+                {
+                    "class": "max_usages",
+                    "args": 1
+                },
+                {
+                    "class": "lastwill"
+                },
+                {
+                    "target": "player",
+                    "player_filter": "notself",
+                    "class": "mth_add"
+                },
+                {
+                    "target": "card",
+                    "player_filter": "self",
+                    "class": "mth_add"
+                }
+            ],
+            "optional": [
+                {
+                    "target": "card",
+                    "player_filter": "self",
+                    "class": "mth_add"
+                },
+                {
+                    "class": "repeatable",
+                    "args": 2
+                }
+            ],
+            "multitarget": "lastwill"
         },
         {
             "name": "Guida Indiana",

@@ -48,10 +48,11 @@ namespace banggame {
         int duration;
     };
 
-    template<card_pile_type ... Es>
-    struct allowed_piles {
-        bool can_pick(card_pile_type pile, player *, card *) const {
-            return ((pile == Es) || ...);
+    struct selection_picker : request_base {
+        using request_base::request_base;
+
+        bool can_pick(card_pile_type pile, player *target_player, card *target_card) const {
+            return pile == card_pile_type::selection;
         }
     };
 

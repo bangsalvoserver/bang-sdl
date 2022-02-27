@@ -83,14 +83,20 @@ namespace banggame {
             if (json_card.isMember("equip")) {
                 out.equips = make_effects_from_json<equip_holder>(json_card["equip"]);
             }
+            if (json_card.isMember("modifier")) {
+                out.modifier = enums::from_string<card_modifier_type>(json_card["modifier"].asString());
+                if (out.modifier == enums::invalid_enum_v<card_modifier_type>) {
+                    throw invalid_effect(std::string("Invalid modifier type: ") + json_card["modifier"].asString());
+                }
+            }
+            if (json_card.isMember("multitarget")) {
+                out.multi_target_handler = enums::from_string<mth_type>(json_card["multitarget"].asString());
+                if (out.multi_target_handler == enums::invalid_enum_v<mth_type>) {
+                    throw invalid_effect(std::string("Invalid multitarget type: ") + json_card["multitarget"].asString());
+                }
+            }
         } catch (const invalid_effect &e) {
             throw std::runtime_error(out.name + ": " + e.what());
-        }
-        if (json_card.isMember("modifier")) {
-            out.modifier = enums::from_string<card_modifier_type>(json_card["modifier"].asString());
-        }
-        if (json_card.isMember("multitarget")) {
-            out.multi_target_handler = enums::from_string<mth_type>(json_card["multitarget"].asString());
         }
         if (json_card.isMember("discard_if_two_players")) {
             out.discard_if_two_players = json_card["discard_if_two_players"].asBool();

@@ -282,12 +282,9 @@ namespace banggame {
     }
 
     void request_death::on_resolve() {
-        target->m_game->instant_event<event_type::on_player_death_priority>(origin, target);
-        if (target->m_game->top_request_is(request_type::death)) {
-            target->m_game->player_death(origin, target);
-            target->m_game->pop_request(request_type::death);
-            target->m_game->check_game_over(origin, target);
-        }
+        target->m_game->player_death(origin, target);
+        target->m_game->pop_request(request_type::death);
+        target->m_game->check_game_over(origin, target);
     }
 
     game_formatted_string request_death::status_text(player *owner) const {

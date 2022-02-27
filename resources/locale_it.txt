@@ -111,10 +111,6 @@ STATUS_CAN_PLAY_TUMBLEWEED          {0} estrae {3} per {2} ... Puoi giocare {1}
 STATUS_CAN_PLAY_TUMBLEWEED_OTHER    {0} estrae {3} per {2} ... {4} può giocare {1}
 STATUS_CARD_SHARPER                 {0} per scambiare {1} con {2} ... Rispondi con Fuga o Risolvi
 STATUS_CARD_SHARPER_OTHER           {0} deve rispondere a {1} per scambiare {2} con {3}
-STATUS_LASTWILL                     {0} ... Scegli fino a tre carte da dare
-STATUS_LASTWILL_OTHER               {1} ... {0} deve scegliere fino a tre carte da dare
-STATUS_LASTWILL_TARGET              {0} ... Scegli a chi dare le carte
-STATUS_LASTWILL_TARGET_OTHER        {1} ... {0} deve scegliere a chi dare le carte
 STATUS_NEWIDENTITY                  {0} ... Scegli con quale personaggio cambiare
 STATUS_NEWIDENTITY_OTHER            {1} ... {0} deve scegliere con quale personaggio cambiare
 banggame::player_role::sheriff      Sceriffo

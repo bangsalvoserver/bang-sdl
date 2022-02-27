@@ -30,6 +30,15 @@ namespace banggame {
         void on_play(card *origin_card, player *origin);
     };
 
+    struct effect_lastwill : card_effect {
+        bool can_respond(card *origin_card, player *origin) const;
+        void on_play(card *origin_card, player *origin);
+    };
+
+    struct handler_lastwill {
+        void on_play(card *origin_card, player *origin, mth_target_list targets);
+    };
+
 }
 
 #endif

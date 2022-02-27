@@ -2,13 +2,14 @@
 #define __ENUMS_H__
 
 #include <boost/preprocessor.hpp>
+
 #include <algorithm>
-#include <numeric>
 #include <string>
+#include <ranges>
+#include <limits>
 #include <bit>
 
 #include "type_list.h"
-#include "svstream.h"
 
 namespace enums {
     namespace detail {
@@ -184,13 +185,18 @@ namespace enums {
 
     template<has_names T> requires flags_enum<T>
     constexpr T flags_from_string(std::string_view str) {
-        util::isviewstream ss(str);
-        return std::transform_reduce(
-            std::istream_iterator<std::string>(ss),
-            std::istream_iterator<std::string>(),
-            flags_none<T>,
-            [](T lhs, T rhs) { return lhs | rhs; },
-            from_string<T>);
+        constexpr std::string_view whitespace = " \t";
+        T ret = flags_none<T>;
+        while (true) {
+            size_t pos = str.find_first_not_of(whitespace);
+            if (pos == std::string_view::npos) break;
+            str = str.substr(pos);
+            pos = str.find_first_of(whitespace);
+            ret |= from_string<T>(str.substr(0, pos));
+            if (pos == std::string_view::npos) break;
+            str = str.substr(pos);
+        }
+        return ret;
     }
 
     template<has_names T> requires flags_enum<T>
@@ -242,6 +248,14 @@ namespace enums {
             }
             return out;
         }
+    }
+
+    template<enums::flags_enum E>
+    auto enum_flag_values(E value) {
+        return enums::enum_values_v<E> | std::views::filter([=](E item) {
+            using namespace flag_operators;
+            return bool(item & value);
+        });
     }
     
     template<flags_enum T>

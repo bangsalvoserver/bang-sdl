@@ -54,9 +54,9 @@ namespace banggame {
         game_formatted_string status_text(player *owner) const;
     };
 
-    struct request_poker_draw : request_base, allowed_piles<card_pile_type::selection> {
+    struct request_poker_draw : selection_picker {
         request_poker_draw(card *origin_card, player *target)
-            : request_base(origin_card, nullptr, target) {}
+            : selection_picker(origin_card, nullptr, target) {}
 
         int num_cards = 2;
 

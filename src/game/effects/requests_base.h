@@ -32,17 +32,17 @@ namespace banggame {
         game_formatted_string status_text(player *owner) const;
     };
 
-    struct request_check : request_base, allowed_piles<card_pile_type::selection> {
+    struct request_check : selection_picker {
         request_check(card *origin_card, player *target)
-            : request_base(origin_card, nullptr, target) {}
+            : selection_picker(origin_card, nullptr, target) {}
 
         void on_pick(card_pile_type pile, player *target, card *target_card);
         game_formatted_string status_text(player *owner) const;
     };
 
-    struct request_generalstore : request_base, allowed_piles<card_pile_type::selection> {
+    struct request_generalstore : selection_picker {
         request_generalstore(card *origin_card, player *origin, player *target)
-            : request_base(origin_card, origin, target) {}
+            : selection_picker(origin_card, origin, target) {}
 
         void on_pick(card_pile_type pile, player *target, card *target_card);
         game_formatted_string status_text(player *owner) const;

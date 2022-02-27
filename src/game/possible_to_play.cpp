@@ -11,7 +11,7 @@ namespace banggame {
 
     bool valid_player(player *origin, player *target, target_player_filter filter) {
         if (!target->alive() && !bool(filter & target_player_filter::dead)) return false;
-        return std::ranges::all_of(util::enum_flag_values(filter), [&](target_player_filter value) {
+        return std::ranges::all_of(enums::enum_flag_values(filter), [&](target_player_filter value) {
             switch (value) {
             case target_player_filter::self: return origin == target;
             case target_player_filter::notself: return origin != target;

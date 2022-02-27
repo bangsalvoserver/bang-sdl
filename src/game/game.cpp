@@ -430,7 +430,6 @@ namespace banggame {
         };
 
         for (player &target : m_players) {
-            maybe_add_pick_id(card_pile_type::player, &target, nullptr);
             std::ranges::for_each(target.m_hand, std::bind(maybe_add_pick_id, card_pile_type::player_hand, &target, _1));
             std::ranges::for_each(target.m_table, std::bind(maybe_add_pick_id, card_pile_type::player_table, &target, _1));
             std::ranges::for_each(target.m_characters, std::bind(maybe_add_pick_id, card_pile_type::player_character, &target, _1));

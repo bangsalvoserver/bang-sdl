@@ -111,10 +111,6 @@ STATUS_CAN_PLAY_TUMBLEWEED          {0} "draws!" {3} for {2} ... You can play {1
 STATUS_CAN_PLAY_TUMBLEWEED_OTHER    {0} "draws!" {3} for {2} ... {4} can play {1}
 STATUS_CARD_SHARPER                 {0} to switch {1} with {2} ... Respond with Fuga or Resolve
 STATUS_CARD_SHARPER_OTHER           {0} must respond to {1} to switch {2} with {3}
-STATUS_LASTWILL                     {0} ... Choose up to three cards to give
-STATUS_LASTWILL_OTHER               {1} ... {0} must choose up to three cards to give
-STATUS_LASTWILL_TARGET              {0} ... Choose who to give the cards
-STATUS_LASTWILL_TARGET_OTHER        {1} ... {0} must choose who to give the cards
 STATUS_NEWIDENTITY                  {0} ... Choose which character to switch to
 STATUS_NEWIDENTITY_OTHER            {1} ... {0} must choose which character to switch to
 banggame::player_role::sheriff      Sheriff

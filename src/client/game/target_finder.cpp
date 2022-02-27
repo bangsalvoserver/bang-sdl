@@ -3,6 +3,8 @@
 #include "game.h"
 #include "../manager.h"
 
+#include "utils/utils.h"
+
 #include <cassert>
 
 using namespace banggame;
@@ -37,9 +39,6 @@ void target_finder::set_border_colors() {
         case card_pile_type::player_character:
         case card_pile_type::selection:
             card->border_color = options::target_finder_can_pick_rgba;
-            break;
-        case card_pile_type::player:
-            player->border_color = options::target_finder_can_pick_rgba;
             break;
         case card_pile_type::main_deck:
             m_game->m_main_deck.border_color = options::target_finder_can_pick_rgba;
@@ -130,9 +129,6 @@ void target_finder::clear_status() {
         case card_pile_type::player_character:
         case card_pile_type::selection:
             card->border_color = 0;
-            break;
-        case card_pile_type::player:
-            player->border_color = 0;
             break;
         case card_pile_type::main_deck:
             m_game->m_main_deck.border_color = 0;
@@ -387,10 +383,7 @@ bool target_finder::on_click_player(player_view *player) {
         }
     };
 
-    if (can_pick(card_pile_type::player, player, nullptr)) {
-        send_pick_card(card_pile_type::player, player);
-        return true;
-    } else if (m_playing_card) {
+    if (m_playing_card) {
         if (m_equipping) {
             if (verify_target(m_playing_card->equips[m_targets.size()])) {
                 m_targets.emplace_back(target_player{player});
@@ -586,16 +579,17 @@ void target_finder::handle_auto_targets() {
         }
         for(;;++effect_it) {
             if (effect_it == target_end) {
-                if (optionals.empty() || (target_end == optionals.end() && !repeatable)) {
+                if (optionals.empty() || (target_end == optionals.end()
+                    && (!repeatable || (optionals.back().args > 0
+                        && m_targets.size() - effects.size() == optionals.size() * optionals.back().args))))
+                {
+                    send_play_card();
                     break;
                 }
                 effect_it = optionals.begin();
                 target_end = optionals.end();
             }
             if (!do_handle_target(*effect_it)) break;
-        }
-        if (effect_it == target_end && (optionals.empty() || !repeatable)) {
-            send_play_card();
         }
     }
 }
@@ -605,7 +599,7 @@ bool target_finder::verify_player_target(target_player_filter filter, player_vie
 
     if (target_player->dead != bool(filter & target_player_filter::dead)) return false;
 
-    return std::ranges::all_of(util::enum_flag_values(filter), [&](target_player_filter value) {
+    return std::ranges::all_of(enums::enum_flag_values(filter), [&](target_player_filter value) {
         switch (value) {
         case target_player_filter::self: return target_player->id == m_game->m_player_own_id;
         case target_player_filter::notself: return target_player->id != m_game->m_player_own_id;
@@ -629,7 +623,7 @@ bool target_finder::verify_card_target(const effect_holder &args, target_card ta
     if (!verify_player_target(args.player_filter, target.player)) return false;
     if ((target.card->color == card_color_type::black) != bool(args.card_filter & target_card_filter::black)) return false;
 
-    return std::ranges::all_of(util::enum_flag_values(args.card_filter), [&](target_card_filter value) {
+    return std::ranges::all_of(enums::enum_flag_values(args.card_filter), [&](target_card_filter value) {
         switch (value) {
         case target_card_filter::black:
         case target_card_filter::can_repeat: return true;

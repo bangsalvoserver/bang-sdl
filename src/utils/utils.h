@@ -1,12 +1,7 @@
 #ifndef __UTILS_H__
 #define __UTILS_H__
 
-#include "enum_variant.h"
-#include "svstream.h"
-
-#include <iostream>
-#include <ranges>
-#include <map>
+#include <utility>
 
 namespace util {
 
@@ -19,14 +14,6 @@ namespace util {
 
     template<typename ... Ts> struct overloaded : Ts ... { using Ts::operator() ...; };
     template<typename ... Ts> overloaded(Ts ...) -> overloaded<Ts ...>;
-
-    template<enums::flags_enum E>
-    auto enum_flag_values(E value) {
-        return enums::enum_values_v<E> | std::views::filter([=](E item) {
-            using namespace enums::flag_operators;
-            return bool(item & value);
-        });
-    }
 
     template<typename T> struct nocopy_wrapper : T {
         nocopy_wrapper(T &&value) : T(std::move(value)) {}

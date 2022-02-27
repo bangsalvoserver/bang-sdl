@@ -1,9 +1,11 @@
 #include "game.h"
 #include "../manager.h"
 #include "../media_pak.h"
+#include "utils/utils.h"
 
 #include <iostream>
 #include <numbers>
+#include <ranges>
 
 using namespace banggame;
 using namespace enums::flag_operators;

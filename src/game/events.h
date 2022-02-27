@@ -1,6 +1,7 @@
 #ifndef __EVENTS_H__
 #define __EVENTS_H__
 
+#include <map>
 #include <list>
 #include <functional>
 
@@ -30,7 +31,6 @@ namespace banggame {
         (on_discard_card,   std::function<void(player *origin, player *target, card *target_card)>)
         (on_hit,            std::function<void(card *origin_card, player *origin, player *target, int damage, bool is_bang)>)
         (on_missed,         std::function<void(card *origin_card, player *origin, player *target, bool is_bang)>)
-        (on_player_death_priority, std::function<void(player *origin, player *target)>)
         (on_player_death,   std::function<void(player *origin, player *target)>)
         (on_equip,          std::function<void(player *origin, player *target, card *target_card)>)
         (on_play_hand_card, std::function<void(player *origin, card *target_card)>)

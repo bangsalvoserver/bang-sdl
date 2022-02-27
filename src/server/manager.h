@@ -1,9 +1,6 @@
 #ifndef __MANAGER_H__
 #define __MANAGER_H__
 
-#include <list>
-#include <map>
-
 #include <json/json.h>
 
 #include "utils/utils.h"

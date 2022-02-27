@@ -3,6 +3,8 @@
 
 #include "player.h"
 
+#include "utils/utils.h"
+
 namespace banggame{
 
     struct nonlocalized_string : std::string {

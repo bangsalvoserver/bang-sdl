@@ -98,4 +98,20 @@ namespace banggame {
             }
         });
     }
+
+    bool effect_lastwill::can_respond(card *origin_card, player *origin) const {
+        return origin->m_game->top_request_is(request_type::death, origin);
+    }
+
+    void effect_lastwill::on_play(card *origin_card, player *origin) {
+        origin->m_game->send_request_update();
+    }
+
+    void handler_lastwill::on_play(card *origin_card, player *origin, mth_target_list targets) {
+        player *target = std::get<player *>(targets[0]);
+
+        for (auto [p, c] : targets | std::views::drop(1)) {
+            target->add_to_hand(c);
+        }
+    }
 }
