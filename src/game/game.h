@@ -45,6 +45,8 @@ namespace banggame {
     struct game : event_handler_map {
         std::list<std::pair<player *, game_update>> m_updates;
 
+        std::list<game_formatted_string> m_saved_log;
+
         std::list<request_holder> m_requests;
         struct draw_check_handler {
             draw_check_function function;
@@ -115,7 +117,7 @@ namespace banggame {
 
         template<typename ... Ts>
         void add_log(Ts && ... args) {
-            add_public_update<game_update_type::game_log>(std::forward<Ts>(args) ...);
+            add_public_update<game_update_type::game_log>(m_saved_log.emplace_back(std::forward<Ts>(args) ...));
         }
 
         std::vector<game_update> get_game_state_updates(player *owner);

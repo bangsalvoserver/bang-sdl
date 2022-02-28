@@ -43,7 +43,7 @@ namespace banggame {
         add_cards(m_cards
             | std::views::values
             | std::views::filter([](const card &c) {
-                return bool(c.expansion & card_expansion_type::goldrush);
+                return bool(c.expansion & card_expansion_type::goldrush) && !c.is_character();
             }), card_pile_type::shop_deck);
 
         auto show_card = [&](card *c) {
@@ -92,7 +92,7 @@ namespace banggame {
         }
 
         for (auto &p : m_players) {
-            if (p.m_role == player_role::sheriff || p.m_hp == 0 || m_players.size() < 4) {
+            if (p.m_role == player_role::sheriff || p.m_hp == 0 || m_players.size() < 4 || &p == owner) {
                 ADD_TO_RET(player_show_role, p.id, p.m_role, true);
             }
 
@@ -120,6 +120,12 @@ namespace banggame {
         }
         if (!m_requests.empty()) {
             ADD_TO_RET(request_status, make_request_update(owner));
+        }
+        if (owner && owner->m_forced_card) {
+            ADD_TO_RET(force_play_card, owner->m_forced_card->id);
+        }
+        for (const auto &str : m_saved_log) {
+            ADD_TO_RET(game_log, str);
         }
 
 #undef ADD_TO_RET
