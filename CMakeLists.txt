@@ -88,7 +88,6 @@ add_library(bangclient SHARED ${bangclient_srcs})
 target_compile_definitions(bangclient PRIVATE SDL_MAIN_HANDLED)
 
 target_link_libraries(bangclient PkgConfig::SDL2 PkgConfig::SDL2_ttf PkgConfig::SDL2_image PkgConfig::SDL2_gfx PkgConfig::jsoncpp)
-target_link_libraries(bangclient locale_headers)
 
 find_package(fmt REQUIRED)
 if (TARGET fmt::fmt-header-only)

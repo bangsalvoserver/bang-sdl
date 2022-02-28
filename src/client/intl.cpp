@@ -1,13 +1,7 @@
 #include "intl.h"
 
-#include "locales/locales.h"
-
-namespace intl {
-    DEFINE_ENUM_DATA_IN_NS(intl, language,
-        (english, locale_en_txt)
-        (italian, locale_it_txt)
-    )
-}
+#include "locales/locale_en.h"
+#include "locales/locale_it.h"
 
 #ifdef WIN32
 #include <winnls.h>
@@ -43,8 +37,8 @@ namespace intl {
     static const language current_language = get_system_language();
 
     std::string translate(std::string_view str) {
-        return std::string(enums::visit_enum([&](auto enum_const) {
-            static constexpr auto strings = enums::enum_data_v<decltype(enum_const)::value>;
+        return std::string(enums::visit_enum([&]<language E>(enums::enum_constant<E>) {
+            static constexpr auto strings = enums::enum_data_v<E>;
             auto it = strings.find(str);
             if (it == strings.end()) {
                 return str;
