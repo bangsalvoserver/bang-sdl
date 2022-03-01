@@ -90,7 +90,7 @@
             "equip": [
                 {
                     "class": "weapon",
-                    "args": 3
+                    "value": 3
                 }
             ]
         },
@@ -105,7 +105,7 @@
             "equip": [
                 {
                     "class": "weapon",
-                    "args": 4
+                    "value": 4
                 }
             ]
         },
@@ -122,7 +122,7 @@
             "equip": [
                 {
                     "class": "weapon",
-                    "args": 2
+                    "value": 2
                 }
             ]
         },
@@ -138,7 +138,7 @@
             "equip": [
                 {
                     "class": "weapon",
-                    "args": 1
+                    "value": 1
                 },
                 {
                     "class": "volcanic"
@@ -156,7 +156,7 @@
             "equip": [
                 {
                     "class": "weapon",
-                    "args": 5
+                    "value": 5
                 }
             ]
         },
@@ -265,7 +265,7 @@
             "effects": [
                 {
                     "class": "draw",
-                    "args": 2
+                    "value": 2
                 },
                 {
                     "class": "changewws"
@@ -409,7 +409,7 @@
             "effects": [
                 {
                     "class": "draw",
-                    "args": 3
+                    "value": 3
                 },
                 {
                     "class": "changewws"
@@ -486,7 +486,7 @@
             "equip": [
                 {
                     "class": "weapon",
-                    "args": 3
+                    "value": 3
                 }
             ]
         },
@@ -501,7 +501,7 @@
             "equip": [
                 {
                     "class": "weapon",
-                    "args": 4
+                    "value": 4
                 }
             ]
         },
@@ -794,7 +794,7 @@
                 },
                 {
                     "class": "heal",
-                    "args": 2
+                    "value": 2
                 }
             ]
         },
@@ -965,7 +965,7 @@
             "effects": [
                 {
                     "class": "draw",
-                    "args": 3
+                    "value": 3
                 },
                 {
                     "class": "changewws"
@@ -1031,7 +1031,7 @@
             "equip": [
                 {
                     "class": "weapon",
-                    "args": 1
+                    "value": 1
                 },
                 {
                     "class": "lemat"
@@ -1080,7 +1080,7 @@
             "equip": [
                 {
                     "class": "weapon",
-                    "args": 1
+                    "value": 1
                 },
                 {
                     "class": "shotgun"
@@ -1614,7 +1614,7 @@
             "effects": [
                 {
                     "class": "pay_cube",
-                    "args": 2
+                    "value": 2
                 },
                 {
                     "class": "draw"
@@ -1632,7 +1632,7 @@
             "effects": [
                 {
                     "class": "max_usages",
-                    "args": 1
+                    "value": 1
                 },
                 {
                     "class": "pay_cube"
@@ -1654,7 +1654,7 @@
             "equip": [
                 {
                     "class": "weapon",
-                    "args": 6
+                    "value": 6
                 }
             ],
             "effects": [
@@ -1699,7 +1699,7 @@
             "equip": [
                 {
                     "class": "weapon",
-                    "args": 2
+                    "value": 2
                 }
             ],
             "effects": [
@@ -1739,7 +1739,7 @@
             "responses": [
                 {
                     "class": "pay_cube",
-                    "args": 2
+                    "value": 2
                 },
                 {
                     "class": "missed"
@@ -1780,7 +1780,7 @@
             "equip": [
                 {
                     "class": "weapon",
-                    "args": 1
+                    "value": 1
                 }
             ],
             "effects": [
@@ -1803,7 +1803,7 @@
             "effects": [
                 {
                     "class": "pay_cube",
-                    "args": 3
+                    "value": 3
                 },
                 {
                     "target": "card",
@@ -1823,7 +1823,7 @@
             "effects": [
                 {
                     "class": "pay_cube",
-                    "args": 3
+                    "value": 3
                 },
                 {
                     "class": "heal"
@@ -1841,7 +1841,7 @@
             "effects": [
                 {
                     "class": "pay_cube",
-                    "args": 3
+                    "value": 3
                 },
                 {
                     "target": "card",
@@ -1863,7 +1863,7 @@
             "equip": [
                 {
                     "class": "weapon",
-                    "args": 3
+                    "value": 3
                 }
             ],
             "effects": [
@@ -2107,13 +2107,13 @@
             "equip": [
                 {
                     "class": "weapon",
-                    "args": 2
+                    "value": 2
                 }
             ],
             "effects": [
                 {
                     "class": "max_usages",
-                    "args": 1
+                    "value": 1
                 },
                 {
                     "target": "card",
@@ -2151,7 +2151,7 @@
             "responses": [
                 {
                     "class": "max_usages",
-                    "args": 1
+                    "value": 1
                 },
                 {
                     "class": "lastwill"
@@ -2175,7 +2175,7 @@
                 },
                 {
                     "class": "repeatable",
-                    "args": 2
+                    "value": 2
                 }
             ],
             "multitarget": "lastwill"
@@ -2205,7 +2205,7 @@
             "equip": [
                 {
                     "class": "weapon",
-                    "args": 3
+                    "value": 3
                 }
             ]
         },
@@ -2358,7 +2358,7 @@
                 {
                     "target": "player",
                     "class": "weapon",
-                    "args": 0
+                    "value": 0
                 }
             ]
         },
@@ -2389,7 +2389,7 @@
             "effects": [
                 {
                     "class": "draw",
-                    "args": 2
+                    "value": 2
                 },
                 {
                     "target": "player",
@@ -2424,7 +2424,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 },
                 {
                     "class": "boots"
@@ -2438,7 +2438,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 },
                 {
                     "class": "black_jack"
@@ -2452,7 +2452,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 },
                 {
                     "class": "calamity_janet"
@@ -2482,7 +2482,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 3
+                    "value": 3
                 },
                 {
                     "class": "el_gringo"
@@ -2496,7 +2496,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 }
             ],
             "responses": [
@@ -2527,7 +2527,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 }
             ],
             "responses": [
@@ -2543,7 +2543,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 },
                 {
                     "class": "kit_carlson"
@@ -2557,7 +2557,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 },
                 {
                     "class": "horsecharm"
@@ -2571,7 +2571,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 3
+                    "value": 3
                 },
                 {
                     "class": "mustang"
@@ -2585,7 +2585,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 }
             ],
             "responses": [
@@ -2612,7 +2612,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 },
                 {
                     "class": "scope"
@@ -2626,7 +2626,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 }
             ],
             "effects": [
@@ -2674,7 +2674,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 },
                 {
                     "class": "slab_the_killer"
@@ -2688,7 +2688,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 },
                 {
                     "class": "suzy_lafayette"
@@ -2703,7 +2703,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 },
                 {
                     "class": "vulture_sam"
@@ -2717,7 +2717,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 },
                 {
                     "class": "volcanic"
@@ -2731,7 +2731,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 3
+                    "value": 3
                 },
                 {
                     "class": "claus_the_saint"
@@ -2745,7 +2745,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 },
                 {
                     "class": "johnny_kisch"
@@ -2759,13 +2759,13 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 }
             ],
             "effects": [
                 {
                     "class": "max_usages",
-                    "args": 1
+                    "value": 1
                 },
                 {
                     "target": "card",
@@ -2785,7 +2785,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 3
+                    "value": 3
                 },
                 {
                     "class": "calumet"
@@ -2799,7 +2799,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 },
                 {
                     "class": "bellestar"
@@ -2813,7 +2813,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 },
                 {
                     "class": "bill_noface"
@@ -2827,7 +2827,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 }
             ],
             "effects": [
@@ -2838,7 +2838,7 @@
                 },
                 {
                     "class": "draw",
-                    "args": 2
+                    "value": 2
                 }
             ]
         },
@@ -2849,7 +2849,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 }
             ],
             "effects": [
@@ -2879,7 +2879,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 3
+                    "value": 3
                 }
             ],
             "responses": [
@@ -2902,7 +2902,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 },
                 {
                     "class": "greg_digger"
@@ -2917,7 +2917,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 },
                 {
                     "class": "herb_hunter"
@@ -2931,13 +2931,13 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 }
             ],
             "effects": [
                 {
                     "class": "max_usages",
-                    "args": 2
+                    "value": 2
                 },
                 {
                     "target": "card",
@@ -2947,7 +2947,7 @@
                 },
                 {
                     "class": "draw",
-                    "args": 2
+                    "value": 2
                 }
             ]
         },
@@ -2958,7 +2958,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 },
                 {
                     "class": "molly_stark"
@@ -2972,7 +2972,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 }
             ],
             "responses": [
@@ -2996,7 +2996,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 3
+                    "value": 3
                 },
                 {
                     "class": "pickaxe"
@@ -3010,11 +3010,11 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 3
+                    "value": 3
                 },
                 {
                     "class": "gunbelt",
-                    "args": 10
+                    "value": 10
                 }
             ]
         },
@@ -3025,7 +3025,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 },
                 {
                     "class": "tequila_joe"
@@ -3039,7 +3039,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 3
+                    "value": 3
                 },
                 {
                     "class": "vera_custer"
@@ -3053,13 +3053,13 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 }
             ],
             "effects": [
                 {
                     "class": "max_usages",
-                    "args": 1
+                    "value": 1
                 },
                 {
                     "target": "card",
@@ -3081,7 +3081,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 },
                 {
                     "class": "colorado_bill"
@@ -3095,13 +3095,13 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 }
             ],
             "effects": [
                 {
                     "class": "max_usages",
-                    "args": 1
+                    "value": 1
                 },
                 {
                     "target": "card",
@@ -3122,7 +3122,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 },
                 {
                     "class": "evelyn_shebang"
@@ -3146,7 +3146,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 },
                 {
                     "class": "henry_block"
@@ -3160,7 +3160,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 },
                 {
                     "class": "lemonade_jim"
@@ -3188,7 +3188,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 }
             ],
             "responses": [
@@ -3210,7 +3210,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 5
+                    "value": 5
                 },
                 {
                     "class": "tuco_franziskaner"
@@ -3224,7 +3224,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 9
+                    "value": 9
                 },
                 {
                     "class": "big_spencer"
@@ -3238,13 +3238,13 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 }
             ],
             "effects": [
                 {
                     "class": "max_usages",
-                    "args": 1
+                    "value": 1
                 },
                 {
                     "target": "card",
@@ -3268,7 +3268,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 5
+                    "value": 5
                 },
                 {
                     "class": "gary_looter"
@@ -3282,7 +3282,7 @@
             "responses": [
                 {
                     "class": "max_usages",
-                    "args": 1
+                    "value": 1
                 },
                 {
                     "class": "drawing"
@@ -3294,7 +3294,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 },
                 {
                     "class": "greygory_deck"
@@ -3308,7 +3308,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 },
                 {
                     "class": "john_pain"
@@ -3323,7 +3323,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 }
             ]
         },
@@ -3334,7 +3334,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 3
+                    "value": 3
                 }
             ],
             "responses": [
@@ -3350,7 +3350,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 },
                 {
                     "class": "youl_grinner"
@@ -3364,7 +3364,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 },
                 {
                     "class": "al_preacher"
@@ -3398,13 +3398,13 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 }
             ],
             "effects": [
                 {
                     "class": "max_usages",
-                    "args": 1
+                    "value": 1
                 },
                 {
                     "target": "card",
@@ -3417,7 +3417,7 @@
                     "player_filter": "self",
                     "card_filter": "cube_slot_card",
                     "class": "add_cube",
-                    "args": 2
+                    "value": 2
                 }
             ]
         },
@@ -3428,7 +3428,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 },
                 {
                     "class": "bloody_mary"
@@ -3442,13 +3442,13 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 }
             ],
             "effects": [
                 {
                     "class": "max_usages",
-                    "args": 1
+                    "value": 1
                 },
                 {
                     "target": "card",
@@ -3464,7 +3464,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 },
                 {
                     "class": "julie_cutter"
@@ -3478,13 +3478,13 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 }
             ],
             "effects": [
                 {
                     "class": "max_usages",
-                    "args": 1
+                    "value": 1
                 },
                 {
                     "target": "card",
@@ -3512,7 +3512,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 }
             ],
             "responses": [
@@ -3528,7 +3528,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 5
+                    "value": 5
                 },
                 {
                     "class": "red_ringo"
@@ -3537,7 +3537,7 @@
             "effects": [
                 {
                     "class": "max_usages",
-                    "args": 1
+                    "value": 1
                 },
                 {
                     "target": "card",
@@ -3562,7 +3562,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 },
                 {
                     "class": "don_bell"
@@ -3576,7 +3576,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 },
                 {
                     "class": "dutch_will"
@@ -3590,17 +3590,17 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 }
             ],
             "effects": [
                 {
                     "class": "max_usages",
-                    "args": 1
+                    "value": 1
                 },
                 {
                     "class": "pay_gold",
-                    "args": 2
+                    "value": 2
                 },
                 {
                     "target": "player",
@@ -3616,13 +3616,13 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 }
             ],
             "effects": [
                 {
                     "class": "pay_gold",
-                    "args": 2
+                    "value": 2
                 },
                 {
                     "class": "josh_mccloud"
@@ -3636,7 +3636,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 },
                 {
                     "class": "madam_yto"
@@ -3651,13 +3651,13 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 }
             ],
             "effects": [
                 {
                     "class": "max_usages",
-                    "args": 1
+                    "value": 1
                 }
             ]
         },
@@ -3668,17 +3668,17 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 }
             ],
             "effects": [
                 {
                     "class": "max_usages",
-                    "args": 2
+                    "value": 2
                 },
                 {
                     "class": "pay_gold",
-                    "args": 1
+                    "value": 1
                 },
                 {
                     "class": "draw"
@@ -3692,7 +3692,7 @@
             "equip": [
                 {
                     "class": "max_hp",
-                    "args": 4
+                    "value": 4
                 },
                 {
                     "class": "luckycharm"
@@ -3830,7 +3830,7 @@
             "responses": [
                 {
                     "class": "handcuffschoice",
-                    "args": 1
+                    "value": 1
                 }
             ]
         },
@@ -3842,7 +3842,7 @@
             "responses": [
                 {
                     "class": "handcuffschoice",
-                    "args": 2
+                    "value": 2
                 }
             ]
         },
@@ -3854,7 +3854,7 @@
             "responses": [
                 {
                     "class": "handcuffschoice",
-                    "args": 3
+                    "value": 3
                 }
             ]
         },
@@ -3866,7 +3866,7 @@
             "responses": [
                 {
                     "class": "handcuffschoice",
-                    "args": 4
+                    "value": 4
                 }
             ]
         },
@@ -4024,7 +4024,7 @@
             "responses": [
                 {
                     "class": "peyotechoice",
-                    "args": 1
+                    "value": 1
                 }
             ]
         },
@@ -4035,7 +4035,7 @@
             "responses": [
                 {
                     "class": "peyotechoice",
-                    "args": 2
+                    "value": 2
                 }
             ]
         },
@@ -4179,7 +4179,7 @@
             "equip": [
                 {
                     "class": "buy_cost",
-                    "args": 1
+                    "value": 1
                 }
             ]
         },
@@ -4197,7 +4197,7 @@
             "equip": [
                 {
                     "class": "buy_cost",
-                    "args": 2
+                    "value": 2
                 }
             ]
         },
@@ -4257,7 +4257,7 @@
                 },
                 {
                     "class": "buy_cost",
-                    "args": 3
+                    "value": 3
                 }
             ]
         },
@@ -4268,11 +4268,11 @@
             "equip": [
                 {
                     "class": "gunbelt",
-                    "args": 8
+                    "value": 8
                 },
                 {
                     "class": "buy_cost",
-                    "args": 2
+                    "value": 2
                 }
             ]
         },
@@ -4290,7 +4290,7 @@
             "equip": [
                 {
                     "class": "buy_cost",
-                    "args": 2
+                    "value": 2
                 }
             ]
         },
@@ -4351,7 +4351,7 @@
             "equip": [
                 {
                     "class": "buy_cost",
-                    "args": 5
+                    "value": 5
                 }
             ]
         },
@@ -4365,7 +4365,7 @@
                 },
                 {
                     "class": "buy_cost",
-                    "args": 2
+                    "value": 2
                 }
             ]
         },
@@ -4379,7 +4379,7 @@
                 },
                 {
                     "class": "buy_cost",
-                    "args": 4
+                    "value": 4
                 }
             ]
         },
@@ -4396,7 +4396,7 @@
                 },
                 {
                     "class": "buy_cost",
-                    "args": 2
+                    "value": 2
                 }
             ]
         },
@@ -4413,7 +4413,7 @@
             "equip": [
                 {
                     "class": "buy_cost",
-                    "args": 3
+                    "value": 3
                 }
             ]
         },
@@ -4424,11 +4424,11 @@
             "effects": [
                 {
                     "class": "max_usages",
-                    "args": 2
+                    "value": 2
                 },
                 {
                     "class": "pay_gold",
-                    "args": 1
+                    "value": 1
                 },
                 {
                     "class": "draw"
@@ -4437,7 +4437,7 @@
             "equip": [
                 {
                     "class": "buy_cost",
-                    "args": 3
+                    "value": 3
                 }
             ]
         },
@@ -4451,7 +4451,7 @@
                 },
                 {
                     "class": "buy_cost",
-                    "args": 3
+                    "value": 3
                 }
             ]
         },
@@ -4465,7 +4465,7 @@
                 },
                 {
                     "class": "buy_cost",
-                    "args": 3
+                    "value": 3
                 }
             ]
         },
@@ -4476,7 +4476,7 @@
             "effects": [
                 {
                     "class": "draw",
-                    "args": 4
+                    "value": 4
                 },
                 {
                     "class": "changewws"
@@ -4485,7 +4485,7 @@
             "equip": [
                 {
                     "class": "buy_cost",
-                    "args": 4
+                    "value": 4
                 }
             ]
         },
@@ -4496,7 +4496,7 @@
             "effects": [
                 {
                     "class": "pay_gold",
-                    "args": 2
+                    "value": 2
                 },
                 {
                     "class": "heal"
@@ -4513,7 +4513,7 @@
             "equip": [
                 {
                     "class": "buy_cost",
-                    "args": 3
+                    "value": 3
                 }
             ]
         }

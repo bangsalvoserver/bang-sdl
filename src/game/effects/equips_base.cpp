@@ -14,7 +14,7 @@ namespace banggame {
 
     void effect_max_hp::on_equip(card *target_card, player *target) {
         if (target_card == target->m_characters.front()) {
-            target->m_max_hp = args + (target->m_role == player_role::sheriff);
+            target->m_max_hp = effect_value + (target->m_role == player_role::sheriff);
         }
     }
 
@@ -92,7 +92,7 @@ namespace banggame {
     }
 
     void effect_weapon::on_equip(card *target_card, player *target) {
-        target->m_weapon_range = args;
+        target->m_weapon_range = effect_value;
         target->send_player_status();
     }
 

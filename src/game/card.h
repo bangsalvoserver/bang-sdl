@@ -39,7 +39,7 @@ namespace banggame {
         }
     
         short buy_cost() const {
-            return !equips.empty() && equips.back().is(equip_type::buy_cost) ? equips.back().args : 0;
+            return !equips.empty() && equips.back().is(equip_type::buy_cost) ? equips.back().effect_value : 0;
         }
     };
 

@@ -13,10 +13,10 @@ namespace banggame {
     struct card;
 
     struct card_effect {REFLECTABLE(
+        (play_card_target_type) target,
         (target_player_filter) player_filter,
         (target_card_filter) card_filter,
-        (play_card_target_type) target,
-        (short) args
+        (int) effect_value
     )};
 
     DEFINE_ENUM_FLAGS_IN_NS(banggame, effect_flags,

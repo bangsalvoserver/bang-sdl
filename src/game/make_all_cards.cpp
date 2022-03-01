@@ -29,8 +29,8 @@ namespace banggame {
                 throw invalid_effect("Invalid effect class: " + json_effect["class"].asString());
             }
 
-            if (json_effect.isMember("args")) {
-                effect.args = json_effect["args"].asInt();
+            if (json_effect.isMember("value")) {
+                effect.effect_value = json_effect["value"].asInt();
             }
             if (json_effect.isMember("target")) {
                 effect.target = enums::from_string<play_card_target_type>(json_effect["target"].asString());

@@ -22,21 +22,21 @@ namespace banggame {
     }
 
     bool effect_pay_cube::can_respond(card *origin_card, player *origin) const {
-        return origin_card->cubes.size() >= std::max<short>(1, args);
+        return origin_card->cubes.size() >= std::max(1, effect_value);
     }
 
     void effect_pay_cube::verify(card *origin_card, player *origin) const {
-        if (origin_card->cubes.size() < std::max<short>(1, args)) {
+        if (origin_card->cubes.size() < std::max(1, effect_value)) {
             throw game_error("ERROR_NOT_ENOUGH_CUBES_ON", origin_card);
         }
     }
 
     void effect_pay_cube::on_play(card *origin_card, player *origin) {
-        origin->pay_cubes(origin_card, std::max<short>(1, args));
+        origin->pay_cubes(origin_card, std::max(1, effect_value));
     }
 
     void effect_add_cube::on_play(card *origin_card, player *origin, player *target, card *target_card) {
-        target->add_cubes(target_card, std::max<short>(1, args));
+        target->add_cubes(target_card, std::max(1, effect_value));
     }
 
     void effect_reload::on_play(card *origin_card, player *origin) {

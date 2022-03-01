@@ -6,17 +6,17 @@ namespace banggame {
     using namespace enums::flag_operators;
 
     void effect_play_card_action::on_play(card *origin_card, player *origin) {
-        origin->play_card_action(origin_card, args == 1);
+        origin->play_card_action(origin_card, effect_value == 1);
     }
 
     void effect_max_usages::verify(card *origin_card, player *origin) const {
-        if (origin_card->usages >= args) {
-            throw game_error("ERROR_MAX_USAGES", origin_card, args);
+        if (origin_card->usages >= effect_value) {
+            throw game_error("ERROR_MAX_USAGES", origin_card, effect_value);
         }
     }
 
     bool effect_max_usages::can_respond(card *origin_card, player *origin) const {
-        return origin_card->usages < args;
+        return origin_card->usages < effect_value;
     }
 
     void effect_max_usages::on_play(card *origin_card, player *origin) {
@@ -156,7 +156,7 @@ namespace banggame {
     }
 
     void effect_heal::on_play(card *origin_card, player *origin, player *target) {
-        target->heal(std::max<short>(1, args));
+        target->heal(std::max(1, effect_value));
     }
 
     void effect_heal_notfull::verify(card *origin_card, player *origin, player *target) const {
@@ -276,7 +276,7 @@ namespace banggame {
     }
 
     void effect_draw::on_play(card *origin_card, player *origin, player *target) {
-        for (int i=0; i<std::max<int>(1, args); ++i) {
+        for (int i=0; i<std::max(1, effect_value); ++i) {
             card *drawn_card = target->m_game->draw_card_to(card_pile_type::player_hand, target);
             target->m_game->add_log("LOG_DRAWN_CARD", target, drawn_card);
         }

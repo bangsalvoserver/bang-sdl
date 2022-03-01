@@ -580,8 +580,8 @@ void target_finder::handle_auto_targets() {
         for(;;++effect_it) {
             if (effect_it == target_end) {
                 if (optionals.empty() || (target_end == optionals.end()
-                    && (!repeatable || (optionals.back().args > 0
-                        && m_targets.size() - effects.size() == optionals.size() * optionals.back().args))))
+                    && (!repeatable || (optionals.back().effect_value > 0
+                        && m_targets.size() - effects.size() == optionals.size() * optionals.back().effect_value))))
                 {
                     send_play_card();
                     break;

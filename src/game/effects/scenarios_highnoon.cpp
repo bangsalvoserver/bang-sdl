@@ -160,7 +160,7 @@ namespace banggame {
     }
 
     void request_handcuffs::on_pick(card_pile_type pile, player *target_player, card *target_card) {
-        target->m_declared_suit = static_cast<card_suit_type>(target_card->responses.front().args);
+        target->m_declared_suit = static_cast<card_suit_type>(target_card->responses.front().effect_value);
 
         while (!target->m_game->m_selection.empty()) {
             target->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::hidden_deck, true, nullptr, show_card_flags::no_animation);

@@ -71,7 +71,7 @@ namespace banggame {
         auto *drawn_card = target->m_game->m_deck.back();
         target->m_game->send_card_update(*drawn_card, nullptr, show_card_flags::short_pause);
 
-        if ((target_card->responses.front().args == 1)
+        if ((target_card->responses.front().effect_value == 1)
             ? (drawn_card->suit == card_suit_type::hearts || drawn_card->suit == card_suit_type::diamonds)
             : (drawn_card->suit == card_suit_type::clubs || drawn_card->suit == card_suit_type::spades))
         {
