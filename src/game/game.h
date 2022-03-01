@@ -72,7 +72,7 @@ namespace banggame {
 
         std::vector<card *> m_scenario_deck;
         std::vector<card *> m_scenario_cards;
-        scenario_flags m_scenario_flags = enums::flags_none<scenario_flags>;
+        scenario_flags m_scenario_flags{};
 
         std::vector<int> m_cubes;
 
@@ -122,7 +122,7 @@ namespace banggame {
 
         std::vector<game_update> get_game_state_updates(player *owner);
 
-        void send_card_update(const card &c, player *owner = nullptr, show_card_flags flags = enums::flags_none<show_card_flags>);
+        void send_card_update(const card &c, player *owner = nullptr, show_card_flags flags = {});
 
         void start_game(const game_options &options, const all_cards_t &all_cards);
 
@@ -209,9 +209,9 @@ namespace banggame {
         }
 
         std::vector<card *> &get_pile(card_pile_type pile, player *owner = nullptr);
-        std::vector<card *>::iterator move_to(card *c, card_pile_type pile, bool known = true, player *owner = nullptr, show_card_flags flags = enums::flags_none<show_card_flags>);
-        card *draw_card_to(card_pile_type pile, player *owner = nullptr, show_card_flags flags = enums::flags_none<show_card_flags>);
-        card *draw_phase_one_card_to(card_pile_type pile, player *owner = nullptr, show_card_flags flags = enums::flags_none<show_card_flags>);
+        std::vector<card *>::iterator move_to(card *c, card_pile_type pile, bool known = true, player *owner = nullptr, show_card_flags flags = {});
+        card *draw_card_to(card_pile_type pile, player *owner = nullptr, show_card_flags flags = {});
+        card *draw_phase_one_card_to(card_pile_type pile, player *owner = nullptr, show_card_flags flags = {});
 
         card *draw_shop_card();
         

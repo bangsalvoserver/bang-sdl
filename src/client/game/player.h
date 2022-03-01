@@ -35,7 +35,7 @@ namespace banggame {
 
         widgets::profile_pic m_propic;
 
-        player_flags m_player_flags = enums::flags_none<player_flags>;
+        player_flags m_player_flags{};
 
         int m_range_mod = 0;
         int m_weapon_range = 1;

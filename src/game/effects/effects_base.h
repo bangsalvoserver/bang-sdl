@@ -25,11 +25,11 @@ namespace banggame {
     };
     
     struct effect_bang : card_effect {
-        void on_play(card *origin_card, player *origin, player *target);
+        void on_play(card *origin_card, player *origin, player *target, effect_flags flags = {});
     };
 
     struct effect_bangcard : card_effect {
-        void on_play(card *origin_card, player *origin, player *target);
+        void on_play(card *origin_card, player *origin, player *target, effect_flags flags = {});
     };
 
     struct effect_banglimit : card_effect {
@@ -38,11 +38,11 @@ namespace banggame {
     };
 
     struct effect_indians : card_effect {
-        void on_play(card *origin_card, player *origin, player *target);
+        void on_play(card *origin_card, player *origin, player *target, effect_flags flags = {});
     };
 
     struct effect_duel : card_effect {
-        void on_play(card *origin_card, player *origin, player *target);
+        void on_play(card *origin_card, player *origin, player *target, effect_flags flags = {});
     };
     
     struct effect_missed : card_effect {
@@ -84,7 +84,8 @@ namespace banggame {
     };
 
     struct effect_destroy : card_effect {
-        void on_play(card *origin_card, player *origin, player *target, card *target_card);
+        void on_play(card *origin_card, player *origin, player *target, card *target_card, effect_flags flags = {});
+        void on_resolve(card *origin_card, player *origin, player *target, card *target_card);
     };
 
     struct effect_choose_card : card_effect {
@@ -122,7 +123,8 @@ namespace banggame {
     };
 
     struct effect_steal : card_effect {
-        void on_play(card *origin_card, player *origin, player *target, card *target_card);
+        void on_play(card *origin_card, player *origin, player *target, card *target_card, effect_flags flags = {});
+        void on_resolve(card *origin_card, player *origin, player *target, card *target_card);
     };
 
     struct effect_generalstore : card_effect {

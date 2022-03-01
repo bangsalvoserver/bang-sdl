@@ -45,18 +45,22 @@ namespace banggame {
         }
     }
     
-    void effect_rust::on_play(card *origin_card, player *origin, player *target) {
+    void effect_rust::on_play(card *origin_card, player *origin, player *target, effect_flags flags) {
         if (target->count_cubes() == 0) return;
         if (target->can_escape(origin, origin_card, flags)) {
             origin->m_game->queue_request<request_type::rust>(origin_card, origin, target, flags);
         } else {
-            auto view = target->m_table | std::views::filter([](card *c){ return c->color == card_color_type::orange; });
-            std::vector<card *> orange_cards{view.begin(), view.end()};
-            
-            orange_cards.push_back(target->m_characters.front());
-            for (card *c : orange_cards) {
-                target->move_cubes(c, origin->m_characters.front(), 1);
-            }
+            on_resolve(origin_card, origin, target);
+        }
+    }
+
+    void effect_rust::on_resolve(card *origin_card, player *origin, player *target) {
+        auto view = target->m_table | std::views::filter([](card *c){ return c->color == card_color_type::orange; });
+        std::vector<card *> orange_cards{view.begin(), view.end()};
+        
+        orange_cards.push_back(target->m_characters.front());
+        for (card *c : orange_cards) {
+            target->move_cubes(c, origin->m_characters.front(), 1);
         }
     }
 
@@ -175,14 +179,10 @@ namespace banggame {
             effect_select_cube().on_play(origin_card, origin, std::get<player *>(targets[2]), std::get<card *>(targets[2]));
 
             if (!immune) {
-                effect_steal e;
-                e.flags = effect_flags::escapable | effect_flags::single_target;
-                e.on_play(origin_card, origin, target, target_card);
+                effect_steal{}.on_play(origin_card, origin, target, target_card, effect_flags::escapable | effect_flags::single_target);
             }
         } else if (!immune) {
-            effect_destroy e;
-            e.flags = effect_flags::escapable | effect_flags::single_target;
-            e.on_play(origin_card, origin, target, target_card);
+            effect_destroy{}.on_play(origin_card, origin, target, target_card, effect_flags::escapable | effect_flags::single_target);
         }
     }
 

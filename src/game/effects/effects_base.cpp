@@ -51,12 +51,12 @@ namespace banggame {
         target->damage(origin_card, origin, 1);
     }
 
-    void effect_bang::on_play(card *origin_card, player *origin, player *target) {
+    void effect_bang::on_play(card *origin_card, player *origin, player *target, effect_flags flags) {
         target->m_game->add_log("LOG_PLAYED_CARD_ON", origin_card, origin, target);
         target->m_game->queue_request<request_type::bang>(origin_card, origin, target, flags);
     }
 
-    void effect_bangcard::on_play(card *origin_card, player *origin, player *target) {
+    void effect_bangcard::on_play(card *origin_card, player *origin, player *target, effect_flags flags) {
         target->m_game->add_log("LOG_PLAYED_CARD_ON", origin_card, origin, target);
         target->m_game->queue_event<event_type::on_play_bang>(origin);
         target->m_game->queue_delayed_action([=, flags = flags]{
@@ -138,12 +138,12 @@ namespace banggame {
         ++origin->m_bangs_played;
     }
 
-    void effect_indians::on_play(card *origin_card, player *origin, player *target) {
+    void effect_indians::on_play(card *origin_card, player *origin, player *target, effect_flags flags) {
         target->m_game->add_log("LOG_PLAYED_CARD_ON", origin_card, origin, target);
         target->m_game->queue_request<request_type::indians>(origin_card, origin, target, flags);
     }
 
-    void effect_duel::on_play(card *origin_card, player *origin, player *target) {
+    void effect_duel::on_play(card *origin_card, player *origin, player *target, effect_flags flags) {
         target->m_game->add_log("LOG_PLAYED_CARD_ON", origin_card, origin, target);
         target->m_game->queue_request<request_type::duel>(origin_card, origin, target, origin, flags);
     }
@@ -188,34 +188,38 @@ namespace banggame {
         }
     }
 
-    void effect_destroy::on_play(card *origin_card, player *origin, player *target, card *target_card) {
+    void effect_destroy::on_play(card *origin_card, player *origin, player *target, card *target_card, effect_flags flags) {
         if (origin != target && target->can_escape(origin, origin_card, flags)) {
             target->m_game->queue_request<request_type::destroy>(origin_card, origin, target, target_card, flags);
         } else {
-            auto fun = [=]{
-                if (origin->alive()) {
-                    if (origin != target) {
-                        target->m_game->add_log("LOG_DISCARDED_CARD", origin, target, with_owner{target_card});
-                    } else {
-                        target->m_game->add_log("LOG_DISCARDED_SELF_CARD", origin, target_card);
-                    }
-                    target->discard_card(target_card);
-                }
-            };
-            // check henry block
-            size_t nreqs = target->m_game->m_requests.size();
-            target->m_game->instant_event<event_type::on_discard_card>(origin, target, target_card);
-            if (target->m_game->m_requests.size() > nreqs) {
-                // check suzy lafayette
-                if (auto pos = std::ranges::find(target->m_game->m_pending_events, enums::indexof(event_type::on_effect_end), &event_args::index);
-                    pos != target->m_game->m_pending_events.end()) {
-                    target->m_game->m_pending_events.emplace(pos, std::in_place_index<enums::indexof(event_type::delayed_action)>, std::move(fun));
+            on_resolve(origin_card, origin, target, target_card);
+        }
+    }
+
+    void effect_destroy::on_resolve(card *origin_card, player *origin, player *target, card *target_card) {
+        auto fun = [=]{
+            if (origin->alive()) {
+                if (origin != target) {
+                    target->m_game->add_log("LOG_DISCARDED_CARD", origin, target, with_owner{target_card});
                 } else {
-                    target->m_game->queue_delayed_action(std::move(fun));
+                    target->m_game->add_log("LOG_DISCARDED_SELF_CARD", origin, target_card);
                 }
-            } else {
-                fun();
+                target->discard_card(target_card);
             }
+        };
+        // check henry block
+        size_t nreqs = target->m_game->m_requests.size();
+        target->m_game->instant_event<event_type::on_discard_card>(origin, target, target_card);
+        if (target->m_game->m_requests.size() > nreqs) {
+            // check suzy lafayette
+            if (auto pos = std::ranges::find(target->m_game->m_pending_events, enums::indexof(event_type::on_effect_end), &event_args::index);
+                pos != target->m_game->m_pending_events.end()) {
+                target->m_game->m_pending_events.emplace(pos, std::in_place_index<enums::indexof(event_type::delayed_action)>, std::move(fun));
+            } else {
+                target->m_game->queue_delayed_action(std::move(fun));
+            }
+        } else {
+            fun();
         }
     }
 
@@ -223,34 +227,38 @@ namespace banggame {
         return origin->m_game->top_request_is(request_type::draw, origin);
     }
 
-    void effect_steal::on_play(card *origin_card, player *origin, player *target, card *target_card) {
+    void effect_steal::on_play(card *origin_card, player *origin, player *target, card *target_card, effect_flags flags) {
         if (origin != target && target->can_escape(origin, origin_card, flags)) {
             target->m_game->queue_request<request_type::steal>(origin_card, origin, target, target_card, flags);
         } else {
-            auto fun = [=]{
-                if (origin->alive()) {
-                    if (origin != target) {
-                        target->m_game->add_log("LOG_STOLEN_CARD", origin, target, with_owner{target_card});
-                    } else {
-                        target->m_game->add_log("LOG_STOLEN_SELF_CARD", origin, target_card);
-                    }
-                    origin->steal_card(target, target_card);
-                }
-            };
-            // check henry block
-            size_t nreqs = target->m_game->m_requests.size();
-            target->m_game->instant_event<event_type::on_discard_card>(origin, target, target_card);
-            if (target->m_game->m_requests.size() > nreqs) {
-                // check suzy lafayette
-                if (auto pos = std::ranges::find(target->m_game->m_pending_events, enums::indexof(event_type::on_effect_end), &event_args::index);
-                    pos != target->m_game->m_pending_events.end()) {
-                    target->m_game->m_pending_events.emplace(pos, std::in_place_index<enums::indexof(event_type::delayed_action)>, std::move(fun));
+            on_resolve(origin_card, origin, target, target_card);
+        }
+    }
+
+    void effect_steal::on_resolve(card *origin_card, player *origin, player *target, card *target_card) {
+        auto fun = [=]{
+            if (origin->alive()) {
+                if (origin != target) {
+                    target->m_game->add_log("LOG_STOLEN_CARD", origin, target, with_owner{target_card});
                 } else {
-                    target->m_game->queue_delayed_action(std::move(fun));
+                    target->m_game->add_log("LOG_STOLEN_SELF_CARD", origin, target_card);
                 }
-            } else {
-                fun();
+                origin->steal_card(target, target_card);
             }
+        };
+        // check henry block
+        size_t nreqs = target->m_game->m_requests.size();
+        target->m_game->instant_event<event_type::on_discard_card>(origin, target, target_card);
+        if (target->m_game->m_requests.size() > nreqs) {
+            // check suzy lafayette
+            if (auto pos = std::ranges::find(target->m_game->m_pending_events, enums::indexof(event_type::on_effect_end), &event_args::index);
+                pos != target->m_game->m_pending_events.end()) {
+                target->m_game->m_pending_events.emplace(pos, std::in_place_index<enums::indexof(event_type::delayed_action)>, std::move(fun));
+            } else {
+                target->m_game->queue_delayed_action(std::move(fun));
+            }
+        } else {
+            fun();
         }
     }
 

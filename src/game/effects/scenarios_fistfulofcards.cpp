@@ -18,7 +18,7 @@ namespace banggame {
     }
 
     void effect_sniper::on_play(card *origin_card, player *origin, player *target) {
-        request_bang req{origin_card, origin, target, flags};
+        request_bang req{origin_card, origin, target};
         req.bang_strength = 2;
         target->m_game->queue_request(std::move(req));
     }
@@ -96,7 +96,7 @@ namespace banggame {
     }
 
     void effect_ricochet::on_play(card *origin_card, player *origin, player *target, card *target_card) {
-        target->m_game->queue_request<request_type::ricochet>(origin_card, origin, target, target_card, flags);
+        target->m_game->queue_request<request_type::ricochet>(origin_card, origin, target, target_card);
     }
 
     game_formatted_string request_ricochet::status_text(player *owner) const {

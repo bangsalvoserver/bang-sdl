@@ -541,11 +541,10 @@ namespace banggame {
                     if (effect_it->is(effect_type::mth_add)) {
                         target_list.emplace_back(nullptr, nullptr);
                     } else {
-                        effect_it->on_play(card_ptr, this);
+                        effect_it->on_play(card_ptr, this, effect_flags{});
                     }
                 },
                 [&](enums::enum_constant<play_card_target_type::player>, int target_id) {
-                    effect_it->flags |= effect_flags::single_target;
                     auto *target = m_game->get_player(target_id);
                     if (effect_it->is(effect_type::mth_add)) {
                         target_list.emplace_back(target, nullptr);
@@ -557,10 +556,13 @@ namespace banggame {
                                 req.cleanup();
                             }
                         } else {
-                            effect_it->on_play(card_ptr, this, target);
+                            auto flags = effect_flags::single_target;
+                            if (card_ptr->value != card_value_type::none && card_ptr->color == card_color_type::brown && !effect_it->is(effect_type::bangcard)) {
+                                flags |= effect_flags::escapable;
+                            }
+                            effect_it->on_play(card_ptr, this, target, flags);
                         }
                     }
-                    effect_it->flags &= ~effect_flags::single_target;
                 },
                 [&](enums::enum_constant<play_card_target_type::other_players>) {
                     std::vector<player *> targets;
@@ -570,43 +572,55 @@ namespace banggame {
                         targets.push_back(p);
                     }
                     
-                    effect_it->flags |= effect_flags::single_target & static_cast<effect_flags>(-(targets.size() == 1));
+                    effect_flags flags{};
+                    if (card_ptr->value != card_value_type::none && card_ptr->color == card_color_type::brown) {
+                        flags |= effect_flags::escapable;
+                    }
+                    if (targets.size() == 1) {
+                        flags |= effect_flags::single_target;
+                    }
                     for (auto *p : targets) {
                         if (!check_immunity(p)) {
-                            effect_it->on_play(card_ptr, this, p);
+                            effect_it->on_play(card_ptr, this, p, flags);
                         }
                     }
-                    effect_it->flags &= ~effect_flags::single_target;
                 },
                 [&](enums::enum_constant<play_card_target_type::card>, int target_card_id) {
-                    effect_it->flags |= effect_flags::single_target;
                     auto *target_card = m_game->find_card(target_card_id);
                     auto *target = target_card->owner;
+                    auto flags = effect_flags::single_target;
+                    if (card_ptr->value != card_value_type::none && card_ptr->color == card_color_type::brown) {
+                        flags |= effect_flags::escapable;
+                    }
                     if (effect_it->is(effect_type::mth_add)) {
                         target_list.emplace_back(target, target_card);
                     } else if (target == this) {
-                        effect_it->on_play(card_ptr, this, target, target_card);
+                        effect_it->on_play(card_ptr, this, target, target_card, flags);
                     } else if (!check_immunity(target)) {
                         if (target_card->pile == card_pile_type::player_hand) {
-                            effect_it->on_play(card_ptr, this, target, target->random_hand_card());
+                            effect_it->on_play(card_ptr, this, target, target->random_hand_card(), flags);
                         } else {
-                            effect_it->on_play(card_ptr, this, target, target_card);
+                            effect_it->on_play(card_ptr, this, target, target_card, flags);
                         }
                     }
-                    effect_it->flags &= ~effect_flags::single_target;
                 },
                 [&](enums::enum_constant<play_card_target_type::cards_other_players>, const std::vector<int> &target_card_ids) {
-                    effect_it->flags |= effect_flags::single_target & static_cast<effect_flags>(-(target_card_ids.size() == 1));
+                    effect_flags flags{};
+                    if (card_ptr->value != card_value_type::none && card_ptr->color == card_color_type::brown) {
+                        flags |= effect_flags::escapable;
+                    }
+                    if (target_card_ids.size() == 1) {
+                        flags |= effect_flags::single_target;
+                    }
                     for (int id : target_card_ids) {
                         auto *target_card = m_game->find_card(id);
                         auto *target = target_card->owner;
                         if (target_card->pile == card_pile_type::player_hand) {
-                            effect_it->on_play(card_ptr, this, target, target->random_hand_card());
+                            effect_it->on_play(card_ptr, this, target, target->random_hand_card(), flags);
                         } else {
-                            effect_it->on_play(card_ptr, this, target, target_card);
+                            effect_it->on_play(card_ptr, this, target, target_card, flags);
                         }
                     }
-                    effect_it->flags &= ~effect_flags::single_target;
                 }
             }, t);
             if (++effect_it == effect_end) {

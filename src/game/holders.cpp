@@ -47,9 +47,11 @@ namespace banggame {
         }, *this);
     }
 
-    void effect_holder::on_play(card *origin_card, player *origin) {
+    void effect_holder::on_play(card *origin_card, player *origin, effect_flags flags) {
         visit_effect([=](auto &&value) {
-            if constexpr (requires { value.on_play(origin_card, origin); }) {
+            if constexpr (requires { value.on_play(origin_card, origin, flags); }) {
+                value.on_play(origin_card, origin, flags);
+            } else if constexpr (requires { value.on_play(origin_card, origin); }) {
                 value.on_play(origin_card, origin);
             } else {
                 throw std::runtime_error("missing on_play(origin_card, origin)");
@@ -57,9 +59,11 @@ namespace banggame {
         }, *this);
     }
 
-    void effect_holder::on_play(card *origin_card, player *origin, player *target) {
+    void effect_holder::on_play(card *origin_card, player *origin, player *target, effect_flags flags) {
         visit_effect([=](auto &&value) {
-            if constexpr (requires { value.on_play(origin_card, origin, target); }) {
+            if constexpr (requires { value.on_play(origin_card, origin, target, flags); }) {
+                value.on_play(origin_card, origin, target, flags);
+            } else if constexpr (requires {value.on_play(origin_card, origin, target); }) {
                 value.on_play(origin_card, origin, target);
             } else {
                 throw std::runtime_error("missing on_play(origin_card, origin, target)");
@@ -67,9 +71,11 @@ namespace banggame {
         }, *this);
     }
 
-    void effect_holder::on_play(card *origin_card, player *origin, player *target, card *target_card) {
+    void effect_holder::on_play(card *origin_card, player *origin, player *target, card *target_card, effect_flags flags) {
         visit_effect([=](auto &&value) {
-            if constexpr (requires { value.on_play(origin_card, origin, target, target_card); }) {
+            if constexpr (requires { value.on_play(origin_card, origin, target, target_card, flags); }) {
+                value.on_play(origin_card, origin, target, target_card, flags);
+            } else if constexpr (requires { value.on_play(origin_card, origin, target, target_card); }) {
                 value.on_play(origin_card, origin, target, target_card);
             } else {
                 throw std::runtime_error("missing on_play(origin_card, origin, target, target_card)");

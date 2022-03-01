@@ -58,9 +58,6 @@ namespace banggame {
                     throw invalid_effect(std::string("Target type ") + std::string(enums::to_string(effect.target)) + " cannot have a card filter");
                 }
             }
-            if (json_effect.isMember("escapable") && json_effect["escapable"].asBool()) {
-                effect.flags |= effect_flags::escapable;
-            }
             ret.push_back(effect);
         }
 

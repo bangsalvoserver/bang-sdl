@@ -119,7 +119,6 @@ namespace banggame {
         (request_type) type,
         (int) origin_id,
         (int) target_id,
-        (effect_flags) flags,
         (game_formatted_string) status_text,
         (std::vector<int>) respond_ids,
         (std::vector<picking_args>) pick_ids

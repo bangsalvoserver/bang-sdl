@@ -249,8 +249,7 @@
             "effects": [
                 {
                     "target": "card",
-                    "class": "destroy",
-                    "escapable": true
+                    "class": "destroy"
                 }
             ]
         },
@@ -287,8 +286,7 @@
                 {
                     "target": "player",
                     "player_filter": "notself",
-                    "class": "duel",
-                    "escapable": true
+                    "class": "duel"
                 }
             ]
         },
@@ -318,8 +316,7 @@
             "effects": [
                 {
                     "target": "other_players",
-                    "class": "bang",
-                    "escapable": true
+                    "class": "bang"
                 }
             ]
         },
@@ -335,8 +332,7 @@
             "effects": [
                 {
                     "target": "other_players",
-                    "class": "indians",
-                    "escapable": true
+                    "class": "indians"
                 }
             ]
         },
@@ -380,8 +376,7 @@
                 {
                     "target": "card",
                     "player_filter": "range_1",
-                    "class": "steal",
-                    "escapable": true
+                    "class": "steal"
                 }
             ]
         },
@@ -585,8 +580,7 @@
             "effects": [
                 {
                     "target": "card",
-                    "class": "destroy",
-                    "escapable": true
+                    "class": "destroy"
                 }
             ]
         },
@@ -615,8 +609,7 @@
             "effects": [
                 {
                     "target": "other_players",
-                    "class": "indians",
-                    "escapable": true
+                    "class": "indians"
                 }
             ]
         },
@@ -646,8 +639,7 @@
                 {
                     "target": "card",
                     "player_filter": "range_1",
-                    "class": "steal",
-                    "escapable": true
+                    "class": "steal"
                 }
             ]
         },
@@ -663,8 +655,7 @@
                 {
                     "target": "player",
                     "player_filter": "notself range_1",
-                    "class": "bang",
-                    "escapable": true
+                    "class": "bang"
                 }
             ]
         },
@@ -688,8 +679,7 @@
                 },
                 {
                     "target": "card",
-                    "class": "steal",
-                    "escapable": true
+                    "class": "steal"
                 }
             ]
         },
@@ -713,8 +703,7 @@
                 },
                 {
                     "target": "cards_other_players",
-                    "class": "destroy",
-                    "escapable": true
+                    "class": "destroy"
                 }
             ]
         },
@@ -757,8 +746,7 @@
                 {
                     "target": "player",
                     "player_filter": "notself",
-                    "class": "bang",
-                    "escapable": true
+                    "class": "bang"
                 }
             ]
         },
@@ -1126,13 +1114,11 @@
                 {
                     "target": "player",
                     "player_filter": "self",
-                    "class": "bandidos",
-                    "escapable": true
+                    "class": "bandidos"
                 },
                 {
                     "target": "other_players",
-                    "class": "bandidos",
-                    "escapable": true
+                    "class": "bandidos"
                 }
             ]
         },
@@ -1175,8 +1161,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "class": "poker",
-                    "escapable": true
+                    "class": "poker"
                 }
             ]
         },
@@ -1190,8 +1175,7 @@
             "color": "brown",
             "responses": [
                 {
-                    "class": "backfire",
-                    "escapable": true
+                    "class": "backfire"
                 },
                 {
                     "class": "missed"
@@ -1225,14 +1209,12 @@
                 {
                     "target": "player",
                     "player_filter": "reachable notself",
-                    "class": "mth_add",
-                    "escapable": true
+                    "class": "mth_add"
                 },
                 {
                     "target": "player",
                     "player_filter": "notself",
-                    "class": "mth_add",
-                    "escapable": true
+                    "class": "mth_add"
                 },
                 {
                     "class": "banglimit"
@@ -1252,8 +1234,7 @@
                 {
                     "target": "player",
                     "player_filter": "notself range_2",
-                    "class": "bang",
-                    "escapable": true
+                    "class": "bang"
                 }
             ]
         },
@@ -1376,8 +1357,7 @@
             "effects": [
                 {
                     "target": "card",
-                    "class": "destroy",
-                    "escapable": true
+                    "class": "destroy"
                 }
             ]
         },
@@ -1433,8 +1413,7 @@
                 {
                     "target": "player",
                     "player_filter": "reachable notself",
-                    "class": "bang",
-                    "escapable": true
+                    "class": "bang"
                 }
             ],
             "optional": [
@@ -1447,8 +1426,7 @@
                 {
                     "target": "player",
                     "player_filter": "reachable notself",
-                    "class": "bang",
-                    "escapable": true
+                    "class": "bang"
                 },
                 {
                     "class": "repeatable"
@@ -1467,8 +1445,7 @@
                 {
                     "target": "player",
                     "player_filter": "reachable notself",
-                    "class": "bang",
-                    "escapable": true
+                    "class": "bang"
                 }
             ],
             "optional": [
@@ -1501,8 +1478,7 @@
                 {
                     "target": "player",
                     "player_filter": "notself",
-                    "class": "indians",
-                    "escapable": true
+                    "class": "indians"
                 }
             ],
             "optional": [
@@ -1515,8 +1491,7 @@
                 {
                     "target": "player",
                     "player_filter": "notself",
-                    "class": "indians",
-                    "escapable": true
+                    "class": "indians"
                 },
                 {
                     "class": "repeatable"
@@ -1593,8 +1568,7 @@
             "effects": [
                 {
                     "target": "other_players",
-                    "class": "rust",
-                    "escapable": true
+                    "class": "rust"
                 }
             ]
         },
@@ -1610,8 +1584,7 @@
                 {
                     "target": "card",
                     "card_filter": "table",
-                    "class": "mth_add",
-                    "escapable": true
+                    "class": "mth_add"
                 }
             ],
             "optional": [
@@ -1938,8 +1911,7 @@
                     "target": "card",
                     "player_filter": "notself",
                     "card_filter": "table blue",
-                    "class": "mth_add",
-                    "escapable": true
+                    "class": "mth_add"
                 }
             ],
             "multitarget": "card_sharper"
@@ -2025,8 +1997,7 @@
                 {
                     "target": "player",
                     "player_filter": "reachable notself",
-                    "class": "bang",
-                    "escapable": true
+                    "class": "bang"
                 }
             ]
         },
@@ -2084,8 +2055,7 @@
                 {
                     "target": "card",
                     "player_filter": "range_1",
-                    "class": "steal",
-                    "escapable": true
+                    "class": "steal"
                 }
             ]
         },
@@ -2122,8 +2092,7 @@
             "effects": [
                 {
                     "target": "card",
-                    "class": "destroy",
-                    "escapable": true
+                    "class": "destroy"
                 }
             ]
         },
@@ -2354,8 +2323,7 @@
                 {
                     "target": "player",
                     "player_filter": "notself range_1",
-                    "class": "bang",
-                    "escapable": true
+                    "class": "bang"
                 }
             ]
         },

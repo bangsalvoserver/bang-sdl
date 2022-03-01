@@ -16,9 +16,13 @@ namespace banggame {
         (target_player_filter) player_filter,
         (target_card_filter) card_filter,
         (play_card_target_type) target,
-        (effect_flags) flags,
         (short) args
     )};
+
+    DEFINE_ENUM_FLAGS_IN_NS(banggame, effect_flags,
+        (escapable)
+        (single_target)
+    )
 
     struct effect_empty : card_effect {
         void on_play(card *origin_card, player *origin) {}
@@ -33,7 +37,7 @@ namespace banggame {
     };
 
     struct request_base {
-        request_base(card *origin_card, player *origin, player *target, effect_flags flags = no_effect_flags)
+        request_base(card *origin_card, player *origin, player *target, effect_flags flags = {})
             : origin_card(origin_card), origin(origin), target(target), flags(flags) {}
 
         card *origin_card;

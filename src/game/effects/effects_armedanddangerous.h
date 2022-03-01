@@ -29,7 +29,8 @@ namespace banggame {
     };
 
     struct effect_rust : card_effect {
-        void on_play(card *origin_card, player *origin, player *target);
+        void on_play(card *origin_card, player *origin, player *target, effect_flags flags = {});
+        void on_resolve(card *origin_card, player *origin, player *target);
     };
 
     struct effect_bandolier : card_effect {

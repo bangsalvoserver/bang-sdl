@@ -6,7 +6,7 @@
 namespace banggame {
 
     struct request_destroy : request_base {
-        request_destroy(card *origin_card, player *origin, player *target, card *target_card, effect_flags flags = no_effect_flags)
+        request_destroy(card *origin_card, player *origin, player *target, card *target_card, effect_flags flags = {})
             : request_base(origin_card, origin, target, flags)
             , target_card(target_card) {}
 
@@ -17,7 +17,7 @@ namespace banggame {
     };
 
     struct request_steal : request_base {
-        request_steal(card *origin_card, player *origin, player *target, card *target_card, effect_flags flags = no_effect_flags)
+        request_steal(card *origin_card, player *origin, player *target, card *target_card, effect_flags flags = {})
             : request_base(origin_card, origin, target, flags)
             , target_card(target_card) {}
         

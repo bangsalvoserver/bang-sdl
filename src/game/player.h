@@ -68,7 +68,7 @@ namespace banggame {
         card *m_forced_card = nullptr;
 
         card_suit_type m_declared_suit = card_suit_type::none;
-        player_flags m_player_flags = enums::flags_none<player_flags>;
+        player_flags m_player_flags{};
 
         int8_t m_gold = 0;
 
@@ -94,7 +94,7 @@ namespace banggame {
         void add_to_hand(card *card);
         
         std::vector<card *>::iterator move_card_to(card *card, card_pile_type pile,
-            bool known = false, player *owner = nullptr, show_card_flags flags = enums::flags_none<show_card_flags>);
+            bool known = false, player *owner = nullptr, show_card_flags flags = {});
 
         void discard_card(card *card);
         void steal_card(player *target, card *card);

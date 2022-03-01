@@ -405,7 +405,6 @@ namespace banggame {
             req.enum_index(),
             req.origin() ? req.origin()->id : 0,
             req.target() ? req.target()->id : 0,
-            req.flags(),
             req.status_text(p)
         };
 
@@ -553,7 +552,7 @@ namespace banggame {
         }
         if (!m_scenario_cards.empty()) {
             m_first_player->unequip_if_enabled(m_scenario_cards.back());
-            m_scenario_flags = enums::flags_none<scenario_flags>;
+            m_scenario_flags = {};
         }
         move_to(m_scenario_deck.back(), card_pile_type::scenario_card);
         m_first_player->equip_if_enabled(m_scenario_cards.back());

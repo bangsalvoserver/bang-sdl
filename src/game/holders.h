@@ -274,13 +274,13 @@ namespace banggame {
         bool can_respond(card *origin_card, player *target) const;
 
         void verify(card *origin_card, player *origin) const;
-        void on_play(card *origin_card, player *origin);
+        void on_play(card *origin_card, player *origin, effect_flags flags);
         
         void verify(card *origin_card, player *origin, player *target) const;
-        void on_play(card *origin_card, player *origin, player *target);
+        void on_play(card *origin_card, player *origin, player *target, effect_flags flags);
         
         void verify(card *origin_card, player *origin, player *target, card *target_card) const;
-        void on_play(card *origin_card, player *origin, player *target, card *target_card);
+        void on_play(card *origin_card, player *origin, player *target, card *target_card, effect_flags flags);
     };
     
     struct equip_holder : effect_base<equip_type> {

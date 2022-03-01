@@ -92,7 +92,7 @@ void lobby_scene::set_lobby_info(const lobby_info &info) {
 }
 
 void lobby_scene::send_lobby_edited() {
-    auto expansions = enums::flags_none<banggame::card_expansion_type>;
+    banggame::card_expansion_type expansions{};
     for (const auto &box : m_checkboxes) {
         if (box.get_value()) {
             expansions |= box.m_flag;

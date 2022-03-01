@@ -17,11 +17,11 @@ namespace banggame {
         }
     }
 
-    void effect_backfire::on_play(card *origin_card, player *origin) {
+    void effect_backfire::on_play(card *origin_card, player *origin, effect_flags flags) {
         origin->m_game->queue_request<request_type::bang>(origin_card, origin, origin->m_game->top_request().origin(), flags | effect_flags::single_target);
     }
 
-    void effect_bandidos::on_play(card *origin_card, player *origin, player *target) {
+    void effect_bandidos::on_play(card *origin_card, player *origin, player *target, effect_flags flags) {
         target->m_game->queue_request<request_type::bandidos>(origin_card, origin, target, flags);
     }
 
@@ -32,15 +32,18 @@ namespace banggame {
                 target->m_game->draw_card_to(card_pile_type::player_hand, target);
             });
         } else {
-            target->m_game->queue_request<request_type::tornado>(origin_card, origin, target, flags);
+            target->m_game->queue_request<request_type::tornado>(origin_card, origin, target);
         }
     }
 
     void effect_poker::on_play(card *origin_card, player *origin) {
         auto target = origin;
-        flags |= effect_flags::single_target & static_cast<effect_flags>(-(std::ranges::count_if(origin->m_game->m_players, [&](const player &p) {
+        effect_flags flags = effect_flags::escapable;
+        if (std::ranges::count_if(origin->m_game->m_players, [&](const player &p) {
             return &p != origin && p.alive() && !p.m_hand.empty();
-        }) == 1));
+        }) == 1) {
+            flags |= effect_flags::single_target;
+        }
         while(true) {
             target = origin->m_game->get_next_player(target);
             if (target == origin) break;
@@ -107,9 +110,7 @@ namespace banggame {
 
     void handler_fanning::on_play(card *origin_card, player *origin, mth_target_list targets) {
         for (auto [target, _] : targets) {
-            effect_bang e;
-            e.flags |= effect_flags::escapable;
-            e.on_play(origin_card, origin, target);
+            effect_bang{}.on_play(origin_card, origin, target, effect_flags::escapable);
         }
     }
 

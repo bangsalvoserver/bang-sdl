@@ -102,13 +102,6 @@ namespace banggame {
 
     using play_card_target = enums::enum_variant<play_card_target_type>;
 
-    DEFINE_ENUM_FLAGS_IN_NS(banggame, effect_flags,
-        (escapable)
-        (single_target)
-    )
-
-    constexpr auto no_effect_flags = enums::flags_none<effect_flags>;
-
     DEFINE_ENUM_IN_NS(banggame, card_pile_type,
         (none)
         (player)

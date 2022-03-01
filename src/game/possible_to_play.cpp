@@ -85,7 +85,7 @@ namespace banggame {
                 })) && !make_card_target_set(this,
                     play_card_target_type::player,
                     target_player_filter::reachable | target_player_filter::notself,
-                    enums::flags_none<target_card_filter>).empty();
+                    target_card_filter{}).empty();
             }
             default: return true;
             }
