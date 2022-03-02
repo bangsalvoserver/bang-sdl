@@ -4,6 +4,7 @@
 #include <vector>
 #include <fstream>
 #include <iterator>
+#include <filesystem>
 
 struct resource_view {
     const char *data;
@@ -20,10 +21,10 @@ extern const unsigned long long int RESOURCE_LENGTH(name);
 struct resource : std::vector<char> {
     using std::vector<char>::vector;
     
-    explicit resource(const std::string &filename) {
+    explicit resource(const std::filesystem::path &filename) {
         std::ifstream file(filename, std::ios::in | std::ios::binary | std::ios::ate);
         if (file.fail()) {
-            throw std::runtime_error("Could not open " + filename);
+            throw std::runtime_error("Could not open " + filename.string());
         }
         assign(file.tellg(), '\0');
         file.seekg(std::ios::beg);

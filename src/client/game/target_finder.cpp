@@ -2,6 +2,7 @@
 
 #include "game.h"
 #include "../manager.h"
+#include "../os_api.h"
 
 #include "utils/utils.h"
 
@@ -9,22 +10,6 @@
 
 using namespace banggame;
 using namespace enums::flag_operators;
-
-#ifdef WIN32
-#include <Windows.h>
-
-static void play_bell() {
-    MessageBeep(MB_ICONEXCLAMATION);
-}
-
-#else
-#include <cstdio>
-
-static void play_bell() {
-    printf("\a");
-}
-
-#endif
 
 template<game_action_type T, typename ... Ts>
 void target_finder::add_action(Ts && ... args) {
@@ -378,7 +363,7 @@ bool target_finder::on_click_player(player_view *player) {
         if (verify_player_target(args.player_filter, player))  {
             return true;
         } else {
-            play_bell();
+            os_api::play_bell();
             return false;
         }
     };
@@ -652,7 +637,7 @@ void target_finder::add_card_target(target_card target) {
 
     if (cur_target.target == play_card_target_type::card || cur_target.target == play_card_target_type::cards_other_players) {
         if (!verify_card_target(cur_target, target)) {
-            play_bell();
+            os_api::play_bell();
             return;
         }
     } else {
@@ -702,7 +687,7 @@ void target_finder::add_character_target(target_card target) {
     }
 
     if (!verify_card_target(effect, target)) {
-        play_bell();
+        os_api::play_bell();
         return;
     }
 

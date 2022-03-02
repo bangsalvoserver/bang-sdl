@@ -2,8 +2,7 @@
 
 #include "../manager.h"
 #include "../media_pak.h"
-
-#include "../tinyfd/tinyfiledialogs.h"
+#include "../os_api.h"
 
 recent_server_line::recent_server_line(connect_scene *parent, const std::string &address)
     : parent(parent)
@@ -115,14 +114,12 @@ void connect_scene::do_delete_address(recent_server_line *addr) {
 }
 
 void connect_scene::do_browse_propic() {
-    const char *filters[] = {"*.jpg", "*.png"};
     auto &cfg = parent->get_config();
-    const char *ret = tinyfd_openFileDialog(_("BANG_TITLE").c_str(), cfg.profile_image.c_str(), 2, filters, _("DIALOG_IMAGE_FILES").c_str(), 0);
-    if (ret) {
+    if (auto value = os_api::open_file_dialog(_("BANG_TITLE"), cfg.profile_image, "*.jpg;*.png", _("DIALOG_IMAGE_FILES"))) {
         try {
-            cfg.profile_image_data = widgets::profile_pic::scale_profile_image(sdl::surface(resource(ret)));
+            cfg.profile_image_data = widgets::profile_pic::scale_profile_image(sdl::surface(resource(*value)));
             m_propic.set_texture(cfg.profile_image_data);
-            cfg.profile_image.assign(ret);
+            cfg.profile_image = value->string();
             resize(parent->width(), parent->height());
         } catch (const std::runtime_error &e) {
             parent->add_chat_message(message_type::error, e.what());

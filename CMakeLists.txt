@@ -27,6 +27,7 @@ set(bangclient_srcs
     src/client/user_info.cpp
     src/client/chat_ui.cpp
     src/client/media_pak.cpp
+    src/client/os_api.cpp
     src/client/game/card.cpp
     src/client/game/player.cpp
     src/client/game/game.cpp
@@ -41,7 +42,6 @@ set(bangclient_srcs
     src/client/widgets/textbox.cpp
     src/client/widgets/text_list.cpp
     src/client/widgets/profile_pic.cpp
-    src/client/tinyfd/tinyfiledialogs.c
 )
 
 set(banggame_srcs

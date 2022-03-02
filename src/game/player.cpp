@@ -679,6 +679,10 @@ namespace banggame {
         }
 
         card *card_ptr = m_game->find_card(args.card_id);
+
+        if (m_mandatory_card == card_ptr) {
+            m_mandatory_card = nullptr;
+        }
         
         bool was_forced_card = false;
         if (m_forced_card) {
