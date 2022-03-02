@@ -20,6 +20,7 @@ namespace banggame {
 
     struct effect_pay_gold : card_effect {
         void verify(card *origin_card, player *origin) const;
+        bool can_respond(card *origin_card, player *origin) const;
         void on_play(card *origin_card, player *origin);
     };
 

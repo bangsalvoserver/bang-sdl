@@ -4508,6 +4508,10 @@
             ],
             "responses": [
                 {
+                    "class": "pay_gold",
+                    "value": 2
+                },
+                {
                     "class": "heal"
                 },
                 {
