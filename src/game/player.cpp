@@ -240,6 +240,10 @@ namespace banggame {
         m_game->add_private_update<game_update_type::force_play_card>(this, c ? c->id : 0);
     }
 
+    void player::set_mandatory_card(card *c) {
+        m_mandatory_card = c;
+    }
+
     void player::verify_modifiers(card *c, const std::vector<card *> &modifiers) {
         for (card *mod_card : modifiers) {
             card_suit_type suit = get_card_suit(mod_card);
@@ -401,6 +405,13 @@ namespace banggame {
 
         auto &effects = is_response ? card_ptr->responses : card_ptr->effects;
 
+        if (m_mandatory_card && m_mandatory_card != card_ptr
+            && std::ranges::find(m_mandatory_card->effects, effect_type::banglimit, &effect_holder::type) != m_mandatory_card->effects.end()
+            && std::ranges::find(effects, effect_type::banglimit, &effect_holder::type) != effects.end())
+        {
+            throw game_error("ERROR_MANDATORY_CARD", m_mandatory_card);
+        }
+
         int diff = targets.size() - effects.size();
         if (!card_ptr->optionals.empty() && card_ptr->optionals.back().is(effect_type::repeatable)) {
             if (diff < 0 || diff % card_ptr->optionals.size() != 0
@@ -521,6 +532,10 @@ namespace banggame {
 
     void player::do_play_card(card *card_ptr, bool is_response, const std::vector<play_card_target> &targets) {
         assert(card_ptr != nullptr);
+
+        if (m_mandatory_card == card_ptr) {
+            m_mandatory_card = nullptr;
+        }
         
         auto &effects = is_response ? card_ptr->responses : card_ptr->effects;
         if (std::ranges::find(effects, effect_type::play_card_action, &effect_holder::type) == effects.end()) {
@@ -887,6 +902,7 @@ namespace banggame {
         
         m_game->m_playing = this;
 
+        m_mandatory_card = nullptr;
         m_bangs_played = 0;
         m_bangs_per_turn = 1;
         m_num_drawn_cards = 0;
@@ -953,6 +969,13 @@ namespace banggame {
     }
 
     void player::pass_turn() {
+        if (m_mandatory_card) {
+            if (is_possible_to_play(m_mandatory_card)) {
+                throw game_error("ERROR_MANDATORY_CARD", m_mandatory_card);
+            } else {
+                m_mandatory_card = nullptr;
+            }
+        }
         if (m_hand.size() > max_cards_end_of_turn()) {
             m_game->queue_request<request_type::discard_pass>(this);
         } else {

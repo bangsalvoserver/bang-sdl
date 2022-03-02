@@ -1682,10 +1682,14 @@
             ],
             "responses": [
                 {
-                    "target": "player",
                     "class": "move_bomb"
+                },
+                {
+                    "target": "player",
+                    "class": "mth_add"
                 }
-            ]
+            ],
+            "multitarget": "move_bomb"
         },
         {
             "name": "Buntline Special",

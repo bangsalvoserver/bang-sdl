@@ -139,10 +139,10 @@ namespace banggame {
             if (origin->m_num_drawn_cards == 2) {
                 origin->m_game->queue_delayed_action([=]{
                     origin->m_game->send_card_update(*drawn_card, origin, show_card_flags::show_everyone | show_card_flags::short_pause);
+                    origin->m_game->send_card_update(*drawn_card, origin);
+
                     if (origin->is_possible_to_play(drawn_card)) {
-                        origin->set_forced_card(drawn_card);
-                    } else {
-                        origin->m_game->send_card_update(*drawn_card, origin);
+                        origin->set_mandatory_card(drawn_card);
                     }
                 });
             }

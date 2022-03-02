@@ -232,6 +232,7 @@ namespace banggame {
         (flint_westwood,    handler_flint_westwood)
         (draw_atend,        handler_draw_atend)
         (fanning,           handler_fanning)
+        (move_bomb,         handler_move_bomb)
         (squaw,             handler_squaw)
         (card_sharper,      handler_card_sharper)
         (lastwill,          handler_lastwill)

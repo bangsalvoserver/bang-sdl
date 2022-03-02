@@ -123,6 +123,7 @@ LOCALE_VALUE(STATUS_CARD_SHARPER,                 "{0} to switch {1} with {2} ..
 LOCALE_VALUE(STATUS_CARD_SHARPER_OTHER,           "{0} must respond to {1} to switch {2} with {3}")
 LOCALE_VALUE(STATUS_NEWIDENTITY,                  "{0} ... Choose which character to switch to")
 LOCALE_VALUE(STATUS_NEWIDENTITY_OTHER,            "{1} ... {0} must choose which character to switch to")
+LOCALE_VALUE(ERROR_MANDATORY_CARD,                "Playing {} is mandatory")
 
 LOCALE_VALUE(ERROR_INVALID_LOBBY,                 "Invalid Lobby ID")
 LOCALE_VALUE(ERROR_PLAYER_IN_LOBBY,               "Player already in a lobby")

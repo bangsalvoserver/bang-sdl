@@ -174,6 +174,7 @@ LOCALE_VALUE(ERROR_CANT_HEAL_PAST_FULL_HP,        "Non puoi curarti oltre l'ulti
 LOCALE_VALUE(ERROR_NOT_START_OF_TURN,             "Non sei a inizio turno")
 LOCALE_VALUE(ERROR_DISCARD_PILE_EMPTY,            "La pila degli scarti è vuota")
 LOCALE_VALUE(ERROR_MAX_USAGES,                    "Non puoi giocare {0} più di {1} volte per turno")
+LOCALE_VALUE(ERROR_MANDATORY_CARD,                "Sei obblicato a giocare {}")
 
 LOCALE_VALUE(LOG_GAME_START,                      "La partita è iniziata")
 LOCALE_VALUE(LOG_GAME_OVER,                       "La partita è terminata")

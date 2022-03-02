@@ -66,6 +66,7 @@ namespace banggame {
 
         card *m_last_played_card = nullptr;
         card *m_forced_card = nullptr;
+        card *m_mandatory_card = nullptr;
 
         card_suit_type m_declared_suit = card_suit_type::none;
         player_flags m_player_flags{};
@@ -141,8 +142,9 @@ namespace banggame {
 
         void set_last_played_card(card *c);
 
-        void set_forced_card(card *c);
         bool is_possible_to_play(card *c);
+        void set_forced_card(card *c);
+        void set_mandatory_card(card *c);
 
         bool is_bangcard(card *card_ptr);
 

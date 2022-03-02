@@ -52,6 +52,13 @@ namespace banggame {
             }
         };
         origin->m_game->queue_delayed_action([=]{
+            for (auto it = origin->m_game->m_selection.begin(); it != origin->m_game->m_selection.end(); ++it) {
+                auto flags = show_card_flags::show_everyone;
+                if (std::next(it) == origin->m_game->m_selection.end()) {
+                    flags |= show_card_flags::short_pause;
+                }
+                origin->m_game->send_card_update(**it, nullptr, flags);
+            }
             if (std::ranges::find(origin->m_game->m_selection, card_value_type::value_A, &card::value) != origin->m_game->m_selection.end()) {
                 while (!target->m_game->m_selection.empty()) {
                     origin->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::discard_pile);

@@ -213,7 +213,8 @@ namespace banggame {
         return origin->m_game->top_request_is(request_type::move_bomb, origin);
     }
 
-    void effect_move_bomb::on_play(card *origin_card, player *origin, player *target) {
+    void handler_move_bomb::on_play(card *origin_card, player *origin, mth_target_list targets) {
+        auto target = std::get<player *>(targets[0]);
         if (!target->immune_to(origin_card)) {
             if (target == origin) {
                 origin->m_game->pop_request(request_type::move_bomb);
