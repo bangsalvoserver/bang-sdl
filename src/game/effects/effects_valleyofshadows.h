@@ -11,11 +11,11 @@ namespace banggame {
     
     struct effect_backfire : card_effect {
         void verify(card *origin_card, player *origin) const;
-        void on_play(card *origin_card, player *origin, effect_flags flags = {});
+        void on_play(card *origin_card, player *origin);
     };
 
     struct effect_bandidos : card_effect {
-        void on_play(card *origin_card, player *origin, player *target, effect_flags flags = {});
+        void on_play(card *origin_card, player *origin, player *target);
     };
 
     struct effect_tornado : card_effect {
