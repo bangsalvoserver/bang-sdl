@@ -5,7 +5,7 @@
 #include <commdlg.h>
 
 #include <memory>
-#include <cstring>
+#include <cwchar>
 
 #include <fmt/xchar.h>
 
@@ -29,13 +29,12 @@ std::optional<std::filesystem::path> open_file_dialog(
 {
     OPENFILENAMEW ofn{sizeof(OPENFILENAMEW)};
 
-    std::wstring wfilter = fmt::format(L"{0} ({1})\0{1}\0",
-        utf8_to_wstring(description), utf8_to_wstring(filter));
+    using namespace std::string_view_literals;
+    std::wstring wfilter = utf8_to_wstring(fmt::format("{0} ({1})\0{1}\0"sv, description, filter));
     ofn.lpstrFilter = wfilter.c_str();
 
-    auto file_buf = std::make_unique<wchar_t[]>(MAX_PATH);
-    std::wstring wfile = default_path.wstring();
-    std::memcpy(file_buf.get(), wfile.c_str(), wfile.size() * sizeof(wchar_t));
+    auto file_buf = std::make_unique_for_overwrite<wchar_t[]>(MAX_PATH);
+    std::wcsncpy(file_buf.get(), default_path.wstring().c_str(), MAX_PATH);
     ofn.lpstrFile = file_buf.get();
     ofn.nMaxFile = MAX_PATH;
 
