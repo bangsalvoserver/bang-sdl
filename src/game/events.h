@@ -26,6 +26,7 @@ namespace banggame {
         (apply_maxcards_adder, std::function<void(player *origin, int &value)>)
         (apply_volcanic_modifier, std::function<void(player *origin, bool &value)>)
         (apply_immunity_modifier, std::function<void(card *origin_card, player *target, bool &value)>)
+        (apply_escapable_modifier, std::function<void(card *origin_card, player *origin, const player *target, effect_flags flags, bool &value)>)
         (apply_initial_cards_modifier, std::function<void(player *origin, int &value)>)
         (verify_target_unique, std::function<void(card *origin_card, player *origin, player *target)>)
         (on_discard_card,   std::function<void(player *origin, player *target, card *target_card)>)

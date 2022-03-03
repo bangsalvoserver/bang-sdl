@@ -93,4 +93,11 @@ namespace banggame {
     void effect_ms_abigail::on_play(card *origin_card, player *origin) {
         origin->m_game->pop_request();
     }
+
+    void effect_ms_abigail::on_equip(card *origin_card, player *origin) {
+        origin->m_game->add_event<event_type::apply_escapable_modifier>(origin_card,
+            [=](card *e_origin_card, player *e_origin, const player *e_target, effect_flags e_flags, bool &value) {
+                value = value || (e_target == origin) && effect_ms_abigail{}.can_escape(e_origin, e_origin_card, e_flags);
+            });
+    }
 }

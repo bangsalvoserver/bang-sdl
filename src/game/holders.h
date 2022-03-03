@@ -156,6 +156,7 @@ namespace banggame {
         (bloody_mary,   effect_bloody_mary)
         (red_ringo,     effect_red_ringo)
         (al_preacher,   effect_al_preacher)
+        (ms_abigail,    effect_ms_abigail)
         (blessing,      effect_blessing)
         (curse,         effect_curse)
         (thedaltons,    effect_thedaltons)

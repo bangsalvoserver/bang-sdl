@@ -32,11 +32,13 @@ namespace banggame {
         void on_play(card *origin_card, player *origin);
     };
 
-    struct effect_ms_abigail : card_effect {
+    struct effect_ms_abigail : event_based_effect {
         bool can_escape(player *origin, card *origin_card, effect_flags flags) const;
 
         bool can_respond(card *origin_card, player *target) const;
         void on_play(card *origin_card, player *origin);
+
+        void on_equip(card *origin_card, player *origin);
     };
 
 }

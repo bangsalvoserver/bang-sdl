@@ -163,14 +163,12 @@ namespace banggame {
     }
 
     bool player::can_escape(player *origin, card *origin_card, effect_flags flags) const {
-        // controlla se e' necessario attivare request di fuga
         if (bool(flags & effect_flags::escapable)
             && m_game->has_expansion(card_expansion_type::valleyofshadows)) return true;
-        auto it = std::ranges::find_if(m_characters, [](const auto &vec) {
-            return !vec.empty() && vec.front().type == effect_type::ms_abigail;
-        }, &card::responses);
-        return it != m_characters.end()
-            && (*it)->responses.front().get<effect_type::ms_abigail>().can_escape(origin, origin_card, flags);
+        
+        bool value = false;
+        m_game->instant_event<event_type::apply_escapable_modifier>(origin_card, origin, this, flags, value);
+        return value;
     }
     
     void player::add_cubes(card *target, int ncubes) {

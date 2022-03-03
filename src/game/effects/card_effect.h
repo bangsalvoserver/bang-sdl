@@ -19,11 +19,6 @@ namespace banggame {
         (int) effect_value
     )};
 
-    DEFINE_ENUM_FLAGS_IN_NS(banggame, effect_flags,
-        (escapable)
-        (single_target)
-    )
-
     struct effect_empty : card_effect {
         void on_play(card *origin_card, player *origin) {}
     };

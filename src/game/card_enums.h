@@ -129,6 +129,11 @@ namespace banggame {
         (shopchoice)
     )
 
+    DEFINE_ENUM_FLAGS_IN_NS(banggame, effect_flags,
+        (escapable)
+        (single_target)
+    )
+
 }
 
 #endif

@@ -3517,6 +3517,9 @@
                 {
                     "class": "max_hp",
                     "value": 4
+                },
+                {
+                    "class": "ms_abigail"
                 }
             ],
             "responses": [
