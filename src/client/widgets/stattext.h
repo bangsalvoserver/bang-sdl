@@ -32,23 +32,29 @@ namespace widgets {
 
         int m_wrap_length = 0;
 
+        friend class textbox;
+
+        void redraw() {
+            m_tex = make_text_surface(m_value, m_font, m_wrap_length, m_style.text_color);
+            m_rect = m_tex.get_rect();
+        }
+
     public:
         stattext(const text_style &style = {})
             : m_style(style)
             , m_font(media_pak::get().*(style.text_font), style.text_ptsize)
             , m_wrap_length(style.wrap_length) {}
 
-        stattext(const std::string &label, const text_style &style = {})
+        stattext(std::string label, const text_style &style = {})
             : stattext(style)
         {
-            redraw(label);
+            set_value(std::move(label));
         }
 
-        void redraw(const std::string &label) {
+        void set_value(std::string label) {
             if (label != m_value) {
-                m_value = label;
-                m_tex = sdl::make_text_surface(label, m_font, m_wrap_length, m_style.text_color);
-                m_rect = m_tex.get_rect();
+                m_value = std::move(label);
+                redraw();
             }
         }
 
@@ -107,6 +113,10 @@ namespace widgets {
 
         explicit operator bool() const {
             return bool(m_tex);
+        }
+
+        const sdl::font &get_font() const {
+            return m_font;
         }
     };
 }

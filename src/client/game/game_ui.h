@@ -19,7 +19,7 @@ namespace banggame {
         void add_game_log(const std::string &message);
 
         void set_status(const std::string &message) {
-            m_status_text.redraw(message);
+            m_status_text.set_value(message);
         }
         void clear_status() {
             m_status_text = widgets::stattext();

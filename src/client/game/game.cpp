@@ -33,7 +33,7 @@ static sdl::point cube_pile_offset(auto &rng) {
 }
 
 void game_scene::update_main_deck_count() {
-    m_main_deck_count.redraw(std::to_string(m_main_deck.size()));
+    m_main_deck_count.set_value(std::to_string(m_main_deck.size()));
     sdl::rect rect = m_main_deck_count.get_rect();
     rect.x = m_main_deck.get_pos().x - rect.w / 2;
     rect.y = m_main_deck.get_pos().y - rect.h / 2;

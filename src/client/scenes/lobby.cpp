@@ -83,7 +83,7 @@ lobby_scene::lobby_scene(game_manager *parent, const lobby_entered_args &args)
 }
 
 void lobby_scene::set_lobby_info(const lobby_info &info) {
-    m_lobby_name_text.redraw(info.name);
+    m_lobby_name_text.set_value(info.name);
     
     [expansions = info.expansions, it = m_checkboxes.begin()]
     <banggame::card_expansion_type ... Es>(enums::enum_sequence<Es ...>) mutable {

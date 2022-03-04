@@ -17,18 +17,16 @@ namespace widgets {
     private:
         textbox_style m_style;
 
-        std::string m_value;
         stattext m_tex;
 
         sdl::rect m_border_rect;
 
         button_callback_fun on_enter;
 
-        int m_ticks;
-
-        void update_texture() {
-            m_tex.redraw(m_value);
-        }
+        int m_ticks = 0;
+        int m_cursor_pos = 0;
+        int m_cursor_len = 0;
+        bool m_mouse_down = false;
 
     protected:
         bool handle_event(const sdl::event &event);
@@ -50,12 +48,11 @@ namespace widgets {
         }
 
         const std::string &get_value() const noexcept {
-            return m_value;
+            return m_tex.get_value();
         }
 
-        void set_value(const std::string &value) {
-            m_value = value;
-            update_texture();
+        void set_value(std::string value) {
+            m_tex.set_value(std::move(value));
         }
 
         void set_onenter(button_callback_fun &&fun) {
