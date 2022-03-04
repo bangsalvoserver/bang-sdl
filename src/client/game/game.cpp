@@ -835,7 +835,14 @@ void game_scene::HANDLE_UPDATE(player_status, const player_status_update &args) 
 }
 
 void game_scene::HANDLE_UPDATE(switch_turn, const switch_turn_update &args) {
+    if (m_playing_id) {
+        find_player(m_playing_id)->border_color = 0;
+    }
     m_playing_id = args.player_id;
+    if (m_playing_id) {
+        find_player(m_playing_id)->border_color = options::turn_indicator_rgba;
+    }
+
     m_target.clear_targets();
 
     pop_update();

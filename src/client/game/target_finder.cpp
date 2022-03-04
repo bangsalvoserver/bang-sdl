@@ -140,8 +140,8 @@ void target_finder::clear_targets() {
             std::visit(util::overloaded{
                 [](target_none) {},
                 [](target_other_players) {},
-                [](target_player p) {
-                    p.player->border_color = 0;
+                [this](target_player p) {
+                    p.player->border_color = m_game->m_playing_id == p.player->id ? options::turn_indicator_rgba : 0;
                 },
                 [](target_card c) {
                     c.card->border_color = 0;
