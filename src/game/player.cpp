@@ -790,7 +790,7 @@ namespace banggame {
                 play_modifiers(modifiers);
                 add_gold(-cost);
                 do_play_card(card_ptr, false, args.targets);
-                set_last_played_card(card_ptr);
+                set_last_played_card(nullptr);
                 m_game->queue_event<event_type::on_effect_end>(this, card_ptr);
             } else {
                 if (m_game->has_scenario(scenario_flags::judge)) throw game_error("ERROR_CANT_EQUIP_CARDS");
