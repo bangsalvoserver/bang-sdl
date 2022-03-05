@@ -2,7 +2,9 @@
 
 using namespace widgets;
 
-textbox::textbox(const textbox_style &style) : m_style (style) {}
+textbox::textbox(const textbox_style &style)
+    : m_style(style)
+    , m_font(media_pak::get().*(style.text.text_font), style.text.text_ptsize) {}
 
 inline bool is_first_utf8_char(char c) {
     return (c & 0xc0) != 0x80;
@@ -59,34 +61,15 @@ static std::string unicode_substring(const std::string &str, int pos, int len) {
     return std::string{begin, end};
 }
 
-static void unicode_resize(std::string &str, int size) {
-    size_t count = 0;
-    for (auto c = str.begin(); c != str.end(); ++c) {
-        count += is_first_utf8_char(*c);
-        if (count > size) {
-            str.resize(c - str.begin());
-            break;
-        }
-    }
-}
-
 static int measure_cursor(const sdl::font &font, const std::string &text, int xdiff) {
     int extent, count;
     TTF_MeasureUTF8(font.get(), text.c_str(), xdiff, &extent, &count);
     return count;
 }
 
-static int get_cursor_pos(const sdl::font &font, std::string text, int cursor_pos) {
+static int get_text_width(const sdl::font &font, const std::string &text) {
     int x, y;
-    unicode_resize(text, cursor_pos);
     TTF_SizeUTF8(font.get(), text.c_str(), &x, &y);
-    return x;
-}
-
-static int get_cursor_len(const sdl::font &font, const std::string &text, int cursor_pos, int cursor_len) {
-    int x, y;
-    std::string resized = unicode_substring(text, cursor_pos, cursor_len);
-    TTF_SizeUTF8(font.get(), resized.c_str(), &x, &y);
     return x;
 }
 
@@ -97,36 +80,71 @@ void textbox::render(sdl::renderer &renderer) {
     renderer.set_draw_color(m_style.border_color);
     renderer.draw_rect(m_border_rect);
 
-    int linex = m_border_rect.x + m_style.margin;
-    int linew = 0;
+    const sdl::rect m_crop{
+        m_border_rect.x + m_style.margin,
+        m_border_rect.y + m_style.margin,
+        m_border_rect.w - m_style.margin * 2,
+        m_border_rect.h - m_style.margin * 2
+    };
+
+    int linex = m_crop.x;
 
     if (m_tex) {
-        m_tex.set_point(sdl::point{m_border_rect.x + m_style.margin, m_border_rect.y + m_style.margin});
-        m_tex.render_cropped(renderer, sdl::rect{
-            m_border_rect.x + m_style.margin,
-            m_border_rect.y + m_style.margin,
-            m_border_rect.w - 2 * m_style.margin,
-            m_border_rect.h
-        });
-
-        linex = m_tex.get_rect().x + get_cursor_pos(m_tex.get_font(), m_tex.m_value, m_cursor_pos);
-        if (m_cursor_len) {
-            linew = get_cursor_len(m_tex.get_font(), m_tex.m_value, m_cursor_pos, m_cursor_len);
+        linex = get_text_width(m_font, unicode_substring(m_value, 0, m_cursor_pos));
+        if (linex < m_hscroll) {
+            m_hscroll = linex;
+        } else if (linex > m_hscroll + m_crop.w) {
+            m_hscroll = linex - m_crop.w;
         }
-    }
+
+        sdl::rect src_rect = m_tex.get_rect();
+        sdl::rect dst_rect = src_rect;
+        if (src_rect.w < m_crop.w) {
+            m_hscroll = 0;
+        }
+
+        dst_rect.x = m_crop.x - m_hscroll;
+        dst_rect.y = m_crop.y;
+
+        linex += dst_rect.x;
+        if (dst_rect.x < m_crop.x) {
+            int diff = m_crop.x - dst_rect.x;
+            src_rect.x += diff;
+            src_rect.w -= diff;
+            dst_rect.x += diff;
+            dst_rect.w -= diff;
+        }
+
+        if (dst_rect.x + dst_rect.w > m_crop.x + m_crop.w) {
+            int diff = dst_rect.x + dst_rect.w - m_crop.x - m_crop.w;
+            src_rect.w -= diff;
+            dst_rect.w -= diff;
+        }
     
-    if (linew) {
-        renderer.set_draw_color(sdl::rgba(0x00ffff80));
-        if (m_cursor_len > 0) {
-            renderer.fill_rect(sdl::rect{linex, m_border_rect.y, linew, m_border_rect.h});
-        } else {
-            renderer.fill_rect(sdl::rect{linex - linew, m_border_rect.y, linew, m_border_rect.h});
+        if (m_cursor_len) {
+            int linew = get_text_width(m_font, unicode_substring(m_value, m_cursor_pos, m_cursor_len));
+            if (m_cursor_len < 0) {
+                linew = -linew;
+            }
+
+            int min = linex;
+            int max = linex + linew;
+            if (max < min) {
+                std::swap(min, max);
+            }
+            min = std::max(min, m_crop.x);
+            max = std::min(max, m_crop.x + m_crop.w);
+
+            renderer.set_draw_color(m_style.selection_color);
+            renderer.fill_rect(sdl::rect{min, m_border_rect.y + 1, max - min, m_border_rect.h - 2});
         }
+
+        SDL_RenderCopy(renderer.get(), m_tex.get_texture(renderer), &src_rect, &dst_rect);
     }
 
-    if (focused() && (m_ticks++ % 50) < 25 && linex > m_border_rect.x && linex < m_border_rect.x + m_border_rect.w) {
-        renderer.set_draw_color(sdl::rgb(0x0));
-        SDL_RenderDrawLine(renderer.get(), linex, m_border_rect.y + m_style.margin, linex, m_border_rect.y + m_border_rect.h - m_style.margin);
+    if (focused() && (m_ticks++ % 50) < 25) {
+        renderer.set_draw_color(m_style.border_color);
+        SDL_RenderDrawLine(renderer.get(), linex, m_crop.y, linex, m_crop.y + m_crop.h);
     }
 }
 
@@ -144,21 +162,23 @@ bool textbox::handle_event(const sdl::event &event) {
     case SDL_MOUSEBUTTONDOWN:
         if (event.button.button == SDL_BUTTON_LEFT && sdl::point_in_rect(sdl::point{event.button.x, event.button.y}, m_border_rect)) {
             set_focus(this);
-            if (m_tex.m_value.empty()) {
+            if (m_value.empty()) {
                 m_cursor_pos = 0;
             } else {
-                m_cursor_pos = measure_cursor(m_tex.get_font(), m_tex.m_value, event.button.x - m_tex.get_rect().x);
+                m_cursor_pos = measure_cursor(m_font, m_value, event.button.x - (m_border_rect.x + m_style.margin - m_hscroll));
             }
             m_cursor_len = 0;
             m_mouse_down = true;
+            m_ticks = 0;
             return true;
         }
         return false;
     case SDL_MOUSEMOTION:
-        if (m_mouse_down && !m_tex.m_value.empty()) {
+        if (m_mouse_down && !m_value.empty()) {
             int pos = m_cursor_pos;
-            m_cursor_pos = measure_cursor(m_tex.get_font(), m_tex.m_value, event.button.x - m_tex.get_rect().x);
+            m_cursor_pos = measure_cursor(m_font, m_value, event.button.x - (m_border_rect.x + m_style.margin - m_hscroll));
             m_cursor_len += pos - m_cursor_pos;
+            m_ticks = 0;
             return true;
         }
         return false;
@@ -171,21 +191,22 @@ bool textbox::handle_event(const sdl::event &event) {
             case SDLK_x:
                 if (event.key.keysym.mod & KMOD_CTRL) {
                     if (m_cursor_len) {
-                        std::string text = unicode_substring(m_tex.m_value, m_cursor_pos, m_cursor_len);
-                        unicode_erase_at(m_tex.m_value, m_cursor_pos, m_cursor_len);
+                        std::string text = unicode_substring(m_value, m_cursor_pos, m_cursor_len);
+                        unicode_erase_at(m_value, m_cursor_pos, m_cursor_len);
                         SDL_SetClipboardText(text.c_str());
                         if (m_cursor_len < 0) {
                             m_cursor_pos += m_cursor_len;
                         }
                         m_cursor_len = 0;
-                        m_tex.redraw();
+                        m_ticks = 0;
+                        redraw();
                     }
                 }
                 return true;
             case SDLK_c:
                 if (event.key.keysym.mod & KMOD_CTRL) {
                     if (m_cursor_len) {
-                        std::string text = unicode_substring(m_tex.m_value, m_cursor_pos, m_cursor_len);
+                        std::string text = unicode_substring(m_value, m_cursor_pos, m_cursor_len);
                         SDL_SetClipboardText(text.c_str());
                     }
                 }
@@ -194,51 +215,55 @@ bool textbox::handle_event(const sdl::event &event) {
                 if (event.key.keysym.mod & KMOD_CTRL) {
                     if (char *clipboard = SDL_GetClipboardText()) {
                         if (m_cursor_len) {
-                            unicode_erase_at(m_tex.m_value, m_cursor_pos, m_cursor_len);
+                            unicode_erase_at(m_value, m_cursor_pos, m_cursor_len);
                             if (m_cursor_len < 0) {
                                 m_cursor_pos += m_cursor_len;
                             }
                             m_cursor_len = 0;
                         }
-                        unicode_append_at(m_tex.m_value, clipboard, m_cursor_pos);
+                        unicode_append_at(m_value, clipboard, m_cursor_pos);
                         m_cursor_pos += unicode_count_chars(clipboard);
-                        m_tex.redraw();
+                        redraw();
                     }
                 }
                 return true;
             case SDLK_a:
                 if (event.key.keysym.mod & KMOD_CTRL) {
-                    m_cursor_pos = 0;
-                    m_cursor_len = unicode_count_chars(m_tex.m_value);
+                    m_cursor_pos = unicode_count_chars(m_value);
+                    m_cursor_len = -m_cursor_pos;
+                    m_ticks = 0;
                 }
                 return true;
             case SDLK_BACKSPACE:
-                if (!m_tex.m_value.empty()) {
+                if (!m_value.empty()) {
                     if (m_cursor_len) {
-                        unicode_erase_at(m_tex.m_value, m_cursor_pos, m_cursor_len);
+                        unicode_erase_at(m_value, m_cursor_pos, m_cursor_len);
                         if (m_cursor_len < 0) {
                             m_cursor_pos += m_cursor_len;
                         }
                         m_cursor_len = 0;
+                        m_ticks = 0;
                     } else if (m_cursor_pos > 0) {
-                        unicode_erase_at(m_tex.m_value, m_cursor_pos - 1, 1);
+                        unicode_erase_at(m_value, m_cursor_pos - 1, 1);
                         --m_cursor_pos;
+                        m_ticks = 0;
                     }
-                    m_tex.redraw();
+                    redraw();
                 }
                 return true;
             case SDLK_DELETE:
-                if (!m_tex.m_value.empty()) {
+                if (!m_value.empty()) {
                     if (m_cursor_len) {
-                        unicode_erase_at(m_tex.m_value, m_cursor_pos, m_cursor_len);
+                        unicode_erase_at(m_value, m_cursor_pos, m_cursor_len);
                         if (m_cursor_len < 0) {
                             m_cursor_pos += m_cursor_len;
                         }
                         m_cursor_len = 0;
+                        m_ticks = 0;
                     } else {
-                        unicode_erase_at(m_tex.m_value, m_cursor_pos, 1);
+                        unicode_erase_at(m_value, m_cursor_pos, 1);
                     }
-                    m_tex.redraw();
+                    redraw();
                 }
                 return true;
             case SDLK_LEFT:
@@ -255,10 +280,11 @@ bool textbox::handle_event(const sdl::event &event) {
                 } else if (m_cursor_pos > 0) {
                     --m_cursor_pos;
                 }
+                m_ticks = 0;
                 return true;
             case SDLK_RIGHT:
                 if (event.key.keysym.mod & KMOD_SHIFT) {
-                    if (m_cursor_pos < unicode_count_chars(m_tex.m_value)) {
+                    if (m_cursor_pos < unicode_count_chars(m_value)) {
                         ++m_cursor_pos;
                         --m_cursor_len;
                     }
@@ -267,9 +293,10 @@ bool textbox::handle_event(const sdl::event &event) {
                     m_cursor_len = 0;
                 } else if (m_cursor_len < 0) {
                     m_cursor_len = 0;
-                } else if (m_cursor_pos < unicode_count_chars(m_tex.m_value)) {
+                } else if (m_cursor_pos < unicode_count_chars(m_value)) {
                     ++m_cursor_pos;
                 }
+                m_ticks = 0;
                 return true;
             case SDLK_HOME:
                 if (event.key.keysym.mod & KMOD_SHIFT) {
@@ -278,15 +305,17 @@ bool textbox::handle_event(const sdl::event &event) {
                     m_cursor_len = 0;
                 }
                 m_cursor_pos = 0;
+                m_ticks = 0;
                 return true;
             case SDLK_END: {
-                int len = unicode_count_chars(m_tex.m_value);
+                int len = unicode_count_chars(m_value);
                 if (event.key.keysym.mod & KMOD_SHIFT) {
                     m_cursor_len += m_cursor_pos - len;
                 } else {
                     m_cursor_len = 0;
                 }
                 m_cursor_pos = len;
+                m_ticks = 0;
                 return true;
             }
             case SDLK_RETURN:
@@ -300,15 +329,16 @@ bool textbox::handle_event(const sdl::event &event) {
     case SDL_TEXTINPUT:
         if (focused() && !m_mouse_down && event.text.text[0] != '\n') {
             if (m_cursor_len) {
-                unicode_erase_at(m_tex.m_value, m_cursor_pos, m_cursor_len);
+                unicode_erase_at(m_value, m_cursor_pos, m_cursor_len);
                 if (m_cursor_len < 0) {
                     m_cursor_pos += m_cursor_len;
                 }
                 m_cursor_len = 0;
             }
-            unicode_append_at(m_tex.m_value, event.text.text, m_cursor_pos);
+            unicode_append_at(m_value, event.text.text, m_cursor_pos);
             ++m_cursor_pos;
-            m_tex.redraw();
+            redraw();
+            m_ticks = 0;
             return true;
         }
         return false;

@@ -32,8 +32,6 @@ namespace widgets {
 
         int m_wrap_length = 0;
 
-        friend class textbox;
-
         void redraw() {
             m_tex = make_text_surface(m_value, m_font, m_wrap_length, m_style.text_color);
             m_rect = m_tex.get_rect();
@@ -75,21 +73,6 @@ namespace widgets {
             }
         }
 
-        void render_cropped(sdl::renderer &renderer, const sdl::rect &crop_rect) {
-            if (m_tex) {
-                m_rect.x = crop_rect.x;
-                m_rect.y = crop_rect.y;
-                if (m_rect.w > crop_rect.w) {
-                    sdl::rect src_rect{m_rect.w - crop_rect.w, 0, crop_rect.w, m_rect.h};
-                    sdl::rect dst_rect{crop_rect.x, m_rect.y, crop_rect.w, m_rect.h};
-                    SDL_RenderCopy(renderer.get(), m_tex.get_texture(renderer), &src_rect, &dst_rect);
-                    m_rect.x -= src_rect.x;
-                } else {
-                    m_tex.render(renderer, m_rect);
-                }
-            }
-        }
-
         void set_rect(const sdl::rect &rect) noexcept {
             m_rect = rect;
         }
@@ -113,10 +96,6 @@ namespace widgets {
 
         explicit operator bool() const {
             return bool(m_tex);
-        }
-
-        const sdl::font &get_font() const {
-            return m_font;
         }
     };
 }

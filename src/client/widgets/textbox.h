@@ -8,8 +8,9 @@ namespace widgets {
 
     struct textbox_style {
         text_style text;
-        sdl::color background_color = sdl::rgb(0xffffff);
-        sdl::color border_color = sdl::rgb(0x0);
+        sdl::color background_color = sdl::rgb(default_textbox_background_rgb);
+        sdl::color border_color = sdl::rgb(default_textbox_border_rgb);
+        sdl::color selection_color = sdl::rgb(default_textbox_selection_rgb);
         int margin = 4;
     };
 
@@ -17,16 +18,25 @@ namespace widgets {
     private:
         textbox_style m_style;
 
-        stattext m_tex;
+        sdl::font m_font;
+        sdl::texture m_tex;
 
         sdl::rect m_border_rect;
+
+        std::string m_value;
 
         button_callback_fun on_enter;
 
         int m_ticks = 0;
         int m_cursor_pos = 0;
         int m_cursor_len = 0;
+        int m_hscroll = 0;
+
         bool m_mouse_down = false;
+
+        void redraw() {
+            m_tex = make_text_surface(m_value, m_font, 0, m_style.text.text_color);
+        }
 
     protected:
         bool handle_event(const sdl::event &event);
@@ -48,11 +58,12 @@ namespace widgets {
         }
 
         const std::string &get_value() const noexcept {
-            return m_tex.get_value();
+            return m_value;
         }
 
         void set_value(std::string value) {
-            m_tex.set_value(std::move(value));
+            m_value = std::move(value);
+            redraw();
         }
 
         void set_onenter(button_callback_fun &&fun) {

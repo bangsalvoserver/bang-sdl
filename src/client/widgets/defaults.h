@@ -12,6 +12,10 @@ namespace widgets {
     constexpr uint32_t default_button_down_rgb = 0xccccff;
     constexpr uint32_t default_button_toggled_rgb = 0xbbbbff;
     constexpr uint32_t default_button_border_rgb = 0x0;
+
+    constexpr uint32_t default_textbox_background_rgb = 0xffffff;
+    constexpr uint32_t default_textbox_border_rgb = 0x0;
+    constexpr uint32_t default_textbox_selection_rgb = 0x00c0ff;
     
     constexpr int chat_message_lifetime = 1000;
 
