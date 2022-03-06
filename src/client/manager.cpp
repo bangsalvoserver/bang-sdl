@@ -21,7 +21,7 @@ game_manager::~game_manager() {
 }
 
 void game_manager::update_net() {
-    if (!m_loading && m_con) {
+    if (m_con) {
         if (m_con->connected()) {
             while (m_con->incoming_messages()) {
                 try {
@@ -32,7 +32,7 @@ void game_manager::update_net() {
                     add_chat_message(message_type::error, std::string("Error: ") + error.what());
                 }
             }
-        } else {
+        } else if (m_con->disconnected()) {
             disconnect(m_con->address_string().empty() ? std::string() : _("ERROR_DISCONNECTED"));
         }
     }
@@ -44,16 +44,13 @@ void game_manager::connect(const std::string &host) {
         return;
     }
     
-    m_loading = true;
     m_con = connection_type::make(m_ctx);
     
-    m_con->connect(host, banggame::server_port, [this, host](const boost::system::error_code &ec) {
-        m_loading = false;
+    m_con->connect(host, banggame::server_port, [this](const boost::system::error_code &ec) {
         if (!ec) {
             m_con->start();
             add_message<client_message_type::connect>(m_config.user_name, binary::serialize(m_config.profile_image_data.get_surface()));
         } else if (ec != boost::asio::error::operation_aborted) {
-            m_con->disconnect();
             add_chat_message(message_type::error, ansi_to_utf8(ec.message()));
         }
     });

@@ -41,6 +41,7 @@ namespace net {
         {
             auto endpoint = m_socket.remote_endpoint();
             m_address = endpoint.address().to_string() + ":" + std::to_string(endpoint.port());
+            m_state = connection_state::connecting;
         }
 
         connection(boost::asio::io_context &ctx)
@@ -52,32 +53,46 @@ namespace net {
         void connect(const std::string &host, uint16_t port, auto &&on_complete) {
             auto self(shared_from_this());
             auto resolver = new boost::asio::ip::tcp::resolver(m_socket.get_executor());
+            m_state = connection_state::resolving;
             resolver->async_resolve(boost::asio::ip::tcp::v4(), host, std::to_string(port),
                 [this, self, host,
                     resolver = std::unique_ptr<boost::asio::ip::tcp::resolver>(resolver),
                     on_complete = std::move(on_complete)]
                 (const boost::system::error_code &ec, boost::asio::ip::tcp::resolver::results_type results) mutable {
-                    if (!ec) {
+                    if (m_state != connection_state::resolving) {
+                        on_complete(boost::asio::error::operation_aborted);
+                    } else if (ec) {
+                        m_state = connection_state::error;
+                        on_complete(ec);
+                    } else {
+                        m_state = connection_state::connecting;
                         m_socket.async_connect(*results,
                             [this, self, host = std::move(host), on_complete = std::move(on_complete)]
                             (const boost::system::error_code &ec) {
                                 if (!ec) {
                                     m_address = host;
+                                } else {
+                                    m_state = connection_state::error;
+                                    m_socket.close();
                                 }
                                 on_complete(ec);
                             });
-                    } else {
-                        on_complete(ec);
                     }
                 });
         }
         
         bool connected() const {
-            return m_socket.is_open();
+            return m_state == connection_state::connected;
+        }
+
+        bool disconnected() const {
+            return m_state == connection_state::disconnected || m_state == connection_state::error;
         }
 
         void disconnect() {
-            if (m_socket.is_open()) {
+            if ((m_state == connection_state::connecting || m_state == connection_state::connected)
+                && m_socket.is_open())
+            {
                 boost::asio::post(m_socket.get_executor(),
                 [this, self = shared_from_this()]{
                     boost::system::error_code ec;
@@ -85,6 +100,7 @@ namespace net {
                     m_socket.close(ec);
                 });
             }
+            m_state = connection_state::disconnected;
         }
 
         const std::string &address_string() const {
@@ -115,7 +131,10 @@ namespace net {
         }
 
         void start() {
-            start_reading();
+            if (m_state == connection_state::connecting) {
+                m_state = connection_state::connected;
+                start_reading();
+            }
         }
 
     private:
@@ -143,16 +162,24 @@ namespace net {
                                             m_in_queue.push_back(binary::deserialize<InputMessage>(m_buffer));
                                             start_reading();
                                         } catch (const binary::read_error &error) {
+                                            m_state = connection_state::error;
                                             m_socket.close();
                                         }
                                     } else {
+                                        if (m_state != connection_state::disconnected) {
+                                            m_state = connection_state::error;
+                                        }
                                         m_socket.close();
                                     }
                                 });
                         } else {
+                            m_state = connection_state::error;
                             m_socket.close();
                         }
                     } else {
+                        if (m_state != connection_state::disconnected) {
+                            m_state = connection_state::error;
+                        }
                         m_socket.close();
                     }
                 });
@@ -184,6 +211,7 @@ namespace net {
                             write_next_message();
                         }
                     } else {
+                        m_state = connection_state::disconnected;
                         m_socket.close();
                     }
                 });
@@ -192,8 +220,15 @@ namespace net {
     private:
         boost::asio::ip::tcp::socket m_socket;
         boost::asio::io_context::strand m_strand;
-
         boost::asio::basic_waitable_timer<std::chrono::system_clock> m_timer;
+
+        enum class connection_state : uint8_t {
+            disconnected,
+            error,
+            resolving,
+            connecting,
+            connected
+        } m_state = connection_state::disconnected;
 
         util::tsqueue<InputMessage> m_in_queue;
         std::deque<std::vector<std::byte>> m_out_queue;

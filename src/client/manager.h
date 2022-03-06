@@ -120,7 +120,6 @@ private:
 
     using connection_type = net::connection<server_message, client_message, banggame::bang_header>;
     connection_type::pointer m_con;
-    std::atomic<bool> m_loading = false;
 
     std::map<int, user_info> m_users;
     
