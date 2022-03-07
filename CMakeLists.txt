@@ -20,6 +20,13 @@ endif()
 
 pkg_check_modules(jsoncpp REQUIRED jsoncpp IMPORTED_TARGET)
 
+find_package(fmt REQUIRED)
+if (TARGET fmt::fmt-header-only)
+    link_libraries(fmt::fmt-header-only)
+else()
+    link_libraries(fmt::fmt)
+endif()
+
 set(bangclient_srcs
     src/client/intl.cpp
     src/client/entrypoint.cpp
@@ -88,13 +95,6 @@ add_library(bangclient SHARED ${bangclient_srcs})
 target_compile_definitions(bangclient PRIVATE SDL_MAIN_HANDLED)
 
 target_link_libraries(bangclient PkgConfig::SDL2 PkgConfig::SDL2_ttf PkgConfig::SDL2_image PkgConfig::SDL2_gfx PkgConfig::jsoncpp)
-
-find_package(fmt REQUIRED)
-if (TARGET fmt::fmt-header-only)
-    target_link_libraries(bangclient fmt::fmt-header-only)
-else()
-    target_link_libraries(bangclient fmt::fmt)
-endif()
 
 add_dependencies(bangclient cards_pak media_pak)
 

@@ -4,6 +4,8 @@
 
 #include "manager.h"
 
+#include <fmt/core.h>
+
 using namespace std::string_literals;
 using namespace std::placeholders;
 
@@ -20,7 +22,7 @@ void bang_server::start_accepting() {
                     auto client = connection_type::make(m_ctx, std::move(peer));
                     client->start();
                     
-                    print_message(client->address_string() + " connected");
+                    print_message(fmt::format("{} connected", client->address_string()));
                     
                     m_clients.emplace(++m_client_id_counter, std::move(client));
                 } else {
@@ -60,15 +62,24 @@ bool bang_server::start() {
             next_frame += frames{1};
 
             for (auto it = m_clients.begin(); it != m_clients.end();) {
-                if (it->second->connected()) {
+                switch (it->second->state()) {
+                case net::connection_state::error:
+                    print_message(fmt::format("{} disconnected ({})", it->second->address_string(), ansi_to_utf8(it->second->error_message())));
+                    mgr.client_disconnected(it->first);
+                    it = m_clients.erase(it);
+                    break;
+                case net::connection_state::disconnected:
+                    print_message(fmt::format("{} disconnected", it->second->address_string()));
+                    mgr.client_disconnected(it->first);
+                    it = m_clients.erase(it);
+                    break;
+                case net::connection_state::connected:
                     while (it->second->incoming_messages()) {
                         mgr.handle_message(it->first, it->second->pop_message());
                     }
+                    [[fallthrough]];
+                default:
                     ++it;
-                } else {
-                    print_message(it->second->address_string() + " disconnected");
-                    mgr.client_disconnected(it->first);
-                    it = m_clients.erase(it);
                 }
             }
             mgr.tick();

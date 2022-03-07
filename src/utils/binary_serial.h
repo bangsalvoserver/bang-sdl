@@ -4,12 +4,46 @@
 #include "enum_variant.h"
 #include "reflector.h"
 
+#include <system_error>
 #include <vector>
 #include <string>
 #include <cstring>
-#include <stdexcept>
 #include <span>
 #include <map>
+
+namespace binary {
+    DEFINE_ENUM_DATA_IN_NS(binary, read_error_code,
+        (no_error,                  "No Error")
+        (buffer_overflow,           "Buffer Overflow")
+        (buffer_underflow,          "Buffer Underflow")
+        (invalid_variant_index,     "Invalid Variant Index")
+        (magic_number_mismatch,     "Magic Number Mismatch")
+    )
+
+    struct read_error_category : std::error_category {
+        const char *name() const noexcept override {
+            return "binary";
+        };
+
+        std::string message(int ev) const override {
+            return enums::get_data(static_cast<read_error_code>(ev));
+        }
+    };
+
+    static inline const read_error_category s_read_error_category{};
+    inline std::error_code make_error_code(read_error_code error) {
+        return {static_cast<int>(error), s_read_error_category};
+    }
+
+    struct read_error : std::system_error {
+        read_error(read_error_code code)
+            : std::system_error(make_error_code(code)) {}
+    };
+}
+
+namespace std {
+    template<> struct is_error_code_enum<binary::read_error_code> : true_type {};
+}
 
 namespace binary {
 
@@ -201,13 +235,9 @@ namespace binary {
         deserializer<T>{}(pos, end);
     };
 
-    struct read_error : std::runtime_error {
-        using std::runtime_error::runtime_error;
-    };
-
     inline void check_length(byte_ptr pos, byte_ptr end, size_t len) {
         if (pos + len > end) {
-            throw read_error("Buffer overflow");
+            throw read_error(read_error_code::buffer_overflow);
         }
     }
 
@@ -295,7 +325,7 @@ namespace binary {
                 } ... };
             }(std::make_index_sequence<sizeof...(Ts)>());
             if (index >= sizeof...(Ts)) {
-                throw read_error("Invalid variant index");
+                throw read_error(read_error_code::invalid_variant_index);
             }
             return lut[index](pos, end);
         }
@@ -316,7 +346,7 @@ namespace binary {
                 } ... };
             }(enums::make_enum_sequence<T>());
             if (index >= std::variant_size_v<enums::enum_variant_base<T>>) {
-                throw read_error("Invalid enum_variant index");
+                throw read_error(read_error_code::invalid_variant_index);
             }
             return lut[index](pos, end);
         }
@@ -342,7 +372,7 @@ namespace binary {
         byte_ptr end = pos + data.size();
         T obj = deserializer<T>{}(pos, end);
         if (pos != end) {
-            throw read_error("Buffer underflow");
+            throw read_error(read_error_code::buffer_underflow);
         }
         return obj;
     }

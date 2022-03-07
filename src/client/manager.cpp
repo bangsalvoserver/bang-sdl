@@ -22,18 +22,24 @@ game_manager::~game_manager() {
 
 void game_manager::update_net() {
     if (m_con) {
-        if (m_con->connected()) {
+        switch (m_con->state()) {
+        case net::connection_state::connected:
             while (m_con->incoming_messages()) {
                 try {
                     enums::visit_indexed([&](auto && ... args) {
                         handle_message(std::forward<decltype(args)>(args)...);
                     }, m_con->pop_message());
                 } catch (const std::exception &error) {
-                    add_chat_message(message_type::error, std::string("Error: ") + error.what());
+                    add_chat_message(message_type::error, fmt::format("Error: {}", error.what()));
                 }
             }
-        } else if (m_con->disconnected()) {
-            disconnect(m_con->address_string().empty() ? std::string() : _("ERROR_DISCONNECTED"));
+            break;
+        case net::connection_state::error:
+            disconnect(ansi_to_utf8(m_con->error_message()));
+            break;
+        case net::connection_state::disconnected:
+            disconnect();
+            break;
         }
     }
 }
@@ -50,8 +56,6 @@ void game_manager::connect(const std::string &host) {
         if (!ec) {
             m_con->start();
             add_message<client_message_type::connect>(m_config.user_name, binary::serialize(m_config.profile_image_data.get_surface()));
-        } else if (ec != boost::asio::error::operation_aborted) {
-            add_chat_message(message_type::error, ansi_to_utf8(ec.message()));
         }
     });
 
@@ -135,10 +139,10 @@ void game_manager::add_chat_message(message_type type, const std::string &messag
 bool game_manager::start_listenserver() {
     m_listenserver = std::make_unique<bang_server>(m_ctx, m_base_path);
     m_listenserver->set_message_callback([this](const std::string &msg) {
-        add_chat_message(message_type::server_log, std::string("SERVER: ") + msg); 
+        add_chat_message(message_type::server_log, fmt::format("SERVER: {}", msg));
     });
     m_listenserver->set_error_callback([this](const std::string &msg) {
-        add_chat_message(message_type::error, std::string("SERVER: ") + msg);
+        add_chat_message(message_type::error, fmt::format("SERVER: {}", msg));
     });
     if (m_listenserver->start()) {
         return true;

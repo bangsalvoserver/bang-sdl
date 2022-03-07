@@ -137,7 +137,7 @@ template<typename Resource> unpacker(Resource &&) -> unpacker<std::remove_refere
 inline std::ifstream ifstream_or_throw(const std::filesystem::path &path) {
     std::ifstream stream(path, std::ios::in | std::ios::binary);
     if (!stream) {
-        throw std::runtime_error(std::string("Could not open ") + path.string());
+        throw std::runtime_error(fmt::format("Could not open {}", path.string()));
     }
     return stream;
 }

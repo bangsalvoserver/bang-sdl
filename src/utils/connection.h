@@ -2,12 +2,51 @@
 #define __CONNECTION_H__
 
 #include <boost/asio.hpp>
+#include <fmt/core.h>
+
 #include <vector>
 #include <memory>
 #include <chrono>
 
 #include "tsqueue.h"
 #include "binary_serial.h"
+
+namespace net {
+
+    enum class connection_state : uint8_t {
+        disconnected,
+        error,
+        resolving,
+        connecting,
+        connected
+    };
+
+    DEFINE_ENUM_DATA_IN_NS(net, connection_error,
+        (no_error,              "No Error")
+        (timeout_expired,       "Timeout Expired")
+        (validation_failure,    "Validation Failure")
+    )
+
+    struct connection_error_category : std::error_category {
+        const char *name() const noexcept override {
+            return "connection";
+        };
+
+        std::string message(int ev) const override {
+            return enums::get_data(static_cast<connection_error>(ev));
+        }
+    };
+
+    static inline const connection_error_category s_connection_error_category{};
+    inline std::error_code make_error_code(connection_error error) {
+        return {static_cast<int>(error), s_connection_error_category};
+    }
+
+}
+
+namespace std {
+    template<> struct is_error_code_enum<net::connection_error> : true_type {};
+}
 
 namespace net {
 
@@ -38,16 +77,17 @@ namespace net {
             : m_socket(std::move(socket))
             , m_strand(ctx)
             , m_timer(ctx)
+            , m_state(connection_state::connecting)
         {
             auto endpoint = m_socket.remote_endpoint();
-            m_address = endpoint.address().to_string() + ":" + std::to_string(endpoint.port());
-            m_state = connection_state::connecting;
+            m_address = fmt::format("{}:{}", endpoint.address().to_string(), endpoint.port());
         }
 
         connection(boost::asio::io_context &ctx)
             : m_socket(ctx)
             , m_strand(ctx)
-            , m_timer(ctx) {}
+            , m_timer(ctx)
+            , m_state(connection_state::disconnected) {}
 
     public:
         void connect(const std::string &host, uint16_t port, auto &&on_complete) {
@@ -62,6 +102,7 @@ namespace net {
                     if (m_state != connection_state::resolving) {
                         on_complete(boost::asio::error::operation_aborted);
                     } else if (ec) {
+                        m_ec = ec;
                         m_state = connection_state::error;
                         on_complete(ec);
                     } else {
@@ -72,6 +113,7 @@ namespace net {
                                 if (!ec) {
                                     m_address = host;
                                 } else {
+                                    m_ec = ec;
                                     m_state = connection_state::error;
                                     m_socket.close();
                                 }
@@ -80,27 +122,31 @@ namespace net {
                     }
                 });
         }
-        
-        bool connected() const {
-            return m_state == connection_state::connected;
+
+        connection_state state() const {
+            return m_state;
         }
 
-        bool disconnected() const {
-            return m_state == connection_state::disconnected || m_state == connection_state::error;
+        std::string error_message() const {
+            return m_ec.message();
         }
 
         void disconnect() {
-            if ((m_state == connection_state::connecting || m_state == connection_state::connected)
-                && m_socket.is_open())
-            {
-                boost::asio::post(m_socket.get_executor(),
-                [this, self = shared_from_this()]{
-                    boost::system::error_code ec;
-                    m_socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
-                    m_socket.close(ec);
-                });
+            switch (state()) {
+            case connection_state::connecting:
+            case connection_state::connected:
+                if (m_socket.is_open()) {
+                    boost::asio::post(m_socket.get_executor(),
+                        [this, self = shared_from_this()]{
+                            boost::system::error_code ec;
+                            m_socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+                            m_socket.close(ec);
+                        });
+                }
+            [[fallthrough]];
+            default:
+                m_state = connection_state::disconnected;
             }
-            m_state = connection_state::disconnected;
         }
 
         const std::string &address_string() const {
@@ -133,12 +179,12 @@ namespace net {
         void start() {
             if (m_state == connection_state::connecting) {
                 m_state = connection_state::connected;
-                start_reading();
+                read_next_message();
             }
         }
 
     private:
-        void start_reading() {
+        void read_next_message() {
             auto self(shared_from_this());
             m_buffer.resize(sizeof(HeaderType));
             boost::asio::async_read(m_socket, boost::asio::buffer(m_buffer),
@@ -149,6 +195,8 @@ namespace net {
                             m_timer.expires_after(timeout);
                             m_timer.async_wait([this](const boost::system::error_code &ec) {
                                 if (!ec) {
+                                    m_state = connection_state::error;
+                                    m_ec = connection_error::timeout_expired;
                                     m_socket.cancel();
                                 }
                             });
@@ -160,26 +208,34 @@ namespace net {
                                     if (!ec) {
                                         try {
                                             m_in_queue.push_back(binary::deserialize<InputMessage>(m_buffer));
-                                            start_reading();
+                                            read_next_message();
                                         } catch (const binary::read_error &error) {
+                                            m_ec = error.code();
                                             m_state = connection_state::error;
                                             m_socket.close();
                                         }
                                     } else {
-                                        if (m_state != connection_state::disconnected) {
-                                            m_state = connection_state::error;
+                                        switch (state()) {
+                                        case connection_state::disconnected:
+                                            break;
+                                        default:
+                                            m_ec = ec;
+                                            m_state = ec == boost::asio::error::eof ? connection_state::disconnected : connection_state::error;
+                                            [[fallthrough]];
+                                        case connection_state::error:
+                                            m_socket.close();
+                                            break;
                                         }
-                                        m_socket.close();
                                     }
                                 });
                         } else {
+                            m_ec = connection_error::validation_failure;
                             m_state = connection_state::error;
                             m_socket.close();
                         }
-                    } else {
-                        if (m_state != connection_state::disconnected) {
-                            m_state = connection_state::error;
-                        }
+                    } else if (m_state != connection_state::disconnected) {
+                        m_ec = ec;
+                        m_state = ec == boost::asio::error::eof ? connection_state::disconnected : connection_state::error;
                         m_socket.close();
                     }
                 });
@@ -210,8 +266,9 @@ namespace net {
                         if (!m_out_queue.empty()) {
                             write_next_message();
                         }
-                    } else {
-                        m_state = connection_state::disconnected;
+                    } else if (m_state != connection_state::disconnected) {
+                        m_ec = ec;
+                        m_state = ec == boost::asio::error::eof ? connection_state::disconnected : connection_state::error;
                         m_socket.close();
                     }
                 });
@@ -221,14 +278,9 @@ namespace net {
         boost::asio::ip::tcp::socket m_socket;
         boost::asio::io_context::strand m_strand;
         boost::asio::basic_waitable_timer<std::chrono::system_clock> m_timer;
-
-        enum class connection_state : uint8_t {
-            disconnected,
-            error,
-            resolving,
-            connecting,
-            connected
-        } m_state = connection_state::disconnected;
+        
+        std::atomic<connection_state> m_state;
+        std::error_code m_ec;
 
         util::tsqueue<InputMessage> m_in_queue;
         std::deque<std::vector<std::byte>> m_out_queue;

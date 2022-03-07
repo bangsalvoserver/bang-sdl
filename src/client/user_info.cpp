@@ -41,7 +41,7 @@ size_t serializer<sdl::surface>::get_size(const sdl::surface &image) const {
 sdl::surface deserializer<sdl::surface>::operator()(byte_ptr &pos, byte_ptr end) const {
     uint8_t m = deserializer<uint8_t>{}(pos, end);
     if (m != surface_magic_num) {
-        throw binary::read_error("Magic number mismatch");
+        throw binary::read_error(binary::read_error_code::magic_number_mismatch);
     }
 
     uint8_t w = deserializer<uint8_t>{}(pos, end);

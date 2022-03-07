@@ -6,6 +6,8 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL2_rotozoom.h>
 
+#include <fmt/core.h>
+
 #include <stdexcept>
 #include <memory>
 
@@ -43,7 +45,7 @@ namespace sdl {
     struct initializer {
         explicit initializer(uint32_t flags) {
             if (SDL_Init(flags) != 0) {
-                throw error(std::string("Could not init SDL: ") + SDL_GetError());
+                throw error(fmt::format("Could not init SDL: {}", SDL_GetError()));
             }
         }
 
@@ -55,7 +57,7 @@ namespace sdl {
     struct ttf_initializer {
         ttf_initializer() {
             if (TTF_Init() != 0) {
-                throw error(std::string("Could not init SDL_ttf: ") + TTF_GetError());
+                throw error(fmt::format("Could not init SDL_ttf: {}", TTF_GetError()));
             }
         }
 
@@ -67,7 +69,7 @@ namespace sdl {
     struct img_initializer {
         explicit img_initializer(int flags) {
             if ((IMG_Init(flags) & flags) != flags) {
-                throw error(std::string("Could not init SDL_image") + IMG_GetError());
+                throw error(fmt::format("Could not init SDL_image: {}", IMG_GetError()));
             }
         }
 
@@ -88,7 +90,7 @@ namespace sdl {
     public:
         window(const char *title, int x, int y, int w, int h, uint32_t flags)
             : base(SDL_CreateWindow(title, x, y, w, h, flags)) {
-            if (!*this) throw error(std::string("Could not create window: ") + SDL_GetError());
+            if (!*this) throw error(fmt::format("Could not create window: {}", SDL_GetError()));
         }
     };
 
@@ -105,7 +107,7 @@ namespace sdl {
         renderer(window &w, int index, uint32_t flags)
             : base(SDL_CreateRenderer(w.get(), index, flags))
         {
-            if (!*this) throw error(std::string("Could not create renderer: ") + SDL_GetError());
+            if (!*this) throw error(fmt::format("Could not create renderer: {}", SDL_GetError()));
         }
 
         void set_draw_color(const color &color) {
@@ -152,12 +154,12 @@ namespace sdl {
 
         surface(int width, int height)
             : base(SDL_CreateRGBSurface(0, width, height, 32, rmask, gmask, bmask, amask)) {
-            if (!*this) throw error(std::string("Could not create surface: ") + SDL_GetError());
+            if (!*this) throw error(fmt::format("Could not create surface: {}", SDL_GetError()));
         }
 
         explicit surface(resource_view res)
             : base(IMG_Load_RW(SDL_RWFromConstMem(res.data, res.length), 0)) {
-            if (!*this) throw error(std::string("Could not load image: ") + IMG_GetError());
+            if (!*this) throw error(fmt::format("Could not load image: {}", IMG_GetError()));
         }
 
         rect get_rect() const {
@@ -239,7 +241,7 @@ namespace sdl {
     public:
         font(resource_view res, int ptsize)
             : base(TTF_OpenFontRW(SDL_RWFromConstMem(res.data, res.length), 0, ptsize)) {
-            if (!*this) throw error(std::string("Could not create font: ") + TTF_GetError());
+            if (!*this) throw error(fmt::format("Could not create font: {}", TTF_GetError()));
         }
     };
 
@@ -251,7 +253,7 @@ namespace sdl {
             ? TTF_RenderUTF8_Blended_Wrapped(font.get(), label.c_str(), text_color, width)
             : TTF_RenderUTF8_Blended(font.get(), label.c_str(), text_color);
         if (!s) {
-            throw error(std::string("Could not render text: ") + TTF_GetError());
+            throw error(fmt::format("Could not render text: {}", TTF_GetError()));
         }
         return s;
     }

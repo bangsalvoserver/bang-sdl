@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include <json/json.h>
+#include <fmt/core.h>
 
 #include "utils/resource.h"
 #include "utils/unpacker.h"
@@ -26,7 +27,7 @@ namespace banggame {
             Holder effect;
             effect.type = enums::from_string<enum_type>(json_effect["class"].asString());
             if (effect.type == enums::invalid_enum_v<enum_type>) {
-                throw invalid_effect("Invalid effect class: " + json_effect["class"].asString());
+                throw invalid_effect(fmt::format("Invalid effect class: {}", json_effect["class"].asString()));
             }
 
             if (json_effect.isMember("value")) {
@@ -35,27 +36,27 @@ namespace banggame {
             if (json_effect.isMember("target")) {
                 effect.target = enums::from_string<play_card_target_type>(json_effect["target"].asString());
                 if (effect.target == enums::invalid_enum_v<play_card_target_type>) {
-                    throw invalid_effect("Invalid target type: " + json_effect["target"].asString());
+                    throw invalid_effect(fmt::format("Invalid target type: {}", json_effect["target"].asString()));
                 }
             }
             if (json_effect.isMember("player_filter")) {
                 if (effect.target == play_card_target_type::player || effect.target == play_card_target_type::card) {
                     effect.player_filter = enums::flags_from_string<target_player_filter>(json_effect["player_filter"].asString());
                     if (effect.player_filter == enums::invalid_enum_v<target_player_filter>) {
-                        throw invalid_effect("Invalid player filter: " + json_effect["player_filter"].asString());
+                        throw invalid_effect(fmt::format("Invalid player filter: {}", json_effect["player_filter"].asString()));
                     }
                 } else {
-                    throw invalid_effect(std::string("Target type ") + std::string(enums::to_string(effect.target)) + " cannot have a player filter");
+                    throw invalid_effect(fmt::format("Target type {} cannot have a player filter", enums::to_string(effect.target)));
                 }
             }
             if (json_effect.isMember("card_filter")) {
                 if (effect.target == play_card_target_type::card) {
                     effect.card_filter = enums::flags_from_string<target_card_filter>(json_effect["card_filter"].asString());
                     if (effect.card_filter == enums::invalid_enum_v<target_card_filter>) {
-                        throw invalid_effect("Invalid card filter: " + json_effect["card_filter"].asString());
+                        throw invalid_effect(fmt::format("Invalid card filter: {}", json_effect["card_filter"].asString()));
                     }
                 } else {
-                    throw invalid_effect(std::string("Target type ") + std::string(enums::to_string(effect.target)) + " cannot have a card filter");
+                    throw invalid_effect(fmt::format("Target type {} cannot have a card filter", enums::to_string(effect.target)));
                 }
             }
             ret.push_back(effect);
@@ -83,17 +84,17 @@ namespace banggame {
             if (json_card.isMember("modifier")) {
                 out.modifier = enums::from_string<card_modifier_type>(json_card["modifier"].asString());
                 if (out.modifier == enums::invalid_enum_v<card_modifier_type>) {
-                    throw invalid_effect(std::string("Invalid modifier type: ") + json_card["modifier"].asString());
+                    throw invalid_effect(fmt::format("Invalid modifier type: {}", json_card["modifier"].asString()));
                 }
             }
             if (json_card.isMember("multitarget")) {
                 out.multi_target_handler = enums::from_string<mth_type>(json_card["multitarget"].asString());
                 if (out.multi_target_handler == enums::invalid_enum_v<mth_type>) {
-                    throw invalid_effect(std::string("Invalid multitarget type: ") + json_card["multitarget"].asString());
+                    throw invalid_effect(fmt::format("Invalid multitarget type: {}", json_card["multitarget"].asString()));
                 }
             }
         } catch (const invalid_effect &e) {
-            throw std::runtime_error(out.name + ": " + e.what());
+            throw std::runtime_error(fmt::format("{}: {}", out.name, e.what()));
         }
         if (json_card.isMember("discard_if_two_players")) {
             out.discard_if_two_players = json_card["discard_if_two_players"].asBool();

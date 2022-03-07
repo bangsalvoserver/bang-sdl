@@ -411,7 +411,7 @@ void game_scene::pop_update() {
             }, update);
         }
     } catch (const std::exception &error) {
-        parent->disconnect(std::string("Error: ") + error.what());
+        parent->disconnect(fmt::format("Error: {}", error.what()));
     }
 }
 

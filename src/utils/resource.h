@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iterator>
 #include <filesystem>
+#include <fmt/core.h>
 
 struct resource_view {
     const char *data;
@@ -24,7 +25,7 @@ struct resource : std::vector<char> {
     explicit resource(const std::filesystem::path &filename) {
         std::ifstream file(filename, std::ios::in | std::ios::binary | std::ios::ate);
         if (file.fail()) {
-            throw std::runtime_error("Could not open " + filename.string());
+            throw std::runtime_error(fmt::format("Could not open {}", filename.string()));
         }
         assign(file.tellg(), '\0');
         file.seekg(std::ios::beg);
