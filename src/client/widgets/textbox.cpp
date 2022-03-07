@@ -121,7 +121,7 @@ void textbox::render(sdl::renderer &renderer) {
             dst_rect.w -= diff;
         }
     
-        if (m_cursor_len) {
+        if (focused() && m_cursor_len) {
             int linew = get_text_width(m_font, unicode_substring(m_value, m_cursor_pos, m_cursor_len));
             if (m_cursor_len < 0) {
                 linew = -linew;
