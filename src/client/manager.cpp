@@ -198,7 +198,13 @@ void client_manager::HANDLE_SRV_MESSAGE(lobby_entered, const lobby_entered_args 
 }
 
 void client_manager::HANDLE_SRV_MESSAGE(lobby_add_user, const lobby_add_user_args &args) {
-    const auto &u = m_users.try_emplace(args.user_id, args.name, binary::deserialize<sdl::surface>(args.profile_image)).first->second;
+    sdl::surface propic;
+    try {
+        propic = binary::deserialize<sdl::surface>(args.profile_image);
+    } catch (const binary::read_error &error) {
+        // ignore
+    }
+    const auto &u = m_users.try_emplace(args.user_id, args.name, std::move(propic)).first->second;
     m_scene->add_user(args.user_id, u);
 }
 
