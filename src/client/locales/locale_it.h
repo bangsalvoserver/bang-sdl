@@ -23,6 +23,7 @@ LOCALE_VALUE(ERROR_NO_ADDRESS,                    "Specificare un indirizzo")
 LOCALE_VALUE(ERROR_NO_LOBBY_NAME,                 "Specificare un nome lobby")
 LOCALE_VALUE(ERROR_DISCONNECTED,                  "Disconnesso dal server")
 LOCALE_VALUE(ERROR_CONNECTION_CANCELED,           "Connessione annullata")
+LOCALE_VALUE(ERROR_INVALID_ADDRESS,               "Indirizzo non valido: {}")
 LOCALE_VALUE(CONNECTING_TO,                       "In connessione a {} ...")
 LOCALE_VALUE(DIALOG_IMAGE_FILES,                  "File Immagine")
 

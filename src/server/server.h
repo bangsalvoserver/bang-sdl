@@ -29,7 +29,7 @@ public:
         m_error_callback = std::move(fun);
     }
 
-    bool start();
+    bool start(uint16_t port);
 
     void join() {
         if (m_game_thread.joinable()) {

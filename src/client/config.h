@@ -34,7 +34,8 @@ struct config {
         (std::string) profile_image,
         (sdl::texture) profile_image_data,
         (std::string) lobby_name,
-        (banggame::card_expansion_type) expansions
+        (banggame::card_expansion_type) expansions,
+        (uint16_t) server_port
     )
 
     static inline const std::filesystem::path filename = std::filesystem::path(SDL_GetPrefPath(nullptr, "bang-sdl")) / "config.json";

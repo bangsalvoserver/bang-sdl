@@ -50,9 +50,9 @@ void bang_server::start_accepting() {
         });
 }
 
-bool bang_server::start() {
+bool bang_server::start(uint16_t port) {
     try {
-        boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), banggame::server_port);
+        boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), port);
         m_acceptor.open(endpoint.protocol());
         m_acceptor.bind(endpoint);
         m_acceptor.listen();
@@ -61,7 +61,7 @@ bool bang_server::start() {
         return false;
     }
 
-    print_message(fmt::format("Server listening on port {}", banggame::server_port));
+    print_message(fmt::format("Server listening on port {}", port));
 
     start_accepting();
 

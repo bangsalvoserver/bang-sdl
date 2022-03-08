@@ -1,4 +1,5 @@
 #include <iostream>
+#include <charconv>
 
 #include "server.h"
 #include "net_options.h"
@@ -16,7 +17,16 @@ int main(int argc, char **argv) {
         std::cerr << message << '\n';
     });
 
-    if (server.start()) {
+    uint16_t port = banggame::default_server_port;
+    if (argc > 1) {
+        auto [ptr, ec] = std::from_chars(argv[1], argv[1] + strlen(argv[1]), port);
+        if (ec != std::errc{}) {
+            std::cerr << "Port must be a number\0";
+            return 1;
+        }
+    }
+
+    if (server.start(port)) {
         std::thread ctx_thread([&]{ ctx.run(); });
 
         server.join();

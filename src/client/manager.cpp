@@ -2,6 +2,7 @@
 
 #include <sstream>
 #include <iostream>
+#include <charconv>
 
 #include "server/net_options.h"
 #include "media_pak.h"
@@ -51,9 +52,20 @@ void client_manager::connect(const std::string &host) {
         return;
     }
     
-    m_con = connection_type::make(m_ctx);
+    std::string addr = host;
+    uint16_t port = default_server_port;
+
+    if (size_t pos = addr.find(':'); pos != std::string::npos) {
+        addr = addr.substr(0, pos);
+        auto [ptr, ec] = std::from_chars(addr.data() + pos + 1, addr.data() + addr.size(), port);
+        if (ec != std::errc{}) {
+            add_chat_message(message_type::error, _("ERROR_INVALID_ADDRESS", host));
+            return;
+        }
+    }
     
-    m_con->connect(host, banggame::server_port, [this](const boost::system::error_code &ec) {
+    m_con = connection_type::make(m_ctx);
+    m_con->connect(addr, port, [this](const boost::system::error_code &ec) {
         if (!ec) {
             m_con->start();
 
@@ -155,7 +167,10 @@ bool client_manager::start_listenserver() {
     m_listenserver->set_error_callback([this](const std::string &msg) {
         add_chat_message(message_type::error, fmt::format("SERVER: {}", msg));
     });
-    if (m_listenserver->start()) {
+    if (!m_config.server_port) {
+        m_config.server_port = default_server_port;
+    }
+    if (m_listenserver->start(m_config.server_port)) {
         return true;
     } else {
         m_listenserver.reset();

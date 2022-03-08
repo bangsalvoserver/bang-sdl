@@ -96,7 +96,7 @@ namespace net {
             auto resolver = new boost::asio::ip::tcp::resolver(m_socket.get_executor());
             m_state = connection_state::resolving;
             resolver->async_resolve(boost::asio::ip::tcp::v4(), host, std::to_string(port),
-                [this, self, host,
+                [this, self, host = fmt::format("{}:{}", host, port),
                     resolver = std::unique_ptr<boost::asio::ip::tcp::resolver>(resolver),
                     on_complete = std::move(on_complete)]
                 (const boost::system::error_code &ec, boost::asio::ip::tcp::resolver::results_type results) mutable {
