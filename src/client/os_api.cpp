@@ -1,5 +1,7 @@
 #include "os_api.h"
 
+#include <SDL2/SDL_syswm.h>
+
 #ifdef WIN32
 #include <Windows.h>
 #include <commdlg.h>
@@ -25,9 +27,17 @@ std::optional<std::filesystem::path> open_file_dialog(
     const std::string &title,
     const std::filesystem::path &default_path,
     const std::string &filter,
-    const std::string &description)
+    const std::string &description,
+    sdl::window *parent)
 {
     OPENFILENAMEW ofn{sizeof(OPENFILENAMEW)};
+
+    if (parent) {
+        SDL_SysWMinfo wminfo;
+        SDL_VERSION(&wminfo.version);
+        SDL_GetWindowWMInfo(parent->get(), &wminfo);
+        ofn.hwndOwner = wminfo.info.win.window;
+    }
 
     using namespace std::string_view_literals;
     std::wstring wfilter = utf8_to_wstring(fmt::format("{0} ({1})\0{1}\0"sv, description, filter));
@@ -63,7 +73,8 @@ std::optional<std::filesystem::path> open_file_dialog(
     const std::string &title,
     const std::filesystem::path &default_path,
     const std::string &filter,
-    const std::string &description)
+    const std::string &description,
+    sdl::window *parent)
 {
     return std::nullopt;
 }

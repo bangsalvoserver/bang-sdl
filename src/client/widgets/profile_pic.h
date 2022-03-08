@@ -18,6 +18,7 @@ namespace widgets {
         }
         profile_pic(sdl::texture &&) = delete;
 
+        void set_texture(std::nullptr_t);
         void set_texture(const sdl::texture &tex);
         void set_texture(sdl::texture &&) = delete;
 
@@ -34,6 +35,10 @@ namespace widgets {
             m_onclick = std::move(fun);
         }
 
+        void set_on_rightclick(button_callback_fun &&fun) {
+            m_on_rightclick = std::move(fun);
+        }
+
     protected:
         bool handle_event(const sdl::event &event) override;
 
@@ -45,6 +50,7 @@ namespace widgets {
         sdl::color m_border_color{};
 
         button_callback_fun m_onclick;
+        button_callback_fun m_on_rightclick;
     };
 
 }

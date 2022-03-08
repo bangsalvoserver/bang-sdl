@@ -27,8 +27,7 @@ extern "C" __declspec(dllexport) long __stdcall entrypoint(const char *base_path
     auto idle_work(boost::asio::make_work_guard(ctx));
     std::thread ctx_thread([&]{ ctx.run(); });
 
-    client_manager mgr{ctx, base_path};
-    mgr.resize(window_width, window_height);
+    client_manager mgr{window, ctx, base_path};
 
     sdl::event event;
     bool quit = false;
@@ -48,7 +47,7 @@ extern "C" __declspec(dllexport) long __stdcall entrypoint(const char *base_path
             switch (event.type) {
             case SDL_WINDOWEVENT:
                 if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
-                    mgr.resize(event.window.data1, event.window.data2);
+                    mgr.refresh_layout();
                 }
                 break;
             case SDL_QUIT:

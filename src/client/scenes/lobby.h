@@ -15,7 +15,7 @@ public:
     lobby_scene(class client_manager *parent, const lobby_entered_args &args);
     void set_lobby_info(const lobby_info &info) override;
 
-    void resize(int width, int height) override;
+    void refresh_layout() override;
     void render(sdl::renderer &renderer) override;
 
     void add_user(int id, const user_info &args) override;
@@ -32,7 +32,7 @@ private:
             return m_user_id;
         }
 
-        void resize(int x, int y);
+        void set_pos(int x, int y);
         void render(sdl::renderer &renderer);
 
     private:

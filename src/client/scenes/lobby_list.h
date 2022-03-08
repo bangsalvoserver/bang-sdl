@@ -32,7 +32,7 @@ class lobby_list_scene : public scene_base {
 public:
     lobby_list_scene(class client_manager *parent);
 
-    void resize(int width, int height) override;
+    void refresh_layout() override;
     void render(sdl::renderer &renderer) override;
 
     void set_lobby_list(const std::vector<lobby_data> &args) override;

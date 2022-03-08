@@ -9,8 +9,9 @@
 
 using namespace banggame;
 
-client_manager::client_manager(boost::asio::io_context &ctx, const std::filesystem::path &base_path)
-    : m_base_path(base_path)
+client_manager::client_manager(sdl::window &window, boost::asio::io_context &ctx, const std::filesystem::path &base_path)
+    : m_window(window)
+    , m_base_path(base_path)
     , m_ctx(ctx)
     , m_accept_timer(ctx)
 {
@@ -105,15 +106,12 @@ void client_manager::disconnect(const std::string &message) {
 }
 
 
-void client_manager::resize(int width, int height) {
-    m_width = width;
-    m_height = height;
-
-    m_scene->resize(m_width, m_height);
+void client_manager::refresh_layout() {
+    m_scene->refresh_layout();
 
     m_chat.set_rect(sdl::rect{
-        width - 250,
-        height - 400,
+        width() - 250,
+        height() - 400,
         240,
         350
     });

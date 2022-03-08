@@ -20,7 +20,7 @@ namespace banggame {
     public:
         game_scene(class client_manager *parent, const game_started_args &args);
         
-        void resize(int width, int height) override;
+        void refresh_layout() override;
         void render(sdl::renderer &renderer) override;
         void handle_event(const sdl::event &event) override;
 

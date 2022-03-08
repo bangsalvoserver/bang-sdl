@@ -33,10 +33,10 @@ DEFINE_ENUM_TYPES(scene_type,
 
 class client_manager {
 public:
-    client_manager(boost::asio::io_context &ctx, const std::filesystem::path &base_path);
+    client_manager(sdl::window &window, boost::asio::io_context &ctx, const std::filesystem::path &base_path);
     ~client_manager();
 
-    void resize(int width, int height);
+    void refresh_layout();
 
     void render(sdl::renderer &renderer);
 
@@ -58,17 +58,27 @@ public:
     void switch_scene(Ts && ... args) {
         m_chat.disable();
         m_scene = std::make_unique<enums::enum_type_t<E>>(this, std::forward<Ts>(args) ...);
-        m_scene->resize(m_width, m_height);
+        refresh_layout();
     }
 
     config &get_config() {
         return m_config;
     }
 
+    sdl::window &get_window() {
+        return m_window;
+    }
+
     const std::filesystem::path &get_base_path() const { return m_base_path; }
 
-    int width() const noexcept { return m_width; }
-    int height() const noexcept { return m_height; }
+    sdl::rect get_rect() const {
+        sdl::rect rect{};
+        SDL_GetWindowSize(m_window.get(), &rect.w, &rect.h);
+        return rect;
+    }
+
+    int width() const { return get_rect().w; }
+    int height() const { return get_rect().h; }
 
     int get_user_own_id() const noexcept { return m_user_own_id; }
     int get_lobby_owner_id() const noexcept { return m_lobby_owner_id; }
@@ -102,15 +112,14 @@ private:
     void HANDLE_SRV_MESSAGE(game_update, const banggame::game_update &args);
 
 private:
+    sdl::window &m_window;
+
     std::filesystem::path m_base_path;
     config m_config;
 
     std::unique_ptr<scene_base> m_scene;
 
     chat_ui m_chat{this};
-
-    int m_width;
-    int m_height;
 
     int m_user_own_id = 0;
     int m_lobby_owner_id = 0;

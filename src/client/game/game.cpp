@@ -40,12 +40,12 @@ void game_scene::update_main_deck_count() {
     m_main_deck_count.set_rect(rect);
 }
 
-void game_scene::resize(int width, int height) {
-    scene_base::resize(width, height);
+void game_scene::refresh_layout() {
+    const auto win_rect = parent->get_rect();
 
     m_main_deck.set_pos(sdl::point{
-        width / 2 + options::deck_xoffset,
-        height / 2});
+        win_rect.w / 2 + options::deck_xoffset,
+        win_rect.h / 2});
 
     update_main_deck_count();
 
@@ -54,26 +54,26 @@ void game_scene::resize(int width, int height) {
         m_main_deck.get_pos().y});
     
     m_selection.set_pos(sdl::point{
-        width / 2,
-        height / 2 + options::selection_yoffset});
+        win_rect.w / 2,
+        win_rect.h / 2 + options::selection_yoffset});
 
     m_shop_deck.set_pos(sdl::point{
-        width / 2 + options::shop_xoffset - options::shop_selection_width - options::card_width,
-        height / 2});
+        win_rect.w / 2 + options::shop_xoffset - options::shop_selection_width - options::card_width,
+        win_rect.h / 2});
 
     m_shop_discard.set_pos(m_shop_deck.get_pos());
 
     m_shop_selection.set_pos(sdl::point{
-        width / 2 + options::shop_xoffset - options::shop_selection_width / 2,
-        height / 2});
+        win_rect.w / 2 + options::shop_xoffset - options::shop_selection_width / 2,
+        win_rect.h / 2});
     
     m_shop_choice.set_pos(sdl::point{
         m_shop_selection.get_pos().x,
         m_shop_selection.get_pos().y + options::shop_choice_offset});
 
     m_scenario_card.set_pos(sdl::point{
-        width / 2 + options::deck_xoffset + options::card_width + options::card_xoffset,
-        height / 2});
+        win_rect.w / 2 + options::deck_xoffset + options::card_width + options::card_xoffset,
+        win_rect.h / 2});
 
     move_player_views();
 
@@ -81,13 +81,13 @@ void game_scene::resize(int width, int height) {
         if (!cube.owner) {
             auto diff = cube_pile_offset(rng);
             cube.pos = sdl::point{
-                width / 2 + diff.x + options::cube_pile_xoffset,
-                height / 2 + diff.y
+                win_rect.w / 2 + diff.x + options::cube_pile_xoffset,
+                win_rect.h / 2 + diff.y
             };
         }
     }
 
-    m_ui.resize(width, height);
+    m_ui.refresh_layout();
 }
 
 template<int N> constexpr auto take_last = std::views::reverse | std::views::take(N) | std::views::reverse;

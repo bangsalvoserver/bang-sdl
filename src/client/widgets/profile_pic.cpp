@@ -18,24 +18,28 @@ sdl::surface profile_pic::scale_profile_image(sdl::surface &&image) {
 }
 
 profile_pic::profile_pic() {
+    set_texture(nullptr);
+}
+
+void profile_pic::set_texture(std::nullptr_t) {
     set_texture(media_pak::get().icon_default_user);
 }
 
 void profile_pic::set_texture(const sdl::texture &tex) {
     if (tex) {
         m_texture = &tex;
-    } else {
-        m_texture = &media_pak::get().icon_default_user;
-    }
 
-    sdl::point pos = get_pos();
-    m_rect = m_texture->get_rect();
-    if (m_rect.w > m_rect.h) {
-        sdl::scale_rect_width(m_rect, size);
+        sdl::point pos = get_pos();
+        m_rect = m_texture->get_rect();
+        if (m_rect.w > m_rect.h) {
+            sdl::scale_rect_width(m_rect, size);
+        } else {
+            sdl::scale_rect_height(m_rect, size);
+        }
+        set_pos(pos);
     } else {
-        sdl::scale_rect_height(m_rect, size);
+        set_texture(nullptr);
     }
-    set_pos(pos);
 }
 
 void profile_pic::set_pos(sdl::point pt) {
@@ -56,7 +60,7 @@ void profile_pic::render(sdl::renderer &renderer) {
 }
 
 bool profile_pic::handle_event(const sdl::event &event) {
-    if (m_onclick && event.type == SDL_MOUSEBUTTONDOWN && sdl::point_in_rect(
+    if (event.type == SDL_MOUSEBUTTONDOWN && sdl::point_in_rect(
         sdl::point{
             event.button.x,
             event.button.y},
@@ -66,8 +70,20 @@ bool profile_pic::handle_event(const sdl::event &event) {
             size, size
         }))
     {
-        m_onclick();
-        return true;
+        switch (event.button.button) {
+        case SDL_BUTTON_LEFT:
+            if (m_onclick) {
+                m_onclick();
+                return true;
+            }
+            return false;
+        case SDL_BUTTON_RIGHT:
+            if (m_on_rightclick) {
+                m_on_rightclick();
+                return true;
+            }
+            return false;
+        }
     }
     return false;
 }

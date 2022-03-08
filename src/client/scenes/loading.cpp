@@ -10,20 +10,22 @@ loading_scene::loading_scene(client_manager *parent, const std::string &address)
         parent->disconnect(_("ERROR_CONNECTION_CANCELED"));
     }) {}
 
-void loading_scene::resize(int width, int height) {
+void loading_scene::refresh_layout() {
+    const auto win_rect = parent->get_rect();
+    
     sdl::rect rect = m_loading_text.get_rect();
-    rect.x = (width - rect.w) / 2;
-    rect.y = (height - rect.h) / 2;
+    rect.x = (win_rect.w - rect.w) / 2;
+    rect.y = (win_rect.h - rect.h) / 2;
     m_loading_text.set_rect(rect);
 
     m_cancel_btn.set_rect(sdl::rect{
-        (width - 100) / 2,
+        (win_rect.w - 100) / 2,
         rect.y + rect.h + 10,
         100, 25
     });
 
     m_loading_rect = media_pak::get().icon_loading.get_rect();
-    m_loading_rect.x = (width - m_loading_rect.w) / 2;
+    m_loading_rect.x = (win_rect.w - m_loading_rect.w) / 2;
     m_loading_rect.y = rect.y - m_loading_rect.h - 10;
 }
 

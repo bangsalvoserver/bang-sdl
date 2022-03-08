@@ -15,7 +15,7 @@ public:
     scene_base(class client_manager *parent) : parent(parent) {}
     virtual ~scene_base() {}
     
-    virtual void resize(int width, int height) {}
+    virtual void refresh_layout() {}
 
     virtual void render(sdl::renderer &renderer) = 0;
     

@@ -25,7 +25,7 @@ class connect_scene : public scene_base {
 public:
     connect_scene(class client_manager *parent);
     
-    void resize(int width, int height) override;
+    void refresh_layout() override;
     
     void render(sdl::renderer &renderer) override;
 
@@ -34,6 +34,7 @@ public:
     void do_delete_address(recent_server_line *addr);
 
     void do_browse_propic();
+    void reset_propic();
 
     void do_create_server();
 

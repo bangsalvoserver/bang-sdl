@@ -13,7 +13,7 @@ namespace banggame {
     public:
         game_ui(class game_scene *parent);
 
-        void resize(int width, int height);
+        void refresh_layout();
         void render(sdl::renderer &renderer);
 
         void add_game_log(const std::string &message);

@@ -4,6 +4,8 @@
 #include <filesystem>
 #include <optional>
 
+#include "utils/sdl.h"
+
 namespace os_api {
 
     void play_bell();
@@ -12,7 +14,8 @@ namespace os_api {
         const std::string &title,
         const std::filesystem::path &default_path,
         const std::string &filter,
-        const std::string &description);
+        const std::string &description,
+        sdl::window *parent = nullptr);
 
 }
 

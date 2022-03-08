@@ -37,17 +37,19 @@ lobby_list_scene::lobby_list_scene(client_manager *parent)
     parent->add_message<client_message_type::lobby_list>();
 }
 
-void lobby_list_scene::resize(int width, int height) {
+void lobby_list_scene::refresh_layout() {
+    const auto win_rect = parent->get_rect();
+    
     m_disconnect_btn.set_rect(sdl::rect{20, 20, 100, 25});
 
-    sdl::rect rect{100, 100, width - 200, 25};
+    sdl::rect rect{100, 100, win_rect.w - 200, 25};
     for (auto &line : m_lobby_lines) {
         line.set_rect(rect);
         rect.y += 40;
     }
 
-    m_lobby_name_box.set_rect(sdl::rect{100, rect.y, width - 310, 25});
-    m_make_lobby_btn.set_rect(sdl::rect{width - 200, rect.y, 100, 25});
+    m_lobby_name_box.set_rect(sdl::rect{100, rect.y, win_rect.w - 310, 25});
+    m_make_lobby_btn.set_rect(sdl::rect{win_rect.w - 200, rect.y, 100, 25});
 }
 
 void lobby_list_scene::render(sdl::renderer &renderer) {
@@ -79,7 +81,7 @@ void lobby_list_scene::set_lobby_list(const std::vector<lobby_data> &args) {
         m_lobby_lines.emplace_back(this, line);
     }
 
-    resize(parent->width(), parent->height());
+    refresh_layout();
 }
 
 void lobby_list_scene::handle_lobby_update(const lobby_data &args) {
@@ -93,5 +95,5 @@ void lobby_list_scene::handle_lobby_update(const lobby_data &args) {
     } else {
         m_lobby_lines.emplace_back(this, args);
     }
-    resize(parent->width(), parent->height());
+    refresh_layout();
 }

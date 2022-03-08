@@ -13,7 +13,7 @@ lobby_scene::lobby_player_item::lobby_player_item(lobby_scene *parent, int id, c
     })
     , m_propic(args.profile_image) {}
 
-void lobby_scene::lobby_player_item::resize(int x, int y) {
+void lobby_scene::lobby_player_item::set_pos(int x, int y) {
     m_propic.set_pos(sdl::point{
         x + widgets::profile_pic::size / 2,
         y + widgets::profile_pic::size / 2
@@ -102,24 +102,26 @@ void lobby_scene::send_lobby_edited() {
     parent->add_message<client_message_type::lobby_edit>(m_lobby_name_text.get_value(), expansions);
 }
 
-void lobby_scene::resize(int width, int height) {
+void lobby_scene::refresh_layout() {
+    const auto win_rect = parent->get_rect();
+    
     sdl::rect checkbox_rect{130, 60, 0, 25};
     for (auto &box : m_checkboxes) {
         box.set_rect(checkbox_rect);
         checkbox_rect.y += 50;
     }
 
-    m_lobby_name_text.set_point(sdl::point{width / 2 + 5, 20});
+    m_lobby_name_text.set_point(sdl::point{win_rect.w / 2 + 5, 20});
 
     int y = 60;
     for (auto &line : m_player_list) {
-        line.resize(width / 2, y);
+        line.set_pos(win_rect.w / 2, y);
         y += widgets::profile_pic::size + 10;
     }
 
     m_leave_btn.set_rect(sdl::rect{20, 20, 100, 25});
     m_start_btn.set_rect(sdl::rect{130, 20, 100, 25});
-    m_chat_btn.set_rect(sdl::rect{width - 120, height - 40, 100, 25});
+    m_chat_btn.set_rect(sdl::rect{win_rect.w - 120, win_rect.h - 40, 100, 25});
 }
 
 void lobby_scene::render(sdl::renderer &renderer) {
@@ -142,8 +144,7 @@ void lobby_scene::render(sdl::renderer &renderer) {
 
 void lobby_scene::add_user(int id, const user_info &args) {
     m_player_list.emplace_back(this, id, args);
-
-    resize(parent->width(), parent->height());
+    refresh_layout();
 }
 
 void lobby_scene::remove_user(int id) {
@@ -156,5 +157,5 @@ void lobby_scene::remove_user(int id) {
         }
     }
 
-    resize(parent->width(), parent->height());
+    refresh_layout();
 }

@@ -18,26 +18,28 @@ game_ui::game_ui(game_scene *parent)
     , m_restart_btn(_("GAME_RESTART"), [parent]{ parent->parent->add_message<client_message_type::game_start>(); })
     , m_chat_btn(_("BUTTON_CHAT"), [parent]{ parent->parent->enable_chat(); }) {}
 
-void game_ui::resize(int width, int height) {
-    m_game_log.set_rect(sdl::rect{20, height - 450, 190, 400});
+void game_ui::refresh_layout() {
+    const auto win_rect = parent->parent->get_rect();
 
-    int x = (width - std::transform_reduce(m_special_btns.begin(), m_special_btns.end(), 100, std::plus(),
+    m_game_log.set_rect(sdl::rect{20, win_rect.h - 450, 190, 400});
+
+    int x = (win_rect.w - std::transform_reduce(m_special_btns.begin(), m_special_btns.end(), 100, std::plus(),
         [](const button_card_pair &pair) {
             return pair.first.get_rect().w + 10;
         })) / 2;
-    m_confirm_btn.set_rect(sdl::rect{x, height - 40, 100, 25});
+    m_confirm_btn.set_rect(sdl::rect{x, win_rect.h - 40, 100, 25});
     x += 110;
 
     for (auto &[btn, card] : m_special_btns) {
         sdl::rect rect = btn.get_rect();
-        btn.set_rect(sdl::rect{x, height - 40, rect.w, 25});
+        btn.set_rect(sdl::rect{x, win_rect.h - 40, rect.w, 25});
         x += rect.w + 10;
     }
 
     m_leave_btn.set_rect(sdl::rect{20, 20, 100, 25});
     m_restart_btn.set_rect(sdl::rect{140, 20, 100, 25});
 
-    m_chat_btn.set_rect(sdl::rect{width - 120, height - 40, 100, 25});
+    m_chat_btn.set_rect(sdl::rect{win_rect.w - 120, win_rect.h - 40, 100, 25});
 }
 
 void game_ui::render(sdl::renderer &renderer) {
@@ -83,13 +85,13 @@ void game_ui::add_special(card_view *card) {
 
     btn.set_rect(sdl::rect{0, 0, std::max(100, btn.get_text_rect().w + 10), 25});
 
-    resize(parent->parent->width(), parent->parent->height());
+    refresh_layout();
 }
 
 void game_ui::remove_special(card_view *card) {
     auto it = std::ranges::find(m_special_btns, card, &decltype(m_special_btns)::value_type::second);
     if (it != m_special_btns.end()) {
         m_special_btns.erase(it);
-        resize(parent->parent->width(), parent->parent->height());
+        refresh_layout();
     }
 }

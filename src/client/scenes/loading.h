@@ -7,7 +7,7 @@ class loading_scene : public scene_base {
 public:
     loading_scene(class client_manager *parent, const std::string &address);
 
-    void resize(int width, int height) override;
+    void refresh_layout() override;
 
     void render(sdl::renderer &renderer) override;
 

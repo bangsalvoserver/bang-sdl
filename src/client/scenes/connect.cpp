@@ -42,10 +42,13 @@ connect_scene::connect_scene(client_manager *parent)
     }
 
     m_propic.set_onclick([this]{ do_browse_propic(); });
+    m_propic.set_on_rightclick([this]{ reset_propic(); });
     m_propic.set_texture(parent->get_config().profile_image_data);
 }
 
-void connect_scene::resize(int width, int height) {
+void connect_scene::refresh_layout() {
+    const auto win_rect = parent->get_rect();
+
     auto label_rect = m_username_label.get_rect();
     label_rect.x = 100;
     label_rect.y = 50 + (25 - label_rect.h) / 2;
@@ -54,7 +57,7 @@ void connect_scene::resize(int width, int height) {
     m_username_box.set_rect(sdl::rect{
         125 + label_rect.w + widgets::profile_pic::size,
         50,
-        width - 225 - widgets::profile_pic::size - label_rect.w,
+        win_rect.w - 225 - widgets::profile_pic::size - label_rect.w,
         25});
 
     m_propic.set_pos(sdl::point{
@@ -62,9 +65,9 @@ void connect_scene::resize(int width, int height) {
         m_username_box.get_rect().y + m_username_box.get_rect().h / 2
     });
 
-    m_create_server_btn.set_rect(sdl::rect{(width - 200) / 2, 100, 200, 25});
+    m_create_server_btn.set_rect(sdl::rect{(win_rect.w - 200) / 2, 100, 200, 25});
 
-    sdl::rect rect{100, 150, width - 200, 25};
+    sdl::rect rect{100, 150, win_rect.w - 200, 25};
     for (auto &line : m_recents) {
         line.set_rect(rect);
         rect.y += 35;
@@ -110,21 +113,28 @@ void connect_scene::do_delete_address(recent_server_line *addr) {
     servers.erase(servers.begin() + std::distance(m_recents.begin(), it));
     m_recents.erase(it);
 
-    resize(parent->width(), parent->height());
+    refresh_layout();
 }
 
 void connect_scene::do_browse_propic() {
     auto &cfg = parent->get_config();
-    if (auto value = os_api::open_file_dialog(_("BANG_TITLE"), cfg.profile_image, "*.jpg;*.png", _("DIALOG_IMAGE_FILES"))) {
+    if (auto value = os_api::open_file_dialog(_("BANG_TITLE"), cfg.profile_image, "*.jpg;*.png", _("DIALOG_IMAGE_FILES"), &parent->get_window())) {
         try {
             cfg.profile_image_data = widgets::profile_pic::scale_profile_image(sdl::surface(resource(*value)));
             m_propic.set_texture(cfg.profile_image_data);
             cfg.profile_image = value->string();
-            resize(parent->width(), parent->height());
+            refresh_layout();
         } catch (const std::runtime_error &e) {
             parent->add_chat_message(message_type::error, e.what());
         }
     }
+}
+
+void connect_scene::reset_propic() {
+    m_propic.set_texture(nullptr);
+    parent->get_config().profile_image.clear();
+    parent->get_config().profile_image_data.reset();
+    refresh_layout();
 }
 
 void connect_scene::do_create_server() {
