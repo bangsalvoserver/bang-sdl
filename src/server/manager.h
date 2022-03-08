@@ -51,17 +51,18 @@ server_message make_message(Ts && ... args) {
 #define MESSAGE_TAG(name) enums::enum_constant<client_message_type::name>
 #define HANDLE_MESSAGE(name, ...) handle_message(MESSAGE_TAG(name) __VA_OPT__(,) __VA_ARGS__)
 
-using message_callback_t = std::function<void(const std::string &)>;
-
 class game_manager {
 public:
     game_manager(const std::filesystem::path &base_path);
+
+    struct invalid_message {};
     
     void handle_message(int client_id, const client_message &msg);
     int pending_messages();
     server_message_pair pop_message();
 
     void client_disconnected(int client_id);
+    bool client_validated(int client_id) const;
 
     template<server_message_type E, typename ... Ts>
     void send_message(int client_id, Ts && ... args) {
@@ -77,14 +78,6 @@ public:
     }
 
     void tick();
-
-    void set_message_callback(message_callback_t &&fun) {
-        m_message_callback = std::move(fun);
-    }
-
-    void set_error_callback(message_callback_t &&fun) {
-        m_error_callback = std::move(fun);
-    }
 
 private:
     lobby_data make_lobby_data(const lobby &l);
@@ -105,17 +98,6 @@ private:
     std::list<server_message_pair> m_out_queue;
 
     banggame::all_cards_t all_cards;
-
-    message_callback_t m_message_callback;
-    message_callback_t m_error_callback;
-
-    void print_message(const std::string &msg) {
-        if (m_message_callback) m_message_callback(msg);
-    }
-
-    void print_error(const std::string &msg) {
-        if (m_error_callback) m_error_callback(msg);
-    }
 };
 
 #endif

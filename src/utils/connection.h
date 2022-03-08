@@ -25,6 +25,7 @@ namespace net {
         (no_error,              "No Error")
         (timeout_expired,       "Timeout Expired")
         (validation_failure,    "Validation Failure")
+        (invalid_message,       "Invalid Message")
     )
 
     struct connection_error_category : std::error_category {
@@ -131,7 +132,7 @@ namespace net {
             return m_ec.message();
         }
 
-        void disconnect() {
+        void disconnect(const std::error_code &ec = {}) {
             switch (state()) {
             case connection_state::connecting:
             case connection_state::connected:
@@ -145,7 +146,14 @@ namespace net {
                 }
             [[fallthrough]];
             default:
-                m_state = connection_state::disconnected;
+                m_in_queue.clear();
+                m_out_queue.clear();
+                if (!ec) {
+                    m_state = connection_state::disconnected;
+                } else {
+                    m_ec = ec;
+                    m_state = connection_state::error;
+                }
             }
         }
 
@@ -215,17 +223,7 @@ namespace net {
                                             m_socket.close();
                                         }
                                     } else {
-                                        switch (state()) {
-                                        case connection_state::disconnected:
-                                            break;
-                                        default:
-                                            m_ec = ec;
-                                            m_state = ec == boost::asio::error::eof ? connection_state::disconnected : connection_state::error;
-                                            [[fallthrough]];
-                                        case connection_state::error:
-                                            m_socket.close();
-                                            break;
-                                        }
+                                        handle_io_error(ec);
                                     }
                                 });
                         } else {
@@ -233,10 +231,8 @@ namespace net {
                             m_state = connection_state::error;
                             m_socket.close();
                         }
-                    } else if (m_state != connection_state::disconnected) {
-                        m_ec = ec;
-                        m_state = ec == boost::asio::error::eof ? connection_state::disconnected : connection_state::error;
-                        m_socket.close();
+                    } else {
+                        handle_io_error(ec);
                     }
                 });
         }
@@ -266,12 +262,24 @@ namespace net {
                         if (!m_out_queue.empty()) {
                             write_next_message();
                         }
-                    } else if (m_state != connection_state::disconnected) {
-                        m_ec = ec;
-                        m_state = ec == boost::asio::error::eof ? connection_state::disconnected : connection_state::error;
-                        m_socket.close();
+                    } else {
+                        handle_io_error(ec);
                     }
                 });
+        }
+
+        void handle_io_error(const boost::system::error_code &ec) {
+            switch (state()) {
+            case connection_state::disconnected:
+                break;
+            default:
+                m_ec = ec;
+                m_state = ec == boost::asio::error::eof ? connection_state::disconnected : connection_state::error;
+                [[fallthrough]];
+            case connection_state::error:
+                m_socket.close();
+                break;
+            }
         }
 
     private:

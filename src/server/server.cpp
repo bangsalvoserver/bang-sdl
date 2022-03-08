@@ -6,12 +6,10 @@
 
 #include <fmt/core.h>
 
-using namespace std::string_literals;
-using namespace std::placeholders;
-
 bang_server::bang_server(boost::asio::io_context &ctx, const std::filesystem::path &base_path)
     : m_ctx(ctx)
     , m_acceptor(ctx)
+    , m_mgr(nullptr, [](game_manager *value) { delete value; })
     , m_base_path(base_path) {}
 
 void bang_server::start_accepting() {
@@ -23,8 +21,25 @@ void bang_server::start_accepting() {
                     client->start();
                     
                     print_message(fmt::format("{} connected", client->address_string()));
-                    
-                    m_clients.emplace(++m_client_id_counter, std::move(client));
+
+                    auto it = m_clients.emplace(++m_client_id_counter, std::move(client)).first;
+
+                    using timer_type = boost::asio::basic_waitable_timer<std::chrono::system_clock>;
+                    auto timer = new timer_type(m_ctx);
+
+                    timer->expires_after(net::timeout);
+                    timer->async_wait(
+                        [this,
+                        timer = std::unique_ptr<timer_type>(timer),
+                        client_id = it->first, ptr = std::weak_ptr(it->second)](const boost::system::error_code &ec) {
+                            if (!ec) {
+                                if (auto client = ptr.lock()) {
+                                    if (!m_mgr->client_validated(client_id)) {
+                                        client->disconnect(net::connection_error::timeout_expired);
+                                    }
+                                }
+                            }
+                        });
                 } else {
                     peer.close();
                 }
@@ -46,14 +61,12 @@ bool bang_server::start() {
         return false;
     }
 
-    print_message("Server listening on port "s + std::to_string(banggame::server_port));
+    print_message(fmt::format("Server listening on port {}", banggame::server_port));
 
     start_accepting();
 
     m_game_thread = std::jthread([this](std::stop_token token) {
-        game_manager mgr{m_base_path};
-        mgr.set_message_callback(std::bind(&bang_server::print_message, this, _1));
-        mgr.set_error_callback(std::bind(&bang_server::print_error, this, _1));
+        m_mgr.reset(new game_manager(m_base_path));
 
         using frames = std::chrono::duration<int64_t, std::ratio<1, banggame::fps>>;
         auto next_frame = std::chrono::steady_clock::now() + frames{0};
@@ -65,26 +78,32 @@ bool bang_server::start() {
                 switch (it->second->state()) {
                 case net::connection_state::error:
                     print_message(fmt::format("{} disconnected ({})", it->second->address_string(), ansi_to_utf8(it->second->error_message())));
-                    mgr.client_disconnected(it->first);
+                    m_mgr->client_disconnected(it->first);
                     it = m_clients.erase(it);
                     break;
                 case net::connection_state::disconnected:
                     print_message(fmt::format("{} disconnected", it->second->address_string()));
-                    mgr.client_disconnected(it->first);
+                    m_mgr->client_disconnected(it->first);
                     it = m_clients.erase(it);
                     break;
                 case net::connection_state::connected:
                     while (it->second->incoming_messages()) {
-                        mgr.handle_message(it->first, it->second->pop_message());
+                        try {
+                            m_mgr->handle_message(it->first, it->second->pop_message());
+                        } catch (game_manager::invalid_message) {
+                            it->second->disconnect(net::connection_error::invalid_message);
+                        } catch (const std::exception &error) {
+                            print_error(fmt::format("Error: {}", error.what()));
+                        }
                     }
                     [[fallthrough]];
                 default:
                     ++it;
                 }
             }
-            mgr.tick();
-            while (mgr.pending_messages()) {
-                auto msg = mgr.pop_message();
+            m_mgr->tick();
+            while (m_mgr->pending_messages()) {
+                auto msg = m_mgr->pop_message();
                 
                 auto it = m_clients.find(msg.client_id);
                 if (it != m_clients.end()) {
@@ -95,6 +114,7 @@ bool bang_server::start() {
             std::this_thread::sleep_until(next_frame);
         }
 
+        m_mgr.reset();
         print_message("Server shut down");
     });
 

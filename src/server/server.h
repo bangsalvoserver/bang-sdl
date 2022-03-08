@@ -15,6 +15,8 @@
 
 using message_callback_t = std::function<void(const std::string &)>;
 
+struct game_manager;
+
 class bang_server {
 public:
     bang_server(boost::asio::io_context &ctx, const std::filesystem::path &base_path);
@@ -40,6 +42,8 @@ public:
 private:
     boost::asio::io_context &m_ctx;
     boost::asio::ip::tcp::acceptor m_acceptor;
+
+    std::unique_ptr<game_manager, void (*)(game_manager *)> m_mgr;
 
     void start_accepting();
 

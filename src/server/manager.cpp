@@ -7,7 +7,6 @@
 
 using namespace banggame;
 using namespace enums::flag_operators;
-using namespace std::string_literals;
 
 struct lobby_error : std::runtime_error {
     using std::runtime_error::runtime_error;
@@ -24,15 +23,13 @@ void game_manager::handle_message(int client_id, const client_message &msg) {
             } else if (auto it = users.find(client_id); it != users.end()) {
                 handle_message(enum_const, &it->second, std::forward<decltype(args)>(args) ...);
             } else {
-                print_error("Invalid connection"s);
+                throw invalid_message{};
             }
         }, msg);
     } catch (const lobby_error &e) {
         send_message<server_message_type::lobby_error>(client_id, e.what());
     } catch (const game_error &e) {
         send_message<server_message_type::game_update>(client_id, enums::enum_constant<game_update_type::game_error>(), e);
-    } catch (const std::exception &e) {
-        print_error("Error: "s + e.what());
     }
 }
 
@@ -178,6 +175,10 @@ void game_manager::client_disconnected(int client_id) {
         handle_message(MESSAGE_TAG(lobby_leave){}, &it->second);
         users.erase(it);
     }
+}
+
+bool game_manager::client_validated(int client_id) const {
+    return users.find(client_id) != users.end();
 }
 
 void game_manager::HANDLE_MESSAGE(lobby_leave, game_user *user) {
