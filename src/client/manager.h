@@ -121,6 +121,8 @@ private:
     using connection_type = net::connection<server_message, client_message, banggame::bang_header>;
     connection_type::pointer m_con;
 
+    boost::asio::basic_waitable_timer<std::chrono::system_clock> m_accept_timer;
+
     std::map<int, user_info> m_users;
     
     std::unique_ptr<bang_server> m_listenserver;

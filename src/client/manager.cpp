@@ -11,6 +11,7 @@ using namespace banggame;
 client_manager::client_manager(boost::asio::io_context &ctx, const std::filesystem::path &base_path)
     : m_base_path(base_path)
     , m_ctx(ctx)
+    , m_accept_timer(ctx)
 {
     m_config.load();
     switch_scene<scene_type::connect>();
@@ -55,6 +56,16 @@ void client_manager::connect(const std::string &host) {
     m_con->connect(host, banggame::server_port, [this](const boost::system::error_code &ec) {
         if (!ec) {
             m_con->start();
+
+            m_accept_timer.expires_after(net::timeout);
+            m_accept_timer.async_wait([ptr = std::weak_ptr(m_con)](const boost::system::error_code &ec) {
+                if (!ec) {
+                    if (auto con = ptr.lock()) {
+                        con->disconnect(net::connection_error::timeout_expired);
+                    }
+                }
+            });
+            
             add_message<client_message_type::connect>(m_config.user_name, binary::serialize(m_config.profile_image_data.get_surface()));
         }
     });
@@ -159,6 +170,7 @@ void client_manager::HANDLE_SRV_MESSAGE(client_accepted) {
             m_config.recent_servers.push_back(m_con->address_string());
         }
     }
+    m_accept_timer.cancel();
     switch_scene<scene_type::lobby_list>();
 }
 
