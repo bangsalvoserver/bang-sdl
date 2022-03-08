@@ -25,7 +25,7 @@ void lobby_line::render(sdl::renderer &renderer) {
     m_join_btn.render(renderer);
 }
 
-lobby_list_scene::lobby_list_scene(game_manager *parent)
+lobby_list_scene::lobby_list_scene(client_manager *parent)
     : scene_base(parent)
     , m_make_lobby_btn(_("BUTTON_MAKE_LOBBY"), [this]{ do_make_lobby(); })
     , m_disconnect_btn(_("BUTTON_DISCONNECT"), [parent]{

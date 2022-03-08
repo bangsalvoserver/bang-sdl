@@ -5,7 +5,7 @@
 
 class loading_scene : public scene_base {
 public:
-    loading_scene(class game_manager *parent, const std::string &address);
+    loading_scene(class client_manager *parent, const std::string &address);
 
     void resize(int width, int height) override;
 

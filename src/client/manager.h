@@ -29,12 +29,12 @@ DEFINE_ENUM_TYPES(scene_type,
     (game, banggame::game_scene)
 )
 
-#define HANDLE_MESSAGE(name, ...) handle_message(enums::enum_constant<server_message_type::name> __VA_OPT__(,) __VA_ARGS__)
+#define HANDLE_SRV_MESSAGE(name, ...) handle_message(enums::enum_constant<server_message_type::name> __VA_OPT__(,) __VA_ARGS__)
 
-class game_manager {
+class client_manager {
 public:
-    game_manager(boost::asio::io_context &ctx, const std::filesystem::path &base_path);
-    ~game_manager();
+    client_manager(boost::asio::io_context &ctx, const std::filesystem::path &base_path);
+    ~client_manager();
 
     void resize(int width, int height);
 
@@ -89,17 +89,17 @@ public:
     void add_chat_message(message_type type, const std::string &message);
 
 private:
-    void HANDLE_MESSAGE(client_accepted);
-    void HANDLE_MESSAGE(lobby_error, const std::string &message);
-    void HANDLE_MESSAGE(lobby_list, const std::vector<lobby_data> &args);
-    void HANDLE_MESSAGE(lobby_update, const lobby_data &args);
-    void HANDLE_MESSAGE(lobby_edited, const lobby_info &args);
-    void HANDLE_MESSAGE(lobby_entered, const lobby_entered_args &args);
-    void HANDLE_MESSAGE(lobby_add_user, const lobby_add_user_args &args);
-    void HANDLE_MESSAGE(lobby_remove_user, const lobby_remove_user_args &args);
-    void HANDLE_MESSAGE(lobby_chat, const lobby_chat_args &args);
-    void HANDLE_MESSAGE(game_started, const game_started_args &args);
-    void HANDLE_MESSAGE(game_update, const banggame::game_update &args);
+    void HANDLE_SRV_MESSAGE(client_accepted);
+    void HANDLE_SRV_MESSAGE(lobby_error, const std::string &message);
+    void HANDLE_SRV_MESSAGE(lobby_list, const std::vector<lobby_data> &args);
+    void HANDLE_SRV_MESSAGE(lobby_update, const lobby_data &args);
+    void HANDLE_SRV_MESSAGE(lobby_edited, const lobby_info &args);
+    void HANDLE_SRV_MESSAGE(lobby_entered, const lobby_entered_args &args);
+    void HANDLE_SRV_MESSAGE(lobby_add_user, const lobby_add_user_args &args);
+    void HANDLE_SRV_MESSAGE(lobby_remove_user, const lobby_remove_user_args &args);
+    void HANDLE_SRV_MESSAGE(lobby_chat, const lobby_chat_args &args);
+    void HANDLE_SRV_MESSAGE(game_started, const game_started_args &args);
+    void HANDLE_SRV_MESSAGE(game_update, const banggame::game_update &args);
 
 private:
     std::filesystem::path m_base_path;

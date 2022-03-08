@@ -27,7 +27,7 @@ struct chat_textbox : widgets::textbox {
 
 class chat_ui {
 public:
-    chat_ui(class game_manager *parent);
+    chat_ui(class client_manager *parent);
 
     void set_rect(const sdl::rect &rect);
     void render(sdl::renderer &renderer);
@@ -40,7 +40,7 @@ public:
     bool enabled() const;
 
 private:
-    class game_manager *parent;
+    class client_manager *parent;
 
     widgets::text_style get_text_style(message_type type);
 

@@ -27,7 +27,7 @@ extern "C" __declspec(dllexport) long __stdcall entrypoint(const char *base_path
     auto idle_work(boost::asio::make_work_guard(ctx));
     std::thread ctx_thread([&]{ ctx.run(); });
 
-    game_manager mgr{ctx, base_path};
+    client_manager mgr{ctx, base_path};
     mgr.resize(window_width, window_height);
 
     sdl::event event;

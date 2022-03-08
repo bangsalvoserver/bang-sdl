@@ -56,7 +56,7 @@ lobby_scene::expansion_box::expansion_box(const std::string &label, banggame::ca
 template<banggame::card_expansion_type E> using has_label = std::bool_constant<E != banggame::card_expansion_type::base>;
 using card_expansions_with_label = enums::filter_enum_sequence<has_label, enums::make_enum_sequence<banggame::card_expansion_type>>;
 
-lobby_scene::lobby_scene(game_manager *parent, const lobby_entered_args &args)
+lobby_scene::lobby_scene(client_manager *parent, const lobby_entered_args &args)
     : scene_base(parent)
     , m_lobby_name_text(args.info.name, widgets::text_style {
         .text_font = &media_pak::font_bkant_bold

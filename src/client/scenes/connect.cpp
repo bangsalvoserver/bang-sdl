@@ -24,7 +24,7 @@ void recent_server_line::render(sdl::renderer &renderer) {
     m_delete_btn.render(renderer);
 }
 
-connect_scene::connect_scene(game_manager *parent)
+connect_scene::connect_scene(client_manager *parent)
     : scene_base(parent)
     , m_username_label(_("LABEL_USERNAME"))
     , m_address_label(_("LABEL_NEW_ADDRESS"))

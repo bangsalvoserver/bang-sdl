@@ -2,7 +2,7 @@
 
 #include "manager.h"
 
-chat_ui::chat_ui(game_manager *parent)
+chat_ui::chat_ui(client_manager *parent)
     : parent(parent)
 {
     m_chat_box.set_onenter([this]{ send_chat_message(); });

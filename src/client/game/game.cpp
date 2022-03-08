@@ -10,7 +10,7 @@
 using namespace banggame;
 using namespace enums::flag_operators;
 
-game_scene::game_scene(class game_manager *parent, const game_started_args &args)
+game_scene::game_scene(class client_manager *parent, const game_started_args &args)
     : scene_base(parent)
     , m_card_textures(parent->get_base_path())
     , m_ui(this)

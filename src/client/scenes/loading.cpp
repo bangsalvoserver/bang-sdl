@@ -3,7 +3,7 @@
 #include "../manager.h"
 #include "../media_pak.h"
 
-loading_scene::loading_scene(game_manager *parent, const std::string &address)
+loading_scene::loading_scene(client_manager *parent, const std::string &address)
     : scene_base(parent)
     , m_loading_text(_("CONNECTING_TO", address))
     , m_cancel_btn(_("BUTTON_CANCEL"), [parent]{

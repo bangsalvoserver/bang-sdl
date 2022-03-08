@@ -23,7 +23,7 @@ struct recent_server_line {
 
 class connect_scene : public scene_base {
 public:
-    connect_scene(class game_manager *parent);
+    connect_scene(class client_manager *parent);
     
     void resize(int width, int height) override;
     

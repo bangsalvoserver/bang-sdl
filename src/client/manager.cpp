@@ -8,7 +8,7 @@
 
 using namespace banggame;
 
-game_manager::game_manager(boost::asio::io_context &ctx, const std::filesystem::path &base_path)
+client_manager::client_manager(boost::asio::io_context &ctx, const std::filesystem::path &base_path)
     : m_base_path(base_path)
     , m_ctx(ctx)
 {
@@ -16,11 +16,11 @@ game_manager::game_manager(boost::asio::io_context &ctx, const std::filesystem::
     switch_scene<scene_type::connect>();
 }
 
-game_manager::~game_manager() {
+client_manager::~client_manager() {
     m_config.save();
 }
 
-void game_manager::update_net() {
+void client_manager::update_net() {
     if (m_con) {
         switch (m_con->state()) {
         case net::connection_state::connected:
@@ -44,7 +44,7 @@ void game_manager::update_net() {
     }
 }
 
-void game_manager::connect(const std::string &host) {
+void client_manager::connect(const std::string &host) {
     if (host.empty()) {
         add_chat_message(message_type::error, _("ERROR_NO_ADDRESS"));
         return;
@@ -62,7 +62,7 @@ void game_manager::connect(const std::string &host) {
     switch_scene<scene_type::loading>(host);
 }
 
-void game_manager::disconnect(const std::string &message) {
+void client_manager::disconnect(const std::string &message) {
     if (m_con) {
         m_con->disconnect();
         m_con.reset();
@@ -82,7 +82,7 @@ void game_manager::disconnect(const std::string &message) {
 }
 
 
-void game_manager::resize(int width, int height) {
+void client_manager::resize(int width, int height) {
     m_width = width;
     m_height = height;
 
@@ -114,7 +114,7 @@ static void render_tiled(sdl::renderer &renderer, const sdl::texture &texture, c
     }
 }
 
-void game_manager::render(sdl::renderer &renderer) {
+void client_manager::render(sdl::renderer &renderer) {
     render_tiled(renderer, media_pak::get().texture_background, sdl::rect{0, 0, width(), height()});
     
     m_scene->render(renderer);
@@ -122,21 +122,21 @@ void game_manager::render(sdl::renderer &renderer) {
     m_chat.render(renderer);
 }
 
-void game_manager::handle_event(const sdl::event &event) {
+void client_manager::handle_event(const sdl::event &event) {
     if (!widgets::event_handler::handle_events(event)) {
         m_scene->handle_event(event);
     }
 }
 
-void game_manager::enable_chat() {
+void client_manager::enable_chat() {
     m_chat.enable();
 }
 
-void game_manager::add_chat_message(message_type type, const std::string &message) {
+void client_manager::add_chat_message(message_type type, const std::string &message) {
     m_chat.add_message(type, message);
 }
 
-bool game_manager::start_listenserver() {
+bool client_manager::start_listenserver() {
     m_listenserver = std::make_unique<bang_server>(m_ctx, m_base_path);
     m_listenserver->set_message_callback([this](const std::string &msg) {
         add_chat_message(message_type::server_log, fmt::format("SERVER: {}", msg));
@@ -152,7 +152,7 @@ bool game_manager::start_listenserver() {
     }
 }
 
-void game_manager::HANDLE_MESSAGE(client_accepted) {
+void client_manager::HANDLE_SRV_MESSAGE(client_accepted) {
     if (!m_listenserver) {
         auto it = std::ranges::find(m_config.recent_servers, m_con->address_string());
         if (it == m_config.recent_servers.end()) {
@@ -162,35 +162,35 @@ void game_manager::HANDLE_MESSAGE(client_accepted) {
     switch_scene<scene_type::lobby_list>();
 }
 
-void game_manager::HANDLE_MESSAGE(lobby_error, const std::string &message) {
+void client_manager::HANDLE_SRV_MESSAGE(lobby_error, const std::string &message) {
     add_chat_message(message_type::error, _(message));
 }
 
-void game_manager::HANDLE_MESSAGE(lobby_list, const std::vector<lobby_data> &args) {
+void client_manager::HANDLE_SRV_MESSAGE(lobby_list, const std::vector<lobby_data> &args) {
     m_scene->set_lobby_list(args);
 }
 
-void game_manager::HANDLE_MESSAGE(lobby_update, const lobby_data &args) {
+void client_manager::HANDLE_SRV_MESSAGE(lobby_update, const lobby_data &args) {
     m_scene->handle_lobby_update(args);
 }
 
-void game_manager::HANDLE_MESSAGE(lobby_edited, const lobby_info &args) {
+void client_manager::HANDLE_SRV_MESSAGE(lobby_edited, const lobby_info &args) {
     m_scene->set_lobby_info(args);
 }
 
-void game_manager::HANDLE_MESSAGE(lobby_entered, const lobby_entered_args &args) {
+void client_manager::HANDLE_SRV_MESSAGE(lobby_entered, const lobby_entered_args &args) {
     m_lobby_owner_id = args.owner_id;
     m_user_own_id = args.user_id;
 
     switch_scene<scene_type::lobby>(args);
 }
 
-void game_manager::HANDLE_MESSAGE(lobby_add_user, const lobby_add_user_args &args) {
+void client_manager::HANDLE_SRV_MESSAGE(lobby_add_user, const lobby_add_user_args &args) {
     const auto &u = m_users.try_emplace(args.user_id, args.name, binary::deserialize<sdl::surface>(args.profile_image)).first->second;
     m_scene->add_user(args.user_id, u);
 }
 
-void game_manager::HANDLE_MESSAGE(lobby_remove_user, const lobby_remove_user_args &args) {
+void client_manager::HANDLE_SRV_MESSAGE(lobby_remove_user, const lobby_remove_user_args &args) {
     if (args.user_id == m_user_own_id) {
         m_users.clear();
         switch_scene<scene_type::lobby_list>();
@@ -200,7 +200,7 @@ void game_manager::HANDLE_MESSAGE(lobby_remove_user, const lobby_remove_user_arg
     }
 }
 
-void game_manager::HANDLE_MESSAGE(lobby_chat, const lobby_chat_args &args) {
+void client_manager::HANDLE_SRV_MESSAGE(lobby_chat, const lobby_chat_args &args) {
     user_info *info = get_user_info(args.user_id);
     if (info) {
         std::string msg = info->name;
@@ -211,10 +211,10 @@ void game_manager::HANDLE_MESSAGE(lobby_chat, const lobby_chat_args &args) {
     }
 }
 
-void game_manager::HANDLE_MESSAGE(game_started, const game_started_args &args) {
+void client_manager::HANDLE_SRV_MESSAGE(game_started, const game_started_args &args) {
     switch_scene<scene_type::game>(args);
 }
 
-void game_manager::HANDLE_MESSAGE(game_update, const game_update &args) {
+void client_manager::HANDLE_SRV_MESSAGE(game_update, const game_update &args) {
     m_scene->handle_game_update(args);
 }

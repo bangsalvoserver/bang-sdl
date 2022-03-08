@@ -12,7 +12,7 @@
 
 class lobby_scene : public scene_base {
 public:
-    lobby_scene(class game_manager *parent, const lobby_entered_args &args);
+    lobby_scene(class client_manager *parent, const lobby_entered_args &args);
     void set_lobby_info(const lobby_info &info) override;
 
     void resize(int width, int height) override;

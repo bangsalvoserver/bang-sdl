@@ -12,7 +12,7 @@
 
 class scene_base {
 public:
-    scene_base(class game_manager *parent) : parent(parent) {}
+    scene_base(class client_manager *parent) : parent(parent) {}
     virtual ~scene_base() {}
     
     virtual void resize(int width, int height) {}
@@ -34,7 +34,7 @@ public:
     virtual void handle_game_update(const banggame::game_update &update) {}
 
 protected:
-    class game_manager *parent;
+    class client_manager *parent;
 };
 
 #endif
