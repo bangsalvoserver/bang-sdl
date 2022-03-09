@@ -77,7 +77,7 @@ void game_scene::refresh_layout() {
 
     move_player_views();
 
-    for (auto &cube : m_cubes | std::views::values) {
+    for (cube_widget &cube : m_cubes) {
         if (!cube.owner) {
             auto diff = cube_pile_offset(rng);
             cube.pos = sdl::point{
@@ -152,13 +152,13 @@ void game_scene::render(sdl::renderer &renderer) {
         card->render(renderer);
     }
 
-    for (auto &cube : m_cubes | std::views::values) {
+    for (cube_widget &cube : m_cubes) {
         if (cube.owner == nullptr) {
             cube.render(renderer);
         }
     }
 
-    for (auto &[player_id, p] : m_players) {
+    for (player_view &p : m_players) {
         p.render(renderer);
 
         for (card_view *card : p.table) {
@@ -178,15 +178,15 @@ void game_scene::render(sdl::renderer &renderer) {
         };
 
         if (m_winner_role == player_role::unknown) {
-            if (player_id == m_playing_id) {
+            if (p.id == m_playing_id) {
                 render_icon(media_pak::get().icon_turn, sdl::rgba(options::turn_indicator_rgba));
                 x -= 32;
             }
-            if (m_request_target_id == player_id) {
+            if (p.id == m_request_target_id) {
                 render_icon(media_pak::get().icon_target, sdl::rgba(options::request_target_indicator_rgba));
                 x -= 32;
             }
-            if (m_request_origin_id == player_id) {
+            if (p.id == m_request_origin_id) {
                 render_icon(media_pak::get().icon_origin, sdl::rgba(options::request_origin_indicator_rgba));
             }
         } else if (p.m_role.role == m_winner_role
@@ -302,7 +302,7 @@ void game_scene::handle_card_click() {
         m_target.on_click_scenario_card(m_scenario_card.back());
         return;
     }
-    for (auto &p : m_players | std::views::values) {
+    for (player_view &p : m_players) {
         if (sdl::point_in_rect(m_mouse_pt, p.m_bounding_rect)) {
             if (m_target.on_click_player(&p)) {
                 return;
@@ -359,7 +359,7 @@ void game_scene::find_overlay() {
         m_overlay = m_scenario_card.back();
         return;
     }
-    for (auto &p : m_players | std::views::values) {
+    for (player_view &p : m_players) {
         for (card_view *c : p.m_characters | std::views::reverse) {
             if (sdl::point_in_rect(m_mouse_pt, c->get_rect())) {
                 m_overlay = c;
@@ -388,11 +388,10 @@ void game_scene::add_user(int id, const user_info &args) {
 }
 
 void game_scene::remove_user(int id) {
-    auto it = std::ranges::find(m_players, id, [](const auto &pair) { return pair.second.user_id; });
-    if (it != m_players.end()) {
-        it->second.user_id = 0;
-        it->second.set_username(_("USERNAME_DISCONNECTED"));
-        it->second.m_propic.set_texture(media_pak::get().icon_disconnected);
+    if (auto it = m_players.find(id); it != m_players.end()) {
+        it->user_id = 0;
+        it->set_username(_("USERNAME_DISCONNECTED"));
+        it->m_propic.set_texture(media_pak::get().icon_disconnected);
     }
     user_info *info = parent->get_user_info(id);
     if (info) {
@@ -503,12 +502,14 @@ void game_scene::HANDLE_UPDATE(deck_shuffled, const card_pile_type &pile) {
 void game_scene::HANDLE_UPDATE(add_cards, const add_cards_update &args) {
     auto add_cards_to = [&](card_pile_view &pile, const sdl::texture *texture = nullptr) {
         for (int id : args.card_ids) {
-            auto &c = m_cards[id];
+            card_view c;
             c.id = id;
             c.pile = &pile;
             c.texture_back = texture;
-            pile.push_back(&c);
-            c.set_pos(pile.get_position_of(&c));
+
+            card_view *card_ptr = &m_cards.emplace(std::move(c));
+            pile.push_back(card_ptr);
+            c.set_pos(pile.get_position_of(card_ptr));
         }
     };
 
@@ -612,7 +613,7 @@ void game_scene::HANDLE_UPDATE(move_card, const move_card_update &args) {
 
 void game_scene::HANDLE_UPDATE(add_cubes, const add_cubes_update &args) {
     for (int id : args.cubes) {
-        auto &cube = m_cubes.emplace(id, id).first->second;
+        cube_widget &cube = m_cubes.emplace(id);
 
         auto pos = cube_pile_offset(rng);
         cube.pos = sdl::point{
@@ -624,8 +625,7 @@ void game_scene::HANDLE_UPDATE(add_cubes, const add_cubes_update &args) {
 }
 
 void game_scene::HANDLE_UPDATE(move_cube, const move_cube_update &args) {
-    auto [cube_it, inserted] = m_cubes.try_emplace(args.cube_id, args.cube_id);
-    auto &cube = cube_it->second;
+    auto [cube, inserted] = m_cubes.try_emplace(args.cube_id);
     if (cube.owner) {
         if (auto it = std::ranges::find(cube.owner->cubes, &cube); it != cube.owner->cubes.end()) {
             cube.owner->cubes.erase(it);
@@ -743,7 +743,7 @@ void game_scene::move_player_views() {
 
     double angle = 0.f;
     for(auto it = own_player;;) {
-        it->second.set_position(sdl::point{
+        it->set_position(sdl::point{
             int(parent->width() / 2 - std::sin(angle) * xradius),
             int(parent->height() / 2 + std::cos(angle) * yradius)
         }, it == own_player);
@@ -753,9 +753,11 @@ void game_scene::move_player_views() {
         if (it == own_player) break;
     }
 
-    if (auto it = std::ranges::find(m_players, m_players.size() < 4 ? player_role::deputy : player_role::sheriff,
-        [](const auto &pair) { return pair.second.m_role.role; }); it != m_players.end()) {
-        auto player_rect = it->second.m_bounding_rect;
+    if (auto it = std::ranges::find(m_players,
+        m_players.size() < 4 ? player_role::deputy : player_role::sheriff,
+        [](const player_view &p) { return p.m_role.role; }); it != m_players.end())
+    {
+        auto player_rect = it->m_bounding_rect;
         m_scenario_deck.set_pos(sdl::point{
             player_rect.x + player_rect.w + options::scenario_deck_xoff,
             player_rect.y + player_rect.h / 2});
@@ -766,7 +768,7 @@ void game_scene::HANDLE_UPDATE(player_add, const player_user_update &args) {
     if (args.user_id == parent->get_user_own_id()) {
         m_player_own_id = args.player_id;
     }
-    auto &p = m_players.try_emplace(args.player_id, args.player_id).first->second;
+    auto &p = m_players.try_emplace(args.player_id).first;
     p.m_role.texture_back = &card_textures::get().backface_role;
 
     p.user_id = args.user_id;

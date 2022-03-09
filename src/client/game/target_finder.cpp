@@ -488,7 +488,7 @@ const effect_holder &target_finder::get_effect_holder(int index) {
 
 int target_finder::num_targets_for(const effect_holder &data) {
     if (data.target == play_card_target_type::cards_other_players) {
-        return std::ranges::count_if(m_game->m_players | std::views::values, [&](const player_view &p) {
+        return std::ranges::count_if(m_game->m_players, [&](const player_view &p) {
             if (p.dead || p.id == m_game->m_player_own_id) return false;
             if (p.table.empty() && p.hand.empty()) return false;
             return true;
@@ -511,11 +511,11 @@ int target_finder::get_target_index() {
 
 int target_finder::calc_distance(player_view *from, player_view *to) {
     auto get_next_player = [&](player_view *p) {
-        auto it = std::ranges::find(m_game->m_players, p, [](auto &pair) { return &pair.second; });
+        auto it = m_game->m_players.find(p->id);
         do {
             if (++it == m_game->m_players.end()) it = m_game->m_players.begin();
-        } while(it->second.dead);
-        return &it->second;
+        } while(it->dead);
+        return &*it;
     };
 
     if (from == to) return 0;

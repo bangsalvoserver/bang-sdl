@@ -8,6 +8,8 @@
 
 #include "target_finder.h"
 
+#include "utils/id_map.h"
+
 #include <list>
 #include <optional>
 #include <random>
@@ -89,9 +91,9 @@ namespace banggame {
 
         card_pile_view m_specials;
 
-        std::map<int, card_view> m_cards;
-        std::map<int, player_view> m_players;
-        std::map<int, cube_widget> m_cubes;
+        util::id_map<card_view> m_cards;
+        util::id_map<player_view> m_players;
+        util::id_map<cube_widget> m_cubes;
 
         sdl::point m_mouse_pt;
         int m_mouse_motion_timer = 0;
@@ -118,14 +120,14 @@ namespace banggame {
 
         card_view *find_card(int id) {
             if (auto it = m_cards.find(id); it != m_cards.end()) {
-                return &it->second;
+                return &*it;
             }
             return nullptr;
         }
 
         player_view *find_player(int id) {
             if (auto it = m_players.find(id); it != m_players.end()) {
-                return &it->second;
+                return &*it;
             }
             return nullptr;
         }
