@@ -73,7 +73,7 @@ namespace banggame {
 
         int8_t m_gold = 0;
 
-        explicit player(game *game);
+        player(game *game, int id) : m_game(game), id(id) {}
 
         void equip_card(card *card);
         card *find_equipped_card(card *card);

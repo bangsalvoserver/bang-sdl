@@ -16,6 +16,8 @@
 #include "holders.h"
 #include "formatter.h"
 
+#include "utils/id_map.h"
+
 namespace banggame {
 
     struct game_options {
@@ -57,12 +59,12 @@ namespace banggame {
         
         std::list<event_args> m_pending_events;
 
-        std::map<int, card> m_cards;
+        util::id_map<card> m_cards;
+        util::id_map<player> m_players;
         
         std::vector<card *> m_deck;
         std::vector<card *> m_discards;
         std::vector<card *> m_selection;
-        std::vector<player> m_players;
 
         std::vector<card *> m_shop_deck;
         std::vector<card *> m_shop_discards;
@@ -86,18 +88,13 @@ namespace banggame {
 
         bool m_game_over = false;
 
-        int m_id_counter = 0;
-
         game() {
             std::random_device rd;
             rng.seed(rd());
         }
-        
-        int get_next_id() {
-            return ++m_id_counter;
-        }
 
         card *find_card(int card_id);
+        player *find_player(int player_id);
 
         std::default_random_engine rng;
 
@@ -230,15 +227,6 @@ namespace banggame {
 
         player *get_next_player(player *p);
         player *get_next_in_turn(player *p);
-
-        player *get_player(int id) {
-            auto it = std::ranges::find(m_players, id, &player::id);
-            if (it != m_players.end()) {
-                return &*it;
-            } else {
-                return nullptr;
-            }
-        }
 
         int calc_distance(player *from, player *to);
 

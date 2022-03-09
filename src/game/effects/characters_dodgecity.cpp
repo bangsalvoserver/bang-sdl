@@ -127,11 +127,11 @@ namespace banggame {
 
     static void vera_custer_copy_character(player *target, card *c) {
         if (c != target->m_characters.back()) {
-            auto copy_it = target->m_game->m_cards.emplace(target->m_game->get_next_id(), *c).first;
-            copy_it->second.id = copy_it->first;
-            copy_it->second.usages = 0;
-            copy_it->second.pile = card_pile_type::player_character;
-            copy_it->second.owner = target;
+            auto copy = *c;
+            copy.id = target->m_game->m_cards.first_available_id();
+            copy.usages = 0;
+            copy.pile = card_pile_type::player_character;
+            copy.owner = target;
 
             if (target->m_characters.size() == 2) {
                 target->m_game->add_public_update<game_update_type::remove_cards>(make_id_vector(target->m_characters | std::views::drop(1)));
@@ -139,11 +139,13 @@ namespace banggame {
                 target->m_game->m_cards.erase(target->m_characters.back()->id);
                 target->m_characters.pop_back();
             }
+            card *target_card = &target->m_game->m_cards.emplace(std::move(copy));
+            target->m_characters.emplace_back(target_card);
+            target->equip_if_enabled(target_card);
+
             target->m_game->add_public_update<game_update_type::add_cards>(
-                std::vector{copy_it->second.id}, card_pile_type::player_character, target->id);
-            target->m_game->send_card_update(copy_it->second, target, show_card_flags::no_animation | show_card_flags::show_everyone);
-            target->m_characters.emplace_back(&copy_it->second);
-            target->equip_if_enabled(&copy_it->second);
+                std::vector{copy.id}, card_pile_type::player_character, target->id);
+            target->m_game->send_card_update(copy, target, show_card_flags::no_animation | show_card_flags::show_everyone);
         }
     }
 

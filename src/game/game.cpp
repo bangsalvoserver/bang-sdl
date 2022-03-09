@@ -21,9 +21,16 @@ namespace banggame {
 
     card *game::find_card(int card_id) {
         if (auto it = m_cards.find(card_id); it != m_cards.end()) {
-            return &it->second;
+            return &*it;
         }
         throw game_error("server.find_card: ID not found"_nonloc);
+    }
+
+    player *game::find_player(int player_id) {
+        if (auto it = m_players.find(player_id); it != m_players.end()) {
+            return &*it;
+        }
+        throw game_error("server.find_player: ID not found"_nonloc);
     }
 
     std::vector<game_update> game::get_game_state_updates(player *owner) {
@@ -34,17 +41,13 @@ namespace banggame {
             ADD_TO_RET(add_cards, make_id_vector(range), pile, p ? p->id : 0);
         };
 
-        add_cards(m_cards 
-            | std::views::values
-            | std::views::filter([](const card &c) {
-                return c.suit != card_suit_type::none;
-            }), card_pile_type::main_deck);
+        add_cards(std::ranges::filter_view(m_cards, [](const card &c) {
+            return c.suit != card_suit_type::none;
+        }), card_pile_type::main_deck);
 
-        add_cards(m_cards
-            | std::views::values
-            | std::views::filter([](const card &c) {
-                return bool(c.expansion & card_expansion_type::goldrush) && !c.is_character();
-            }), card_pile_type::shop_deck);
+        add_cards(std::ranges::filter_view(m_cards, [](const card &c) {
+            return bool(c.expansion & card_expansion_type::goldrush) && !c.is_character();
+        }), card_pile_type::shop_deck);
 
         auto show_card = [&](card *c) {
             ADD_TO_RET(show_card, *c, show_card_flags::no_animation);
@@ -96,11 +99,9 @@ namespace banggame {
                 ADD_TO_RET(player_show_role, p.id, p.m_role, true);
             }
 
-            add_cards(m_cards
-                | std::views::values
-                | std::views::filter([&](const card &c) {
-                    return c.is_character() && c.owner == &p;
-                }), card_pile_type::player_backup, &p);
+            add_cards(std::ranges::filter_view(m_cards, [&](const card &c) {
+                return c.is_character() && c.owner == &p;
+            }), card_pile_type::player_backup, &p);
 
             move_cards(p.m_characters);
             move_cards(p.m_backup_character, [](const card &c){ return false; });
@@ -134,10 +135,15 @@ namespace banggame {
 
     void game::shuffle_cards_and_ids(std::vector<card *> &vec) {
         for (size_t i = vec.size() - 1; i > 0; --i) {
-            card *a = vec[i];
-            card *b = vec[std::uniform_int_distribution<>{0, int(i)}(rng)];
-            std::swap(*a, *b);
+            size_t i2 = std::uniform_int_distribution<size_t>{0, i}(rng);
+            if (i == i2) continue;
+
+            std::swap(vec[i], vec[i2]);
+            auto a = m_cards.extract(vec[i]->id);
+            auto b = m_cards.extract(vec[i2]->id);
             std::swap(a->id, b->id);
+            m_cards.insert(std::move(a));
+            m_cards.insert(std::move(b));
         }
     }
 
@@ -149,11 +155,11 @@ namespace banggame {
 #endif
         
         auto add_card = [&](card_pile_type pile, const card_deck_info &c) {
-            auto it = m_cards.emplace(get_next_id(), c).first;
-            auto *new_card = &it->second;
-            new_card->id = it->first;
-            new_card->owner = nullptr;
-            new_card->pile = pile;
+            card copy(c);
+            copy.id = m_cards.first_available_id();
+            copy.owner = nullptr;
+            copy.pile = pile;
+            auto *new_card = &m_cards.emplace(std::move(copy));
 
 #ifndef DISABLE_TESTING
             if (c.testing) {
@@ -297,9 +303,9 @@ namespace banggame {
         for (const auto &c : all_cards.characters) {
             if (m_players.size() <= 2 && c.discard_if_two_players) continue;
             if (bool(c.expansion & options.expansions)) {
-                auto it = m_cards.emplace(get_next_id(), c).first;
-                auto *new_card = &it->second;
-                new_card->id = it->first;
+                card copy(c);
+                copy.id = m_cards.first_available_id();
+                auto *new_card = &m_cards.emplace(std::move(copy));
 #ifndef DISABLE_TESTING
                 if (c.testing) {
                     testing_cards.push_back(new_card);
@@ -606,7 +612,7 @@ namespace banggame {
     }
 
     player *game::get_next_player(player *p) {
-        auto it = m_players.begin() + (p - m_players.data());
+        auto it = m_players.find(p->id);
         do {
             if (++it == m_players.end()) it = m_players.begin();
         } while(!it->alive());
@@ -614,7 +620,7 @@ namespace banggame {
     }
 
     player *game::get_next_in_turn(player *p) {
-        auto it = m_players.begin() + (p - m_players.data());
+        auto it = m_players.find(p->id);
         do {
             if (has_scenario(scenario_flags::invert_rotation)) {
                 if (it == m_players.begin()) it = m_players.end();
@@ -779,7 +785,7 @@ namespace banggame {
             auto &req = top_request();
             if (p == req.target()) {
                 add_private_update<game_update_type::confirm_play>(p);
-                player *target_player = args.player_id ? get_player(args.player_id) : nullptr;
+                player *target_player = args.player_id ? find_player(args.player_id) : nullptr;
                 card *target_card = args.card_id ? find_card(args.card_id) : nullptr;
                 if (req.can_pick(args.pile, target_player, target_card)) {
                     req.on_pick(args.pile, target_player, target_card);

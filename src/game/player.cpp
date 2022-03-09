@@ -10,10 +10,6 @@
 namespace banggame {
     using namespace enums::flag_operators;
 
-    player::player(game *game)
-        : m_game(game)
-        , id(game->get_next_id()) {}
-
     void player::equip_card(card *target) {
         for (auto &e : target->equips) {
             e.on_pre_equip(target, this);
@@ -279,7 +275,7 @@ namespace banggame {
         if (targets.size() != 1) throw game_error("ERROR_INVALID_ACTION");
         if (targets.front().enum_index() != play_card_target_type::player) throw game_error("ERROR_INVALID_ACTION");
         int target_player_id = targets.front().get<play_card_target_type::player>();
-        verify_effect_player_target(c->equips.front().player_filter, m_game->get_player(target_player_id));
+        verify_effect_player_target(c->equips.front().player_filter, m_game->find_player(target_player_id));
     }
 
     bool player::is_bangcard(card *card_ptr) {
@@ -439,7 +435,7 @@ namespace banggame {
                 [&](enums::enum_constant<play_card_target_type::player>, int target_id) {
                     if (e.target != play_card_target_type::player) throw game_error("ERROR_INVALID_ACTION");
 
-                    player *target = m_game->get_player(target_id);
+                    player *target = m_game->find_player(target_id);
 
                     verify_effect_player_target(e.player_filter, target);
                     e.verify(card_ptr, this, target);
@@ -558,7 +554,7 @@ namespace banggame {
                     }
                 },
                 [&](enums::enum_constant<play_card_target_type::player>, int target_id) {
-                    auto *target = m_game->get_player(target_id);
+                    auto *target = m_game->find_player(target_id);
                     if (effect_it->is(effect_type::mth_add)) {
                         target_list.emplace_back(target, nullptr);
                     } else {
@@ -717,7 +713,7 @@ namespace banggame {
             } else {
                 if (m_game->has_scenario(scenario_flags::judge)) throw game_error("ERROR_CANT_EQUIP_CARDS");
                 verify_equip_target(card_ptr, args.targets);
-                auto *target = m_game->get_player(args.targets.front().get<play_card_target_type::player>());
+                auto *target = m_game->find_player(args.targets.front().get<play_card_target_type::player>());
                 if (auto *card = target->find_equipped_card(card_ptr)) throw game_error("ERROR_DUPLICATED_CARD", card);
                 if (card_ptr->color == card_color_type::orange && m_game->m_cubes.size() < 3) {
                     throw game_error("ERROR_NOT_ENOUGH_CUBES");
@@ -796,7 +792,7 @@ namespace banggame {
                 if (m_game->has_scenario(scenario_flags::judge)) throw game_error("ERROR_CANT_EQUIP_CARDS");
                 verify_equip_target(card_ptr, args.targets);
                 play_modifiers(modifiers);
-                auto *target = m_game->get_player(args.targets.front().get<play_card_target_type::player>());
+                auto *target = m_game->find_player(args.targets.front().get<play_card_target_type::player>());
                 if (card *card = target->find_equipped_card(card_ptr)) throw game_error("ERROR_DUPLICATED_CARD", card);
                 add_gold(-cost);
                 target->equip_card(card_ptr);

@@ -116,7 +116,6 @@ namespace banggame {
 
     void effect_greygory_deck::on_pre_equip(card *target_card, player *target) {
         auto view = target->m_game->m_cards
-            | std::views::values
             | std::views::filter([&](const card &c) {
                 return c.expansion == card_expansion_type::base
                     && (c.pile == card_pile_type::none

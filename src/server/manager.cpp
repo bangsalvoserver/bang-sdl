@@ -282,9 +282,8 @@ void lobby::start_game(const banggame::all_cards_t &all_cards) {
     opts.expansions = expansions | banggame::card_expansion_type::base;
     
     std::vector<player *> ids;
-    game.m_players.reserve(users.size());
-    for (int i = 0; i < users.size(); ++i) {
-        ids.push_back(&game.m_players.emplace_back(&game));
+    for (const auto &_ : users) {
+        ids.push_back(&game.m_players.emplace(&game, game.m_players.first_available_id()));
     }
     std::ranges::shuffle(ids, game.rng);
 
