@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <vector>
+#include <functional>
 
 namespace util {
 
@@ -14,47 +15,40 @@ namespace util {
         template<typename T, typename IdGetter> friend class id_map;
         template<typename T> friend class id_map_iterator;
 
-        template<typename T> struct get_value_type {};
-        template<typename T, typename IdGetter> struct get_value_type<id_map<T, IdGetter>> {
-            using type = T;
+        template<typename T> struct map_unwrapper {};
+        template<typename T, typename IdGetter> struct map_unwrapper<id_map<T, IdGetter>> {
+            using value_type = T;
+            using base_iterator = typename std::vector<std::unique_ptr<T>>::iterator;
         };
-        template<typename T, typename IdGetter> struct get_value_type<const id_map<T, IdGetter>> {
-            using type = const T;
-        };
-        
-        template<typename T> struct get_base_iterator {};
-        template<typename T, typename IdGetter> struct get_base_iterator<id_map<T, IdGetter>> {
-            using type = typename std::vector<std::unique_ptr<T>>::iterator;
-        };
-        template<typename T, typename IdGetter> struct get_base_iterator<const id_map<T, IdGetter>> {
-            using type = typename std::vector<std::unique_ptr<T>>::const_iterator;
+        template<typename T, typename IdGetter> struct map_unwrapper<const id_map<T, IdGetter>> {
+            using value_type = const T;
+            using base_iterator = typename std::vector<std::unique_ptr<T>>::const_iterator;
         };
 
     private:
         const IDMap *m_map = nullptr;
-        typename get_base_iterator<IDMap>::type m_it;
+        using base_iterator = typename map_unwrapper<IDMap>::base_iterator;
+        base_iterator m_it;
 
     public:
         using iterator_category = std::bidirectional_iterator_tag;
         using difference_type = std::ptrdiff_t;
-        using value_type = typename get_value_type<IDMap>::type;
+        using value_type = typename map_unwrapper<IDMap>::value_type;
         using pointer = value_type*;
         using reference = value_type&;
 
         id_map_iterator() = default;
 
     private:
-        struct skip_first_null{};
-
-        id_map_iterator(const IDMap &map, decltype(m_it) it)
+        id_map_iterator(const IDMap &map, base_iterator it)
             : m_map(&map), m_it(it) {}
-
-        id_map_iterator(skip_first_null, const IDMap &map, decltype(m_it) it)
-            : m_map(&map), m_it(it)
-        {
-            while (m_it != m_map->end().m_it && *m_it == nullptr) {
-                ++m_it;
+            
+        static id_map_iterator make_begin(const IDMap &map, base_iterator begin, base_iterator end) {
+            id_map_iterator it(map, begin);
+            while (it.m_it != end && *it.m_it == nullptr) {
+                ++it.m_it;
             }
+            return it;
         }
 
     public:
@@ -115,8 +109,11 @@ namespace util {
         }
 
     public:
+        using value_type = T;
         using iterator = id_map_iterator<id_map<T, IdGetter>>;
         using const_iterator = id_map_iterator<const id_map<T, IdGetter>>;
+        using reverse_iterator = std::reverse_iterator<iterator>;
+        using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
         id_map() requires (std::is_default_constructible_v<IdGetter>) = default;
 
@@ -124,13 +121,21 @@ namespace util {
         requires (!std::is_default_constructible_v<IdGetter>)
         id_map(T &&id_getter) : IdGetter(std::forward<U>(id_getter)) {}
 
-        iterator begin() { return iterator(typename iterator::skip_first_null{}, *this, m_data.begin()); }
-        const_iterator cbegin() const { return const_iterator(typename const_iterator::skip_first_null{}, *this, m_data.cbegin()); }
+        iterator begin() { return iterator::make_begin(*this, m_data.begin(), m_data.end()); }
+        const_iterator cbegin() const { return const_iterator::make_begin(*this, m_data.cbegin(), m_data.cend()); }
         const_iterator begin() const { return cbegin(); }
 
         iterator end() { return iterator(*this, m_data.end()); }
         const_iterator cend() const { return const_iterator(*this, m_data.cend()); }
         const_iterator end() const { return cend(); }
+
+        reverse_iterator rbegin() { return reverse_iterator(end()); }
+        const_reverse_iterator crbegin() const { return const_reverse_iterator(cend()); }
+        const_reverse_iterator rbegin() const { return crbegin(); }
+
+        reverse_iterator rend() { return reverse_iterator(begin()); }
+        const_reverse_iterator crend() const { return const_reverse_iterator(end()); }
+        const_reverse_iterator rend() const { return crend(); }
 
     public:
         std::unique_ptr<T> extract(size_t id) {
