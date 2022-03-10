@@ -26,6 +26,9 @@ namespace enums {
 
     template<size_t S> using sized_int_t = detail::sized_int_t<S, uint8_t, uint16_t, uint32_t, uint64_t>;
 
+    template<typename T> struct enum_name {};
+    template<typename T> constexpr auto enum_name_v = enum_name<T>::value;
+
     template<typename T> struct enum_values {};
     template<typename T> constexpr auto enum_values_v = enum_values<T>::value;
 
@@ -324,6 +327,9 @@ namespace enums {
         (BOOST_PP_TUPLE_ELEM(0, enumNameFunTuple), elementTuple)
 
 #define GENERATE_ENUM_STRUCTS(enumName, elementTupleSeq, value_fun_name) \
+template<> struct enum_name<enumName> { \
+    static constexpr std::string_view value = BOOST_PP_STRINGIZE(enumName); \
+}; \
 template<> struct enum_values<enumName> { \
     static constexpr std::array value { \
         BOOST_PP_SEQ_ENUM(BOOST_PP_SEQ_FOR_EACH(CREATE_ENUM_VALUES_ELEMENT, enumName, elementTupleSeq)) \

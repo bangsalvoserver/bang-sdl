@@ -10,6 +10,7 @@
 
 #include "tsqueue.h"
 #include "binary_serial.h"
+#include "enum_error_code.h"
 
 namespace net {
 
@@ -22,34 +23,13 @@ namespace net {
     };
 
     DEFINE_ENUM_DATA_IN_NS(net, connection_error,
-        (no_error,              "No Error")
-        (timeout_expired,       "Timeout Expired")
-        (validation_failure,    "Validation Failure")
-        (invalid_message,       "Invalid Message")
+        (no_error,              error_message{"No Error"})
+        (timeout_expired,       error_message{"Timeout Expired"})
+        (validation_failure,    error_message{"Validation Failure"})
+        (invalid_message,       error_message{"Invalid Message"})
     )
 
-    struct connection_error_category : std::error_category {
-        const char *name() const noexcept override {
-            return "connection";
-        };
-
-        std::string message(int ev) const override {
-            return enums::get_data(static_cast<connection_error>(ev));
-        }
-    };
-
-    static inline const connection_error_category s_connection_error_category{};
-    inline std::error_code make_error_code(connection_error error) {
-        return {static_cast<int>(error), s_connection_error_category};
-    }
-
-}
-
-namespace std {
-    template<> struct is_error_code_enum<net::connection_error> : true_type {};
-}
-
-namespace net {
+    using enums::make_error_code;
 
     constexpr auto timeout = std::chrono::seconds(5);
 

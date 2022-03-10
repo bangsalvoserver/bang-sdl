@@ -3,8 +3,8 @@
 
 #include "enum_variant.h"
 #include "reflector.h"
+#include "enum_error_code.h"
 
-#include <system_error>
 #include <vector>
 #include <string>
 #include <cstring>
@@ -13,39 +13,19 @@
 
 namespace binary {
     DEFINE_ENUM_DATA_IN_NS(binary, read_error_code,
-        (no_error,                  "No Error")
-        (buffer_overflow,           "Buffer Overflow")
-        (buffer_underflow,          "Buffer Underflow")
-        (invalid_variant_index,     "Invalid Variant Index")
-        (magic_number_mismatch,     "Magic Number Mismatch")
+        (no_error,                  error_message{"No Error"})
+        (buffer_overflow,           error_message{"Buffer Overflow"})
+        (buffer_underflow,          error_message{"Buffer Underflow"})
+        (invalid_variant_index,     error_message{"Invalid Variant Index"})
+        (magic_number_mismatch,     error_message{"Magic Number Mismatch"})
     )
 
-    struct read_error_category : std::error_category {
-        const char *name() const noexcept override {
-            return "binary";
-        };
-
-        std::string message(int ev) const override {
-            return enums::get_data(static_cast<read_error_code>(ev));
-        }
-    };
-
-    static inline const read_error_category s_read_error_category{};
-    inline std::error_code make_error_code(read_error_code error) {
-        return {static_cast<int>(error), s_read_error_category};
-    }
-
+    using enums::make_error_code;
+    
     struct read_error : std::system_error {
         read_error(read_error_code code)
             : std::system_error(make_error_code(code)) {}
     };
-}
-
-namespace std {
-    template<> struct is_error_code_enum<binary::read_error_code> : true_type {};
-}
-
-namespace binary {
 
     template<typename T> struct serializer {};
 
