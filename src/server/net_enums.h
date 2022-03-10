@@ -76,7 +76,6 @@ struct game_started_args {REFLECTABLE(
 DEFINE_ENUM_TYPES(server_message_type,
     (client_accepted)
     (lobby_error, std::string)
-    (lobby_list, std::vector<lobby_data>)
     (lobby_update, lobby_data)
     (lobby_entered, lobby_entered_args)
     (lobby_edited, lobby_info)

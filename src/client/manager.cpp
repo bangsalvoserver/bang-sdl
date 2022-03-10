@@ -191,10 +191,6 @@ void client_manager::HANDLE_SRV_MESSAGE(lobby_error, const std::string &message)
     add_chat_message(message_type::error, _(message));
 }
 
-void client_manager::HANDLE_SRV_MESSAGE(lobby_list, const std::vector<lobby_data> &args) {
-    m_scene->set_lobby_list(args);
-}
-
 void client_manager::HANDLE_SRV_MESSAGE(lobby_update, const lobby_data &args) {
     m_scene->handle_lobby_update(args);
 }

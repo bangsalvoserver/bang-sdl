@@ -2,6 +2,7 @@
 #define __GAME_H__
 
 #include <list>
+#include <deque>
 #include <vector>
 #include <algorithm>
 #include <functional>
@@ -45,9 +46,9 @@ namespace banggame {
     using card_disabler_fun = std::function<bool(card *)>;
 
     struct game : event_handler_map {
-        std::list<std::pair<player *, game_update>> m_updates;
+        std::deque<std::pair<player *, game_update>> m_updates;
 
-        std::list<game_formatted_string> m_saved_log;
+        std::deque<game_formatted_string> m_saved_log;
 
         std::list<request_holder> m_requests;
         struct draw_check_handler {

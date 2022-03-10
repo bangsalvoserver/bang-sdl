@@ -21,8 +21,6 @@ public:
     
     virtual void handle_event(const sdl::event &event) {}
 
-    virtual void set_lobby_list(const std::vector<lobby_data> &args) {}
-
     virtual void set_lobby_info(const lobby_info &args) {}
 
     virtual void handle_lobby_update(const lobby_data &args) {}

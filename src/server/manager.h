@@ -11,24 +11,10 @@
 
 #include "game/game.h"
 
-struct lobby;
-
-struct game_user {
-    int client_id;
-    std::string name;
-    std::vector<std::byte> profile_image;
-    lobby *in_lobby = nullptr;
-    banggame::player *controlling = nullptr;
-
-    game_user(int client_id, std::string name, std::vector<std::byte> profile_image = {})
-        : client_id(client_id)
-        , name(std::move(name))
-        , profile_image(std::move(profile_image)) {}
-};
-
 class game_manager;
+class game_user;
 
-struct lobby : util::id_counter<lobby>, lobby_info {
+struct lobby : lobby_info {
     std::vector<game_user *> users;
     game_user *owner;
     lobby_state state;
@@ -36,6 +22,22 @@ struct lobby : util::id_counter<lobby>, lobby_info {
     banggame::game game;
     void start_game(const banggame::all_cards_t &all_cards);
     void send_updates(game_manager &mgr);
+};
+
+using lobby_map = std::map<int, lobby>;
+using lobby_ptr = lobby_map::iterator;
+
+struct game_user {
+    int client_id;
+    std::string name;
+    std::vector<std::byte> profile_image;
+    lobby_ptr in_lobby{};
+    banggame::player *controlling = nullptr;
+
+    game_user(int client_id, std::string name, std::vector<std::byte> profile_image = {})
+        : client_id(client_id)
+        , name(std::move(name))
+        , profile_image(std::move(profile_image)) {}
 };
 
 struct server_message_pair {
@@ -49,7 +51,7 @@ server_message make_message(Ts && ... args) {
 }
 
 #define MESSAGE_TAG(name) enums::enum_constant<client_message_type::name>
-#define HANDLE_MESSAGE(name, ...) handle_message(MESSAGE_TAG(name) __VA_OPT__(,) __VA_ARGS__)
+#define HANDLE_MESSAGE(name, ...) handle_message(MESSAGE_TAG(name) __VA_OPT__(,) __VA_ARGS__)\
 
 class game_manager {
 public:
@@ -80,8 +82,8 @@ public:
     void tick();
 
 private:
-    lobby_data make_lobby_data(const lobby &l);
-    void send_lobby_update(const lobby &l);
+    lobby_data make_lobby_data(lobby_ptr it);
+    void send_lobby_update(lobby_ptr it);
 
     void HANDLE_MESSAGE(connect,        int client_id, const connect_args &value);
     void HANDLE_MESSAGE(lobby_list,     game_user *user);
@@ -94,8 +96,11 @@ private:
     void HANDLE_MESSAGE(game_action,    game_user *user, const banggame::game_action &value);
 
     std::map<int, game_user> users;
-    std::list<lobby> m_lobbies;
-    std::list<server_message_pair> m_out_queue;
+    lobby_map m_lobbies;
+
+    int m_lobby_counter = 0;
+
+    std::deque<server_message_pair> m_out_queue;
 
     banggame::all_cards_t all_cards;
 };

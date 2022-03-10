@@ -9,23 +9,19 @@ class lobby_line {
 public:
     lobby_line(class lobby_list_scene *parent, const lobby_data &args);
 
+    void handle_update(const lobby_data &args);
+
     void set_rect(const sdl::rect &rect);
     void render(sdl::renderer &renderer);
-    
-    int id() const {
-        return m_id;
-    }
 
 private:
     class lobby_list_scene *parent;
 
-    int m_id;
+    widgets::button m_join_btn;
 
     widgets::stattext m_name_text;
     widgets::stattext m_players_text;
     widgets::stattext m_state_text;
-
-    widgets::button m_join_btn;
 };
 
 class lobby_list_scene : public scene_base {
@@ -35,14 +31,13 @@ public:
     void refresh_layout() override;
     void render(sdl::renderer &renderer) override;
 
-    void set_lobby_list(const std::vector<lobby_data> &args) override;
     void handle_lobby_update(const lobby_data &args);
 
     void do_join(int lobby_id);
     void do_make_lobby();
 
 private:
-    std::list<lobby_line> m_lobby_lines;
+    std::map<int, lobby_line> m_lobby_lines;
 
     widgets::textbox m_lobby_name_box;
     widgets::button m_make_lobby_btn;

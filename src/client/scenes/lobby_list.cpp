@@ -5,11 +5,16 @@
 
 lobby_line::lobby_line(lobby_list_scene *parent, const lobby_data &args)
     : parent(parent)
-    , m_id(args.lobby_id)
-    , m_name_text(args.name)
-    , m_players_text(std::to_string(args.num_players) + '/' + std::to_string(banggame::lobby_max_players))
-    , m_state_text(_(args.state))
-    , m_join_btn(_("BUTTON_JOIN"), [parent, lobby_id = args.lobby_id]{ parent->do_join(lobby_id); }) {}
+    , m_join_btn(_("BUTTON_JOIN"), [parent, lobby_id = args.lobby_id]{ parent->do_join(lobby_id); })
+{
+    handle_update(args);
+}
+
+void lobby_line::handle_update(const lobby_data &args) {
+    m_name_text.set_value(args.name);
+    m_players_text.set_value(fmt::format("{}/{}", args.num_players, banggame::lobby_max_players));
+    m_state_text.set_value(_(args.state));
+}
 
 void lobby_line::set_rect(const sdl::rect &rect) {
     m_name_text.set_point(sdl::point{rect.x, rect.y});
@@ -43,7 +48,7 @@ void lobby_list_scene::refresh_layout() {
     m_disconnect_btn.set_rect(sdl::rect{20, 20, 100, 25});
 
     sdl::rect rect{100, 100, win_rect.w - 200, 25};
-    for (auto &line : m_lobby_lines) {
+    for (auto &[id, line] : m_lobby_lines) {
         line.set_rect(rect);
         rect.y += 40;
     }
@@ -53,7 +58,7 @@ void lobby_list_scene::refresh_layout() {
 }
 
 void lobby_list_scene::render(sdl::renderer &renderer) {
-    for (auto &line : m_lobby_lines) {
+    for (auto &[id, line] : m_lobby_lines) {
         line.render(renderer);
     }
 
@@ -75,25 +80,14 @@ void lobby_list_scene::do_make_lobby() {
     }
 }
 
-void lobby_list_scene::set_lobby_list(const std::vector<lobby_data> &args) {
-    m_lobby_lines.clear();
-    for (const auto &line : args) {
-        m_lobby_lines.emplace_back(this, line);
-    }
-
-    refresh_layout();
-}
-
 void lobby_list_scene::handle_lobby_update(const lobby_data &args) {
-    auto it = std::ranges::find(m_lobby_lines, args.lobby_id, &lobby_line::id);
-    if (it != m_lobby_lines.end()) {
-        if (args.num_players == 0) {
-            m_lobby_lines.erase(it);
-        } else {
-            *it = lobby_line(this, args);
-        }
+    if (args.num_players == 0) {
+        m_lobby_lines.erase(args.lobby_id);
     } else {
-        m_lobby_lines.emplace_back(this, args);
+        auto [it, inserted] = m_lobby_lines.try_emplace(args.lobby_id, this, args);
+        if (!inserted) {
+            it->second.handle_update(args);
+        }
     }
     refresh_layout();
 }
