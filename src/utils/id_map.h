@@ -175,10 +175,10 @@ namespace util {
                     ++m_first_available_id;
                 } while (m_first_available_id <= m_data.size() && m_data[m_first_available_id - 1] != nullptr);
             }
-            ++m_size;
             if (auto &val = m_data[id - 1]) {
                 return {*val, false};
             } else {
+                ++m_size;
                 return {*(val = std::move(ptr)), true};
             }
         }

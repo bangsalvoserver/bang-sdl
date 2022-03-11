@@ -388,7 +388,7 @@ void game_scene::add_user(int id, const user_info &args) {
 }
 
 void game_scene::remove_user(int id) {
-    if (auto it = m_players.find(id); it != m_players.end()) {
+    if (auto it = std::ranges::find(m_players, id, &player_view::user_id); it != m_players.end()) {
         it->user_id = 0;
         it->set_username(_("USERNAME_DISCONNECTED"));
         it->m_propic.set_texture(media_pak::get().icon_disconnected);

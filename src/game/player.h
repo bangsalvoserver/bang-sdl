@@ -28,6 +28,7 @@ namespace banggame {
     struct player {
         game *m_game;
         int id;
+        int client_id = 0;
 
         std::vector<card *> m_hand;
         std::vector<card *> m_table;

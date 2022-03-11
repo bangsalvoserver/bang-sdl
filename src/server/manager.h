@@ -14,9 +14,12 @@
 class game_manager;
 class game_user;
 
+using user_map = std::map<int, game_user>;
+using user_ptr = user_map::iterator;
+
 struct lobby : lobby_info {
-    std::vector<game_user *> users;
-    game_user *owner;
+    std::vector<user_ptr> users;
+    user_ptr owner;
     lobby_state state;
 
     banggame::game game;
@@ -28,16 +31,9 @@ using lobby_map = std::map<int, lobby>;
 using lobby_ptr = lobby_map::iterator;
 
 struct game_user {
-    int client_id;
     std::string name;
     std::vector<std::byte> profile_image;
     lobby_ptr in_lobby{};
-    banggame::player *controlling = nullptr;
-
-    game_user(int client_id, std::string name, std::vector<std::byte> profile_image = {})
-        : client_id(client_id)
-        , name(std::move(name))
-        , profile_image(std::move(profile_image)) {}
 };
 
 struct server_message_pair {
@@ -74,8 +70,8 @@ public:
     template<server_message_type E, typename ... Ts>
     void broadcast_message(const lobby &lobby, Ts && ... args) {
         auto msg = make_message<E>(std::forward<Ts>(args) ... );
-        for (game_user *u : lobby.users) {
-            m_out_queue.emplace_back(u->client_id, msg);
+        for (user_ptr it : lobby.users) {
+            m_out_queue.emplace_back(it->first, msg);
         }
     }
 
@@ -86,14 +82,14 @@ private:
     void send_lobby_update(lobby_ptr it);
 
     void HANDLE_MESSAGE(connect,        int client_id, const connect_args &value);
-    void HANDLE_MESSAGE(lobby_list,     game_user *user);
-    void HANDLE_MESSAGE(lobby_make,     game_user *user, const lobby_info &value);
-    void HANDLE_MESSAGE(lobby_edit,     game_user *user, const lobby_info &args);
-    void HANDLE_MESSAGE(lobby_join,     game_user *user, const lobby_join_args &value);
-    void HANDLE_MESSAGE(lobby_leave,    game_user *user);
-    void HANDLE_MESSAGE(lobby_chat,     game_user *user, const lobby_chat_client_args &value);
-    void HANDLE_MESSAGE(game_start,     game_user *user);
-    void HANDLE_MESSAGE(game_action,    game_user *user, const banggame::game_action &value);
+    void HANDLE_MESSAGE(lobby_list,     user_ptr user);
+    void HANDLE_MESSAGE(lobby_make,     user_ptr user, const lobby_info &value);
+    void HANDLE_MESSAGE(lobby_edit,     user_ptr user, const lobby_info &args);
+    void HANDLE_MESSAGE(lobby_join,     user_ptr user, const lobby_join_args &value);
+    void HANDLE_MESSAGE(lobby_leave,    user_ptr user);
+    void HANDLE_MESSAGE(lobby_chat,     user_ptr user, const lobby_chat_client_args &value);
+    void HANDLE_MESSAGE(game_start,     user_ptr user);
+    void HANDLE_MESSAGE(game_action,    user_ptr user, const banggame::game_action &value);
 
     std::map<int, game_user> users;
     lobby_map m_lobbies;
