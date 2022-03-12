@@ -230,6 +230,7 @@ namespace banggame {
 
     DEFINE_ENUM_TYPES_IN_NS(banggame, mth_type,
         (none)
+        (doc_holyday,       handler_doc_holyday)
         (flint_westwood,    handler_flint_westwood)
         (draw_atend,        handler_draw_atend)
         (fanning,           handler_fanning)

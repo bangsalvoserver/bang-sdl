@@ -59,6 +59,10 @@ namespace banggame {
         void on_pick(card_pile_type pile, player *target, card *target_card);
         game_formatted_string status_text(player *owner) const;
     };
+
+    struct handler_doc_holyday {
+        void on_play(card *origin_card, player *origin, mth_target_list targets);
+    };
 }
 
 #endif

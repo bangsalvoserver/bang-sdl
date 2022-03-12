@@ -190,4 +190,15 @@ namespace banggame {
             return {"STATUS_VERA_CUSTER_OTHER", target, origin_card};
         }
     }
+
+    void handler_doc_holyday::on_play(card *origin_card, player *origin, mth_target_list targets) {
+        card *card1 = std::get<card *>(targets[0]);
+        card *card2 = std::get<card *>(targets[1]);
+        player *target = std::get<player *>(targets[2]);
+        effect_destroy{}.on_play(origin_card, origin, origin, card1);
+        effect_destroy{}.on_play(origin_card, origin, origin, card2);
+        if (!target->immune_to(card1) || !target->immune_to(card2)) {
+            effect_bang{}.on_play(origin_card, origin, target);
+        }
+    }
 }

@@ -2858,23 +2858,28 @@
             ],
             "effects": [
                 {
-                    "target": "card",
-                    "player_filter": "self",
-                    "card_filter": "hand",
-                    "class": "destroy"
+                    "class": "max_usages",
+                    "value": 1
                 },
                 {
                     "target": "card",
                     "player_filter": "self",
                     "card_filter": "hand",
-                    "class": "destroy"
+                    "class": "mth_add"
+                },
+                {
+                    "target": "card",
+                    "player_filter": "self",
+                    "card_filter": "hand",
+                    "class": "mth_add"
                 },
                 {
                     "target": "player",
                     "player_filter": "reachable notself",
-                    "class": "bang"
+                    "class": "mth_add"
                 }
-            ]
+            ],
+            "multitarget": "doc_holyday"
         },
         {
             "name": "Elena Fuente",
