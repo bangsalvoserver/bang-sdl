@@ -1032,9 +1032,6 @@
                 {
                     "class": "weapon",
                     "value": 1
-                },
-                {
-                    "class": "lemat"
                 }
             ],
             "effects": [
@@ -1178,7 +1175,7 @@
                     "class": "backfire"
                 },
                 {
-                    "class": "missed"
+                    "class": "missedcard"
                 }
             ]
         },
@@ -3074,7 +3071,7 @@
                     "target": "card",
                     "player_filter": "self",
                     "card_filter": "hand clubs",
-                    "class": "choose_card"
+                    "class": "destroy"
                 },
                 {
                     "target": "player",
@@ -3205,7 +3202,7 @@
                     "target": "card",
                     "player_filter": "self",
                     "card_filter": "hand missed",
-                    "class": "choose_card"
+                    "class": "destroy"
                 },
                 {
                     "class": "escape"

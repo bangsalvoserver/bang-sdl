@@ -10,7 +10,7 @@ namespace banggame {
             return c->pile == card_pile_type::player_hand
                 && c->owner == p
                 && !c->responses.empty()
-                && c->responses.front().is(effect_type::missedcard);
+                && c->responses.back().is(effect_type::missedcard);
         });
         p->m_game->add_event<event_type::apply_initial_cards_modifier>(target_card, [=](player *target, int &value) {
             if (p == target) {

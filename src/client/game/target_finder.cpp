@@ -427,9 +427,8 @@ void target_finder::add_modifier(card_view *card) {
 }
 
 bool target_finder::is_bangcard(card_view *card) {
-    return m_game->has_player_flags(player_flags::treat_any_as_bang)
-        || (m_game->has_player_flags(player_flags::treat_missed_as_bang)
-            && !card->responses.empty() && card->responses.front().is(effect_type::missedcard))
+    return (m_game->has_player_flags(player_flags::treat_missed_as_bang)
+            && !card->responses.empty() && card->responses.back().is(effect_type::missedcard))
         || std::ranges::find(card->effects, effect_type::bangcard, &effect_holder::type) != card->effects.end();
 }
 
@@ -617,7 +616,7 @@ bool target_finder::verify_card_target(const effect_holder &args, target_card ta
         case target_card_filter::blue: return target.card->color == card_color_type::blue;
         case target_card_filter::clubs: return target.card->suit == card_suit_type::clubs;
         case target_card_filter::bang: return is_bangcard(target.card);
-        case target_card_filter::missed: return !target.card->responses.empty() && target.card->responses.front().is(effect_type::missedcard);
+        case target_card_filter::missed: return !target.card->responses.empty() && target.card->responses.back().is(effect_type::missedcard);
         case target_card_filter::beer: return !target.card->effects.empty() && target.card->effects.front().is(effect_type::beer);
         case target_card_filter::bronco: return !target.card->equips.empty() && target.card->equips.back().is(equip_type::bronco);
         case target_card_filter::cube_slot:

@@ -36,11 +36,6 @@ namespace banggame {
         void on_play(card *origin_card, player *origin);
     };
 
-    struct effect_lemat : card_effect {
-        void on_equip(card *target_card, player *target);
-        void on_unequip(card *target_card, player *target);
-    };
-
     struct handler_fanning : card_effect {
         void verify(card *origin_card, player *origin, mth_target_list targets) const;
         void on_play(card *origin_card, player *origin, mth_target_list targets);

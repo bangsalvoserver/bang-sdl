@@ -99,7 +99,6 @@ namespace banggame {
         (disable_player_distances)
         (see_everyone_range_1)
         (treat_missed_as_bang)
-        (treat_any_as_bang)
     )
 
     struct player_status_update {REFLECTABLE(

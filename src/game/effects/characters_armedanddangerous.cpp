@@ -68,7 +68,7 @@ namespace banggame {
 
     bool effect_ms_abigail::can_escape(player *origin, card *origin_card, effect_flags flags) const {
         if (!origin) return false;
-        if (origin->m_chosen_card) origin_card = origin->m_chosen_card;
+        origin_card = origin->chosen_card_or(origin_card);
         if (!bool(flags & effect_flags::single_target)) return false;
         if (origin_card->color != card_color_type::brown) return false;
         switch (origin->get_card_value(origin_card)) {

@@ -279,9 +279,8 @@ namespace banggame {
     }
 
     bool player::is_bangcard(card *card_ptr) {
-        return check_player_flags(player_flags::treat_any_as_bang)
-            || (check_player_flags(player_flags::treat_missed_as_bang)
-                && !card_ptr->responses.empty() && card_ptr->responses.front().is(effect_type::missedcard))
+        return (check_player_flags(player_flags::treat_missed_as_bang)
+                && !card_ptr->responses.empty() && card_ptr->responses.back().is(effect_type::missedcard))
             || (!card_ptr->effects.empty() && card_ptr->effects.front().is(effect_type::bangcard));
     };
 
@@ -364,7 +363,7 @@ namespace banggame {
                 }
                 break;
             case target_card_filter::missed:
-                if (target_card->responses.empty() || !target_card->responses.front().is(effect_type::missedcard)) {
+                if (target_card->responses.empty() || !target_card->responses.back().is(effect_type::missedcard)) {
                     throw game_error("ERROR_TARGET_NOT_MISSED");
                 }
                 break;
@@ -392,7 +391,7 @@ namespace banggame {
     }
 
     void player::verify_card_targets(card *card_ptr, bool is_response, const std::vector<play_card_target> &targets) {
-        card_suit_type suit = get_card_suit(m_chosen_card ? m_chosen_card : card_ptr);
+        card_suit_type suit = get_card_suit(card_ptr);
         if (m_game->m_playing == this && m_declared_suit != card_suit_type::none && suit != card_suit_type::none && suit != m_declared_suit) {
             throw game_error("ERROR_WRONG_DECLARED_SUIT");
         }
@@ -535,10 +534,6 @@ namespace banggame {
         if (std::ranges::find(effects, effect_type::play_card_action, &effect_holder::type) == effects.end()) {
             play_card_action(card_ptr, is_response);
         }
-
-        auto check_immunity = [&](player *target) {
-            return target->immune_to(m_chosen_card ? m_chosen_card : card_ptr);
-        };
         
         auto effect_it = effects.begin();
         auto effect_end = effects.end();
@@ -558,7 +553,7 @@ namespace banggame {
                     if (effect_it->is(effect_type::mth_add)) {
                         target_list.emplace_back(target, nullptr);
                     } else {
-                        if (target != this && check_immunity(target)) {
+                        if (target != this && target->immune_to(chosen_card_or(card_ptr))) {
                             if (effect_it->is(effect_type::bangcard)) {
                                 request_bang req{card_ptr, this, target};
                                 apply_bang_mods(req);
@@ -589,7 +584,7 @@ namespace banggame {
                         flags |= effect_flags::single_target;
                     }
                     for (auto *p : targets) {
-                        if (!check_immunity(p)) {
+                        if (!p->immune_to(chosen_card_or(card_ptr))) {
                             effect_it->on_play(card_ptr, this, p, flags);
                         }
                     }
@@ -605,7 +600,7 @@ namespace banggame {
                         target_list.emplace_back(target, target_card);
                     } else if (target == this) {
                         effect_it->on_play(card_ptr, this, target, target_card, flags);
-                    } else if (!check_immunity(target)) {
+                    } else if (!target->immune_to(chosen_card_or(card_ptr))) {
                         if (target_card->pile == card_pile_type::player_hand) {
                             effect_it->on_play(card_ptr, this, target, target->random_hand_card(), flags);
                         } else {
