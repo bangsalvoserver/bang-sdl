@@ -27,11 +27,11 @@ void client_manager::update_net() {
     if (m_con) {
         switch (m_con->state()) {
         case net::connection_state::connected:
-            while (m_con->incoming_messages()) {
+            while (auto msg = m_con->pop_message()) {
                 try {
                     enums::visit_indexed([&](auto && ... args) {
                         handle_message(std::forward<decltype(args)>(args)...);
-                    }, m_con->pop_message());
+                    }, *msg);
                 } catch (const std::exception &error) {
                     add_chat_message(message_type::error, fmt::format("Error: {}", error.what()));
                 }

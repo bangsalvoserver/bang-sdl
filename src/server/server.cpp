@@ -87,9 +87,9 @@ bool bang_server::start(uint16_t port) {
                     it = m_clients.erase(it);
                     break;
                 case net::connection_state::connected:
-                    while (it->second->incoming_messages()) {
+                    while (auto msg = it->second->pop_message()) {
                         try {
-                            m_mgr->handle_message(it->first, it->second->pop_message());
+                            m_mgr->handle_message(it->first, *msg);
                         } catch (game_manager::invalid_message) {
                             it->second->disconnect(net::connection_error::invalid_message);
                         } catch (const std::exception &error) {

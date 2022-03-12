@@ -2,6 +2,7 @@
 #define __CHAT_UI_H__
 
 #include "widgets/textbox.h"
+#include "utils/tsqueue.h"
 
 #include <list>
 #include <mutex>
@@ -47,7 +48,9 @@ private:
     sdl::rect m_rect;
 
     std::list<chat_message> m_messages;
-    mutable std::mutex m_messages_mutex;
+
+    static constexpr size_t max_messages = 100;
+    util::tsqueue<std::pair<message_type, std::string>, max_messages> m_pending_messages;
 
     chat_textbox m_chat_box;
 };

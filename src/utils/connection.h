@@ -142,11 +142,7 @@ namespace net {
         }
         
     public:
-        bool incoming_messages() const {
-            return !m_in_queue.empty();
-        }
-
-        InputMessage pop_message() {
+        std::optional<InputMessage> pop_message() {
             return m_in_queue.pop_front();
         }
 

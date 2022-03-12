@@ -11,8 +11,6 @@ chat_ui::chat_ui(client_manager *parent)
 }
 
 void chat_ui::set_rect(const sdl::rect &rect) {
-    std::scoped_lock lock{m_messages_mutex};
-
     m_rect = rect;
 
     int y = rect.y + rect.h - 35;
@@ -33,8 +31,12 @@ void chat_ui::set_rect(const sdl::rect &rect) {
 }
 
 void chat_ui::render(sdl::renderer &renderer) {
-    std::scoped_lock lock{m_messages_mutex};
-
+    bool added = false;
+    while (auto pair = m_pending_messages.pop_front()) {
+        added = true;
+        m_messages.emplace_back(widgets::stattext{pair->second, get_text_style(pair->first)}, widgets::chat_message_lifetime);
+    }
+    if (added) set_rect(m_rect);
     for (auto it = m_messages.rbegin(); it != m_messages.rend(); ++it) {
         if (--it->lifetime <= 0) {
             m_messages.erase(m_messages.begin(), it.base());
@@ -71,13 +73,7 @@ widgets::text_style chat_ui::get_text_style(message_type type) {
 }
 
 void chat_ui::add_message(message_type type, const std::string &message) {
-    constexpr size_t max_messages = 100;
-    {
-        std::scoped_lock lock{m_messages_mutex};
-        m_messages.emplace_back(widgets::stattext{message, get_text_style(type)}, widgets::chat_message_lifetime);
-        if (m_messages.size() > max_messages) m_messages.pop_front();
-    }
-    set_rect(m_rect);
+    m_pending_messages.emplace_back(type, message);
 }
 
 void chat_ui::send_chat_message() {

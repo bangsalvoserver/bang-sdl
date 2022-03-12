@@ -3,9 +3,10 @@
 
 #include <mutex>
 #include <deque>
+#include <optional>
 
 namespace util {
-    template<typename T>
+    template<typename T, size_t MaxSize = std::numeric_limits<size_t>::max()>
     class tsqueue {
     public:
         tsqueue() = default;
@@ -16,57 +17,32 @@ namespace util {
         tsqueue &operator = (tsqueue &&) = delete;
 
     public:
-        void push_back(const T &value) {
-            std::scoped_lock lock(m_mutex);
-            m_queue.push_back(value);
-        }
-
-        void push_back(T &&value) {
-            std::scoped_lock lock(m_mutex);
-            m_queue.push_back(std::move(value));
-        }
-
         template<typename ... Ts>
         T &emplace_back(Ts && ... args) {
             std::scoped_lock lock(m_mutex);
-            return m_queue.emplace_back(std::forward<Ts>(args) ... );
+            T &ret = m_queue.emplace_back(std::forward<Ts>(args) ... );
+            if (m_queue.size() > MaxSize) {
+                m_queue.pop_front();
+            }
+            return ret;
         }
 
-        T pop_front() {
+        void push_back(const T &value) {
+            emplace_back(value);
+        }
+
+        void push_back(T &&value) {
+            emplace_back(std::move(value));
+        }
+
+       std::optional<T> pop_front() {
             std::scoped_lock lock(m_mutex);
-            T value = std::move(m_queue.front());
+            if (m_queue.empty()) {
+                return std::nullopt;
+            }
+            std::optional<T> value = std::move(m_queue.front());
             m_queue.pop_front();
             return value;
-        }
-
-        const T &front() const {
-            std::scoped_lock lock(m_mutex);
-            return m_queue.front();
-        }
-
-        T &front() {
-            std::scoped_lock lock(m_mutex);
-            return m_queue.front();
-        }
-
-        const T &back() const {
-            std::scoped_lock lock(m_mutex);
-            return m_queue.back();
-        }
-
-        T &back() {
-            std::scoped_lock lock(m_mutex);
-            return m_queue.back();
-        }
-
-        bool empty() const {
-            std::scoped_lock lock(m_mutex);
-            return m_queue.empty();
-        }
-
-        size_t size() const {
-            std::scoped_lock lock(m_mutex);
-            return m_queue.size();
         }
 
         void clear() {
@@ -75,7 +51,7 @@ namespace util {
         }
 
     private:
-        mutable std::mutex m_mutex;
+        std::mutex m_mutex;
         std::deque<T> m_queue;
     };
 }
