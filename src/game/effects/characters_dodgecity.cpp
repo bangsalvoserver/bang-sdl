@@ -144,8 +144,8 @@ namespace banggame {
             target->equip_if_enabled(target_card);
 
             target->m_game->add_public_update<game_update_type::add_cards>(
-                make_id_vector(std::views::single(&copy)), card_pile_type::player_character, target->id);
-            target->m_game->send_card_update(copy, target, show_card_flags::no_animation | show_card_flags::show_everyone);
+                make_id_vector(std::views::single(target_card)), card_pile_type::player_character, target->id);
+            target->m_game->send_card_update(*target_card, target, show_card_flags::no_animation | show_card_flags::show_everyone);
         }
     }
 

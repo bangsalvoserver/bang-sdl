@@ -536,7 +536,7 @@ void game_scene::HANDLE_UPDATE(add_cards, const add_cards_update &args) {
 
         card_view *card_ptr = &m_cards.emplace(std::move(c));
         pile.push_back(card_ptr);
-        c.set_pos(pile.get_position_of(card_ptr));
+        card_ptr->set_pos(pile.get_position_of(card_ptr));
     }
 
     if (&pile == &m_main_deck) {
