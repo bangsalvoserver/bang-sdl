@@ -64,6 +64,8 @@ namespace banggame {
         void handle_card_click();
         void find_overlay();
 
+        card_pile_view &get_pile(card_pile_type pile, int player_id = 0);
+
         card_textures m_card_textures;
 
         game_ui m_ui;

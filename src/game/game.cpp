@@ -37,31 +37,17 @@ namespace banggame {
         std::vector<game_update> ret;
 #define ADD_TO_RET(name, ...) ret.emplace_back(enums::enum_constant<game_update_type::name>{} __VA_OPT__(,) __VA_ARGS__)
         
-        auto add_cards = [&](auto &&range, card_pile_type pile, player *p = nullptr) {
-            ADD_TO_RET(add_cards, make_id_vector(range), pile, p ? p->id : 0);
-        };
+        ADD_TO_RET(add_cards, make_id_vector(m_cards | std::views::transform([](const card &c) { return &c; })), card_pile_type::hidden_deck);
 
-        add_cards(std::ranges::filter_view(m_cards, [](const card &c) {
-            return c.suit != card_suit_type::none;
-        }), card_pile_type::main_deck);
+        const auto show_never = [](const card &c) { return false; };
+        const auto show_always = [](const card &c) { return true; };
 
-        add_cards(std::ranges::filter_view(m_cards, [](const card &c) {
-            return bool(c.expansion & card_expansion_type::goldrush) && !c.is_character();
-        }), card_pile_type::shop_deck);
-
-        auto show_card = [&](card *c) {
-            ADD_TO_RET(show_card, *c, show_card_flags::no_animation);
-        };
-
-        add_cards(m_specials, card_pile_type::specials);
-        std::ranges::for_each(m_specials, show_card);
-
-        auto move_cards = [&]<typename T = decltype([](const card &c) { return true; })>(auto &&range, T do_show_card = {}) {
+        auto move_cards = [&](auto &&range, auto do_show_card) {
             for (card *c : range) {
                 ADD_TO_RET(move_card, c->id, c->owner ? c->owner->id : 0, c->pile, show_card_flags::no_animation);
 
                 if (do_show_card(*c)) {
-                    show_card(c);
+                    ADD_TO_RET(show_card, *c, show_card_flags::no_animation);
 
                     for (int id : c->cubes) {
                         ADD_TO_RET(move_cube, id, c->id);
@@ -74,40 +60,33 @@ namespace banggame {
             }
         };
 
-        move_cards(m_discards);
-        move_cards(m_selection, [&](const card &c){ return c.owner == owner; });
-        move_cards(m_shop_discards);
-        move_cards(m_shop_selection);
-        move_cards(m_hidden_deck);
+        move_cards(m_specials, show_always);
+        move_cards(m_deck, show_never);
+        move_cards(m_shop_deck, show_never);
 
-        if (!m_scenario_deck.empty()) {
-            add_cards(m_scenario_deck, card_pile_type::scenario_deck);
-            show_card(m_scenario_deck.back());
-        }
-        if (!m_scenario_cards.empty()) {
-            auto last_card = m_scenario_cards | std::views::reverse | std::views::take(1);
-            add_cards(last_card, card_pile_type::scenario_deck);
-            move_cards(last_card);
-        }
+        move_cards(m_discards, show_always);
+        move_cards(m_selection, [&](const card &c){ return c.owner == owner; });
+        move_cards(m_shop_discards, show_always);
+        move_cards(m_shop_selection, show_always);
+        move_cards(m_hidden_deck, show_always);
+
+        move_cards(m_scenario_deck, [&](const card &c) { return &c == m_scenario_deck.back(); });
+        move_cards(m_scenario_cards, [&](const card &c) { return &c == m_scenario_cards.back(); });
         
         if (!m_cubes.empty()) {
             ADD_TO_RET(add_cubes, m_cubes);
         }
 
         for (auto &p : m_players) {
-            if (p.m_role == player_role::sheriff || p.m_hp == 0 || m_players.size() < 4 || &p == owner) {
+            if (p.m_role == player_role::sheriff || !p.alive() || p.check_player_flags(player_flags::ghost) || m_players.size() < 4 || &p == owner) {
                 ADD_TO_RET(player_show_role, p.id, p.m_role, true);
             }
 
-            add_cards(std::ranges::filter_view(m_cards, [&](const card &c) {
-                return c.is_character() && c.owner == &p;
-            }), card_pile_type::player_backup, &p);
+            move_cards(p.m_characters, show_always);
+            move_cards(p.m_backup_character, show_never);
 
-            move_cards(p.m_characters);
-            move_cards(p.m_backup_character, [](const card &c){ return false; });
-
-            move_cards(p.m_table);
-            move_cards(p.m_hand, [&](const card &c){ return c.owner == owner || c.suit == card_suit_type::none; });
+            move_cards(p.m_table, show_always);
+            move_cards(p.m_hand, [&](const card &c){ return c.owner == owner || c.deck == card_deck_type::character; });
 
             ADD_TO_RET(player_hp, p.id, p.m_hp, !p.alive(), true);
             
@@ -328,7 +307,7 @@ namespace banggame {
             p.m_characters.push_back(c);
             c->pile = card_pile_type::player_character;
             c->owner = &p;
-            add_public_update<game_update_type::add_cards>(std::vector{c->id}, card_pile_type::player_character, p.id);
+            add_public_update<game_update_type::add_cards>(make_id_vector(std::views::single(c)), card_pile_type::player_character, p.id);
         };
 
         auto character_it = character_ptrs.begin();

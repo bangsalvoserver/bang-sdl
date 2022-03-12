@@ -9,14 +9,19 @@ namespace banggame {
         (player_role) winner_role
     )};
 
+    struct card_backface {REFLECTABLE(
+        (int) id,
+        (card_deck_type) deck
+    )};
+
     struct add_cards_update {REFLECTABLE(
-        (std::vector<int>) card_ids,
+        (std::vector<card_backface>) card_ids,
         (card_pile_type) pile,
         (int) player_id
     )};
 
     struct remove_cards_update {REFLECTABLE(
-        (std::vector<int>) card_ids
+        (std::vector<card_backface>) card_ids
     )};
 
     DEFINE_ENUM_FLAGS_IN_NS(banggame, show_card_flags,

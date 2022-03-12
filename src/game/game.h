@@ -239,8 +239,10 @@ namespace banggame {
         void handle_action(ACTION_TAG(respond_card), player *p, const play_card_args &args);
     };
 
-    inline std::vector<int> make_id_vector(auto &&range) {
-        auto view = range | std::views::transform(&card::id);
+    inline std::vector<card_backface> make_id_vector(auto &&range) {
+        auto view = range | std::views::transform([](const card *c) {
+            return card_backface{c->id, c->deck};
+        });
         return {view.begin(), view.end()};
     };
 

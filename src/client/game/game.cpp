@@ -499,43 +499,55 @@ void game_scene::HANDLE_UPDATE(deck_shuffled, const card_pile_type &pile) {
     }
 }
 
-void game_scene::HANDLE_UPDATE(add_cards, const add_cards_update &args) {
-    auto add_cards_to = [&](card_pile_view &pile, const sdl::texture *texture = nullptr) {
-        for (int id : args.card_ids) {
-            card_view c;
-            c.id = id;
-            c.pile = &pile;
-            c.texture_back = texture;
-
-            card_view *card_ptr = &m_cards.emplace(std::move(c));
-            pile.push_back(card_ptr);
-            c.set_pos(pile.get_position_of(card_ptr));
-        }
-    };
-
-    switch (args.pile) {
-    case card_pile_type::main_deck:
-        add_cards_to(m_main_deck, &card_textures::get().backface_maindeck);
-        update_main_deck_count();
-        break;
-    case card_pile_type::player_character:
-        add_cards_to(find_player(args.player_id)->m_characters, &card_textures::get().backface_character);
-        break;
-    case card_pile_type::player_backup:
-        add_cards_to(find_player(args.player_id)->m_backup_characters, &card_textures::get().backface_character);
-        break;
-    case card_pile_type::shop_deck:         add_cards_to(m_shop_deck, &card_textures::get().backface_goldrush); break;
-    case card_pile_type::scenario_deck:     add_cards_to(m_scenario_deck); break;
-    case card_pile_type::hidden_deck:       add_cards_to(m_hidden_deck); break;
-    case card_pile_type::specials:          add_cards_to(m_specials); break;
+card_pile_view &game_scene::get_pile(card_pile_type pile, int player_id) {
+    switch(pile) {
+    case card_pile_type::player_hand:       return find_player(player_id)->hand;
+    case card_pile_type::player_table:      return find_player(player_id)->table;
+    case card_pile_type::player_character:  return find_player(player_id)->m_characters;
+    case card_pile_type::player_backup:     return find_player(player_id)->m_backup_characters;
+    case card_pile_type::main_deck:         return m_main_deck;
+    case card_pile_type::discard_pile:      return m_discard_pile;
+    case card_pile_type::selection:         return m_selection;
+    case card_pile_type::shop_deck:         return m_shop_deck;
+    case card_pile_type::shop_selection:    return m_shop_selection;
+    case card_pile_type::shop_discard:      return m_shop_discard;
+    case card_pile_type::hidden_deck:       return m_hidden_deck;
+    case card_pile_type::scenario_card:     return m_scenario_card;
+    case card_pile_type::specials:          return m_specials;
     default: throw std::runtime_error("Invalid pile");
+    }
+}
+
+void game_scene::HANDLE_UPDATE(add_cards, const add_cards_update &args) {
+    auto &pile = get_pile(args.pile, args.player_id);
+
+    for (auto [id, deck] : args.card_ids) {
+        card_view c;
+        c.id = id;
+        c.pile = &pile;
+        c.texture_back = [](card_deck_type deck) -> const sdl::texture * {
+            switch (deck) {
+            case card_deck_type::main_deck:         return &card_textures::get().backface_maindeck;
+            case card_deck_type::character:         return &card_textures::get().backface_character;
+            case card_deck_type::goldrush:          return &card_textures::get().backface_goldrush;
+            default:                                return nullptr;
+            }
+        }(c.deck = deck);
+
+        card_view *card_ptr = &m_cards.emplace(std::move(c));
+        pile.push_back(card_ptr);
+        c.set_pos(pile.get_position_of(card_ptr));
+    }
+
+    if (&pile == &m_main_deck) {
+        update_main_deck_count();
     }
 
     pop_update();
 }
 
 void game_scene::HANDLE_UPDATE(remove_cards, const remove_cards_update &args) {
-    for (int id : args.card_ids) {
+    for (auto [id, deck] : args.card_ids) {
         auto *c = find_card(id);
         if (c && c->pile) {
             c->pile->erase_card(c);
@@ -553,25 +565,7 @@ void game_scene::HANDLE_UPDATE(move_card, const move_card_update &args) {
         return;
     }
 
-    auto *new_pile = &[&] () -> card_pile_view& {
-        switch(args.pile) {
-        case card_pile_type::player_hand:       return find_player(args.player_id)->hand;
-        case card_pile_type::player_table:      return find_player(args.player_id)->table;
-        case card_pile_type::player_character:  return find_player(args.player_id)->m_characters;
-        case card_pile_type::player_backup:     return find_player(args.player_id)->m_backup_characters;
-        case card_pile_type::main_deck:         return m_main_deck;
-        case card_pile_type::discard_pile:      return m_discard_pile;
-        case card_pile_type::selection:         return m_selection;
-        case card_pile_type::shop_deck:         return m_shop_deck;
-        case card_pile_type::shop_selection:    return m_shop_selection;
-        case card_pile_type::shop_discard:      return m_shop_discard;
-        case card_pile_type::hidden_deck:       return m_hidden_deck;
-        case card_pile_type::scenario_card:     return m_scenario_card;
-        case card_pile_type::specials:          return m_specials;
-        default: throw std::runtime_error("Invalid pile");
-        }
-    }();
-
+    card_pile_view *new_pile = &get_pile(args.pile, args.player_id);
     if (card->pile == new_pile) {
         pop_update();
         return;

@@ -102,6 +102,17 @@ namespace banggame {
 
     using play_card_target = enums::enum_variant<play_card_target_type>;
 
+    DEFINE_ENUM_IN_NS(banggame, card_deck_type,
+        (none)
+        (main_deck)
+        (character)
+        (role)
+        (goldrush)
+        (highnoon)
+        (fistfulofcards)
+        (wildwestshow)
+    )
+
     DEFINE_ENUM_IN_NS(banggame, card_pile_type,
         (none)
         (player)

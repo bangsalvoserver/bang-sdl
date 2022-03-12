@@ -21,6 +21,7 @@ namespace banggame {
         (std::vector<equip_holder>) equips,
 
         (card_expansion_type) expansion,
+        (card_deck_type) deck,
 
         (card_modifier_type) modifier,
         (mth_type) multi_target_handler,
@@ -29,10 +30,6 @@ namespace banggame {
         (card_value_type) value,
         (card_color_type) color
     )
-        
-        bool is_character() const {
-            return !equips.empty() && equips.front().is(equip_type::max_hp);
-        }
 
         bool self_equippable() const {
             return equips.empty() || equips.front().target == play_card_target_type::none;
