@@ -265,11 +265,14 @@ namespace banggame {
     void effect_choose_card::on_play(card *origin_card, player *origin, player *target, card *target_card) {
         target->discard_card(target_card);
         target->m_game->add_log("LOG_CHOSE_CARD_FOR", origin_card, origin, target_card);
-        target->m_chosen_card = target_card;
+        target->m_game->add_event<event_type::apply_chosen_card_modifier>(target_card, [=](player *p, card* &c) {
+            if (p == origin && c == origin_card) {
+                c = target_card;
+            }
+        });
 
         target->m_game->add_event<event_type::on_effect_end>(target_card, [=](player *p, card *c) {
             if (p == origin && c == origin_card) {
-                origin->m_chosen_card = nullptr;
                 origin->m_game->remove_events(target_card);
             }
         });

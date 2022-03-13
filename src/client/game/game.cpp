@@ -512,6 +512,7 @@ card_pile_view &game_scene::get_pile(card_pile_type pile, int player_id) {
     case card_pile_type::shop_selection:    return m_shop_selection;
     case card_pile_type::shop_discard:      return m_shop_discard;
     case card_pile_type::hidden_deck:       return m_hidden_deck;
+    case card_pile_type::scenario_deck:     return m_scenario_deck;
     case card_pile_type::scenario_card:     return m_scenario_card;
     case card_pile_type::specials:          return m_specials;
     default: throw std::runtime_error("Invalid pile");

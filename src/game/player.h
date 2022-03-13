@@ -35,7 +35,6 @@ namespace banggame {
         std::vector<card *> m_characters;
         std::vector<card *> m_backup_character;
 
-        card *m_chosen_card = nullptr;
         player_role m_role;
 
         struct predraw_check {
@@ -69,7 +68,6 @@ namespace banggame {
         card *m_forced_card = nullptr;
         card *m_mandatory_card = nullptr;
 
-        card_suit_type m_declared_suit = card_suit_type::none;
         player_flags m_player_flags{};
 
         int8_t m_gold = 0;
@@ -84,9 +82,7 @@ namespace banggame {
 
         card *random_hand_card();
 
-        card *chosen_card_or(card *c) {
-            return m_chosen_card ? m_chosen_card : c;
-        }
+        card *chosen_card_or(card *c);
 
         void add_cubes(card *target, int ncubes);
         void pay_cubes(card *target, int ncubes);

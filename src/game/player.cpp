@@ -68,6 +68,11 @@ namespace banggame {
         return m_hand[std::uniform_int_distribution<int>(0, m_hand.size() - 1)(m_game->rng)];
     }
 
+    card *player::chosen_card_or(card *c) {
+        m_game->instant_event<event_type::apply_chosen_card_modifier>(this, c);
+        return c;
+    }
+
     std::vector<card *>::iterator player::move_card_to(card *target_card, card_pile_type pile, bool known, player *owner, show_card_flags flags) {
         if (target_card->owner != this) throw game_error("ERROR_PLAYER_DOES_NOT_OWN_CARD");
         if (target_card->pile == card_pile_type::player_table) {
@@ -240,11 +245,6 @@ namespace banggame {
 
     void player::verify_modifiers(card *c, const std::vector<card *> &modifiers) {
         for (card *mod_card : modifiers) {
-            card_suit_type suit = get_card_suit(mod_card);
-            if (m_game->m_playing == this && m_declared_suit != card_suit_type::none && suit != card_suit_type::none && suit != m_declared_suit) {
-                throw game_error("ERROR_WRONG_DECLARED_SUIT");
-            }
-
             if (m_game->is_disabled(mod_card)) {
                 throw game_error("ERROR_CARD_IS_DISABLED", mod_card);
             }
@@ -266,11 +266,7 @@ namespace banggame {
     }
 
     void player::verify_equip_target(card *c, const std::vector<play_card_target> &targets) {
-        card_suit_type suit = get_card_suit(c);
-        if (m_game->m_playing == this && m_declared_suit != card_suit_type::none && suit != card_suit_type::none && suit != m_declared_suit) {
-            throw game_error("ERROR_WRONG_DECLARED_SUIT");
-        }
-
+        if (m_game->is_disabled(c)) throw game_error("ERROR_CARD_IS_DISABLED", c);
         if (c->equips.empty()) return;
         if (targets.size() != 1) throw game_error("ERROR_INVALID_ACTION");
         if (targets.front().enum_index() != play_card_target_type::player) throw game_error("ERROR_INVALID_ACTION");
@@ -391,11 +387,6 @@ namespace banggame {
     }
 
     void player::verify_card_targets(card *card_ptr, bool is_response, const std::vector<play_card_target> &targets) {
-        card_suit_type suit = get_card_suit(card_ptr);
-        if (m_game->m_playing == this && m_declared_suit != card_suit_type::none && suit != card_suit_type::none && suit != m_declared_suit) {
-            throw game_error("ERROR_WRONG_DECLARED_SUIT");
-        }
-
         auto &effects = is_response ? card_ptr->responses : card_ptr->effects;
 
         if (m_mandatory_card && m_mandatory_card != card_ptr
@@ -900,7 +891,6 @@ namespace banggame {
         m_bangs_per_turn = 1;
         m_num_drawn_cards = 0;
         add_player_flags(player_flags::start_of_turn);
-        m_declared_suit = card_suit_type::none;
 
         if (!check_player_flags(player_flags::ghost) && m_hp == 0) {
             if (m_game->has_scenario(scenario_flags::ghosttown)) {

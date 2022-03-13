@@ -157,10 +157,21 @@ namespace banggame {
             }
             origin->m_game->queue_request<request_type::handcuffs>(target_card, origin);
         });
+        target->m_game->add_event<event_type::on_turn_end>(target_card, [target_card](player *p) {
+            p->m_game->remove_disablers(target_card);
+        });
     }
 
     void request_handcuffs::on_pick(card_pile_type pile, player *target_player, card *target_card) {
-        target->m_declared_suit = static_cast<card_suit_type>(target_card->responses.front().effect_value);
+        target->m_game->add_disabler(origin_card, 
+            [target=target, declared_suit = static_cast<card_suit_type>(target_card->responses.front().effect_value)]
+            (card *c) {
+                if (c->owner == target) {
+                    auto suit = target->get_card_suit(c);
+                    return suit != card_suit_type::none && suit != declared_suit;
+                }
+                return false;
+            });
 
         while (!target->m_game->m_selection.empty()) {
             target->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::hidden_deck, true, nullptr, show_card_flags::no_animation);
