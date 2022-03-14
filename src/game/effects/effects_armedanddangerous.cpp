@@ -115,9 +115,9 @@ namespace banggame {
             card *bang_card = req.origin->chosen_card_or(req.origin_card);
             req.origin->m_game->move_to(bang_card, card_pile_type::player_hand, true, req.origin, show_card_flags::short_pause | show_card_flags::show_everyone);
 
-            req.cleanup_function = [origin = req.origin, bang_card]{
+            req.on_cleanup([origin = req.origin, bang_card]{
                 origin->m_game->send_card_update(*bang_card, origin);
-            };
+            });
         });
     }
 
@@ -128,9 +128,9 @@ namespace banggame {
                     target->m_game->queue_request(request_discard(origin_card, origin, target));
                 }
             });
-            req.cleanup_function = [=]{
+            req.on_cleanup([=]{
                 p->m_game->remove_events(origin_card);
-            };
+            });
         });
     }
 
@@ -141,9 +141,9 @@ namespace banggame {
                 && c->owner != p;
         });
         p->add_bang_mod([=](request_bang &req) {
-            req.cleanup_function = [=]{
+            req.on_cleanup([=]{
                 p->m_game->remove_disablers(origin_card);
-            };
+            });
         });
     }
 
@@ -153,9 +153,9 @@ namespace banggame {
                 origin->add_to_hand(origin_card);
             }
         });
-        p->m_game->top_request().get<request_bang>().cleanup_function = [=]{
+        p->m_game->top_request().get<request_bang>().on_cleanup([=]{
             p->m_game->remove_events(origin_card);
-        };
+        });
     }
 
     void effect_duck::on_play(card *origin_card, player *origin) {

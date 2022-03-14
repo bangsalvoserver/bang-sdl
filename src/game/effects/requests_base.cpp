@@ -252,19 +252,11 @@ namespace banggame {
         }
     }
 
-    request_bang::~request_bang() {
-        if (cleanup_function) {
-            cleanup_function();
-        }
-    }
-
     void request_bang::on_resolve() {
         target->m_game->pop_request_noupdate<request_bang>();
         target->damage(origin_card, origin, bang_damage, is_bang_card);
         if (!target->m_game->m_requests.empty() && target->m_game->m_requests.back().is<timer_damaging>()) {
-            auto &req = target->m_game->m_requests.back().get<timer_damaging>();
-            req.cleanup_function = std::move(cleanup_function);
-            cleanup_function = nullptr;
+            static_cast<cleanup_request &>(target->m_game->m_requests.back().get<timer_damaging>()) = std::move(*this);
         } else {
             target->m_game->events_after_requests();
         }

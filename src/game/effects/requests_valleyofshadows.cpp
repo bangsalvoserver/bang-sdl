@@ -5,12 +5,6 @@
 #include "../game.h"
 
 namespace banggame {
-
-    timer_damaging::~timer_damaging() {
-        if (cleanup_function) {
-            cleanup_function();
-        }
-    }
     
     void timer_damaging::on_finished() {
         if (target->m_hp <= damage) {

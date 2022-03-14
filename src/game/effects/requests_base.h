@@ -96,17 +96,13 @@ namespace banggame {
         std::vector<card *> barrels_used;
     };
 
-    struct request_bang : request_base, barrel_ptr_vector, resolvable_request {
+    struct request_bang : request_base, cleanup_request, barrel_ptr_vector, resolvable_request {
         using request_base::request_base;
-
-        ~request_bang();
 
         int bang_strength = 1;
         int bang_damage = 1;
         bool unavoidable = false;
         bool is_bang_card = false;
-
-        std::function<void()> cleanup_function;
 
         void on_resolve() override;
         game_formatted_string status_text(player *owner) const override;
