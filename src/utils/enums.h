@@ -107,7 +107,7 @@ namespace enums {
     template<reflected_enum auto Enum> using enum_data_t = decltype(enum_data<Enum>::value);
 
     template<reflected_enum Enum> auto get_data(Enum value) {
-        constexpr auto data_array = []<Enum ... Es>(enum_sequence<Es...>) {
+        static constexpr auto data_array = []<Enum ... Es>(enum_sequence<Es...>) {
             return std::array{ enum_data_v<Es> ... };
         }(make_enum_sequence<Enum>());
         return data_array[indexof(value)];
@@ -217,7 +217,7 @@ namespace enums {
     }
     
     template<typename RetType, typename Function, reflected_enum T> RetType visit_enum(Function &&fun, T value) {
-        constexpr auto lut = []<T ... Values>(enum_sequence<Values...>) {
+        static constexpr auto lut = []<T ... Values>(enum_sequence<Values...>) {
             return std::array{ +[](Function &&fun) -> RetType {
                 return fun(enum_constant<Values>{});
             } ... };

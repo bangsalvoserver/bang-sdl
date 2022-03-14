@@ -213,7 +213,7 @@ namespace json {
     struct deserializer<std::variant<Ts ...>> {
         using variant_type = std::variant<Ts ...>;
         variant_type operator()(const Json::Value &value) const {
-            constexpr auto lut = []<size_t ... Is>(std::index_sequence<Is...>){
+            static constexpr auto lut = []<size_t ... Is>(std::index_sequence<Is...>){
                 return std::array{ +[](const Json::Value &value) -> variant_type {
                     return deserializer<std::variant_alternative_t<Is, variant_type>>{}(value);
                 } ... };

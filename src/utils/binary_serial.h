@@ -299,7 +299,7 @@ namespace binary {
         using variant_type = std::variant<Ts...>;
         variant_type operator()(byte_ptr &pos, byte_ptr end) const {
             auto index = deserializer<short_size_t>{}(pos, end);
-            constexpr auto lut = []<size_t ... I>(std::index_sequence<I...>){
+            static constexpr auto lut = []<size_t ... I>(std::index_sequence<I...>){
                 return std::array { +[](byte_ptr &pos, byte_ptr end) -> variant_type {
                     return deserializer<std::variant_alternative_t<I, variant_type>>{}(pos, end);
                 } ... };
@@ -315,7 +315,7 @@ namespace binary {
     struct deserializer<enums::enum_variant<T>> {
         enums::enum_variant<T> operator()(byte_ptr &pos, byte_ptr end) const {
             auto index = deserializer<short_size_t>{}(pos, end);
-            constexpr auto lut = []<T ... Es>(enums::enum_sequence<Es ...>) {
+            static constexpr auto lut = []<T ... Es>(enums::enum_sequence<Es ...>) {
                 return std::array { +[](byte_ptr &pos, byte_ptr end) {
                     constexpr T enum_value = Es;
                     if constexpr (enums::has_type<enum_value>) {

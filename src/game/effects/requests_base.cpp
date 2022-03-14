@@ -256,7 +256,7 @@ namespace banggame {
         target->m_game->pop_request_noupdate<request_bang>();
         target->damage(origin_card, origin, bang_damage, is_bang_card);
         if (!target->m_game->m_requests.empty() && target->m_game->m_requests.back().is<timer_damaging>()) {
-            static_cast<cleanup_request &>(target->m_game->m_requests.back().get<timer_damaging>()) = std::move(*this);
+            target->m_game->m_requests.back().get<cleanup_request>() = std::move(*this);
         } else {
             target->m_game->events_after_requests();
         }
