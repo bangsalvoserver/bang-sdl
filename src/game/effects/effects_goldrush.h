@@ -5,30 +5,35 @@
 
 namespace banggame {
 
-    struct effect_sell_beer : card_effect {
+    struct effect_sell_beer {
         void on_play(card *origin_card, player *origin, player *target, card *target_card);
     };
 
-    struct effect_discard_black : card_effect {
+    struct effect_discard_black {
         void verify(card *origin_card, player *origin, player *target, card *target_card) const;
         void on_play(card *origin_card, player *origin, player *target, card *target_card);
     };
 
-    struct effect_add_gold : card_effect {
+    struct effect_add_gold {
+        int amount;
+        effect_add_gold(int value) : amount(std::max(1, value)) {}
+
         void on_play(card *origin_card, player *origin, player *target);
     };
 
-    struct effect_pay_gold : card_effect {
+    struct effect_pay_gold {
+        int amount;
+
         void verify(card *origin_card, player *origin) const;
         bool can_respond(card *origin_card, player *origin) const;
         void on_play(card *origin_card, player *origin);
     };
 
-    struct effect_rum : card_effect {
+    struct effect_rum {
         void on_play(card *origin_card, player *origin);
     };
 
-    struct effect_goldrush : card_effect {
+    struct effect_goldrush {
         void on_play(card *origin_card, player *origin);
     };
 }

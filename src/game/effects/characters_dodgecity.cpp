@@ -1,4 +1,6 @@
 #include "characters_dodgecity.h"
+#include "requests_base.h"
+#include "effects_base.h"
 
 #include "../game.h"
 
@@ -24,12 +26,12 @@ namespace banggame {
     void effect_claus_the_saint::on_equip(card *target_card, player *target) {
         target->m_game->add_event<event_type::on_draw_from_deck>(target_card, [=](player *origin) {
             if (origin == target) {
-                target->m_game->pop_request_noupdate(request_type::draw);
+                target->m_game->pop_request_noupdate<request_draw>();
                 int ncards = target->m_game->num_alive() + target->m_num_cards_to_draw - 1;
                 for (int i=0; i<ncards; ++i) {
                     target->m_game->draw_phase_one_card_to(card_pile_type::selection, target);
                 }
-                target->m_game->queue_request<request_type::claus_the_saint>(target_card, target);
+                target->m_game->queue_request(request_claus_the_saint(target_card, target));
             }
         });
     }
@@ -53,7 +55,7 @@ namespace banggame {
         }
         if (target->m_game->m_selection.size() == 1) {
             get_next_target()->add_to_hand(target->m_game->m_selection.front());
-            target->m_game->pop_request(request_type::claus_the_saint);
+            target->m_game->pop_request<request_claus_the_saint>();
         } else {
             target->m_game->send_request_update();
         }
@@ -156,7 +158,7 @@ namespace banggame {
                 if (p->m_game->num_alive() == 2 && p->m_game->get_next_player(p)->m_characters.size() == 1) {
                     vera_custer_copy_character(p, p->m_game->get_next_player(p)->m_characters.front());
                 } else if (p->m_game->num_alive() > 2) {
-                    p->m_game->queue_request<request_type::vera_custer>(target_card, target);
+                    p->m_game->queue_request(request_vera_custer(target_card, target));
                 }
             }
         });
@@ -179,7 +181,7 @@ namespace banggame {
     }
 
     void request_vera_custer::on_pick(card_pile_type pile, player *target_player, card *target_card) {
-        target->m_game->pop_request(request_type::vera_custer);
+        target->m_game->pop_request<request_vera_custer>();
         vera_custer_copy_character(target, target_card);
     }
 
@@ -200,5 +202,13 @@ namespace banggame {
         if (!target->immune_to(card1) || !target->immune_to(card2)) {
             effect_bang{}.on_play(origin_card, origin, target);
         }
+    }
+
+    void effect_greg_digger::on_equip(card *target_card, player *p) {
+        p->m_game->add_event<event_type::on_player_death>(target_card, [p](player *origin, player *target) {
+            if (p != target) {
+                p->heal(2);
+            }
+        });
     }
 }

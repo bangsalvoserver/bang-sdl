@@ -1,4 +1,7 @@
 #include "effects_valleyofshadows.h"
+#include "requests_valleyofshadows.h"
+#include "requests_base.h"
+#include "effects_base.h"
 
 #include "../game.h"
 
@@ -18,12 +21,12 @@ namespace banggame {
     }
 
     void effect_backfire::on_play(card *origin_card, player *origin) {
-        origin->m_game->queue_request<request_type::bang>(origin_card, origin, origin->m_game->top_request().origin(),
-            effect_flags::escapable | effect_flags::single_target);
+        origin->m_game->queue_request(request_bang(origin_card, origin, origin->m_game->top_request().origin(),
+            effect_flags::escapable | effect_flags::single_target));
     }
 
     void effect_bandidos::on_play(card *origin_card, player *origin, player *target) {
-        target->m_game->queue_request<request_type::bandidos>(origin_card, origin, target, effect_flags::escapable);
+        target->m_game->queue_request(request_bandidos(origin_card, origin, target, effect_flags::escapable));
     }
 
     void effect_tornado::on_play(card *origin_card, player *origin, player *target) {
@@ -33,7 +36,7 @@ namespace banggame {
                 target->m_game->draw_card_to(card_pile_type::player_hand, target);
             });
         } else {
-            target->m_game->queue_request<request_type::tornado>(origin_card, origin, target);
+            target->m_game->queue_request(request_tornado(origin_card, origin, target));
         }
     }
 
@@ -49,7 +52,7 @@ namespace banggame {
             target = origin->m_game->get_next_player(target);
             if (target == origin) break;
             if (!target->m_hand.empty()) {
-                origin->m_game->queue_request<request_type::poker>(origin_card, origin, target, flags);
+                origin->m_game->queue_request(request_poker(origin_card, origin, target, flags));
             }
         };
         origin->m_game->queue_delayed_action([=]{
@@ -69,28 +72,27 @@ namespace banggame {
                     origin->add_to_hand(origin->m_game->m_selection.front());
                 }
             } else {
-                origin->m_game->queue_request<request_type::poker_draw>(origin_card, origin);
+                origin->m_game->queue_request(request_poker_draw(origin_card, origin));
             }
         });
     }
 
     bool effect_saved::can_respond(card *origin_card, player *origin) const {
-        if (origin->m_game->top_request_is(request_type::damaging)) {
-            auto &req = origin->m_game->top_request().get<request_type::damaging>();
-            return req.target != origin;
+        if (auto *req = origin->m_game->top_request_if<timer_damaging>()) {
+            return req->target != origin;
         }
         return false;
     }
 
     void effect_saved::on_play(card *origin_card, player *origin) {
-        auto &req = origin->m_game->top_request().get<request_type::damaging>();
+        auto &req = origin->m_game->top_request().get<timer_damaging>();
         player *saved = req.target;
         if (0 == --req.damage) {
-            origin->m_game->pop_request(request_type::damaging);
+            origin->m_game->pop_request<timer_damaging>();
         }
         origin->m_game->queue_delayed_action([=]{
             if (saved->alive()) {
-                origin->m_game->queue_request<request_type::saved>(origin_card, origin, saved);
+                origin->m_game->queue_request(request_saved(origin_card, origin, saved));
             }
         });
     }

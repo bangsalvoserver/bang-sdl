@@ -2,18 +2,15 @@
 #define __HOLDERS_H__
 
 #include <concepts>
+#include <memory>
 
-#include "effects/effects.h"
-#include "effects/equips.h"
-#include "effects/characters.h"
-#include "effects/scenarios.h"
-#include "effects/requests.h"
+#include "effects/card_effect.h"
 
 #include "utils/reflector.h"
 
 namespace banggame {
 
-    DEFINE_ENUM_TYPES_IN_NS(banggame, effect_type,
+    DEFINE_ENUM_FWD_TYPES_IN_NS(banggame, effect_type,
         (none,          card_effect)
         (play_card_action, effect_play_card_action)
         (max_usages,    effect_max_usages)
@@ -97,7 +94,7 @@ namespace banggame {
         (lastwill,      effect_lastwill)
     )
 
-    DEFINE_ENUM_TYPES_IN_NS(banggame, equip_type,
+    DEFINE_ENUM_FWD_TYPES_IN_NS(banggame, equip_type,
         (none,          card_effect)
         (max_hp,        effect_max_hp)
         (mustang,       effect_mustang)
@@ -187,47 +184,8 @@ namespace banggame {
         (lawofthewest,  effect_lawofthewest)
         (vendetta,      effect_vendetta)
     )
-    DEFINE_ENUM_TYPES_IN_NS(banggame, request_type,
-        (none,          request_base)
-        (characterchoice, request_characterchoice)
-        (predraw,       request_predraw)
-        (draw,          request_draw)
-        (check,         request_check)
-        (generalstore,  request_generalstore)
-        (discard,       request_discard)
-        (discard_pass,  request_discard_pass)
-        (bang,          request_bang)
-        (duel,          request_duel)
-        (indians,       request_indians)
-        (destroy,       request_destroy)
-        (steal,         request_steal)
-        (death,         request_death)
-        (bandidos,      request_bandidos)
-        (tornado,       request_tornado)
-        (poker,         request_poker)
-        (poker_draw,    request_poker_draw)
-        (saved,         request_saved)
-        (add_cube,      request_add_cube)
-        (move_bomb,     request_move_bomb)
-        (rust,          request_rust)
-        (card_sharper,  request_card_sharper)
-        (ricochet,      request_ricochet)
-        (peyote,        request_peyote)
-        (handcuffs,     request_handcuffs)
-        (kit_carlson,   request_kit_carlson)
-        (claus_the_saint, request_claus_the_saint)
-        (vera_custer,   request_vera_custer)
-        (youl_grinner,  request_youl_grinner)
-        (dutch_will,    request_dutch_will)
-        (thedaltons,    request_thedaltons)
-        (newidentity,   request_newidentity)
-        (lemonade_jim,  timer_lemonade_jim)
-        (al_preacher,   timer_al_preacher)
-        (damaging,      timer_damaging)
-        (tumbleweed,    timer_tumbleweed)
-    )
 
-    DEFINE_ENUM_TYPES_IN_NS(banggame, mth_type,
+    DEFINE_ENUM_FWD_TYPES_IN_NS(banggame, mth_type,
         (none)
         (doc_holyday,       handler_doc_holyday)
         (flint_westwood,    handler_flint_westwood)
@@ -239,35 +197,14 @@ namespace banggame {
         (lastwill,          handler_lastwill)
     )
 
-    namespace detail {
-        template<typename T> concept is_effect = requires {
-            requires std::derived_from<T, card_effect>;
-            requires (sizeof(card_effect) == sizeof(T));
-        };
-        
-        template<typename Variant> struct all_elements_effects{};
-        template<typename ... Ts> struct all_elements_effects<std::variant<Ts...>>
-            : std::bool_constant<(is_effect<Ts> && ...)> {};
+    void handle_multitarget(card *origin_card, player *origin, mth_target_list targets);
 
-        template<typename E> concept effect_enum = requires {
-            requires enums::reflected_enum<E>;
-            requires all_elements_effects<enums::enum_variant_base<E>>::value;
-        };
-    }
-
-    template<detail::effect_enum E>
+    template<enums::reflected_enum E>
     struct effect_base : reflector::reflectable_base<card_effect> {
         using enum_type = E;
         REFLECTABLE((enum_type) type)
 
         bool is(enum_type value) const { return type == value; }
-
-        template<enum_type Value> auto get() const {
-            if (type != Value) throw std::runtime_error("Invalid type");
-            enums::enum_type_t<Value> value;
-            static_cast<card_effect &>(value) = static_cast<const card_effect &>(*this);
-            return value;
-        }
     };
 
     struct effect_holder : effect_base<effect_type> {
@@ -293,27 +230,58 @@ namespace banggame {
         void on_unequip(card *target_card, player *target);
     };
 
-    struct request_holder : enums::enum_variant<request_type> {
-        using enums::enum_variant<request_type>::enum_variant;
-        
-        template<request_type E, typename ... Ts>
-        request_holder(enums::enum_constant<E> tag, Ts && ... args)
-            : enums::enum_variant<request_type>(tag, std::forward<Ts>(args) ...) {}
+    class request_holder {
+    public:
+        template<std::derived_from<request_base> T>
+        request_holder(T &&arg)
+            : m_value(std::make_shared<T>(std::forward<T>(arg))) {}
 
-        card *origin_card() const;
-        player *origin() const;
-        player *target() const;
-        effect_flags flags() const;
-        game_formatted_string status_text(player *owner) const;
+        card *origin_card() const {
+            return m_value->origin_card;
+        }
+        player *origin() const {
+            return m_value->origin;
+        }
+        player *target() const {
+            return m_value->target;
+        }
+        effect_flags flags() const {
+            return m_value->flags;
+        }
+        game_formatted_string status_text(player *owner) const {
+            return m_value->status_text(owner);
+        }
 
-        bool resolvable() const;
-        void on_resolve();
+        bool can_pick(card_pile_type pile, player *target, card *target_card) const {
+            return m_value->can_pick(pile, target, target_card);
+        }
+        void on_pick(card_pile_type pile, player *target, card *target_card) {
+            auto copy = m_value;
+            copy->on_pick(pile, target, target_card);
+        }
 
-        bool can_pick(card_pile_type pile, player *target, card *target_card) const;
-        void on_pick(card_pile_type pile, player *target, card *target_card);
+        template<typename T> auto &get() {
+            return dynamic_cast<T &>(*m_value);
+        }
 
-        bool tick();
-        void cleanup();
+        template<typename T> const auto &get() const {
+            return dynamic_cast<const T &>(*m_value);
+        }
+
+        template<typename T> auto *get_if() {
+            return dynamic_cast<T *>(m_value.get());
+        }
+
+        template<typename T> const auto *get_if() const {
+            return dynamic_cast<const T *>(m_value.get());
+        }
+
+        template<typename T> bool is() const {
+            return get_if<T>() != nullptr;
+        }
+
+    private:
+        std::shared_ptr<request_base> m_value;
     };
 }
 

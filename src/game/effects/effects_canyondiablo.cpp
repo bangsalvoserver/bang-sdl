@@ -1,4 +1,7 @@
 #include "effects_canyondiablo.h"
+#include "requests_canyondiablo.h"
+#include "requests_valleyofshadows.h"
+#include "requests_base.h"
 
 #include "../game.h"
 
@@ -13,7 +16,7 @@ namespace banggame {
                 origin->m_game->move_to(origin->m_game->m_discards.back(), card_pile_type::selection);
             }
         }
-        origin->m_game->queue_request<request_type::generalstore>(origin_card, origin, origin);
+        origin->m_game->queue_request(request_generalstore(origin_card, origin, origin));
     }
 
     void effect_mirage::verify(card *origin_card, player *origin) const {
@@ -57,7 +60,7 @@ namespace banggame {
         auto [target, target_card] = targets[1];
 
         if (target->can_escape(origin, origin_card, effect_flags::escapable)) {
-            origin->m_game->queue_request<request_type::card_sharper>(origin_card, origin, target, chosen_card, target_card);
+            origin->m_game->queue_request(request_card_sharper(origin_card, origin, target, chosen_card, target_card));
         } else {
             on_resolve(origin_card, origin, target, chosen_card, target_card);
         }
@@ -73,19 +76,18 @@ namespace banggame {
     }
 
     bool effect_sacrifice::can_respond(card *origin_card, player *origin) const {
-        if (origin->m_game->top_request_is(request_type::damaging)) {
-            auto &req = origin->m_game->top_request().get<request_type::damaging>();
-            return req.target != origin;
+        if (auto *req = origin->m_game->top_request_if<timer_damaging>()) {
+            return req->target != origin;
         }
         return false;
     }
 
     void effect_sacrifice::on_play(card *origin_card, player *origin) {
-        auto &req = origin->m_game->top_request().get<request_type::damaging>();
+        auto &req = origin->m_game->top_request().get<timer_damaging>();
         player *saved = req.target;
         bool fatal = saved->m_hp <= req.damage;
         if (0 == --req.damage) {
-            origin->m_game->pop_request(request_type::damaging);
+            origin->m_game->pop_request<timer_damaging>();
         }
         origin->damage(origin_card, origin, 1);
         origin->m_game->queue_delayed_action([=]{
@@ -100,7 +102,7 @@ namespace banggame {
     }
 
     bool effect_lastwill::can_respond(card *origin_card, player *origin) const {
-        return origin->m_game->top_request_is(request_type::death, origin);
+        return origin->m_game->top_request_is<request_death>(origin);
     }
 
     void effect_lastwill::on_play(card *origin_card, player *origin) {

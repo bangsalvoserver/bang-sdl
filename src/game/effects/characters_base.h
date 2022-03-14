@@ -9,7 +9,7 @@ namespace banggame {
         void on_equip(card *target_card, player *target);
     };
 
-    struct effect_calamity_janet : card_effect {
+    struct effect_calamity_janet {
         void on_equip(card *target_card, player *target);
         void on_unequip(card *target_card, player *target);
     };

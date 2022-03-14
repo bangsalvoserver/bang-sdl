@@ -2,7 +2,6 @@
 #define __EVENTS_H__
 
 #include <map>
-#include <list>
 #include <functional>
 
 #include "utils/enum_variant.h"

@@ -5,10 +5,25 @@
 #include "holders.h"
 #include "server/net_enums.h"
 
+#include "effects/requests_base.h"
+#include "effects/requests_armedanddangerous.h"
+#include "effects/requests_valleyofshadows.h"
+
 #include <cassert>
 
 namespace banggame {
     using namespace enums::flag_operators;
+
+    void player::add_bang_mod(bang_modifier &&mod) {
+        m_bang_mods.push_back(std::move(mod));
+    }
+
+    void player::apply_bang_mods(request_bang &req) {
+        for (const auto &mod : m_bang_mods) {
+            mod(req);
+        }
+        m_bang_mods.clear();
+    }
 
     void player::equip_card(card *target) {
         for (auto &e : target->equips) {
@@ -109,7 +124,7 @@ namespace banggame {
                 m_game->add_public_update<game_update_type::player_hp>(id, m_hp);
                 m_game->add_log(value == 1 ? "LOG_TAKEN_DAMAGE" : "LOG_TAKEN_DAMAGE_PLURAL", origin_card, this, value);
                 if (m_hp <= 0) {
-                    m_game->add_request<request_type::death>(origin_card, origin, this);
+                    m_game->add_request(request_death(origin_card, origin, this));
                 }
                 if (m_game->has_expansion(card_expansion_type::goldrush)) {
                     if (origin && origin->m_game->m_playing == origin && origin != this) {
@@ -118,7 +133,7 @@ namespace banggame {
                 }
                 m_game->queue_event<event_type::on_hit>(origin_card, origin, this, value, is_bang);
             } else {
-                m_game->add_request<request_type::damaging>(origin_card, origin, this, value, is_bang);
+                m_game->add_request(timer_damaging(origin_card, origin, this, value, is_bang));
             }
         }
     }
@@ -548,7 +563,6 @@ namespace banggame {
                             if (effect_it->is(effect_type::bangcard)) {
                                 request_bang req{card_ptr, this, target};
                                 apply_bang_mods(req);
-                                req.cleanup();
                             }
                         } else {
                             auto flags = effect_flags::single_target;
@@ -625,13 +639,7 @@ namespace banggame {
         }
 
         if (card_ptr->multi_target_handler != mth_type::none) {
-            enums::visit_enum([&](auto enum_const) {
-                constexpr mth_type E = decltype(enum_const)::value;
-                if constexpr (enums::has_type<E>) {
-                    using handler_type = enums::enum_type_t<E>;
-                    handler_type{}.on_play(card_ptr, this, std::move(target_list));
-                }
-            }, card_ptr->multi_target_handler);
+            handle_multitarget(card_ptr, this, std::move(target_list));
         }
         m_game->queue_event<event_type::on_effect_end>(this, card_ptr);
     }
@@ -717,7 +725,7 @@ namespace banggame {
                     switch (card_ptr->color) {
                     case card_color_type::blue:
                         if (m_game->has_expansion(card_expansion_type::armedanddangerous) && can_receive_cubes()) {
-                            m_game->queue_request<request_type::add_cube>(card_ptr, this);
+                            m_game->queue_request(request_add_cube(card_ptr, this));
                         }
                         break;
                     case card_color_type::green:
@@ -853,8 +861,7 @@ namespace banggame {
     void player::draw_from_deck() {
         int save_numcards = m_num_cards_to_draw;
         m_game->instant_event<event_type::on_draw_from_deck>(this);
-        if (m_game->top_request_is(request_type::draw)) {
-            m_game->pop_request(request_type::draw);
+        if (m_game->pop_request<request_draw>()) {
             m_game->add_log("LOG_DRAWN_FROM_DECK", this);
             while (m_num_drawn_cards<m_num_cards_to_draw) {
                 ++m_num_drawn_cards;
@@ -934,7 +941,7 @@ namespace banggame {
                 if (std::ranges::all_of(m_predraw_checks | std::views::values, &predraw_check::resolved)) {
                     request_drawing();
                 } else {
-                    m_game->queue_request<request_type::predraw>(this);
+                    m_game->queue_request(request_predraw(this));
                 }
             }
         });
@@ -946,7 +953,7 @@ namespace banggame {
         m_game->queue_delayed_action([this]{
             m_game->instant_event<event_type::on_request_draw>(this);
             if (m_game->m_requests.empty()) {
-                m_game->queue_request<request_type::draw>(this);
+                m_game->queue_request(request_draw(this));
             }
         });
     }
@@ -960,7 +967,7 @@ namespace banggame {
             }
         }
         if (m_hand.size() > max_cards_end_of_turn()) {
-            m_game->queue_request<request_type::discard_pass>(this);
+            m_game->queue_request(request_discard_pass(this));
         } else {
             untap_inactive_cards();
 

@@ -1,24 +1,24 @@
 #include "requests_valleyofshadows.h"
+#include "effects_valleyofshadows.h"
+#include "effects_base.h"
 
 #include "../game.h"
 
 namespace banggame {
+
+    timer_damaging::~timer_damaging() {
+        if (cleanup_function) {
+            cleanup_function();
+        }
+    }
     
     void timer_damaging::on_finished() {
         if (target->m_hp <= damage) {
-            target->m_game->pop_request_noupdate(request_type::damaging);
+            target->m_game->pop_request_noupdate<timer_damaging>();
         } else {
-            target->m_game->pop_request(request_type::damaging);
+            target->m_game->pop_request<timer_damaging>();
         }
         target->damage(origin_card, origin, damage, is_bang, true);
-        cleanup();
-    }
-
-    void timer_damaging::cleanup() {
-        if (cleanup_function) {
-            cleanup_function();
-            cleanup_function = nullptr;
-        }
     }
 
     game_formatted_string timer_damaging::status_text(player *owner) const {
@@ -40,7 +40,7 @@ namespace banggame {
 
     void request_steal::on_resolve() {
         effect_steal{}.on_resolve(origin_card, origin, target, target_card);
-        target->m_game->pop_request(request_type::steal);
+        target->m_game->pop_request<request_steal>();
     }
 
     game_formatted_string request_steal::status_text(player *owner) const {
@@ -57,14 +57,13 @@ namespace banggame {
 
     void request_bandidos::on_pick(card_pile_type pile, player *target_player, card *target_card) {
         target->discard_card(target_card);
-        if (--target->m_game->top_request().get<request_type::bandidos>().num_cards == 0
-            || target->m_hand.empty()) {
-            target->m_game->pop_request(request_type::bandidos);
+        if (--num_cards == 0 || target->m_hand.empty()) {
+            target->m_game->pop_request<request_bandidos>();
         }
     }
 
     void request_bandidos::on_resolve() {
-        target->m_game->pop_request(request_type::bandidos);
+        target->m_game->pop_request<request_bandidos>();
         target->damage(origin_card, origin, 1);
     }
 
@@ -84,7 +83,7 @@ namespace banggame {
         target->discard_card(target_card);
         target->m_game->draw_card_to(card_pile_type::player_hand, target);
         target->m_game->draw_card_to(card_pile_type::player_hand, target);
-        target->m_game->pop_request(request_type::tornado);
+        target->m_game->pop_request<request_tornado>();
     }
 
     game_formatted_string request_tornado::status_text(player *owner) const {
@@ -101,7 +100,7 @@ namespace banggame {
 
     void request_poker::on_pick(card_pile_type pile, player *target_player, card *target_card) {
         target->m_game->move_to(target_card, card_pile_type::selection, true, origin);
-        target->m_game->pop_request(request_type::poker);
+        target->m_game->pop_request<request_poker>();
     }
 
     game_formatted_string request_poker::status_text(player *owner) const {
@@ -114,12 +113,11 @@ namespace banggame {
 
     void request_poker_draw::on_pick(card_pile_type pile, player *target_player, card *target_card) {
         target->add_to_hand(target_card);
-        if (--target->m_game->top_request().get<request_type::poker_draw>().num_cards == 0
-            || target->m_game->m_selection.size() == 0) {
+        if (--num_cards == 0 || target->m_game->m_selection.size() == 0) {
             for (auto *c : target->m_game->m_selection) {
                 target->m_game->move_to(c, card_pile_type::discard_pile);
             }
-            target->m_game->pop_request(request_type::poker_draw);
+            target->m_game->pop_request<request_poker_draw>();
         }
     }
 
@@ -141,13 +139,13 @@ namespace banggame {
         case card_pile_type::main_deck:
             target->m_game->draw_card_to(card_pile_type::player_hand, target);
             target->m_game->draw_card_to(card_pile_type::player_hand, target);
-            target->m_game->pop_request(request_type::saved);
+            target->m_game->pop_request<request_saved>();
             break;
         case card_pile_type::player_hand:
             for (int i=0; i<2 && !saved->m_hand.empty(); ++i) {
                 target->steal_card(saved, saved->random_hand_card());
             }
-            target->m_game->pop_request(request_type::saved);
+            target->m_game->pop_request<request_saved>();
             break;
         }
     }

@@ -1,4 +1,6 @@
 #include "effects_base.h"
+#include "requests_base.h"
+#include "requests_valleyofshadows.h"
 
 #include "../game.h"
 
@@ -6,17 +8,17 @@ namespace banggame {
     using namespace enums::flag_operators;
 
     void effect_play_card_action::on_play(card *origin_card, player *origin) {
-        origin->play_card_action(origin_card, effect_value == 1);
+        origin->play_card_action(origin_card, is_response);
     }
 
     void effect_max_usages::verify(card *origin_card, player *origin) const {
-        if (origin_card->usages >= effect_value) {
-            throw game_error("ERROR_MAX_USAGES", origin_card, effect_value);
+        if (origin_card->usages >= max_usages) {
+            throw game_error("ERROR_MAX_USAGES", origin_card, max_usages);
         }
     }
 
     bool effect_max_usages::can_respond(card *origin_card, player *origin) const {
-        return origin_card->usages < effect_value;
+        return origin_card->usages < max_usages;
     }
 
     void effect_max_usages::on_play(card *origin_card, player *origin) {
@@ -28,17 +30,12 @@ namespace banggame {
     }
 
     bool effect_resolve::can_respond(card *origin_card, player *origin) const {
-        if (!origin->m_game->m_requests.empty()) {
-            const auto &req = origin->m_game->top_request();
-            if (origin == req.target()) {
-                return req.resolvable();
-            }
-        }
-        return false;
+        return origin->m_game->top_request_is<resolvable_request>(origin);
     }
     
     void effect_resolve::on_play(card *origin_card, player *origin) {
-        origin->m_game->top_request().on_resolve();
+        auto copy = origin->m_game->top_request();
+        copy.get<resolvable_request>().on_resolve();
     }
 
     void effect_damage::verify(card *origin_card, player *origin, player *target) const {
@@ -53,7 +50,7 @@ namespace banggame {
 
     void effect_bang::on_play(card *origin_card, player *origin, player *target, effect_flags flags) {
         target->m_game->add_log("LOG_PLAYED_CARD_ON", origin_card, origin, target);
-        target->m_game->queue_request<request_type::bang>(origin_card, origin, target, flags);
+        target->m_game->queue_request(request_bang(origin_card, origin, target, flags));
     }
 
     void effect_bangcard::on_play(card *origin_card, player *origin, player *target, effect_flags flags) {
@@ -63,30 +60,28 @@ namespace banggame {
             request_bang req{origin_card, origin, target, flags};
             req.is_bang_card = true;
             origin->apply_bang_mods(req);
-            origin->m_game->queue_request(std::move(req));
+            origin->m_game->queue_request(request_bang(std::move(req)));
         });
     }
 
 
     bool effect_missed::can_respond(card *origin_card, player *origin) const {
-        if (origin->m_game->top_request_is(request_type::bang, origin)) {
-            auto &req = origin->m_game->top_request().get<request_type::bang>();
-            return !req.unavoidable;
+        if (auto *req = origin->m_game->top_request_if<request_bang>(origin)) {
+            return !req->unavoidable;
         }
-        return origin->m_game->top_request_is(request_type::ricochet, origin);
+        return origin->m_game->top_request_is<barrel_ptr_vector>(origin);
     }
 
     void effect_missed::on_play(card *origin_card, player *origin) {
-        if (origin->m_game->top_request_is(request_type::bang, origin)) {
-            auto &req = origin->m_game->top_request().get<request_type::bang>();
-            if (0 == --req.bang_strength) {
-                origin->m_game->instant_event<event_type::on_missed>(req.origin_card, req.origin, req.target, req.is_bang_card);
-                origin->m_game->pop_request(request_type::bang);
+        if (auto *req = origin->m_game->top_request_if<request_bang>(origin)) {
+            if (0 == --req->bang_strength) {
+                origin->m_game->instant_event<event_type::on_missed>(req->origin_card, req->origin, req->target, req->is_bang_card);
+                origin->m_game->pop_request<request_bang>();
             } else {
                 origin->m_game->send_request_update();
             }
         } else {
-            origin->m_game->pop_request(request_type::ricochet);
+            origin->m_game->pop_request<barrel_ptr_vector>();
         }
     }
 
@@ -99,25 +94,16 @@ namespace banggame {
         effect_missed().on_play(origin_card, target);
     }
 
-    static std::vector<card *> &barrels_used(request_holder &holder) {
-        if (holder.is(request_type::bang)) {
-            return holder.get<request_type::bang>().barrels_used;
-        } else if (holder.is(request_type::ricochet)) {
-            return holder.get<request_type::ricochet>().barrels_used;
-        }
-        throw std::runtime_error("Invalid request");
-    };
-
     bool effect_barrel::can_respond(card *origin_card, player *origin) const {
         if (effect_missed().can_respond(origin_card, origin)) {
-            const auto &vec = barrels_used(origin->m_game->top_request());
+            const auto &vec = origin->m_game->top_request().get<barrel_ptr_vector>().barrels_used;
             return std::ranges::find(vec, origin_card) == vec.end();
         }
         return false;
     }
 
     void effect_barrel::on_play(card *origin_card, player *target) {
-        barrels_used(target->m_game->top_request()).push_back(origin_card);
+        target->m_game->top_request().get<barrel_ptr_vector>().barrels_used.push_back(origin_card);
         target->m_game->send_request_update();
         target->m_game->draw_check_then(target, origin_card, [=](card *drawn_card) {
             if (target->get_card_suit(drawn_card) == card_suit_type::hearts) {
@@ -140,23 +126,23 @@ namespace banggame {
 
     void effect_indians::on_play(card *origin_card, player *origin, player *target, effect_flags flags) {
         target->m_game->add_log("LOG_PLAYED_CARD_ON", origin_card, origin, target);
-        target->m_game->queue_request<request_type::indians>(origin_card, origin, target, flags);
+        target->m_game->queue_request(request_indians(origin_card, origin, target, flags));
     }
 
     void effect_duel::on_play(card *origin_card, player *origin, player *target, effect_flags flags) {
         target->m_game->add_log("LOG_PLAYED_CARD_ON", origin_card, origin, target);
-        target->m_game->queue_request<request_type::duel>(origin_card, origin, target, origin, flags);
+        target->m_game->queue_request(request_duel(origin_card, origin, target, origin, flags));
     }
 
     void effect_generalstore::on_play(card *origin_card, player *origin) {
         for (int i=0; i<origin->m_game->num_alive(); ++i) {
             origin->m_game->draw_card_to(card_pile_type::selection);
         }
-        origin->m_game->queue_request<request_type::generalstore>(origin_card, origin, origin);
+        origin->m_game->queue_request(request_generalstore(origin_card, origin, origin));
     }
 
     void effect_heal::on_play(card *origin_card, player *origin, player *target) {
-        target->heal(std::max(1, effect_value));
+        target->heal(amount);
     }
 
     void effect_heal_notfull::verify(card *origin_card, player *origin, player *target) const {
@@ -175,22 +161,21 @@ namespace banggame {
     }
 
     bool effect_deathsave::can_respond(card *origin_card, player *origin) const {
-        if (origin->m_game->top_request_is(request_type::death, origin)) {
-            auto &req = origin->m_game->top_request().get<request_type::death>();
-            return req.draw_attempts.empty();
+        if (auto *req = origin->m_game->top_request_if<request_death>(origin)) {
+            return req->draw_attempts.empty();
         }
         return false;
     }
 
     void effect_deathsave::on_play(card *origin_card, player *origin) {
         if (origin->m_hp > 0) {
-            origin->m_game->pop_request(request_type::death);
+            origin->m_game->pop_request<request_death>();
         }
     }
 
     void effect_destroy::on_play(card *origin_card, player *origin, player *target, card *target_card, effect_flags flags) {
         if (origin != target && target->can_escape(origin, origin_card, flags)) {
-            target->m_game->queue_request<request_type::destroy>(origin_card, origin, target, target_card, flags);
+            target->m_game->queue_request(request_destroy(origin_card, origin, target, target_card, flags));
         } else {
             on_resolve(origin_card, origin, target, target_card);
         }
@@ -224,12 +209,12 @@ namespace banggame {
     }
 
     bool effect_drawing::can_respond(card *origin_card, player *origin) const {
-        return origin->m_game->top_request_is(request_type::draw, origin);
+        return origin->m_game->top_request_is<request_draw>(origin);
     }
 
     void effect_steal::on_play(card *origin_card, player *origin, player *target, card *target_card, effect_flags flags) {
         if (origin != target && target->can_escape(origin, origin_card, flags)) {
-            target->m_game->queue_request<request_type::steal>(origin_card, origin, target, target_card, flags);
+            target->m_game->queue_request(request_steal(origin_card, origin, target, target_card, flags));
         } else {
             on_resolve(origin_card, origin, target, target_card);
         }
@@ -279,7 +264,7 @@ namespace banggame {
     }
 
     void effect_draw::on_play(card *origin_card, player *origin, player *target) {
-        for (int i=0; i<std::max(1, effect_value); ++i) {
+        for (int i=0; i<ncards; ++i) {
             card *drawn_card = target->m_game->draw_card_to(card_pile_type::player_hand, target);
             target->m_game->add_log("LOG_DRAWN_CARD", target, drawn_card);
         }
@@ -304,13 +289,13 @@ namespace banggame {
             target->m_game->add_log("LOG_DRAWN_CARD", target, drawn_card);
             target->m_game->instant_event<event_type::on_card_drawn>(target, drawn_card);
         }
-        if (target->m_game->pop_request(request_type::draw)) {
+        if (target->m_game->pop_request<request_draw>()) {
             target->m_game->queue_event<event_type::post_draw_cards>(target);
         }
     }
 
     void effect_draw_done::on_play(card *origin_card, player *target) {
-        if (target->m_game->pop_request(request_type::draw)) {
+        if (target->m_game->pop_request<request_draw>()) {
             target->m_game->queue_event<event_type::post_draw_cards>(target);
         }
     }
@@ -323,7 +308,7 @@ namespace banggame {
 
     void effect_draw_skip::on_play(card *origin_card, player *target) {
         if (++target->m_num_drawn_cards == target->m_num_cards_to_draw) {
-            if (target->m_game->pop_request(request_type::draw)) {
+            if (target->m_game->pop_request<request_draw>()) {
                 target->m_game->queue_event<event_type::post_draw_cards>(target);
             }
         }

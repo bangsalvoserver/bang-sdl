@@ -30,12 +30,12 @@ namespace banggame {
         void on_equip(card *target_card, player *target);
     };
 
-    struct effect_trainarrival : card_effect {
+    struct effect_trainarrival {
         void on_equip(card *target_card, player *target);
         void on_unequip(card *target_card, player *target);
     };
 
-    struct effect_thirst : card_effect {
+    struct effect_thirst {
         void on_equip(card *target_card, player *target);
         void on_unequip(card *target_card, player *target);
     };
@@ -52,17 +52,17 @@ namespace banggame {
         void on_equip(card *target_card, player *target);
     };
 
-    struct effect_reverend : card_effect {
+    struct effect_reverend {
         void on_equip(card *target_card, player *target);
         void on_unequip(card *target_card, player *target);
     };
 
-    struct effect_hangover : card_effect {
+    struct effect_hangover {
         void on_equip(card *target_card, player *target);
         void on_unequip(card *target_card, player *target);
     };
 
-    struct effect_sermon : card_effect {
+    struct effect_sermon {
         void on_equip(card *target_card, player *target);
         void on_unequip(card *target_card, player *target);
     };

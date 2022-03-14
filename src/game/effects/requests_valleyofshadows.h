@@ -5,36 +5,36 @@
 
 namespace banggame {
 
-    struct request_destroy : request_base {
+    struct request_destroy : request_base, resolvable_request {
         request_destroy(card *origin_card, player *origin, player *target, card *target_card, effect_flags flags = {})
             : request_base(origin_card, origin, target, flags)
             , target_card(target_card) {}
 
         card *target_card;
 
-        void on_resolve();
+        void on_resolve() override;
         game_formatted_string status_text(player *owner) const;
     };
 
-    struct request_steal : request_base {
+    struct request_steal : request_base, resolvable_request {
         request_steal(card *origin_card, player *origin, player *target, card *target_card, effect_flags flags = {})
             : request_base(origin_card, origin, target, flags)
             , target_card(target_card) {}
         
         card *target_card;
 
-        void on_resolve();
+        void on_resolve() override;
         game_formatted_string status_text(player *owner) const;
     };
 
-    struct request_bandidos : request_base {
+    struct request_bandidos : request_base, resolvable_request {
         using request_base::request_base;
 
         int num_cards = 2;
 
         bool can_pick(card_pile_type pile, player *target, card *target_card) const;
         void on_pick(card_pile_type pile, player *target, card *target_card);
-        void on_resolve();
+        void on_resolve() override;
         game_formatted_string status_text(player *owner) const;
     };
 
@@ -70,6 +70,8 @@ namespace banggame {
             , timer_request(140)
             , damage(damage)
             , is_bang(is_bang) {}
+
+        ~timer_damaging();
         
         int damage;
         bool is_bang;
@@ -77,7 +79,6 @@ namespace banggame {
         std::function<void()> cleanup_function;
 
         void on_finished();
-        void cleanup();
         game_formatted_string status_text(player *owner) const;
     };
 
@@ -92,15 +93,8 @@ namespace banggame {
         void on_pick(card_pile_type pile, player *target, card *target_card);
         game_formatted_string status_text(player *owner) const;
     };
-    
-    struct request_ricochet : request_destroy {
-        using request_destroy::request_destroy;
 
-        std::vector<card *> barrels_used;
-        game_formatted_string status_text(player *owner) const;
-    };
-
-    struct timer_lemonade_jim : request_base, timer_request {
+    struct timer_lemonade_jim : request_base {
         using request_base::request_base;
         game_formatted_string status_text(player *owner) const;
     };

@@ -9,7 +9,7 @@ namespace banggame {
         void on_equip(card *target_card, player *target);
     };
 
-    struct effect_frankie_canton : card_effect {
+    struct effect_frankie_canton {
         void verify(card *origin_card, player *origin, player *target, card *target_card) const;
         void on_play(card *origin_card, player *origin, player *target, card *target_card);
     };

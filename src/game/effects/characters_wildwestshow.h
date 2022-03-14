@@ -5,7 +5,7 @@
 
 namespace banggame {
 
-    struct effect_big_spencer : card_effect {
+    struct effect_big_spencer {
         void on_equip(card *target_card, player *target);
         void on_unequip(card *target_card, player *target);
     };
@@ -18,7 +18,7 @@ namespace banggame {
         void on_equip(card *target_card, player *target);
     };
 
-    struct effect_teren_kill : card_effect {
+    struct effect_teren_kill {
         bool can_respond(card *origin_card, player *origin) const;
         void on_play(card *origin_card, player *origin);
     };

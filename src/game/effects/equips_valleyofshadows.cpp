@@ -1,4 +1,6 @@
 #include "equips_valleyofshadows.h"
+#include "requests_valleyofshadows.h"
+#include "requests_base.h"
 
 #include "../game.h"
 
@@ -40,7 +42,7 @@ namespace banggame {
     void effect_shotgun::on_equip(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_hit>(target_card, [=](card *origin_card, player *origin, player *target, int damage, bool is_bang) {
             if (origin == p && target != p && !target->m_hand.empty() && is_bang) {
-                target->m_game->queue_request<request_type::discard>(target_card, origin, target);
+                target->m_game->queue_request(request_discard(target_card, origin, target));
             }
         });
     }

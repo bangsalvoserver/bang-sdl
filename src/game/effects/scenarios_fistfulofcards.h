@@ -2,15 +2,17 @@
 #define __SCENARIOS_FISTFULOFCARDS_H__
 
 #include "card_effect.h"
+#include "requests_valleyofshadows.h"
+#include "requests_base.h"
 
 namespace banggame {
 
-    struct effect_ambush : card_effect {
+    struct effect_ambush {
         void on_equip(card *target_card, player *target);
         void on_unequip(card *target_card, player *target);
     };
 
-    struct effect_sniper : card_effect {
+    struct effect_sniper {
         void on_play(card *origin_card, player *origin, player *target);
     };
 
@@ -26,7 +28,7 @@ namespace banggame {
         void on_equip(card *target_card, player *target);
     };
 
-    struct effect_lasso : card_effect {
+    struct effect_lasso {
         void on_equip(card *target_card, player *target);
         void on_unequip(card *target_card, player *target);
     };
@@ -47,8 +49,14 @@ namespace banggame {
         game_formatted_string status_text(player *owner) const;
     };
 
-    struct effect_ricochet : card_effect {
+    struct effect_ricochet {
         void on_play(card *origin_card, player *origin, player *target, card *target_card);
+    };
+    
+    struct request_ricochet : request_destroy, barrel_ptr_vector {
+        using request_destroy::request_destroy;
+
+        game_formatted_string status_text(player *owner) const;
     };
     
     struct effect_russianroulette : scenario_effect {

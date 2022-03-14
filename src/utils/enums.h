@@ -362,6 +362,13 @@ GENERATE_ENUM_STRUCTS(enumName, elementTupleSeq, value_fun_name) \
 GENERATE_ENUM_STRUCTS(namespaceName::enumName, elementTupleSeq, value_fun_name) \
 } namespace namespaceName {
 
+#define DO_FWD_DECLARE_HELPER(elementTuple) struct ENUM_TUPLE_TAIL(elementTuple);
+#define DO_FWD_DECLARE(r, _, elementTuple) \
+    BOOST_PP_IF(BOOST_PP_EQUAL(BOOST_PP_TUPLE_SIZE(elementTuple), 1), \
+        DO_NOTHING, DO_FWD_DECLARE_HELPER)(elementTuple)
+
+#define IMPL_FWD_DECLARE(elementTupleSeq) BOOST_PP_SEQ_FOR_EACH(DO_FWD_DECLARE, _, elementTupleSeq)
+
 #define DEFINE_ENUM(enumName, enumElements) \
     IMPL_DEFINE_ENUM(enumName, ADD_PARENTHESES(enumElements), CREATE_ENUM_ELEMENT, DO_NOTHING)
 #define DEFINE_ENUM_FLAGS(enumName, enumElements) \
@@ -375,6 +382,9 @@ GENERATE_ENUM_STRUCTS(namespaceName::enumName, elementTupleSeq, value_fun_name) 
 #define DEFINE_ENUM_TYPES(enumName, enumElements) \
     IMPL_DEFINE_ENUM(enumName, ADD_PARENTHESES(enumElements), CREATE_ENUM_ELEMENT, ENUM_TYPE_STRUCT)
 
+#define DEFINE_ENUM_FWD_TYPES(enumName, enumElements) \
+    IMPL_FWD_DECLARE(ADD_PARENTHESES(enumElements)) DEFINE_ENUM_TYPES(enumName, enumElements)
+
 #define DEFINE_ENUM_IN_NS(namespaceName, enumName, enumElements) \
     IMPL_DEFINE_ENUM_IN_NS(namespaceName, enumName, ADD_PARENTHESES(enumElements), CREATE_ENUM_ELEMENT, DO_NOTHING)
 #define DEFINE_ENUM_FLAGS_IN_NS(namespaceName, enumName, enumElements) \
@@ -387,5 +397,8 @@ GENERATE_ENUM_STRUCTS(namespaceName::enumName, elementTupleSeq, value_fun_name) 
 
 #define DEFINE_ENUM_TYPES_IN_NS(namespaceName, enumName, enumElements) \
     IMPL_DEFINE_ENUM_IN_NS(namespaceName, enumName, ADD_PARENTHESES(enumElements), CREATE_ENUM_ELEMENT, ENUM_TYPE_STRUCT)
+
+#define DEFINE_ENUM_FWD_TYPES_IN_NS(namespaceName, enumName, enumElements) \
+    IMPL_FWD_DECLARE(ADD_PARENTHESES(enumElements)) DEFINE_ENUM_TYPES_IN_NS(namespaceName, enumName, enumElements)
 
 #endif

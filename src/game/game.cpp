@@ -3,6 +3,9 @@
 #include "holders.h"
 #include "server/net_enums.h"
 
+#include "effects/requests_armedanddangerous.h"
+#include "effects/requests_base.h"
+
 #include <array>
 
 namespace banggame {
@@ -334,7 +337,7 @@ namespace banggame {
             }
             auto *p = m_first_player;
             while (true) {
-                queue_request<request_type::characterchoice>(p);
+                queue_request(request_characterchoice(p));
 
                 p = get_next_player(p);
                 if (p == m_first_player) break;
@@ -379,15 +382,15 @@ namespace banggame {
     }
 
     void game::tick() {
-        if (!m_requests.empty() && top_request().tick()) {
-            pop_request();
+        if (auto *req = top_request_if<timer_request>()) {
+            auto copy = top_request();
+            req->tick();
         }
     }
 
     request_status_args game::make_request_update(player *p) {
         const auto &req = top_request();
         request_status_args ret{
-            req.enum_index(),
             req.origin() ? req.origin()->id : 0,
             req.target() ? req.target()->id : 0,
             req.status_text(p)
@@ -554,7 +557,7 @@ namespace banggame {
             queue_event<event_type::on_draw_check>(m_current_check->origin, c);
             add_log("LOG_CHECK_DREW_CARD", m_current_check->origin_card, m_current_check->origin, c);
             instant_event<event_type::trigger_tumbleweed>(m_current_check->origin_card, c);
-            if (!top_request_is(request_type::tumbleweed)) {
+            if (!top_request_is<timer_tumbleweed>()) {
                 m_current_check->function(c);
                 m_current_check.reset();
             }
@@ -562,23 +565,8 @@ namespace banggame {
             for (int i=0; i<m_current_check->origin->m_num_checks; ++i) {
                 draw_card_to(card_pile_type::selection);
             }
-            add_request<request_type::check>(m_current_check->origin_card, m_current_check->origin);
+            add_request(request_check(m_current_check->origin_card, m_current_check->origin));
         }
-    }
-
-    bool game::pop_request_noupdate(request_type type) {
-        if (type != request_type::none && !top_request_is(type)) return false;
-        m_requests.front().cleanup();
-        m_requests.pop_front();
-        return true;
-    }
-
-    bool game::pop_request(request_type type) {
-        if (type != request_type::none && !top_request_is(type)) return false;
-        m_requests.front().cleanup();
-        m_requests.pop_front();
-        events_after_requests();
-        return true;
     }
 
     void game::events_after_requests() {

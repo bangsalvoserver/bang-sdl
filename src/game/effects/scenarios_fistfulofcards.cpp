@@ -1,4 +1,5 @@
-#include "scenarios_highnoon.h"
+#include "scenarios_fistfulofcards.h"
+#include "requests_base.h"
 
 #include "../game.h"
 
@@ -20,7 +21,7 @@ namespace banggame {
     void effect_sniper::on_play(card *origin_card, player *origin, player *target) {
         request_bang req{origin_card, origin, target};
         req.bang_strength = 2;
-        target->m_game->queue_request(std::move(req));
+        target->m_game->queue_request(request_bang(std::move(req)));
     }
 
     void effect_startofturn::verify(card *origin_card, player *origin) const {
@@ -63,7 +64,7 @@ namespace banggame {
                 }
             }
             
-            p->m_game->queue_request<request_type::peyote>(target_card, p);
+            p->m_game->queue_request(request_peyote(target_card, p));
         });
     }
 
@@ -82,7 +83,7 @@ namespace banggame {
             while (!target->m_game->m_selection.empty()) {
                 target->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::hidden_deck, true, nullptr, show_card_flags::no_animation);
             }
-            target->m_game->pop_request(request_type::peyote);
+            target->m_game->pop_request<request_peyote>();
             target->m_game->queue_event<event_type::post_draw_cards>(target);
         }
     }
@@ -96,7 +97,7 @@ namespace banggame {
     }
 
     void effect_ricochet::on_play(card *origin_card, player *origin, player *target, card *target_card) {
-        target->m_game->queue_request<request_type::ricochet>(origin_card, origin, target, target_card);
+        target->m_game->queue_request(request_ricochet(origin_card, origin, target, target_card));
     }
 
     game_formatted_string request_ricochet::status_text(player *owner) const {
@@ -111,7 +112,7 @@ namespace banggame {
         auto queue_russianroulette_request = [=](player *target) {
             request_bang req{target_card, nullptr, target};
             req.bang_damage = 2;
-            target->m_game->queue_request(std::move(req));
+            target->m_game->queue_request(request_bang(std::move(req)));
         };
         queue_russianroulette_request(target);
         target->m_game->add_event<event_type::on_missed>(target_card, [=](card *origin_card, player *origin, player *target, bool is_bang) {
@@ -129,7 +130,7 @@ namespace banggame {
     void effect_fistfulofcards::on_equip(card *target_card, player *target) {
         target->m_game->add_event<event_type::pre_turn_start>(target_card, [=](player *p) {
             for (int i=0; i<p->m_hand.size(); ++i) {
-                p->m_game->queue_request<request_type::bang>(target_card, nullptr, p);
+                p->m_game->queue_request(request_bang(target_card, nullptr, p));
             }
         });
     }

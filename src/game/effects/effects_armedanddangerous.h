@@ -9,61 +9,67 @@ namespace banggame {
         void on_play(card *origin_card, player *origin, mth_target_list targets);
     };
 
-    struct effect_select_cube : card_effect {
+    struct effect_select_cube {
         void verify(card *origin_card, player *origin, player *target, card *target_card) const;
         void on_play(card *origin_card, player *origin, player *target, card *target_card);
     };
 
-    struct effect_pay_cube : card_effect {
+    struct effect_pay_cube {
+        int ncubes;
+        effect_pay_cube(int value) : ncubes(std::max(1, value)) {}
+        
         bool can_respond(card *origin_card, player *origin) const;
         void verify(card *origin_card, player *origin) const;
         void on_play(card *origin_card, player *origin);
     };
 
-    struct effect_add_cube : card_effect {
+    struct effect_add_cube {
+        int ncubes;
+        effect_add_cube(int value) : ncubes(std::max(1, value)) {}
+
         void on_play(card *origin_card, player *origin, player *target, card *target_card);
     };
     
-    struct effect_reload : card_effect {
+    struct effect_reload {
         void on_play(card *origin_card, player *origin);
     };
 
-    struct effect_rust : card_effect {
+    struct effect_rust {
         void on_play(card *origin_card, player *origin, player *target, effect_flags flags = {});
         void on_resolve(card *origin_card, player *origin, player *target);
     };
 
-    struct effect_bandolier : card_effect {
+    struct effect_bandolier {
         void verify(card *origin_card, player *origin) const;
         void on_play(card *origin_card, player *origin);
     };
 
-    struct effect_belltower : card_effect {
+    struct effect_belltower {
         void verify(card *origin_card, player *origin) const;
         void on_play(card *origin_card, player *origin);
     };
 
-    struct effect_doublebarrel : card_effect {
+    struct effect_doublebarrel {
         void on_play(card *origin_card, player *origin);
     };
 
-    struct effect_thunderer : card_effect {
+    struct effect_thunderer {
         void on_play(card *origin_card, player *origin);
     };
 
-    struct effect_buntlinespecial : card_effect {
+    struct effect_buntlinespecial {
         void on_play(card *origin_card, player *origin);
     };
 
-    struct effect_bigfifty : card_effect {
+    struct effect_bigfifty {
         void on_play(card *origin_card, player *origin);
     };
 
-    struct effect_flintlock : card_effect {
+    struct effect_flintlock {
         void on_play(card *origin_card, player *origin);
     };
 
-    struct effect_duck : card_effect {
+    struct effect_duck {
         void on_play(card *origin_card, player *origin);
     };
 

@@ -1,4 +1,6 @@
 #include "characters_armedanddangerous.h"
+#include "requests_armedanddangerous.h"
+#include "requests_base.h"
 
 #include "../game.h"
 
@@ -9,18 +11,18 @@ namespace banggame {
         p->m_game->add_event<event_type::on_equip>(target_card, [=](player *origin, player *target, card *equipped_card) {
             if (p != origin && (equipped_card->color == card_color_type::blue || equipped_card->color == card_color_type::orange)) {
                 if (p->count_cubes() >= 2) {
-                    p->m_game->queue_request<request_type::al_preacher>(target_card, origin, p);
+                    p->m_game->queue_request(timer_al_preacher(target_card, origin, p));
                 }
             }
         });
     }
 
     bool effect_al_preacher::can_respond(card *origin_card, player *origin) const {
-        return origin->m_game->top_request_is(request_type::al_preacher, origin);
+        return origin->m_game->top_request_is<timer_al_preacher>(origin);
     }
 
     void effect_al_preacher::on_play(card *origin_card, player *origin) {
-        origin->m_game->pop_request(request_type::al_preacher);
+        origin->m_game->pop_request<timer_al_preacher>();
     }
 
     void effect_julie_cutter::on_equip(card *target_card, player *p) {
@@ -29,7 +31,7 @@ namespace banggame {
                 p->m_game->draw_check_then(target, target_card, [=](card *drawn_card) {
                     card_suit_type suit = p->get_card_suit(drawn_card);
                     if (suit == card_suit_type::hearts || suit == card_suit_type::diamonds) {
-                        p->m_game->queue_request<request_type::bang>(target_card, target, origin);
+                        p->m_game->queue_request(request_bang(target_card, target, origin));
                     }
                 });
             }

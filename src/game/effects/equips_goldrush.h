@@ -9,7 +9,7 @@ namespace banggame {
         void on_equip(card *target_card, player *target);
     };
 
-    struct effect_pickaxe : card_effect {
+    struct effect_pickaxe {
         void on_equip(card *target_card, player *target);
         void on_unequip(card *target_card, player *target);
     };
@@ -19,6 +19,8 @@ namespace banggame {
     };
 
     struct effect_gunbelt : event_based_effect {
+        int ncards;
+        
         void on_equip(card *target_card, player *target);
     };
 

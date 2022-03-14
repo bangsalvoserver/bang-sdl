@@ -1,4 +1,5 @@
 #include "characters_base.h"
+#include "requests_base.h"
 
 #include "../game.h"
 
@@ -43,11 +44,11 @@ namespace banggame {
     void effect_kit_carlson::on_equip(card *target_card, player *target) {
         target->m_game->add_event<event_type::on_draw_from_deck>(target_card, [=](player *origin) {
             if (target == origin && target->m_num_cards_to_draw < 3) {
-                target->m_game->pop_request_noupdate(request_type::draw);
+                target->m_game->pop_request_noupdate<request_draw>();
                 for (int i=0; i<3; ++i) {
                     target->m_game->draw_phase_one_card_to(card_pile_type::selection, target);
                 }
-                target->m_game->queue_request<request_type::kit_carlson>(target_card, target);
+                target->m_game->queue_request(request_kit_carlson(target_card, target));
             }
         });
     }
@@ -60,7 +61,7 @@ namespace banggame {
             while (!target->m_game->m_selection.empty()) {
                 target->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::main_deck, false);
             }
-            target->m_game->pop_request(request_type::kit_carlson);
+            target->m_game->pop_request<request_kit_carlson>();
         }
     }
 
@@ -105,14 +106,6 @@ namespace banggame {
                 while (!target->m_hand.empty()) {
                     p->add_to_hand(target->m_hand.front());
                 }
-            }
-        });
-    }
-
-    void effect_greg_digger::on_equip(card *target_card, player *p) {
-        p->m_game->add_event<event_type::on_player_death>(target_card, [p](player *origin, player *target) {
-            if (p != target) {
-                p->heal(2);
             }
         });
     }

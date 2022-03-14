@@ -4,13 +4,23 @@
 
 #include <stdexcept>
 
+#include "effects/effects.h"
+#include "effects/equips.h"
+#include "effects/characters.h"
+#include "effects/scenarios.h"
+
 namespace banggame {
 
     template<typename Holder, typename Function>
     static auto visit_effect(Function &&fun, Holder &holder) {
         using enum_type = typename Holder::enum_type;
         return enums::visit_enum([&](auto enum_const) {
-            return fun(holder.template get<decltype(enum_const)::value>());
+            using type = enums::enum_type_t<decltype(enum_const)::value>;
+            if constexpr (requires { type{holder.effect_value}; }) {
+                return fun(type{holder.effect_value});
+            } else {
+                return fun(type{});
+            }
         }, holder.type);
     }
 
@@ -106,91 +116,25 @@ namespace banggame {
             }
         }, *this);
     }
-
-    card *request_holder::origin_card() const {
-        return enums::visit(&request_base::origin_card, *this);
-    }
-
-    player *request_holder::origin() const {
-        return enums::visit(&request_base::origin, *this);
-    }
-
-    player *request_holder::target() const {
-        return enums::visit(&request_base::target, *this);
-    }
-
-    effect_flags request_holder::flags() const {
-        return enums::visit(&request_base::flags, *this);
-    }
-
-    game_formatted_string request_holder::status_text(player *owner) const {
-        return enums::visit([owner](const auto &req) -> game_formatted_string {
-            if constexpr (requires { req.status_text(owner); }) {
-                return req.status_text(owner);
+    
+    void handle_multitarget(card *origin_card, player *origin, mth_target_list targets) {
+        enums::visit_enum([&](auto enum_const) {
+            constexpr mth_type E = decltype(enum_const)::value;
+            if constexpr (enums::has_type<E>) {
+                using handler_type = enums::enum_type_t<E>;
+                handler_type{}.on_play(origin_card, origin, std::move(targets));
             }
-            throw std::runtime_error("missing status_text()");
-        }, *this);
+        }, origin_card->multi_target_handler);
     }
 
-    bool request_holder::resolvable() const {
-        return enums::visit([](auto &req) {
-            return requires (std::remove_cvref_t<decltype(req)> obj) { obj.on_resolve(); };
-        }, *this);
+    void request_base::on_pick(card_pile_type pile, player *target, card *target_card) {
+        throw std::runtime_error("missing on_pick(pile, target, target_card)");
     }
 
-    void request_holder::on_resolve() {
-        enums::visit([](auto &req) {
-            if constexpr (requires { req.on_resolve(); }) {
-                auto copy = std::move(req);
-                copy.on_resolve();
-            } else {
-                throw std::runtime_error("missing on_resolve()");
-            }
-        }, *this);
-    }
-
-    bool request_holder::can_pick(card_pile_type pile, player *target, card *target_card) const {
-        return enums::visit([&](auto &req) {
-            if constexpr (requires { req.can_pick(pile, target, target_card); }) {
-                return req.can_pick(pile, target, target_card);
-            }
-            return false;
-        }, *this);
-    }
-
-    void request_holder::on_pick(card_pile_type pile, player *target, card *target_card) {
-        enums::visit([&](auto &req) {
-            if constexpr (requires { req.on_pick(pile, target, target_card); }) {
-                auto copy = req;
-                copy.on_pick(pile, target, target_card);
-            } else {
-                throw std::runtime_error("missing on_pick(pile, target, target_card)");
-            }
-        }, *this);
-    }
-
-    bool request_holder::tick() {
-        return enums::visit([&](auto &req) {
-            if constexpr (std::is_base_of_v<timer_request, std::remove_cvref_t<decltype(req)>>) {
-                if (req.duration && --req.duration == 0) {
-                    if constexpr (requires { req.on_finished(); }) {
-                        auto copy = std::move(req);
-                        copy.on_finished();
-                    } else {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }, *this);
-    }
-
-    void request_holder::cleanup() {
-        enums::visit([](auto &req) {
-            if constexpr (requires { req.cleanup(); }) {
-                req.cleanup();
-            }
-        }, *this);
+    void timer_request::tick() {
+        if (duration && --duration == 0) {
+            on_finished();
+        }
     }
 
 }

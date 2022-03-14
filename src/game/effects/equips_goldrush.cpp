@@ -27,9 +27,9 @@ namespace banggame {
     }
 
     void effect_gunbelt::on_equip(card *target_card, player *target) {
-        target->m_game->add_event<event_type::apply_maxcards_modifier>(target_card, [=, effect_value=effect_value](player *p, int &value) {
-            if (p == target && (value == 0 || effect_value < value)) {
-                value = effect_value;
+        target->m_game->add_event<event_type::apply_maxcards_modifier>(target_card, [=, ncards=ncards](player *p, int &value) {
+            if (p == target && (value == 0 || ncards < value)) {
+                value = ncards;
             }
         });
     }

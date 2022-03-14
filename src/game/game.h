@@ -1,7 +1,6 @@
 #ifndef __GAME_H__
 #define __GAME_H__
 
-#include <list>
 #include <deque>
 #include <vector>
 #include <algorithm>
@@ -50,7 +49,7 @@ namespace banggame {
 
         std::deque<game_formatted_string> m_saved_log;
 
-        std::list<request_holder> m_requests;
+        std::deque<request_holder> m_requests;
         struct draw_check_handler {
             draw_check_function function;
             player *origin = nullptr;
@@ -58,7 +57,7 @@ namespace banggame {
         };
         std::optional<draw_check_handler> m_current_check;
         
-        std::list<event_args> m_pending_events;
+        std::deque<event_args> m_pending_events;
 
         util::id_map<card> m_cards;
         util::id_map<player> m_players;
@@ -138,45 +137,47 @@ namespace banggame {
             return m_requests.front();
         }
 
-        bool top_request_is(request_type type, player *target = nullptr) {
-            if (m_requests.empty()) return false;
-            const auto &req = top_request();
-            return req.is(type) && (!target || req.target() == target);
+        template<typename T>
+        T *top_request_if(player *target = nullptr) {
+            if (m_requests.empty()) return nullptr;
+            auto &req = top_request();
+            return !target || req.target() == target ? req.get_if<T>() : nullptr;
         }
 
+        template<typename T>
+        bool top_request_is(player *target = nullptr) {
+            return top_request_if<T>(target) != nullptr;
+        }
+        
         request_status_args make_request_update(player *p);
         void send_request_update();
 
         void add_request(auto &&req) {
-            auto &ret = m_requests.emplace_front(std::move(req));
-            send_request_update();
-        }
-
-        template<request_type E, typename ... Ts>
-        void add_request(Ts && ... args) {
-            auto &ret = m_requests.emplace_front(enums::enum_constant<E>{}, std::forward<Ts>(args) ...).template get<E>();
+            m_requests.emplace_front(std::forward<decltype(req)>(req));
             send_request_update();
         }
 
         void queue_request(auto &&req) {
-            auto &ret = m_requests.emplace_back(std::move(req));
-
+            m_requests.emplace_back(std::forward<decltype(req)>(req));
             if (m_requests.size() == 1) {
                 send_request_update();
             }
         }
 
-        template<request_type E, typename ... Ts>
-        void queue_request(Ts && ... args) {
-            auto &ret = m_requests.emplace_back(enums::enum_constant<E>{}, std::forward<Ts>(args) ...);
-
-            if (m_requests.size() == 1) {
-                send_request_update();
+        template<typename T = void>
+        bool pop_request_noupdate() {
+            if constexpr (!std::is_void_v<T>) {
+                if (!top_request_is<T>()) return false;
             }
+            m_requests.pop_front();
+            return true;
         }
 
-        bool pop_request_noupdate(request_type type = request_type::none);
-        bool pop_request(request_type type = request_type::none);
+        template<typename T = void>
+        bool pop_request() {
+            return pop_request_noupdate<T>() && (events_after_requests(), true);
+        }
+
         void events_after_requests();
 
         void tick();

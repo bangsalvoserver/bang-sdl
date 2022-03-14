@@ -26,21 +26,21 @@ namespace banggame {
     }
 
     void effect_add_gold::on_play(card *origin_card, player *origin, player *target) {
-        target->add_gold(std::max(effect_value, 1));
+        target->add_gold(amount);
     }
 
     bool effect_pay_gold::can_respond(card *origin_card, player *origin) const {
-        return origin->m_gold >= effect_value;
+        return origin->m_gold >= amount;
     }
 
     void effect_pay_gold::verify(card *origin_card, player *origin) const {
-        if (origin->m_gold < effect_value) {
+        if (origin->m_gold < amount) {
             throw game_error("ERROR_NOT_ENOUGH_GOLD");
         }
     }
 
     void effect_pay_gold::on_play(card *origin_card, player *origin) {
-        origin->add_gold(-effect_value);
+        origin->add_gold(-amount);
     }
 
     void effect_rum::on_play(card *origin_card, player *origin) {

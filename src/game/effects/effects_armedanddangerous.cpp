@@ -1,4 +1,8 @@
 #include "effects_armedanddangerous.h"
+#include "equips_armedanddangerous.h"
+#include "requests_armedanddangerous.h"
+#include "effects_base.h"
+#include "requests_base.h"
 
 #include "../game.h"
 
@@ -22,33 +26,33 @@ namespace banggame {
     }
 
     bool effect_pay_cube::can_respond(card *origin_card, player *origin) const {
-        return origin_card->cubes.size() >= std::max(1, effect_value);
+        return origin_card->cubes.size() >= ncubes;
     }
 
     void effect_pay_cube::verify(card *origin_card, player *origin) const {
-        if (origin_card->cubes.size() < std::max(1, effect_value)) {
+        if (origin_card->cubes.size() < ncubes) {
             throw game_error("ERROR_NOT_ENOUGH_CUBES_ON", origin_card);
         }
     }
 
     void effect_pay_cube::on_play(card *origin_card, player *origin) {
-        origin->pay_cubes(origin_card, std::max(1, effect_value));
+        origin->pay_cubes(origin_card, ncubes);
     }
 
     void effect_add_cube::on_play(card *origin_card, player *origin, player *target, card *target_card) {
-        target->add_cubes(target_card, std::max(1, effect_value));
+        target->add_cubes(target_card, ncubes);
     }
 
     void effect_reload::on_play(card *origin_card, player *origin) {
         if (origin->can_receive_cubes()) {
-            origin->m_game->queue_request<request_type::add_cube>(origin_card, origin, 3);
+            origin->m_game->queue_request(request_add_cube(origin_card, origin, 3));
         }
     }
     
     void effect_rust::on_play(card *origin_card, player *origin, player *target, effect_flags flags) {
         if (target->count_cubes() == 0) return;
         if (target->can_escape(origin, origin_card, flags)) {
-            origin->m_game->queue_request<request_type::rust>(origin_card, origin, target, flags);
+            origin->m_game->queue_request(request_rust(origin_card, origin, target, flags));
         } else {
             on_resolve(origin_card, origin, target);
         }
@@ -121,7 +125,7 @@ namespace banggame {
         p->add_bang_mod([=](request_bang &req) {
             p->m_game->add_event<event_type::on_missed>(origin_card, [=](card *bang_card, player *origin, player *target, bool is_bang) {
                 if (target && origin == p && is_bang && !target->m_hand.empty()) {
-                    target->m_game->queue_request<request_type::discard>(origin_card, origin, target);
+                    target->m_game->queue_request(request_discard(origin_card, origin, target));
                 }
             });
             req.cleanup_function = [=]{
@@ -149,7 +153,7 @@ namespace banggame {
                 origin->add_to_hand(origin_card);
             }
         });
-        p->m_game->top_request().get<request_type::bang>().cleanup_function = [=]{
+        p->m_game->top_request().get<request_bang>().cleanup_function = [=]{
             p->m_game->remove_events(origin_card);
         };
     }
@@ -188,44 +192,44 @@ namespace banggame {
 
     void effect_tumbleweed::on_equip(card *target_card, player *origin) {
         origin->m_game->add_event<event_type::trigger_tumbleweed>(target_card, [=](card *origin_card, card *drawn_card) {
-            origin->m_game->add_request<request_type::tumbleweed>(target_card, origin, drawn_card, origin_card);
+            origin->m_game->add_request(timer_tumbleweed(target_card, origin, drawn_card, origin_card));
         });
     }
 
     bool effect_tumbleweed::can_respond(card *origin_card, player *origin) const {
-        return origin->m_game->top_request_is(request_type::tumbleweed, origin);
+        return origin->m_game->top_request_is<timer_tumbleweed>(origin);
     }
 
     void effect_tumbleweed::on_play(card *origin_card, player *origin) {
-        origin->m_game->pop_request_noupdate(request_type::tumbleweed);
+        origin->m_game->pop_request_noupdate<timer_tumbleweed>();
         origin->m_game->do_draw_check();
         origin->m_game->events_after_requests();
     }
 
     void timer_tumbleweed::on_finished() {
-        target->m_game->pop_request_noupdate(request_type::tumbleweed);
+        target->m_game->pop_request_noupdate<timer_tumbleweed>();
         target->m_game->m_current_check->function(drawn_card);
         target->m_game->m_current_check.reset();
         target->m_game->events_after_requests();
     }
 
     bool effect_move_bomb::can_respond(card *origin_card, player *origin) const {
-        return origin->m_game->top_request_is(request_type::move_bomb, origin);
+        return origin->m_game->top_request_is<request_move_bomb>(origin);
     }
 
     void handler_move_bomb::on_play(card *origin_card, player *origin, mth_target_list targets) {
         auto target = std::get<player *>(targets[0]);
         if (!target->immune_to(origin_card)) {
             if (target == origin) {
-                origin->m_game->pop_request(request_type::move_bomb);
+                origin->m_game->pop_request<request_move_bomb>();
             } else if (!target->find_equipped_card(origin_card)) {
                 origin->unequip_if_enabled(origin_card);
                 target->equip_card(origin_card);
-                origin->m_game->pop_request(request_type::move_bomb);
+                origin->m_game->pop_request<request_move_bomb>();
             }
         } else {
             origin->discard_card(origin_card);
-            origin->m_game->pop_request(request_type::move_bomb);
+            origin->m_game->pop_request<request_move_bomb>();
         }
     }
 }

@@ -1,4 +1,5 @@
 #include "characters_wildwestshow.h"
+#include "requests_base.h"
 
 #include "../game.h"
 
@@ -55,18 +56,17 @@ namespace banggame {
     }
 
     bool effect_teren_kill::can_respond(card *origin_card, player *origin) const {
-        if (origin->m_game->top_request_is(request_type::death, origin)) {
-            const auto &vec = origin->m_game->top_request().get<request_type::death>().draw_attempts;
-            return std::ranges::find(vec, origin_card) == vec.end();
+        if (auto *req = origin->m_game->top_request_if<request_death>(origin)) {
+            return std::ranges::find(req->draw_attempts, origin_card) == req->draw_attempts.end();
         }
         return false;
     }
 
     void effect_teren_kill::on_play(card *origin_card, player *origin) {
-        origin->m_game->top_request().get<request_type::death>().draw_attempts.push_back(origin_card);
+        origin->m_game->top_request().get<request_death>().draw_attempts.push_back(origin_card);
         origin->m_game->draw_check_then(origin, origin_card, [origin](card *drawn_card) {
             if (origin->get_card_suit(drawn_card) != card_suit_type::spades) {
-                origin->m_game->pop_request(request_type::death);
+                origin->m_game->pop_request<request_death>();
                 origin->m_hp = 1;
                 origin->m_game->add_public_update<game_update_type::player_hp>(origin->id, 1);
                 origin->m_game->draw_card_to(card_pile_type::player_hand, origin);
@@ -79,7 +79,7 @@ namespace banggame {
             if (target == origin) {
                 for (auto &p : target->m_game->m_players) {
                     if (p.alive() && p.id != target->id && p.m_hand.size() > target->m_hand.size()) {
-                        target->m_game->queue_request<request_type::youl_grinner>(target_card, target, &p);
+                        target->m_game->queue_request(request_youl_grinner(target_card, target, &p));
                     }
                 }
             }
@@ -91,7 +91,7 @@ namespace banggame {
     }
 
     void request_youl_grinner::on_pick(card_pile_type pile, player *target_player, card *target_card) {
-        target->m_game->pop_request(request_type::youl_grinner);
+        target->m_game->pop_request<request_youl_grinner>();
         origin->steal_card(target, target_card);
         target->m_game->queue_event<event_type::on_effect_end>(origin, origin_card);
     }

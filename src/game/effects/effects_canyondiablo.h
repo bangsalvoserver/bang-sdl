@@ -5,16 +5,16 @@
 
 namespace banggame {
 
-    struct effect_graverobber : card_effect {
+    struct effect_graverobber {
         void on_play(card *origin_card, player *origin);
     };
 
-    struct effect_mirage : card_effect {
+    struct effect_mirage {
         void verify(card *origin_card, player *origin) const;
         void on_play(card *origin_card, player *origin);
     };
 
-    struct effect_disarm : card_effect {
+    struct effect_disarm {
         void verify(card *origin_card, player *origin) const;
         void on_play(card *origin_card, player *origin);
     };
@@ -25,12 +25,12 @@ namespace banggame {
         void on_resolve(card *origin_card, player *origin, player *target, card *chosen_card, card *target_card);
     };
 
-    struct effect_sacrifice : card_effect {
+    struct effect_sacrifice {
         bool can_respond(card *origin_card, player *origin) const;
         void on_play(card *origin_card, player *origin);
     };
 
-    struct effect_lastwill : card_effect {
+    struct effect_lastwill {
         bool can_respond(card *origin_card, player *origin) const;
         void on_play(card *origin_card, player *origin);
     };

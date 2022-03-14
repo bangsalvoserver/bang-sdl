@@ -1,4 +1,7 @@
 #include "characters_valleyofshadows.h"
+#include "effects_base.h"
+#include "requests_valleyofshadows.h"
+#include "requests_base.h"
 
 #include "../game.h"
 
@@ -30,7 +33,7 @@ namespace banggame {
     void effect_henry_block::on_equip(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_discard_card>(target_card, [=](player *origin, player *target, card *discarded_card) {
             if (p == target && p != origin) {
-                p->m_game->queue_request<request_type::bang>(target_card, target, origin);
+                p->m_game->queue_request(request_bang(target_card, target, origin));
             }
         });
     }
@@ -39,18 +42,18 @@ namespace banggame {
         origin->m_game->add_event<event_type::on_play_beer>(target_card, [=](player *target) {
             if (origin != target) {
                 if (!origin->m_hand.empty() && origin->m_hp < origin->m_max_hp) {
-                    target->m_game->queue_request<request_type::lemonade_jim>(target_card, target, origin);
+                    target->m_game->queue_request(timer_lemonade_jim(target_card, target, origin));
                 }
             }
         });
     }
 
     bool effect_lemonade_jim::can_respond(card *origin_card, player *origin) const {
-        return origin->m_game->top_request_is(request_type::lemonade_jim, origin);
+        return origin->m_game->top_request_is<timer_lemonade_jim>(origin);
     }
 
     void effect_lemonade_jim::on_play(card *origin_card, player *origin) {
-        origin->m_game->pop_request(request_type::lemonade_jim);
+        origin->m_game->pop_request<timer_lemonade_jim>();
     }
 
     void effect_evelyn_shebang::verify(card *origin_card, player *origin, player *target) const {
@@ -70,7 +73,7 @@ namespace banggame {
             }
         });
 
-        origin->m_game->pop_request_noupdate(request_type::draw);
+        origin->m_game->pop_request_noupdate<request_draw>();
         ++origin->m_num_drawn_cards;
 
         effect_bang().on_play(origin_card, origin, target);

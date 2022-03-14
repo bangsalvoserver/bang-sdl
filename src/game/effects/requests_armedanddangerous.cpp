@@ -1,4 +1,5 @@
 #include "requests_armedanddangerous.h"
+#include "effects_armedanddangerous.h"
 
 #include "../game.h"
 
@@ -18,8 +19,8 @@ namespace banggame {
             target_card = target->m_characters.front();
         }
         target->add_cubes(target_card, 1);
-        if (--target->m_game->top_request().get<request_type::add_cube>().ncubes == 0 || !target->can_receive_cubes()) {
-            target->m_game->pop_request(request_type::add_cube);
+        if (--ncubes == 0 || !target->can_receive_cubes()) {
+            target->m_game->pop_request<request_add_cube>();
         }
     }
 
@@ -48,7 +49,7 @@ namespace banggame {
     }
 
     void request_rust::on_resolve() {
-        target->m_game->pop_request(request_type::rust);
+        target->m_game->pop_request<request_rust>();
 
         effect_rust{}.on_resolve(origin_card, origin, target);
     }

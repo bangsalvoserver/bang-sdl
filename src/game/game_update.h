@@ -120,7 +120,6 @@ namespace banggame {
     )};
 
     struct request_status_args {REFLECTABLE(
-        (request_type) type,
         (int) origin_id,
         (int) target_id,
         (game_formatted_string) status_text,

@@ -5,16 +5,18 @@
 
 namespace banggame {
 
-    struct effect_max_hp : card_effect {
+    struct effect_max_hp {
+        int value;
+
         void on_equip(card *target_card, player *target);
     };
 
-    struct effect_mustang : card_effect {
+    struct effect_mustang {
         void on_equip(card *target_card, player *target);
         void on_unequip(card *target_card, player *target);
     };
 
-    struct effect_scope : card_effect {
+    struct effect_scope {
         void on_equip(card *target_card, player *target);
         void on_unequip(card *target_card, player *target);
     };
@@ -27,11 +29,13 @@ namespace banggame {
         void on_equip(card *target_card, player *target);
     };
 
-    struct effect_horse : card_effect {
+    struct effect_horse {
         void on_pre_equip(card *target_card, player *target);
     };
 
-    struct effect_weapon : card_effect {
+    struct effect_weapon {
+        int range;
+        
         void on_pre_equip(card *target_card, player *target);
         void on_equip(card *target_card, player *target);
         void on_unequip(card *target_card, player *target);
@@ -45,7 +49,7 @@ namespace banggame {
         void on_equip(card *target_card, player *target);
     };
 
-    struct effect_horsecharm : card_effect {
+    struct effect_horsecharm {
         void on_equip(card *target_card, player *target);
         void on_unequip(card *target_card, player *target);
     };

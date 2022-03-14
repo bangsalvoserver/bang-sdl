@@ -5,7 +5,7 @@
 
 namespace banggame {
     
-    struct effect_bomb : card_effect {
+    struct effect_bomb {
         void on_equip(card *target_card, player *target);
         void on_unequip(card *target_card, player *target);
     };

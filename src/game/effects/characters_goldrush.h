@@ -25,7 +25,7 @@ namespace banggame {
         game_formatted_string status_text(player *owner) const;
     };
 
-    struct effect_josh_mccloud : card_effect {
+    struct effect_josh_mccloud {
         void on_play(card *origin_card, player *origin);
     };
 }

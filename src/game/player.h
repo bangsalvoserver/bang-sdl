@@ -2,7 +2,6 @@
 #define __PLAYER_H__
 
 #include <map>
-#include <list>
 #include <vector>
 #include <algorithm>
 
@@ -12,6 +11,7 @@ namespace banggame {
 
     struct game;
     struct player;
+    struct request_bang;
     
     using draw_check_function = std::function<void(card *drawn_card)>;
     using bang_modifier = std::function<void(request_bang &req)>;
@@ -55,7 +55,7 @@ namespace banggame {
         int8_t m_bangs_played = 0;
         int8_t m_bangs_per_turn = 1;
 
-        std::list<bang_modifier> m_bang_mods;
+        std::vector<bang_modifier> m_bang_mods;
 
         int8_t m_num_checks = 1;
         
@@ -116,16 +116,8 @@ namespace banggame {
         bool immune_to(card *c);
         bool can_respond_with(card *c);
 
-        void add_bang_mod(bang_modifier &&mod) {
-            m_bang_mods.push_back(std::move(mod));
-        }
-
-        void apply_bang_mods(request_bang &req) {
-            while (!m_bang_mods.empty()) {
-                m_bang_mods.front()(req);
-                m_bang_mods.pop_front();
-            }
-        }
+        void add_bang_mod(bang_modifier &&mod);
+        void apply_bang_mods(request_bang &req);
         
         void discard_all();
 
