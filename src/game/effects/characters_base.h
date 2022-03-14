@@ -26,8 +26,8 @@ namespace banggame {
         request_kit_carlson(card *origin_card, player *target)
             : selection_picker(origin_card, nullptr, target) {}
 
-        void on_pick(card_pile_type pile, player *target, card *target_card);
-        game_formatted_string status_text(player *owner) const;
+        void on_pick(card_pile_type pile, player *target, card *target_card) override;
+        game_formatted_string status_text(player *owner) const override;
     };
 
     struct effect_el_gringo : event_based_effect {

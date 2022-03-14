@@ -15,7 +15,7 @@ namespace banggame {
         card *target_card;
 
         void on_resolve() override;
-        game_formatted_string status_text(player *owner) const;
+        game_formatted_string status_text(player *owner) const override;
     };
 
 }

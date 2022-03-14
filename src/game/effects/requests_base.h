@@ -9,43 +9,43 @@ namespace banggame {
         request_characterchoice(player *target)
             : request_base(nullptr, nullptr, target) {}
         
-        bool can_pick(card_pile_type pile, player *target, card *target_card) const;
-        void on_pick(card_pile_type pile, player *target, card *target_card);
-        game_formatted_string status_text(player *owner) const;
+        bool can_pick(card_pile_type pile, player *target, card *target_card) const override;
+        void on_pick(card_pile_type pile, player *target, card *target_card) override;
+        game_formatted_string status_text(player *owner) const override;
     };
 
     struct request_predraw : request_base {
         request_predraw(player *target)
             : request_base(nullptr, nullptr, target) {}
         
-        bool can_pick(card_pile_type pile, player *target, card *target_card) const;
-        void on_pick(card_pile_type pile, player *target, card *target_card);
-        game_formatted_string status_text(player *owner) const;
+        bool can_pick(card_pile_type pile, player *target, card *target_card) const override;
+        void on_pick(card_pile_type pile, player *target, card *target_card) override;
+        game_formatted_string status_text(player *owner) const override;
     };
 
     struct request_draw : request_base {
         request_draw(player *target)
             : request_base(nullptr, nullptr, target) {}
 
-        bool can_pick(card_pile_type pile, player *target, card *target_card) const;
-        void on_pick(card_pile_type pile, player *target, card *target_card);
-        game_formatted_string status_text(player *owner) const;
+        bool can_pick(card_pile_type pile, player *target, card *target_card) const override;
+        void on_pick(card_pile_type pile, player *target, card *target_card) override;
+        game_formatted_string status_text(player *owner) const override;
     };
 
     struct request_check : selection_picker {
         request_check(card *origin_card, player *target)
             : selection_picker(origin_card, nullptr, target) {}
 
-        void on_pick(card_pile_type pile, player *target, card *target_card);
-        game_formatted_string status_text(player *owner) const;
+        void on_pick(card_pile_type pile, player *target, card *target_card) override;
+        game_formatted_string status_text(player *owner) const override;
     };
 
     struct request_generalstore : selection_picker {
         request_generalstore(card *origin_card, player *origin, player *target)
             : selection_picker(origin_card, origin, target) {}
 
-        void on_pick(card_pile_type pile, player *target, card *target_card);
-        game_formatted_string status_text(player *owner) const;
+        void on_pick(card_pile_type pile, player *target, card *target_card) override;
+        game_formatted_string status_text(player *owner) const override;
     };
 
     struct request_discard : request_base {
@@ -54,28 +54,28 @@ namespace banggame {
 
         int ncards = 1;
         
-        bool can_pick(card_pile_type pile, player *target, card *target_card) const;
-        void on_pick(card_pile_type pile, player *target, card *target_card);
-        game_formatted_string status_text(player *owner) const;
+        bool can_pick(card_pile_type pile, player *target, card *target_card) const override;
+        void on_pick(card_pile_type pile, player *target, card *target_card) override;
+        game_formatted_string status_text(player *owner) const override;
     };
 
     struct request_discard_pass : request_base {
         request_discard_pass(player *target)
             : request_base(nullptr, nullptr, target) {}
 
-        bool can_pick(card_pile_type pile, player *target, card *target_card) const;
-        void on_pick(card_pile_type pile, player *target, card *target_card);
-        game_formatted_string status_text(player *owner) const;
+        bool can_pick(card_pile_type pile, player *target, card *target_card) const override;
+        void on_pick(card_pile_type pile, player *target, card *target_card) override;
+        game_formatted_string status_text(player *owner) const override;
     };
 
     struct request_indians : request_base, resolvable_request {
         using request_base::request_base;
 
-        bool can_pick(card_pile_type pile, player *target_player, card *target_card) const;
-        void on_pick(card_pile_type pile, player *target_player, card *target_card);
+        bool can_pick(card_pile_type pile, player *target_player, card *target_card) const override;
+        void on_pick(card_pile_type pile, player *target_player, card *target_card) override;
 
         void on_resolve() override;
-        game_formatted_string status_text(player *owner) const;
+        game_formatted_string status_text(player *owner) const override;
     };
 
     struct request_duel : request_base, resolvable_request {
@@ -85,11 +85,11 @@ namespace banggame {
 
         player *respond_to = nullptr;
 
-        bool can_pick(card_pile_type pile, player *target_player, card *target_card) const;
-        void on_pick(card_pile_type pile, player *target_player, card *target_card);
+        bool can_pick(card_pile_type pile, player *target_player, card *target_card) const override;
+        void on_pick(card_pile_type pile, player *target_player, card *target_card) override;
 
         void on_resolve() override;
-        game_formatted_string status_text(player *owner) const;
+        game_formatted_string status_text(player *owner) const override;
     };
 
     struct barrel_ptr_vector {
@@ -109,7 +109,7 @@ namespace banggame {
         std::function<void()> cleanup_function;
 
         void on_resolve() override;
-        game_formatted_string status_text(player *owner) const;
+        game_formatted_string status_text(player *owner) const override;
     };
 
     struct request_death : request_base, resolvable_request {
@@ -119,7 +119,7 @@ namespace banggame {
         std::vector<card *> draw_attempts;
         
         void on_resolve() override;
-        game_formatted_string status_text(player *owner) const;
+        game_formatted_string status_text(player *owner) const override;
     };
 
 }

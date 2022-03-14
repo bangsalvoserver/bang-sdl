@@ -45,8 +45,8 @@ namespace banggame {
         request_peyote(card *origin_card, player *target)
             : selection_picker(origin_card, nullptr, target) {}
 
-        void on_pick(card_pile_type pile, player *target, card *target_card);
-        game_formatted_string status_text(player *owner) const;
+        void on_pick(card_pile_type pile, player *target, card *target_card) override;
+        game_formatted_string status_text(player *owner) const override;
     };
 
     struct effect_ricochet {
@@ -56,7 +56,7 @@ namespace banggame {
     struct request_ricochet : request_destroy, barrel_ptr_vector {
         using request_destroy::request_destroy;
 
-        game_formatted_string status_text(player *owner) const;
+        game_formatted_string status_text(player *owner) const override;
     };
     
     struct effect_russianroulette : scenario_effect {
