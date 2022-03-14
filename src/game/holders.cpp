@@ -9,6 +9,8 @@
 #include "effects/characters.h"
 #include "effects/scenarios.h"
 
+#include "game.h"
+
 namespace banggame {
 
     template<typename Holder, typename Function>
@@ -135,6 +137,10 @@ namespace banggame {
         if (duration && --duration == 0) {
             on_finished();
         }
+    }
+
+    void timer_request::on_finished() {
+        target->m_game->pop_request();
     }
 
 }

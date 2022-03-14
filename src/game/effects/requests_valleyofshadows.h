@@ -64,10 +64,9 @@ namespace banggame {
         game_formatted_string status_text(player *owner) const override;
     };
 
-    struct timer_damaging : request_base, timer_request {
+    struct timer_damaging : timer_request {
         timer_damaging(card *origin_card, player *origin, player *target, int damage, bool is_bang)
-            : request_base(origin_card, origin, target)
-            , timer_request(140)
+            : timer_request(origin_card, origin, target, {}, 140)
             , damage(damage)
             , is_bang(is_bang) {}
 

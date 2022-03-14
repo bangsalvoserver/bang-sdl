@@ -55,14 +55,15 @@ namespace banggame {
         virtual void on_resolve() = 0;
     };
 
-    struct timer_request {
-        timer_request(int duration = 200)
-            : duration(duration) {}
+    struct timer_request : request_base {
+        timer_request(card *origin_card, player *origin, player *target, effect_flags flags = {}, int duration = 200)
+            : request_base(origin_card, origin, target, flags)
+            , duration(duration) {}
 
         int duration;
 
         void tick();
-        virtual void on_finished() {}
+        virtual void on_finished();
     };
 
     struct selection_picker : request_base {
