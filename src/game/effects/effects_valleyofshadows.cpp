@@ -21,12 +21,12 @@ namespace banggame {
     }
 
     void effect_backfire::on_play(card *origin_card, player *origin) {
-        origin->m_game->queue_request(request_bang(origin_card, origin, origin->m_game->top_request().origin(),
-            effect_flags::escapable | effect_flags::single_target));
+        origin->m_game->queue_request<request_bang>(origin_card, origin, origin->m_game->top_request().origin(),
+            effect_flags::escapable | effect_flags::single_target);
     }
 
     void effect_bandidos::on_play(card *origin_card, player *origin, player *target) {
-        target->m_game->queue_request(request_bandidos(origin_card, origin, target, effect_flags::escapable));
+        target->m_game->queue_request<request_bandidos>(origin_card, origin, target, effect_flags::escapable);
     }
 
     void effect_tornado::on_play(card *origin_card, player *origin, player *target) {
@@ -36,7 +36,7 @@ namespace banggame {
                 target->m_game->draw_card_to(card_pile_type::player_hand, target);
             });
         } else {
-            target->m_game->queue_request(request_tornado(origin_card, origin, target));
+            target->m_game->queue_request<request_tornado>(origin_card, origin, target);
         }
     }
 
@@ -52,7 +52,7 @@ namespace banggame {
             target = origin->m_game->get_next_player(target);
             if (target == origin) break;
             if (!target->m_hand.empty()) {
-                origin->m_game->queue_request(request_poker(origin_card, origin, target, flags));
+                origin->m_game->queue_request<request_poker>(origin_card, origin, target, flags);
             }
         };
         origin->m_game->queue_delayed_action([=]{
@@ -72,7 +72,7 @@ namespace banggame {
                     origin->add_to_hand(origin->m_game->m_selection.front());
                 }
             } else {
-                origin->m_game->queue_request(request_poker_draw(origin_card, origin));
+                origin->m_game->queue_request<request_poker_draw>(origin_card, origin);
             }
         });
     }
@@ -92,7 +92,7 @@ namespace banggame {
         }
         origin->m_game->queue_delayed_action([=]{
             if (saved->alive()) {
-                origin->m_game->queue_request(request_saved(origin_card, origin, saved));
+                origin->m_game->queue_request<request_saved>(origin_card, origin, saved);
             }
         });
     }

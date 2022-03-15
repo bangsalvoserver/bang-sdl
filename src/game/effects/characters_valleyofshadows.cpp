@@ -33,7 +33,7 @@ namespace banggame {
     void effect_henry_block::on_equip(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_discard_card>(target_card, [=](player *origin, player *target, card *discarded_card) {
             if (p == target && p != origin) {
-                p->m_game->queue_request(request_bang(target_card, target, origin));
+                p->m_game->queue_request<request_bang>(target_card, target, origin);
             }
         });
     }
@@ -42,7 +42,7 @@ namespace banggame {
         origin->m_game->add_event<event_type::on_play_beer>(target_card, [=](player *target) {
             if (origin != target) {
                 if (!origin->m_hand.empty() && origin->m_hp < origin->m_max_hp) {
-                    target->m_game->queue_request(timer_lemonade_jim(target_card, target, origin));
+                    target->m_game->queue_request<timer_lemonade_jim>(target_card, target, origin);
                 }
             }
         });

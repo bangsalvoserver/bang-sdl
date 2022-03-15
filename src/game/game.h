@@ -152,13 +152,15 @@ namespace banggame {
         request_status_args make_request_update(player *p);
         void send_request_update();
 
-        void add_request(auto &&req) {
-            m_requests.emplace_front(std::forward<decltype(req)>(req));
+        template<std::derived_from<request_base> T, typename ... Ts>
+        void add_request(Ts && ... args) {
+            m_requests.emplace_front(std::type_identity<T>{}, std::forward<Ts>(args) ...);
             send_request_update();
         }
 
-        void queue_request(auto &&req) {
-            m_requests.emplace_back(std::forward<decltype(req)>(req));
+        template<std::derived_from<request_base> T, typename ... Ts>
+        void queue_request(Ts && ... args) {
+            m_requests.emplace_back(std::type_identity<T>{}, std::forward<Ts>(args) ...);
             if (m_requests.size() == 1) {
                 send_request_update();
             }

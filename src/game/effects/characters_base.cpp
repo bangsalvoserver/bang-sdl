@@ -48,7 +48,7 @@ namespace banggame {
                 for (int i=0; i<3; ++i) {
                     target->m_game->draw_phase_one_card_to(card_pile_type::selection, target);
                 }
-                target->m_game->queue_request(request_kit_carlson(target_card, target));
+                target->m_game->queue_request<request_kit_carlson>(target_card, target);
             }
         });
     }

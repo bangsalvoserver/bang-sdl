@@ -130,7 +130,7 @@ namespace banggame {
             target->m_game->pop_request_noupdate<request_generalstore>();
             target->m_game->add_log("LOG_DRAWN_FROM_GENERALSTORE", target, target_card, origin_card);
             target->add_to_hand(target_card);
-            target->m_game->queue_request(request_generalstore(origin_card, origin, next));
+            target->m_game->queue_request<request_generalstore>(origin_card, origin, next);
         }
     }
 
@@ -178,7 +178,7 @@ namespace banggame {
         if (target->m_game->has_expansion(card_expansion_type::armedanddangerous)) {
             target->m_game->queue_delayed_action([target = target]{
                 if (target->can_receive_cubes()) {
-                    target->m_game->queue_request(request_add_cube(nullptr, target));
+                    target->m_game->queue_request<request_add_cube>(nullptr, target);
                 }
             });
         }
@@ -236,7 +236,7 @@ namespace banggame {
         target->m_game->queue_event<event_type::on_play_hand_card>(target, target_card);
         target->discard_card(target_card);
         target->m_game->pop_request_noupdate<request_duel>();
-        target->m_game->queue_request(request_duel(origin_card, origin, respond_to, target));
+        target->m_game->queue_request<request_duel>(origin_card, origin, respond_to, target);
     }
 
     void request_duel::on_resolve() {

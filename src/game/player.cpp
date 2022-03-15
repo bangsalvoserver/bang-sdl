@@ -124,7 +124,7 @@ namespace banggame {
                 m_game->add_public_update<game_update_type::player_hp>(id, m_hp);
                 m_game->add_log(value == 1 ? "LOG_TAKEN_DAMAGE" : "LOG_TAKEN_DAMAGE_PLURAL", origin_card, this, value);
                 if (m_hp <= 0) {
-                    m_game->add_request(request_death(origin_card, origin, this));
+                    m_game->add_request<request_death>(origin_card, origin, this);
                 }
                 if (m_game->has_expansion(card_expansion_type::goldrush)) {
                     if (origin && origin->m_game->m_playing == origin && origin != this) {
@@ -133,7 +133,7 @@ namespace banggame {
                 }
                 m_game->queue_event<event_type::on_hit>(origin_card, origin, this, value, is_bang);
             } else {
-                m_game->add_request(timer_damaging(origin_card, origin, this, value, is_bang));
+                m_game->add_request<timer_damaging>(origin_card, origin, this, value, is_bang);
             }
         }
     }
@@ -725,7 +725,7 @@ namespace banggame {
                     switch (card_ptr->color) {
                     case card_color_type::blue:
                         if (m_game->has_expansion(card_expansion_type::armedanddangerous) && can_receive_cubes()) {
-                            m_game->queue_request(request_add_cube(card_ptr, this));
+                            m_game->queue_request<request_add_cube>(card_ptr, this);
                         }
                         break;
                     case card_color_type::green:
@@ -941,7 +941,7 @@ namespace banggame {
                 if (std::ranges::all_of(m_predraw_checks | std::views::values, &predraw_check::resolved)) {
                     request_drawing();
                 } else {
-                    m_game->queue_request(request_predraw(this));
+                    m_game->queue_request<request_predraw>(this);
                 }
             }
         });
@@ -953,7 +953,7 @@ namespace banggame {
         m_game->queue_delayed_action([this]{
             m_game->instant_event<event_type::on_request_draw>(this);
             if (m_game->m_requests.empty()) {
-                m_game->queue_request(request_draw(this));
+                m_game->queue_request<request_draw>(this);
             }
         });
     }
@@ -967,7 +967,7 @@ namespace banggame {
             }
         }
         if (m_hand.size() > max_cards_end_of_turn()) {
-            m_game->queue_request(request_discard_pass(this));
+            m_game->queue_request<request_discard_pass>(this);
         } else {
             untap_inactive_cards();
 

@@ -45,14 +45,14 @@ namespace banggame {
 
     void effect_reload::on_play(card *origin_card, player *origin) {
         if (origin->can_receive_cubes()) {
-            origin->m_game->queue_request(request_add_cube(origin_card, origin, 3));
+            origin->m_game->queue_request<request_add_cube>(origin_card, origin, 3);
         }
     }
     
     void effect_rust::on_play(card *origin_card, player *origin, player *target, effect_flags flags) {
         if (target->count_cubes() == 0) return;
         if (target->can_escape(origin, origin_card, flags)) {
-            origin->m_game->queue_request(request_rust(origin_card, origin, target, flags));
+            origin->m_game->queue_request<request_rust>(origin_card, origin, target, flags);
         } else {
             on_resolve(origin_card, origin, target);
         }
@@ -125,7 +125,7 @@ namespace banggame {
         p->add_bang_mod([=](request_bang &req) {
             p->m_game->add_event<event_type::on_missed>(origin_card, [=](card *bang_card, player *origin, player *target, bool is_bang) {
                 if (target && origin == p && is_bang && !target->m_hand.empty()) {
-                    target->m_game->queue_request(request_discard(origin_card, origin, target));
+                    target->m_game->queue_request<request_discard>(origin_card, origin, target);
                 }
             });
             req.on_cleanup([=]{
@@ -192,7 +192,7 @@ namespace banggame {
 
     void effect_tumbleweed::on_equip(card *target_card, player *origin) {
         origin->m_game->add_event<event_type::trigger_tumbleweed>(target_card, [=](card *origin_card, card *drawn_card) {
-            origin->m_game->add_request(timer_tumbleweed(target_card, origin, drawn_card, origin_card));
+            origin->m_game->add_request<timer_tumbleweed>(target_card, origin, drawn_card, origin_card);
         });
     }
 

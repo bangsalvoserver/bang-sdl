@@ -50,7 +50,7 @@ namespace banggame {
 
     void effect_bang::on_play(card *origin_card, player *origin, player *target, effect_flags flags) {
         target->m_game->add_log("LOG_PLAYED_CARD_ON", origin_card, origin, target);
-        target->m_game->queue_request(request_bang(origin_card, origin, target, flags));
+        target->m_game->queue_request<request_bang>(origin_card, origin, target, flags);
     }
 
     void effect_bangcard::on_play(card *origin_card, player *origin, player *target, effect_flags flags) {
@@ -60,7 +60,7 @@ namespace banggame {
             request_bang req{origin_card, origin, target, flags};
             req.is_bang_card = true;
             origin->apply_bang_mods(req);
-            origin->m_game->queue_request(request_bang(std::move(req)));
+            origin->m_game->queue_request<request_bang>(std::move(req));
         });
     }
 
@@ -126,19 +126,19 @@ namespace banggame {
 
     void effect_indians::on_play(card *origin_card, player *origin, player *target, effect_flags flags) {
         target->m_game->add_log("LOG_PLAYED_CARD_ON", origin_card, origin, target);
-        target->m_game->queue_request(request_indians(origin_card, origin, target, flags));
+        target->m_game->queue_request<request_indians>(origin_card, origin, target, flags);
     }
 
     void effect_duel::on_play(card *origin_card, player *origin, player *target, effect_flags flags) {
         target->m_game->add_log("LOG_PLAYED_CARD_ON", origin_card, origin, target);
-        target->m_game->queue_request(request_duel(origin_card, origin, target, origin, flags));
+        target->m_game->queue_request<request_duel>(origin_card, origin, target, origin, flags);
     }
 
     void effect_generalstore::on_play(card *origin_card, player *origin) {
         for (int i=0; i<origin->m_game->num_alive(); ++i) {
             origin->m_game->draw_card_to(card_pile_type::selection);
         }
-        origin->m_game->queue_request(request_generalstore(origin_card, origin, origin));
+        origin->m_game->queue_request<request_generalstore>(origin_card, origin, origin);
     }
 
     void effect_heal::on_play(card *origin_card, player *origin, player *target) {
@@ -175,7 +175,7 @@ namespace banggame {
 
     void effect_destroy::on_play(card *origin_card, player *origin, player *target, card *target_card, effect_flags flags) {
         if (origin != target && target->can_escape(origin, origin_card, flags)) {
-            target->m_game->queue_request(request_destroy(origin_card, origin, target, target_card, flags));
+            target->m_game->queue_request<request_destroy>(origin_card, origin, target, target_card, flags);
         } else {
             on_resolve(origin_card, origin, target, target_card);
         }
@@ -214,7 +214,7 @@ namespace banggame {
 
     void effect_steal::on_play(card *origin_card, player *origin, player *target, card *target_card, effect_flags flags) {
         if (origin != target && target->can_escape(origin, origin_card, flags)) {
-            target->m_game->queue_request(request_steal(origin_card, origin, target, target_card, flags));
+            target->m_game->queue_request<request_steal>(origin_card, origin, target, target_card, flags);
         } else {
             on_resolve(origin_card, origin, target, target_card);
         }

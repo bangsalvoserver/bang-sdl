@@ -31,7 +31,7 @@ namespace banggame {
                 for (int i=0; i<ncards; ++i) {
                     target->m_game->draw_phase_one_card_to(card_pile_type::selection, target);
                 }
-                target->m_game->queue_request(request_claus_the_saint(target_card, target));
+                target->m_game->queue_request<request_claus_the_saint>(target_card, target);
             }
         });
     }
@@ -158,7 +158,7 @@ namespace banggame {
                 if (p->m_game->num_alive() == 2 && p->m_game->get_next_player(p)->m_characters.size() == 1) {
                     vera_custer_copy_character(p, p->m_game->get_next_player(p)->m_characters.front());
                 } else if (p->m_game->num_alive() > 2) {
-                    p->m_game->queue_request(request_vera_custer(target_card, target));
+                    p->m_game->queue_request<request_vera_custer>(target_card, target);
                 }
             }
         });

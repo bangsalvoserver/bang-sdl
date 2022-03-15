@@ -337,7 +337,7 @@ namespace banggame {
             }
             auto *p = m_first_player;
             while (true) {
-                queue_request(request_characterchoice(p));
+                queue_request<request_characterchoice>(p);
 
                 p = get_next_player(p);
                 if (p == m_first_player) break;
@@ -565,7 +565,7 @@ namespace banggame {
             for (int i=0; i<m_current_check->origin->m_num_checks; ++i) {
                 draw_card_to(card_pile_type::selection);
             }
-            add_request(request_check(m_current_check->origin_card, m_current_check->origin));
+            add_request<request_check>(m_current_check->origin_card, m_current_check->origin);
         }
     }
 

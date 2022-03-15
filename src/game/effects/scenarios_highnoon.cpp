@@ -21,7 +21,7 @@ namespace banggame {
         player *p = target;
         while(true) {
             if (std::ranges::find(p->m_table, card_color_type::blue, &card::color) != p->m_table.end()) {
-                p->m_game->queue_request(request_thedaltons(target_card, p));
+                p->m_game->queue_request<request_thedaltons>(target_card, p);
             }
 
             p = target->m_game->get_next_player(p);
@@ -155,7 +155,7 @@ namespace banggame {
                     ++it;
                 }
             }
-            origin->m_game->queue_request(request_handcuffs(target_card, origin));
+            origin->m_game->queue_request<request_handcuffs>(target_card, origin);
         });
         target->m_game->add_event<event_type::on_turn_end>(target_card, [target_card](player *p) {
             p->m_game->remove_disablers(target_card);
@@ -190,7 +190,7 @@ namespace banggame {
     void effect_newidentity::on_equip(card *target_card, player *target) {
         target->m_game->add_event<event_type::pre_turn_start>(target_card, [=](player *p) {
             target->m_game->move_to(p->m_backup_character.front(), card_pile_type::selection, true, nullptr);
-            target->m_game->queue_request(request_newidentity(target_card, p));
+            target->m_game->queue_request<request_newidentity>(target_card, p);
         });
     }
 

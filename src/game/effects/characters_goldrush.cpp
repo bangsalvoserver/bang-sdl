@@ -35,7 +35,7 @@ namespace banggame {
                     for (int i=0; i<target->m_num_cards_to_draw; ++i) {
                         target->m_game->draw_phase_one_card_to(card_pile_type::selection, target);
                     }
-                    target->m_game->queue_request(request_dutch_will(target_card, target));
+                    target->m_game->queue_request<request_dutch_will>(target_card, target);
                 }
             }
         });

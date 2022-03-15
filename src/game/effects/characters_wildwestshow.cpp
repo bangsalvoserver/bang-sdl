@@ -79,7 +79,7 @@ namespace banggame {
             if (target == origin) {
                 for (auto &p : target->m_game->m_players) {
                     if (p.alive() && p.id != target->id && p.m_hand.size() > target->m_hand.size()) {
-                        target->m_game->queue_request(request_youl_grinner(target_card, target, &p));
+                        target->m_game->queue_request<request_youl_grinner>(target_card, target, &p);
                     }
                 }
             }
