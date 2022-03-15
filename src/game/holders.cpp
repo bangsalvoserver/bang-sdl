@@ -15,13 +15,16 @@ namespace banggame {
 
     template<typename Holder, typename Function>
     static auto visit_effect(Function &&fun, Holder &holder) {
-        using enum_type = typename Holder::enum_type;
-        return enums::visit_enum([&](auto enum_const) {
-            using type = enums::enum_type_t<decltype(enum_const)::value>;
-            if constexpr (requires { type{holder.effect_value}; }) {
-                return fun(type{holder.effect_value});
+        return enums::visit_enum([&]<typename Holder::enum_type E>(enums::enum_constant<E>) {
+            if constexpr (enums::has_type<E>) {
+                using type = enums::enum_type_t<E>;
+                if constexpr (requires { type{holder.effect_value}; }) {
+                    return fun(type{holder.effect_value});
+                } else {
+                    return fun(type{});
+                }
             } else {
-                return fun(type{});
+                return fun(std::monostate{});
             }
         }, holder.type);
     }

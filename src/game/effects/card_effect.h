@@ -2,22 +2,12 @@
 #define __CARD_EFFECT_H__
 
 #include "../card_enums.h"
-#include "../game_action.h"
 #include "../format_str.h"
-
-#include <ranges>
 
 namespace banggame {
 
     struct player;
     struct card;
-
-    struct card_effect {REFLECTABLE(
-        (play_card_target_type) target,
-        (target_player_filter) player_filter,
-        (target_card_filter) card_filter,
-        (short) effect_value
-    )};
 
     struct effect_empty {
         void on_play(card *origin_card, player *origin) {}
