@@ -16,7 +16,7 @@ namespace banggame {
         (play_card_target_type) target,
         (target_player_filter) player_filter,
         (target_card_filter) card_filter,
-        (int) effect_value
+        (short) effect_value
     )};
 
     struct effect_empty {
@@ -30,6 +30,8 @@ namespace banggame {
     struct predraw_check_effect {
         void on_unequip(card *target_card, player *target);
     };
+
+    using mth_target_list = std::vector<std::pair<player *, card *>>;
 
     struct request_base {
         request_base(card *origin_card, player *origin, player *target, effect_flags flags = {})
@@ -105,12 +107,6 @@ namespace banggame {
             return pile == card_pile_type::selection;
         }
     };
-
-    struct scenario_effect {
-        void on_unequip(card *target_card, player *target) {}
-    };
-
-    using mth_target_list = std::vector<std::pair<player *, card *>>;
 
 }
 

@@ -13,7 +13,7 @@ namespace banggame {
         void on_equip(card *target_card, player *target);
     };
 
-    struct effect_thedaltons : scenario_effect {
+    struct effect_thedaltons  {
         void on_equip(card *target_card, player *target);
     };
 
@@ -26,7 +26,7 @@ namespace banggame {
         game_formatted_string status_text(player *owner) const override;
     };
 
-    struct effect_thedoctor : scenario_effect {
+    struct effect_thedoctor  {
         void on_equip(card *target_card, player *target);
     };
 
@@ -48,7 +48,7 @@ namespace banggame {
         void on_equip(card *target_card, player *target);
     };
 
-    struct effect_invert_rotation : scenario_effect {
+    struct effect_invert_rotation  {
         void on_equip(card *target_card, player *target);
     };
 
@@ -67,7 +67,7 @@ namespace banggame {
         void on_unequip(card *target_card, player *target);
     };
 
-    struct effect_ghosttown : scenario_effect {
+    struct effect_ghosttown  {
         void on_equip(card *target_card, player *target);
     };
 

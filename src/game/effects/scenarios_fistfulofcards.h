@@ -20,11 +20,11 @@ namespace banggame {
         void verify(card *origin_card, player *origin) const;
     };
 
-    struct effect_deadman : scenario_effect {
+    struct effect_deadman {
         void on_equip(card *target_card, player *target);
     };
 
-    struct effect_judge : scenario_effect {
+    struct effect_judge {
         void on_equip(card *target_card, player *target);
     };
 
@@ -33,7 +33,7 @@ namespace banggame {
         void on_unequip(card *target_card, player *target);
     };
 
-    struct effect_abandonedmine : scenario_effect {
+    struct effect_abandonedmine {
         void on_equip(card *target_card, player *target);
     };
 
@@ -59,7 +59,7 @@ namespace banggame {
         game_formatted_string status_text(player *owner) const override;
     };
     
-    struct effect_russianroulette : scenario_effect {
+    struct effect_russianroulette  {
         void on_equip(card *target_card, player *target);
     };
 
