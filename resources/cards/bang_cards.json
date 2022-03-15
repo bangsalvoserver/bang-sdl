@@ -1927,10 +1927,10 @@
             "color": "brown",
             "responses": [
                 {
-                    "class": "missed"
+                    "class": "mirage"
                 },
                 {
-                    "class": "mirage"
+                    "class": "missed"
                 }
             ]
         },
