@@ -194,6 +194,12 @@ namespace banggame {
         return origin->m_game->top_request_is<request_draw>(origin);
     }
 
+    void effect_drawing::on_play(card *origin_card, player *origin) {
+        if (ends_drawing && origin->m_game->pop_request<request_draw>()) {
+            origin->m_game->queue_event<event_type::post_draw_cards>(origin);
+        }
+    }
+
     void effect_steal::on_play(card *origin_card, player *origin, player *target, card *target_card, effect_flags flags) {
         if (origin != target && target->can_escape(origin, origin_card, flags)) {
             target->m_game->queue_request<request_steal>(origin_card, origin, target, target_card, flags);
@@ -264,36 +270,14 @@ namespace banggame {
         target->add_to_hand(drawn_card);
     }
 
-    void effect_draw_rest::on_play(card *origin_card, player *target) {
-        while (target->m_num_drawn_cards < target->m_num_cards_to_draw) {
-            ++target->m_num_drawn_cards;
-            card *drawn_card = target->m_game->draw_phase_one_card_to(card_pile_type::player_hand, target);
-            target->m_game->add_log("LOG_DRAWN_CARD", target, drawn_card);
-            target->m_game->instant_event<event_type::on_card_drawn>(target, drawn_card);
-        }
-        if (target->m_game->pop_request<request_draw>()) {
-            target->m_game->queue_event<event_type::post_draw_cards>(target);
-        }
-    }
-
-    void effect_draw_done::on_play(card *origin_card, player *target) {
-        if (target->m_game->pop_request<request_draw>()) {
-            target->m_game->queue_event<event_type::post_draw_cards>(target);
-        }
-    }
-
-    void effect_draw_skip::verify(card *origin_card, player *target) const {
-        if (target->m_num_drawn_cards >= target->m_num_cards_to_draw) {
-            throw game_error("ERROR_PLAYER_MUST_NOT_DRAW");
-        }
-    }
-
-    void effect_draw_skip::on_play(card *origin_card, player *target) {
-        if (++target->m_num_drawn_cards == target->m_num_cards_to_draw) {
-            if (target->m_game->pop_request<request_draw>()) {
-                target->m_game->queue_event<event_type::post_draw_cards>(target);
+    void effect_draw_one_less::on_play(card *origin_card, player *target) {
+        target->m_game->queue_delayed_action([=]{
+            while (++target->m_num_drawn_cards < target->m_num_cards_to_draw) {
+                card *drawn_card = target->m_game->draw_phase_one_card_to(card_pile_type::player_hand, target);
+                target->m_game->add_log("LOG_DRAWN_CARD", target, drawn_card);
+                target->m_game->instant_event<event_type::on_card_drawn>(target, drawn_card);
             }
-        }
+        });
     }
 
 }

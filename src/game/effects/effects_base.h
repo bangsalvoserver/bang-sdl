@@ -114,22 +114,16 @@ namespace banggame {
         void on_play(card *origin_card, player *origin, player *target);
     };
 
-    struct effect_draw_rest {
-        void on_play(card *origin_card, player *target);
-    };
-
-    struct effect_draw_done {
-        void on_play(card *origin_card, player *target);
-    };
-
-    struct effect_draw_skip {
-        void verify(card *origin_card, player *target) const;
-        void on_play(card *origin_card, player *target);
-    };
-
     struct effect_drawing {
+        bool ends_drawing = false;
+        effect_drawing(int value) : ends_drawing(value != 0) {}
+
         bool can_respond(card *origin_card, player *origin) const;
-        void on_play(card *origin_card, player *origin) {}
+        void on_play(card *origin_card, player *origin);
+    };
+
+    struct effect_draw_one_less {
+        void on_play(card *origin_card, player *target);
     };
 
     struct effect_steal {

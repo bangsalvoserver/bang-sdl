@@ -2502,10 +2502,8 @@
             ],
             "responses": [
                 {
-                    "class": "drawing"
-                },
-                {
-                    "class": "draw_done"
+                    "class": "drawing",
+                    "value": 1
                 },
                 {
                     "target": "card",
@@ -2514,10 +2512,7 @@
                     "class": "steal"
                 },
                 {
-                    "class": "draw_skip"
-                },
-                {
-                    "class": "draw_rest"
+                    "class": "draw_one_less"
                 }
             ]
         },
@@ -2591,7 +2586,8 @@
             ],
             "responses": [
                 {
-                    "class": "drawing"
+                    "class": "drawing",
+                    "value": 1
                 },
                 {
                     "target": "player",
@@ -2599,10 +2595,7 @@
                     "class": "draw_discard"
                 },
                 {
-                    "class": "draw_skip"
-                },
-                {
-                    "class": "draw_rest"
+                    "class": "draw_one_less"
                 }
             ]
         },
@@ -2983,10 +2976,8 @@
             ],
             "responses": [
                 {
-                    "class": "drawing"
-                },
-                {
-                    "class": "draw_done"
+                    "class": "drawing",
+                    "value": 1
                 },
                 {
                     "target": "card",
@@ -3998,13 +3989,11 @@
             "image": "05_liquoreforte",
             "responses": [
                 {
-                    "class": "drawing"
+                    "class": "drawing",
+                    "value": 1
                 },
                 {
                     "class": "heal"
-                },
-                {
-                    "class": "draw_done"
                 }
             ]
         },
