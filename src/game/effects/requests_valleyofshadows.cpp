@@ -21,7 +21,7 @@ namespace banggame {
 
     void request_destroy::on_resolve() {
         effect_destroy{}.on_resolve(origin_card, origin, target, target_card);
-        target->m_game->pop_request();
+        target->m_game->pop_request<request_destroy>();
     }
 
     game_formatted_string request_destroy::status_text(player *owner) const {

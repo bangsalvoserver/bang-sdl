@@ -53,7 +53,7 @@ namespace banggame {
         void on_play(card *origin_card, player *origin, player *target, card *target_card);
     };
     
-    struct request_ricochet : request_destroy, barrel_ptr_vector {
+    struct request_ricochet : request_destroy, missable_request {
         using request_destroy::request_destroy;
 
         game_formatted_string status_text(player *owner) const override;

@@ -21,9 +21,14 @@ namespace banggame {
             if (p == origin) {
                 origin->m_game->draw_check_then(origin, target_card, [=](card *drawn_card) {
                     if (p->get_card_suit(drawn_card) == card_suit_type::spades) {
-                        origin->add_bang_mod([](request_bang &req) {
-                            req.unavoidable = true;
-                        });
+                        card *mod_holder = new card;
+                        origin->m_game->add_event<event_type::apply_bang_modifier>(mod_holder,
+                            util::nocopy_wrapper([=, mod_holder = std::unique_ptr<card>(mod_holder)](player *target, request_bang *req) {
+                                if (target == origin) {
+                                    req->unavoidable = true;
+                                    origin->m_game->remove_events(mod_holder.get());
+                                }
+                            }));
                     }
                 });
             }

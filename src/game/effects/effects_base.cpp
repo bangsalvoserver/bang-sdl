@@ -59,30 +59,20 @@ namespace banggame {
         target->m_game->queue_delayed_action([=, flags = flags]{
             request_bang req{origin_card, origin, target, flags};
             req.is_bang_card = true;
-            origin->apply_bang_mods(req);
+            origin->m_game->instant_event<event_type::apply_bang_modifier>(origin, &req);
             origin->m_game->queue_request<request_bang>(std::move(req));
         });
     }
 
-
     bool effect_missed::can_respond(card *origin_card, player *origin) const {
-        if (auto *req = origin->m_game->top_request_if<request_bang>(origin)) {
-            return !req->unavoidable;
+        if (auto *req = origin->m_game->top_request_if<missable_request>(origin)) {
+            return req->can_respond(origin_card);
         }
-        return origin->m_game->top_request_is<barrel_ptr_vector>(origin);
+        return false;
     }
 
     void effect_missed::on_play(card *origin_card, player *origin) {
-        if (auto *req = origin->m_game->top_request_if<request_bang>(origin)) {
-            if (0 == --req->bang_strength) {
-                origin->m_game->instant_event<event_type::on_missed>(req->origin_card, req->origin, req->target, req->is_bang_card);
-                origin->m_game->pop_request<request_bang>();
-            } else {
-                origin->m_game->send_request_update();
-            }
-        } else {
-            origin->m_game->pop_request<barrel_ptr_vector>();
-        }
+        origin->m_game->top_request().get<missable_request>().on_miss(origin);
     }
 
     bool effect_bangresponse::can_respond(card *origin_card, player *origin) const {
@@ -94,16 +84,8 @@ namespace banggame {
         effect_missed().on_play(origin_card, target);
     }
 
-    bool effect_barrel::can_respond(card *origin_card, player *origin) const {
-        if (effect_missed().can_respond(origin_card, origin)) {
-            const auto &vec = origin->m_game->top_request().get<barrel_ptr_vector>().barrels_used;
-            return std::ranges::find(vec, origin_card) == vec.end();
-        }
-        return false;
-    }
-
     void effect_barrel::on_play(card *origin_card, player *target) {
-        target->m_game->top_request().get<barrel_ptr_vector>().barrels_used.push_back(origin_card);
+        target->m_game->top_request().get<missable_request>().add_card(origin_card);
         target->m_game->send_request_update();
         target->m_game->draw_check_then(target, origin_card, [=](card *drawn_card) {
             if (target->get_card_suit(drawn_card) == card_suit_type::hearts) {

@@ -252,6 +252,23 @@ namespace banggame {
         }
     }
 
+    void missable_request::on_miss(player *origin) {
+        origin->m_game->pop_request<missable_request>();
+    }
+
+    bool request_bang::can_respond(card *c) const {
+        return !unavoidable && missable_request::can_respond(c);
+    }
+
+    void request_bang::on_miss(player *p) {
+        if (--bang_strength == 0) {
+            p->m_game->instant_event<event_type::on_missed>(origin_card, origin, target, is_bang_card);
+            p->m_game->pop_request<request_bang>();
+        } else {
+            p->m_game->send_request_update();
+        }
+    }
+
     void request_bang::on_resolve() {
         target->m_game->pop_request_noupdate<request_bang>();
         target->damage(origin_card, origin, bang_damage, is_bang_card);

@@ -14,17 +14,6 @@
 namespace banggame {
     using namespace enums::flag_operators;
 
-    void player::add_bang_mod(bang_modifier &&mod) {
-        m_bang_mods.push_back(std::move(mod));
-    }
-
-    void player::apply_bang_mods(request_bang &req) {
-        for (const auto &mod : m_bang_mods) {
-            mod(req);
-        }
-        m_bang_mods.clear();
-    }
-
     void player::equip_card(card *target) {
         for (auto &e : target->equips) {
             e.on_pre_equip(target, this);
@@ -562,7 +551,7 @@ namespace banggame {
                         if (target != this && target->immune_to(chosen_card_or(card_ptr))) {
                             if (effect_it->is(effect_type::bangcard)) {
                                 request_bang req{card_ptr, this, target};
-                                apply_bang_mods(req);
+                                m_game->instant_event<event_type::apply_bang_modifier>(this, &req);
                             }
                         } else {
                             auto flags = effect_flags::single_target;

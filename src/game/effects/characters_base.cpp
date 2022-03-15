@@ -15,11 +15,9 @@ namespace banggame {
     }
 
     void effect_slab_the_killer::on_equip(card *target_card, player *p) {
-        p->m_game->add_event<event_type::on_play_bang>(target_card, [p](player *target) {
+        p->m_game->add_event<event_type::apply_bang_modifier>(target_card, [p](player *target, request_bang *req) {
             if (p == target) {
-                target->add_bang_mod([](request_bang &req) {
-                    ++req.bang_strength;
-                });
+                ++req->bang_strength;
             }
         });
     }

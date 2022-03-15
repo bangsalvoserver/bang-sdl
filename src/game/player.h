@@ -11,10 +11,8 @@ namespace banggame {
 
     struct game;
     struct player;
-    struct request_bang;
     
     using draw_check_function = std::function<void(card *drawn_card)>;
-    using bang_modifier = std::function<void(request_bang &req)>;
 
     struct card : card_data {
         int8_t usages = 0;
@@ -54,8 +52,6 @@ namespace banggame {
 
         int8_t m_bangs_played = 0;
         int8_t m_bangs_per_turn = 1;
-
-        std::vector<bang_modifier> m_bang_mods;
 
         int8_t m_num_checks = 1;
         
@@ -115,9 +111,6 @@ namespace banggame {
 
         bool immune_to(card *c);
         bool can_respond_with(card *c);
-
-        void add_bang_mod(bang_modifier &&mod);
-        void apply_bang_mods(request_bang &req);
         
         void discard_all();
 

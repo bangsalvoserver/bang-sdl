@@ -166,16 +166,14 @@ namespace banggame {
             }
         }
 
-        template<typename T = void>
+        template<typename T = request_base>
         bool pop_request_noupdate() {
-            if constexpr (!std::is_void_v<T>) {
-                if (!top_request_is<T>()) return false;
-            }
+            if (!top_request_is<T>()) return false;
             m_requests.pop_front();
             return true;
         }
 
-        template<typename T = void>
+        template<typename T = request_base>
         bool pop_request() {
             return pop_request_noupdate<T>() && (events_after_requests(), true);
         }

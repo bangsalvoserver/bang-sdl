@@ -60,8 +60,7 @@ namespace banggame {
         void on_play(card *origin_card, player *origin);
     };
     
-    struct effect_barrel {
-        bool can_respond(card *origin_card, player *origin) const;
+    struct effect_barrel : effect_missed {
         void on_play(card *origin_card, player *target);
     };
 

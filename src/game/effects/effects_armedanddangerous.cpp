@@ -103,34 +103,41 @@ namespace banggame {
     }
 
     void effect_doublebarrel::on_play(card *origin_card, player *origin) {
-        origin->add_bang_mod([=](request_bang &req) {
-            if (origin->get_card_suit(req.origin_card) == card_suit_type::diamonds) {
-                req.unavoidable = true;
+        origin->m_game->add_event<event_type::apply_bang_modifier>(origin_card, [=](player *p, request_bang *req) {
+            if (p == origin) {
+                req->unavoidable = origin->get_card_suit(req->origin_card) == card_suit_type::diamonds;
+                origin->m_game->remove_events(origin_card);
             }
         });
     }
 
     void effect_thunderer::on_play(card *origin_card, player *origin) {
-        origin->add_bang_mod([](request_bang &req) {
-            card *bang_card = req.origin->chosen_card_or(req.origin_card);
-            req.origin->m_game->move_to(bang_card, card_pile_type::player_hand, true, req.origin, show_card_flags::short_pause | show_card_flags::show_everyone);
+        origin->m_game->add_event<event_type::apply_bang_modifier>(origin_card, [=](player *p, request_bang *req) {
+            if (p == origin) {
+                card *bang_card = req->origin->chosen_card_or(req->origin_card);
+                req->origin->m_game->move_to(bang_card, card_pile_type::player_hand, true, req->origin, show_card_flags::short_pause | show_card_flags::show_everyone);
 
-            req.on_cleanup([origin = req.origin, bang_card]{
-                origin->m_game->send_card_update(*bang_card, origin);
-            });
+                req->on_cleanup([origin = req->origin, bang_card]{
+                    origin->m_game->send_card_update(*bang_card, origin);
+                });
+
+                origin->m_game->remove_events(origin_card);
+            }
         });
     }
 
     void effect_buntlinespecial::on_play(card *origin_card, player *p) {
-        p->add_bang_mod([=](request_bang &req) {
-            p->m_game->add_event<event_type::on_missed>(origin_card, [=](card *bang_card, player *origin, player *target, bool is_bang) {
-                if (target && origin == p && is_bang && !target->m_hand.empty()) {
-                    target->m_game->queue_request<request_discard>(origin_card, origin, target);
-                }
-            });
-            req.on_cleanup([=]{
-                p->m_game->remove_events(origin_card);
-            });
+        p->m_game->add_event<event_type::apply_bang_modifier>(origin_card, [=](player *origin, request_bang *req) {
+            if (p == origin) {
+                p->m_game->add_event<event_type::on_missed>(origin_card, [=](card *bang_card, player *origin, player *target, bool is_bang) {
+                    if (target && origin == p && is_bang && !target->m_hand.empty()) {
+                        target->m_game->queue_request<request_discard>(origin_card, origin, target);
+                    }
+                });
+                req->on_cleanup([=]{
+                    p->m_game->remove_events(origin_card);
+                });
+            }
         });
     }
 
@@ -140,10 +147,13 @@ namespace banggame {
                 || c->pile == card_pile_type::player_character)
                 && c->owner != p;
         });
-        p->add_bang_mod([=](request_bang &req) {
-            req.on_cleanup([=]{
-                p->m_game->remove_disablers(origin_card);
-            });
+        p->m_game->add_event<event_type::apply_bang_modifier>(origin_card, [=](player *origin, request_bang *req) {
+            if (origin == p) {
+                req->on_cleanup([=]{
+                    p->m_game->remove_disablers(origin_card);
+                });
+                origin->m_game->remove_events(origin_card);
+            }
         });
     }
 

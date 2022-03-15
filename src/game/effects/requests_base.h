@@ -92,11 +92,23 @@ namespace banggame {
         game_formatted_string status_text(player *owner) const override;
     };
 
-    struct barrel_ptr_vector {
-        std::vector<card *> barrels_used;
+    class missable_request {
+    public:
+        void add_card(card *c) {
+            m_cards_used.push_back(c);
+        }
+
+        virtual bool can_respond(card *c) const {
+            return std::ranges::find(m_cards_used, c) == m_cards_used.end();
+        }
+
+        virtual void on_miss(player *origin);
+
+    private:
+        std::vector<card *> m_cards_used;
     };
 
-    struct request_bang : request_base, cleanup_request, barrel_ptr_vector, resolvable_request {
+    struct request_bang : request_base, missable_request, cleanup_request, resolvable_request {
         using request_base::request_base;
 
         int bang_strength = 1;
@@ -104,6 +116,8 @@ namespace banggame {
         bool unavoidable = false;
         bool is_bang_card = false;
 
+        bool can_respond(card *c) const override;
+        void on_miss(player *origin) override;
         void on_resolve() override;
         game_formatted_string status_text(player *owner) const override;
     };
