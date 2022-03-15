@@ -25,7 +25,7 @@ namespace widgets {
         void set_pos(sdl::point pt);
         sdl::point get_pos() const;
 
-        void set_border_color(sdl::color color) noexcept {
+        void set_border_color(sdl::color color) {
             m_border_color = color;
         }
         

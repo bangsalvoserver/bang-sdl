@@ -49,15 +49,15 @@ namespace widgets {
 
         void render(sdl::renderer &renderer);
 
-        const sdl::rect &get_rect() const noexcept {
+        const sdl::rect &get_rect() const {
             return m_border_rect;
         }
 
-        void set_rect(const sdl::rect &rect) noexcept {
+        void set_rect(const sdl::rect &rect) {
             m_border_rect = rect;
         }
 
-        const std::string &get_value() const noexcept {
+        const std::string &get_value() const {
             return m_value;
         }
 

@@ -34,19 +34,19 @@ namespace widgets {
 
         void set_rect(const sdl::rect &rect);
 
-        const sdl::rect &get_rect() const noexcept {
+        const sdl::rect &get_rect() const {
             return m_border_rect;
         }
 
-        bool get_value() const noexcept {
+        bool get_value() const {
             return m_value;
         }
 
-        void set_value(bool value) noexcept {
+        void set_value(bool value) {
             m_value = value;
         }
 
-        void set_locked(bool value) noexcept {
+        void set_locked(bool value) {
             m_locked = value;
         }
 

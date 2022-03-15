@@ -73,19 +73,19 @@ namespace widgets {
             }
         }
 
-        void set_rect(const sdl::rect &rect) noexcept {
+        void set_rect(const sdl::rect &rect) {
             m_rect = rect;
         }
 
-        const sdl::rect &get_rect() const noexcept {
+        const sdl::rect &get_rect() const {
             return m_rect;
         }
 
-        void set_wrap_length(int length) noexcept {
+        void set_wrap_length(int length) {
             m_wrap_length = length;
         }
 
-        int get_wrap_length() const noexcept {
+        int get_wrap_length() const {
             return m_wrap_length;
         }
 

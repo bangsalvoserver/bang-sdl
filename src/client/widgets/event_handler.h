@@ -77,10 +77,10 @@ namespace widgets {
             return s_focus == e;
         }
 
-        void disable() noexcept { m_enabled = false; }
-        void enable() noexcept { m_enabled = true; }
-        void set_enabled(bool value) noexcept { m_enabled = value; }
-        bool enabled() const noexcept { return m_enabled; }
+        void disable() { m_enabled = false; }
+        void enable() { m_enabled = true; }
+        void set_enabled(bool value) { m_enabled = value; }
+        bool enabled() const { return m_enabled; }
     };
 
 }

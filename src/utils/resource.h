@@ -34,11 +34,11 @@ struct resource : std::vector<char> {
 
     resource() = default;
 
-    operator resource_view() const noexcept {
+    operator resource_view() const {
         return {data(), size()};
     }
 
-    operator std::string_view() const noexcept {
+    operator std::string_view() const {
         return {data(), size()};
     }
 };

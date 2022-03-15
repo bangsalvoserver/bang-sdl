@@ -12,14 +12,14 @@ namespace banggame {
     class game_scene;
 
     struct target_none {
-        bool operator == (target_none) const noexcept { return true; }
+        bool operator == (target_none) const { return true; }
     };
     struct target_player {
         player_view *player;
         bool operator == (const target_player &) const = default;
     };
     struct target_other_players {
-        bool operator == (target_other_players) const noexcept { return true; }
+        bool operator == (target_other_players) const { return true; }
     };
     struct target_card {
         player_view *player;

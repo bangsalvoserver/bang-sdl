@@ -80,8 +80,8 @@ public:
     int width() const { return get_rect().w; }
     int height() const { return get_rect().h; }
 
-    int get_user_own_id() const noexcept { return m_user_own_id; }
-    int get_lobby_owner_id() const noexcept { return m_lobby_owner_id; }
+    int get_user_own_id() const { return m_user_own_id; }
+    int get_lobby_owner_id() const { return m_lobby_owner_id; }
 
     bool start_listenserver();
 

@@ -53,7 +53,7 @@ namespace widgets {
             m_text_pos.y = rect.y + (rect.h - text_rect.h) / 2;
         }
 
-        const sdl::rect &get_rect() const noexcept {
+        const sdl::rect &get_rect() const {
             return m_border_rect;
         }
 

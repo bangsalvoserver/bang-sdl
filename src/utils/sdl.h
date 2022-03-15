@@ -150,7 +150,7 @@ namespace sdl {
 
     public:
         surface() = default;
-        surface(SDL_Surface *value) : base(value) {}
+        surface(SDL_Surface *value) noexcept : base(value) {}
 
         surface(int width, int height)
             : base(SDL_CreateRGBSurface(0, width, height, 32, rmask, gmask, bmask, amask)) {
@@ -181,7 +181,7 @@ namespace sdl {
     public:
         texture() = default;
         
-        texture(surface &&surf) : m_surface(std::move(surf)) {}
+        texture(surface &&surf) noexcept : m_surface(std::move(surf)) {}
 
         void reset() {
             m_surface.reset();
@@ -220,7 +220,7 @@ namespace sdl {
             SDL_SetTextureAlphaMod(m_texture.get(), 0xff);
         }
 
-        explicit operator bool() const noexcept{
+        explicit operator bool() const {
             return bool(m_surface);
         }
     
