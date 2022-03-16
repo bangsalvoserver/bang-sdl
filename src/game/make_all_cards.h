@@ -3,7 +3,7 @@
 
 #include <filesystem>
 
-#include "card.h"
+#include "card_data.h"
 
 namespace banggame {
 

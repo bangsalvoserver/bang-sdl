@@ -1,7 +1,7 @@
 #ifndef __GAME_UPDATE_H__
 #define __GAME_UPDATE_H__
 
-#include "card.h"
+#include "card_data.h"
 
 namespace banggame {
 

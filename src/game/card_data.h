@@ -1,5 +1,5 @@
-#ifndef __CARD_H__
-#define __CARD_H__
+#ifndef __CARD_DATA_H__
+#define __CARD_DATA_H__
 
 #include <vector>
 #include <string>
