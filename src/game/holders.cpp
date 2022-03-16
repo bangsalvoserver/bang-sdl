@@ -138,6 +138,7 @@ namespace banggame {
 
     void timer_request::tick() {
         if (duration && --duration == 0) {
+            auto copy = shared_from_this();
             on_finished();
         }
     }

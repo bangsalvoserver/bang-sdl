@@ -265,6 +265,10 @@ namespace banggame {
             copy->on_pick(pile, target, target_card);
         }
 
+        void tick() {
+            m_value->tick();
+        }
+
         template<typename T> auto &get() {
             return dynamic_cast<T &>(*m_value);
         }

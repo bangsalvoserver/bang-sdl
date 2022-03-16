@@ -137,7 +137,7 @@ namespace banggame {
             return m_requests.front();
         }
 
-        template<typename T>
+        template<typename T = request_base>
         T *top_request_if(player *target = nullptr) {
             if (m_requests.empty()) return nullptr;
             auto &req = top_request();

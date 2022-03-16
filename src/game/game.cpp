@@ -382,9 +382,8 @@ namespace banggame {
     }
 
     void game::tick() {
-        if (auto *req = top_request_if<timer_request>()) {
-            auto copy = top_request();
-            req->tick();
+        if (!m_requests.empty()) {
+            top_request().tick();
         }
     }
 
@@ -748,15 +747,13 @@ namespace banggame {
     }
 
     void game::handle_action(ACTION_TAG(pick_card), player *p, const pick_card_args &args) {
-        if (!m_requests.empty()) {
-            auto &req = top_request();
-            if (p == req.target()) {
-                add_private_update<game_update_type::confirm_play>(p);
-                player *target_player = args.player_id ? find_player(args.player_id) : nullptr;
-                card *target_card = args.card_id ? find_card(args.card_id) : nullptr;
-                if (req.can_pick(args.pile, target_player, target_card)) {
-                    req.on_pick(args.pile, target_player, target_card);
-                }
+        if (m_requests.empty()) return;
+        if (auto &req = top_request(); req.target() == p) {
+            add_private_update<game_update_type::confirm_play>(p);
+            player *target_player = args.player_id ? find_player(args.player_id) : nullptr;
+            card *target_card = args.card_id ? find_card(args.card_id) : nullptr;
+            if (req.can_pick(args.pile, target_player, target_card)) {
+                req.on_pick(args.pile, target_player, target_card);
             }
         }
     }

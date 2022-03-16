@@ -4,6 +4,8 @@
 #include "../card_enums.h"
 #include "../format_str.h"
 
+#include <memory>
+
 namespace banggame {
 
     struct player;
@@ -41,6 +43,8 @@ namespace banggame {
         }
 
         virtual void on_pick(card_pile_type pile, player *target, card *target_card);
+
+        virtual void tick() {}
     };
 
     struct resolvable_request {
@@ -79,21 +83,21 @@ namespace banggame {
         std::function<void()> m_fun;
     };
 
-    struct timer_request : request_base {
+    struct timer_request : request_base, std::enable_shared_from_this<timer_request> {
         timer_request(card *origin_card, player *origin, player *target, effect_flags flags = {}, int duration = 200)
             : request_base(origin_card, origin, target, flags)
             , duration(duration) {}
 
         int duration;
 
-        void tick();
+        void tick() override final;
         virtual void on_finished();
     };
 
     struct selection_picker : request_base {
         using request_base::request_base;
 
-        bool can_pick(card_pile_type pile, player *target_player, card *target_card) const {
+        bool can_pick(card_pile_type pile, player *target_player, card *target_card) const override {
             return pile == card_pile_type::selection;
         }
     };
