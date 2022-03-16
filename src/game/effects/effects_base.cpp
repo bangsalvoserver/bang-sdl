@@ -55,13 +55,12 @@ namespace banggame {
 
     void effect_bangcard::on_play(card *origin_card, player *origin, player *target, effect_flags flags) {
         target->m_game->add_log("LOG_PLAYED_CARD_ON", origin_card, origin, target);
-        target->m_game->queue_event<event_type::on_play_bang>(origin);
-        target->m_game->queue_delayed_action([=, flags = flags]{
-            request_bang req{origin_card, origin, target, flags};
-            req.is_bang_card = true;
-            origin->m_game->instant_event<event_type::apply_bang_modifier>(origin, &req);
-            origin->m_game->queue_request<request_bang>(std::move(req));
-        });
+        auto req = std::make_unique<request_bang>(origin_card, origin, target, flags);
+        req->is_bang_card = true;
+        origin->m_game->instant_event<event_type::apply_bang_modifier>(origin, req.get());
+        target->m_game->queue_delayed_action(util::nocopy_wrapper([origin, req = std::move(req)]{
+            origin->m_game->queue_request<request_bang>(std::move(*req));
+        }));
     }
 
     bool effect_missed::can_respond(card *origin_card, player *origin) const {

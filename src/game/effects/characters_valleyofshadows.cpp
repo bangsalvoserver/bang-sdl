@@ -17,18 +17,11 @@ namespace banggame {
     }
 
     void effect_colorado_bill::on_equip(card *target_card, player *p) {
-        p->m_game->add_event<event_type::on_play_bang>(target_card, [=](player *origin) {
+        p->m_game->add_event<event_type::apply_bang_modifier>(target_card, [=](player *origin, request_bang *req) {
             if (p == origin) {
                 origin->m_game->draw_check_then(origin, target_card, [=](card *drawn_card) {
                     if (p->get_card_suit(drawn_card) == card_suit_type::spades) {
-                        card *mod_holder = new card;
-                        origin->m_game->add_event<event_type::apply_bang_modifier>(mod_holder,
-                            util::nocopy_wrapper([=, mod_holder = std::unique_ptr<card>(mod_holder)](player *target, request_bang *req) {
-                                if (target == origin) {
-                                    req->unavoidable = true;
-                                    origin->m_game->remove_events(mod_holder.get());
-                                }
-                            }));
+                        req->unavoidable = true;
                     }
                 });
             }
