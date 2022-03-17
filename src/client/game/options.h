@@ -105,6 +105,17 @@ namespace banggame {
         (int) propic_yoff,
         (int) username_yoff,
 
+        (int) move_card_ticks,
+        (int) move_cube_ticks,
+        (int) flip_card_ticks,
+        (int) short_pause_ticks,
+        (int) tap_card_ticks,
+        (int) move_hp_ticks,
+        (int) flip_role_ticks,
+        (int) main_deck_shuffle_ticks,
+        (int) shop_deck_shuffle_ticks,
+        (int) shop_deck_shuffle_pause_ticks,
+
         (int) status_text_y_distance,
 
         (sdl::color) status_text_background,

@@ -482,7 +482,7 @@ void game_scene::HANDLE_UPDATE(deck_shuffled, const card_pile_type &pile) {
         m_discard_pile.push_back(top_discard);
         update_main_deck_count();
         
-        m_animations.emplace_back(30, std::move(anim));
+        m_animations.emplace_back(options.main_deck_shuffle_ticks, std::move(anim));
         break;
     }
     case card_pile_type::shop_deck:
@@ -493,8 +493,8 @@ void game_scene::HANDLE_UPDATE(deck_shuffled, const card_pile_type &pile) {
             m_shop_deck.push_back(card);
         }
         m_shop_discard.clear();
-        m_animations.emplace_back(20, std::in_place_type<card_flip_animation>, m_shop_deck.back(), true);
-        m_animations.emplace_back(20, std::in_place_type<pause_animation>);
+        m_animations.emplace_back(options.shop_deck_shuffle_ticks, std::in_place_type<card_flip_animation>, m_shop_deck.back(), true);
+        m_animations.emplace_back(options.shop_deck_shuffle_pause_ticks, std::in_place_type<pause_animation>);
         break;
     }
 }
@@ -599,10 +599,10 @@ void game_scene::HANDLE_UPDATE(move_card, const move_card_update &args) {
         pop_update();
     } else {
         if (bool(args.flags & show_card_flags::pause_before_move)) {
-            m_animations.emplace_back(20, std::in_place_type<pause_animation>, card);
+            m_animations.emplace_back(options.short_pause_ticks, std::in_place_type<pause_animation>, card);
         }
         
-        m_animations.emplace_back(20, std::move(anim));
+        m_animations.emplace_back(options.move_card_ticks, std::move(anim));
     }
 }
 
@@ -643,7 +643,7 @@ void game_scene::HANDLE_UPDATE(move_cube, const move_cube_update &args) {
         anim.end();
         pop_update();
     } else {
-        m_animations.emplace_back(8, std::move(anim));
+        m_animations.emplace_back(options.move_cube_ticks, std::move(anim));
     }
 }
 
@@ -669,10 +669,10 @@ void game_scene::HANDLE_UPDATE(show_card, const show_card_update &args) {
             card->flip_amt = 1.f;
             pop_update();
         } else {
-            m_animations.emplace_back(10, std::in_place_type<card_flip_animation>, card, false);
+            m_animations.emplace_back(options.flip_card_ticks, std::in_place_type<card_flip_animation>, card, false);
 
             if (bool(args.flags & show_card_flags::short_pause)) {
-                m_animations.emplace_back(20, std::in_place_type<pause_animation>, card);
+                m_animations.emplace_back(options.short_pause_ticks, std::in_place_type<pause_animation>, card);
             }
         }
 
@@ -694,10 +694,10 @@ void game_scene::HANDLE_UPDATE(hide_card, const hide_card_update &args) {
             pop_update();
         } else {
             if (bool(args.flags & show_card_flags::short_pause)) {
-                m_animations.emplace_back(20, std::in_place_type<pause_animation>, card);
+                m_animations.emplace_back(options.short_pause_ticks, std::in_place_type<pause_animation>, card);
             }
 
-            m_animations.emplace_back(10, std::in_place_type<card_flip_animation>, card, true);
+            m_animations.emplace_back(options.flip_card_ticks, std::in_place_type<card_flip_animation>, card, true);
         }
     } else {
         pop_update();
@@ -712,7 +712,7 @@ void game_scene::HANDLE_UPDATE(tap_card, const tap_card_update &args) {
             card->rotation = card->inactive ? 90.f : 0.f;
             pop_update();
         } else {
-            m_animations.emplace_back(10, std::in_place_type<card_tap_animation>, card, args.inactive);
+            m_animations.emplace_back(options.tap_card_ticks, std::in_place_type<card_tap_animation>, card, args.inactive);
         }
     } else {
         pop_update();
@@ -788,7 +788,7 @@ void game_scene::HANDLE_UPDATE(player_hp, const player_hp_update &args) {
         player->set_hp_marker_position(args.hp);
         pop_update();
     } else if (prev_hp != args.hp && !args.dead) {
-        m_animations.emplace_back(20, std::in_place_type<player_hp_animation>, player, prev_hp, args.hp);
+        m_animations.emplace_back(options.move_hp_ticks, std::in_place_type<player_hp_animation>, player, prev_hp, args.hp);
     } else {
         pop_update();
     }
@@ -813,7 +813,7 @@ void game_scene::HANDLE_UPDATE(player_show_role, const player_show_role_update &
             p.m_role.flip_amt = 1.f;
             pop_update();
         } else {
-            m_animations.emplace_back(10, std::in_place_type<card_flip_animation>, &p.m_role, false);
+            m_animations.emplace_back(options.flip_role_ticks, std::in_place_type<card_flip_animation>, &p.m_role, false);
         }
     }
 

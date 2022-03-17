@@ -50,6 +50,17 @@
     "propic_yoff": 94,
     "username_yoff": 43,
 
+    "move_card_ticks": 20,
+    "move_cube_ticks": 8,
+    "flip_card_ticks": 10,
+    "short_pause_ticks": 20,
+    "tap_card_ticks": 10,
+    "move_hp_ticks": 20,
+    "flip_role_ticks": 15,
+    "main_deck_shuffle_ticks": 30,
+    "shop_deck_shuffle_ticks": 30,
+    "shop_deck_shuffle_pause_ticks": 10,
+
     "status_text_y_distance": 270,
 
     "status_text_background": "ffffff80",
