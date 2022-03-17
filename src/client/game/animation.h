@@ -144,31 +144,9 @@ namespace banggame {
             : duration(duration)
             , m_anim(std::forward<Ts>(args) ...) {}
 
-        void tick() {
-            ++elapsed;
-            std::visit([this](auto &anim) {
-                if constexpr (requires (float value) { anim.do_animation(value); }) {
-                    anim.do_animation((float)elapsed / (float)duration);
-                }
-            }, m_anim);
-        }
-
-        void end() {
-            elapsed = duration;
-            std::visit([this](auto &anim) {
-                if constexpr (requires { anim.end(); }) {
-                    anim.end();
-                }
-            }, m_anim);
-        }
-
-        void render(sdl::renderer &renderer) {
-            std::visit([&](auto &anim) {
-                if constexpr (requires { anim.render(renderer); }) {
-                    anim.render(renderer);
-                }
-            }, m_anim);
-        }
+        void tick();
+        void end();
+        void render(sdl::renderer &renderer);
 
         bool done() const {
             return elapsed >= duration;
