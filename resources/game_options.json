@@ -52,17 +52,17 @@
 
     "status_text_y_distance": 270,
 
-    "status_text_background": [255, 255, 255, 128],
+    "status_text_background": "ffffff80",
 
-    "player_view_border": [45, 16, 0, 255],
+    "player_view_border": "2d1000ff",
 
-    "turn_indicator": [77, 127, 33, 255],
-    "request_origin_indicator": [123, 247, 255, 255],
-    "request_target_indicator": [255, 0, 0, 255],
-    "winner_indicator": [187, 161, 79, 255],
+    "turn_indicator": "4d7f21ff",
+    "request_origin_indicator": "7bf7ffff",
+    "request_target_indicator": "ff0000ff",
+    "winner_indicator": "bba14fff",
 
-    "target_finder_current_card": [30, 110, 255, 238],
-    "target_finder_target": [255, 0, 0, 170],
-    "target_finder_can_respond": [30, 215, 96, 170],
-    "target_finder_can_pick": [255, 255, 255, 170]
+    "target_finder_current_card": "306effee",
+    "target_finder_target": "ff0000aa",
+    "target_finder_can_respond": "1ed760aa",
+    "target_finder_can_pick": "ffffffaa"
 }
