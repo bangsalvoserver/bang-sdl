@@ -89,8 +89,8 @@ namespace banggame {
 
                 value_rect.w *= scale;
                 value_rect.h *= scale;
-                value_rect.x = 15;
-                value_rect.y = card_rect.h - value_rect.h - 15;
+                value_rect.x = options.card_suit_offset;
+                value_rect.y = card_rect.h - value_rect.h - options.card_suit_offset;
                     
                 SDL_BlitScaled(card_value_surf.get(), nullptr, card_base_surf.get(), &value_rect);
                 
@@ -100,7 +100,7 @@ namespace banggame {
                 suit_rect.w *= scale;
                 suit_rect.h *= scale;
                 suit_rect.x = value_rect.x + value_rect.w;
-                suit_rect.y = card_rect.h - suit_rect.h - 15;
+                suit_rect.y = card_rect.h - suit_rect.h - options.card_suit_offset;
 
                 SDL_BlitScaled(card_suit_surf.get(), nullptr, card_base_surf.get(), &suit_rect);
             }
@@ -110,8 +110,8 @@ namespace banggame {
 
         texture_front = card_textures::get().apply_card_mask(do_make_texture(1.f));
 
-        sdl::surface scaled = card_textures::get().apply_card_mask(do_make_texture(1.5f));
-        texture_front_scaled = sdl::scale_surface(scaled, scaled.get_rect().w / options::card_width);
+        sdl::surface scaled = card_textures::get().apply_card_mask(do_make_texture(options.card_suit_scale));
+        texture_front_scaled = sdl::scale_surface(scaled, scaled.get_rect().w / options.card_width);
     }
 
     void role_card::make_texture_front() {
@@ -120,7 +120,7 @@ namespace banggame {
         
         texture_front = card_textures::get().apply_card_mask(card_textures::get().get_card_resource(role_string));
         texture_front_scaled = sdl::scale_surface(texture_front.get_surface(),
-            texture_front.get_rect().w / options::card_width);
+            texture_front.get_rect().w / options.card_width);
     }
 
     void cube_widget::render(sdl::renderer &renderer, bool skip_if_animating) {
@@ -132,8 +132,8 @@ namespace banggame {
         };
 
         if (!skip_if_animating || !animating) {
-            if (border_color) {
-                do_render(media_pak::get().sprite_cube_border, sdl::rgba(border_color));
+            if (border_color.a) {
+                do_render(media_pak::get().sprite_cube_border, border_color);
             }
             do_render(media_pak::get().sprite_cube);
         }
@@ -150,7 +150,7 @@ namespace banggame {
     void card_view::render(sdl::renderer &renderer, bool skip_if_animating) {
         auto do_render = [&](const sdl::texture &tex) {
             m_rect = tex.get_rect();
-            sdl::scale_rect_width(m_rect, options::card_width);
+            sdl::scale_rect_width(m_rect, options.card_width);
 
             m_rect.x = m_pos.x - m_rect.w / 2;
             m_rect.y = m_pos.y - m_rect.h / 2;
@@ -160,13 +160,13 @@ namespace banggame {
             rect.x += rect.w * (1.f - wscale) * 0.5f;
             rect.w *= wscale;
 
-            if (border_color) {
+            if (border_color.a) {
                 card_textures::get().card_border.render_colored(renderer, sdl::rect{
-                    rect.x - options::default_border_thickness,
-                    rect.y - options::default_border_thickness,
-                    rect.w + options::default_border_thickness * 2,
-                    rect.h + options::default_border_thickness * 2
-                }, sdl::rgba(border_color));
+                    rect.x - options.default_border_thickness,
+                    rect.y - options.default_border_thickness,
+                    rect.w + options.default_border_thickness * 2,
+                    rect.h + options.default_border_thickness * 2
+                }, border_color);
             }
 
             SDL_RenderCopyEx(renderer.get(), tex.get_texture(renderer), nullptr, &rect, rotation, nullptr, SDL_FLIP_NONE);
@@ -198,7 +198,7 @@ namespace banggame {
         if (size() == 1 || m_width == 0) {
             return pos;
         }
-        float xoffset = std::min(float(m_width) / (size() - 1), float(options::card_width + options::card_xoffset)) * hflip;
+        float xoffset = std::min(float(m_width) / (size() - 1), float(options.card_width + options.card_xoffset)) * hflip;
 
         return sdl::point{(int)(pos.x + xoffset *
             (std::ranges::distance(begin(), std::ranges::find(*this, card)) - (size() - 1) * .5f)),
@@ -207,7 +207,7 @@ namespace banggame {
 
     sdl::point character_pile::get_position_of(card_view *card) const {
         int diff = std::ranges::distance(begin(), std::ranges::find(*this, card));
-        return sdl::point{pos.x + options::character_offset * diff, pos.y + options::character_offset * diff};
+        return sdl::point{pos.x + options.character_offset * diff, pos.y + options.character_offset * diff};
     }
 
     void card_pile_view::erase_card(card_view *card) {

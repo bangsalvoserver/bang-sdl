@@ -8,9 +8,9 @@ namespace widgets {
 
     struct textbox_style {
         text_style text;
-        sdl::color background_color = sdl::rgb(default_textbox_background_rgb);
-        sdl::color border_color = sdl::rgb(default_textbox_border_rgb);
-        sdl::color selection_color = sdl::rgb(default_textbox_selection_rgb);
+        sdl::color background_color = default_textbox_background_color;
+        sdl::color border_color = default_textbox_border_color;
+        sdl::color selection_color = default_textbox_selection_color;
         int margin = 4;
     };
 

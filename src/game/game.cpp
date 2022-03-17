@@ -132,7 +132,7 @@ namespace banggame {
     void game::start_game(const game_options &options, const all_cards_t &all_cards) {
         m_options = options;
 
-#ifndef DISABLE_TESTING
+#ifndef NDEBUG
         std::vector<card *> testing_cards;
 #endif
         
@@ -143,7 +143,7 @@ namespace banggame {
             copy.pile = pile;
             auto *new_card = &m_cards.emplace(std::move(copy));
 
-#ifndef DISABLE_TESTING
+#ifndef NDEBUG
             if (c.testing) {
                 testing_cards.push_back(new_card);
             } else {
@@ -172,7 +172,7 @@ namespace banggame {
         }
 
         shuffle_cards_and_ids(m_deck);
-#ifndef DISABLE_TESTING
+#ifndef NDEBUG
         m_deck.insert(m_deck.end(), testing_cards.begin(), testing_cards.end());
         testing_cards.clear();
 #endif
@@ -184,7 +184,7 @@ namespace banggame {
                 add_card(card_pile_type::shop_deck, c);
             }
             shuffle_cards_and_ids(m_shop_deck);
-#ifndef DISABLE_TESTING
+#ifndef NDEBUG
             m_shop_deck.insert(m_shop_deck.end(), testing_cards.begin(), testing_cards.end());
             testing_cards.clear();
 #endif
@@ -223,7 +223,7 @@ namespace banggame {
 
         if (!m_scenario_deck.empty()) {
             shuffle_cards_and_ids(m_scenario_deck);
-#ifndef DISABLE_TESTING
+#ifndef NDEBUG
             m_scenario_deck.insert(m_scenario_deck.end(), testing_cards.begin(), testing_cards.end());
             testing_cards.clear();
 #endif
@@ -288,7 +288,7 @@ namespace banggame {
                 card copy(c);
                 copy.id = m_cards.first_available_id();
                 auto *new_card = &m_cards.emplace(std::move(copy));
-#ifndef DISABLE_TESTING
+#ifndef NDEBUG
                 if (c.testing) {
                     testing_cards.push_back(new_card);
                 } else {
@@ -301,7 +301,7 @@ namespace banggame {
         }
 
         std::ranges::shuffle(character_ptrs, rng);
-#ifndef DISABLE_TESTING
+#ifndef NDEBUG
         character_ptrs.insert(character_ptrs.begin(), testing_cards.begin(), testing_cards.end());
         testing_cards.clear();
 #endif
@@ -315,7 +315,7 @@ namespace banggame {
 
         auto character_it = character_ptrs.begin();
 
-#ifdef DISABLE_TESTING
+#ifdef NDEBUG
         for (auto &p : m_players) {
             add_character_to(*character_it++, p);
             add_character_to(*character_it++, p);

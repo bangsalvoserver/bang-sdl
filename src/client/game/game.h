@@ -77,8 +77,8 @@ namespace banggame {
         card_pile_view m_shop_deck;
         card_pile_view m_shop_discard;
         card_pile_view m_hidden_deck;
-        card_pile_view m_shop_selection{options::shop_selection_width, true};
-        card_pile_view m_shop_choice{options::shop_choice_width};
+        card_pile_view m_shop_selection{options.shop_selection_width, true};
+        card_pile_view m_shop_choice{options.shop_choice_width};
 
         card_pile_view m_main_deck;
         card_pile_view m_discard_pile;
@@ -89,7 +89,7 @@ namespace banggame {
         card_pile_view m_scenario_deck;
         card_pile_view m_scenario_card;
 
-        card_pile_view m_selection{options::selection_width};
+        card_pile_view m_selection{options.selection_width};
 
         card_pile_view m_specials;
 

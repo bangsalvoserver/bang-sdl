@@ -1,62 +1,124 @@
 #ifndef __OPTIONS_H__
 #define __OPTIONS_H__
 
-namespace banggame::options {
-    constexpr int card_width = 60;
-    constexpr int card_xoffset = 10;
-    constexpr int card_yoffset = 55;
+#include "utils/reflector.h"
+#include "utils/json_serial.h"
 
-    constexpr int player_hand_width = 180;
-    constexpr int player_view_height = 220;
+#include "utils/sdl.h"
 
-    constexpr int one_hp_size = 18;
-    constexpr int character_offset = 20;
+#ifdef NDEBUG
 
-    constexpr int gold_yoffset = 60;
+#include <sstream>
+DECLARE_RESOURCE(game_options_json)
 
-    constexpr int deck_xoffset = 200;
-    constexpr int shop_xoffset = 10;
+#else
 
-    constexpr int discard_xoffset = 70;
-    
-    constexpr int selection_yoffset = 100;
-    constexpr int selection_width = 300;
+#include <fstream>
 
-    constexpr int shop_selection_width = 150;
+#endif
 
-    constexpr int shop_choice_width = 130;
-    constexpr int shop_choice_offset = 20;
+namespace json {
+    template<> struct deserializer<sdl::color> {
+        sdl::color operator()(const Json::Value &value) const {
+            if (value.isArray() && value.size() >= 3) {
+                return {
+                    uint8_t(value[0].asInt()),
+                    uint8_t(value[1].asInt()),
+                    uint8_t(value[2].asInt()),
+                    uint8_t(value.size() == 4 ? value[3].asInt() : 0xff)
+                };
+            } else {
+                return sdl::rgba(value.asInt());
+            }
+        }
+    };
+}
 
-    constexpr int cube_pile_size = 50;
-    constexpr int cube_pile_xoffset = 70;
+namespace banggame {
 
-    constexpr int cube_xdiff = -20;
-    constexpr int cube_ydiff = -25;
-    constexpr int cube_yoff = 12;
+    struct options_t {REFLECTABLE(
+        (int) card_width,
+        (int) card_xoffset,
+        (int) card_yoffset,
 
-    constexpr int scenario_deck_xoff = 40;
+        (int) card_suit_offset,
+        (float) card_suit_scale,
 
-    constexpr int player_ellipse_x_distance = 250;
-    constexpr int player_ellipse_y_distance = 180;
+        (int) player_hand_width,
+        (int) player_view_height,
 
-    constexpr int card_overlay_timer = 60;
+        (int) one_hp_size,
+        (int) character_offset,
 
-    constexpr int default_border_thickness = 5;
+        (int) gold_yoffset,
 
-    constexpr int status_text_y_distance = 45;
-    constexpr uint32_t status_text_background_rgba = 0xffffff80;
+        (int) deck_xoffset,
+        (int) shop_xoffset,
 
-    constexpr uint32_t player_view_border_rgba = 0x2d1000ff;
+        (int) discard_xoffset,
+        
+        (int) selection_yoffset,
+        (int) selection_width,
 
-    constexpr uint32_t turn_indicator_rgba = 0x4d7f21ff;
-    constexpr uint32_t request_origin_indicator_rgba = 0x7bf7ffff;
-    constexpr uint32_t request_target_indicator_rgba = 0xff0000ff;
-    constexpr uint32_t winner_indicator_rgba = 0xbba14fff;
+        (int) shop_selection_width,
 
-    constexpr uint32_t target_finder_current_card_rgba = 0x306effee;
-    constexpr uint32_t target_finder_target_rgba = 0xff0000aa;
-    constexpr uint32_t target_finder_can_respond_rgba = 0x1ed760aa;
-    constexpr uint32_t target_finder_can_pick_rgba = 0xffffffaa;
+        (int) shop_choice_width,
+        (int) shop_choice_offset,
+
+        (int) cube_pile_size,
+        (int) cube_pile_xoffset,
+
+        (int) cube_xdiff,
+        (int) cube_ydiff,
+        (int) cube_yoff,
+
+        (int) scenario_deck_xoff,
+
+        (int) player_ellipse_x_distance,
+        (int) player_ellipse_y_distance,
+
+        (int) card_overlay_timer,
+
+        (int) default_border_thickness,
+
+        (float) easing_exponent,
+
+        (int) card_margin,
+        (int) role_yoff,
+        (int) propic_yoff,
+        (int) username_yoff,
+
+        (int) status_text_y_distance,
+
+        (sdl::color) status_text_background,
+
+        (sdl::color) player_view_border,
+
+        (sdl::color) turn_indicator,
+        (sdl::color) request_origin_indicator,
+        (sdl::color) request_target_indicator,
+        (sdl::color) winner_indicator,
+
+        (sdl::color) target_finder_current_card,
+        (sdl::color) target_finder_target,
+        (sdl::color) target_finder_can_respond,
+        (sdl::color) target_finder_can_pick
+    )};
+
+    static inline const options_t options = []{
+        #ifndef NDEBUG
+            std::ifstream options_stream("resources/game_options.json");
+            if (!options_stream) {
+                throw std::runtime_error("Could not load game_options.json");
+            }
+        #else
+            auto options_res = GET_RESOURCE(game_options_json);
+            std::stringstream options_stream(std::string(options_res.data, options_res.length));
+        #endif
+        Json::Value json_value;
+        options_stream >> json_value;
+        return json::deserialize<options_t>(json_value);
+    }();
 }
 
 #endif

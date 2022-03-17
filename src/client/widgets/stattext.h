@@ -10,11 +10,11 @@
 
 namespace widgets {
     struct text_style {
-        sdl::color text_color = sdl::rgb(widgets::default_text_rgb);
+        sdl::color text_color = widgets::default_text_color;
         resource media_pak::* text_font = &media_pak::font_arial;
         int text_ptsize = widgets::default_text_ptsize;
         int wrap_length = 0;
-        sdl::color bg_color = sdl::rgba(widgets::default_text_bg_rgba);
+        sdl::color bg_color = widgets::default_text_bgcolor;
         int bg_border_x = 5;
         int bg_border_y = 2;
     };

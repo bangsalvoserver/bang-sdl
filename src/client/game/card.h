@@ -58,7 +58,7 @@ namespace banggame {
         int hflip;
 
     public:
-        uint32_t border_color = 0;
+        sdl::color border_color{};
 
         explicit card_pile_view(int width = 0, bool hflip = false)
             : m_width(width)
@@ -84,7 +84,7 @@ namespace banggame {
         sdl::point pos;
 
         bool animating = false;
-        uint32_t border_color = 0;
+        sdl::color border_color{};
 
         cube_widget(int id) : id(id) {}
 
@@ -105,7 +105,7 @@ namespace banggame {
 
         bool inactive = false;
 
-        uint32_t border_color = 0;
+        sdl::color border_color{};
 
         void set_pos(const sdl::point &pos);
         const sdl::point &get_pos() const {

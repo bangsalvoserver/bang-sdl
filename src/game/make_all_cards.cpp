@@ -102,7 +102,7 @@ namespace banggame {
         if (json_card.isMember("hidden")) {
             out.hidden = json_card["hidden"].asBool();
         }
-#ifndef DISABLE_TESTING
+#ifndef NDEBUG
         if (json_card.isMember("testing")) {
             out.testing = json_card["testing"].asBool();
         }

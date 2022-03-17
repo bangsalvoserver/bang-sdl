@@ -11,7 +11,7 @@ namespace banggame {
         bool discard_if_two_players = false;
         bool hidden = false;
 
-#ifndef DISABLE_TESTING
+#ifndef NDEBUG
         bool testing = false;
 #endif
     };

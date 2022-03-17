@@ -26,7 +26,7 @@ void lobby_scene::lobby_player_item::set_pos(int x, int y) {
 
 void lobby_scene::lobby_player_item::render(sdl::renderer &renderer) {
     if (parent->parent->get_user_own_id() == m_user_id) {
-        m_propic.set_border_color(sdl::rgba(widgets::propic_border_rgba));
+        m_propic.set_border_color(widgets::propic_border_color);
     } else {
         m_propic.set_border_color({});
     }
@@ -37,7 +37,7 @@ void lobby_scene::lobby_player_item::render(sdl::renderer &renderer) {
         sdl::rect rect = media_pak::get().icon_owner.get_rect();
         rect.x = m_propic.get_pos().x - 60;
         rect.y = m_propic.get_pos().y - rect.h / 2;
-        media_pak::get().icon_owner.render_colored(renderer, rect, sdl::rgba(widgets::propic_border_rgba));
+        media_pak::get().icon_owner.render_colored(renderer, rect, widgets::propic_border_color);
     }
 }
 

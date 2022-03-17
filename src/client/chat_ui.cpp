@@ -53,13 +53,13 @@ widgets::text_style chat_ui::get_text_style(message_type type) {
     switch (type) {
     case message_type::error:
         return {
-            .text_color = sdl::rgb(widgets::error_text_rgb),
+            .text_color = widgets::error_text_color,
             .text_ptsize = widgets::error_text_ptsize,
             .wrap_length = m_rect.w
         };
     case message_type::server_log:
         return {
-            .text_color = sdl::rgb(widgets::server_log_rgb),
+            .text_color = widgets::server_log_color,
             .text_ptsize = widgets::chat_text_ptsize,
             .wrap_length = m_rect.w
         };

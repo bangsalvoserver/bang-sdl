@@ -63,7 +63,7 @@ void game_ui::render(sdl::renderer &renderer) {
 
         sdl::rect rect = text.get_rect();
         rect.x = (parent->parent->width() - rect.w) / 2;
-        rect.y = (parent->parent->height() - rect.h) - options::status_text_y_distance;
+        rect.y = (parent->parent->height() - rect.h) - options.status_text_y_distance;
         text.set_rect(rect);
         text.render(renderer);
     };

@@ -1,21 +1,23 @@
 #ifndef __DEFAULTS_H__
 #define __DEFAULTS_H__
 
+#include "utils/sdl.h"
+
 namespace widgets {
 
-    constexpr uint32_t default_text_rgb = 0x0;
-    constexpr uint32_t default_text_bg_rgba = 0xffffff80;
+    constexpr sdl::color default_text_color = sdl::rgb(0x0);
+    constexpr sdl::color default_text_bgcolor = sdl::rgba(0xffffff80);
     constexpr int default_text_ptsize = 18;
 
-    constexpr uint32_t default_button_up_rgb = 0xeeeeee;
-    constexpr uint32_t default_button_hover_rgb = 0xddddff;
-    constexpr uint32_t default_button_down_rgb = 0xccccff;
-    constexpr uint32_t default_button_toggled_rgb = 0xbbbbff;
-    constexpr uint32_t default_button_border_rgb = 0x0;
+    constexpr sdl::color default_button_up_color = sdl::rgb(0xeeeeee);
+    constexpr sdl::color default_button_hover_color = sdl::rgb(0xddddff);
+    constexpr sdl::color default_button_down_color = sdl::rgb(0xccccff);
+    constexpr sdl::color default_button_toggled_color = sdl::rgb(0xbbbbff);
+    constexpr sdl::color default_button_border_color = sdl::rgb(0x0);
 
-    constexpr uint32_t default_textbox_background_rgb = 0xffffff;
-    constexpr uint32_t default_textbox_border_rgb = 0x0;
-    constexpr uint32_t default_textbox_selection_rgb = 0x00c0ff;
+    constexpr sdl::color default_textbox_background_color = sdl::rgb(0xffffff);
+    constexpr sdl::color default_textbox_border_color = sdl::rgb(0x0);
+    constexpr sdl::color default_textbox_selection_color = sdl::rgb(0x00c0ff);
     
     constexpr int chat_message_lifetime = 1000;
 
@@ -24,12 +26,12 @@ namespace widgets {
 
     constexpr int chat_log_ptsize = 12;
 
-    constexpr uint32_t error_text_rgb = 0xff0000;
+    constexpr sdl::color error_text_color = sdl::rgb(0xff0000);
     constexpr int error_text_ptsize = 14;
 
-    constexpr uint32_t server_log_rgb = 0x0000ff;
+    constexpr sdl::color server_log_color = sdl::rgb(0x0000ff);
 
-    constexpr uint32_t propic_border_rgba = 0xa79c78ff;
+    constexpr sdl::color propic_border_color = sdl::rgba(0xa79c78ff);
 
 }
 

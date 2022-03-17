@@ -2,6 +2,8 @@
 
 #include <cmath>
 
+#include "options.h"
+
 namespace banggame {
 
     inline float ease_in_out_pow(float exp, float x) {
@@ -12,7 +14,7 @@ namespace banggame {
         ++elapsed;
         std::visit([this](auto &anim) {
             if constexpr (requires (float value) { anim.do_animation(value); }) {
-                anim.do_animation(ease_in_out_pow(1.8f, (float)elapsed / (float)duration));
+                anim.do_animation(ease_in_out_pow(options.easing_exponent, (float)elapsed / (float)duration));
             }
         }, m_anim);
     }

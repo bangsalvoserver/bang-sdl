@@ -8,11 +8,11 @@ namespace widgets {
 
     struct button_style {
         text_style text;
-        sdl::color up_color = sdl::rgb(default_button_up_rgb);
-        sdl::color hover_color = sdl::rgb(default_button_hover_rgb);
-        sdl::color down_color = sdl::rgb(default_button_down_rgb);
-        sdl::color toggled_color = sdl::rgb(default_button_toggled_rgb);
-        sdl::color border_color = sdl::rgb(default_button_border_rgb);
+        sdl::color up_color = default_button_up_color;
+        sdl::color hover_color = default_button_hover_color;
+        sdl::color down_color = default_button_down_color;
+        sdl::color toggled_color = default_button_toggled_color;
+        sdl::color border_color = default_button_border_color;
     };
 
     class button : public event_handler {

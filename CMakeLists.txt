@@ -99,11 +99,12 @@ target_link_libraries(bangclient PkgConfig::SDL2 PkgConfig::SDL2_ttf PkgConfig::
 
 add_dependencies(bangclient cards_pak media_pak)
 
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+    target_link_libraries(bangclient game_options)
+endif()
+
 add_library(banggame SHARED ${banggame_srcs})
 target_link_libraries(banggame PkgConfig::jsoncpp)
-if (CMAKE_BUILD_TYPE STREQUAL "Release")
-    target_compile_definitions(banggame PRIVATE DISABLE_TESTING)
-endif()
 
 add_library(bangnet SHARED ${bangnet_srcs})
 target_link_libraries(bangnet asio banggame)

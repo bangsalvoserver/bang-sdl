@@ -1,3 +1,29 @@
+function(compile_resources target_name)
+    foreach(file IN LISTS ARGN)
+        get_filename_component(varname "${file}" NAME)
+        string(MAKE_C_IDENTIFIER "${varname}" varname)
+
+        set(resource_c_file "${CMAKE_CURRENT_BINARY_DIR}/${file}.c")
+        list(APPEND out_list "${resource_c_file}")
+
+        add_custom_command(
+            OUTPUT "${resource_c_file}"
+            COMMAND ${CMAKE_COMMAND}
+                -D "resource_file_name=${CMAKE_CURRENT_SOURCE_DIR}/${file}"
+                -D "source_file_name=${resource_c_file}"
+                -D "variable_name=__resource__${varname}"
+                -P "${CMAKE_CURRENT_SOURCE_DIR}/EmbedResource.cmake"
+            DEPENDS "${file}"
+            VERBATIM
+        )
+    endforeach()
+    add_library(${target_name} OBJECT ${out_list})
+endfunction()
+
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+    compile_resources(game_options game_options.json)
+endif()
+
 add_executable(packer pack.cpp)
 function(pack_resources target_name out_file in_files)
     foreach(file ${in_files})

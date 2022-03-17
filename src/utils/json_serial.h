@@ -122,15 +122,18 @@ namespace json {
         deserializer<T>{}(value);
     };
 
-    template<typename T> requires requires (const Json::Value &value) {
+    template<typename T>
+    concept convertible_from_json_value = requires (const Json::Value &value) {
         { value.as<T>() } -> std::convertible_to<T>;
-    } struct deserializer<T> {
+    };
+
+    template<convertible_from_json_value T> struct deserializer<T> {
         T operator()(const Json::Value &value) const {
             return value.as<T>();
         }
     };
 
-    template<std::integral T>
+    template<std::integral T> requires (!convertible_from_json_value<T>)
     struct deserializer<T> {
         T operator()(const Json::Value &value) const {
             return value.asInt();

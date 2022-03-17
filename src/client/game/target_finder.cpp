@@ -23,25 +23,25 @@ void target_finder::set_border_colors() {
         case card_pile_type::player_table:
         case card_pile_type::player_character:
         case card_pile_type::selection:
-            card->border_color = options::target_finder_can_pick_rgba;
+            card->border_color = options.target_finder_can_pick;
             break;
         case card_pile_type::main_deck:
-            m_game->m_main_deck.border_color = options::target_finder_can_pick_rgba;
+            m_game->m_main_deck.border_color = options.target_finder_can_pick;
             break;
         case card_pile_type::discard_pile:
-            m_game->m_discard_pile.border_color = options::target_finder_can_pick_rgba;
+            m_game->m_discard_pile.border_color = options.target_finder_can_pick;
             break;
         }
     }
     for (auto *card : m_response_highlights) {
-        card->border_color = options::target_finder_can_respond_rgba;
+        card->border_color = options.target_finder_can_respond;
     }
     for (auto *card : m_modifiers) {
-        card->border_color = options::target_finder_current_card_rgba;
+        card->border_color = options.target_finder_current_card;
     }
 
     if (m_playing_card) {
-        m_playing_card->border_color = options::target_finder_current_card_rgba;
+        m_playing_card->border_color = options.target_finder_current_card;
     }
 
     for (auto &[value, is_auto] : m_targets) {
@@ -50,23 +50,23 @@ void target_finder::set_border_colors() {
                 [](target_none) {},
                 [](target_other_players) {},
                 [](target_player p) {
-                    p.player->border_color = options::target_finder_target_rgba;
+                    p.player->border_color = options.target_finder_target;
                 },
                 [&](target_card c) {
                     if (std::ranges::find(m_selected_cubes, c.card, &cube_widget::owner) == m_selected_cubes.end()) {
-                        c.card->border_color = options::target_finder_target_rgba;
+                        c.card->border_color = options.target_finder_target;
                     }
                 },
                 [](const target_cards &cs) {
                     for (target_card c : cs) {
-                        c.card->border_color = options::target_finder_target_rgba;
+                        c.card->border_color = options.target_finder_target;
                     }
                 }
             }, value);
         }
     }
     for (auto *cube : m_selected_cubes) {
-        cube->border_color = options::target_finder_target_rgba;
+        cube->border_color = options.target_finder_target;
     }
 }
 
@@ -105,7 +105,7 @@ void target_finder::set_response_highlights(const request_status_args &args) {
 
 void target_finder::clear_status() {
     for (card_view *card : m_response_highlights) {
-        card->border_color = 0;
+        card->border_color = {};
     }
     for (auto &[pile, player, card] : m_picking_highlights) {
         switch (pile) {
@@ -113,13 +113,13 @@ void target_finder::clear_status() {
         case card_pile_type::player_table:
         case card_pile_type::player_character:
         case card_pile_type::selection:
-            card->border_color = 0;
+            card->border_color = {};
             break;
         case card_pile_type::main_deck:
-            m_game->m_main_deck.border_color = 0;
+            m_game->m_main_deck.border_color = {};
             break;
         case card_pile_type::discard_pile:
-            m_game->m_discard_pile.border_color = 0;
+            m_game->m_discard_pile.border_color = {};
             break;
         }
     }
@@ -130,10 +130,10 @@ void target_finder::clear_status() {
 
 void target_finder::clear_targets() {
     if (m_playing_card) {
-        m_playing_card->border_color = 0;
+        m_playing_card->border_color = {};
     }
     for (card_view *card : m_modifiers) {
-        card->border_color = 0;
+        card->border_color = {};
     }
     for (auto &[value, is_auto] : m_targets) {
         if (!is_auto) {
@@ -141,21 +141,21 @@ void target_finder::clear_targets() {
                 [](target_none) {},
                 [](target_other_players) {},
                 [this](target_player p) {
-                    p.player->border_color = m_game->m_playing_id == p.player->id ? options::turn_indicator_rgba : 0;
+                    p.player->border_color = m_game->m_playing_id == p.player->id ? options.turn_indicator : sdl::color{};
                 },
                 [](target_card c) {
-                    c.card->border_color = 0;
+                    c.card->border_color = {};
                 },
                 [](const target_cards &cs) {
                     for (target_card c : cs) {
-                        c.card->border_color = 0;
+                        c.card->border_color = {};
                     }
                 }
             }, value);
         }
     }
     for (cube_widget *cube : m_selected_cubes) {
-        cube->border_color = 0;
+        cube->border_color = {};
     }
     m_game->m_shop_choice.clear();
     static_cast<target_status &>(*this) = {};
