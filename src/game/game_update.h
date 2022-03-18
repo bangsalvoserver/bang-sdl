@@ -73,6 +73,10 @@ namespace banggame {
         (int) user_id
     )};
 
+    struct player_remove_update {REFLECTABLE(
+        (int) player_id
+    )};
+
     struct player_hp_update {REFLECTABLE(
         (int) player_id,
         (int) hp,
@@ -143,6 +147,7 @@ namespace banggame {
         (last_played_card, card_id_args)
         (force_play_card, card_id_args)
         (player_add, player_user_update)
+        (player_remove, player_remove_update)
         (player_hp, player_hp_update)
         (player_gold, player_gold_update)
         (player_show_role, player_show_role_update)

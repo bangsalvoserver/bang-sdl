@@ -117,6 +117,8 @@ namespace banggame {
         (int) shop_deck_shuffle_pause_ticks,
 
         (int) status_text_y_distance,
+        (int) icon_dead_players_yoff,
+        (int) pile_dead_players_yoff,
 
         (sdl::color) status_text_background,
 
@@ -126,6 +128,7 @@ namespace banggame {
         (sdl::color) request_origin_indicator,
         (sdl::color) request_target_indicator,
         (sdl::color) winner_indicator,
+        (sdl::color) icon_dead_players,
 
         (sdl::color) target_finder_current_card,
         (sdl::color) target_finder_target,

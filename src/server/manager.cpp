@@ -149,21 +149,17 @@ void game_manager::HANDLE_MESSAGE(lobby_join, user_ptr user, const lobby_join_ar
             send_message<server_message_type::lobby_add_user>(user->first, p->first, p->second.name, p->second.profile_image);
         }
         if (lobby.state != lobby_state::waiting) {
-            player *controlling = nullptr;
-
-            if (auto dc_player = std::ranges::find(lobby.game.m_players, 0, &player::client_id); dc_player != lobby.game.m_players.end()) {
-                dc_player->client_id = user->first;
-                controlling = &*dc_player;
-            }
-
             send_message<server_message_type::game_started>(user->first, lobby.game.m_options.expansions);
+
+            player *controlling = lobby.game.find_disconnected_player();
             if (controlling) {
+                controlling->client_id = user->first;
                 broadcast_message<server_message_type::game_update>(lobby,
-                    enums::enum_constant<game_update_type::player_add>{}, controlling->id, user->first);
+                    enums::enum_constant<game_update_type::player_add>{}, controlling->id, controlling->client_id);
             }
 
             for (const player &p : lobby.game.m_players) {
-                if (&p != controlling) {
+                if (&p != controlling && (p.alive() || lobby.game.has_expansion(card_expansion_type::ghostcards))) {
                     send_message<server_message_type::game_update>(user->first, enums::enum_constant<game_update_type::player_add>{},
                         p.id, p.client_id);
                 }

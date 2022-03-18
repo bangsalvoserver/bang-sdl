@@ -75,6 +75,11 @@ void game_scene::refresh_layout() {
         win_rect.w / 2 + options.deck_xoffset + options.card_width + options.card_xoffset,
         win_rect.h / 2});
 
+    m_dead_roles_pile.set_pos(sdl::point{
+        win_rect.w - options.card_width / 2 - options.card_margin,
+        options.pile_dead_players_yoff
+    });
+
     move_player_views();
 
     for (cube_widget &cube : m_cubes) {
@@ -215,6 +220,18 @@ void game_scene::render(sdl::renderer &renderer) {
 
     for (card_view *card : m_shop_choice) {
         card->render(renderer);
+    }
+
+    for (card_view *card : m_dead_roles_pile) {
+        card->render(renderer);
+    }
+
+    if (!m_dead_roles_pile.empty()) {
+        const sdl::texture &icon = media_pak::get().icon_dead_players;
+        sdl::rect rect = icon.get_rect();
+        rect.x = m_dead_roles_pile.get_pos().x - rect.w / 2;
+        rect.y = options.icon_dead_players_yoff;
+        icon.render_colored(renderer, rect, options.icon_dead_players);
     }
 
     if (!m_animations.empty()) {
@@ -447,9 +464,8 @@ std::string game_scene::evaluate_format_string(const game_formatted_string &str)
                 }
             },
             [&](player_format_id value) {
-                return value.player_id
-                    ? find_player(value.player_id)->m_username_text.get_value()
-                    : _("STATUS_UNKNOWN_PLAYER");
+                player_view *p = value.player_id ? find_player(value.player_id) : nullptr;
+                return p ? p->m_username_text.get_value() : _("STATUS_UNKNOWN_PLAYER");
             }
         }, arg);
     }));
@@ -779,6 +795,28 @@ void game_scene::HANDLE_UPDATE(player_add, const player_user_update &args) {
     pop_update();
 }
 
+void game_scene::HANDLE_UPDATE(player_remove, const player_remove_update &args) {
+    if (args.player_id == m_player_own_id) {
+        m_player_own_id = 0;
+    }
+
+    if (auto it = m_players.find(args.player_id); it != m_players.end()) {
+        role_card &card = m_dead_roles.emplace_back(std::move(it->m_role));
+        card.flip_amt = 1.f;
+        card.pile = &m_dead_roles_pile;
+        m_dead_roles_pile.push_back(&card);
+
+        m_players.erase(it);
+        move_player_views();
+
+        card_move_animation anim;
+        anim.add_move_card(&card);
+        m_animations.emplace_back(options.move_card_ticks, std::move(anim));
+    } else {
+        pop_update();
+    }
+}
+
 void game_scene::HANDLE_UPDATE(player_hp, const player_hp_update &args) {
     player_view *player = find_player(args.player_id);
     int prev_hp = player->hp;
@@ -800,24 +838,33 @@ void game_scene::HANDLE_UPDATE(player_gold, const player_gold_update &args) {
 }
 
 void game_scene::HANDLE_UPDATE(player_show_role, const player_show_role_update &args) {
-    auto &p = *find_player(args.player_id);
-    if (p.m_role.role == args.role) {
-        pop_update();
-    } else {
-        p.m_role.role = args.role;
-        p.m_role.make_texture_front();
-        if (args.instant) {
-            if (args.role == player_role::sheriff) {
-                p.set_hp_marker_position(++p.hp);
-            }
-            p.m_role.flip_amt = 1.f;
+    if (auto *p = find_player(args.player_id)) {
+        if (p->m_role.role == args.role) {
             pop_update();
         } else {
-            m_animations.emplace_back(options.flip_role_ticks, std::in_place_type<card_flip_animation>, &p.m_role, false);
+            p->m_role.role = args.role;
+            p->m_role.make_texture_front();
+            if (args.instant) {
+                if (args.role == player_role::sheriff) {
+                    p->set_hp_marker_position(++p->hp);
+                }
+                p->m_role.flip_amt = 1.f;
+                pop_update();
+            } else {
+                m_animations.emplace_back(options.flip_role_ticks, std::in_place_type<card_flip_animation>, &p->m_role, false);
+            }
         }
+        move_player_views();
+    } else {
+        role_card &card = m_dead_roles.emplace_back();
+        card.flip_amt = 1.f;
+        card.role = args.role;
+        card.make_texture_front();
+        card.pile = &m_dead_roles_pile;
+        m_dead_roles_pile.push_back(&card);
+        card.set_pos(m_dead_roles_pile.get_position_of(&card));
+        pop_update();
     }
-
-    move_player_views();
 }
 
 void game_scene::HANDLE_UPDATE(player_status, const player_status_update &args) {

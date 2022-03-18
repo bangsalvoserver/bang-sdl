@@ -20,6 +20,9 @@ media_pak::media_pak(const std::filesystem::path &base_path) {
     icon_origin =           sdl::texture(sdl::surface(media_pak["icon_origin"]));
     icon_target =           sdl::texture(sdl::surface(media_pak["icon_target"]));
     icon_winner =           sdl::texture(sdl::surface(media_pak["icon_winner"]));
+
+    icon_dead_players =     sdl::texture(sdl::surface(media_pak["icon_dead_players"]));
+
     icon_gold =             sdl::texture(sdl::surface(media_pak["icon_gold"]));
 
     sprite_cube =           sdl::texture(sdl::surface(media_pak["sprite_cube"]));

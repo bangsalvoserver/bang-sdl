@@ -79,6 +79,7 @@ set(media_files
     media/icon_origin.png
     media/icon_target.png
     media/icon_winner.png
+    media/icon_dead_players.png
     media/sprite_cube.png
     media/sprite_cube_border.png
     media/fonts/arial.ttf

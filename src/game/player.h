@@ -34,6 +34,7 @@ namespace banggame {
         std::vector<card *> m_backup_character;
 
         player_role m_role;
+        bool m_role_revealed = false;
 
         struct predraw_check {
             int priority;

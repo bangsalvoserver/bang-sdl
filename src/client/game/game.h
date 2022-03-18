@@ -48,6 +48,7 @@ namespace banggame {
         void HANDLE_UPDATE(last_played_card, const card_id_args &args);
         void HANDLE_UPDATE(force_play_card,  const card_id_args &args);
         void HANDLE_UPDATE(player_add,       const player_user_update &args);
+        void HANDLE_UPDATE(player_remove,    const player_remove_update &args);
         void HANDLE_UPDATE(player_hp,        const player_hp_update &args);
         void HANDLE_UPDATE(player_gold,      const player_gold_update &args);
         void HANDLE_UPDATE(player_show_role, const player_show_role_update &args);
@@ -82,6 +83,9 @@ namespace banggame {
 
         card_pile_view m_main_deck;
         card_pile_view m_discard_pile;
+
+        std::list<role_card> m_dead_roles;
+        role_pile m_dead_roles_pile;
 
         widgets::stattext m_main_deck_count;
         void update_main_deck_count();

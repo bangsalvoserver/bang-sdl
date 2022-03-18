@@ -76,6 +76,10 @@ namespace banggame {
         sdl::point get_position_of(card_view *card) const override;
     };
 
+    struct role_pile : card_pile_view {
+        sdl::point get_position_of(card_view *card) const override;
+    };
+
     class cube_widget {
     public:
         card_view *owner = nullptr;

@@ -36,6 +36,21 @@ namespace banggame {
         throw game_error("server.find_player: ID not found"_nonloc);
     }
 
+    player *game::find_disconnected_player() {
+        auto dc_view = std::ranges::filter_view(m_players, [](const player &p) { return p.client_id == 0; });
+        if (dc_view.empty()) return nullptr;
+
+        auto first_alive = std::ranges::find_if(dc_view, &player::alive);
+        if (first_alive != dc_view.end()) {
+            return &*first_alive;
+        }
+        if (has_expansion(card_expansion_type::ghostcards)) {
+            return &dc_view.front();
+        } else {
+            return nullptr;
+        }
+    }
+
     std::vector<game_update> game::get_game_state_updates(player *owner) {
         std::vector<game_update> ret;
 #define ADD_TO_RET(name, ...) ret.emplace_back(enums::enum_constant<game_update_type::name>{} __VA_OPT__(,) __VA_ARGS__)
@@ -81,20 +96,22 @@ namespace banggame {
         }
 
         for (auto &p : m_players) {
-            if (p.m_role == player_role::sheriff || !p.alive() || p.check_player_flags(player_flags::ghost) || m_players.size() < 4 || &p == owner) {
+            if (p.m_role_revealed || &p == owner) {
                 ADD_TO_RET(player_show_role, p.id, p.m_role, true);
             }
 
-            move_cards(p.m_characters, show_always);
-            move_cards(p.m_backup_character, show_never);
+            if (p.alive() || has_expansion(card_expansion_type::ghostcards)) {
+                move_cards(p.m_characters, show_always);
+                move_cards(p.m_backup_character, show_never);
 
-            move_cards(p.m_table, show_always);
-            move_cards(p.m_hand, [&](const card &c){ return c.owner == owner || c.deck == card_deck_type::character; });
+                move_cards(p.m_table, show_always);
+                move_cards(p.m_hand, [&](const card &c){ return c.owner == owner || c.deck == card_deck_type::character; });
 
-            ADD_TO_RET(player_hp, p.id, p.m_hp, !p.alive(), true);
-            
-            if (p.m_gold != 0) {
-                ADD_TO_RET(player_gold, p.id, p.m_gold);
+                ADD_TO_RET(player_hp, p.id, p.m_hp, !p.alive(), true);
+                
+                if (p.m_gold != 0) {
+                    ADD_TO_RET(player_gold, p.id, p.m_gold);
+                }
             }
         }
 
@@ -639,7 +656,9 @@ namespace banggame {
         if (winner_role != player_role::unknown) {
             add_public_update<game_update_type::status_clear>();
             for (const auto &p : m_players) {
-                add_public_update<game_update_type::player_show_role>(p.id, p.m_role);
+                if (!p.m_role_revealed) {
+                    add_public_update<game_update_type::player_show_role>(p.id, p.m_role);
+                }
             }
             add_log("LOG_GAME_OVER");
             add_public_update<game_update_type::game_over>(winner_role);
@@ -665,6 +684,10 @@ namespace banggame {
                 draw_card_to(card_pile_type::player_hand, killer);
                 draw_card_to(card_pile_type::player_hand, killer);
             }
+        }
+
+        if (!has_expansion(card_expansion_type::ghostcards)) {
+            add_public_update<game_update_type::player_remove>(target->id);
         }
     }
 
@@ -697,6 +720,7 @@ namespace banggame {
 
         add_public_update<game_update_type::player_hp>(target->id, 0, true);
         add_public_update<game_update_type::player_show_role>(target->id, target->m_role);
+        target->m_role_revealed = true;
     }
 
     void game::add_disabler(card *target_card, card_disabler_fun &&fun) {

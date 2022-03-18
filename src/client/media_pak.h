@@ -23,6 +23,8 @@ public:
     sdl::texture icon_target;
     sdl::texture icon_winner;
 
+    sdl::texture icon_dead_players;
+
     sdl::texture icon_gold;
 
     sdl::texture sprite_cube;

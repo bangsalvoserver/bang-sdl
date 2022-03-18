@@ -96,6 +96,8 @@ namespace banggame {
         card *find_card(int card_id);
         player *find_player(int player_id);
 
+        player *find_disconnected_player();
+
         std::default_random_engine rng;
 
         void shuffle_cards_and_ids(std::vector<card *> &vec);

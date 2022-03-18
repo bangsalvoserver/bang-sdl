@@ -210,6 +210,11 @@ namespace banggame {
         return sdl::point{pos.x + options.character_offset * diff, pos.y + options.character_offset * diff};
     }
 
+    sdl::point role_pile::get_position_of(card_view *card) const {
+        int diff = std::ranges::distance(begin(), std::ranges::find(*this, card));
+        return sdl::point{pos.x, pos.y + options.card_yoffset * diff};
+    }
+
     void card_pile_view::erase_card(card_view *card) {
         if (auto it = std::ranges::find(*this, card); it != end()) {
             erase(it);
