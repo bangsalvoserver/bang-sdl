@@ -109,7 +109,7 @@ namespace banggame {
         origin->m_game->pop_request();
     }
 
-    void handler_fanning::verify(card *origin_card, player *origin, mth_target_list targets) const {
+    void handler_fanning::verify(card *origin_card, player *origin, const mth_target_list &targets) const {
         player *target_players[] = {
             std::get<player *>(targets[0]),
             std::get<player *>(targets[1])
@@ -121,7 +121,7 @@ namespace banggame {
         }
     }
 
-    void handler_fanning::on_play(card *origin_card, player *origin, mth_target_list targets) {
+    void handler_fanning::on_play(card *origin_card, player *origin, const mth_target_list &targets) {
         for (auto [target, _] : targets) {
             effect_bang{}.on_play(origin_card, origin, target, effect_flags::escapable);
         }

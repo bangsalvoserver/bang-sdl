@@ -6,7 +6,7 @@
 namespace banggame {
 
     struct handler_draw_atend {
-        void on_play(card *origin_card, player *origin, mth_target_list targets);
+        void on_play(card *origin_card, player *origin, const mth_target_list &targets);
     };
 
     struct effect_select_cube {
@@ -74,8 +74,8 @@ namespace banggame {
     };
 
     struct handler_squaw {
-        void verify(card *origin_card, player *origin, mth_target_list targets) const;
-        void on_play(card *origin_card, player *origin, mth_target_list targets);
+        void verify(card *origin_card, player *origin, const mth_target_list &targets) const;
+        void on_play(card *origin_card, player *origin, const mth_target_list &targets);
     };
 
     struct effect_move_bomb : effect_empty {
@@ -83,7 +83,7 @@ namespace banggame {
     };
 
     struct handler_move_bomb {
-        void on_play(card *origin_card, player *origin, mth_target_list targets);
+        void on_play(card *origin_card, player *origin, const mth_target_list &targets);
     };
 }
 

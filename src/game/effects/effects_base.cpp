@@ -8,7 +8,7 @@ namespace banggame {
     using namespace enums::flag_operators;
 
     void effect_play_card_action::on_play(card *origin_card, player *origin) {
-        origin->play_card_action(origin_card, is_response);
+        origin->play_card_action(origin_card);
     }
 
     void effect_max_usages::verify(card *origin_card, player *origin) const {

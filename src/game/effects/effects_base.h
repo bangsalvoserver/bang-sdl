@@ -6,9 +6,6 @@
 namespace banggame {
 
     struct effect_play_card_action {
-        bool is_response;
-        effect_play_card_action(int value) : is_response(value != 0) {}
-
         void on_play(card *origin_card, player *origin);
     };
 

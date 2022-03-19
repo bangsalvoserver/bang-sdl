@@ -43,7 +43,7 @@ namespace banggame {
         }
     }
 
-    void handler_card_sharper::verify(card *origin_card, player *origin, mth_target_list targets) const {
+    void handler_card_sharper::verify(card *origin_card, player *origin, const mth_target_list &targets) const {
         auto chosen_card = std::get<card *>(targets[0]);
         auto [target, target_card] = targets[1];
 
@@ -55,7 +55,7 @@ namespace banggame {
         }
     }
 
-    void handler_card_sharper::on_play(card *origin_card, player *origin, mth_target_list targets) {
+    void handler_card_sharper::on_play(card *origin_card, player *origin, const mth_target_list &targets) {
         auto chosen_card = std::get<card *>(targets[0]);
         auto [target, target_card] = targets[1];
 
@@ -109,7 +109,7 @@ namespace banggame {
         origin->m_game->send_request_update();
     }
 
-    void handler_lastwill::on_play(card *origin_card, player *origin, mth_target_list targets) {
+    void handler_lastwill::on_play(card *origin_card, player *origin, const mth_target_list &targets) {
         player *target = std::get<player *>(targets[0]);
 
         for (auto [p, c] : targets | std::views::drop(1)) {

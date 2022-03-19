@@ -104,7 +104,7 @@ namespace banggame {
         }
     }
 
-    void handler_flint_westwood::on_play(card *origin_card, player *origin, mth_target_list targets) {
+    void handler_flint_westwood::on_play(card *origin_card, player *origin, const mth_target_list &targets) {
         auto chosen_card = std::get<card *>(targets[0]);
         auto target = std::get<player *>(targets[1]);
 

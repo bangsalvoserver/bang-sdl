@@ -121,13 +121,25 @@ namespace banggame {
             }
         }, *this);
     }
-    
-    void handle_multitarget(card *origin_card, player *origin, mth_target_list targets) {
+
+    void verify_multitarget(card *origin_card, player *origin, const mth_target_list &targets) {
         enums::visit_enum([&](auto enum_const) {
             constexpr mth_type E = decltype(enum_const)::value;
             if constexpr (enums::has_type<E>) {
                 using handler_type = enums::enum_type_t<E>;
-                handler_type{}.on_play(origin_card, origin, std::move(targets));
+                if constexpr (requires (handler_type handler) { handler.verify(origin_card, origin, targets); }) {
+                    handler_type{}.verify(origin_card, origin, targets);
+                }
+            }
+        }, origin_card->multi_target_handler);
+    }
+    
+    void handle_multitarget(card *origin_card, player *origin, const mth_target_list &targets) {
+        enums::visit_enum([&](auto enum_const) {
+            constexpr mth_type E = decltype(enum_const)::value;
+            if constexpr (enums::has_type<E>) {
+                using handler_type = enums::enum_type_t<E>;
+                handler_type{}.on_play(origin_card, origin, targets);
             }
         }, origin_card->multi_target_handler);
     }

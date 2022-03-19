@@ -193,7 +193,7 @@ namespace banggame {
         }
     }
 
-    void handler_doc_holyday::on_play(card *origin_card, player *origin, mth_target_list targets) {
+    void handler_doc_holyday::on_play(card *origin_card, player *origin, const mth_target_list &targets) {
         card *card1 = std::get<card *>(targets[0]);
         card *card2 = std::get<card *>(targets[1]);
         player *target = std::get<player *>(targets[2]);

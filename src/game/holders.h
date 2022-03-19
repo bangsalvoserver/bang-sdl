@@ -10,7 +10,8 @@
 
 namespace banggame {
 
-    void handle_multitarget(card *origin_card, player *origin, mth_target_list targets);
+    void verify_multitarget(card *origin_card, player *origin, const mth_target_list &targets);
+    void handle_multitarget(card *origin_card, player *origin, const mth_target_list &targets);
 
     template<enums::reflected_enum E>
     struct effect_base {

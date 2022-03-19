@@ -9,7 +9,7 @@
 namespace banggame {
     using namespace enums::flag_operators;
 
-    void handler_draw_atend::on_play(card *origin_card, player *origin, mth_target_list targets) {
+    void handler_draw_atend::on_play(card *origin_card, player *origin, const mth_target_list &targets) {
         for (auto [target, _] : targets) {
             target->m_game->draw_card_to(card_pile_type::player_hand, target);
         }
@@ -172,7 +172,7 @@ namespace banggame {
         origin->add_to_hand(origin_card);
     }
 
-    void handler_squaw::verify(card *origin_card, player *origin, mth_target_list targets) const {
+    void handler_squaw::verify(card *origin_card, player *origin, const mth_target_list &targets) const {
         if (targets.size() == 3) {
             auto discarded_card = std::get<card *>(targets[0]);
             for (auto [target, target_card] : targets | std::views::drop(1)) {
@@ -184,7 +184,7 @@ namespace banggame {
         }
     }
 
-    void handler_squaw::on_play(card *origin_card, player *origin, mth_target_list targets) {
+    void handler_squaw::on_play(card *origin_card, player *origin, const mth_target_list &targets) {
         auto [target, target_card] = targets[0];
 
         bool immune = target->immune_to(origin_card);
@@ -227,7 +227,7 @@ namespace banggame {
         return origin->m_game->top_request_is<request_move_bomb>(origin);
     }
 
-    void handler_move_bomb::on_play(card *origin_card, player *origin, mth_target_list targets) {
+    void handler_move_bomb::on_play(card *origin_card, player *origin, const mth_target_list &targets) {
         auto target = std::get<player *>(targets[0]);
         if (!target->immune_to(origin_card)) {
             if (target == origin) {
