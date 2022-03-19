@@ -947,14 +947,14 @@ namespace banggame {
         });
     }
 
-    void player::pass_turn() {
-        if (m_mandatory_card) {
-            if (is_possible_to_play(m_mandatory_card)) {
-                throw game_error("ERROR_MANDATORY_CARD", m_mandatory_card);
-            } else {
-                m_mandatory_card = nullptr;
-            }
+    void player::verify_pass_turn() {
+        if (m_mandatory_card && m_mandatory_card->owner == this && is_possible_to_play(m_mandatory_card)) {
+            throw game_error("ERROR_MANDATORY_CARD", m_mandatory_card);
         }
+    }
+
+    void player::pass_turn() {
+        m_mandatory_card = nullptr;
         if (m_hand.size() > max_cards_end_of_turn()) {
             m_game->queue_request<request_discard_pass>(this);
         } else {

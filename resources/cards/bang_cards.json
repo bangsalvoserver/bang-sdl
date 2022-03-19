@@ -4344,6 +4344,9 @@
             "effects": [
                 {
                     "class": "goldrush"
+                },
+                {
+                    "class": "pass_turn"
                 }
             ],
             "equip": [

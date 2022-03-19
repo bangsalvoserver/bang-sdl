@@ -25,6 +25,10 @@ namespace banggame {
         ++origin_card->usages;
     }
 
+    void effect_pass_turn::verify(card *origin_card, player *origin) const {
+        origin->verify_pass_turn();
+    }
+
     void effect_pass_turn::on_play(card *origin_card, player *origin) {
         origin->pass_turn();
     }

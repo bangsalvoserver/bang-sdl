@@ -18,6 +18,7 @@ namespace banggame {
     };
 
     struct effect_pass_turn {
+        void verify(card *origin_card, player *origin) const;
         void on_play(card *origin_card, player *origin);
     };
 

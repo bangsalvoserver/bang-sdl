@@ -65,6 +65,5 @@ namespace banggame {
             }
         });
         ++origin->m_extra_turns;
-        origin->pass_turn();
     }
 }
