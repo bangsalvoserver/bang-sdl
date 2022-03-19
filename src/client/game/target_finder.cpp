@@ -587,7 +587,7 @@ bool target_finder::verify_player_target(target_player_filter filter, player_vie
         switch (value) {
         case target_player_filter::self: return target_player->id == m_game->m_player_own_id;
         case target_player_filter::notself: return target_player->id != m_game->m_player_own_id;
-        case target_player_filter::notsheriff: return target_player->m_role.role != player_role::sheriff;
+        case target_player_filter::notsheriff: return target_player->m_role->role != player_role::sheriff;
         case target_player_filter::reachable:
             return own_player->m_weapon_range > 0
                 && calc_distance(own_player, target_player) <= own_player->m_weapon_range + own_player->m_range_mod;

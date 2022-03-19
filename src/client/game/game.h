@@ -84,7 +84,6 @@ namespace banggame {
         card_pile_view m_main_deck;
         card_pile_view m_discard_pile;
 
-        std::list<role_card> m_dead_roles;
         role_pile m_dead_roles_pile;
 
         widgets::stattext m_main_deck_count;
@@ -100,6 +99,7 @@ namespace banggame {
         util::id_map<card_view> m_cards;
         util::id_map<player_view> m_players;
         util::id_map<cube_widget> m_cubes;
+        util::id_map<role_card> m_role_cards;
 
         sdl::point m_mouse_pt;
         int m_mouse_motion_timer = 0;

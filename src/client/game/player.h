@@ -27,7 +27,7 @@ namespace banggame {
         character_pile m_characters;
         card_pile_view m_backup_characters;
         
-        role_card m_role;
+        role_card *m_role;
 
         widgets::stattext m_username_text;
 

@@ -22,7 +22,7 @@ namespace banggame {
         m_characters.set_pos(sdl::point{
             m_bounding_rect.x + m_bounding_rect.w - options.card_width - options.card_width / 2 - options.card_margin * 2,
             m_bounding_rect.y + m_bounding_rect.h - options.card_width - options.card_margin});
-        m_role.set_pos(sdl::point(
+        m_role->set_pos(sdl::point(
             m_characters.get_pos().x + options.card_width + options.card_margin,
             m_characters.get_pos().y + options.role_yoff));
         set_hp_marker_position(hp);
@@ -35,7 +35,7 @@ namespace banggame {
         }
 
         m_propic.set_pos(sdl::point{
-            m_role.get_pos().x,
+            m_role->get_pos().x,
             m_bounding_rect.y + options.propic_yoff
         });
 
@@ -45,7 +45,7 @@ namespace banggame {
     void player_view::set_username(const std::string &value) {
         m_username_text.set_value(value);
         sdl::rect username_rect = m_username_text.get_rect();
-        username_rect.x = m_role.get_pos().x - (username_rect.w) / 2;
+        username_rect.x = m_role->get_pos().x - (username_rect.w) / 2;
         username_rect.y = m_bounding_rect.y + options.username_yoff;
         m_username_text.set_rect(username_rect);
     }
@@ -78,7 +78,7 @@ namespace banggame {
             m_bounding_rect.h - 2
         });
 
-        m_role.render(renderer);
+        m_role->render(renderer);
         if (!m_backup_characters.empty()) {
             m_backup_characters.front()->render(renderer);
             if (hp > 5) {

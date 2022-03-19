@@ -194,9 +194,9 @@ void game_scene::render(sdl::renderer &renderer) {
             if (p.id == m_request_origin_id) {
                 render_icon(media_pak::get().icon_origin, options.request_origin_indicator);
             }
-        } else if (p.m_role.role == m_winner_role
-            || (p.m_role.role == player_role::deputy && m_winner_role == player_role::sheriff)
-            || (p.m_role.role == player_role::sheriff && m_winner_role == player_role::deputy)) {
+        } else if (p.m_role->role == m_winner_role
+            || (p.m_role->role == player_role::deputy && m_winner_role == player_role::sheriff)
+            || (p.m_role->role == player_role::sheriff && m_winner_role == player_role::deputy)) {
             render_icon(media_pak::get().icon_winner, options.winner_indicator);
         }
     }
@@ -383,8 +383,8 @@ void game_scene::find_overlay() {
                 return;
             }
         }
-        if (mouse_in_card(&p.m_role)) {
-            m_overlay = &p.m_role;
+        if (mouse_in_card(p.m_role)) {
+            m_overlay = p.m_role;
             return;
         }
         if (m_overlay = find_clicked(p.table)) {
@@ -766,7 +766,7 @@ void game_scene::move_player_views() {
 
     if (auto it = std::ranges::find(m_players,
         m_players.size() < 4 ? player_role::deputy : player_role::sheriff,
-        [](const player_view &p) { return p.m_role.role; }); it != m_players.end())
+        [](const player_view &p) { return p.m_role->role; }); it != m_players.end())
     {
         auto player_rect = it->m_bounding_rect;
         m_scenario_deck.set_pos(sdl::point{
@@ -780,7 +780,12 @@ void game_scene::HANDLE_UPDATE(player_add, const player_user_update &args) {
         m_player_own_id = args.player_id;
     }
     auto &p = m_players.try_emplace(args.player_id).first;
-    p.m_role.texture_back = &card_textures::get().backface_role;
+    {
+        role_card card;
+        card.id = args.player_id;
+        card.texture_back = &card_textures::get().backface_role;
+        p.m_role = &m_role_cards.emplace(std::move(card));
+    }
 
     p.user_id = args.user_id;
     if (user_info *info = parent->get_user_info(args.user_id)) {
@@ -801,16 +806,15 @@ void game_scene::HANDLE_UPDATE(player_remove, const player_remove_update &args) 
     }
 
     if (auto it = m_players.find(args.player_id); it != m_players.end()) {
-        role_card &card = m_dead_roles.emplace_back(std::move(it->m_role));
-        card.flip_amt = 1.f;
-        card.pile = &m_dead_roles_pile;
-        m_dead_roles_pile.push_back(&card);
+        role_card *card = it->m_role;
+        card->pile = &m_dead_roles_pile;
+        m_dead_roles_pile.push_back(card);
 
         m_players.erase(it);
         move_player_views();
 
         card_move_animation anim;
-        anim.add_move_card(&card);
+        anim.add_move_card(card);
         m_animations.emplace_back(options.move_card_ticks, std::move(anim));
     } else {
         pop_update();
@@ -839,30 +843,32 @@ void game_scene::HANDLE_UPDATE(player_gold, const player_gold_update &args) {
 
 void game_scene::HANDLE_UPDATE(player_show_role, const player_show_role_update &args) {
     if (auto *p = find_player(args.player_id)) {
-        if (p->m_role.role == args.role) {
+        if (p->m_role->role == args.role) {
             pop_update();
         } else {
-            p->m_role.role = args.role;
-            p->m_role.make_texture_front();
+            p->m_role->role = args.role;
+            p->m_role->make_texture_front();
             if (args.instant) {
                 if (args.role == player_role::sheriff) {
                     p->set_hp_marker_position(++p->hp);
                 }
-                p->m_role.flip_amt = 1.f;
+                p->m_role->flip_amt = 1.f;
                 pop_update();
             } else {
-                m_animations.emplace_back(options.flip_role_ticks, std::in_place_type<card_flip_animation>, &p->m_role, false);
+                m_animations.emplace_back(options.flip_role_ticks, std::in_place_type<card_flip_animation>, p->m_role, false);
             }
         }
         move_player_views();
     } else {
-        role_card &card = m_dead_roles.emplace_back();
+        role_card card;
+        card.id = args.player_id;
         card.flip_amt = 1.f;
         card.role = args.role;
         card.make_texture_front();
         card.pile = &m_dead_roles_pile;
-        m_dead_roles_pile.push_back(&card);
-        card.set_pos(m_dead_roles_pile.get_position_of(&card));
+
+        auto moved_card = m_dead_roles_pile.emplace_back(&m_role_cards.emplace(std::move(card)));
+        moved_card->set_pos(m_dead_roles_pile.get_position_of(moved_card));
         pop_update();
     }
 }
