@@ -103,6 +103,7 @@ namespace banggame {
         (disable_player_distances)
         (see_everyone_range_1)
         (treat_missed_as_bang)
+        (role_revealed)
     )
 
     struct player_status_update {REFLECTABLE(

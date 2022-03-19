@@ -96,7 +96,7 @@ namespace banggame {
         }
 
         for (auto &p : m_players) {
-            if (p.m_role_revealed || &p == owner) {
+            if (p.check_player_flags(player_flags::role_revealed) || &p == owner) {
                 ADD_TO_RET(player_show_role, p.id, p.m_role, true);
             }
 
@@ -668,7 +668,7 @@ namespace banggame {
         if (winner_role != player_role::unknown) {
             add_public_update<game_update_type::status_clear>();
             for (const auto &p : m_players) {
-                if (!p.m_role_revealed) {
+                if (!p.check_player_flags(player_flags::role_revealed)) {
                     add_public_update<game_update_type::player_show_role>(p.id, p.m_role);
                 }
             }
@@ -732,7 +732,7 @@ namespace banggame {
 
         add_public_update<game_update_type::player_hp>(target->id, 0, true);
         add_public_update<game_update_type::player_show_role>(target->id, target->m_role);
-        target->m_role_revealed = true;
+        target->add_player_flags(player_flags::role_revealed);
     }
 
     void game::add_disabler(card *target_card, card_disabler_fun &&fun) {
