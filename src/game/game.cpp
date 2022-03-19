@@ -457,6 +457,18 @@ namespace banggame {
         }
     }
 
+    void game::add_request(std::shared_ptr<request_base> &&value) {
+        m_requests.emplace_front(std::move(value));
+        send_request_update();
+    }
+
+    void game::queue_request(std::shared_ptr<request_base> &&value) {
+        m_requests.emplace_back(std::move(value));
+        if (m_requests.size() == 1) {
+            send_request_update();
+        }
+    }
+
     std::vector<card *> &game::get_pile(card_pile_type pile, player *owner) {
         switch (pile) {
         case card_pile_type::player_hand:       return owner->m_hand;

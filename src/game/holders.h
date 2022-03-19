@@ -52,9 +52,8 @@ namespace banggame {
 
     class request_holder {
     public:
-        template<std::derived_from<request_base> T, typename ... Ts>
-        request_holder(std::type_identity<T>, Ts && ... args)
-            : m_value(std::make_shared<T>(std::forward<Ts>(args) ... )) {}
+        request_holder(std::shared_ptr<request_base> &&value)
+            : m_value(std::move(value)) {}
 
         card *origin_card() const {
             return m_value->origin_card;

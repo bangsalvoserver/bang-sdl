@@ -19,9 +19,9 @@ namespace banggame {
     }
 
     void effect_sniper::on_play(card *origin_card, player *origin, player *target) {
-        request_bang req{origin_card, origin, target};
-        req.bang_strength = 2;
-        target->m_game->queue_request<request_bang>(std::move(req));
+        auto req = std::make_shared<request_bang>(origin_card, origin, target);
+        req->bang_strength = 2;
+        target->m_game->queue_request(std::move(req));
     }
 
     void effect_startofturn::verify(card *origin_card, player *origin) const {
@@ -110,9 +110,9 @@ namespace banggame {
 
     void effect_russianroulette::on_equip(card *target_card, player *target) {
         auto queue_russianroulette_request = [=](player *target) {
-            request_bang req{target_card, nullptr, target};
-            req.bang_damage = 2;
-            target->m_game->queue_request<request_bang>(std::move(req));
+            auto req = std::make_shared<request_bang>(target_card, nullptr, target);
+            req->bang_damage = 2;
+            target->m_game->queue_request(std::move(req));
         };
         queue_russianroulette_request(target);
         target->m_game->add_event<event_type::on_missed>(target_card, [=](card *origin_card, player *origin, player *target, bool is_bang) {
