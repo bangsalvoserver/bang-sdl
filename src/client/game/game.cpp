@@ -779,8 +779,8 @@ void game_scene::HANDLE_UPDATE(player_add, const player_user_update &args) {
     if (args.user_id == parent->get_user_own_id()) {
         m_player_own_id = args.player_id;
     }
-    auto &p = m_players.try_emplace(args.player_id).first;
-    {
+    auto [p, inserted] = m_players.try_emplace(args.player_id);
+    if (inserted) {
         role_card card;
         card.id = args.player_id;
         card.texture_back = &card_textures::get().backface_role;
