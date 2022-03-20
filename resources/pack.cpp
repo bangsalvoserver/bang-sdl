@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <ranges>
+#include <algorithm>
 #include <filesystem>
 
 struct file_table_item {

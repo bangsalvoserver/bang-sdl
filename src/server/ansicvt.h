@@ -9,7 +9,7 @@ std::string ansi_to_utf8(const std::string &str);
 
 #else
 
-std::string ansi_to_utf8(const std::string &str) {
+inline std::string ansi_to_utf8(const std::string &str) {
     return str;
 }
 

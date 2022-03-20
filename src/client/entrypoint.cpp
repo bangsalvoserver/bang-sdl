@@ -5,10 +5,18 @@
 #include "manager.h"
 #include "media_pak.h"
 
+#include "bangclient_export.h"
+
+#ifdef WIN32
+    #define STDCALL __stdcall
+#else
+    #define STDCALL
+#endif
+
 constexpr int window_width = 900;
 constexpr int window_height = 700;
 
-extern "C" __declspec(dllexport) long __stdcall entrypoint(const char *base_path) {
+extern "C" BANGCLIENT_EXPORT long STDCALL entrypoint(const char *base_path) {
     sdl::initializer sdl_init(SDL_INIT_VIDEO);
     sdl::ttf_initializer sdl_ttf_init;
     sdl::img_initializer sdl_img_init(IMG_INIT_PNG | IMG_INIT_JPG);

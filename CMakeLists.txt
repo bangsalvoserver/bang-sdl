@@ -95,6 +95,11 @@ add_subdirectory(resources)
 add_library(bangclient SHARED ${bangclient_srcs})
 target_compile_definitions(bangclient PRIVATE SDL_MAIN_HANDLED)
 
+include(GenerateExportHeader)
+generate_export_header(bangclient
+    EXPORT_FILE_NAME "${CMAKE_CURRENT_SOURCE_DIR}/src/client/bangclient_export.h"
+)
+
 target_link_libraries(bangclient PkgConfig::SDL2 PkgConfig::SDL2_ttf PkgConfig::SDL2_image PkgConfig::SDL2_gfx PkgConfig::jsoncpp)
 
 add_dependencies(bangclient cards_pak media_pak)
