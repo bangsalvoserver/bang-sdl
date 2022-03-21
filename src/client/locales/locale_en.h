@@ -26,6 +26,7 @@ LOCALE_VALUE(ERROR_CONNECTION_CANCELED,           "Connection canceled")
 LOCALE_VALUE(ERROR_INVALID_ADDRESS,               "Invalid address: {}")
 LOCALE_VALUE(CONNECTING_TO,                       "Connecting to {} ...")
 LOCALE_VALUE(DIALOG_IMAGE_FILES,                  "Image Files")
+LOCALE_VALUE(DIALOG_ALL_FILES,                    "All Files")
 
 LOCALE_VALUE(GAME_CONFIRM,                        "Confirm")
 LOCALE_VALUE(GAME_PASS,                           "Pass turn")

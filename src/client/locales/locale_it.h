@@ -26,6 +26,7 @@ LOCALE_VALUE(ERROR_CONNECTION_CANCELED,           "Connessione annullata")
 LOCALE_VALUE(ERROR_INVALID_ADDRESS,               "Indirizzo non valido: {}")
 LOCALE_VALUE(CONNECTING_TO,                       "In connessione a {} ...")
 LOCALE_VALUE(DIALOG_IMAGE_FILES,                  "File Immagine")
+LOCALE_VALUE(DIALOG_ALL_FILES,                    "Tutti i File")
 
 LOCALE_VALUE(GAME_CONFIRM,                        "Conferma")
 LOCALE_VALUE(GAME_PASS,                           "Passa")

@@ -118,7 +118,15 @@ void connect_scene::do_delete_address(recent_server_line *addr) {
 
 void connect_scene::do_browse_propic() {
     auto &cfg = parent->get_config();
-    if (auto value = os_api::open_file_dialog(_("BANG_TITLE"), cfg.profile_image, "*.jpg;*.png", _("DIALOG_IMAGE_FILES"), &parent->get_window())) {
+    if (auto value = os_api::open_file_dialog(
+            _("BANG_TITLE"),
+            cfg.profile_image,
+            {
+                {{"*.jpg","*.jpeg","*.png"}, _("DIALOG_IMAGE_FILES")},
+                {{"*.*"}, _("DIALOG_ALL_FILES")}
+            },
+            &parent->get_window()
+        )) {
         try {
             cfg.profile_image_data = widgets::profile_pic::scale_profile_image(sdl::surface(resource(*value)));
             m_propic.set_texture(cfg.profile_image_data);
