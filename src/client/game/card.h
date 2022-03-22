@@ -9,6 +9,8 @@
 
 #include "options.h"
 
+#include "../widgets/stattext.h"
+
 #include <filesystem>
 #include <vector>
 #include <list>
@@ -49,51 +51,8 @@ namespace banggame {
         }
     };
 
-    struct card_view;
-
-    class card_pile_view : public std::vector<card_view *> {
-    protected:
-        sdl::point pos;
-        int m_width;
-        int hflip;
-
-    public:
-        sdl::color border_color{};
-
-        explicit card_pile_view(int width = 0, bool hflip = false)
-            : m_width(width)
-            , hflip(hflip ? -1 : 1) {}
-
-        const sdl::point get_pos() const { return pos; }
-        int width() const { return m_width; }
-
-        void set_pos(const sdl::point &new_pos);
-        virtual sdl::point get_position_of(card_view *card) const;
-        void erase_card(card_view *card);
-    };
-
-    struct character_pile : card_pile_view {
-        sdl::point get_position_of(card_view *card) const override;
-    };
-
-    struct role_pile : card_pile_view {
-        sdl::point get_position_of(card_view *card) const override;
-    };
-
-    class cube_widget {
-    public:
-        card_view *owner = nullptr;
-
-        int id;
-        sdl::point pos;
-
-        bool animating = false;
-        sdl::color border_color{};
-
-        cube_widget(int id) : id(id) {}
-
-        void render(sdl::renderer &renderer, bool skip_if_animating = true);
-    };
+    class card_pile_view;
+    class cube_widget;
 
     class card_view : public card_data {
     public:
@@ -134,11 +93,125 @@ namespace banggame {
         sdl::rect m_rect;
     };
 
+    class cube_widget {
+    public:
+        card_view *owner = nullptr;
+
+        int id;
+        sdl::point pos;
+
+        bool animating = false;
+        sdl::color border_color{};
+
+        cube_widget(int id) : id(id) {}
+
+        void render(sdl::renderer &renderer, bool skip_if_animating = true);
+    };
+
     struct role_card : card_view {
         player_role role = player_role::unknown;
 
         void make_texture_front();
     };
+    
+    class card_pile_view {
+    private:
+        std::vector<card_view *> m_cards;
+        sdl::point m_pos;
+
+    public:
+        sdl::color border_color{};
+
+    public:
+        sdl::point get_pos() const { return m_pos; }
+        void set_pos(const sdl::point &pos);
+
+        size_t size() const { return m_cards.size(); }
+        bool empty() const { return m_cards.empty(); }
+
+        auto begin() { return m_cards.begin(); }
+        auto begin() const { return m_cards.begin(); }
+        auto end() { return m_cards.end(); }
+        auto end() const { return m_cards.end(); }
+        auto rbegin() { return m_cards.rbegin(); }
+        auto rbegin() const { return m_cards.rbegin(); }
+        auto rend() { return m_cards.rend(); }
+        auto rend() const { return m_cards.rend(); }
+
+        auto &front() { return m_cards.front(); }
+        const auto &front() const { return m_cards.front(); }
+        auto &back() { return m_cards.back(); }
+        const auto &back() const { return m_cards.back(); }
+    
+    public:
+        virtual sdl::point get_position_of(card_view *card) const {
+            return m_pos;
+        }
+
+        virtual void add_card(card_view *card) {
+            card->pile = this;
+            m_cards.push_back(card);
+        }
+
+        virtual void erase_card(card_view *card) {
+            if (auto it = std::ranges::find(*this, card); it != end()) {
+                card->pile = nullptr;
+                m_cards.erase(it);
+            }
+        }
+
+        virtual void clear() {
+            for (card_view *card : *this) {
+                card->pile = nullptr;
+            }
+            m_cards.clear();
+        }
+    };
+
+    class counting_card_pile : public card_pile_view {
+    private:
+        widgets::stattext m_count_text;
+        void update_count();
+
+    public:
+        void render_count(sdl::renderer &renderer);
+
+        void add_card(card_view *card) override {
+            card_pile_view::add_card(card);
+            update_count();
+        }
+
+        void erase_card(card_view *card) override {
+            card->pile = nullptr;
+            card_pile_view::erase_card(card);
+            update_count();
+        }
+
+        void clear() override {
+            card_pile_view::clear();
+            update_count();
+        }
+    };
+
+    struct wide_card_pile : card_pile_view {
+        int width;
+        explicit wide_card_pile(int width) : width(width) {}
+        sdl::point get_position_of(card_view *card) const override;
+    };
+
+    struct flipped_card_pile : wide_card_pile {
+        using wide_card_pile::wide_card_pile;
+        sdl::point get_position_of(card_view *card) const override;
+    };
+
+    struct character_pile : card_pile_view {
+        sdl::point get_position_of(card_view *card) const override;
+    };
+
+    struct role_pile : card_pile_view {
+        sdl::point get_position_of(card_view *card) const override;
+    };
+
 }
 
 #endif

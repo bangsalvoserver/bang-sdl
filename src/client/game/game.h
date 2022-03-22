@@ -10,8 +10,7 @@
 
 #include "utils/id_map.h"
 
-#include <list>
-#include <optional>
+#include <deque>
 #include <random>
 
 #define HANDLE_UPDATE(name, ...) handle_game_update(enums::enum_constant<game_update_type::name> __VA_OPT__(,) __VA_ARGS__)
@@ -60,6 +59,11 @@ namespace banggame {
         
         void pop_update();
 
+        template<typename T, typename ... Ts>
+        void add_animation(int duration, Ts && ... args) {
+            m_animations.emplace_back(duration, std::in_place_type<T>, std::forward<Ts>(args) ... );
+        }
+
         void move_player_views();
 
         void handle_card_click();
@@ -72,27 +76,24 @@ namespace banggame {
         game_ui m_ui;
         target_finder m_target;
 
-        std::list<game_update> m_pending_updates;
-        std::list<animation> m_animations;
+        std::deque<game_update> m_pending_updates;
+        std::deque<animation> m_animations;
 
-        card_pile_view m_shop_deck;
+        counting_card_pile m_shop_deck;
         card_pile_view m_shop_discard;
         card_pile_view m_hidden_deck;
-        card_pile_view m_shop_selection{options.shop_selection_width, true};
-        card_pile_view m_shop_choice{options.shop_choice_width};
+        flipped_card_pile m_shop_selection{options.shop_selection_width};
+        wide_card_pile m_shop_choice{options.shop_choice_width};
 
-        card_pile_view m_main_deck;
+        counting_card_pile m_main_deck;
         card_pile_view m_discard_pile;
 
         role_pile m_dead_roles_pile;
 
-        widgets::stattext m_main_deck_count;
-        void update_main_deck_count();
-
         card_pile_view m_scenario_deck;
         card_pile_view m_scenario_card;
 
-        card_pile_view m_selection{options.selection_width};
+        wide_card_pile m_selection{options.selection_width};
 
         card_pile_view m_specials;
 

@@ -410,7 +410,7 @@ void target_finder::add_modifier(card_view *card) {
                 if (card->modifier == card_modifier_type::shopchoice) {
                     for (card_view *c : m_game->m_hidden_deck) {
                         if (!c->effects.empty() && c->effects.front().is(card->effects.front().type)) {
-                            m_game->m_shop_choice.push_back(c);
+                            m_game->m_shop_choice.add_card(c);
                         }
                     }
                     for (card_view *c : m_game->m_shop_choice) {

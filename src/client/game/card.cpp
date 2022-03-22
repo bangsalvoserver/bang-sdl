@@ -185,39 +185,52 @@ namespace banggame {
         }
     }
 
-    void card_pile_view::set_pos(const sdl::point &new_pos) {
+    void card_pile_view::set_pos(const sdl::point &pos) {
         for (card_view *c : *this) {
-            int dx = c->get_pos().x - pos.x;
-            int dy = c->get_pos().y - pos.y;
-            c->set_pos(sdl::point{new_pos.x + dx, new_pos.y + dy});
+            int dx = c->get_pos().x - m_pos.x;
+            int dy = c->get_pos().y - m_pos.y;
+            c->set_pos(sdl::point{pos.x + dx, pos.y + dy});
         }
-        pos = new_pos;
+        m_pos = pos;
     }
 
-    sdl::point card_pile_view::get_position_of(card_view *card) const {
-        if (size() == 1 || m_width == 0) {
-            return pos;
+    sdl::point wide_card_pile::get_position_of(card_view *card) const {
+        if (size() == 1) {
+            return get_pos();
         }
-        float xoffset = std::min(float(m_width) / (size() - 1), float(options.card_width + options.card_xoffset)) * hflip;
+        float xoffset = std::min(float(width) / (size() - 1), float(options.card_width + options.card_xoffset));
 
-        return sdl::point{(int)(pos.x + xoffset *
+        return sdl::point{(int)(get_pos().x + xoffset *
             (std::ranges::distance(begin(), std::ranges::find(*this, card)) - (size() - 1) * .5f)),
-            pos.y};
+            get_pos().y};
+    }
+
+    sdl::point flipped_card_pile::get_position_of(card_view *card) const {
+        auto pt = wide_card_pile::get_position_of(card);
+        return {get_pos().x * 2 - pt.x, pt.y};
     }
 
     sdl::point character_pile::get_position_of(card_view *card) const {
         int diff = std::ranges::distance(begin(), std::ranges::find(*this, card));
-        return sdl::point{pos.x + options.character_offset * diff, pos.y + options.character_offset * diff};
+        return sdl::point{get_pos().x + options.character_offset * diff, get_pos().y + options.character_offset * diff};
     }
 
     sdl::point role_pile::get_position_of(card_view *card) const {
         int diff = std::ranges::distance(begin(), std::ranges::find(*this, card));
-        return sdl::point{pos.x, pos.y + options.card_yoffset * diff};
+        return sdl::point{get_pos().x, get_pos().y + options.card_yoffset * diff};
     }
 
-    void card_pile_view::erase_card(card_view *card) {
-        if (auto it = std::ranges::find(*this, card); it != end()) {
-            erase(it);
-        }
+    void counting_card_pile::update_count() {
+        m_count_text.set_value(std::to_string(size()));
+    }
+
+    void counting_card_pile::render_count(sdl::renderer &renderer) {
+        if (empty()) return;
+        
+        sdl::rect rect = m_count_text.get_rect();
+        rect.x = get_pos().x - rect.w / 2;
+        rect.y = get_pos().y - rect.h / 2;
+        m_count_text.set_rect(rect);
+        m_count_text.render(renderer);
     }
 }

@@ -11,12 +11,12 @@ namespace banggame {
     {}
 
     void player_view::set_position(sdl::point pos, bool flipped) {
-        m_bounding_rect.w = table.width() + options.card_width * 3 + options.card_margin * 4;
+        m_bounding_rect.w = table.width + options.card_width * 3 + options.card_margin * 4;
         m_bounding_rect.h = options.player_view_height;
         m_bounding_rect.x = pos.x - m_bounding_rect.w / 2;
         m_bounding_rect.y = pos.y - m_bounding_rect.h / 2;
         table.set_pos(sdl::point{
-            m_bounding_rect.x + (table.width() + options.card_width) / 2 + options.card_margin,
+            m_bounding_rect.x + (table.width + options.card_width) / 2 + options.card_margin,
             m_bounding_rect.y + m_bounding_rect.h / 2});
         hand.set_pos(table.get_pos());
         m_characters.set_pos(sdl::point{

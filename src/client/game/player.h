@@ -18,8 +18,8 @@ namespace banggame {
         int gold = 0;
         bool dead = false;
 
-        card_pile_view hand{options.player_hand_width};
-        card_pile_view table{options.player_hand_width};
+        wide_card_pile hand{options.player_hand_width};
+        wide_card_pile table{options.player_hand_width};
 
         sdl::rect m_bounding_rect;
         sdl::color border_color{};
