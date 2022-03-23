@@ -187,7 +187,7 @@ namespace banggame {
         void queue_event(Ts && ... args) {
             event_args event{std::in_place_index<enums::indexof(E)>, std::forward<Ts>(args) ...};
             if (m_requests.empty()) {
-                handle_event(event);
+                handle_event(std::move(event));
             } else {
                 m_pending_events.emplace_back(std::move(event));
             }
@@ -203,7 +203,7 @@ namespace banggame {
 
         void pop_events() {
             while (m_requests.empty() && !m_pending_events.empty()) {
-                handle_event(m_pending_events.front());
+                handle_event(std::move(m_pending_events.front()));
                 m_pending_events.pop_front();
             }
         }

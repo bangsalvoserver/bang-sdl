@@ -120,10 +120,8 @@ namespace banggame {
                 queue_russianroulette_request(target->m_game->get_next_player(target));
             }
         });
-        target->m_game->add_event<event_type::on_hit>(target_card, [=](card *origin_card, player *origin, player *target, int damage, bool is_bang) {
-            if (target_card == origin_card) {
-                target->m_game->remove_events(target_card);
-            }
+        target->m_game->add_single_call_event<event_type::on_hit>(target_card, [=](card *origin_card, player *origin, player *target, int damage, bool is_bang) {
+            return target_card == origin_card;
         });
     }
 

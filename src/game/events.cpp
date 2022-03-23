@@ -1,9 +1,9 @@
 #include "events.h"
 
 namespace banggame {
-    void event_handler_map::handle_event(event_args &event) {
+    void event_handler_map::handle_event(event_args &&event) {
         if (event.index() == enums::indexof(event_type::delayed_action)) {
-            std::invoke(std::get<0>(std::get<enums::indexof(event_type::delayed_action)>(event)));
+            std::invoke(std::get<enums::indexof(event_type::delayed_action)>(event));
         } else {
             std::vector<event_function *> handlers;
 
@@ -14,8 +14,10 @@ namespace banggame {
             }
 
             for (event_function *h : handlers) {
-                enums::visit_indexed([&]<event_type T>(enums::enum_constant<T>, auto &fun) {
-                    std::apply(fun, std::get<enums::indexof(T)>(event));
+                enums::visit_indexed([&]<event_type T>(enums::enum_constant<T>, auto & ... fun) {
+                    if constexpr (sizeof...(fun) != 0) {
+                        std::apply(fun ..., std::get<enums::indexof(T)>(event));
+                    }
                 }, *h);
             }
         }
