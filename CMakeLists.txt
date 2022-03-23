@@ -35,7 +35,6 @@ set(bangclient_srcs
     src/client/chat_ui.cpp
     src/client/media_pak.cpp
     src/client/os_api.cpp
-    src/client/game/animation.cpp
     src/client/game/card.cpp
     src/client/game/player.cpp
     src/client/game/game.cpp

@@ -1,152 +1,140 @@
 #ifndef __ANIMATION_H__
 #define __ANIMATION_H__
 
-#include "player.h"
+#include "animations.h"
 
 namespace banggame {
 
-    struct card_move_animation {
-        std::vector<std::pair<card_view*, sdl::point>> data;
+    struct animation_vtable {
+        void (*do_animation)(void *self, float amt);
+        void (*end)(void *self);
+        void (*render)(void *self, sdl::renderer &renderer);
+        void (*copy)(const void *self, void *p);
+        void (*move)(void *self, void *p) noexcept;
+        void (*destruct)(void *self) noexcept;
+    };
 
-        void add_move_card(card_view *card) {
-            if (std::ranges::find(data, card, &decltype(data)::value_type::first) == data.end()) {
-                data.emplace_back(card, card->get_pos());
+    template<typename T>
+    const animation_vtable animation_vtable_for = {
+        .do_animation = [](void *self, float amt) {
+            if constexpr (requires (T value) { value.do_animation(amt); }) {
+                static_cast<T *>(self)->do_animation(amt);
             }
-        }
+        },
 
-        void end() {
-            for (auto &[card, _] : data) {
-                card->set_pos(card->pile->get_position_of(card));
-                card->animating = false;
+        .end = [](void *self) {
+            if constexpr (requires (T value) { value.end(); }) {
+                static_cast<T *>(self)->end();
             }
-        }
+        },
 
-        void do_animation(float amt) {
-            for (auto &[card, start] : data) {
-                card->animating = true;
-                sdl::point dest = card->pile->get_position_of(card);
-                card->set_pos(sdl::point{
-                    (int) std::lerp(start.x, dest.x, amt),
-                    (int) std::lerp(start.y, dest.y, amt)
-                });
+        .render = [](void *self, sdl::renderer &renderer) {
+            if constexpr (requires (T value) { value.render(renderer); }) {
+                static_cast<T *>(self)->render(renderer);
             }
-        }
+        },
 
-        void render(sdl::renderer &renderer) {
-            for (auto &[card, _] : data) {
-                card->render(renderer, false);
-            }
+        .copy = [](const void *self, void *p) {
+            new (p) T(*static_cast<const T *>(self));
+        },
+
+        .move = [](void *self, void *p) noexcept {
+            static_assert(std::is_nothrow_move_constructible_v<T>);
+            new (p) T(std::move(*static_cast<T *>(self)));
+        },
+
+        .destruct = [](void *self) noexcept {
+            static_assert(std::is_nothrow_destructible_v<T>);
+            static_cast<T *>(self)->~T();
         }
     };
 
-    struct card_flip_animation {
-        card_view *card;
-        bool flips;
-
-        card_flip_animation(card_view *card, bool flips)
-            : card(card), flips(flips) {
-        }
-
-        void end() {
-            card->flip_amt = float(!flips);
-            card->animating = false;
-        }
-
-        void do_animation(float amt) {
-            card->animating = true;
-            card->flip_amt = flips ? 1.f - amt : amt;
-        }
-
-        void render(sdl::renderer &renderer) {
-            card->render(renderer, false);
-        }
-    };
-
-    struct card_tap_animation {
-        card_view *card;
-        bool taps;
-
-        void do_animation(float amt) {
-            card->rotation = 90.f * (taps ? amt : 1.f - amt);
-        }
-    };
-
-    struct player_hp_animation {
-        player_view *player;
-
-        int hp_from;
-        int hp_to;
-
-        void do_animation(float amt) {
-            player->set_hp_marker_position(std::lerp(hp_from, hp_to, amt));
-        }
-    };
-
-    struct cube_move_animation {
-        cube_widget *cube;
-        sdl::point start;
-        sdl::point diff;
-
-        cube_move_animation(cube_widget *cube, sdl::point diff)
-            : cube(cube), diff(diff)
+    class animation_object {
+    private:
+        std::aligned_storage_t<24> m_data;
+        const animation_vtable *vtable;
+    
+    public:
+        template<typename T, typename ... Ts>
+        animation_object(std::in_place_type_t<T>, Ts && ... args)
+            : vtable(&animation_vtable_for<T>)
         {
-            start = cube->pos;
-            cube->animating = true;
+            static_assert(sizeof(T) <= sizeof(m_data));
+            new (&m_data) T(std::forward<Ts>(args) ... );
         }
 
-        void render(sdl::renderer &renderer) {
-            cube->render(renderer, false);
+        animation_object(const animation_object &other)
+            : vtable(other.vtable)
+        {
+            vtable->copy(&other.m_data, &m_data);
         }
-        
+
+        animation_object(animation_object &&other) noexcept
+            : vtable(other.vtable)
+        {
+            vtable->move(&other.m_data, &m_data);
+        }
+
+        animation_object &operator = (const animation_object &other) {
+            animation_object copy(other);
+            std::swap(m_data, copy.m_data);
+            std::swap(vtable, copy.vtable);
+            return *this;
+        }
+
+        animation_object &operator = (animation_object &&other) noexcept {
+            animation_object copy(std::move(other));
+            std::swap(m_data, copy.m_data);
+            std::swap(vtable, copy.vtable);
+            return *this;
+        }
+
+        ~animation_object() {
+            vtable->destruct(&m_data);
+        }
+
         void do_animation(float amt) {
-            sdl::point dest{};
-            if (cube->owner) dest = cube->owner->get_pos();
-            cube->pos = sdl::point{
-                (int) std::lerp(start.x, dest.x + diff.x, amt),
-                (int) std::lerp(start.y, dest.y + diff.y, amt)
-            };
+            vtable->do_animation(&m_data, amt);
         }
 
         void end() {
-            sdl::point dest{};
-            if (cube->owner) dest = cube->owner->get_pos();
-            cube->pos = sdl::point{dest.x + diff.x, dest.y + diff.y};
-            cube->animating = false;
+            vtable->end(&m_data);
         }
-    };
-
-    struct pause_animation {
-        card_view *card = nullptr;
 
         void render(sdl::renderer &renderer) {
-            if (card) card->render(renderer, false);
-        }
-
-        void do_animation(float) {
-            if (card) card->animating = true;
-        }
-
-        void end() {
-            if (card) card->animating = false;
+            vtable->render(&m_data, renderer);
         }
     };
+
+    inline float ease_in_out_pow(float exp, float x) {
+        return x < 0.5f ? std::pow(2.f * x, exp) / 2.f : 1.f - std::pow(-2.f * x + 2.f, exp) / 2.f;
+    }
+
 
     class animation {
     private:
         int duration;
         int elapsed = 0;
-
-        std::variant<card_move_animation, card_flip_animation, card_tap_animation, player_hp_animation, cube_move_animation, pause_animation> m_anim;
+        animation_object m_value;
 
     public:
-        template<typename ... Ts>
-        animation(int duration, Ts && ... args)
+        template<typename T, typename ... Ts>
+        animation(int duration, std::in_place_type_t<T> tag, Ts && ... args)
             : duration(duration)
-            , m_anim(std::forward<Ts>(args) ...) {}
+            , m_value(tag, std::forward<Ts>(args) ...) {}
 
-        void tick();
-        void end();
-        void render(sdl::renderer &renderer);
+        void tick() {
+            ++elapsed;
+            m_value.do_animation(ease_in_out_pow(options.easing_exponent, (float)elapsed / (float)duration));
+        }
+
+        void end() {
+            m_value.end();
+        }
+
+        void render(sdl::renderer &renderer) {
+            m_value.render(renderer);
+        }
 
         bool done() const {
             return elapsed >= duration;

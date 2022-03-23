@@ -475,29 +475,25 @@ void game_scene::HANDLE_UPDATE(game_log, const game_formatted_string &args) {
 void game_scene::HANDLE_UPDATE(deck_shuffled, const card_pile_type &pile) {
     switch (pile) {
     case card_pile_type::main_deck: {
-        card_view *top_discard = m_discard_pile.back();
-        m_discard_pile.erase_card(top_discard);
         card_move_animation anim;
         for (card_view *card : m_discard_pile) {
             card->known = false;
-            card->flip_amt = 0.f;
             m_main_deck.add_card(card);
             anim.add_move_card(card);
         }
         m_discard_pile.clear();
-        m_discard_pile.add_card(top_discard);
         
+        add_animation<deck_flip_animation>(options.flip_card_ticks, &m_main_deck, true);
         add_animation<card_move_animation>(options.main_deck_shuffle_ticks, std::move(anim));
         break;
     }
     case card_pile_type::shop_deck:
         for (card_view *card : m_shop_discard) {
             card->known = false;
-            card->flip_amt = 0.f;
             m_shop_deck.add_card(card);
         }
         m_shop_discard.clear();
-        add_animation<card_flip_animation>(options.shop_deck_shuffle_ticks, m_shop_deck.back(), true);
+        add_animation<deck_flip_animation>(options.shop_deck_shuffle_ticks, &m_shop_deck, true);
         add_animation<pause_animation>(options.shop_deck_shuffle_pause_ticks);
         break;
     }

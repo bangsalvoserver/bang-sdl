@@ -162,7 +162,9 @@ namespace banggame {
 
         virtual void clear() {
             for (card_view *card : *this) {
-                card->pile = nullptr;
+                if (card->pile == this) {
+                    card->pile = nullptr;
+                }
             }
             m_cards.clear();
         }
