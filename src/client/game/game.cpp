@@ -85,7 +85,7 @@ void game_scene::refresh_layout() {
     m_ui.refresh_layout();
 }
 
-template<int N> constexpr auto take_last = std::views::reverse | std::views::take(N) | std::views::reverse;
+constexpr auto take_last = [](int n) { return std::views::reverse | std::views::take(n) | std::views::reverse; };
 
 void game_scene::render(sdl::renderer &renderer) {
     if (m_mouse_motion_timer >= options.card_overlay_timer) {
@@ -121,27 +121,31 @@ void game_scene::render(sdl::renderer &renderer) {
             rect.h + options.default_border_thickness * 2
         }, m_main_deck.border_color);
     }
-    for (card_view *card : m_main_deck | take_last<2>) {
+    for (card_view *card : m_main_deck | take_last(2)) {
+        card->render(renderer);
+    }
+    
+    m_main_deck.render_count(renderer);
+
+    for (card_view *card : m_shop_discard | std::views::take(1)) {
         card->render(renderer);
     }
 
-    for (card_view *card : m_shop_discard | take_last<1>) {
+    for (card_view *card : m_shop_deck | take_last(2)) {
         card->render(renderer);
     }
-
-    for (card_view *card : m_shop_deck | take_last<2>) {
-        card->render(renderer);
-    }
+    
+    m_shop_deck.render_count(renderer);
 
     for (card_view *card : m_shop_selection) {
         card->render(renderer);
     }
 
-    for (card_view *card : m_scenario_deck | take_last<1>) {
+    for (card_view *card : m_scenario_deck | take_last(1)) {
         card->render(renderer);
     }
 
-    for (card_view *card : m_scenario_card | take_last<2>) {
+    for (card_view *card : m_scenario_card | take_last(2)) {
         card->render(renderer);
     }
 
@@ -198,7 +202,7 @@ void game_scene::render(sdl::renderer &renderer) {
             rect.h + options.default_border_thickness * 2
         }, m_discard_pile.border_color);
     }
-    for (card_view *card : m_discard_pile | take_last<2>) {
+    for (card_view *card : m_discard_pile | take_last(2)) {
         card->render(renderer);
     }
 
@@ -225,9 +229,6 @@ void game_scene::render(sdl::renderer &renderer) {
     if (!m_animations.empty()) {
         m_animations.front().render(renderer);
     }
-    
-    m_main_deck.render_count(renderer);
-    m_shop_deck.render_count(renderer);
 
     m_ui.render(renderer);
 

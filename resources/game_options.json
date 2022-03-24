@@ -57,7 +57,7 @@
     "tap_card_ticks": 10,
     "move_hp_ticks": 20,
     "flip_role_ticks": 15,
-    "shuffle_deck_ticks": 60,
+    "shuffle_deck_ticks": 80,
 
     "shuffle_deck_offset": 0.5,
 
