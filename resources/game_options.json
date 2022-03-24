@@ -59,7 +59,7 @@
     "flip_role_ticks": 15,
     "shuffle_deck_ticks": 60,
 
-    "shuffle_deck_offset": 0.3,
+    "shuffle_deck_offset": 0.5,
 
     "status_text_y_distance": 270,
     "icon_dead_players_yoff": 10,

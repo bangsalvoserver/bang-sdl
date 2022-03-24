@@ -271,6 +271,12 @@ namespace banggame {
         target->add_to_hand(drawn_card);
     }
 
+    void effect_draw_to_discard::on_play(card *origin_card, player *origin) {
+        for (int i=0; i<ncards; ++i) {
+            origin->m_game->draw_card_to(card_pile_type::discard_pile);
+        }
+    }
+
     void effect_draw_one_less::on_play(card *origin_card, player *target) {
         target->m_game->queue_delayed_action([=]{
             while (++target->m_num_drawn_cards < target->m_num_cards_to_draw) {

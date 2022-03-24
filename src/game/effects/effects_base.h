@@ -112,6 +112,13 @@ namespace banggame {
         void on_play(card *origin_card, player *origin, player *target);
     };
 
+    struct effect_draw_to_discard {
+        int ncards;
+        effect_draw_to_discard(int value) : ncards(std::max(1, value)) {}
+
+        void on_play(card *origin_card, player *origin);
+    };
+
     struct effect_drawing {
         bool ends_drawing = false;
         effect_drawing(int value) : ends_drawing(value != 0) {}

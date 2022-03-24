@@ -172,6 +172,7 @@ namespace banggame {
         (indians,               effect_indians)
         (draw,                  effect_draw)
         (draw_discard,          effect_draw_discard)
+        (draw_to_discard,       effect_draw_to_discard)
         (draw_one_less,         effect_draw_one_less)
         (generalstore,          effect_generalstore)
         (deathsave,             effect_deathsave)
