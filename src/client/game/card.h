@@ -148,6 +148,10 @@ namespace banggame {
             return m_pos;
         }
 
+        virtual bool wide() const {
+            return false;
+        }
+
         virtual void add_card(card_view *card) {
             card->pile = this;
             m_cards.push_back(card);
@@ -198,6 +202,8 @@ namespace banggame {
     struct wide_card_pile : card_pile_view {
         int width;
         explicit wide_card_pile(int width) : width(width) {}
+
+        bool wide() const override { return true; }
         sdl::point get_position_of(card_view *card) const override;
     };
 

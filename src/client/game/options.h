@@ -112,9 +112,9 @@ namespace banggame {
         (int) tap_card_ticks,
         (int) move_hp_ticks,
         (int) flip_role_ticks,
-        (int) main_deck_shuffle_ticks,
-        (int) shop_deck_shuffle_ticks,
-        (int) shop_deck_shuffle_pause_ticks,
+        (int) shuffle_deck_ticks,
+
+        (float) shuffle_deck_offset,
 
         (int) status_text_y_distance,
         (int) icon_dead_players_yoff,

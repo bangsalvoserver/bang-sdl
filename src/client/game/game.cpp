@@ -475,16 +475,15 @@ void game_scene::HANDLE_UPDATE(game_log, const game_formatted_string &args) {
 void game_scene::HANDLE_UPDATE(deck_shuffled, const card_pile_type &pile) {
     switch (pile) {
     case card_pile_type::main_deck: {
-        card_move_animation anim;
+        card_view *top_discard = m_discard_pile.back();
+        m_discard_pile.erase_card(top_discard);
         for (card_view *card : m_discard_pile) {
             card->known = false;
             m_main_deck.add_card(card);
-            anim.add_move_card(card);
         }
         m_discard_pile.clear();
-        
-        add_animation<deck_flip_animation>(options.flip_card_ticks, &m_main_deck, true);
-        add_animation<card_move_animation>(options.main_deck_shuffle_ticks, std::move(anim));
+        m_discard_pile.add_card(top_discard);
+        add_animation<deck_shuffle_animation>(options.shuffle_deck_ticks, &m_main_deck, m_discard_pile.get_pos());
         break;
     }
     case card_pile_type::shop_deck:
@@ -493,8 +492,7 @@ void game_scene::HANDLE_UPDATE(deck_shuffled, const card_pile_type &pile) {
             m_shop_deck.add_card(card);
         }
         m_shop_discard.clear();
-        add_animation<deck_flip_animation>(options.shop_deck_shuffle_ticks, &m_shop_deck, true);
-        add_animation<pause_animation>(options.shop_deck_shuffle_pause_ticks);
+        add_animation<deck_shuffle_animation>(options.shuffle_deck_ticks, &m_shop_deck, m_shop_discard.get_pos());
         break;
     }
 }
@@ -572,13 +570,19 @@ void game_scene::HANDLE_UPDATE(move_card, const move_card_update &args) {
     card_move_animation anim;
 
     old_pile->erase_card(card);
-    for (card_view *anim_card : *old_pile) {
-        anim.add_move_card(anim_card);
+    if (old_pile->wide()) {
+        for (card_view *anim_card : *old_pile) {
+            anim.add_move_card(anim_card);
+        }
     }
 
     new_pile->add_card(card);
-    for (card_view *anim_card : *new_pile) {
-        anim.add_move_card(anim_card);
+    if (new_pile->wide()) {
+        for (card_view *anim_card : *new_pile) {
+            anim.add_move_card(anim_card);
+        }
+    } else {
+        anim.add_move_card(card);
     }
     
     if (bool(args.flags & show_card_flags::no_animation)) {
@@ -800,7 +804,7 @@ void game_scene::HANDLE_UPDATE(player_hp, const player_hp_update &args) {
         player->set_hp_marker_position(args.hp);
         pop_update();
     } else if (prev_hp != args.hp && !args.dead) {
-        add_animation<player_hp_animation>(options.move_hp_ticks, player, prev_hp, args.hp);
+        add_animation<player_hp_animation>(options.move_hp_ticks, player, prev_hp);
     } else {
         pop_update();
     }

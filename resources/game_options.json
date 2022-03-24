@@ -57,9 +57,9 @@
     "tap_card_ticks": 10,
     "move_hp_ticks": 20,
     "flip_role_ticks": 15,
-    "main_deck_shuffle_ticks": 30,
-    "shop_deck_shuffle_ticks": 30,
-    "shop_deck_shuffle_pause_ticks": 10,
+    "shuffle_deck_ticks": 60,
+
+    "shuffle_deck_offset": 0.3,
 
     "status_text_y_distance": 270,
     "icon_dead_players_yoff": 10,

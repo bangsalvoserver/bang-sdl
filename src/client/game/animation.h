@@ -106,10 +106,6 @@ namespace banggame {
         }
     };
 
-    inline float ease_in_out_pow(float exp, float x) {
-        return x < 0.5f ? std::pow(2.f * x, exp) / 2.f : 1.f - std::pow(-2.f * x + 2.f, exp) / 2.f;
-    }
-
 
     class animation {
     private:
@@ -125,7 +121,7 @@ namespace banggame {
 
         void tick() {
             ++elapsed;
-            m_value.do_animation(ease_in_out_pow(options.easing_exponent, (float)elapsed / (float)duration));
+            m_value.do_animation((float)elapsed / (float)duration);
         }
 
         void end() {

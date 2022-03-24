@@ -512,7 +512,7 @@ namespace banggame {
         move_to(drawn_card, pile, true, owner, flags);
         if (m_deck.empty()) {
             card *top_discards = m_discards.back();
-            m_discards.resize(m_discards.size()-1);
+            m_discards.pop_back();
             m_deck = std::move(m_discards);
             for (card *c : m_deck) {
                 c->pile = card_pile_type::main_deck;
