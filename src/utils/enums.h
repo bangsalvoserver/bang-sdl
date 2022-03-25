@@ -154,20 +154,6 @@ namespace enums {
         }
     }
 
-    template<typename T> concept enum_with_full_names = requires {
-        requires reflected_enum<T>;
-        reflector<T>::full_names;
-        requires reflector<T>::full_names.size() == size_v<T>;
-        requires std::convertible_to<typename decltype(reflector<T>::full_names)::value_type, std::string_view>;
-    };
-
-    template<enum_with_full_names T> constexpr auto enum_full_names_v = reflector<T>::full_names;
-    
-    template<enum_with_full_names T>
-    constexpr std::string_view full_name(T value) {
-        return enum_full_names_v<T>[indexof(value)];
-    }
-
     constexpr auto to_underlying(reflected_enum auto value) {
         return static_cast<std::underlying_type_t<decltype(value)>>(value);
     }
@@ -327,7 +313,6 @@ namespace enums {
 
 #define CREATE_ENUM_VALUES_ELEMENT(r, enumName, elementTuple) (enumName::ENUM_ELEMENT_NAME(elementTuple))
 #define CREATE_ENUM_NAMES_ELEMENT(r, enumName, elementTuple) (BOOST_PP_STRINGIZE(ENUM_ELEMENT_NAME(elementTuple)))
-#define CREATE_ENUM_FULL_NAMES_ELEMENT(r, enumName, elementTuple) (BOOST_PP_STRINGIZE(enumName) "::" BOOST_PP_STRINGIZE(ENUM_ELEMENT_NAME(elementTuple)))
 
 #define CREATE_ENUM_ELEMENT_MAX_VALUE(n) n - 1
 #define CREATE_FLAG_ELEMENT_MAX_VALUE(n) 1 << (n - 1)
@@ -357,9 +342,6 @@ struct REFLECTOR_NAME(enumName) { \
     static constexpr std::string_view enum_name = BOOST_PP_STRINGIZE(enumName); \
     static constexpr std::array values { \
         BOOST_PP_SEQ_ENUM(BOOST_PP_SEQ_FOR_EACH(CREATE_ENUM_VALUES_ELEMENT, enumName, elementTupleSeq)) \
-    }; \
-    static constexpr std::array<std::string_view, values.size()> full_names { \
-        BOOST_PP_SEQ_ENUM(BOOST_PP_SEQ_FOR_EACH(CREATE_ENUM_FULL_NAMES_ELEMENT, enumName, elementTupleSeq)) \
     }; \
     static constexpr std::array<std::string_view, values.size()> names { \
         BOOST_PP_SEQ_ENUM(BOOST_PP_SEQ_FOR_EACH(CREATE_ENUM_NAMES_ELEMENT, enumName, elementTupleSeq)) \

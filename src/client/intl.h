@@ -12,7 +12,7 @@ namespace intl {
     std::string translate(std::string_view str);
 
     std::string translate(enums::reflected_enum auto value) {
-        return translate(enums::full_name(value));
+        return translate(fmt::format("{}::{}", enums::enum_name_v<decltype(value)>, enums::to_string(value)));
     }
 
     template<typename ... Ts>
