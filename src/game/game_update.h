@@ -24,7 +24,7 @@ namespace banggame {
         (std::vector<card_backface>) card_ids
     )};
 
-    DEFINE_ENUM_FLAGS_IN_NS(banggame, show_card_flags,
+    DEFINE_ENUM_FLAGS(show_card_flags,
         (pause_before_move)
         (short_pause)
         (no_animation)
@@ -95,7 +95,7 @@ namespace banggame {
         (bool) instant
     )};
 
-    DEFINE_ENUM_FLAGS_IN_NS(banggame, player_flags,
+    DEFINE_ENUM_FLAGS(player_flags,
         (dead)
         (ghost)
         (start_of_turn)
@@ -132,7 +132,7 @@ namespace banggame {
         (std::vector<picking_args>) pick_ids
     )};
 
-    DEFINE_ENUM_TYPES_IN_NS(banggame, game_update_type,
+    DEFINE_ENUM_TYPES(game_update_type,
         (game_over, game_over_update)
         (game_error, game_formatted_string)
         (game_log, game_formatted_string)

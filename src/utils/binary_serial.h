@@ -12,7 +12,7 @@
 #include <map>
 
 namespace binary {
-    DEFINE_ENUM_DATA_IN_NS(binary, read_error_code,
+    DEFINE_ENUM_DATA(read_error_code,
         (no_error,                  error_message{"No Error"})
         (buffer_overflow,           error_message{"Buffer Overflow"})
         (buffer_underflow,          error_message{"Buffer Underflow"})
@@ -318,10 +318,10 @@ namespace binary {
             static constexpr auto lut = []<T ... Es>(enums::enum_sequence<Es ...>) {
                 return std::array { +[](byte_ptr &pos, byte_ptr end) {
                     constexpr T enum_value = Es;
-                    if constexpr (enums::has_type<enum_value>) {
-                        return enums::enum_variant<T>{enums::enum_constant<enum_value>{}, deserializer<enums::enum_type_t<enum_value>>{}(pos, end)};
+                    if constexpr (enums::value_with_type<enum_value>) {
+                        return enums::enum_variant<T>{enums::enum_tag<enum_value>, deserializer<enums::enum_type_t<enum_value>>{}(pos, end)};
                     } else {
-                        return enums::enum_variant<T>{enums::enum_constant<enum_value>{}};
+                        return enums::enum_variant<T>{enums::enum_tag<enum_value>};
                     }
                 } ... };
             }(enums::make_enum_sequence<T>());

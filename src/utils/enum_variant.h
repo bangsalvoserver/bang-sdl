@@ -8,7 +8,7 @@ namespace enums {
 
     namespace detail {
         template<reflected_enum auto Enum> struct enum_type_or_monostate { using type = std::monostate; };
-        template<reflected_enum auto Enum> requires has_type<Enum> struct enum_type_or_monostate<Enum> { using type = enum_type_t<Enum>; };
+        template<reflected_enum auto Enum> requires value_with_type<Enum> struct enum_type_or_monostate<Enum> { using type = enum_type_t<Enum>; };
 
         template<typename EnumSeq> struct enum_variant{};
         template<reflected_enum Enum, Enum ... Es> struct enum_variant<enum_sequence<Es...>> {
@@ -24,7 +24,7 @@ namespace enums {
         using base::base;
 
         template<Enum Value, typename ... Ts>
-        enum_variant(enum_constant<Value>, Ts && ... args)
+        enum_variant(enum_tag_t<Value>, Ts && ... args)
             : base(std::in_place_index<indexof(Value)>, std::forward<Ts>(args) ...) {}
 
         template<Enum Value, typename ... Ts>
@@ -69,7 +69,7 @@ namespace enums {
     RetType do_visit(Visitor &&visitor, Variant &v) {
         return visit_enum<RetType>([&](auto enum_const) {
             constexpr T E = decltype(enum_const)::value;
-            if constexpr (has_type<E>) {
+            if constexpr (value_with_type<E>) {
                 return std::invoke(visitor, enum_const, v.template get<E>());
             } else {
                 return std::invoke(visitor, enum_const);
@@ -88,10 +88,10 @@ namespace enums {
     }
 
     template<typename Visitor, reflected_enum auto E>
-    struct visit_return_type : std::invoke_result<Visitor, enum_constant<E>> {};
+    struct visit_return_type : std::invoke_result<Visitor, enum_tag_t<E>> {};
 
-    template<typename Visitor, reflected_enum auto E> requires has_type<E>
-    struct visit_return_type<Visitor, E> : std::invoke_result<Visitor, enum_constant<E>, std::add_lvalue_reference_t<enum_type_t<E>>> {};
+    template<typename Visitor, reflected_enum auto E> requires value_with_type<E>
+    struct visit_return_type<Visitor, E> : std::invoke_result<Visitor, enum_tag_t<E>, std::add_lvalue_reference_t<enum_type_t<E>>> {};
 
     template<typename Visitor, reflected_enum auto E>
     using visit_return_type_t = typename visit_return_type<Visitor, E>::type;

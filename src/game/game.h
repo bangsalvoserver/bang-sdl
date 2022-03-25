@@ -32,9 +32,9 @@ namespace banggame {
         }
     };
 
-    #define ACTION_TAG(name) enums::enum_constant<game_action_type::name>
+    #define ACTION_TAG(name) enums::enum_tag_t<game_action_type::name>
     
-    DEFINE_ENUM_FLAGS_IN_NS(banggame, scenario_flags,
+    DEFINE_ENUM_FLAGS(scenario_flags,
         (invert_rotation) // inverti giro
         (ghosttown) // citta' fantasma
         (judge) // non si puo' equipaggiare
@@ -106,7 +106,7 @@ namespace banggame {
         void add_private_update(player *p, Ts && ... args) {
             m_updates.emplace_back(std::piecewise_construct,
                 std::make_tuple(p),
-                std::make_tuple(enums::enum_constant<E>{}, std::forward<Ts>(args) ...));
+                std::make_tuple(enums::enum_tag<E>, std::forward<Ts>(args) ...));
         }
 
         template<game_update_type E, typename ... Ts>

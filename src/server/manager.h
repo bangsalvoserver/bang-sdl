@@ -43,10 +43,10 @@ struct server_message_pair {
 
 template<server_message_type E, typename ... Ts>
 server_message make_message(Ts && ... args) {
-    return server_message{enums::enum_constant<E>{}, std::forward<Ts>(args) ...};
+    return server_message{enums::enum_tag<E>, std::forward<Ts>(args) ...};
 }
 
-#define MESSAGE_TAG(name) enums::enum_constant<client_message_type::name>
+#define MESSAGE_TAG(name) enums::enum_tag_t<client_message_type::name>
 #define HANDLE_MESSAGE(name, ...) handle_message(MESSAGE_TAG(name) __VA_OPT__(,) __VA_ARGS__)\
 
 class game_manager {

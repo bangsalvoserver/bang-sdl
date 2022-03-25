@@ -15,8 +15,8 @@ namespace banggame {
 
     template<typename Holder, typename Function>
     static auto visit_effect(Function &&fun, Holder &holder) {
-        return enums::visit_enum([&]<typename Holder::enum_type E>(enums::enum_constant<E>) {
-            if constexpr (enums::has_type<E>) {
+        return enums::visit_enum([&]<typename Holder::enum_type E>(enums::enum_tag_t<E>) {
+            if constexpr (enums::value_with_type<E>) {
                 using type = enums::enum_type_t<E>;
                 if constexpr (requires { type{holder.effect_value}; }) {
                     return fun(type{holder.effect_value});
@@ -125,7 +125,7 @@ namespace banggame {
     void verify_multitarget(card *origin_card, player *origin, const mth_target_list &targets) {
         enums::visit_enum([&](auto enum_const) {
             constexpr mth_type E = decltype(enum_const)::value;
-            if constexpr (enums::has_type<E>) {
+            if constexpr (enums::value_with_type<E>) {
                 using handler_type = enums::enum_type_t<E>;
                 if constexpr (requires (handler_type handler) { handler.verify(origin_card, origin, targets); }) {
                     handler_type{}.verify(origin_card, origin, targets);
@@ -137,7 +137,7 @@ namespace banggame {
     void handle_multitarget(card *origin_card, player *origin, const mth_target_list &targets) {
         enums::visit_enum([&](auto enum_const) {
             constexpr mth_type E = decltype(enum_const)::value;
-            if constexpr (enums::has_type<E>) {
+            if constexpr (enums::value_with_type<E>) {
                 using handler_type = enums::enum_type_t<E>;
                 handler_type{}.on_play(origin_card, origin, targets);
             }

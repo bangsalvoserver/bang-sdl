@@ -265,7 +265,7 @@ namespace banggame {
     void player::play_modifiers(const std::vector<card *> &modifiers) {
         for (card *mod_card : modifiers) {
             do_play_card(mod_card, false, std::vector{mod_card->effects.size(),
-                play_card_target{enums::enum_constant<play_card_target_type::none>{}}});
+                play_card_target{enums::enum_tag<play_card_target_type::none>}});
         }
     }
 
@@ -420,13 +420,13 @@ namespace banggame {
                 end = card_ptr->optionals.end();
             }
             enums::visit_indexed(util::overloaded{
-                [&](enums::enum_constant<play_card_target_type::none>) {
+                [&](enums::enum_tag_t<play_card_target_type::none>) {
                     if (e.target != play_card_target_type::none) throw game_error("ERROR_INVALID_ACTION");
                     if (e.is(effect_type::mth_add)) target_list.emplace_back(nullptr, nullptr);
 
                     e.verify(card_ptr, this);
                 },
-                [&](enums::enum_constant<play_card_target_type::player>, int target_id) {
+                [&](enums::enum_tag_t<play_card_target_type::player>, int target_id) {
                     if (e.target != play_card_target_type::player) throw game_error("ERROR_INVALID_ACTION");
 
                     player *target = m_game->find_player(target_id);
@@ -436,7 +436,7 @@ namespace banggame {
 
                     if (e.is(effect_type::mth_add)) target_list.emplace_back(target, nullptr);
                 },
-                [&](enums::enum_constant<play_card_target_type::card>, int target_card_id) {
+                [&](enums::enum_tag_t<play_card_target_type::card>, int target_card_id) {
                     if (e.target != play_card_target_type::card) throw game_error("ERROR_INVALID_ACTION");
 
                     card *target_card = m_game->find_card(target_card_id);
@@ -448,7 +448,7 @@ namespace banggame {
 
                     if (e.is(effect_type::mth_add)) target_list.emplace_back(target, target_card);
                 },
-                [&](enums::enum_constant<play_card_target_type::other_players>) {
+                [&](enums::enum_tag_t<play_card_target_type::other_players>) {
                     if (e.target != play_card_target_type::other_players) throw game_error("ERROR_INVALID_ACTION");
                     for (auto *p = this;;) {
                         p = m_game->get_next_player(p);
@@ -456,7 +456,7 @@ namespace banggame {
                         e.verify(card_ptr, this, p);
                     }
                 },
-                [&](enums::enum_constant<play_card_target_type::cards_other_players>, const std::vector<int> &target_ids) {
+                [&](enums::enum_tag_t<play_card_target_type::cards_other_players>, const std::vector<int> &target_ids) {
                     if (e.target != play_card_target_type::cards_other_players) throw game_error("ERROR_INVALID_ACTION");
                     std::vector<card *> target_cards;
                     for (int id : target_ids) {
@@ -538,14 +538,14 @@ namespace banggame {
         mth_target_list target_list;
         for (auto &t : targets) {
             enums::visit_indexed(util::overloaded{
-                [&](enums::enum_constant<play_card_target_type::none>) {
+                [&](enums::enum_tag_t<play_card_target_type::none>) {
                     if (effect_it->is(effect_type::mth_add)) {
                         target_list.emplace_back(nullptr, nullptr);
                     } else {
                         effect_it->on_play(card_ptr, this, effect_flags{});
                     }
                 },
-                [&](enums::enum_constant<play_card_target_type::player>, int target_id) {
+                [&](enums::enum_tag_t<play_card_target_type::player>, int target_id) {
                     auto *target = m_game->find_player(target_id);
                     if (effect_it->is(effect_type::mth_add)) {
                         target_list.emplace_back(target, nullptr);
@@ -564,7 +564,7 @@ namespace banggame {
                         }
                     }
                 },
-                [&](enums::enum_constant<play_card_target_type::other_players>) {
+                [&](enums::enum_tag_t<play_card_target_type::other_players>) {
                     std::vector<player *> targets;
                     for (auto *p = this;;) {
                         p = m_game->get_next_player(p);
@@ -585,7 +585,7 @@ namespace banggame {
                         }
                     }
                 },
-                [&](enums::enum_constant<play_card_target_type::card>, int target_card_id) {
+                [&](enums::enum_tag_t<play_card_target_type::card>, int target_card_id) {
                     auto *target_card = m_game->find_card(target_card_id);
                     auto *target = target_card->owner;
                     auto flags = effect_flags::single_target;
@@ -604,7 +604,7 @@ namespace banggame {
                         }
                     }
                 },
-                [&](enums::enum_constant<play_card_target_type::cards_other_players>, const std::vector<int> &target_card_ids) {
+                [&](enums::enum_tag_t<play_card_target_type::cards_other_players>, const std::vector<int> &target_card_ids) {
                     effect_flags flags{};
                     if (card_ptr->value != card_value_type::none && card_ptr->color == card_color_type::brown) {
                         flags |= effect_flags::escapable;

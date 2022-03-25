@@ -41,14 +41,14 @@ namespace json {
         }
     };
 
-    template<enums::has_names T>
+    template<enums::enum_with_names T>
     struct serializer<T> {
         Json::Value operator()(const T &value) const {
             return std::string(enums::to_string(value));
         }
     };
 
-    template<enums::has_names T> requires enums::flags_enum<T>
+    template<enums::enum_with_names T> requires enums::flags_enum<T>
     struct serializer<T> {
         Json::Value operator()(const T &value) const {
             return enums::flags_to_string(value);
@@ -87,7 +87,7 @@ namespace json {
     template<enums::reflected_enum T>
     struct serializer<enums::enum_variant<T>> {
         Json::Value operator()(const enums::enum_variant<T> &value) const {
-            return enums::visit_indexed([]<T Value>(enums::enum_constant<Value>, auto && ... args) {
+            return enums::visit_indexed([]<T Value>(enums::enum_tag_t<Value>, auto && ... args) {
                 Json::Value ret = Json::objectValue;
                 ret["type"] = serializer<T>{}(Value);
                 if constexpr (sizeof...(args) > 0) {
@@ -155,14 +155,14 @@ namespace json {
         }
     };
 
-    template<enums::has_names T>
+    template<enums::enum_with_names T>
     struct deserializer<T> {
         T operator()(const Json::Value &value) const {
             return enums::from_string<T>(value.asString());
         }
     };
 
-    template<enums::has_names T> requires enums::flags_enum<T>
+    template<enums::enum_with_names T> requires enums::flags_enum<T>
     struct deserializer<T> {
         T operator()(const Json::Value &value) const {
             return enums::flags_from_string<T>(value.asString());
@@ -203,7 +203,7 @@ namespace json {
         enums::enum_variant<T> operator()(const Json::Value &value) const {
             return enums::visit_enum([&](auto enum_const) {
                 constexpr T E = decltype(enum_const)::value;
-                if constexpr (enums::has_type<E>) {
+                if constexpr (enums::value_with_type<E>) {
                     return enums::enum_variant<T>(enum_const, deserializer<enums::enum_type_t<E>>{}(value["value"]));
                 } else {
                     return enums::enum_variant<T>(enum_const);

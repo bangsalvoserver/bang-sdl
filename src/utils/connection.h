@@ -22,7 +22,7 @@ namespace net {
         connected
     };
 
-    DEFINE_ENUM_DATA_IN_NS(net, connection_error,
+    DEFINE_ENUM_DATA(connection_error,
         (no_error,              error_message{"No Error"})
         (timeout_expired,       error_message{"Timeout Expired"})
         (validation_failure,    error_message{"Validation Failure"})

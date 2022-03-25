@@ -53,7 +53,7 @@ namespace banggame {
 
     std::vector<game_update> game::get_game_state_updates(player *owner) {
         std::vector<game_update> ret;
-#define ADD_TO_RET(name, ...) ret.emplace_back(enums::enum_constant<game_update_type::name>{} __VA_OPT__(,) __VA_ARGS__)
+#define ADD_TO_RET(name, ...) ret.emplace_back(enums::enum_tag<game_update_type::name> __VA_OPT__(,) __VA_ARGS__)
         
         ADD_TO_RET(add_cards, make_id_vector(m_cards | std::views::transform([](const card &c) { return &c; })), card_pile_type::hidden_deck);
 

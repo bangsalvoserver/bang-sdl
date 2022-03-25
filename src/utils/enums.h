@@ -26,24 +26,25 @@ namespace enums {
 
     template<size_t S> using sized_int_t = detail::sized_int_t<S, uint8_t, uint16_t, uint32_t, uint64_t>;
 
-    template<typename T> struct enum_name {};
-    template<typename T> constexpr auto enum_name_v = enum_name<T>::value;
+    template<typename T> concept enumeral = std::is_enum_v<T>;
 
-    template<typename T> struct enum_values {};
-    template<typename T> constexpr auto enum_values_v = enum_values<T>::value;
+    template<enumeral auto E> struct enum_tag_t { static constexpr auto value = E; };
+    template<enumeral auto E> constexpr enum_tag_t<E> enum_tag;
 
-    template<typename T> concept reflected_enum = std::is_enum_v<T> && requires {
-        enum_values<T>::value;
+    template<typename T> concept reflected_enum = requires (T value) {
+        requires enumeral<T>;
+        get_enum_reflector_type(value);
     };
 
-    template<reflected_enum T> constexpr size_t size_v = enum_values_v<T>.size();
+    template<reflected_enum T> using reflector = decltype(get_enum_reflector_type(T{}));
 
-    template<reflected_enum auto Value> struct enum_constant {
-        static constexpr auto value = Value;
-    };
-    template<reflected_enum auto Value> constexpr enum_constant<Value> enum_tag;
+    template<reflected_enum T> constexpr std::string_view enum_name_v = reflector<T>::enum_name;
 
-    template<reflected_enum auto ... Values> using enum_sequence = util::type_list<enum_constant<Values>...>;
+    template<reflected_enum T> constexpr auto enum_values_v = reflector<T>::values;
+
+    template<reflected_enum T> constexpr auto size_v = enum_values_v<T>.size();
+
+    template<reflected_enum auto ... Values> using enum_sequence = util::type_list<enum_tag_t<Values>...>;
     namespace detail {
         template<reflected_enum T, typename ISeq> struct make_enum_sequence{};
         template<reflected_enum T, size_t ... Is> struct make_enum_sequence<T, std::index_sequence<Is...>> {
@@ -53,7 +54,7 @@ namespace enums {
         template<template<reflected_enum auto> typename Filter>
         struct enum_filter_wrapper {
             template<typename EnumConst> struct type{};
-            template<reflected_enum auto Value> struct type<enum_constant<Value>> : Filter<Value> {};
+            template<reflected_enum auto Value> struct type<enum_tag_t<Value>> : Filter<Value> {};
         };
     }
 
@@ -62,12 +63,6 @@ namespace enums {
     template<template<reflected_enum auto> typename Filter, typename ESeq>
     using filter_enum_sequence = util::type_list_filter_t<
         detail::enum_filter_wrapper<Filter>::template type, ESeq>;
-
-    template<reflected_enum T> struct enum_names {};
-    template<typename T> concept has_names = reflected_enum<T> && requires { enum_names<T>::value; };
-
-    template<reflected_enum T> struct enum_full_names {};
-    template<typename T> concept has_full_names = reflected_enum<T> && requires { enum_full_names<T>::value; };
 
     template<reflected_enum T> constexpr bool is_flags_enum() {
         size_t i = 1;
@@ -101,10 +96,16 @@ namespace enums {
         }
     }
 
-    template<reflected_enum auto Enum> struct enum_data{};
-    template<reflected_enum auto Enum> constexpr bool has_data = requires { enum_data<Enum>::value; };
-    template<reflected_enum auto Enum> constexpr auto enum_data_v = enum_data<Enum>::value;
-    template<reflected_enum auto Enum> using enum_data_t = decltype(enum_data<Enum>::value);
+    template<reflected_enum auto E> concept value_with_data = requires {
+        requires reflected_enum<decltype(E)>;
+        reflector<decltype(E)>::get_data(enum_tag<E>);
+    };
+
+    template<reflected_enum auto E> requires value_with_data<E>
+    constexpr auto enum_data_v = reflector<decltype(E)>::get_data(enum_tag<E>);
+
+    template<reflected_enum auto E> requires value_with_data<E>
+    using enum_data_t = decltype(enum_data_v<E>);
 
     template<reflected_enum Enum> auto get_data(Enum value) {
         static constexpr auto data_array = []<Enum ... Es>(enum_sequence<Es...>) {
@@ -112,10 +113,14 @@ namespace enums {
         }(make_enum_sequence<Enum>());
         return data_array[indexof(value)];
     }
-    
-    template<reflected_enum auto Enum> struct enum_type{};
-    template<reflected_enum auto Enum> constexpr bool has_type = requires { typename enum_type<Enum>::type; };
-    template<reflected_enum auto Enum> using enum_type_t = typename enum_type<Enum>::type;
+
+    template<reflected_enum auto E> concept value_with_type = requires {
+        requires reflected_enum<decltype(E)>;
+        reflector<decltype(E)>::get_type(enum_tag<E>);
+    };
+
+    template<reflected_enum auto E> requires value_with_type<E>
+    using enum_type_t = decltype(reflector<decltype(E)>::get_type(enum_tag<E>));
 
     template<reflected_enum T> struct invalid_enum {
         static constexpr T value = static_cast<T>(std::numeric_limits<std::underlying_type_t<T>>::max());
@@ -127,22 +132,40 @@ namespace enums {
 
     template<reflected_enum T> constexpr T invalid_enum_v = invalid_enum<T>::value;
 
-    template<has_names T> constexpr T from_string(std::string_view str) {
-        if (auto it = std::ranges::find(enum_names<T>::value, str); it != enum_names<T>::value.end()) {
-            return enum_values_v<T>[it - enum_names<T>::value.begin()];
+    template<typename T> concept enum_with_names = requires {
+        requires reflected_enum<T>;
+        reflector<T>::names;
+        requires reflector<T>::names.size() == size_v<T>;
+        requires std::convertible_to<typename decltype(reflector<T>::names)::value_type, std::string_view>;
+    };
+
+    template<enum_with_names T> constexpr auto enum_names_v = reflector<T>::names;
+
+    template<enum_with_names T>
+    constexpr std::string_view to_string(T value) {
+        return enum_names_v<T>[indexof(value)];
+    }
+
+    template<enum_with_names T> constexpr T from_string(std::string_view str) {
+        if (auto it = std::ranges::find(enum_names_v<T>, str); it != enum_names_v<T>.end()) {
+            return enum_values_v<T>[it - enum_names_v<T>.begin()];
         } else {
             return invalid_enum_v<T>;
         }
     }
 
-    template<has_names T>
-    constexpr std::string_view to_string(T value) {
-        return enum_names<T>::value[indexof(value)];
-    }
+    template<typename T> concept enum_with_full_names = requires {
+        requires reflected_enum<T>;
+        reflector<T>::full_names;
+        requires reflector<T>::full_names.size() == size_v<T>;
+        requires std::convertible_to<typename decltype(reflector<T>::full_names)::value_type, std::string_view>;
+    };
+
+    template<enum_with_full_names T> constexpr auto enum_full_names_v = reflector<T>::full_names;
     
-    template<has_full_names T>
+    template<enum_with_full_names T>
     constexpr std::string_view full_name(T value) {
-        return enum_full_names<T>::value[indexof(value)];
+        return enum_full_names_v<T>[indexof(value)];
     }
 
     constexpr auto to_underlying(reflected_enum auto value) {
@@ -186,7 +209,7 @@ namespace enums {
         return (values | ...);
     }(make_enum_sequence<T>());
 
-    template<has_names T> requires flags_enum<T>
+    template<enum_with_names T> requires flags_enum<T>
     constexpr T flags_from_string(std::string_view str) {
         constexpr std::string_view whitespace = " \t";
         T ret = flags_none<T>;
@@ -202,7 +225,7 @@ namespace enums {
         return ret;
     }
 
-    template<has_names T> requires flags_enum<T>
+    template<enum_with_names T> requires flags_enum<T>
     constexpr std::string flags_to_string(T value) {
         std::string ret;
         for (T v : enum_values_v<T>) {
@@ -219,24 +242,24 @@ namespace enums {
     template<typename RetType, typename Function, reflected_enum T> RetType visit_enum(Function &&fun, T value) {
         static constexpr auto lut = []<T ... Values>(enum_sequence<Values...>) {
             return std::array{ +[](Function &&fun) -> RetType {
-                return fun(enum_constant<Values>{});
+                return fun(enum_tag<Values>);
             } ... };
         }(make_enum_sequence<T>());
         return lut[indexof(value)](std::forward<Function>(fun));
     }
 
     template<typename Function, reflected_enum T> decltype(auto) visit_enum(Function &&fun, T value) {
-        using result_type = std::invoke_result_t<Function, enums::enum_constant<enums::enum_values_v<T>[0]>>;
+        using result_type = std::invoke_result_t<Function, enums::enum_tag_t<enums::enum_values_v<T>[0]>>;
         return visit_enum<result_type>(fun, value);
     }
 
     inline namespace stream_operators {
-        template<typename Stream, has_names T>
+        template<typename Stream, enum_with_names T>
         Stream &operator << (Stream &out, const T &value) {
             return out << to_string(value);
         }
 
-        template<typename Stream, has_names T> requires flags_enum<T>
+        template<typename Stream, enum_with_names T> requires flags_enum<T>
         Stream &operator << (Stream &out, const T &flags) {
             bool first = true;
             for (auto value : enum_values_v<T>) {
@@ -311,56 +334,39 @@ namespace enums {
 
 #define ENUM_INT(enum_value_fun, elementTupleSeq) enums::sized_int_t<enum_value_fun##_MAX_VALUE(BOOST_PP_SEQ_SIZE(elementTupleSeq))>
 
-#define ENUM_DATA_STRUCT(enumName, elementTuple) \
-    template<> struct enum_data<enumName::ENUM_ELEMENT_NAME(elementTuple)> { \
-        static constexpr auto value = ENUM_TUPLE_TAIL(elementTuple); \
-    };
+#define ENUM_DATA_FUNCTIONS(enumName, elementTuple) \
+    static constexpr auto get_data(enums::enum_tag_t<enumName::ENUM_ELEMENT_NAME(elementTuple)>) { \
+        return ENUM_TUPLE_TAIL(elementTuple); \
+    }
 
-#define ENUM_TYPE_STRUCT(enumName, elementTuple) \
-    template<> struct enum_type<enumName::ENUM_ELEMENT_NAME(elementTuple)> { \
-        using type = ENUM_TUPLE_TAIL(elementTuple); \
-    };
+#define ENUM_TYPE_FUNCTIONS(enumName, elementTuple) \
+    static constexpr ENUM_TUPLE_TAIL(elementTuple) get_type(enums::enum_tag_t<enumName::ENUM_ELEMENT_NAME(elementTuple)>);
 
 #define GENERATE_ENUM_CASE(r, enumNameFunTuple, elementTuple) \
     BOOST_PP_IF(BOOST_PP_EQUAL(BOOST_PP_TUPLE_SIZE(elementTuple), 1), \
         DO_NOTHING, BOOST_PP_TUPLE_ELEM(1, enumNameFunTuple)) \
         (BOOST_PP_TUPLE_ELEM(0, enumNameFunTuple), elementTuple)
 
-#define GENERATE_ENUM_STRUCTS(enumName, elementTupleSeq, value_fun_name) \
-template<> struct enum_name<enumName> { \
-    static constexpr std::string_view value = BOOST_PP_STRINGIZE(enumName); \
-}; \
-template<> struct enum_values<enumName> { \
-    static constexpr std::array value { \
-        BOOST_PP_SEQ_ENUM(BOOST_PP_SEQ_FOR_EACH(CREATE_ENUM_VALUES_ELEMENT, enumName, elementTupleSeq)) \
-    }; \
-}; \
-template<> struct enum_full_names<enumName> { \
-    static constexpr std::array<std::string_view, BOOST_PP_SEQ_SIZE(elementTupleSeq)> value { \
-        BOOST_PP_SEQ_ENUM(BOOST_PP_SEQ_FOR_EACH(CREATE_ENUM_FULL_NAMES_ELEMENT, enumName, elementTupleSeq)) \
-    }; \
-}; \
-template<> struct enum_names<enumName> { \
-    static constexpr std::array<std::string_view, BOOST_PP_SEQ_SIZE(elementTupleSeq)> value { \
-        BOOST_PP_SEQ_ENUM(BOOST_PP_SEQ_FOR_EACH(CREATE_ENUM_NAMES_ELEMENT, enumName, elementTupleSeq)) \
-    }; \
-}; \
-BOOST_PP_SEQ_FOR_EACH(GENERATE_ENUM_CASE, (enumName, value_fun_name), elementTupleSeq)
+#define REFLECTOR_NAME(enumName) __##enumName##_reflector
 
 #define IMPL_DEFINE_ENUM(enumName, elementTupleSeq, enum_value_fun, value_fun_name) \
 enum class enumName : ENUM_INT(enum_value_fun, elementTupleSeq) { \
     BOOST_PP_SEQ_ENUM(BOOST_PP_SEQ_FOR_EACH_I(enum_value_fun, enumName, elementTupleSeq)) \
-}; namespace enums { \
-GENERATE_ENUM_STRUCTS(enumName, elementTupleSeq, value_fun_name) \
-}
-
-#define IMPL_DEFINE_ENUM_IN_NS(namespaceName, enumName, elementTupleSeq, enum_value_fun, value_fun_name) \
-    enum class enumName : ENUM_INT(enum_value_fun, elementTupleSeq) { \
-        BOOST_PP_SEQ_ENUM(BOOST_PP_SEQ_FOR_EACH_I(enum_value_fun, enumName, elementTupleSeq)) \
+}; \
+struct REFLECTOR_NAME(enumName) { \
+    static constexpr std::string_view enum_name = BOOST_PP_STRINGIZE(enumName); \
+    static constexpr std::array values { \
+        BOOST_PP_SEQ_ENUM(BOOST_PP_SEQ_FOR_EACH(CREATE_ENUM_VALUES_ELEMENT, enumName, elementTupleSeq)) \
     }; \
-} namespace enums { using namespace namespaceName; \
-GENERATE_ENUM_STRUCTS(namespaceName::enumName, elementTupleSeq, value_fun_name) \
-} namespace namespaceName {
+    static constexpr std::array<std::string_view, values.size()> full_names { \
+        BOOST_PP_SEQ_ENUM(BOOST_PP_SEQ_FOR_EACH(CREATE_ENUM_FULL_NAMES_ELEMENT, enumName, elementTupleSeq)) \
+    }; \
+    static constexpr std::array<std::string_view, values.size()> names { \
+        BOOST_PP_SEQ_ENUM(BOOST_PP_SEQ_FOR_EACH(CREATE_ENUM_NAMES_ELEMENT, enumName, elementTupleSeq)) \
+    }; \
+    BOOST_PP_SEQ_FOR_EACH(GENERATE_ENUM_CASE, (enumName, value_fun_name), elementTupleSeq) \
+}; \
+REFLECTOR_NAME(enumName) get_enum_reflector_type(enumName);
 
 #define DO_FWD_DECLARE_HELPER(elementTuple) struct ENUM_TUPLE_TAIL(elementTuple);
 #define DO_FWD_DECLARE(r, _, elementTuple) \
@@ -375,30 +381,14 @@ GENERATE_ENUM_STRUCTS(namespaceName::enumName, elementTupleSeq, value_fun_name) 
     IMPL_DEFINE_ENUM(enumName, ADD_PARENTHESES(enumElements), CREATE_FLAG_ELEMENT, DO_NOTHING)
 
 #define DEFINE_ENUM_DATA(enumName, enumElements) \
-    IMPL_DEFINE_ENUM(enumName, ADD_PARENTHESES(enumElements), CREATE_ENUM_ELEMENT, ENUM_DATA_STRUCT)
+    IMPL_DEFINE_ENUM(enumName, ADD_PARENTHESES(enumElements), CREATE_ENUM_ELEMENT, ENUM_DATA_FUNCTIONS)
 #define DEFINE_ENUM_FLAGS_DATA(enumName, enumElements) \
-    IMPL_DEFINE_ENUM(enumName, ADD_PARENTHESES(enumElements), CREATE_FLAG_ELEMENT, ENUM_DATA_STRUCT)
+    IMPL_DEFINE_ENUM(enumName, ADD_PARENTHESES(enumElements), CREATE_FLAG_ELEMENT, ENUM_DATA_FUNCTIONS)
 
 #define DEFINE_ENUM_TYPES(enumName, enumElements) \
-    IMPL_DEFINE_ENUM(enumName, ADD_PARENTHESES(enumElements), CREATE_ENUM_ELEMENT, ENUM_TYPE_STRUCT)
+    IMPL_DEFINE_ENUM(enumName, ADD_PARENTHESES(enumElements), CREATE_ENUM_ELEMENT, ENUM_TYPE_FUNCTIONS)
 
 #define DEFINE_ENUM_FWD_TYPES(enumName, enumElements) \
     IMPL_FWD_DECLARE(ADD_PARENTHESES(enumElements)) DEFINE_ENUM_TYPES(enumName, enumElements)
-
-#define DEFINE_ENUM_IN_NS(namespaceName, enumName, enumElements) \
-    IMPL_DEFINE_ENUM_IN_NS(namespaceName, enumName, ADD_PARENTHESES(enumElements), CREATE_ENUM_ELEMENT, DO_NOTHING)
-#define DEFINE_ENUM_FLAGS_IN_NS(namespaceName, enumName, enumElements) \
-    IMPL_DEFINE_ENUM_IN_NS(namespaceName, enumName, ADD_PARENTHESES(enumElements), CREATE_FLAG_ELEMENT, DO_NOTHING)
-
-#define DEFINE_ENUM_DATA_IN_NS(namespaceName, enumName, enumElements) \
-    IMPL_DEFINE_ENUM_IN_NS(namespaceName, enumName, ADD_PARENTHESES(enumElements), CREATE_ENUM_ELEMENT, ENUM_DATA_STRUCT)
-#define DEFINE_ENUM_FLAGS_DATA_IN_NS(namespaceName, enumName, enumElements) \
-    IMPL_DEFINE_ENUM_IN_NS(namespaceName, enumName, ADD_PARENTHESES(enumElements), CREATE_FLAG_ELEMENT, ENUM_DATA_STRUCT)
-
-#define DEFINE_ENUM_TYPES_IN_NS(namespaceName, enumName, enumElements) \
-    IMPL_DEFINE_ENUM_IN_NS(namespaceName, enumName, ADD_PARENTHESES(enumElements), CREATE_ENUM_ELEMENT, ENUM_TYPE_STRUCT)
-
-#define DEFINE_ENUM_FWD_TYPES_IN_NS(namespaceName, enumName, enumElements) \
-    IMPL_FWD_DECLARE(ADD_PARENTHESES(enumElements)) DEFINE_ENUM_TYPES_IN_NS(namespaceName, enumName, enumElements)
 
 #endif

@@ -414,7 +414,7 @@ void game_scene::pop_update() {
             const auto update = std::move(m_pending_updates.front());
 
             m_pending_updates.pop_front();
-            enums::visit_indexed([this]<game_update_type E>(enums::enum_constant<E> tag, const auto & ... data) {
+            enums::visit_indexed([this]<game_update_type E>(enums::enum_tag_t<E> tag, const auto & ... data) {
                 handle_game_update(tag, data ...);
             }, update);
         }

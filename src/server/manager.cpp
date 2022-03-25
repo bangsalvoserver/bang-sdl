@@ -29,7 +29,7 @@ void game_manager::handle_message(int client_id, const client_message &msg) {
     } catch (const lobby_error &e) {
         send_message<server_message_type::lobby_error>(client_id, e.what());
     } catch (const game_error &e) {
-        send_message<server_message_type::game_update>(client_id, enums::enum_constant<game_update_type::game_error>(), e);
+        send_message<server_message_type::game_update>(client_id, enums::enum_tag_t<game_update_type::game_error>(), e);
     }
 }
 
@@ -155,12 +155,12 @@ void game_manager::HANDLE_MESSAGE(lobby_join, user_ptr user, const lobby_join_ar
             if (controlling) {
                 controlling->client_id = user->first;
                 broadcast_message<server_message_type::game_update>(lobby,
-                    enums::enum_constant<game_update_type::player_add>{}, controlling->id, controlling->client_id);
+                    enums::enum_tag<game_update_type::player_add>, controlling->id, controlling->client_id);
             }
 
             for (const player &p : lobby.game.m_players) {
                 if (&p != controlling && (p.alive() || lobby.game.has_expansion(card_expansion_type::ghostcards))) {
-                    send_message<server_message_type::game_update>(user->first, enums::enum_constant<game_update_type::player_add>{},
+                    send_message<server_message_type::game_update>(user->first, enums::enum_tag<game_update_type::player_add>,
                         p.id, p.client_id);
                 }
             }

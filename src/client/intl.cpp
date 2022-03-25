@@ -37,8 +37,8 @@ namespace intl {
     static const language current_language = get_system_language();
 
     std::string translate(std::string_view str) {
-        return std::string(enums::visit_enum([&]<language E>(enums::enum_constant<E>) {
-            static constexpr auto strings = enums::enum_data_v<E>;
+        return std::string(enums::visit_enum([&]<language E>(enums::enum_tag_t<E>) {
+            static constexpr auto strings = get_language_translations(enums::enum_tag<E>);
             auto it = strings.find(str);
             if (it == strings.end()) {
                 return str;

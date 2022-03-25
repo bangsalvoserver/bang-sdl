@@ -13,7 +13,7 @@ using namespace enums::flag_operators;
 
 template<game_action_type T, typename ... Ts>
 void target_finder::add_action(Ts && ... args) {
-    m_game->parent->add_message<client_message_type::game_action>(enums::enum_constant<T>{}, std::forward<Ts>(args) ...);
+    m_game->parent->add_message<client_message_type::game_action>(enums::enum_tag<T>, std::forward<Ts>(args) ...);
 }
 
 void target_finder::set_border_colors() {
@@ -713,23 +713,23 @@ void target_finder::send_play_card() {
     for (const auto &target : m_targets) {
         std::visit(util::overloaded{
             [&](target_none) {
-                ret.targets.emplace_back(enums::enum_constant<play_card_target_type::none>());
+                ret.targets.emplace_back(enums::enum_tag<play_card_target_type::none>);
             },
             [&](target_player p) {
-                ret.targets.emplace_back(enums::enum_constant<play_card_target_type::player>(), p.player->id);
+                ret.targets.emplace_back(enums::enum_tag<play_card_target_type::player>, p.player->id);
             },
             [&](target_other_players) {
-                ret.targets.emplace_back(enums::enum_constant<play_card_target_type::other_players>());
+                ret.targets.emplace_back(enums::enum_tag<play_card_target_type::other_players>);
             },
             [&](target_card c) {
-                ret.targets.emplace_back(enums::enum_constant<play_card_target_type::card>(), c.card->id);
+                ret.targets.emplace_back(enums::enum_tag<play_card_target_type::card>, c.card->id);
             },
             [&](const target_cards &cs) {
                 std::vector<int> ids;
                 for (auto [player, card] : cs) {
                     ids.push_back(card->id);
                 }
-                ret.targets.emplace_back(enums::enum_constant<play_card_target_type::cards_other_players>(), std::move(ids));
+                ret.targets.emplace_back(enums::enum_tag<play_card_target_type::cards_other_players>, std::move(ids));
             }
         }, target.value);
     }

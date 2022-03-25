@@ -10,7 +10,7 @@ namespace banggame {
         std::string_view symbol;
     };
 
-    DEFINE_ENUM_DATA_IN_NS(banggame, card_suit_type,
+    DEFINE_ENUM_DATA(card_suit_type,
         (none,      card_suit_symbol{"-", "-"})
         (hearts,    card_suit_symbol{"C", "\u2665"})
         (diamonds,  card_suit_symbol{"Q", "\u2666"})
@@ -18,7 +18,7 @@ namespace banggame {
         (spades,    card_suit_symbol{"P", "\u2660"})
     )
 
-    DEFINE_ENUM_DATA_IN_NS(banggame, card_value_type,
+    DEFINE_ENUM_DATA(card_value_type,
         (none,      "-")
         (value_A,   "A")
         (value_2,   "2")
@@ -35,7 +35,7 @@ namespace banggame {
         (value_K,   "K")
     )
     
-    DEFINE_ENUM_FLAGS_IN_NS(banggame, card_expansion_type,
+    DEFINE_ENUM_FLAGS(card_expansion_type,
         (base)
         (characterchoice)
         (dodgecity)
@@ -50,7 +50,7 @@ namespace banggame {
         (ghostcards)
     )
 
-    DEFINE_ENUM_IN_NS(banggame, card_color_type,
+    DEFINE_ENUM(card_color_type,
         (none)
         (brown)
         (blue)
@@ -59,7 +59,7 @@ namespace banggame {
         (orange)
     )
 
-    DEFINE_ENUM_IN_NS(banggame, player_role,
+    DEFINE_ENUM(player_role,
         (unknown)
         (sheriff)
         (deputy)
@@ -67,7 +67,7 @@ namespace banggame {
         (renegade)
     )
 
-    DEFINE_ENUM_FLAGS_IN_NS(banggame, target_player_filter,
+    DEFINE_ENUM_FLAGS(target_player_filter,
         (dead)
         (self)
         (notself)
@@ -77,7 +77,7 @@ namespace banggame {
         (reachable)
     )
 
-    DEFINE_ENUM_FLAGS_IN_NS(banggame, target_card_filter,
+    DEFINE_ENUM_FLAGS(target_card_filter,
         (table)
         (hand)
         (blue)
@@ -92,7 +92,7 @@ namespace banggame {
         (can_repeat)
     )
 
-    DEFINE_ENUM_TYPES_IN_NS(banggame, play_card_target_type,
+    DEFINE_ENUM_TYPES(play_card_target_type,
         (none)
         (player, int)
         (card, int)
@@ -102,7 +102,7 @@ namespace banggame {
 
     using play_card_target = enums::enum_variant<play_card_target_type>;
 
-    DEFINE_ENUM_IN_NS(banggame, card_deck_type,
+    DEFINE_ENUM(card_deck_type,
         (none)
         (main_deck)
         (character)
@@ -113,7 +113,7 @@ namespace banggame {
         (wildwestshow)
     )
 
-    DEFINE_ENUM_IN_NS(banggame, card_pile_type,
+    DEFINE_ENUM(card_pile_type,
         (none)
         (player)
         (player_hand)
@@ -132,7 +132,7 @@ namespace banggame {
         (specials)
     )
 
-    DEFINE_ENUM_IN_NS(banggame, card_modifier_type,
+    DEFINE_ENUM(card_modifier_type,
         (none)
         (bangcard)
         (discount)
@@ -140,12 +140,12 @@ namespace banggame {
         (shopchoice)
     )
 
-    DEFINE_ENUM_FLAGS_IN_NS(banggame, effect_flags,
+    DEFINE_ENUM_FLAGS(effect_flags,
         (escapable)
         (single_target)
     )
     
-    DEFINE_ENUM_FWD_TYPES_IN_NS(banggame, effect_type,
+    DEFINE_ENUM_FWD_TYPES(effect_type,
         (none)
         (play_card_action,      effect_play_card_action)
         (max_usages,            effect_max_usages)
@@ -228,7 +228,7 @@ namespace banggame {
         (lastwill,              effect_lastwill)
     )
 
-    DEFINE_ENUM_FWD_TYPES_IN_NS(banggame, equip_type,
+    DEFINE_ENUM_FWD_TYPES(equip_type,
         (none)
         (max_hp,                effect_max_hp)
         (mustang,               effect_mustang)
@@ -319,7 +319,7 @@ namespace banggame {
         (vendetta,              effect_vendetta)
     )
 
-    DEFINE_ENUM_FWD_TYPES_IN_NS(banggame, mth_type,
+    DEFINE_ENUM_FWD_TYPES(mth_type,
         (none)
         (doc_holyday,           handler_doc_holyday)
         (flint_westwood,        handler_flint_westwood)

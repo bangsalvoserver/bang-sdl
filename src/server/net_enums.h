@@ -30,7 +30,7 @@ DEFINE_ENUM_TYPES(client_message_type,
     (lobby_leave)
     (lobby_chat, lobby_chat_client_args)
     (game_start)
-    (game_action, game_action)
+    (game_action, banggame::game_action)
 )
 
 using client_message = enums::enum_variant<client_message_type>;
@@ -83,7 +83,7 @@ DEFINE_ENUM_TYPES(server_message_type,
     (lobby_remove_user, lobby_remove_user_args)
     (lobby_chat, lobby_chat_args)
     (game_started, game_started_args)
-    (game_update, game_update)
+    (game_update, banggame::game_update)
 )
 
 using server_message = enums::enum_variant<server_message_type>;

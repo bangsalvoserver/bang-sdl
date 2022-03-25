@@ -16,7 +16,7 @@ namespace banggame {
 
     #define EVENT(name, ...) (name, std::function<void(__VA_ARGS__)>)
     
-    DEFINE_ENUM_TYPES_IN_NS(banggame, event_type,
+    DEFINE_ENUM_TYPES(event_type,
         (delayed_action)
         EVENT(on_discard_pass,                  player *origin, card *target_card)
         EVENT(on_draw_check,                    player *origin, card *target_card)
@@ -101,7 +101,7 @@ namespace banggame {
         void add_event(card *target_card, Function &&fun) {
             m_event_handlers.emplace(std::piecewise_construct,
                 std::make_tuple(target_card),
-                std::make_tuple(enums::enum_constant<E>{}, std::forward<Function>(fun)));
+                std::make_tuple(enums::enum_tag<E>, std::forward<Function>(fun)));
         }
 
         template<event_type E, typename Function>

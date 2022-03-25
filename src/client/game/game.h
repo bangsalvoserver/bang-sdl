@@ -13,7 +13,7 @@
 #include <deque>
 #include <random>
 
-#define HANDLE_UPDATE(name, ...) handle_game_update(enums::enum_constant<game_update_type::name> __VA_OPT__(,) __VA_ARGS__)
+#define HANDLE_UPDATE(name, ...) handle_game_update(enums::enum_tag_t<game_update_type::name> __VA_OPT__(,) __VA_ARGS__)
 
 namespace banggame {
 

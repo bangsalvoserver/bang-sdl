@@ -10,7 +10,7 @@ struct error_message {
 
 namespace enums {
     namespace detail {
-        template<reflected_enum auto ... Es> requires (has_data<Es> && ...)
+        template<reflected_enum auto ... Es> requires (value_with_data<Es> && ...)
         constexpr bool all_error_messages(enum_sequence<Es ...>) {
             return (std::convertible_to<enum_data_t<Es>, error_message> && ...);
         }

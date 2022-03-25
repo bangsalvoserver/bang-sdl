@@ -19,7 +19,7 @@ namespace banggame {
         (std::vector<play_card_target>) targets
     )};
 
-    DEFINE_ENUM_TYPES_IN_NS(banggame, game_action_type,
+    DEFINE_ENUM_TYPES(game_action_type,
         (pick_card, pick_card_args)
         (play_card, play_card_args)
         (respond_card, play_card_args)

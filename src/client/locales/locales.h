@@ -5,22 +5,22 @@
 #include "utils/enums.h"
 
 namespace intl {
-    DEFINE_ENUM_IN_NS(intl, language,
+    DEFINE_ENUM(language,
         (english)
         (italian)
     )
 }
 
 #define BEGIN_LOCALE(LANG) \
-namespace enums { \
-    template<> struct enum_data<language::LANG> { \
-        static constexpr auto value = util::static_map<std::string_view, std::string_view>({
+namespace intl { \
+    constexpr auto get_language_translations(enums::enum_tag_t<language::LANG>) { \
+        return util::static_map<std::string_view, std::string_view>({
 
 #define LOCALE_VALUE(name, value) {#name, value},
 
 #define END_LOCALE() \
         }); \
-    }; \
+    } \
 }
 
 #endif

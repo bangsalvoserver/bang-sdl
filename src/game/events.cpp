@@ -14,7 +14,7 @@ namespace banggame {
             }
 
             for (event_function *h : handlers) {
-                enums::visit_indexed([&]<event_type T>(enums::enum_constant<T>, auto & ... fun) {
+                enums::visit_indexed([&]<event_type T>(enums::enum_tag_t<T>, auto & ... fun) {
                     if constexpr (sizeof...(fun) != 0) {
                         std::apply(fun ..., std::get<enums::indexof(T)>(event));
                     }

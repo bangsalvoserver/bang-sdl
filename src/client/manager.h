@@ -29,7 +29,7 @@ DEFINE_ENUM_TYPES(scene_type,
     (game, banggame::game_scene)
 )
 
-#define HANDLE_SRV_MESSAGE(name, ...) handle_message(enums::enum_constant<server_message_type::name> __VA_OPT__(,) __VA_ARGS__)
+#define HANDLE_SRV_MESSAGE(name, ...) handle_message(enums::enum_tag_t<server_message_type::name> __VA_OPT__(,) __VA_ARGS__)
 
 class client_manager {
 public:
@@ -45,7 +45,7 @@ public:
     template<client_message_type E, typename ... Ts>
     void add_message(Ts && ... args) {
         if (m_con) {
-            m_con->push_message(enums::enum_constant<E>{}, std::forward<Ts>(args) ...);
+            m_con->push_message(enums::enum_tag<E>, std::forward<Ts>(args) ...);
         }
     }
 
