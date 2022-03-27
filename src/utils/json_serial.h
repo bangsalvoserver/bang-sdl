@@ -5,6 +5,7 @@
 #include "reflector.h"
 #include "base64.h"
 
+#include <fmt/format.h>
 #include <json/json.h>
 #include <vector>
 #include <string>
@@ -45,13 +46,6 @@ namespace json {
     struct serializer<T> {
         Json::Value operator()(const T &value) const {
             return std::string(enums::to_string(value));
-        }
-    };
-
-    template<enums::enum_with_names T> requires enums::flags_enum<T>
-    struct serializer<T> {
-        Json::Value operator()(const T &value) const {
-            return enums::flags_to_string(value);
         }
     };
 
@@ -158,14 +152,11 @@ namespace json {
     template<enums::enum_with_names T>
     struct deserializer<T> {
         T operator()(const Json::Value &value) const {
-            return enums::from_string<T>(value.asString());
-        }
-    };
-
-    template<enums::enum_with_names T> requires enums::flags_enum<T>
-    struct deserializer<T> {
-        T operator()(const Json::Value &value) const {
-            return enums::flags_from_string<T>(value.asString());
+            if (auto ret = enums::from_string<T>(value.asString())) {
+                return *ret;
+            } else {
+                throw Json::RuntimeError(fmt::format("Invalid {}: {}", enums::enum_name_v<T>, value.asString()));
+            }
         }
     };
 
@@ -201,12 +192,11 @@ namespace json {
     template<enums::reflected_enum T>
     struct deserializer<enums::enum_variant<T>> {
         enums::enum_variant<T> operator()(const Json::Value &value) const {
-            return enums::visit_enum([&](auto enum_const) {
-                constexpr T E = decltype(enum_const)::value;
-                if constexpr (enums::value_with_type<E>) {
-                    return enums::enum_variant<T>(enum_const, deserializer<enums::enum_type_t<E>>{}(value["value"]));
+            return enums::visit_enum([&](enums::enum_tag_for<T> auto tag) {
+                if constexpr (enums::value_with_type<tag.value>) {
+                    return enums::enum_variant<T>(tag, deserializer<enums::enum_type_t<tag.value>>{}(value["value"]));
                 } else {
-                    return enums::enum_variant<T>(enum_const);
+                    return enums::enum_variant<T>(tag);
                 }
             }, deserializer<T>{}(value["type"]));
         }

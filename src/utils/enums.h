@@ -4,6 +4,7 @@
 #include <boost/preprocessor.hpp>
 
 #include <algorithm>
+#include <optional>
 #include <string>
 #include <ranges>
 #include <limits>
@@ -28,8 +29,17 @@ namespace enums {
 
     template<typename T> concept enumeral = std::is_enum_v<T>;
 
+    constexpr auto to_underlying(enumeral auto value) {
+        return static_cast<std::underlying_type_t<decltype(value)>>(value);
+    }
+
     template<enumeral auto E> struct enum_tag_t { static constexpr auto value = E; };
     template<enumeral auto E> constexpr enum_tag_t<E> enum_tag;
+
+    template<typename T, typename E> concept enum_tag_for = requires {
+        enumeral<E>;
+        { T::value } -> std::convertible_to<E>;
+    };
 
     template<typename T> concept reflected_enum = requires (T value) {
         requires enumeral<T>;
@@ -64,25 +74,32 @@ namespace enums {
     using filter_enum_sequence = util::type_list_filter_t<
         detail::enum_filter_wrapper<Filter>::template type, ESeq>;
 
-    template<reflected_enum T> constexpr bool is_flags_enum() {
-        size_t i = 1;
-        for (auto value : enum_values_v<T>) {
-            if (value != static_cast<T>(i)) return false;
-            i <<= 1;
-        }
-        return true;
-    }
-    template<typename T> concept flags_enum = is_flags_enum<T>();
+    template<typename T> concept flags_enum = requires {
+        requires reflected_enum<T>;
+        requires []{
+            size_t i = 1;
+            for (auto value : enum_values_v<T>) {
+                if (value != static_cast<T>(i)) return false;
+                i <<= 1;
+            }
+            return true;
+        }();
+    };
 
-    template<reflected_enum T> constexpr bool is_linear_enum() {
-        size_t i = 0;
-        for (auto value : enum_values_v<T>) {
-            if (value != static_cast<T>(i)) return false;
-            ++i;
-        }
-        return true;
-    }
-    template<typename T> concept linear_enum = is_linear_enum<T>();
+    template<flags_enum T> constexpr T flags_none = static_cast<T>(0);
+    template<flags_enum T> constexpr T flags_all = static_cast<T>((1 << size_v<T>) - 1);
+
+    template<typename T> concept linear_enum = requires {
+        requires reflected_enum<T>;
+        requires []{
+            size_t i = 0;
+            for (auto value : enum_values_v<T>) {
+                if (value != static_cast<T>(i)) return false;
+                ++i;
+            }
+            return true;
+        }();
+    };
 
     template<reflected_enum T> constexpr size_t indexof(T value) {
         if constexpr (linear_enum<T>) {
@@ -96,7 +113,30 @@ namespace enums {
         }
     }
 
-    template<reflected_enum auto E> concept value_with_data = requires {
+    template<reflected_enum T> constexpr T index_to(size_t value) {
+        if constexpr (linear_enum<T>) {
+            return static_cast<T>(value);
+        } else if constexpr (flags_enum<T>) {
+            return static_cast<T>(1 << value);
+        } else {
+            return enum_values_v<T>[value];
+        }
+    }
+
+    template<reflected_enum T> constexpr bool is_valid_value(T value) {
+        if constexpr (linear_enum<T>) {
+            return static_cast<size_t>(value) < size_v<T>;
+        } else if constexpr (flags_enum<T>) {
+            return static_cast<size_t>(value) < (1 << size_v<T>);
+        } else if constexpr (std::ranges::is_sorted(enum_values_v<T>)) {
+            auto it = std::ranges::lower_bound(enum_values_v<T>, value);
+            return it != enum_values_v<T>.end() && *it == value;
+        } else {
+            return std::ranges::find(enum_values_v<T>, value) != enum_values_v<T>.end();
+        }
+    }
+
+    template<auto E> concept value_with_data = requires {
         requires reflected_enum<decltype(E)>;
         reflector<decltype(E)>::get_data(enum_tag<E>);
     };
@@ -107,30 +147,39 @@ namespace enums {
     template<reflected_enum auto E> requires value_with_data<E>
     using enum_data_t = decltype(enum_data_v<E>);
 
-    template<reflected_enum Enum> auto get_data(Enum value) {
+    template<typename T>
+    concept full_data_enum = requires {
+        requires reflected_enum<T>;
+        requires []<T ... Es>(enum_sequence<Es ...>) {
+            return (value_with_data<Es> && ...);
+        }(make_enum_sequence<T>());
+    };
+
+    namespace detail {
+        template<typename ESeq> struct full_data_enum_type {};
+        template<full_data_enum auto ... Es> struct full_data_enum_type<enum_sequence<Es...>> : std::common_type<enum_data_t<Es> ...> {};
+    }
+
+    template<full_data_enum T>
+    using full_data_enum_type_t = typename detail::full_data_enum_type<make_enum_sequence<T>>::type;
+
+    template<typename T, typename U>
+    concept full_data_enum_of_type = std::same_as<U, full_data_enum_type_t<T>>;
+
+    template<full_data_enum Enum> auto get_data(Enum value) -> full_data_enum_type_t<Enum> {
         static constexpr auto data_array = []<Enum ... Es>(enum_sequence<Es...>) {
             return std::array{ enum_data_v<Es> ... };
         }(make_enum_sequence<Enum>());
         return data_array[indexof(value)];
     }
 
-    template<reflected_enum auto E> concept value_with_type = requires {
+    template<auto E> concept value_with_type = requires {
         requires reflected_enum<decltype(E)>;
         reflector<decltype(E)>::get_type(enum_tag<E>);
     };
 
     template<reflected_enum auto E> requires value_with_type<E>
     using enum_type_t = decltype(reflector<decltype(E)>::get_type(enum_tag<E>));
-
-    template<reflected_enum T> struct invalid_enum {
-        static constexpr T value = static_cast<T>(std::numeric_limits<std::underlying_type_t<T>>::max());
-    };
-
-    template<reflected_enum T> requires flags_enum<T> struct invalid_enum<T> {
-        static constexpr T value = static_cast<T>(0);
-    };
-
-    template<reflected_enum T> constexpr T invalid_enum_v = invalid_enum<T>::value;
 
     template<typename T> concept enum_with_names = requires {
         requires reflected_enum<T>;
@@ -142,20 +191,61 @@ namespace enums {
     template<enum_with_names T> constexpr auto enum_names_v = reflector<T>::names;
 
     template<enum_with_names T>
-    constexpr std::string_view to_string(T value) {
+    constexpr std::string_view value_to_string(T value) {
         return enum_names_v<T>[indexof(value)];
     }
 
-    template<enum_with_names T> constexpr T from_string(std::string_view str) {
+    template<enum_with_names T>
+    constexpr std::string_view to_string(T value) {
+        return value_to_string(value);
+    }
+
+    template<enum_with_names T> requires flags_enum<T>
+    constexpr std::string to_string(T value) {
+        std::string ret;
+        for (T v : std::views::iota(size_t(0), size_v<T>) | std::views::transform(index_to<T>)) {
+            if (bool(value & v)) {
+                if (!ret.empty()) {
+                    ret += ' ';
+                }
+                ret.append(value_to_string(v));
+            }
+        }
+        return ret;
+    }
+
+    template<enum_with_names T>
+    constexpr std::optional<T> value_from_string(std::string_view str) {
         if (auto it = std::ranges::find(enum_names_v<T>, str); it != enum_names_v<T>.end()) {
-            return enum_values_v<T>[it - enum_names_v<T>.begin()];
+            return index_to<T>(it - enum_names_v<T>.begin());
         } else {
-            return invalid_enum_v<T>;
+            return std::nullopt;
         }
     }
 
-    constexpr auto to_underlying(reflected_enum auto value) {
-        return static_cast<std::underlying_type_t<decltype(value)>>(value);
+    template<enum_with_names T>
+    constexpr std::optional<T> from_string(std::string_view str) {
+        return value_from_string<T>(str);
+    }
+
+    template<enum_with_names T> requires flags_enum<T>
+    constexpr std::optional<T> from_string(std::string_view str) {
+        constexpr std::string_view whitespace = " \t";
+        T ret{};
+        while (true) {
+            size_t pos = str.find_first_not_of(whitespace);
+            if (pos == std::string_view::npos) break;
+            str = str.substr(pos);
+            pos = str.find_first_of(whitespace);
+            if (auto value = value_from_string<T>(str.substr(0, pos))) {
+                ret |= *value;
+            } else {
+                return std::nullopt;
+            }
+            if (pos == std::string_view::npos) break;
+            str = str.substr(pos);
+        }
+        return ret;
     }
 
     inline namespace flag_operators {
@@ -187,43 +277,6 @@ namespace enums {
             return lhs = lhs ^ rhs;
         }
     }
-
-    template<flags_enum T> constexpr T flags_none = static_cast<T>(0);
-
-    template<flags_enum T> constexpr T flags_all = []<T ... values>(enum_sequence<values...>) {
-        using namespace flag_operators;
-        return (values | ...);
-    }(make_enum_sequence<T>());
-
-    template<enum_with_names T> requires flags_enum<T>
-    constexpr T flags_from_string(std::string_view str) {
-        constexpr std::string_view whitespace = " \t";
-        T ret = flags_none<T>;
-        while (true) {
-            size_t pos = str.find_first_not_of(whitespace);
-            if (pos == std::string_view::npos) break;
-            str = str.substr(pos);
-            pos = str.find_first_of(whitespace);
-            ret |= from_string<T>(str.substr(0, pos));
-            if (pos == std::string_view::npos) break;
-            str = str.substr(pos);
-        }
-        return ret;
-    }
-
-    template<enum_with_names T> requires flags_enum<T>
-    constexpr std::string flags_to_string(T value) {
-        std::string ret;
-        for (T v : enum_values_v<T>) {
-            if (bool(value & v)) {
-                if (!ret.empty()) {
-                    ret += ' ';
-                }
-                ret.append(to_string(v));
-            }
-        }
-        return ret;
-    }
     
     template<typename RetType, typename Function, reflected_enum T> RetType visit_enum(Function &&fun, T value) {
         static constexpr auto lut = []<T ... Values>(enum_sequence<Values...>) {
@@ -235,7 +288,7 @@ namespace enums {
     }
 
     template<typename Function, reflected_enum T> decltype(auto) visit_enum(Function &&fun, T value) {
-        using result_type = std::invoke_result_t<Function, enums::enum_tag_t<enums::enum_values_v<T>[0]>>;
+        using result_type = std::invoke_result_t<Function, enum_tag_t<T{}>>;
         return visit_enum<result_type>(fun, value);
     }
 
@@ -244,30 +297,16 @@ namespace enums {
         Stream &operator << (Stream &out, const T &value) {
             return out << to_string(value);
         }
-
-        template<typename Stream, enum_with_names T> requires flags_enum<T>
-        Stream &operator << (Stream &out, const T &flags) {
-            bool first = true;
-            for (auto value : enum_values_v<T>) {
-                if (bool(flags & value)) {
-                    if (first) {
-                        first = false;
-                    } else {
-                        out << ' ';
-                    }
-                    out << to_string(value);
-                }
-            }
-            return out;
-        }
     }
 
-    template<enums::flags_enum E>
+    template<flags_enum E>
     auto enum_flag_values(E value) {
-        return enums::enum_values_v<E> | std::views::filter([=](E item) {
-            using namespace flag_operators;
-            return bool(item & value);
-        });
+        return std::views::iota(size_t(0), size_v<E>)
+            | std::views::transform(index_to<E>)
+            | std::views::filter([value](E item) {
+                using namespace flag_operators;
+                return bool(item & value);
+            });
     }
     
     template<flags_enum T>

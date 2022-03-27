@@ -33,7 +33,7 @@ namespace enums {
         }
         
         Enum enum_index() const {
-            return enum_values_v<Enum>[base::index()];
+            return index_to<Enum>(base::index());
         }
 
         bool is(Enum index) const {
@@ -60,19 +60,18 @@ namespace enums {
 
     template<typename T, typename Variant> struct enum_variant_indexof{};
     template<typename T, reflected_enum Enum> struct enum_variant_indexof<T, enum_variant<Enum>> {
-        static constexpr Enum value = enums::enum_values_v<Enum>[util::type_list_indexof_v<T, detail::variant_type_list_t<enum_variant_base<Enum>>>];
+        static constexpr Enum value = index_to<Enum>(util::type_list_indexof_v<T, detail::variant_type_list_t<enum_variant_base<Enum>>>);
     };
     template<typename T, typename Variant> constexpr auto enum_variant_indexof_v = enum_variant_indexof<T, Variant>::value;
 
     template<typename RetType, reflected_enum T, typename Visitor, typename Variant>
     requires std::same_as<std::remove_const_t<Variant>, enum_variant<T>>
     RetType do_visit(Visitor &&visitor, Variant &v) {
-        return visit_enum<RetType>([&](auto enum_const) {
-            constexpr T E = decltype(enum_const)::value;
-            if constexpr (value_with_type<E>) {
-                return std::invoke(visitor, enum_const, v.template get<E>());
+        return visit_enum<RetType>([&](enum_tag_for<T> auto tag) {
+            if constexpr (value_with_type<tag.value>) {
+                return std::invoke(visitor, tag, v.template get<tag.value>());
             } else {
-                return std::invoke(visitor, enum_const);
+                return std::invoke(visitor, tag);
             }
         }, v.enum_index());
     }
@@ -98,12 +97,12 @@ namespace enums {
 
     template<typename Visitor, reflected_enum T>
     decltype(auto) visit_indexed(Visitor &&visitor, const enum_variant<T> &v) {
-        return do_visit<visit_return_type_t<Visitor, enum_values_v<T>[0]>, T>(visitor, v);
+        return do_visit<visit_return_type_t<Visitor, T{}>, T>(visitor, v);
     }
 
     template<typename Visitor, reflected_enum T>
     decltype(auto) visit_indexed(Visitor &&visitor, enum_variant<T> &v) {
-        return do_visit<visit_return_type_t<Visitor, enum_values_v<T>[0]>, T>(visitor, v);
+        return do_visit<visit_return_type_t<Visitor, T{}>, T>(visitor, v);
     }
 
     template<typename RetType, typename Visitor, reflected_enum T>

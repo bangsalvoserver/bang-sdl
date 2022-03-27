@@ -16,6 +16,7 @@ namespace binary {
         (no_error,                  error_message{"No Error"})
         (buffer_overflow,           error_message{"Buffer Overflow"})
         (buffer_underflow,          error_message{"Buffer Underflow"})
+        (invalid_enum_value,        error_message{"Invalid Enum Value"})
         (invalid_variant_index,     error_message{"Invalid Variant Index"})
         (magic_number_mismatch,     error_message{"Magic Number Mismatch"})
     )
@@ -64,7 +65,7 @@ namespace binary {
         }
     };
 
-    template<typename T> requires (std::is_enum_v<T>)
+    template<enums::enumeral T>
     struct serializer<T> {
         void operator()(const T &value, byte_vector &out) const {
             using underlying = std::underlying_type_t<T>;
@@ -244,11 +245,24 @@ namespace binary {
         }
     };
 
-    template<typename T> requires (std::is_enum_v<T>)
+    template<enums::enumeral T>
     struct deserializer<T> {
         T operator()(byte_ptr &pos, byte_ptr end) const {
             using underlying = std::underlying_type_t<T>;
             return static_cast<T>(deserializer<underlying>{}(pos, end));
+        }
+    };
+
+    template<enums::enumeral T> requires enums::reflected_enum<T>
+    struct deserializer<T> {
+        T operator()(byte_ptr &pos, byte_ptr end) const {
+            using underlying = std::underlying_type_t<T>;
+            T value = static_cast<T>(deserializer<underlying>{}(pos, end));
+            if (enums::is_valid_value(value)) {
+                return value;
+            } else {
+                throw read_error(read_error_code::invalid_enum_value);
+            }
         }
     };
 

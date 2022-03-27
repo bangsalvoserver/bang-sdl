@@ -2,6 +2,7 @@
 #define __ENUM_ERROR_CODE_H__
 
 #include <system_error>
+#include "fmt/format.h"
 #include "enums.h"
 
 struct error_message {
@@ -9,18 +10,8 @@ struct error_message {
 };
 
 namespace enums {
-    namespace detail {
-        template<reflected_enum auto ... Es> requires (value_with_data<Es> && ...)
-        constexpr bool all_error_messages(enum_sequence<Es ...>) {
-            return (std::convertible_to<enum_data_t<Es>, error_message> && ...);
-        }
-    }
 
-    template<typename E>
-    concept error_code_enum = requires {
-        requires reflected_enum<E>;
-        requires detail::all_error_messages(make_enum_sequence<E>());
-    };
+    template<typename E> concept error_code_enum = full_data_enum_of_type<E, error_message>;
 
     template<error_code_enum E>
     struct error_code_enum_category : std::error_category {
@@ -29,7 +20,12 @@ namespace enums {
         }
 
         std::string message(int ev) const override {
-            return std::string(get_data(static_cast<E>(ev)).message);
+            E value = index_to<E>(ev);
+            if (is_valid_value(value)) {
+                return std::string(get_data(value).message);
+            } else {
+                return fmt::format("Invalid {}", enum_name_v<E>);
+            }
         }
 
         static inline const error_code_enum_category instance;

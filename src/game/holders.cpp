@@ -123,10 +123,9 @@ namespace banggame {
     }
 
     void verify_multitarget(card *origin_card, player *origin, const mth_target_list &targets) {
-        enums::visit_enum([&](auto enum_const) {
-            constexpr mth_type E = decltype(enum_const)::value;
-            if constexpr (enums::value_with_type<E>) {
-                using handler_type = enums::enum_type_t<E>;
+        enums::visit_enum([&](enums::enum_tag_for<mth_type> auto tag) {
+            if constexpr (enums::value_with_type<tag.value>) {
+                using handler_type = enums::enum_type_t<tag.value>;
                 if constexpr (requires (handler_type handler) { handler.verify(origin_card, origin, targets); }) {
                     handler_type{}.verify(origin_card, origin, targets);
                 }
@@ -135,10 +134,9 @@ namespace banggame {
     }
     
     void handle_multitarget(card *origin_card, player *origin, const mth_target_list &targets) {
-        enums::visit_enum([&](auto enum_const) {
-            constexpr mth_type E = decltype(enum_const)::value;
-            if constexpr (enums::value_with_type<E>) {
-                using handler_type = enums::enum_type_t<E>;
+        enums::visit_enum([&](enums::enum_tag_for<mth_type> auto tag) {
+            if constexpr (enums::value_with_type<tag.value>) {
+                using handler_type = enums::enum_type_t<tag.value>;
                 handler_type{}.on_play(origin_card, origin, targets);
             }
         }, origin_card->multi_target_handler);

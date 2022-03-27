@@ -17,11 +17,11 @@ game_manager::game_manager(const std::filesystem::path &base_path)
 
 void game_manager::handle_message(int client_id, const client_message &msg) {
     try {
-        enums::visit_indexed([&](auto enum_const, auto && ... args) {
-            if constexpr (requires { handle_message(enum_const, client_id, std::forward<decltype(args)>(args) ...); }) {
-                handle_message(enum_const, client_id, std::forward<decltype(args)>(args) ...);
+        enums::visit_indexed([&](enums::enum_tag_for<client_message_type> auto tag, auto && ... args) {
+            if constexpr (requires { handle_message(tag, client_id, std::forward<decltype(args)>(args) ...); }) {
+                handle_message(tag, client_id, std::forward<decltype(args)>(args) ...);
             } else if (auto it = users.find(client_id); it != users.end()) {
-                handle_message(enum_const, it, std::forward<decltype(args)>(args) ...);
+                handle_message(tag, it, std::forward<decltype(args)>(args) ...);
             } else {
                 throw invalid_message{};
             }
