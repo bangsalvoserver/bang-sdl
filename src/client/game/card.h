@@ -37,8 +37,8 @@ namespace banggame {
         sdl::texture backface_role;
         sdl::texture backface_goldrush;
 
-        std::array<sdl::surface, enums::size_v<card_value_type> - 1> value_icons;
-        std::array<sdl::surface, enums::size_v<card_suit_type> - 1> suit_icons;
+        std::array<sdl::surface, enums::num_members_v<card_value_type> - 1> value_icons;
+        std::array<sdl::surface, enums::num_members_v<card_suit_type> - 1> suit_icons;
 
         sdl::surface apply_card_mask(const sdl::surface &source) const;
 

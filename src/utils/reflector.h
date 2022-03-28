@@ -5,7 +5,7 @@
 #include <utility>
 #include <cstddef>
 
-#include "utils/type_list.h"
+#include "type_list.h"
 
 #define REM(...) __VA_ARGS__
 #define EAT(...)

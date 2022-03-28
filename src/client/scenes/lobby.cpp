@@ -53,8 +53,14 @@ lobby_scene::expansion_box::expansion_box(const std::string &label, banggame::ca
     set_value(bool(flag & check));
 }
 
-template<banggame::card_expansion_type E> using has_label = std::bool_constant<E != banggame::card_expansion_type::base>;
-using card_expansions_with_label = enums::filter_enum_sequence<has_label, enums::make_enum_sequence<banggame::card_expansion_type>>;
+template<typename ESeq> struct remove_first {};
+
+template<enums::reflected_enum auto First, enums::reflected_enum auto ... Es>
+struct remove_first<enums::enum_sequence<First, Es...>> {
+    using type = enums::enum_sequence<Es ...>;
+};
+
+using card_expansions_with_label = typename remove_first<enums::make_enum_sequence<banggame::card_expansion_type>>::type;
 
 lobby_scene::lobby_scene(client_manager *parent, const lobby_entered_args &args)
     : scene_base(parent)

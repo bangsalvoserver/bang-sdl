@@ -2,6 +2,7 @@
 #define __ENUM_VARIANT_H__
 
 #include "enums.h"
+#include "type_list.h"
 #include <variant>
 
 namespace enums {

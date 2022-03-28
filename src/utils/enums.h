@@ -10,8 +10,6 @@
 #include <limits>
 #include <bit>
 
-#include "type_list.h"
-
 namespace enums {
     namespace detail {
         template<size_t S, typename ... Ts> struct sized_int {};
@@ -50,66 +48,59 @@ namespace enums {
 
     template<reflected_enum T> constexpr std::string_view enum_name_v = reflector<T>::enum_name;
 
-    template<reflected_enum T> constexpr auto enum_values_v = reflector<T>::values;
+    template<reflected_enum T> constexpr size_t num_members_v = reflector<T>::num_elements;
+    
+    template<reflected_enum T> constexpr std::array<T, num_members_v<T>> value_array_v = reflector<T>::values;
 
-    template<reflected_enum T> constexpr auto size_v = enum_values_v<T>.size();
+    template<reflected_enum T> constexpr auto enum_values_v = value_array_v<T>;
 
-    template<reflected_enum auto ... Values> using enum_sequence = util::type_list<enum_tag_t<Values>...>;
+    template<reflected_enum auto ... Values> struct enum_sequence {
+        static constexpr size_t size = sizeof...(Values);
+    };
+
     namespace detail {
         template<reflected_enum T, typename ISeq> struct make_enum_sequence{};
         template<reflected_enum T, size_t ... Is> struct make_enum_sequence<T, std::index_sequence<Is...>> {
-            using type = enum_sequence<enum_values_v<T>[Is]...>;
-        };
-
-        template<template<reflected_enum auto> typename Filter>
-        struct enum_filter_wrapper {
-            template<typename EnumConst> struct type{};
-            template<reflected_enum auto Value> struct type<enum_tag_t<Value>> : Filter<Value> {};
+            using type = enum_sequence<value_array_v<T>[Is]...>;
         };
     }
 
-    template<reflected_enum T> using make_enum_sequence = typename detail::make_enum_sequence<T, std::make_index_sequence<size_v<T>>>::type;
+    template<reflected_enum T> using make_enum_sequence = typename detail::make_enum_sequence<T, std::make_index_sequence<num_members_v<T>>>::type;
 
-    template<template<reflected_enum auto> typename Filter, typename ESeq>
-    using filter_enum_sequence = util::type_list_filter_t<
-        detail::enum_filter_wrapper<Filter>::template type, ESeq>;
-
-    template<typename T> concept flags_enum = requires {
-        requires reflected_enum<T>;
-        requires []{
-            size_t i = 1;
-            for (auto value : enum_values_v<T>) {
-                if (value != static_cast<T>(i)) return false;
-                i <<= 1;
-            }
-            return true;
-        }();
-    };
-
-    template<flags_enum T> constexpr T flags_none = static_cast<T>(0);
-    template<flags_enum T> constexpr T flags_all = static_cast<T>((1 << size_v<T>) - 1);
+    template<enumeral T, size_t N> constexpr auto linear_enum_view = std::views::iota(static_cast<size_t>(0), N)
+        | std::views::transform([](size_t n) { return static_cast<T>(n); });
 
     template<typename T> concept linear_enum = requires {
         requires reflected_enum<T>;
-        requires []{
-            size_t i = 0;
-            for (auto value : enum_values_v<T>) {
-                if (value != static_cast<T>(i)) return false;
-                ++i;
-            }
-            return true;
-        }();
+        requires std::ranges::equal(value_array_v<T>, linear_enum_view<T, num_members_v<T>>);
     };
+
+    template<reflected_enum T> requires linear_enum<T>
+    constexpr auto enum_values_v<T> = linear_enum_view<T, num_members_v<T>>;
+
+    template<enumeral T, size_t N> constexpr auto flags_enum_view = std::views::iota(static_cast<size_t>(0), N)
+        | std::views::transform([](size_t n) { return static_cast<T>(1 << n); });
+
+    template<typename T> concept flags_enum = requires {
+        requires reflected_enum<T>;
+        requires std::ranges::equal(value_array_v<T>, flags_enum_view<T, num_members_v<T>>);
+    };
+
+    template<reflected_enum T> requires flags_enum<T>
+    constexpr auto enum_values_v<T> = flags_enum_view<T, num_members_v<T>>;
+
+    template<flags_enum T> constexpr T flags_none = static_cast<T>(0);
+    template<flags_enum T> constexpr T flags_all = static_cast<T>((1 << num_members_v<T>) - 1);
 
     template<reflected_enum T> constexpr size_t indexof(T value) {
         if constexpr (linear_enum<T>) {
             return static_cast<size_t>(value);
         } else if constexpr (flags_enum<T>) {
             return std::countr_zero(static_cast<size_t>(value));
-        } else if constexpr (std::ranges::is_sorted(enum_values_v<T>)) {
-            return std::ranges::lower_bound(enum_values_v<T>, value) - enum_values_v<T>.begin();
+        } else if constexpr (std::ranges::is_sorted(value_array_v<T>)) {
+            return std::ranges::lower_bound(value_array_v<T>, value) - value_array_v<T>.begin();
         } else {
-            return std::ranges::find(enum_values_v<T>, value) - enum_values_v<T>.begin();
+            return std::ranges::find(value_array_v<T>, value) - value_array_v<T>.begin();
         }
     }
 
@@ -119,20 +110,20 @@ namespace enums {
         } else if constexpr (flags_enum<T>) {
             return static_cast<T>(1 << value);
         } else {
-            return enum_values_v<T>[value];
+            return value_array_v<T>[value];
         }
     }
 
     template<reflected_enum T> constexpr bool is_valid_value(T value) {
         if constexpr (linear_enum<T>) {
-            return static_cast<size_t>(value) < size_v<T>;
+            return static_cast<size_t>(value) < num_members_v<T>;
         } else if constexpr (flags_enum<T>) {
-            return static_cast<size_t>(value) < (1 << size_v<T>);
-        } else if constexpr (std::ranges::is_sorted(enum_values_v<T>)) {
-            auto it = std::ranges::lower_bound(enum_values_v<T>, value);
-            return it != enum_values_v<T>.end() && *it == value;
+            return static_cast<size_t>(value) < (1 << num_members_v<T>);
+        } else if constexpr (std::ranges::is_sorted(value_array_v<T>)) {
+            auto it = std::ranges::lower_bound(value_array_v<T>, value);
+            return it != value_array_v<T>.end() && *it == value;
         } else {
-            return std::ranges::find(enum_values_v<T>, value) != enum_values_v<T>.end();
+            return std::ranges::find(value_array_v<T>, value) != value_array_v<T>.end();
         }
     }
 
@@ -184,7 +175,7 @@ namespace enums {
     template<typename T> concept enum_with_names = requires {
         requires reflected_enum<T>;
         reflector<T>::names;
-        requires reflector<T>::names.size() == size_v<T>;
+        requires reflector<T>::names.size() == num_members_v<T>;
         requires std::convertible_to<typename decltype(reflector<T>::names)::value_type, std::string_view>;
     };
 
@@ -203,7 +194,7 @@ namespace enums {
     template<enum_with_names T> requires flags_enum<T>
     constexpr std::string to_string(T value) {
         std::string ret;
-        for (T v : std::views::iota(size_t(0), size_v<T>) | std::views::transform(index_to<T>)) {
+        for (T v : enum_values_v<T>) {
             if (bool(value & v)) {
                 if (!ret.empty()) {
                     ret += ' ';
@@ -301,8 +292,7 @@ namespace enums {
 
     template<flags_enum E>
     auto enum_flag_values(E value) {
-        return std::views::iota(size_t(0), size_v<E>)
-            | std::views::transform(index_to<E>)
+        return enum_values_v<E>
             | std::views::filter([value](E item) {
                 using namespace flag_operators;
                 return bool(item & value);
@@ -379,10 +369,11 @@ enum class enumName : ENUM_INT(enum_value_fun, elementTupleSeq) { \
 }; \
 struct REFLECTOR_NAME(enumName) { \
     static constexpr std::string_view enum_name = BOOST_PP_STRINGIZE(enumName); \
-    static constexpr std::array values { \
+    static constexpr size_t num_elements = BOOST_PP_SEQ_SIZE(elementTupleSeq); \
+    static constexpr std::array<enumName, num_elements> values { \
         BOOST_PP_SEQ_ENUM(BOOST_PP_SEQ_FOR_EACH(CREATE_ENUM_VALUES_ELEMENT, enumName, elementTupleSeq)) \
     }; \
-    static constexpr std::array<std::string_view, values.size()> names { \
+    static constexpr std::array<std::string_view, num_elements> names { \
         BOOST_PP_SEQ_ENUM(BOOST_PP_SEQ_FOR_EACH(CREATE_ENUM_NAMES_ELEMENT, enumName, elementTupleSeq)) \
     }; \
     BOOST_PP_SEQ_FOR_EACH(GENERATE_ENUM_CASE, (enumName, value_fun_name), elementTupleSeq) \
