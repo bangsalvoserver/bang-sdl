@@ -5,11 +5,11 @@
 #include "fmt/format.h"
 #include "enums.h"
 
-struct error_message {
-    std::string_view message;
-};
-
 namespace enums {
+
+    struct error_message {
+        std::string_view message;
+    };
 
     template<typename E> concept error_code_enum = full_data_enum_of_type<E, error_message>;
 
@@ -40,5 +40,13 @@ namespace enums {
 namespace std {
     template<enums::error_code_enum E> struct is_error_code_enum<E> : std::true_type {};
 }
+
+#define CREATE_ENUM_ERROR_CODE_VALUE(r, _, elementTuple) (ENUM_ELEMENT_NAME(elementTuple), enums::error_message{ ENUM_TUPLE_TAIL(elementTuple) })
+
+#define DEFINE_ENUM_ERROR_CODE_IMPL(enumName, enumTupleSeq) \
+    DEFINE_ENUM_DATA(enumName, BOOST_PP_SEQ_FOR_EACH(CREATE_ENUM_ERROR_CODE_VALUE, _, enumTupleSeq)) \
+    using enums::make_error_code;
+
+#define DEFINE_ENUM_ERROR_CODE(enumName, enumElements) DEFINE_ENUM_ERROR_CODE_IMPL(enumName, ADD_PARENTHESES(enumElements))
 
 #endif

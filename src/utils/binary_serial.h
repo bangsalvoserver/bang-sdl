@@ -12,16 +12,14 @@
 #include <map>
 
 namespace binary {
-    DEFINE_ENUM_DATA(read_error_code,
-        (no_error,                  error_message{"No Error"})
-        (buffer_overflow,           error_message{"Buffer Overflow"})
-        (buffer_underflow,          error_message{"Buffer Underflow"})
-        (invalid_enum_value,        error_message{"Invalid Enum Value"})
-        (invalid_variant_index,     error_message{"Invalid Variant Index"})
-        (magic_number_mismatch,     error_message{"Magic Number Mismatch"})
+    DEFINE_ENUM_ERROR_CODE(read_error_code,
+        (no_error,                  "No Error")
+        (buffer_overflow,           "Buffer Overflow")
+        (buffer_underflow,          "Buffer Underflow")
+        (invalid_enum_value,        "Invalid Enum Value")
+        (invalid_variant_index,     "Invalid Variant Index")
+        (magic_number_mismatch,     "Magic Number Mismatch")
     )
-
-    using enums::make_error_code;
     
     struct read_error : std::system_error {
         read_error(read_error_code code)

@@ -22,14 +22,12 @@ namespace net {
         connected
     };
 
-    DEFINE_ENUM_DATA(connection_error,
-        (no_error,              error_message{"No Error"})
-        (timeout_expired,       error_message{"Timeout Expired"})
-        (validation_failure,    error_message{"Validation Failure"})
-        (invalid_message,       error_message{"Invalid Message"})
+    DEFINE_ENUM_ERROR_CODE(connection_error,
+        (no_error,              "No Error")
+        (timeout_expired,       "Timeout Expired")
+        (validation_failure,    "Validation Failure")
+        (invalid_message,       "Invalid Message")
     )
-
-    using enums::make_error_code;
 
     constexpr auto timeout = std::chrono::seconds(5);
 
