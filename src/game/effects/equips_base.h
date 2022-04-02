@@ -7,6 +7,7 @@ namespace banggame {
 
     struct effect_max_hp {
         int value;
+        effect_max_hp(int value) : value(value) {}
 
         void on_equip(card *target_card, player *target);
     };
@@ -35,6 +36,7 @@ namespace banggame {
 
     struct effect_weapon {
         int range;
+        effect_weapon(int value) : range(value) {}
         
         void on_pre_equip(card *target_card, player *target);
         void on_equip(card *target_card, player *target);
