@@ -10,9 +10,11 @@
 
 #include "../user_info.h"
 
+class client_manager;
+
 class scene_base {
 public:
-    scene_base(class client_manager *parent) : parent(parent) {}
+    scene_base(client_manager *parent) : parent(parent) {}
     virtual ~scene_base() {}
     
     virtual void refresh_layout() {}
@@ -32,7 +34,7 @@ public:
     virtual void handle_game_update(const banggame::game_update &update) {}
 
 protected:
-    class client_manager *parent;
+    client_manager *parent;
 };
 
 #endif

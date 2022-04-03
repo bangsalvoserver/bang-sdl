@@ -11,7 +11,7 @@ namespace banggame {
 
     struct bang_header {
         static constexpr uint32_t magic_number = 0x42414e47;
-        static constexpr uint16_t bang_version = 0xb001;
+        static constexpr uint16_t bang_version = 0xb002;
 
         REFLECTABLE(
             (uint32_t) magic,

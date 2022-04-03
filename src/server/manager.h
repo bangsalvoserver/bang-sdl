@@ -88,6 +88,7 @@ private:
     void HANDLE_MESSAGE(lobby_join,     user_ptr user, const lobby_join_args &value);
     void HANDLE_MESSAGE(lobby_leave,    user_ptr user);
     void HANDLE_MESSAGE(lobby_chat,     user_ptr user, const lobby_chat_client_args &value);
+    void HANDLE_MESSAGE(lobby_return,   user_ptr user);
     void HANDLE_MESSAGE(game_start,     user_ptr user);
     void HANDLE_MESSAGE(game_action,    user_ptr user, const banggame::game_action &value);
 

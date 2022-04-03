@@ -26,7 +26,7 @@ private:
 
 class lobby_list_scene : public scene_base {
 public:
-    lobby_list_scene(class client_manager *parent);
+    lobby_list_scene(client_manager *parent);
 
     void refresh_layout() override;
     void render(sdl::renderer &renderer) override;

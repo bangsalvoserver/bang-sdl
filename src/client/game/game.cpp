@@ -10,7 +10,7 @@
 using namespace banggame;
 using namespace enums::flag_operators;
 
-game_scene::game_scene(class client_manager *parent, const game_started_args &args)
+game_scene::game_scene(client_manager *parent, const game_started_args &args)
     : scene_base(parent)
     , m_card_textures(parent->get_base_path())
     , m_ui(this)
@@ -19,7 +19,7 @@ game_scene::game_scene(class client_manager *parent, const game_started_args &ar
     std::random_device rd;
     rng.seed(rd());
 
-    m_ui.enable_restart(false);
+    m_ui.enable_golobby(false);
     
     m_expansions = args.expansions;
 }
@@ -428,7 +428,7 @@ void game_scene::HANDLE_UPDATE(game_over, const game_over_update &args) {
     m_winner_role = args.winner_role;
     
     if (parent->get_user_own_id() == parent->get_lobby_owner_id()) {
-        m_ui.enable_restart(true);
+        m_ui.enable_golobby(true);
     }
 }
 

@@ -29,6 +29,7 @@ DEFINE_ENUM_TYPES(client_message_type,
     (lobby_join, lobby_join_args)
     (lobby_leave)
     (lobby_chat, lobby_chat_client_args)
+    (lobby_return)
     (game_start)
     (game_action, banggame::game_action)
 )
@@ -40,6 +41,10 @@ DEFINE_ENUM(lobby_state,
     (playing)
     (finished)
 )
+
+struct client_accepted_args {REFLECTABLE(
+    (int) user_id
+)};
 
 struct lobby_data {REFLECTABLE(
     (int) lobby_id,
@@ -56,7 +61,6 @@ struct lobby_add_user_args {REFLECTABLE(
 
 struct lobby_entered_args {REFLECTABLE(
     (lobby_info) info,
-    (int) user_id,
     (int) owner_id
 )};
 
@@ -74,7 +78,7 @@ struct game_started_args {REFLECTABLE(
 )};
 
 DEFINE_ENUM_TYPES(server_message_type,
-    (client_accepted)
+    (client_accepted, client_accepted_args)
     (lobby_error, std::string)
     (lobby_update, lobby_data)
     (lobby_entered, lobby_entered_args)

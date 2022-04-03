@@ -8,26 +8,12 @@
 #include "server/server.h"
 #include "server/net_enums.h"
 
-#include "scenes/connect.h"
-#include "scenes/loading.h"
-#include "scenes/lobby_list.h"
-#include "scenes/lobby.h"
-#include "game/game.h"
-
 #include "config.h"
 #include "user_info.h"
 #include "intl.h"
 #include "chat_ui.h"
 
-#include "utils/connection.h"
-
-DEFINE_ENUM_TYPES(scene_type,
-    (connect, connect_scene)
-    (loading, loading_scene)
-    (lobby_list, lobby_list_scene)
-    (lobby, lobby_scene)
-    (game, banggame::game_scene)
-)
+#include "scenes/scene_base.h"
 
 #define HANDLE_SRV_MESSAGE(name, ...) handle_message(enums::enum_tag_t<server_message_type::name> __VA_OPT__(,) __VA_ARGS__)
 
@@ -54,10 +40,10 @@ public:
     void connect(const std::string &host);
     void disconnect(const std::string &message = {});
 
-    template<scene_type E, typename ... Ts>
+    template<std::derived_from<scene_base> T, typename ... Ts>
     void switch_scene(Ts && ... args) {
         m_chat.disable();
-        m_scene = std::make_unique<enums::enum_type_t<E>>(this, std::forward<Ts>(args) ...);
+        m_scene = std::make_unique<T>(this, std::forward<Ts>(args) ...);
         refresh_layout();
     }
 
@@ -99,7 +85,7 @@ public:
     void add_chat_message(message_type type, const std::string &message);
 
 private:
-    void HANDLE_SRV_MESSAGE(client_accepted);
+    void HANDLE_SRV_MESSAGE(client_accepted, const client_accepted_args &args);
     void HANDLE_SRV_MESSAGE(lobby_error, const std::string &message);
     void HANDLE_SRV_MESSAGE(lobby_update, const lobby_data &args);
     void HANDLE_SRV_MESSAGE(lobby_edited, const lobby_info &args);

@@ -7,6 +7,12 @@
 #include "server/net_options.h"
 #include "media_pak.h"
 
+#include "scenes/connect.h"
+#include "scenes/loading.h"
+#include "scenes/lobby_list.h"
+#include "scenes/lobby.h"
+#include "game/game.h"
+
 using namespace banggame;
 
 client_manager::client_manager(sdl::window &window, boost::asio::io_context &ctx, const std::filesystem::path &base_path)
@@ -16,7 +22,7 @@ client_manager::client_manager(sdl::window &window, boost::asio::io_context &ctx
     , m_accept_timer(ctx)
 {
     m_config.load();
-    switch_scene<scene_type::connect>();
+    switch_scene<connect_scene>();
 }
 
 client_manager::~client_manager() {
@@ -83,7 +89,7 @@ void client_manager::connect(const std::string &host) {
         }
     });
 
-    switch_scene<scene_type::loading>(host);
+    switch_scene<loading_scene>(host);
 }
 
 void client_manager::disconnect(const std::string &message) {
@@ -102,7 +108,7 @@ void client_manager::disconnect(const std::string &message) {
     if (!message.empty()) {
         add_chat_message(message_type::error, message);
     }
-    switch_scene<scene_type::connect>();
+    switch_scene<connect_scene>();
 }
 
 
@@ -176,7 +182,7 @@ bool client_manager::start_listenserver() {
     }
 }
 
-void client_manager::HANDLE_SRV_MESSAGE(client_accepted) {
+void client_manager::HANDLE_SRV_MESSAGE(client_accepted, const client_accepted_args &args) {
     if (!m_listenserver) {
         auto it = std::ranges::find(m_config.recent_servers, m_con->address_string());
         if (it == m_config.recent_servers.end()) {
@@ -184,7 +190,8 @@ void client_manager::HANDLE_SRV_MESSAGE(client_accepted) {
         }
     }
     m_accept_timer.cancel();
-    switch_scene<scene_type::lobby_list>();
+    m_user_own_id = args.user_id;
+    switch_scene<lobby_list_scene>();
 }
 
 void client_manager::HANDLE_SRV_MESSAGE(lobby_error, const std::string &message) {
@@ -201,9 +208,7 @@ void client_manager::HANDLE_SRV_MESSAGE(lobby_edited, const lobby_info &args) {
 
 void client_manager::HANDLE_SRV_MESSAGE(lobby_entered, const lobby_entered_args &args) {
     m_lobby_owner_id = args.owner_id;
-    m_user_own_id = args.user_id;
-
-    switch_scene<scene_type::lobby>(args);
+    switch_scene<lobby_scene>(args);
 }
 
 void client_manager::HANDLE_SRV_MESSAGE(lobby_add_user, const lobby_add_user_args &args) {
@@ -220,7 +225,7 @@ void client_manager::HANDLE_SRV_MESSAGE(lobby_add_user, const lobby_add_user_arg
 void client_manager::HANDLE_SRV_MESSAGE(lobby_remove_user, const lobby_remove_user_args &args) {
     if (args.user_id == m_user_own_id) {
         m_users.clear();
-        switch_scene<scene_type::lobby_list>();
+        switch_scene<lobby_list_scene>();
     } else {
         m_scene->remove_user(args.user_id);
         m_users.erase(args.user_id);
@@ -239,7 +244,7 @@ void client_manager::HANDLE_SRV_MESSAGE(lobby_chat, const lobby_chat_args &args)
 }
 
 void client_manager::HANDLE_SRV_MESSAGE(game_started, const game_started_args &args) {
-    switch_scene<scene_type::game>(args);
+    switch_scene<banggame::game_scene>(args);
 }
 
 void client_manager::HANDLE_SRV_MESSAGE(game_update, const game_update &args) {

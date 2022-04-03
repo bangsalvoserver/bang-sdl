@@ -15,7 +15,7 @@ game_ui::game_ui(game_scene *parent)
     })
     , m_confirm_btn(_("GAME_CONFIRM"), [parent]{ parent->m_target.on_click_confirm(); })
     , m_leave_btn(_("BUTTON_EXIT"), [parent]{ parent->parent->add_message<client_message_type::lobby_leave>(); })
-    , m_restart_btn(_("GAME_RESTART"), [parent]{ parent->parent->add_message<client_message_type::game_start>(); })
+    , m_golobby_btn(_("BUTTON_TOLOBBY"), [parent]{ parent->parent->add_message<client_message_type::lobby_return>(); })
     , m_chat_btn(_("BUTTON_CHAT"), [parent]{ parent->parent->enable_chat(); }) {}
 
 void game_ui::refresh_layout() {
@@ -37,7 +37,7 @@ void game_ui::refresh_layout() {
     }
 
     m_leave_btn.set_rect(sdl::rect{20, 20, 100, 25});
-    m_restart_btn.set_rect(sdl::rect{140, 20, 100, 25});
+    m_golobby_btn.set_rect(sdl::rect{140, 20, 180, 25});
 
     m_chat_btn.set_rect(sdl::rect{win_rect.w - 120, win_rect.h - 40, 100, 25});
 }
@@ -54,7 +54,7 @@ void game_ui::render(sdl::renderer &renderer) {
     }
     
     m_leave_btn.render(renderer);
-    m_restart_btn.render(renderer);
+    m_golobby_btn.render(renderer);
 
     m_chat_btn.render(renderer);
 

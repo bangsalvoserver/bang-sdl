@@ -3,6 +3,8 @@
 #include "../manager.h"
 #include "../media_pak.h"
 
+#include "lobby_list.h"
+
 using namespace enums::flag_operators;
 
 lobby_scene::lobby_player_item::lobby_player_item(lobby_scene *parent, int id, const user_info &args)
@@ -155,7 +157,7 @@ void lobby_scene::add_user(int id, const user_info &args) {
 
 void lobby_scene::remove_user(int id) {
     if (id == m_user_id) {
-        parent->switch_scene<scene_type::lobby_list>();
+        parent->switch_scene<lobby_list_scene>();
     } else {
         auto it = std::ranges::find(m_player_list, id, &lobby_player_item::user_id);
         if (it != m_player_list.end()) {

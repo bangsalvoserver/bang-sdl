@@ -19,7 +19,7 @@ namespace banggame {
 
     class game_scene : public scene_base {
     public:
-        game_scene(class client_manager *parent, const game_started_args &args);
+        game_scene(client_manager *parent, const game_started_args &args);
         
         void refresh_layout() override;
         void render(sdl::renderer &renderer) override;

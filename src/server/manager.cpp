@@ -59,7 +59,7 @@ server_message_pair game_manager::pop_message() {
 
 void game_manager::HANDLE_MESSAGE(connect, int client_id, const connect_args &args) {
     if (users.try_emplace(client_id, args.user_name, args.profile_image).second) {
-        send_message<server_message_type::client_accepted>(client_id);
+        send_message<server_message_type::client_accepted>(client_id, client_id);
     }
 }
 
@@ -102,7 +102,7 @@ void game_manager::HANDLE_MESSAGE(lobby_make, user_ptr user, const lobby_info &v
     new_lobby.state = lobby_state::waiting;
     send_lobby_update(lobby_it);
 
-    send_message<server_message_type::lobby_entered>(user->first, value, user->first, user->first);
+    send_message<server_message_type::lobby_entered>(user->first, value, user->first);
     send_message<server_message_type::lobby_add_user>(user->first, user->first, user->second.name, user->second.profile_image);
 }
 
@@ -141,7 +141,7 @@ void game_manager::HANDLE_MESSAGE(lobby_join, user_ptr user, const lobby_join_ar
         user->second.in_lobby = lobby_it;
         send_lobby_update(lobby_it);
 
-        send_message<server_message_type::lobby_entered>(user->first, lobby, user->first, lobby.owner->first);
+        send_message<server_message_type::lobby_entered>(user->first, lobby, lobby.owner->first);
         for (user_ptr p : lobby.users) {
             if (p != user) {
                 send_message<server_message_type::lobby_add_user>(p->first, user->first, user->second.name, user->second.profile_image);
@@ -219,6 +219,30 @@ void game_manager::HANDLE_MESSAGE(lobby_chat, user_ptr user, const lobby_chat_cl
     broadcast_message<server_message_type::lobby_chat>(user->second.in_lobby->second, user->first, value.message);
 }
 
+void game_manager::HANDLE_MESSAGE(lobby_return, user_ptr user) {
+    if (user->second.in_lobby == lobby_ptr{}) {
+        throw lobby_error("ERROR_PLAYER_NOT_IN_LOBBY");
+    }
+
+    auto &lobby = user->second.in_lobby->second;
+
+    if (user != lobby.owner) {
+        throw lobby_error("ERROR_PLAYER_NOT_LOBBY_OWNER");
+    }
+
+    if (lobby.state != lobby_state::finished) {
+        throw lobby_error("ERROR_LOBBY_NOT_FINISHED");
+    }
+
+    lobby.state = lobby_state::waiting;
+    send_lobby_update(user->second.in_lobby);
+
+    broadcast_message<server_message_type::lobby_entered>(lobby, lobby, user->first);
+    for (user_ptr p : lobby.users) {
+        broadcast_message<server_message_type::lobby_add_user>(lobby, p->first, p->second.name, p->second.profile_image);
+    }
+}
+
 void game_manager::HANDLE_MESSAGE(game_start, user_ptr user) {
     if (user->second.in_lobby == lobby_ptr{}) {
         throw lobby_error("ERROR_PLAYER_NOT_IN_LOBBY");
@@ -230,7 +254,7 @@ void game_manager::HANDLE_MESSAGE(game_start, user_ptr user) {
         throw lobby_error("ERROR_PLAYER_NOT_LOBBY_OWNER");
     }
 
-    if (lobby.state == lobby_state::playing) {
+    if (lobby.state != lobby_state::waiting) {
         throw lobby_error("ERROR_LOBBY_NOT_WAITING");
     }
 

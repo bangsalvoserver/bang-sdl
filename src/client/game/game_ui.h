@@ -24,8 +24,8 @@ namespace banggame {
         void clear_status() {
             m_status_text = widgets::stattext();
         }
-        void enable_restart(bool value) {
-            m_restart_btn.set_enabled(value);
+        void enable_golobby(bool value) {
+            m_golobby_btn.set_enabled(value);
         }
 
         void add_special(card_view *card);
@@ -44,7 +44,7 @@ namespace banggame {
         std::list<button_card_pair> m_special_btns;
 
         widgets::button m_leave_btn;
-        widgets::button m_restart_btn;
+        widgets::button m_golobby_btn;
 
         widgets::button m_chat_btn;
     };
