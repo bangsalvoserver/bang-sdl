@@ -41,6 +41,7 @@ namespace banggame {
             auto suit = target->get_card_suit(drawn_card);
             if (suit == card_suit_type::clubs || suit == card_suit_type::spades) {
                 card *event_holder = new card;
+                event_holder->id = target_card->id;
                 target->m_game->add_disabler(event_holder,
                     util::nocopy_wrapper([=, event_holder = std::unique_ptr<card>(event_holder)](card *c) {
                         return c->pile == card_pile_type::player_character && c->owner == target;

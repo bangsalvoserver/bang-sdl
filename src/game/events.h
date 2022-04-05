@@ -7,11 +7,10 @@
 #include "utils/enum_variant.h"
 
 #include "card_enums.h"
+#include "player.h"
 
 namespace banggame {
 
-    struct card;
-    struct player;
     struct request_bang;
 
     #define EVENT(name, ...) (name, std::function<void(__VA_ARGS__)>)
@@ -80,6 +79,12 @@ namespace banggame {
 
     using event_args = detail::function_argument_tuple_variant<event_type>;
 
+    struct card_event_ordering {
+        bool operator ()(card *lhs, card *rhs) const {
+            return lhs->id < rhs->id;
+        }
+    };
+
     struct event_handler_map {
         template<typename T>
         struct single_call_event {
@@ -95,7 +100,7 @@ namespace banggame {
             }
         };
 
-        std::multimap<card *, event_function> m_event_handlers;
+        std::multimap<card *, event_function, card_event_ordering> m_event_handlers;
 
         template<event_type E, typename Function>
         void add_event(card *target_card, Function &&fun) {
