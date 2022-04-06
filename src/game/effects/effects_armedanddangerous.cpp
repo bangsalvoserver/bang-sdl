@@ -112,7 +112,9 @@ namespace banggame {
                 req->origin->m_game->move_to(bang_card, card_pile_type::player_hand, true, req->origin, show_card_flags::short_pause | show_card_flags::show_everyone);
 
                 req->on_cleanup([origin = req->origin, bang_card]{
-                    origin->m_game->send_card_update(*bang_card, origin);
+                    if (bang_card->owner == origin) {
+                        origin->m_game->send_card_update(*bang_card, origin);
+                    }
                 });
 
                 return true;
