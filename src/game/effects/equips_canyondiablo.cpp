@@ -40,17 +40,15 @@ namespace banggame {
             target->discard_card(target_card);
             auto suit = target->get_card_suit(drawn_card);
             if (suit == card_suit_type::clubs || suit == card_suit_type::spades) {
-                card *event_holder = new card;
-                event_holder->id = target_card->id;
-                target->m_game->add_disabler(event_holder,
-                    util::nocopy_wrapper([=, event_holder = std::unique_ptr<card>(event_holder)](card *c) {
-                        return c->pile == card_pile_type::player_character && c->owner == target;
-                    }));
-                target->m_game->add_event<event_type::pre_turn_start>(event_holder, [=](player *p) {
-                    return p == target && (target->m_game->remove_disablers(event_holder), true);
+                event_card_key event_key{target_card, 1 + effect_holder_counter++ % 20};
+                target->m_game->add_disabler(event_key, [=](card *c) {
+                    return c->pile == card_pile_type::player_character && c->owner == target;
                 });
-                target->m_game->add_single_call_event<event_type::on_player_death>(event_holder, [=](player *killer, player *p) {
-                    return p == target && (target->m_game->remove_disablers(event_holder), true);
+                target->m_game->add_single_call_event<event_type::pre_turn_start>(event_key, [=](player *p) {
+                    return p == target && (target->m_game->remove_disablers(event_key), true);
+                });
+                target->m_game->add_single_call_event<event_type::on_player_death>(event_key, [=](player *killer, player *p) {
+                    return p == target && (target->m_game->remove_disablers(event_key), true);
                 });
             }
             target->next_predraw_check(target_card);

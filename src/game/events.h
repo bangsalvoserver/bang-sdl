@@ -79,9 +79,54 @@ namespace banggame {
 
     using event_args = detail::function_argument_tuple_variant<event_type>;
 
-    struct card_event_ordering {
-        bool operator ()(card *lhs, card *rhs) const {
-            return lhs->id < rhs->id;
+    struct event_card_key {
+        int card_id;
+        int priority;
+
+        event_card_key(card *target_card, int priority = 0)
+            : card_id(target_card->id), priority(priority) {}
+
+        auto operator <=> (const event_card_key &rhs) const {
+            return priority == rhs.priority
+                ? card_id <=> rhs.card_id
+                : rhs.priority <=> priority;
+        }
+
+        bool operator == (const event_card_key &rhs) const = default;
+    };
+
+    struct event_card_key_compare {
+        using is_transparent = void;
+
+        bool operator ()(const event_card_key &lhs, card *rhs) const {
+            return lhs.card_id < rhs->id;
+        }
+
+        bool operator ()(card *lhs, const event_card_key &rhs) const {
+            return lhs->id < rhs.card_id;
+        }
+
+        bool operator()(const event_card_key &lhs, const event_card_key &rhs) const {
+            return lhs < rhs;
+        }
+    };
+
+    template<typename T>
+    struct card_multimap : std::multimap<event_card_key, T, event_card_key_compare> {
+        using base = std::multimap<event_card_key, T, event_card_key_compare>;
+
+        template<typename ... Ts>
+        void add(event_card_key key, Ts && ... args) {
+            base::emplace(std::piecewise_construct, std::make_tuple(key), std::make_tuple(std::forward<Ts>(args) ... ));
+        }
+
+        void erase(card *target_card) {
+            auto [low, high] = base::equal_range(target_card);
+            base::erase(low, high);
+        }
+
+        void erase(event_card_key key) {
+            base::erase(key);
         }
     };
 
@@ -89,33 +134,31 @@ namespace banggame {
         template<typename T>
         struct single_call_event {
             event_handler_map &parent;
-            card *target_card;
+            event_card_key key;
             T function;
 
             template<typename ... Ts>
             void operator()(Ts && ... args) {
                 if (std::invoke(function, std::forward<Ts>(args) ... )) {
-                    parent.remove_events(target_card);
+                    parent.remove_events(key);
                 }
             }
         };
 
-        std::multimap<card *, event_function, card_event_ordering> m_event_handlers;
+        card_multimap<event_function> m_event_handlers;
 
         template<event_type E, typename Function>
-        void add_event(card *target_card, Function &&fun) {
-            m_event_handlers.emplace(std::piecewise_construct,
-                std::make_tuple(target_card),
-                std::make_tuple(enums::enum_tag<E>, std::forward<Function>(fun)));
+        void add_event(event_card_key key, Function &&fun) {
+            m_event_handlers.add(key, enums::enum_tag<E>, std::forward<Function>(fun));
         }
 
         template<event_type E, typename Function>
-        void add_single_call_event(card *target_card, Function &&fun) {
-            add_event<E>(target_card, single_call_event{*this, target_card, std::forward<Function>(fun)});
+        void add_single_call_event(event_card_key key, Function &&fun) {
+            add_event<E>(key, single_call_event{*this, key, std::forward<Function>(fun)});
         }
 
-        void remove_events(card *target_card) {
-            m_event_handlers.erase(target_card);
+        void remove_events(auto key) {
+            m_event_handlers.erase(key);
         }
 
         template<event_type E, typename ... Ts>

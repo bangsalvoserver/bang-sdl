@@ -78,7 +78,7 @@ namespace banggame {
 
         std::vector<int> m_cubes;
 
-        std::multimap<card *, card_disabler_fun> m_disablers;
+        card_multimap<card_disabler_fun> m_disablers;
 
         player *m_playing = nullptr;
         player *m_first_player = nullptr;
@@ -220,8 +220,8 @@ namespace banggame {
         void draw_check_then(player *origin, card *origin_card, draw_check_function fun);
         void do_draw_check();
 
-        void add_disabler(card *target_card, card_disabler_fun &&fun);
-        void remove_disablers(card *target_card);
+        void add_disabler(event_card_key key, card_disabler_fun &&fun);
+        void remove_disablers(event_card_key key);
         bool is_disabled(card *target_card) const;
 
         int num_alive() const {

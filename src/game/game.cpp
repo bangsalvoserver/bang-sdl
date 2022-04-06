@@ -734,7 +734,7 @@ namespace banggame {
         target->add_player_flags(player_flags::role_revealed);
     }
 
-    void game::add_disabler(card *target_card, card_disabler_fun &&fun) {
+    void game::add_disabler(event_card_key key, card_disabler_fun &&fun) {
         const auto disable_if_new = [&](card *c) {
             if (!is_disabled(c) && fun(c)) {
                 for (auto &e : c->equips) {
@@ -748,15 +748,15 @@ namespace banggame {
             std::ranges::for_each(p.m_characters, disable_if_new);
         }
 
-        m_disablers.emplace(target_card, std::move(fun));
+        m_disablers.add(key, std::move(fun));
     }
 
-    void game::remove_disablers(card *target_card) {
+    void game::remove_disablers(event_card_key key) {
         const auto enable_if_old = [&](card *c) {
             bool a = false;
             bool b = false;
             for (const auto &[t, fun] : m_disablers) {
-                if (t != target_card) a = a || fun(c);
+                if (t != key) a = a || fun(c);
                 else b = b || fun(c);
             }
             if (!a && b) {
@@ -771,7 +771,7 @@ namespace banggame {
             std::ranges::for_each(p.m_characters, enable_if_old);
         }
 
-        m_disablers.erase(target_card);
+        m_disablers.erase(key);
     }
 
     bool game::is_disabled(card *target_card) const {
