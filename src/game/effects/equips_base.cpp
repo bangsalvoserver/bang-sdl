@@ -108,7 +108,7 @@ namespace banggame {
     }
 
     void effect_boots::on_equip(card *target_card, player *p) {
-        p->m_game->add_event<event_type::on_hit>(target_card, [p](card *origin_card, player *origin, player *target, int damage, bool is_bang){
+        p->m_game->add_event<event_type::on_hit>({target_card, 2}, [p](card *origin_card, player *origin, player *target, int damage, bool is_bang){
             if (p == target) {
                 while (damage--) {
                     target->m_game->draw_card_to(card_pile_type::player_hand, target);
