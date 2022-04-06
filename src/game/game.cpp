@@ -11,7 +11,6 @@
 namespace banggame {
 
     using namespace enums::flag_operators;
-    using namespace std::placeholders;
 
     void game::send_card_update(const card &c, player *owner, show_card_flags flags) {
         if (!owner || bool(flags & show_card_flags::show_everyone)) {
@@ -439,13 +438,13 @@ namespace banggame {
         };
 
         for (player &target : m_players) {
-            std::ranges::for_each(target.m_hand, std::bind(maybe_add_pick_id, card_pile_type::player_hand, &target, _1));
-            std::ranges::for_each(target.m_table, std::bind(maybe_add_pick_id, card_pile_type::player_table, &target, _1));
-            std::ranges::for_each(target.m_characters, std::bind(maybe_add_pick_id, card_pile_type::player_character, &target, _1));
+            std::ranges::for_each(target.m_hand, std::bind_front(maybe_add_pick_id, card_pile_type::player_hand, &target));
+            std::ranges::for_each(target.m_table, std::bind_front(maybe_add_pick_id, card_pile_type::player_table, &target));
+            std::ranges::for_each(target.m_characters, std::bind_front(maybe_add_pick_id, card_pile_type::player_character, &target));
         }
         maybe_add_pick_id(card_pile_type::main_deck, nullptr, nullptr);
         maybe_add_pick_id(card_pile_type::discard_pile, nullptr, nullptr);
-        std::ranges::for_each(m_selection, std::bind(maybe_add_pick_id, card_pile_type::selection, nullptr, _1));
+        std::ranges::for_each(m_selection, std::bind_front(maybe_add_pick_id, card_pile_type::selection, nullptr));
 
         return ret;
     }
