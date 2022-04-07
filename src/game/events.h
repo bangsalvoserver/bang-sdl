@@ -101,34 +101,16 @@ namespace banggame {
         event_card_key(card *target_card, int priority = 0)
             : card_id(target_card->id), priority(priority) {}
 
-        auto operator <=> (const event_card_key &rhs) const {
-            return priority == rhs.priority
-                ? card_id <=> rhs.card_id
-                : rhs.priority <=> priority;
-        }
+        auto operator <=> (const event_card_key &other) const = default;
 
-        bool operator == (const event_card_key &rhs) const = default;
-    };
-
-    struct event_card_key_compare {
-        using is_transparent = void;
-
-        bool operator ()(const event_card_key &lhs, card *rhs) const {
-            return lhs.card_id < rhs->id;
-        }
-
-        bool operator ()(card *lhs, const event_card_key &rhs) const {
-            return lhs->id < rhs.card_id;
-        }
-
-        bool operator()(const event_card_key &lhs, const event_card_key &rhs) const {
-            return lhs < rhs;
+        auto operator <=> (card *other) const {
+            return card_id <=> other->id;
         }
     };
 
     template<typename T>
-    struct card_multimap : std::multimap<event_card_key, T, event_card_key_compare> {
-        using base = std::multimap<event_card_key, T, event_card_key_compare>;
+    struct card_multimap : std::multimap<event_card_key, T, std::less<>> {
+        using base = std::multimap<event_card_key, T, std::less<>>;
 
         template<typename ... Ts>
         void add(event_card_key key, Ts && ... args) {
@@ -178,15 +160,18 @@ namespace banggame {
 
         template<event_type E, typename ... Ts>
         void call_event(Ts && ... args) {
-            std::vector<enums::enum_type_t<E> *> handlers;
+            using vector_pair = std::pair<int, enums::enum_type_t<E> *>;
+            std::vector<vector_pair> handlers;
 
-            for (event_function &handler : m_event_handlers | std::views::values) {
+            for (auto &[key, handler] : m_event_handlers) {
                 if (auto *fun = std::get_if<enums::indexof(E)>(&handler)) {
-                    handlers.push_back(fun);
+                    handlers.emplace_back(key.priority, fun);
                 }
             }
 
-            for (auto *fun : handlers) {
+            std::ranges::sort(handlers, std::greater(), &vector_pair::first);
+
+            for (auto &[key, fun] : handlers) {
                 std::invoke(*fun, args ...);
             }
         }
