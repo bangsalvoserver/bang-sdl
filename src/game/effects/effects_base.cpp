@@ -269,7 +269,8 @@ namespace banggame {
 
     void effect_draw_one_less::on_play(card *origin_card, player *target) {
         target->m_game->queue_delayed_action([=]{
-            while (++target->m_num_drawn_cards < target->m_num_cards_to_draw) {
+            ++target->m_num_drawn_cards;
+            while (target->m_num_drawn_cards++ < target->m_num_cards_to_draw) {
                 card *drawn_card = target->m_game->draw_phase_one_card_to(card_pile_type::player_hand, target);
                 target->m_game->add_log("LOG_DRAWN_CARD", target, drawn_card);
                 target->m_game->instant_event<event_type::on_card_drawn>(target, drawn_card);

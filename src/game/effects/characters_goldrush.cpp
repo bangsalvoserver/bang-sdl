@@ -44,7 +44,7 @@ namespace banggame {
     void request_dutch_will::on_pick(card_pile_type pile, player *target_player, card *target_card) {
         ++target->m_num_drawn_cards;
         target->add_to_hand(target_card);
-        target->m_game->queue_event<event_type::on_card_drawn>(target, target_card);
+        target->m_game->instant_event<event_type::on_card_drawn>(target, target_card);
         if (target->m_game->m_selection.size() == 1) {
             target->m_game->pop_request<request_dutch_will>();
             target->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::discard_pile);
