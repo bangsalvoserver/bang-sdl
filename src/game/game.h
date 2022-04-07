@@ -220,6 +220,8 @@ namespace banggame {
         void draw_check_then(player *origin, card *origin_card, draw_check_function fun);
         void do_draw_check();
 
+        void delay_effect_end();
+
         void add_disabler(event_card_key key, card_disabler_fun &&fun);
         void remove_disablers(event_card_key key);
         bool is_disabled(card *target_card) const;

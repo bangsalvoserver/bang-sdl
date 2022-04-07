@@ -181,13 +181,8 @@ namespace banggame {
         size_t nreqs = target->m_game->m_requests.size();
         target->m_game->instant_event<event_type::on_discard_card>(origin, target, target_card);
         if (target->m_game->m_requests.size() > nreqs) {
-            // check suzy lafayette
-            if (auto pos = std::ranges::find(target->m_game->m_pending_events, enums::indexof(event_type::on_effect_end), &event_args::index);
-                pos != target->m_game->m_pending_events.end()) {
-                target->m_game->m_pending_events.emplace(pos, std::in_place_index<enums::indexof(event_type::delayed_action)>, std::move(fun));
-            } else {
-                target->m_game->queue_delayed_action(std::move(fun));
-            }
+            target->m_game->queue_delayed_action(std::move(fun));
+            target->m_game->delay_effect_end();
         } else {
             fun();
         }
@@ -226,13 +221,8 @@ namespace banggame {
         size_t nreqs = target->m_game->m_requests.size();
         target->m_game->instant_event<event_type::on_discard_card>(origin, target, target_card);
         if (target->m_game->m_requests.size() > nreqs) {
-            // check suzy lafayette
-            if (auto pos = std::ranges::find(target->m_game->m_pending_events, enums::indexof(event_type::on_effect_end), &event_args::index);
-                pos != target->m_game->m_pending_events.end()) {
-                target->m_game->m_pending_events.emplace(pos, std::in_place_index<enums::indexof(event_type::delayed_action)>, std::move(fun));
-            } else {
-                target->m_game->queue_delayed_action(std::move(fun));
-            }
+            target->m_game->queue_delayed_action(std::move(fun));
+            target->m_game->delay_effect_end();
         } else {
             fun();
         }

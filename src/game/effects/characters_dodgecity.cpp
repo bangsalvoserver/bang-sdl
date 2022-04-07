@@ -152,7 +152,7 @@ namespace banggame {
     }
 
     void effect_vera_custer::on_equip(card *target_card, player *p) {
-        p->m_game->add_event<event_type::before_turn_start>(target_card, [=, &usages = target_card->usages](player *target) {
+        p->m_game->add_event<event_type::on_turn_start>({target_card, 1}, [=, &usages = target_card->usages](player *target) {
             if (p == target) {
                 ++usages;
                 if (p->m_game->num_alive() == 2 && p->m_game->get_next_player(p)->m_characters.size() == 1) {

@@ -47,10 +47,8 @@ namespace banggame {
     }
 
     int player::max_cards_end_of_turn() {
-        int n = 0;
+        int n = m_hp;
         m_game->instant_event<event_type::apply_maxcards_modifier>(this, n);
-        if (!n) n = m_hp;
-        m_game->instant_event<event_type::apply_maxcards_adder>(this, n);
         return n;
     }
 
@@ -770,7 +768,6 @@ namespace banggame {
                 add_gold(-cost);
                 do_play_card(card_ptr, false, args.targets);
                 set_last_played_card(nullptr);
-                m_game->queue_event<event_type::on_effect_end>(this, card_ptr);
             } else {
                 if (m_game->has_scenario(scenario_flags::judge)) throw game_error("ERROR_CANT_EQUIP_CARDS");
                 verify_equip_target(card_ptr, args.targets);
@@ -870,9 +867,7 @@ namespace banggame {
     }
 
     card_value_type player::get_card_value(card *drawn_card) {
-        card_value_type value = drawn_card->value;
-        m_game->instant_event<event_type::apply_value_modifier>(value);
-        return value;
+        return drawn_card->value;
     }
 
     void player::start_of_turn() {
@@ -937,7 +932,6 @@ namespace banggame {
     }
 
     void player::request_drawing() {
-        m_game->queue_event<event_type::before_turn_start>(this);
         m_game->queue_event<event_type::on_turn_start>(this);
         m_game->queue_delayed_action([this]{
             m_game->instant_event<event_type::on_request_draw>(this);
@@ -962,7 +956,6 @@ namespace banggame {
 
             m_game->instant_event<event_type::on_turn_end>(this);
             if (!check_player_flags(player_flags::extra_turn)) {
-                add_player_flags(player_flags::extra_turn);
                 m_game->instant_event<event_type::post_turn_end>(this);
             }
             m_game->queue_delayed_action([&]{
@@ -975,6 +968,7 @@ namespace banggame {
                     m_game->get_next_in_turn(this)->start_of_turn();
                 } else {
                     --m_extra_turns;
+                    add_player_flags(player_flags::extra_turn);
                     start_of_turn();
                 }
             });

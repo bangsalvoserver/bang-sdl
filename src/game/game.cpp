@@ -596,6 +596,15 @@ namespace banggame {
         }
     }
 
+    void game::delay_effect_end() {
+        auto it = std::ranges::find(m_pending_events, enums::indexof(event_type::on_effect_end), &event_args::index);
+        if (it != m_pending_events.end()) {
+            auto evt = std::move(*it);
+            m_pending_events.erase(it);
+            m_pending_events.push_back(std::move(evt));
+        }
+    }
+
     void game::events_after_requests() {
         if (m_requests.empty()) {
             add_public_update<game_update_type::status_clear>();

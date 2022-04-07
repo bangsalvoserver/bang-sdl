@@ -17,40 +17,81 @@ namespace banggame {
     
     DEFINE_ENUM_TYPES(event_type,
         (delayed_action)
-        EVENT(on_discard_pass,                  player *origin, card *target_card)
-        EVENT(on_draw_check,                    player *origin, card *target_card)
-        EVENT(trigger_tumbleweed,               card *origin_card, card *drawn_card)
+        
         EVENT(apply_suit_modifier,              card_suit_type &)
-        EVENT(apply_value_modifier,             card_value_type &)
         EVENT(apply_beer_modifier,              player *origin, int &value)
         EVENT(apply_maxcards_modifier,          player *origin, int &value)
-        EVENT(apply_maxcards_adder,             player *origin, int &value)
         EVENT(apply_volcanic_modifier,          player *origin, bool &value)
         EVENT(apply_immunity_modifier,          card *origin_card, player *target, bool &value)
         EVENT(apply_escapable_modifier,         card *origin_card, player *origin, const player *target, effect_flags flags, bool &value)
         EVENT(apply_initial_cards_modifier,     player *origin, int &value)
         EVENT(apply_chosen_card_modifier,       player *origin, card* &target_card)
         EVENT(apply_bang_modifier,              player *origin, request_bang *req)
+
         EVENT(verify_target_unique,             card *origin_card, player *origin, player *target)
+        
+        // viene chiamato quando scarti una carta a fine turno
+        EVENT(on_discard_pass,                  player *origin, card *target_card)
+
+        // viene chiamata quando estrai una carta nel momento che viene pescata
+        EVENT(on_draw_check,                    player *origin, card *target_card)
+
+        // viene chiamato quando estrai una carta nel momento che viene scelta
+        EVENT(trigger_tumbleweed,               card *origin_card, card *drawn_card)
+
+        // viene chiamato quando si scarta VOLONTARIAMENTE una carta (si gioca cat balou o panico contro una carta)
         EVENT(on_discard_card,                  player *origin, player *target, card *target_card)
+
+        // viene chiamato quando un giocatore viene colpito
         EVENT(on_hit,                           card *origin_card, player *origin, player *target, int damage, bool is_bang)
+
+        // viene chiamato quando un giocatore gioca mancato
         EVENT(on_missed,                        card *origin_card, player *origin, player *target, bool is_bang)
+
+        // viene chiamato quando un giocatore muore
         EVENT(on_player_death,                  player *origin, player *target)
+
+        // viene chiamato quando un giocatore equipaggia una carta
         EVENT(on_equip,                         player *origin, player *target, card *target_card)
+
+        // viene chiamato quando un giocatore gioca una carta dalla mano
         EVENT(on_play_hand_card,                player *origin, card *target_card)
+
+        // viene chiamato dopo che una carta viene disequipaggiata e scartata
         EVENT(post_discard_card,                player *target, card *target_card)
+
+        // viene chiamato dopo che una carta arancione viene disequipaggiata quando finiscono i cubetti
         EVENT(post_discard_orange_card,         player *target, card *target_card)
+
+        // viene chiamato dopo la fine di un effetto
         EVENT(on_effect_end,                    player *origin, card *target_card)
-        EVENT(on_card_drawn,                    player *origin, card *target_card)
+
+        // viene chiamato quando un giocatore gioca birra
         EVENT(on_play_beer,                     player *origin)
+
+        // viene chiamato prima dell'inizio del turno, prima delle estrazioni
         EVENT(pre_turn_start,                   player *origin)
-        EVENT(before_turn_start,                player *origin)
+
+        // viene chiamato all'inizio del turno, prima di pescare
         EVENT(on_turn_start,                    player *origin)
-        EVENT(on_turn_end,                      player *origin)
-        EVENT(post_turn_end,                    player *origin)
+
+        // viene chiamato all'inizio del turno, prima di attivare fase di pesca
         EVENT(on_request_draw,                  player *origin)
+
+        // viene chiamato quando si clicca sul mazzo per pescare in fase di pesca
         EVENT(on_draw_from_deck,                player *origin)
+
+        // viene chiamato quando si pesca una carta in fase di pesca
+        EVENT(on_card_drawn,                    player *origin, card *target_card)
+
+        // viene chiamato dopo che un giocatore finisce la fase di pesca
         EVENT(post_draw_cards,                  player *origin)
+        
+        // viene chiamato alla fine del turno
+        EVENT(on_turn_end,                      player *origin)
+
+        // viene chiamato dopo la fine del turno, prima dei turni extra
+        EVENT(post_turn_end,                    player *origin)
     )
 
     using event_function = enums::enum_variant<event_type>;

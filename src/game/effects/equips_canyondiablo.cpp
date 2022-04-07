@@ -9,7 +9,7 @@ namespace banggame {
     using namespace enums::flag_operators;
 
     void effect_packmule::on_equip(card *target_card, player *p) {
-        p->m_game->add_event<event_type::apply_maxcards_adder>(target_card, [p](player *origin, int &value) {
+        p->m_game->add_event<event_type::apply_maxcards_modifier>(target_card, [p](player *origin, int &value) {
             if (origin == p) {
                 ++value;
             }
