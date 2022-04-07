@@ -7,7 +7,7 @@ namespace banggame {
     using namespace enums::flag_operators;
 
     void effect_don_bell::on_equip(card *target_card, player *p) {
-        p->m_game->add_event<event_type::post_turn_end>(target_card, [=](player *target) {
+        p->m_game->add_event<event_type::post_turn_end>({target_card, 1}, [=](player *target) {
             if (p == target) {
                 p->m_game->queue_delayed_action([target, target_card] {
                     target->m_game->draw_check_then(target, target_card, [target](card *drawn_card) {

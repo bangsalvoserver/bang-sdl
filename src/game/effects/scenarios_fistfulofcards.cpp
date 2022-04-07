@@ -149,7 +149,7 @@ namespace banggame {
     }
 
     void effect_vendetta::on_equip(card *target_card, player *p) {
-        p->m_game->add_event<event_type::post_turn_end>(target_card, [target_card](player *target) {
+        p->m_game->add_event<event_type::post_turn_end>({target_card, 2}, [target_card](player *target) {
             target->m_game->queue_delayed_action([target, target_card] {
                 target->m_game->draw_check_then(target, target_card, [target](card *drawn_card) {
                     if (target->get_card_suit(drawn_card) == card_suit_type::hearts) {
