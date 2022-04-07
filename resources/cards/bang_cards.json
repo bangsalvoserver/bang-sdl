@@ -2502,8 +2502,7 @@
             ],
             "responses": [
                 {
-                    "class": "drawing",
-                    "value": 1
+                    "class": "drawing"
                 },
                 {
                     "target": "card",
@@ -2586,8 +2585,7 @@
             ],
             "responses": [
                 {
-                    "class": "drawing",
-                    "value": 1
+                    "class": "drawing"
                 },
                 {
                     "target": "player",
@@ -2976,8 +2974,7 @@
             ],
             "responses": [
                 {
-                    "class": "drawing",
-                    "value": 1
+                    "class": "drawing"
                 },
                 {
                     "target": "card",
@@ -3127,7 +3124,7 @@
             ],
             "responses": [
                 {
-                    "class": "drawing"
+                    "class": "while_drawing"
                 },
                 {
                     "target": "player",
@@ -3282,7 +3279,7 @@
                     "value": 1
                 },
                 {
-                    "class": "drawing"
+                    "class": "while_drawing"
                 },
                 {
                     "class": "greygory_deck"
@@ -3940,7 +3937,7 @@
             "image": "05_fratellidisangue",
             "responses": [
                 {
-                    "class": "drawing"
+                    "class": "while_drawing"
                 },
                 {
                     "class": "startofturn"
@@ -3989,8 +3986,7 @@
             "image": "05_liquoreforte",
             "responses": [
                 {
-                    "class": "drawing",
-                    "value": 1
+                    "class": "drawing"
                 },
                 {
                     "class": "heal"

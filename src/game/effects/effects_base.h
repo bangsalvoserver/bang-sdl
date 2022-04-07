@@ -119,11 +119,11 @@ namespace banggame {
         void on_play(card *origin_card, player *origin);
     };
 
-    struct effect_drawing {
-        bool ends_drawing = false;
-        effect_drawing(int value) : ends_drawing(value != 0) {}
-
+    struct effect_while_drawing : effect_empty {
         bool can_respond(card *origin_card, player *origin) const;
+    };
+
+    struct effect_drawing : effect_while_drawing {
         void on_play(card *origin_card, player *origin);
     };
 

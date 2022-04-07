@@ -509,7 +509,11 @@ namespace banggame {
             m_game->add_log(is_response ? "LOG_RESPONDED_WITH_CARD" : "LOG_PLAYED_TABLE_CARD", card_ptr, this);
             break;
         case card_pile_type::player_character:
-            m_game->add_log(is_response ? "LOG_RESPONDED_WITH_CHARACTER" : "LOG_PLAYED_CHARACTER", card_ptr, this);
+            m_game->add_log(is_response ?
+                card_ptr->responses.front().is(effect_type::drawing)
+                    ? "LOG_DRAWN_WITH_CHARACTER"
+                    : "LOG_RESPONDED_WITH_CHARACTER"
+                : "LOG_PLAYED_CHARACTER", card_ptr, this);
             break;
         case card_pile_type::shop_selection:
             m_game->add_log("LOG_BOUGHT_CARD", card_ptr, this);

@@ -163,6 +163,7 @@ namespace banggame {
         (choose_card,           effect_choose_card)
         (startofturn,           effect_startofturn)
         (repeatable,            effect_empty)
+        (while_drawing,         effect_while_drawing)
         (drawing,               effect_drawing)
         (steal,                 effect_steal)
         (duel,                  effect_duel)

@@ -188,12 +188,12 @@ namespace banggame {
         }
     }
 
-    bool effect_drawing::can_respond(card *origin_card, player *origin) const {
+    bool effect_while_drawing::can_respond(card *origin_card, player *origin) const {
         return origin->m_game->top_request_is<request_draw>(origin);
     }
 
     void effect_drawing::on_play(card *origin_card, player *origin) {
-        if (ends_drawing && origin->m_game->pop_request<request_draw>()) {
+        if (origin->m_game->pop_request<request_draw>()) {
             origin->m_game->queue_event<event_type::post_draw_cards>(origin);
         }
     }
