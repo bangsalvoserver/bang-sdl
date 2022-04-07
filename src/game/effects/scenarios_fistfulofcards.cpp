@@ -84,7 +84,7 @@ namespace banggame {
                 target->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::hidden_deck, true, nullptr, show_card_flags::no_animation);
             }
             target->m_game->pop_request<request_peyote>();
-            target->m_game->queue_event<event_type::post_draw_cards>(target);
+            target->m_game->call_event<event_type::post_draw_cards>(target);
         }
     }
 
@@ -136,7 +136,7 @@ namespace banggame {
     void effect_lawofthewest::on_equip(card *target_card, player *target) {
         target->m_game->add_event<event_type::on_card_drawn>(target_card, [](player *origin, card *drawn_card) {
             if (origin->m_num_drawn_cards == 2) {
-                origin->m_game->queue_delayed_action([=]{
+                origin->m_game->queue_action([=]{
                     origin->m_game->send_card_update(*drawn_card, origin, show_card_flags::show_everyone | show_card_flags::short_pause);
                     origin->m_game->send_card_update(*drawn_card, origin);
 
@@ -150,7 +150,7 @@ namespace banggame {
 
     void effect_vendetta::on_equip(card *target_card, player *p) {
         p->m_game->add_event<event_type::post_turn_end>({target_card, 2}, [target_card](player *target) {
-            target->m_game->queue_delayed_action([target, target_card] {
+            target->m_game->queue_action([target, target_card] {
                 target->m_game->draw_check_then(target, target_card, [target](card *drawn_card) {
                     if (target->get_card_suit(drawn_card) == card_suit_type::hearts) {
                         ++target->m_extra_turns;

@@ -369,7 +369,7 @@ namespace banggame {
             }
         }
 
-        queue_delayed_action([this] {
+        queue_action([this] {
             for (auto &p : m_players) {
                 card *c = p.m_characters.front();
                 for (auto &e : c->equips) {
@@ -581,9 +581,9 @@ namespace banggame {
     void game::do_draw_check() {
         if (m_current_check->origin->m_num_checks == 1) {
             auto *c = draw_card_to(card_pile_type::discard_pile);
-            queue_event<event_type::on_draw_check>(m_current_check->origin, c);
+            call_event<event_type::on_draw_check>(m_current_check->origin, c);
             add_log("LOG_CHECK_DREW_CARD", m_current_check->origin_card, m_current_check->origin, c);
-            instant_event<event_type::trigger_tumbleweed>(m_current_check->origin_card, c);
+            call_event<event_type::trigger_tumbleweed>(m_current_check->origin_card, c);
             if (!top_request_is<timer_tumbleweed>()) {
                 m_current_check->function(c);
                 m_current_check.reset();
@@ -596,19 +596,21 @@ namespace banggame {
         }
     }
 
-    void game::delay_effect_end() {
-        auto it = std::ranges::find(m_pending_events, enums::indexof(event_type::on_effect_end), &event_args::index);
-        if (it != m_pending_events.end()) {
-            auto evt = std::move(*it);
-            m_pending_events.erase(it);
-            m_pending_events.push_back(std::move(evt));
+    void game::queue_action(std::function<void()> &&fun) {
+        if (m_requests.empty()) {
+            fun();
+        } else {
+            m_delayed_actions.push_back(std::move(fun));
         }
     }
 
-    void game::events_after_requests() {
+    void game::flush_actions() {
         if (m_requests.empty()) {
             add_public_update<game_update_type::status_clear>();
-            pop_events();
+            while (m_requests.empty() && !m_delayed_actions.empty()) {
+                std::invoke(m_delayed_actions.front());
+                m_delayed_actions.pop_front();
+            }
         } else {
             send_request_update();
         }
@@ -728,7 +730,7 @@ namespace banggame {
 
         if (!m_first_dead) m_first_dead = target;
 
-        instant_event<event_type::on_player_death>(killer, target);
+        call_event<event_type::on_player_death>(killer, target);
 
         target->discard_all();
         target->add_gold(-target->m_gold);

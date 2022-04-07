@@ -9,7 +9,7 @@ namespace banggame {
     void effect_don_bell::on_equip(card *target_card, player *p) {
         p->m_game->add_event<event_type::post_turn_end>({target_card, 1}, [=](player *target) {
             if (p == target) {
-                p->m_game->queue_delayed_action([target, target_card] {
+                p->m_game->queue_action([target, target_card] {
                     target->m_game->draw_check_then(target, target_card, [target](card *drawn_card) {
                         card_suit_type suit = target->get_card_suit(drawn_card);
                         if (suit == card_suit_type::diamonds || suit == card_suit_type::hearts) {
@@ -44,7 +44,7 @@ namespace banggame {
     void request_dutch_will::on_pick(card_pile_type pile, player *target_player, card *target_card) {
         ++target->m_num_drawn_cards;
         target->add_to_hand(target_card);
-        target->m_game->instant_event<event_type::on_card_drawn>(target, target_card);
+        target->m_game->call_event<event_type::on_card_drawn>(target, target_card);
         if (target->m_game->m_selection.size() == 1) {
             target->m_game->pop_request<request_dutch_will>();
             target->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::discard_pile);

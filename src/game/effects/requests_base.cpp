@@ -102,11 +102,11 @@ namespace banggame {
         }
         target->m_game->pop_request_noupdate<request_check>();
         target->m_game->add_log("LOG_CHECK_DREW_CARD", target->m_game->m_current_check->origin_card, target, target_card);
-        target->m_game->instant_event<event_type::trigger_tumbleweed>(target->m_game->m_current_check->origin_card, target_card);
+        target->m_game->call_event<event_type::trigger_tumbleweed>(target->m_game->m_current_check->origin_card, target_card);
         if (!target->m_game->top_request_is<timer_tumbleweed>()) {
             target->m_game->m_current_check->function(target_card);
             target->m_game->m_current_check.reset();
-            target->m_game->events_after_requests();
+            target->m_game->flush_actions();
         }
     }
 
@@ -174,9 +174,9 @@ namespace banggame {
             target->discard_card(target_card);
         }
         target->m_game->add_log("LOG_DISCARDED_SELF_CARD", target, target_card);
-        target->m_game->instant_event<event_type::on_discard_pass>(target, target_card);
+        target->m_game->call_event<event_type::on_discard_pass>(target, target_card);
         if (target->m_game->has_expansion(card_expansion_type::armedanddangerous)) {
-            target->m_game->queue_delayed_action([target = target]{
+            target->m_game->queue_action([target = target]{
                 if (target->can_receive_cubes()) {
                     target->m_game->queue_request<request_add_cube>(nullptr, target);
                 }
@@ -184,7 +184,7 @@ namespace banggame {
         }
         if (target->m_hand.size() <= target->max_cards_end_of_turn()) {
             target->m_game->pop_request<request_discard_pass>();
-            target->m_game->queue_delayed_action([target = target]{ target->pass_turn(); });
+            target->m_game->queue_action([target = target]{ target->pass_turn(); });
         } else {
             target->m_game->send_request_update();
         }
@@ -262,7 +262,7 @@ namespace banggame {
 
     void request_bang::on_miss(player *p) {
         if (--bang_strength == 0) {
-            p->m_game->instant_event<event_type::on_missed>(origin_card, origin, target, is_bang_card);
+            p->m_game->call_event<event_type::on_missed>(origin_card, origin, target, is_bang_card);
             p->m_game->pop_request<request_bang>();
         } else {
             p->m_game->send_request_update();
@@ -275,7 +275,7 @@ namespace banggame {
         if (auto *req = target->m_game->top_request_if<timer_damaging>(target)) {
             static_cast<cleanup_request &>(*req) = std::move(*this);
         } else {
-            target->m_game->events_after_requests();
+            target->m_game->flush_actions();
         }
     }
 

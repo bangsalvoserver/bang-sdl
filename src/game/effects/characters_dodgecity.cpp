@@ -49,7 +49,7 @@ namespace banggame {
         if (target->m_num_drawn_cards < target->m_num_cards_to_draw) {
             ++target->m_num_drawn_cards;
             target->add_to_hand(target_card);
-            target->m_game->instant_event<event_type::on_card_drawn>(target, target_card);
+            target->m_game->call_event<event_type::on_card_drawn>(target, target_card);
         } else {
             get_next_target()->add_to_hand(target_card);
         }

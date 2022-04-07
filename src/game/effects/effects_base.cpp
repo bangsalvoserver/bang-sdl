@@ -61,8 +61,8 @@ namespace banggame {
         target->m_game->add_log("LOG_PLAYED_CARD_ON", origin_card, origin, target);
         auto req = std::make_shared<request_bang>(origin_card, origin, target, flags);
         req->is_bang_card = true;
-        origin->m_game->instant_event<event_type::apply_bang_modifier>(origin, req.get());
-        target->m_game->queue_delayed_action([origin, req = std::move(req)]() mutable {
+        origin->m_game->call_event<event_type::apply_bang_modifier>(origin, req.get());
+        target->m_game->queue_action([origin, req = std::move(req)]() mutable {
             origin->m_game->queue_request(std::move(req));
         });
     }
@@ -99,7 +99,7 @@ namespace banggame {
 
     void effect_banglimit::verify(card *origin_card, player *origin) const {
         bool value = origin->m_bangs_played < origin->m_bangs_per_turn;
-        origin->m_game->instant_event<event_type::apply_volcanic_modifier>(origin, value);
+        origin->m_game->call_event<event_type::apply_volcanic_modifier>(origin, value);
         if (!value) {
             throw game_error("ERROR_ONE_BANG_PER_TURN");
         }
@@ -140,7 +140,7 @@ namespace banggame {
         target->m_game->queue_event<event_type::on_play_beer>(target);
         if (target->m_game->m_players.size() <= 2 || target->m_game->num_alive() > 2) {
             int amt = 1;
-            target->m_game->instant_event<event_type::apply_beer_modifier>(target, amt);
+            target->m_game->call_event<event_type::apply_beer_modifier>(target, amt);
             target->heal(amt);
         }
     }
@@ -179,13 +179,13 @@ namespace banggame {
         };
         // check henry block
         size_t nreqs = target->m_game->m_requests.size();
-        target->m_game->instant_event<event_type::on_discard_card>(origin, target, target_card);
+        target->m_game->call_event<event_type::on_discard_card>(origin, target, target_card);
         if (target->m_game->m_requests.size() > nreqs) {
-            target->m_game->queue_delayed_action(std::move(fun));
-            target->m_game->delay_effect_end();
+            target->m_game->queue_action(std::move(fun));
         } else {
             fun();
         }
+        target->m_game->queue_event<event_type::on_effect_end>(origin, origin_card);
     }
 
     bool effect_while_drawing::can_respond(card *origin_card, player *origin) const {
@@ -194,7 +194,7 @@ namespace banggame {
 
     void effect_drawing::on_play(card *origin_card, player *origin) {
         if (origin->m_game->pop_request<request_draw>()) {
-            origin->m_game->queue_event<event_type::post_draw_cards>(origin);
+            origin->m_game->call_event<event_type::post_draw_cards>(origin);
         }
     }
 
@@ -219,13 +219,13 @@ namespace banggame {
         };
         // check henry block
         size_t nreqs = target->m_game->m_requests.size();
-        target->m_game->instant_event<event_type::on_discard_card>(origin, target, target_card);
+        target->m_game->call_event<event_type::on_discard_card>(origin, target, target_card);
         if (target->m_game->m_requests.size() > nreqs) {
-            target->m_game->queue_delayed_action(std::move(fun));
-            target->m_game->delay_effect_end();
+            target->m_game->queue_action(std::move(fun));
         } else {
             fun();
         }
+        target->m_game->queue_event<event_type::on_effect_end>(origin, origin_card);
     }
 
     void effect_choose_card::on_play(card *origin_card, player *origin, player *target, card *target_card) {
@@ -268,12 +268,12 @@ namespace banggame {
     }
 
     void effect_draw_one_less::on_play(card *origin_card, player *target) {
-        target->m_game->queue_delayed_action([=]{
+        target->m_game->queue_action([=]{
             ++target->m_num_drawn_cards;
             while (target->m_num_drawn_cards++ < target->m_num_cards_to_draw) {
                 card *drawn_card = target->m_game->draw_phase_one_card_to(card_pile_type::player_hand, target);
                 target->m_game->add_log("LOG_DRAWN_CARD", target, drawn_card);
-                target->m_game->instant_event<event_type::on_card_drawn>(target, drawn_card);
+                target->m_game->call_event<event_type::on_card_drawn>(target, drawn_card);
             }
         });
     }

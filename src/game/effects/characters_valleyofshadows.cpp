@@ -55,7 +55,7 @@ namespace banggame {
     }
 
     void effect_evelyn_shebang::verify(card *origin_card, player *origin, player *target) const {
-        origin->m_game->instant_event<event_type::verify_target_unique>(origin_card, origin, target);
+        origin->m_game->call_event<event_type::verify_target_unique>(origin_card, origin, target);
     }
 
     void effect_evelyn_shebang::on_play(card *origin_card, player *origin, player *target) {
@@ -74,7 +74,7 @@ namespace banggame {
 
         effect_bang().on_play(origin_card, origin, target);
 
-        origin->m_game->queue_delayed_action([=]{
+        origin->m_game->queue_action([=]{
             if (origin->m_num_drawn_cards < origin->m_num_cards_to_draw && origin->m_game->m_playing == origin) {
                 origin->request_drawing();
             }

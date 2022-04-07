@@ -16,8 +16,6 @@ namespace banggame {
     #define EVENT(name, ...) (name, std::function<void(__VA_ARGS__)>)
     
     DEFINE_ENUM_TYPES(event_type,
-        (delayed_action)
-        
         EVENT(apply_suit_modifier,              card_suit_type &)
         EVENT(apply_beer_modifier,              player *origin, int &value)
         EVENT(apply_maxcards_modifier,          player *origin, int &value)
@@ -95,30 +93,6 @@ namespace banggame {
     )
 
     using event_function = enums::enum_variant<event_type>;
-
-    namespace detail {
-        template<typename Function> struct function_unwrapper{};
-        template<typename ... Args> struct function_unwrapper<std::function<void(Args ...)>> {
-            using type = std::tuple<Args...>;
-        };
-
-        template<event_type E> struct unwrap_enum_type_function {
-            using type = typename function_unwrapper<enums::enum_type_t<E>>::type;
-        };
-
-        template<> struct unwrap_enum_type_function<event_type::delayed_action> {
-            using type = std::function<void()>;
-        };
-
-        template<typename ESeq> struct make_function_argument_tuple_variant{};
-        template<enums::reflected_enum auto ... Es> struct make_function_argument_tuple_variant<enums::enum_sequence<Es...>> {
-            using type = std::variant<typename unwrap_enum_type_function<Es>::type ...>;
-        };
-
-        template<enums::reflected_enum E> using function_argument_tuple_variant = typename make_function_argument_tuple_variant<enums::make_enum_sequence<E>>::type;
-    };
-
-    using event_args = detail::function_argument_tuple_variant<event_type>;
 
     struct event_card_key {
         int card_id;
@@ -203,11 +177,19 @@ namespace banggame {
         }
 
         template<event_type E, typename ... Ts>
-        void instant_event(Ts && ... args) {
-            handle_event(event_args{std::in_place_index<enums::indexof(E)>, std::forward<Ts>(args) ...});
+        void call_event(Ts && ... args) {
+            std::vector<enums::enum_type_t<E> *> handlers;
+
+            for (event_function &handler : m_event_handlers | std::views::values) {
+                if (auto *fun = std::get_if<enums::indexof(E)>(&handler)) {
+                    handlers.push_back(fun);
+                }
+            }
+
+            for (auto *fun : handlers) {
+                std::invoke(*fun, args ...);
+            }
         }
-        
-        void handle_event(event_args &&event);
     };
 
 }

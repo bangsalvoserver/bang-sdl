@@ -57,7 +57,7 @@ namespace banggame {
         };
         std::optional<draw_check_handler> m_current_check;
         
-        std::deque<event_args> m_pending_events;
+        std::deque<std::function<void()>> m_delayed_actions;
 
         util::id_map<card> m_cards;
         util::id_map<player> m_players;
@@ -176,36 +176,19 @@ namespace banggame {
 
         template<typename T = request_base>
         bool pop_request() {
-            return pop_request_noupdate<T>() && (events_after_requests(), true);
+            return pop_request_noupdate<T>() && (flush_actions(), true);
         }
-
-        void events_after_requests();
 
         void tick();
 
+        void queue_action(std::function<void()> &&fun);
+        void flush_actions();
+
         template<event_type E, typename ... Ts>
         void queue_event(Ts && ... args) {
-            event_args event{std::in_place_index<enums::indexof(E)>, std::forward<Ts>(args) ...};
-            if (m_requests.empty()) {
-                handle_event(std::move(event));
-            } else {
-                m_pending_events.emplace_back(std::move(event));
-            }
-        }
-
-        void queue_delayed_action(auto &&fun) {
-            if (m_requests.empty()) {
-                fun();
-            } else {
-                queue_event<event_type::delayed_action>(std::forward<decltype(fun)>(fun));
-            }
-        }
-
-        void pop_events() {
-            while (m_requests.empty() && !m_pending_events.empty()) {
-                handle_event(std::move(m_pending_events.front()));
-                m_pending_events.pop_front();
-            }
+            queue_action([this, ...args = std::forward<Ts>(args)] () mutable {
+                call_event<E>(std::forward<Ts>(args) ... );
+            });
         }
 
         std::vector<card *> &get_pile(card_pile_type pile, player *owner = nullptr);
@@ -219,8 +202,6 @@ namespace banggame {
 
         void draw_check_then(player *origin, card *origin_card, draw_check_function fun);
         void do_draw_check();
-
-        void delay_effect_end();
 
         void add_disabler(event_card_key key, card_disabler_fun &&fun);
         void remove_disablers(event_card_key key);

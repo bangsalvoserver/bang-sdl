@@ -35,7 +35,7 @@ namespace banggame {
 
     void effect_tornado::on_play(card *origin_card, player *origin, player *target) {
         if (target->m_hand.empty()) {
-            target->m_game->queue_delayed_action([=]{
+            target->m_game->queue_action([=]{
                 target->m_game->draw_card_to(card_pile_type::player_hand, target);
                 target->m_game->draw_card_to(card_pile_type::player_hand, target);
             });
@@ -59,7 +59,7 @@ namespace banggame {
                 origin->m_game->queue_request<request_poker>(origin_card, origin, target, flags);
             }
         };
-        origin->m_game->queue_delayed_action([=]{
+        origin->m_game->queue_action([=]{
             for (auto it = origin->m_game->m_selection.begin(); it != origin->m_game->m_selection.end(); ++it) {
                 auto flags = show_card_flags::show_everyone;
                 if (std::next(it) == origin->m_game->m_selection.end()) {
@@ -94,7 +94,7 @@ namespace banggame {
         if (0 == --req.damage) {
             origin->m_game->pop_request<timer_damaging>();
         }
-        origin->m_game->queue_delayed_action([=]{
+        origin->m_game->queue_action([=]{
             if (saved->alive()) {
                 origin->m_game->queue_request<request_saved>(origin_card, origin, saved);
             }

@@ -90,7 +90,7 @@ namespace banggame {
             origin->m_game->pop_request<timer_damaging>();
         }
         origin->damage(origin_card, origin, 1);
-        origin->m_game->queue_delayed_action([=]{
+        origin->m_game->queue_action([=]{
             if (origin->alive()) {
                 origin->m_game->draw_card_to(card_pile_type::player_hand, origin);
                 origin->m_game->draw_card_to(card_pile_type::player_hand, origin);

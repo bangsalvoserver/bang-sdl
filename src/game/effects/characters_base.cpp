@@ -29,10 +29,10 @@ namespace banggame {
                 target->m_game->send_card_update(*drawn_card, nullptr, show_card_flags::short_pause);
                 target->m_game->send_card_update(*drawn_card, target);
                 if (suit == card_suit_type::hearts || suit == card_suit_type::diamonds) {
-                    origin->m_game->queue_delayed_action([=]{
+                    origin->m_game->queue_action([=]{
                         ++origin->m_num_drawn_cards;
                         card *drawn_card = origin->m_game->draw_phase_one_card_to(card_pile_type::player_hand, origin);
-                        origin->m_game->instant_event<event_type::on_card_drawn>(target, drawn_card);
+                        origin->m_game->call_event<event_type::on_card_drawn>(target, drawn_card);
                     });
                 }
             }
@@ -54,7 +54,7 @@ namespace banggame {
     void request_kit_carlson::on_pick(card_pile_type pile, player *target_player, card *target_card) {
         ++target->m_num_drawn_cards;
         target->add_to_hand(target_card);
-        target->m_game->instant_event<event_type::on_card_drawn>(target, target_card);
+        target->m_game->call_event<event_type::on_card_drawn>(target, target_card);
         if (target->m_num_drawn_cards >= target->m_num_cards_to_draw) {
             while (!target->m_game->m_selection.empty()) {
                 target->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::main_deck, false);
@@ -84,7 +84,7 @@ namespace banggame {
 
     void effect_suzy_lafayette::on_equip(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_effect_end>(target_card, [p](player *origin, card *target_card) {
-            if (p->m_hand.empty()) {
+            if (p->m_hand.empty() && origin->m_game->m_delayed_actions.empty()) {
                 p->m_game->draw_card_to(card_pile_type::player_hand, p);
             }
         });

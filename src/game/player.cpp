@@ -42,13 +42,13 @@ namespace banggame {
 
     int player::get_initial_cards() {
         int value = m_max_hp;
-        m_game->instant_event<event_type::apply_initial_cards_modifier>(this, value);
+        m_game->call_event<event_type::apply_initial_cards_modifier>(this, value);
         return value;
     }
 
     int player::max_cards_end_of_turn() {
         int n = m_hp;
-        m_game->instant_event<event_type::apply_maxcards_modifier>(this, n);
+        m_game->call_event<event_type::apply_maxcards_modifier>(this, n);
         return n;
     }
 
@@ -71,7 +71,7 @@ namespace banggame {
     }
 
     card *player::chosen_card_or(card *c) {
-        m_game->instant_event<event_type::apply_chosen_card_modifier>(this, c);
+        m_game->call_event<event_type::apply_chosen_card_modifier>(this, c);
         return c;
     }
 
@@ -146,7 +146,7 @@ namespace banggame {
 
     bool player::immune_to(card *c) {
         bool value = false;
-        m_game->instant_event<event_type::apply_immunity_modifier>(c, this, value);
+        m_game->call_event<event_type::apply_immunity_modifier>(c, this, value);
         return value;
     }
 
@@ -170,7 +170,7 @@ namespace banggame {
             && m_game->has_expansion(card_expansion_type::valleyofshadows)) return true;
         
         bool value = false;
-        m_game->instant_event<event_type::apply_escapable_modifier>(origin_card, origin, this, flags, value);
+        m_game->call_event<event_type::apply_escapable_modifier>(origin_card, origin, this, flags, value);
         return value;
     }
     
@@ -187,7 +187,7 @@ namespace banggame {
     static void check_orange_card_empty(player *owner, card *target) {
         if (target->cubes.empty() && target->pile != card_pile_type::player_character && target->pile != card_pile_type::player_backup) {
             owner->m_game->move_to(target, card_pile_type::discard_pile);
-            owner->m_game->instant_event<event_type::post_discard_orange_card>(owner, target);
+            owner->m_game->call_event<event_type::post_discard_orange_card>(owner, target);
             owner->unequip_if_enabled(target);
         }
     }
@@ -555,7 +555,7 @@ namespace banggame {
                         if (target != this && target->immune_to(chosen_card_or(card_ptr))) {
                             if (effect_it->is(effect_type::bangcard)) {
                                 request_bang req{card_ptr, this, target};
-                                m_game->instant_event<event_type::apply_bang_modifier>(this, &req);
+                                m_game->call_event<event_type::apply_bang_modifier>(this, &req);
                             }
                         } else {
                             auto flags = effect_flags::single_target;
@@ -788,7 +788,7 @@ namespace banggame {
                 }
                 m_game->queue_event<event_type::on_effect_end>(this, card_ptr);
             }
-            m_game->queue_delayed_action([&]{
+            m_game->queue_action([&]{
                 while (m_game->m_shop_selection.size() < 3) {
                     m_game->draw_shop_card();
                 }
@@ -850,23 +850,23 @@ namespace banggame {
 
     void player::draw_from_deck() {
         int save_numcards = m_num_cards_to_draw;
-        m_game->instant_event<event_type::on_draw_from_deck>(this);
+        m_game->call_event<event_type::on_draw_from_deck>(this);
         if (m_game->pop_request<request_draw>()) {
             m_game->add_log("LOG_DRAWN_FROM_DECK", this);
             while (m_num_drawn_cards<m_num_cards_to_draw) {
                 ++m_num_drawn_cards;
                 card *drawn_card = m_game->draw_phase_one_card_to(card_pile_type::player_hand, this);
                 m_game->add_log("LOG_DRAWN_CARD", this, drawn_card);
-                m_game->instant_event<event_type::on_card_drawn>(this, drawn_card);
+                m_game->call_event<event_type::on_card_drawn>(this, drawn_card);
             }
         }
         m_num_cards_to_draw = save_numcards;
-        m_game->queue_event<event_type::post_draw_cards>(this);
+        m_game->call_event<event_type::post_draw_cards>(this);
     }
 
     card_suit_type player::get_card_suit(card *drawn_card) {
         card_suit_type suit = drawn_card->suit;
-        m_game->instant_event<event_type::apply_suit_modifier>(suit);
+        m_game->call_event<event_type::apply_suit_modifier>(suit);
         return suit;
     }
 
@@ -924,7 +924,7 @@ namespace banggame {
         if (auto it = m_predraw_checks.find(target_card); it != m_predraw_checks.end()) {
             it->second.resolved = true;
         }
-        m_game->queue_delayed_action([this]{
+        m_game->queue_action([this]{
             if (alive() && m_game->m_playing == this && !m_game->m_game_over) {
                 if (std::ranges::all_of(m_predraw_checks | std::views::values, &predraw_check::resolved)) {
                     request_drawing();
@@ -937,8 +937,8 @@ namespace banggame {
 
     void player::request_drawing() {
         m_game->queue_event<event_type::on_turn_start>(this);
-        m_game->queue_delayed_action([this]{
-            m_game->instant_event<event_type::on_request_draw>(this);
+        m_game->queue_action([this]{
+            m_game->call_event<event_type::on_request_draw>(this);
             if (m_game->m_requests.empty()) {
                 m_game->queue_request<request_draw>(this);
             }
@@ -958,11 +958,11 @@ namespace banggame {
         } else {
             untap_inactive_cards();
 
-            m_game->instant_event<event_type::on_turn_end>(this);
+            m_game->call_event<event_type::on_turn_end>(this);
             if (!check_player_flags(player_flags::extra_turn)) {
-                m_game->instant_event<event_type::post_turn_end>(this);
+                m_game->call_event<event_type::post_turn_end>(this);
             }
-            m_game->queue_delayed_action([&]{
+            m_game->queue_action([&]{
                 if (m_extra_turns == 0) {
                     if (!check_player_flags(player_flags::ghost) && m_hp == 0 && m_game->has_scenario(scenario_flags::ghosttown)) {
                         --m_num_cards_to_draw;
@@ -982,7 +982,7 @@ namespace banggame {
     void player::skip_turn() {
         untap_inactive_cards();
         remove_player_flags(player_flags::extra_turn);
-        m_game->instant_event<event_type::on_turn_end>(this);
+        m_game->call_event<event_type::on_turn_end>(this);
         m_game->get_next_in_turn(this)->start_of_turn();
     }
 
