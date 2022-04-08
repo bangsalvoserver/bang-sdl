@@ -42,16 +42,18 @@ namespace banggame {
 
     void effect_john_pain::on_equip(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_draw_check>(target_card, [p](player *origin, card *drawn_card) {
-            if (p->m_hand.size() < 6) {
-                for (;origin != p; origin = origin->m_game->get_next_player(origin)) {
-                    if (std::ranges::any_of(origin->m_characters, [](const card *c) {
-                        return !c->equips.empty() && c->equips.front().is(equip_type::john_pain);
-                    })) {
-                        return;
+            p->m_game->queue_action([player_begin = origin, player_end = p, drawn_card] {
+                if (player_end->alive() && player_end->m_hand.size() < 6) {
+                    for (player *it = player_begin; it != player_end; it = it->m_game->get_next_player(it)) {
+                        if (std::ranges::any_of(it->m_characters, [](const card *c) {
+                            return !c->equips.empty() && c->equips.front().is(equip_type::john_pain);
+                        })) {
+                            return;
+                        }
                     }
+                    player_end->add_to_hand(drawn_card);
                 }
-                p->add_to_hand(drawn_card);
-            }
+            });
         });
     }
 
@@ -93,7 +95,7 @@ namespace banggame {
     void request_youl_grinner::on_pick(card_pile_type pile, player *target_player, card *target_card) {
         target->m_game->pop_request<request_youl_grinner>();
         origin->steal_card(target, target_card);
-        target->m_game->queue_event<event_type::on_effect_end>(origin, origin_card);
+        target->m_game->call_event<event_type::on_effect_end>(origin, origin_card);
     }
 
     game_formatted_string request_youl_grinner::status_text(player *owner) const {

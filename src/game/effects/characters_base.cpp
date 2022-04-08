@@ -77,16 +77,18 @@ namespace banggame {
                 while(damage-- && !origin->m_hand.empty()) {
                     target->steal_card(origin, origin->random_hand_card());
                 }
-                target->m_game->queue_event<event_type::on_effect_end>(p, target_card);
+                target->m_game->call_event<event_type::on_effect_end>(p, target_card);
             }
         });
     }
 
-    void effect_suzy_lafayette::on_equip(card *target_card, player *p) {
-        p->m_game->add_event<event_type::on_effect_end>(target_card, [p](player *origin, card *target_card) {
-            if (p->m_hand.empty() && origin->m_game->m_delayed_actions.empty()) {
-                p->m_game->draw_card_to(card_pile_type::player_hand, p);
-            }
+    void effect_suzy_lafayette::on_equip(card *origin_card, player *origin) {
+        origin->m_game->add_event<event_type::on_effect_end>(origin_card, [origin](player *, card *) {
+            origin->m_game->queue_action([origin]{
+                if (origin->alive() && origin->m_hand.empty()) {
+                    origin->m_game->draw_card_to(card_pile_type::player_hand, origin);
+                }
+            });
         });
     }
 

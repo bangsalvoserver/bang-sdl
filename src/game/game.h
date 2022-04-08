@@ -184,13 +184,6 @@ namespace banggame {
         void queue_action(std::function<void()> &&fun);
         void flush_actions();
 
-        template<event_type E, typename ... Ts>
-        void queue_event(Ts && ... args) {
-            queue_action([this, ...args = std::forward<Ts>(args)] () mutable {
-                call_event<E>(std::forward<Ts>(args) ... );
-            });
-        }
-
         std::vector<card *> &get_pile(card_pile_type pile, player *owner = nullptr);
         std::vector<card *>::iterator move_to(card *c, card_pile_type pile, bool known = true, player *owner = nullptr, show_card_flags flags = {});
         card *draw_card_to(card_pile_type pile, player *owner = nullptr, show_card_flags flags = {});

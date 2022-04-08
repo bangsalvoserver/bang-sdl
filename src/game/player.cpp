@@ -84,7 +84,7 @@ namespace banggame {
             }
             drop_all_cubes(target_card);
             auto it = m_game->move_to(target_card, pile, known, owner, flags);
-            m_game->queue_event<event_type::post_discard_card>(this, target_card);
+            m_game->call_event<event_type::post_discard_card>(this, target_card);
             unequip_if_enabled(target_card);
             return it;
         } else if (target_card->pile == card_pile_type::player_hand) {
@@ -118,7 +118,9 @@ namespace banggame {
                         origin->add_gold(value);
                     }
                 }
-                m_game->queue_event<event_type::on_hit>(origin_card, origin, this, value, is_bang);
+                m_game->queue_action([=, this]{
+                    m_game->call_event<event_type::on_hit>(origin_card, origin, this, value, is_bang);
+                });
             } else {
                 m_game->add_request<timer_damaging>(origin_card, origin, this, value, is_bang);
             }
@@ -481,7 +483,7 @@ namespace banggame {
         switch (card_ptr->pile) {
         case card_pile_type::player_hand:
             m_game->move_to(card_ptr, card_pile_type::discard_pile);
-            m_game->queue_event<event_type::on_play_hand_card>(this, card_ptr);
+            m_game->call_event<event_type::on_play_hand_card>(this, card_ptr);
             break;
         case card_pile_type::player_table:
             if (card_ptr->color == card_color_type::green) {
@@ -632,7 +634,7 @@ namespace banggame {
         }
 
         handle_multitarget(card_ptr, this, target_list);
-        m_game->queue_event<event_type::on_effect_end>(this, card_ptr);
+        m_game->call_event<event_type::on_effect_end>(this, card_ptr);
     }
 
     struct confirmer {
@@ -685,7 +687,7 @@ namespace banggame {
                 if (m_game->is_disabled(modifiers.front())) throw game_error("ERROR_CARD_IS_DISABLED", modifiers.front());
                 verify_card_targets(m_last_played_card, false, args.targets);
                 m_game->move_to(card_ptr, card_pile_type::discard_pile);
-                m_game->queue_event<event_type::on_play_hand_card>(this, card_ptr);
+                m_game->call_event<event_type::on_play_hand_card>(this, card_ptr);
                 do_play_card(m_last_played_card, false, args.targets);
                 set_last_played_card(nullptr);
             } else if (card_ptr->color == card_color_type::brown) {
@@ -707,7 +709,7 @@ namespace banggame {
                     discard_card(card_ptr);
                 } else {
                     target->equip_card(card_ptr);
-                    m_game->queue_event<event_type::on_equip>(this, target, card_ptr);
+                    m_game->call_event<event_type::on_equip>(this, target, card_ptr);
                     if (this == target) {
                         m_game->add_log("LOG_EQUIPPED_CARD", card_ptr, this);
                     } else {
@@ -729,7 +731,7 @@ namespace banggame {
                     }
                 }
                 set_last_played_card(nullptr);
-                m_game->queue_event<event_type::on_effect_end>(this, card_ptr);
+                m_game->call_event<event_type::on_effect_end>(this, card_ptr);
             }
             break;
         case card_pile_type::player_character:
@@ -786,7 +788,7 @@ namespace banggame {
                 } else {
                     m_game->add_log("LOG_BOUGHT_EQUIP_TO", card_ptr, this, target);
                 }
-                m_game->queue_event<event_type::on_effect_end>(this, card_ptr);
+                m_game->call_event<event_type::on_effect_end>(this, card_ptr);
             }
             m_game->queue_action([&]{
                 while (m_game->m_shop_selection.size() < 3) {
@@ -916,7 +918,7 @@ namespace banggame {
         
         m_game->add_public_update<game_update_type::switch_turn>(id);
         m_game->add_log("LOG_TURN_START", this);
-        m_game->queue_event<event_type::pre_turn_start>(this);
+        m_game->call_event<event_type::pre_turn_start>(this);
         next_predraw_check(nullptr);
     }
 
@@ -936,7 +938,7 @@ namespace banggame {
     }
 
     void player::request_drawing() {
-        m_game->queue_event<event_type::on_turn_start>(this);
+        m_game->call_event<event_type::on_turn_start>(this);
         m_game->queue_action([this]{
             m_game->call_event<event_type::on_request_draw>(this);
             if (m_game->m_requests.empty()) {

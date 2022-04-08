@@ -120,7 +120,7 @@ namespace banggame {
 
     void effect_hangover::on_unequip(card *target_card, player *target) {
         target->m_game->remove_disablers(target_card);
-        target->m_game->queue_event<event_type::on_effect_end>(target, target_card);
+        target->m_game->call_event<event_type::on_effect_end>(target, target_card);
     }
 
     void effect_sermon::on_equip(card *target_card, player *target) {

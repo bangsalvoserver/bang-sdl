@@ -137,7 +137,7 @@ namespace banggame {
     }
 
     void effect_beer::on_play(card *origin_card, player *origin, player *target) {
-        target->m_game->queue_event<event_type::on_play_beer>(target);
+        target->m_game->call_event<event_type::on_play_beer>(target);
         if (target->m_game->m_players.size() <= 2 || target->m_game->num_alive() > 2) {
             int amt = 1;
             target->m_game->call_event<event_type::apply_beer_modifier>(target, amt);
@@ -185,7 +185,6 @@ namespace banggame {
         } else {
             fun();
         }
-        target->m_game->queue_event<event_type::on_effect_end>(origin, origin_card);
     }
 
     bool effect_while_drawing::can_respond(card *origin_card, player *origin) const {
@@ -225,7 +224,6 @@ namespace banggame {
         } else {
             fun();
         }
-        target->m_game->queue_event<event_type::on_effect_end>(origin, origin_card);
     }
 
     void effect_choose_card::on_play(card *origin_card, player *origin, player *target, card *target_card) {

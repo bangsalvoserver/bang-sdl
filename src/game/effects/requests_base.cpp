@@ -98,7 +98,7 @@ namespace banggame {
         while (!target->m_game->m_selection.empty()) {
             card *drawn_card = target->m_game->m_selection.front();
             target->m_game->move_to(drawn_card, card_pile_type::discard_pile);
-            target->m_game->queue_event<event_type::on_draw_check>(target, drawn_card);
+            target->m_game->call_event<event_type::on_draw_check>(target, drawn_card);
         }
         target->m_game->pop_request_noupdate<request_check>();
         target->m_game->add_log("LOG_CHECK_DREW_CARD", target->m_game->m_current_check->origin_card, target, target_card);
@@ -152,7 +152,7 @@ namespace banggame {
         }
 
         target->discard_card(target_card);
-        target->m_game->queue_event<event_type::on_effect_end>(target, origin_card);
+        target->m_game->call_event<event_type::on_effect_end>(target, origin_card);
     }
 
     game_formatted_string request_discard::status_text(player *owner) const {
@@ -210,7 +210,7 @@ namespace banggame {
     }
 
     void request_indians::on_pick(card_pile_type pile, player *target_player, card *target_card) {
-        target->m_game->queue_event<event_type::on_play_hand_card>(target, target_card);
+        target->m_game->call_event<event_type::on_play_hand_card>(target, target_card);
         target->discard_card(target_card);
         target->m_game->pop_request<request_indians>();
     }
@@ -233,7 +233,7 @@ namespace banggame {
     }
 
     void request_duel::on_pick(card_pile_type pile, player *target_player, card *target_card) {
-        target->m_game->queue_event<event_type::on_play_hand_card>(target, target_card);
+        target->m_game->call_event<event_type::on_play_hand_card>(target, target_card);
         target->discard_card(target_card);
         target->m_game->pop_request_noupdate<request_duel>();
         target->m_game->queue_request<request_duel>(origin_card, origin, respond_to, target);

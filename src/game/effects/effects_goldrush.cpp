@@ -9,7 +9,7 @@ namespace banggame {
         target->discard_card(target_card);
         origin->add_gold(1);
         origin->m_game->add_log("LOG_SOLD_BEER", origin, target_card);
-        origin->m_game->queue_event<event_type::on_play_beer>(origin);
+        origin->m_game->call_event<event_type::on_play_beer>(origin);
     }
 
     void effect_discard_black::verify(card *origin_card, player *origin, player *target, card *target_card) const {
@@ -50,7 +50,7 @@ namespace banggame {
         while (!origin->m_game->m_selection.empty()) {
             card *drawn_card = origin->m_game->m_selection.front();
             origin->m_game->move_to(drawn_card, card_pile_type::discard_pile);
-            origin->m_game->queue_event<event_type::on_draw_check>(origin, drawn_card);
+            origin->m_game->call_event<event_type::on_draw_check>(origin, drawn_card);
         }
         std::sort(suits.begin(), suits.end());
         origin->heal(std::unique(suits.begin(), suits.end()) - suits.begin());
