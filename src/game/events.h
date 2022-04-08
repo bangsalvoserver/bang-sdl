@@ -136,7 +136,7 @@ namespace banggame {
         }
 
         template<typename Function>
-        struct single_call_event {
+        struct call_once_event {
             event_handler_map &parent;
             event_card_key key;
             Function function;
@@ -150,8 +150,8 @@ namespace banggame {
         };
 
         template<event_type E, typename Function>
-        void add_single_call_event(event_card_key key, Function &&fun) {
-            add_event<E>(key, single_call_event{*this, key, std::forward<Function>(fun)});
+        void add_call_once_event(event_card_key key, Function &&fun) {
+            add_event<E>(key, call_once_event{*this, key, std::forward<Function>(fun)});
         }
 
         void remove_events(auto key) {

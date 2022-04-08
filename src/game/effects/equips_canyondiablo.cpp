@@ -27,7 +27,7 @@ namespace banggame {
             auto suit = target->get_card_suit(drawn_card);
             if (suit == card_suit_type::clubs || suit == card_suit_type::spades) {
                 --target->m_num_cards_to_draw;
-                target->m_game->add_single_call_event<event_type::post_draw_cards>(target_card, [=](player *origin) {
+                target->m_game->add_call_once_event<event_type::post_draw_cards>(target_card, [=](player *origin) {
                     return origin == target && (++target->m_num_cards_to_draw, true);
                 });
             }
@@ -44,10 +44,10 @@ namespace banggame {
                 target->m_game->add_disabler(event_key, [=](card *c) {
                     return c->pile == card_pile_type::player_character && c->owner == target;
                 });
-                target->m_game->add_single_call_event<event_type::pre_turn_start>(event_key, [=](player *p) {
+                target->m_game->add_call_once_event<event_type::pre_turn_start>(event_key, [=](player *p) {
                     return p == target && (target->m_game->remove_disablers(event_key), true);
                 });
-                target->m_game->add_single_call_event<event_type::on_player_death>(event_key, [=](player *killer, player *p) {
+                target->m_game->add_call_once_event<event_type::on_player_death>(event_key, [=](player *killer, player *p) {
                     return p == target && (target->m_game->remove_disablers(event_key), true);
                 });
             }
@@ -66,7 +66,7 @@ namespace banggame {
             target->m_game->move_to(discard_bronco, card_pile_type::specials, false, nullptr, show_card_flags::no_animation);
             target->m_game->send_card_update(*discard_bronco, nullptr, show_card_flags::no_animation);
 
-            target->m_game->add_single_call_event<event_type::post_discard_card>(origin_card, [=](player *p, card *c) {
+            target->m_game->add_call_once_event<event_type::post_discard_card>(origin_card, [=](player *p, card *c) {
                 return (p == target && c == origin_card)
                     && (target->m_game->move_to(discard_bronco, card_pile_type::hidden_deck, false, nullptr, show_card_flags::no_animation), true);
             });
