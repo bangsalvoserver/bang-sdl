@@ -193,7 +193,14 @@ namespace banggame {
 
     void effect_drawing::on_play(card *origin_card, player *origin) {
         if (origin->m_game->pop_request<request_draw>()) {
-            origin->m_game->call_event<event_type::post_draw_cards>(origin);
+            origin->m_game->add_event<event_type::on_effect_end>(origin_card, [=](player *p, card *c) {
+                if (p == origin && c == origin_card) {
+                    origin->m_game->queue_action([=]{
+                        origin->m_game->call_event<event_type::post_draw_cards>(origin);
+                    });
+                    origin->m_game->remove_events(origin_card);
+                }
+            });
         }
     }
 

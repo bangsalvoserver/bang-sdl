@@ -861,7 +861,9 @@ namespace banggame {
             }
         }
         m_num_cards_to_draw = save_numcards;
-        m_game->call_event<event_type::post_draw_cards>(this);
+        m_game->queue_action([this]{
+            m_game->call_event<event_type::post_draw_cards>(this);
+        });
     }
 
     card_sign player::get_card_sign(card *target_card) {
