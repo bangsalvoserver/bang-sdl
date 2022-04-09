@@ -9,12 +9,11 @@ namespace banggame {
     using namespace enums::flag_operators;
 
     void effect_aim::on_play(card *origin_card, player *origin) {
-        origin->m_game->add_call_once_event<event_type::apply_bang_modifier>(origin_card, [=](player *p, request_bang *req) {
+        origin->m_game->add_event<event_type::apply_bang_modifier>(origin_card, [=](player *p, request_bang *req) {
             if (p == origin) {
                 ++req->bang_damage;
-                return true;
+                origin->m_game->remove_events(origin_card);
             }
-            return false;
         });
     }
     

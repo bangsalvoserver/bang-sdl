@@ -135,15 +135,6 @@ namespace banggame {
             m_event_handlers.add(key, enums::enum_tag<E>, std::forward<Function>(fun));
         }
 
-        template<event_type E, typename Function>
-        void add_call_once_event(event_card_key key, Function &&fun) {
-            add_event<E>(key, [this, key, fun = std::forward<Function>(fun)](auto && ... args) mutable {
-                if (std::invoke(fun, std::forward<decltype(args)>(args) ... )) {
-                    remove_events(key);
-                }
-            });
-        }
-
         void remove_events(auto key) {
             m_event_handlers.erase(key);
         }

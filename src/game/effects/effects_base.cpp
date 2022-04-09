@@ -235,8 +235,10 @@ namespace banggame {
             }
         });
 
-        target->m_game->add_call_once_event<event_type::on_effect_end>(target_card, [=](player *p, card *c) {
-            return p == origin && c == origin_card;
+        target->m_game->add_event<event_type::on_effect_end>(target_card, [=](player *p, card *c) {
+            if (p == origin && c == origin_card) {
+                origin->m_game->remove_events(target_card);
+            }
         });
     }
 

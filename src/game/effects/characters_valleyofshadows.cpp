@@ -65,8 +65,10 @@ namespace banggame {
             }
         });
 
-        origin->m_game->add_call_once_event<event_type::on_turn_end>(origin_card, [=](player *e_origin) {
-            return origin == e_origin;
+        origin->m_game->add_event<event_type::on_turn_end>(origin_card, [=](player *e_origin) {
+            if (origin == e_origin) {
+                origin->m_game->remove_events(origin_card);
+            }
         });
 
         origin->m_game->pop_request_noupdate<request_draw>();

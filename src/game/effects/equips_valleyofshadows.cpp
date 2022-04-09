@@ -19,16 +19,15 @@ namespace banggame {
         for (card *c : target->m_characters) {
             target->equip_if_enabled(c);
         }
-        target->m_game->add_call_once_event<event_type::post_discard_card>(target_card, [=](player *p, card *c) {
+        target->m_game->add_event<event_type::post_discard_card>(target_card, [=](player *p, card *c) {
             if (p == target && c == target_card) {
                 target->m_game->queue_action([=]{
                     target->remove_player_flags(player_flags::ghost);
                     target->m_game->player_death(nullptr, target);
                     target->m_game->check_game_over(nullptr, target);
                 });
-                return true;
+                target->m_game->remove_events(target_card);
             }
-            return false;
         });
     }
 

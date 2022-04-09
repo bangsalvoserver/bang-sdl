@@ -176,7 +176,11 @@ namespace banggame {
 
         template<typename T = request_base>
         bool pop_request() {
-            return pop_request_noupdate<T>() && (flush_actions(), true);
+            if (pop_request_noupdate<T>()) {
+                flush_actions();
+                return true;
+            }
+            return false;
         }
 
         void tick();
