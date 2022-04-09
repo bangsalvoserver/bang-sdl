@@ -9,6 +9,15 @@
 
 namespace banggame {
 
+    struct card_sign {REFLECTABLE(
+        (card_suit_type) suit,
+        (card_value_type) value
+    )
+        explicit operator bool () const {
+            return suit != card_suit_type::none && value != card_value_type::none;
+        }
+    };
+
     struct card_data {REFLECTABLE(
         (int) id,
 
@@ -26,8 +35,7 @@ namespace banggame {
         (card_modifier_type) modifier,
         (mth_type) multi_target_handler,
         
-        (card_suit_type) suit,
-        (card_value_type) value,
+        (card_sign) sign,
         (card_color_type) color
     )
 

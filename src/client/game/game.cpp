@@ -446,8 +446,8 @@ std::string game_scene::evaluate_format_string(const game_formatted_string &str)
                         return _("STATUS_CARD_FROM_HAND");
                     } else if (!card->known) {
                         return _("STATUS_UNKNOWN_CARD");
-                    } else if (card->value != card_value_type::none && card->suit != card_suit_type::none) {
-                        return intl::format("{} ({}{})", card->name, enums::get_data(card->value), enums::get_data(card->suit).symbol);
+                    } else if (card->sign) {
+                        return intl::format("{} ({}{})", card->name, enums::get_data(card->sign.value), enums::get_data(card->sign.suit).symbol);
                     } else {
                         return card->name;
                     }

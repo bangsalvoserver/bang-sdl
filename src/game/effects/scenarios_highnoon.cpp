@@ -6,14 +6,14 @@ namespace banggame {
     using namespace enums::flag_operators;
 
     void effect_blessing::on_equip(card *target_card, player *target) {
-        target->m_game->add_event<event_type::apply_suit_modifier>(target_card, [](card_suit_type &suit) {
-            suit = card_suit_type::hearts;
+        target->m_game->add_event<event_type::apply_sign_modifier>(target_card, [](player *, card_sign &value) {
+            value.suit = card_suit_type::hearts;
         });
     }
 
     void effect_curse::on_equip(card *target_card, player *target) {
-        target->m_game->add_event<event_type::apply_suit_modifier>(target_card, [](card_suit_type &suit) {
-            suit = card_suit_type::spades;
+        target->m_game->add_event<event_type::apply_sign_modifier>(target_card, [](player *, card_sign &value) {
+            value.suit = card_suit_type::spades;
         });
     }
 
@@ -166,11 +166,7 @@ namespace banggame {
         target->m_game->add_disabler(origin_card, 
             [target=target, declared_suit = static_cast<card_suit_type>(target_card->responses.front().effect_value)]
             (card *c) {
-                if (c->owner == target) {
-                    auto suit = target->get_card_suit(c);
-                    return suit != card_suit_type::none && suit != declared_suit;
-                }
-                return false;
+                return c->owner == target && c->sign && c->sign.suit != declared_suit;
             });
 
         while (!target->m_game->m_selection.empty()) {

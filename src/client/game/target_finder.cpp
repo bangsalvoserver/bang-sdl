@@ -614,7 +614,7 @@ bool target_finder::verify_card_target(const effect_holder &args, target_card ta
         case target_card_filter::table: return target.card->pile == &target.player->table;
         case target_card_filter::hand: return target.card->pile == &target.player->hand;
         case target_card_filter::blue: return target.card->color == card_color_type::blue;
-        case target_card_filter::clubs: return target.card->suit == card_suit_type::clubs;
+        case target_card_filter::clubs: return target.card->sign.suit == card_suit_type::clubs;
         case target_card_filter::bang: return is_bangcard(target.card);
         case target_card_filter::missed: return !target.card->responses.empty() && target.card->responses.back().is(effect_type::missedcard);
         case target_card_filter::beer: return !target.card->effects.empty() && target.card->effects.front().is(effect_type::beer);

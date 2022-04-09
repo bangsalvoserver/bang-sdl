@@ -81,10 +81,10 @@ namespace banggame {
         auto do_make_texture = [&](float scale) {
             auto card_base_surf = card_textures::get().get_card_resource(image);
 
-            if (value != card_value_type::none && suit != card_suit_type::none) {
+            if (sign) {
                 sdl::rect card_rect = card_base_surf.get_rect();
 
-                const auto &card_value_surf = card_textures::get().value_icons[enums::indexof(value) - 1];
+                const auto &card_value_surf = card_textures::get().value_icons[enums::indexof(sign.value) - 1];
                 sdl::rect value_rect = card_value_surf.get_rect();
 
                 value_rect.w *= scale;
@@ -94,7 +94,7 @@ namespace banggame {
                     
                 SDL_BlitScaled(card_value_surf.get(), nullptr, card_base_surf.get(), &value_rect);
                 
-                const auto &card_suit_surf = card_textures::get().suit_icons[enums::indexof(suit) - 1];
+                const auto &card_suit_surf = card_textures::get().suit_icons[enums::indexof(sign.suit) - 1];
                 sdl::rect suit_rect = card_suit_surf.get_rect();
 
                 suit_rect.w *= scale;

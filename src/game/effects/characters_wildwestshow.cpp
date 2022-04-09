@@ -67,7 +67,7 @@ namespace banggame {
     void effect_teren_kill::on_play(card *origin_card, player *origin) {
         origin->m_game->top_request().get<request_death>().draw_attempts.push_back(origin_card);
         origin->m_game->draw_check_then(origin, origin_card, [origin](card *drawn_card) {
-            if (origin->get_card_suit(drawn_card) != card_suit_type::spades) {
+            if (origin->get_card_sign(drawn_card).suit != card_suit_type::spades) {
                 origin->m_game->pop_request<request_death>();
                 origin->m_hp = 1;
                 origin->m_game->add_public_update<game_update_type::player_hp>(origin->id, 1);

@@ -73,8 +73,8 @@ namespace banggame {
         target->m_game->send_card_update(*drawn_card, nullptr, show_card_flags::short_pause);
 
         if ((target_card->responses.front().effect_value == 1)
-            ? (drawn_card->suit == card_suit_type::hearts || drawn_card->suit == card_suit_type::diamonds)
-            : (drawn_card->suit == card_suit_type::clubs || drawn_card->suit == card_suit_type::spades))
+            ? (drawn_card->sign.suit == card_suit_type::hearts || drawn_card->sign.suit == card_suit_type::diamonds)
+            : (drawn_card->sign.suit == card_suit_type::clubs || drawn_card->sign.suit == card_suit_type::spades))
         {
             target->m_game->draw_card_to(card_pile_type::player_hand, target);
         } else {
@@ -152,7 +152,7 @@ namespace banggame {
         p->m_game->add_event<event_type::post_turn_end>({target_card, 2}, [target_card](player *target) {
             target->m_game->queue_action([target, target_card] {
                 target->m_game->draw_check_then(target, target_card, [target](card *drawn_card) {
-                    if (target->get_card_suit(drawn_card) == card_suit_type::hearts) {
+                    if (target->get_card_sign(drawn_card).suit == card_suit_type::hearts) {
                         ++target->m_extra_turns;
                     }
                 });

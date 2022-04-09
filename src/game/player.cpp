@@ -118,9 +118,7 @@ namespace banggame {
                         origin->add_gold(value);
                     }
                 }
-                m_game->queue_action([=, this]{
-                    m_game->call_event<event_type::on_hit>(origin_card, origin, this, value, is_bang);
-                });
+                m_game->call_event<event_type::on_hit>(origin_card, origin, this, value, is_bang);
             } else {
                 m_game->add_request<timer_damaging>(origin_card, origin, this, value, is_bang);
             }
@@ -353,7 +351,7 @@ namespace banggame {
                 }
                 break;
             case target_card_filter::clubs:
-                if (get_card_suit(target_card) != card_suit_type::clubs) {
+                if (get_card_sign(target_card).suit != card_suit_type::clubs) {
                     throw game_error("ERROR_TARGET_NOT_CLUBS");
                 }
                 break;
@@ -561,7 +559,7 @@ namespace banggame {
                             }
                         } else {
                             auto flags = effect_flags::single_target;
-                            if (card_ptr->value != card_value_type::none && card_ptr->color == card_color_type::brown && !effect_it->is(effect_type::bangcard)) {
+                            if (card_ptr->sign && card_ptr->color == card_color_type::brown && !effect_it->is(effect_type::bangcard)) {
                                 flags |= effect_flags::escapable;
                             }
                             effect_it->on_play(card_ptr, this, target, flags);
@@ -577,7 +575,7 @@ namespace banggame {
                     }
                     
                     effect_flags flags{};
-                    if (card_ptr->value != card_value_type::none && card_ptr->color == card_color_type::brown) {
+                    if (card_ptr->sign && card_ptr->color == card_color_type::brown) {
                         flags |= effect_flags::escapable;
                     }
                     if (targets.size() == 1) {
@@ -593,7 +591,7 @@ namespace banggame {
                     auto *target_card = m_game->find_card(target_card_id);
                     auto *target = target_card->owner;
                     auto flags = effect_flags::single_target;
-                    if (card_ptr->value != card_value_type::none && card_ptr->color == card_color_type::brown) {
+                    if (card_ptr->sign && card_ptr->color == card_color_type::brown) {
                         flags |= effect_flags::escapable;
                     }
                     if (effect_it->is(effect_type::mth_add)) {
@@ -610,7 +608,7 @@ namespace banggame {
                 },
                 [&](enums::enum_tag_t<play_card_target_type::cards_other_players>, const std::vector<int> &target_card_ids) {
                     effect_flags flags{};
-                    if (card_ptr->value != card_value_type::none && card_ptr->color == card_color_type::brown) {
+                    if (card_ptr->sign && card_ptr->color == card_color_type::brown) {
                         flags |= effect_flags::escapable;
                     }
                     if (target_card_ids.size() == 1) {
@@ -866,14 +864,10 @@ namespace banggame {
         m_game->call_event<event_type::post_draw_cards>(this);
     }
 
-    card_suit_type player::get_card_suit(card *drawn_card) {
-        card_suit_type suit = drawn_card->suit;
-        m_game->call_event<event_type::apply_suit_modifier>(suit);
-        return suit;
-    }
-
-    card_value_type player::get_card_value(card *drawn_card) {
-        return drawn_card->value;
+    card_sign player::get_card_sign(card *target_card) {
+        card_sign sign = target_card->sign;
+        m_game->call_event<event_type::apply_sign_modifier>(this, sign);
+        return sign;
     }
 
     void player::start_of_turn() {

@@ -25,7 +25,7 @@ namespace banggame {
     void effect_black_jack::on_equip(card *target_card, player *target) {
         target->m_game->add_event<event_type::on_card_drawn>(target_card, [target](player *origin, card *drawn_card) {
             if (origin == target && origin->m_num_drawn_cards == 2) {
-                card_suit_type suit = target->get_card_suit(drawn_card);
+                card_suit_type suit = target->get_card_sign(drawn_card).suit;
                 target->m_game->send_card_update(*drawn_card, nullptr, show_card_flags::short_pause);
                 target->m_game->send_card_update(*drawn_card, target);
                 if (suit == card_suit_type::hearts || suit == card_suit_type::diamonds) {
@@ -73,9 +73,13 @@ namespace banggame {
 
     void effect_el_gringo::on_equip(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_hit>({target_card, 3}, [=](card *origin_card, player *origin, player *target, int damage, bool is_bang) {
-            if (origin && p == target && p->m_game->m_playing != p && !origin->m_hand.empty()) {
-                target->steal_card(origin, origin->random_hand_card());
-                target->m_game->call_event<event_type::on_effect_end>(p, target_card);
+            if (origin && p == target && p->m_game->m_playing != p) {
+                target->m_game->queue_action([=]{
+                    if (target->alive() && !origin->m_hand.empty()) {
+                        target->steal_card(origin, origin->random_hand_card());
+                        target->m_game->call_event<event_type::on_effect_end>(p, target_card);
+                    }
+                });
             }
         });
     }

@@ -41,7 +41,7 @@ namespace banggame {
     void effect_jail::on_equip(card *target_card, player *target) {
         target->add_predraw_check(target_card, 1, [=](card *drawn_card) {
             target->discard_card(target_card);
-            if (target->get_card_suit(drawn_card) == card_suit_type::hearts) {
+            if (target->get_card_sign(drawn_card).suit == card_suit_type::hearts) {
                 target->next_predraw_check(target_card);
             } else {
                 target->skip_turn();
@@ -51,11 +51,10 @@ namespace banggame {
 
     void effect_dynamite::on_equip(card *target_card, player *target) {
         target->add_predraw_check(target_card, 2, [=](card *drawn_card) {
-            card_suit_type suit = target->get_card_suit(drawn_card);
-            card_value_type value = target->get_card_value(drawn_card);
-            if (suit == card_suit_type::spades
-                && enums::indexof(value) >= enums::indexof(card_value_type::value_2)
-                && enums::indexof(value) <= enums::indexof(card_value_type::value_9)) {
+            card_sign sign = target->get_card_sign(drawn_card);
+            if (sign.suit == card_suit_type::spades
+                && enums::indexof(sign.value) >= enums::indexof(card_value_type::value_2)
+                && enums::indexof(sign.value) <= enums::indexof(card_value_type::value_9)) {
                 target->discard_card(target_card);
                 target->damage(target_card, nullptr, 3);
             } else {
@@ -110,9 +109,13 @@ namespace banggame {
     void effect_boots::on_equip(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_hit>({target_card, 2}, [p](card *origin_card, player *origin, player *target, int damage, bool is_bang){
             if (p == target) {
-                while (damage--) {
-                    target->m_game->draw_card_to(card_pile_type::player_hand, target);
-                }
+                target->m_game->queue_action([=]{
+                    if (target->alive()) {
+                        for (int i=0; i<damage; ++i) {
+                            target->m_game->draw_card_to(card_pile_type::player_hand, target);
+                        }
+                    }
+                });
             }
         });
     }

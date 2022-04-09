@@ -16,7 +16,7 @@ namespace banggame {
     #define EVENT(name, ...) (name, std::function<void(__VA_ARGS__)>)
     
     DEFINE_ENUM_TYPES(event_type,
-        EVENT(apply_suit_modifier,              card_suit_type &)
+        EVENT(apply_sign_modifier,              player *origin, card_sign &value)
         EVENT(apply_beer_modifier,              player *origin, int &value)
         EVENT(apply_maxcards_modifier,          player *origin, int &value)
         EVENT(apply_volcanic_modifier,          player *origin, bool &value)

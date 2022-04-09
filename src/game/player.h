@@ -159,8 +159,7 @@ namespace banggame {
         void pass_turn();
         void skip_turn();
 
-        card_suit_type get_card_suit(card *drawn_card);
-        card_value_type get_card_value(card *drawn_card);
+        card_sign get_card_sign(card *target_card);
 
         void send_player_status();
         void add_player_flags(player_flags flags);

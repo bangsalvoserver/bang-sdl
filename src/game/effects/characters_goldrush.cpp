@@ -11,7 +11,7 @@ namespace banggame {
             if (p == target) {
                 p->m_game->queue_action([target, target_card] {
                     target->m_game->draw_check_then(target, target_card, [target](card *drawn_card) {
-                        card_suit_type suit = target->get_card_suit(drawn_card);
+                        card_suit_type suit = target->get_card_sign(drawn_card).suit;
                         if (suit == card_suit_type::diamonds || suit == card_suit_type::hearts) {
                             ++target->m_extra_turns;
                         }

@@ -8,7 +8,7 @@ namespace banggame {
 
     void effect_snake::on_equip(card *target_card, player *target) {
         target->add_predraw_check(target_card, 0, [=](card *drawn_card) {
-            if (target->get_card_suit(drawn_card) == card_suit_type::spades) {
+            if (target->get_card_sign(drawn_card).suit == card_suit_type::spades) {
                 target->damage(target_card, nullptr, 1);
             }
             target->next_predraw_check(target_card);
@@ -44,8 +44,12 @@ namespace banggame {
 
     void effect_shotgun::on_equip(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_hit>({target_card, 1}, [=](card *origin_card, player *origin, player *target, int damage, bool is_bang) {
-            if (origin == p && target != p && !target->m_hand.empty() && is_bang) {
-                target->m_game->queue_request<request_discard>(target_card, origin, target);
+            if (origin == p && target != p && is_bang) {
+                target->m_game->queue_action([=]{
+                    if (target->alive() && !target->m_hand.empty()) {
+                        target->m_game->queue_request<request_discard>(target_card, origin, target);
+                    }
+                });
             }
         });
     }

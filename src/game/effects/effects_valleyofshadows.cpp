@@ -67,7 +67,9 @@ namespace banggame {
                 }
                 origin->m_game->send_card_update(**it, nullptr, flags);
             }
-            if (std::ranges::find(origin->m_game->m_selection, card_value_type::value_A, &card::value) != origin->m_game->m_selection.end()) {
+            if (std::ranges::any_of(origin->m_game->m_selection, [origin](card *card_ptr) {
+                return origin->get_card_sign(card_ptr).value == card_value_type::value_A;
+            })) {
                 while (!target->m_game->m_selection.empty()) {
                     origin->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::discard_pile);
                 }

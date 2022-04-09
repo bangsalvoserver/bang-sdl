@@ -127,14 +127,14 @@ namespace banggame {
                 static constexpr auto suit_letters = []<card_suit_type ... Es>(enums::enum_sequence<Es...>) {
                     return std::array{ enums::enum_data_v<Es>.letter ... };
                 }(enums::make_enum_sequence<card_suit_type>());
-                c.suit = enums::index_to<card_suit_type>(std::ranges::find_if(suit_letters, [&](std::string_view letter) {
+                c.sign.suit = enums::index_to<card_suit_type>(std::ranges::find_if(suit_letters, [&](std::string_view letter) {
                     return str.ends_with(letter);
                 }) - suit_letters.begin());
 
                 static constexpr auto value_letters = []<card_value_type ... Es>(enums::enum_sequence<Es...>) {
                     return std::array { enums::enum_data_v<Es> ... };
                 }(enums::make_enum_sequence<card_value_type>());
-                c.value = enums::index_to<card_value_type>(std::ranges::find_if(value_letters, [&](std::string_view letter) {
+                c.sign.value = enums::index_to<card_value_type>(std::ranges::find_if(value_letters, [&](std::string_view letter) {
                     return str.starts_with(letter);
                 }) - value_letters.begin());
                 

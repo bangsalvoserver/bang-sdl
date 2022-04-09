@@ -101,7 +101,7 @@ namespace banggame {
     void effect_doublebarrel::on_play(card *origin_card, player *origin) {
         origin->m_game->add_call_once_event<event_type::apply_bang_modifier>(origin_card, [=](player *p, request_bang *req) {
             return p == origin
-                && ((req->unavoidable = origin->get_card_suit(req->origin_card) == card_suit_type::diamonds), true);
+                && ((req->unavoidable = origin->get_card_sign(req->origin_card).suit == card_suit_type::diamonds), true);
         });
     }
 
