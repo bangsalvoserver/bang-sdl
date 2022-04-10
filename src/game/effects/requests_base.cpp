@@ -106,7 +106,7 @@ namespace banggame {
         if (!target->m_game->top_request_is<timer_tumbleweed>()) {
             target->m_game->m_current_check->function(target_card);
             target->m_game->m_current_check.reset();
-            target->m_game->flush_actions();
+            target->m_game->update_request();
         }
     }
 
@@ -186,7 +186,7 @@ namespace banggame {
             target->m_game->pop_request<request_discard_pass>();
             target->m_game->queue_action([target = target]{ target->pass_turn(); });
         } else {
-            target->m_game->send_request_update();
+            target->m_game->update_request();
         }
     }
 
@@ -216,8 +216,9 @@ namespace banggame {
     }
 
     void request_indians::on_resolve() {
-        target->m_game->pop_request<request_indians>();
+        target->m_game->pop_request_noupdate<request_indians>();
         target->damage(origin_card, origin, 1);
+        target->m_game->update_request();
     }
 
     game_formatted_string request_indians::status_text(player *owner) const {
@@ -264,9 +265,8 @@ namespace banggame {
         if (--bang_strength == 0) {
             p->m_game->call_event<event_type::on_missed>(origin_card, origin, target, is_bang_card);
             p->m_game->pop_request<request_bang>();
-        } else {
-            p->m_game->send_request_update();
         }
+        p->m_game->update_request();
     }
 
     void request_bang::on_resolve() {
@@ -275,7 +275,7 @@ namespace banggame {
         if (auto *req = target->m_game->top_request_if<timer_damaging>(target)) {
             static_cast<cleanup_request &>(*req) = std::move(*this);
         } else {
-            target->m_game->flush_actions();
+            target->m_game->update_request();
         }
     }
 
@@ -293,8 +293,11 @@ namespace banggame {
 
     void request_death::on_resolve() {
         target->m_game->player_death(origin, target);
-        target->m_game->pop_request<request_death>();
-        target->m_game->check_game_over(origin, target);
+        target->m_game->pop_request_noupdate<request_death>();
+        target->m_game->queue_action([origin=origin, target=target]{
+            target->m_game->check_game_over(origin, target);
+        });
+        target->m_game->update_request();
     }
 
     game_formatted_string request_death::status_text(player *owner) const {

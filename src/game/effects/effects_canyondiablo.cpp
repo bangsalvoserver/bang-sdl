@@ -106,7 +106,7 @@ namespace banggame {
     }
 
     void effect_lastwill::on_play(card *origin_card, player *origin) {
-        origin->m_game->send_request_update();
+        origin->m_game->update_request();
     }
 
     void handler_lastwill::on_play(card *origin_card, player *origin, const mth_target_list &targets) {

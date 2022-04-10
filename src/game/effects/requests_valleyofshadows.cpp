@@ -57,8 +57,9 @@ namespace banggame {
     }
 
     void request_bandidos::on_resolve() {
-        target->m_game->pop_request<request_bandidos>();
+        target->m_game->pop_request_noupdate<request_bandidos>();
         target->damage(origin_card, origin, 1);
+        target->m_game->update_request();
     }
 
     game_formatted_string request_bandidos::status_text(player *owner) const {

@@ -449,22 +449,30 @@ namespace banggame {
         return ret;
     }
 
-    void game::send_request_update() {
-        add_public_update<game_update_type::request_status>(make_request_update(nullptr));
-        for (auto &p : m_players) {
-            add_private_update<game_update_type::request_status>(&p, make_request_update(&p));
+    void game::update_request() {
+        if (m_requests.empty()) {
+            add_public_update<game_update_type::status_clear>();
+            while (m_requests.empty() && !m_delayed_actions.empty()) {
+                std::invoke(m_delayed_actions.front());
+                m_delayed_actions.pop_front();
+            }
+        } else {
+            add_public_update<game_update_type::request_status>(make_request_update(nullptr));
+            for (auto &p : m_players) {
+                add_private_update<game_update_type::request_status>(&p, make_request_update(&p));
+            }
         }
     }
 
-    void game::add_request(std::shared_ptr<request_base> &&value) {
+    void game::queue_request_front(std::shared_ptr<request_base> &&value) {
         m_requests.emplace_front(std::move(value));
-        send_request_update();
+        update_request();
     }
 
     void game::queue_request(std::shared_ptr<request_base> &&value) {
         m_requests.emplace_back(std::move(value));
         if (m_requests.size() == 1) {
-            send_request_update();
+            update_request();
         }
     }
 
@@ -592,27 +600,15 @@ namespace banggame {
             for (int i=0; i<m_current_check->origin->m_num_checks; ++i) {
                 draw_card_to(card_pile_type::selection);
             }
-            add_request<request_check>(m_current_check->origin_card, m_current_check->origin);
+            queue_request_front<request_check>(m_current_check->origin_card, m_current_check->origin);
         }
     }
 
     void game::queue_action(std::function<void()> &&fun) {
-        if (m_requests.empty()) {
+        if (m_requests.empty() && m_delayed_actions.empty()) {
             fun();
         } else {
             m_delayed_actions.push_back(std::move(fun));
-        }
-    }
-
-    void game::flush_actions() {
-        if (m_requests.empty()) {
-            add_public_update<game_update_type::status_clear>();
-            while (m_requests.empty() && !m_delayed_actions.empty()) {
-                std::invoke(m_delayed_actions.front());
-                m_delayed_actions.pop_front();
-            }
-        } else {
-            send_request_update();
         }
     }
 
@@ -697,7 +693,9 @@ namespace banggame {
                     break;
                 case player_role::deputy:
                     if (killer->m_role == player_role::sheriff) {
-                        killer->discard_all();
+                        queue_action([killer]{
+                            killer->discard_all();
+                        });
                     }
                     break;
                 }

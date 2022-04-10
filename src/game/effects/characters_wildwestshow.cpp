@@ -153,7 +153,7 @@ namespace banggame {
             target->m_characters.resize(1);
         }
         on_pre_equip(target_card, target);
-        target->m_game->send_request_update();
+        target->m_game->update_request();
     }
 
 }

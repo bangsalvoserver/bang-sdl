@@ -152,14 +152,14 @@ namespace banggame {
         }
         
         request_status_args make_request_update(player *p);
-        void send_request_update();
+        void update_request();
 
-        void add_request(std::shared_ptr<request_base> &&value);
+        void queue_request_front(std::shared_ptr<request_base> &&value);
         void queue_request(std::shared_ptr<request_base> &&value);
 
         template<std::derived_from<request_base> T, typename ... Ts>
-        void add_request(Ts && ... args) {
-            add_request(std::make_shared<T>(std::forward<Ts>(args) ... ));
+        void queue_request_front(Ts && ... args) {
+            queue_request_front(std::make_shared<T>(std::forward<Ts>(args) ... ));
         }
         
         template<std::derived_from<request_base> T, typename ... Ts>
@@ -177,7 +177,7 @@ namespace banggame {
         template<typename T = request_base>
         bool pop_request() {
             if (pop_request_noupdate<T>()) {
-                flush_actions();
+                update_request();
                 return true;
             }
             return false;
@@ -186,7 +186,6 @@ namespace banggame {
         void tick();
 
         void queue_action(std::function<void()> &&fun);
-        void flush_actions();
 
         std::vector<card *> &get_pile(card_pile_type pile, player *owner = nullptr);
         std::vector<card *>::iterator move_to(card *c, card_pile_type pile, bool known = true, player *owner = nullptr, show_card_flags flags = {});

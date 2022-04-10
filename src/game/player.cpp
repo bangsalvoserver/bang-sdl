@@ -111,7 +111,7 @@ namespace banggame {
                 m_game->add_public_update<game_update_type::player_hp>(id, m_hp);
                 m_game->add_log(value == 1 ? "LOG_TAKEN_DAMAGE" : "LOG_TAKEN_DAMAGE_PLURAL", origin_card, this, value);
                 if (m_hp <= 0) {
-                    m_game->add_request<request_death>(origin_card, origin, this);
+                    m_game->queue_request_front<request_death>(origin_card, origin, this);
                 }
                 if (m_game->has_expansion(card_expansion_type::goldrush)) {
                     if (origin && origin->m_game->m_playing == origin && origin != this) {
@@ -120,7 +120,7 @@ namespace banggame {
                 }
                 m_game->call_event<event_type::on_hit>(origin_card, origin, this, value, is_bang);
             } else {
-                m_game->add_request<timer_damaging>(origin_card, origin, this, value, is_bang);
+                m_game->queue_request_front<timer_damaging>(origin_card, origin, this, value, is_bang);
             }
         }
     }

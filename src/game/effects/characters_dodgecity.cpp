@@ -57,7 +57,7 @@ namespace banggame {
             get_next_target()->add_to_hand(target->m_game->m_selection.front());
             target->m_game->pop_request<request_claus_the_saint>();
         } else {
-            target->m_game->send_request_update();
+            target->m_game->update_request();
         }
     }
 

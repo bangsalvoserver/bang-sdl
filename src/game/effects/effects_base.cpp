@@ -89,7 +89,7 @@ namespace banggame {
 
     void effect_barrel::on_play(card *origin_card, player *target) {
         target->m_game->top_request().get<missable_request>().add_card(origin_card);
-        target->m_game->send_request_update();
+        target->m_game->update_request();
         target->m_game->draw_check_then(target, origin_card, [=](card *drawn_card) {
             if (target->get_card_sign(drawn_card).suit == card_suit_type::hearts) {
                 effect_missed().on_play(origin_card, target);
