@@ -183,6 +183,13 @@ namespace banggame {
             return false;
         }
 
+        template<typename Function>
+        int num_queued_requests(Function &&fun) {
+            int nreqs = m_requests.size();
+            fun();
+            return m_requests.size() - nreqs;
+        }
+
         void tick();
 
         void queue_action(std::function<void()> &&fun);

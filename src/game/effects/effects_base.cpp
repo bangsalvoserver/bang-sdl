@@ -177,10 +177,9 @@ namespace banggame {
                 target->discard_card(target_card);
             }
         };
-        // check henry block
-        size_t nreqs = target->m_game->m_requests.size();
-        target->m_game->call_event<event_type::on_discard_card>(origin, target, target_card);
-        if (target->m_game->m_requests.size() > nreqs) {
+        if (target->m_game->num_queued_requests([&]{
+            target->m_game->call_event<event_type::on_discard_card>(origin, target, target_card);
+        })) {
             target->m_game->queue_action(std::move(fun));
         } else {
             fun();
@@ -223,10 +222,9 @@ namespace banggame {
                 origin->steal_card(target, target_card);
             }
         };
-        // check henry block
-        size_t nreqs = target->m_game->m_requests.size();
-        target->m_game->call_event<event_type::on_discard_card>(origin, target, target_card);
-        if (target->m_game->m_requests.size() > nreqs) {
+        if (target->m_game->num_queued_requests([&]{
+            target->m_game->call_event<event_type::on_discard_card>(origin, target, target_card);
+        })) {
             target->m_game->queue_action(std::move(fun));
         } else {
             fun();

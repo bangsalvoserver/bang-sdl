@@ -35,7 +35,7 @@ namespace banggame {
                         return;
                     }
                 }
-                p->add_to_hand(discarded_card);
+                p->m_game->move_to(discarded_card, card_pile_type::player_hand, true, p, show_card_flags::short_pause);
             }
         });
     }
@@ -51,7 +51,7 @@ namespace banggame {
                             return;
                         }
                     }
-                    player_end->add_to_hand(drawn_card);
+                    player_end->m_game->move_to(drawn_card, card_pile_type::player_hand, true, player_end, show_card_flags::short_pause);
                 }
             });
         });

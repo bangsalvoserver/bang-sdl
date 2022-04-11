@@ -95,15 +95,16 @@ namespace banggame {
     }
 
     void request_check::on_pick(card_pile_type pile, player *target_player, card *target_card) {
+        target->m_game->pop_request_noupdate<request_check>();
+        target->m_game->add_log("LOG_CHECK_DREW_CARD", target->m_game->m_current_check->origin_card, target, target_card);
         while (!target->m_game->m_selection.empty()) {
             card *drawn_card = target->m_game->m_selection.front();
             target->m_game->move_to(drawn_card, card_pile_type::discard_pile);
             target->m_game->call_event<event_type::on_draw_check>(target, drawn_card);
         }
-        target->m_game->pop_request_noupdate<request_check>();
-        target->m_game->add_log("LOG_CHECK_DREW_CARD", target->m_game->m_current_check->origin_card, target, target_card);
-        target->m_game->call_event<event_type::trigger_tumbleweed>(target->m_game->m_current_check->origin_card, target_card);
-        if (!target->m_game->top_request_is<timer_tumbleweed>()) {
+        if (!target->m_game->num_queued_requests([&]{
+            target->m_game->call_event<event_type::on_draw_check_select>(target->m_game->m_current_check->origin_card, target_card);
+        })) {
             target->m_game->m_current_check->function(target_card);
             target->m_game->m_current_check.reset();
             target->m_game->update_request();

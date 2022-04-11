@@ -203,7 +203,7 @@ namespace banggame {
     }
 
     void effect_tumbleweed::on_equip(card *target_card, player *origin) {
-        origin->m_game->add_event<event_type::trigger_tumbleweed>(target_card, [=](card *origin_card, card *drawn_card) {
+        origin->m_game->add_event<event_type::on_draw_check_select>(target_card, [=](card *origin_card, card *drawn_card) {
             origin->m_game->queue_request_front<timer_tumbleweed>(target_card, origin, drawn_card, origin_card);
         });
     }

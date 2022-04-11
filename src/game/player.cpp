@@ -707,7 +707,6 @@ namespace banggame {
                     discard_card(card_ptr);
                 } else {
                     target->equip_card(card_ptr);
-                    m_game->call_event<event_type::on_equip>(this, target, card_ptr);
                     if (this == target) {
                         m_game->add_log("LOG_EQUIPPED_CARD", card_ptr, this);
                     } else {
@@ -727,6 +726,7 @@ namespace banggame {
                         add_cubes(card_ptr, 3);
                         break;
                     }
+                    m_game->call_event<event_type::on_equip>(this, target, card_ptr);
                 }
                 set_last_played_card(nullptr);
                 m_game->call_event<event_type::on_effect_end>(this, card_ptr);

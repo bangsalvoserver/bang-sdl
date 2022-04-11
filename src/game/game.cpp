@@ -589,10 +589,11 @@ namespace banggame {
     void game::do_draw_check() {
         if (m_current_check->origin->m_num_checks == 1) {
             auto *c = draw_card_to(card_pile_type::discard_pile);
-            call_event<event_type::on_draw_check>(m_current_check->origin, c);
             add_log("LOG_CHECK_DREW_CARD", m_current_check->origin_card, m_current_check->origin, c);
-            call_event<event_type::trigger_tumbleweed>(m_current_check->origin_card, c);
-            if (!top_request_is<timer_tumbleweed>()) {
+            call_event<event_type::on_draw_check>(m_current_check->origin, c);
+            if (!num_queued_requests([&]{
+                call_event<event_type::on_draw_check_select>(m_current_check->origin_card, c);
+            })) {
                 m_current_check->function(c);
                 m_current_check.reset();
             }
