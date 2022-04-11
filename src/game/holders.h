@@ -28,18 +28,23 @@ namespace banggame {
         bool is(enum_type value) const { return type == value; }
     };
 
+    using opt_fmt_str = std::optional<game_formatted_string>;
+
     struct effect_holder : effect_base<effect_type> {
         using effect_base<effect_type>::effect_base;
 
         bool can_respond(card *origin_card, player *target) const;
 
         void verify(card *origin_card, player *origin) const;
+        opt_fmt_str on_prompt(card *origin_card, player *origin) const;
         void on_play(card *origin_card, player *origin, effect_flags flags);
         
         void verify(card *origin_card, player *origin, player *target) const;
+        opt_fmt_str on_prompt(card *origin_card, player *origin, player *target) const;
         void on_play(card *origin_card, player *origin, player *target, effect_flags flags);
         
         void verify(card *origin_card, player *origin, player *target, card *target_card) const;
+        opt_fmt_str on_prompt(card *origin_card, player *origin, player *target, card *target_card) const;
         void on_play(card *origin_card, player *origin, player *target, card *target_card, effect_flags flags);
     };
     

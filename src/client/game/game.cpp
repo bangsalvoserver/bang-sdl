@@ -473,6 +473,14 @@ void game_scene::HANDLE_UPDATE(game_log, const game_formatted_string &args) {
     pop_update();
 }
 
+void game_scene::HANDLE_UPDATE(game_prompt, const game_formatted_string &args) {
+    m_ui.show_message_box(evaluate_format_string(args),
+        [&]{ m_target.send_prompt_response(true); },
+        [&]{ m_target.send_prompt_response(false); }
+    );
+    pop_update();
+}
+
 void game_scene::HANDLE_UPDATE(deck_shuffled, const card_pile_type &pile) {
     switch (pile) {
     case card_pile_type::main_deck: {

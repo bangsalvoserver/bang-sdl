@@ -89,6 +89,8 @@ namespace banggame {
         bool is_playing_card(card_view *card) const {
             return m_playing_card == card;
         }
+        
+        void send_prompt_response(bool response);
     
     private:
         bool is_bangcard(card_view *card);

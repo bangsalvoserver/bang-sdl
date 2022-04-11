@@ -35,6 +35,7 @@ namespace banggame {
         void HANDLE_UPDATE(game_over,        const game_over_update &args);
         void HANDLE_UPDATE(game_error,       const game_formatted_string &args);
         void HANDLE_UPDATE(game_log,         const game_formatted_string &args);
+        void HANDLE_UPDATE(game_prompt,      const game_formatted_string &args);
         void HANDLE_UPDATE(add_cards,        const add_cards_update &args);
         void HANDLE_UPDATE(remove_cards,     const remove_cards_update &args);
         void HANDLE_UPDATE(move_card,        const move_card_update &args);

@@ -225,6 +225,7 @@ namespace banggame {
         void handle_action(ACTION_TAG(pick_card), player *p, const pick_card_args &args);
         void handle_action(ACTION_TAG(play_card), player *p, const play_card_args &args);
         void handle_action(ACTION_TAG(respond_card), player *p, const play_card_args &args);
+        void handle_action(ACTION_TAG(prompt_respond), player *p, bool response);
     };
 
     inline std::vector<card_backface> make_id_vector(auto &&range) {

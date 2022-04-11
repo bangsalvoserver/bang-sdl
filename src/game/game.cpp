@@ -812,4 +812,8 @@ namespace banggame {
     void game::handle_action(ACTION_TAG(respond_card), player *p, const play_card_args &args) {
         p->respond_card(args);
     }
+
+    void game::handle_action(ACTION_TAG(prompt_respond), player *p, bool response) {
+        p->prompt_response(response);
+    }
 }

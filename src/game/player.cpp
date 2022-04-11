@@ -233,7 +233,9 @@ namespace banggame {
 
     void player::set_last_played_card(card *c) {
         m_last_played_card = c;
+        if (c == m_forced_card) m_forced_card = nullptr;
         m_game->add_private_update<game_update_type::last_played_card>(this, c ? c->id : 0);
+        remove_player_flags(player_flags::start_of_turn);
     }
 
     void player::set_forced_card(card *c) {
@@ -521,6 +523,61 @@ namespace banggame {
         }
     }
 
+    void player::check_prompt(card *card_ptr, bool is_response, const std::vector<play_card_target> &targets, std::function<void()> &&fun) {
+        auto &effects = is_response ? card_ptr->responses : card_ptr->effects;
+        
+        auto effect_it = effects.begin();
+        auto effect_end = effects.end();
+
+        for (auto &t : targets) {
+            auto prompt_message = enums::visit_indexed(util::overloaded{
+                [&](enums::enum_tag_t<play_card_target_type::none>) {
+                    return effect_it->on_prompt(card_ptr, this);
+                },
+                [&](enums::enum_tag_t<play_card_target_type::player>, int target_id) {
+                    player *target = m_game->find_player(target_id);
+                    return effect_it->on_prompt(card_ptr, this, target);
+                },
+                [&](enums::enum_tag_t<play_card_target_type::other_players>) -> opt_fmt_str {
+                    for (auto *p = this;;) {
+                        p = m_game->get_next_player(p);
+                        if (p == this) return std::nullopt;
+                        if (auto msg = effect_it->on_prompt(card_ptr, this, p)) {
+                            return msg;
+                        }
+                    }
+                },
+                [&](enums::enum_tag_t<play_card_target_type::card>, int target_card_id) {
+                    card *target_card = m_game->find_card(target_card_id);
+                    player *target = target_card->owner;
+                    return effect_it->on_prompt(card_ptr, this, target, target_card);
+                },
+                [&](enums::enum_tag_t<play_card_target_type::cards_other_players>, const std::vector<int> &target_card_ids) -> opt_fmt_str {
+                    for (int id : target_card_ids) {
+                        card *target_card = m_game->find_card(id);
+                        player *target = target_card->owner;
+                        if (auto msg = effect_it->on_prompt(card_ptr, this, target, target_card)) {
+                            return msg;
+                        }
+                    }
+                    return std::nullopt;
+                }
+            }, t);
+            if (prompt_message) {
+                m_game->add_private_update<game_update_type::game_prompt>(this, std::move(*prompt_message));
+                m_prompt = fun;
+                return;
+            }
+            if (++effect_it == effect_end) {
+                effect_it = card_ptr->optionals.begin();
+                effect_end = card_ptr->optionals.end();
+            }
+        }
+
+        m_game->add_private_update<game_update_type::confirm_play>(this);
+        fun();
+    }
+
     void player::do_play_card(card *card_ptr, bool is_response, const std::vector<play_card_target> &targets) {
         assert(card_ptr != nullptr);
 
@@ -638,19 +695,20 @@ namespace banggame {
     struct confirmer {
         player *p = nullptr;
 
-        confirmer(player *p) : p(p) {
-            p->m_game->add_private_update<game_update_type::confirm_play>(p);
-        }
-
         ~confirmer() {
-            if (p->m_forced_card && std::uncaught_exceptions()) {
-                p->m_game->add_private_update<game_update_type::force_play_card>(p, p->m_forced_card->id);
+            if (std::uncaught_exceptions()) {
+                p->m_game->add_private_update<game_update_type::confirm_play>(p);
+                if (p->m_forced_card) {
+                    p->m_game->add_private_update<game_update_type::force_play_card>(p, p->m_forced_card->id);
+                }
             }
         }
     };
 
     void player::play_card(const play_card_args &args) {
-        confirmer _confirm{this};
+        if (m_prompt) return;
+
+        [[maybe_unused]] confirmer _confirm{this};
         
         std::vector<card *> modifiers;
         for (int id : args.modifier_ids) {
@@ -684,17 +742,21 @@ namespace banggame {
                 } _banglimit_remover{m_bangs_per_turn};
                 if (m_game->is_disabled(modifiers.front())) throw game_error("ERROR_CARD_IS_DISABLED", modifiers.front());
                 verify_card_targets(m_last_played_card, false, args.targets);
-                m_game->move_to(card_ptr, card_pile_type::discard_pile);
-                m_game->call_event<event_type::on_play_hand_card>(this, card_ptr);
-                do_play_card(m_last_played_card, false, args.targets);
-                set_last_played_card(nullptr);
+                check_prompt(m_last_played_card, false, args.targets, [=, this]{
+                    m_game->move_to(card_ptr, card_pile_type::discard_pile);
+                    m_game->call_event<event_type::on_play_hand_card>(this, card_ptr);
+                    do_play_card(m_last_played_card, false, args.targets);
+                    set_last_played_card(nullptr);
+                });
             } else if (card_ptr->color == card_color_type::brown) {
                 if (m_game->is_disabled(card_ptr)) throw game_error("ERROR_CARD_IS_DISABLED", card_ptr);
                 verify_modifiers(card_ptr, modifiers);
                 verify_card_targets(card_ptr, false, args.targets);
-                play_modifiers(modifiers);
-                do_play_card(card_ptr, false, args.targets);
-                set_last_played_card(card_ptr);
+                check_prompt(card_ptr, false, args.targets, [=, this]{
+                    play_modifiers(modifiers);
+                    do_play_card(card_ptr, false, args.targets);
+                    set_last_played_card(card_ptr);
+                });
             } else {
                 if (m_game->has_scenario(scenario_flags::judge)) throw game_error("ERROR_CANT_EQUIP_CARDS");
                 verify_equip_target(card_ptr, args.targets);
@@ -703,6 +765,7 @@ namespace banggame {
                 if (card_ptr->color == card_color_type::orange && m_game->m_cubes.size() < 3) {
                     throw game_error("ERROR_NOT_ENOUGH_CUBES");
                 }
+                m_game->add_private_update<game_update_type::confirm_play>(this);
                 if (target != this && target->immune_to(card_ptr)) {
                     discard_card(card_ptr);
                 } else {
@@ -738,9 +801,11 @@ namespace banggame {
             if (card_ptr->inactive) throw game_error("ERROR_CARD_INACTIVE", card_ptr);
             verify_modifiers(card_ptr, modifiers);
             verify_card_targets(card_ptr, false, args.targets);
-            play_modifiers(modifiers);
-            do_play_card(card_ptr, false, args.targets);
-            set_last_played_card(nullptr);
+            check_prompt(card_ptr, false, args.targets, [=, this]{
+                play_modifiers(modifiers);
+                do_play_card(card_ptr, false, args.targets);
+                    set_last_played_card(nullptr);
+            });
             break;
         case card_pile_type::hidden_deck:
             if (std::ranges::find(modifiers, card_modifier_type::shopchoice, &card::modifier) == modifiers.end()) {
@@ -768,16 +833,19 @@ namespace banggame {
             if (m_gold < cost) throw game_error("ERROR_NOT_ENOUGH_GOLD");
             if (card_ptr->color == card_color_type::brown) {
                 verify_card_targets(card_ptr, false, args.targets);
-                play_modifiers(modifiers);
-                add_gold(-cost);
-                do_play_card(card_ptr, false, args.targets);
-                set_last_played_card(nullptr);
+                check_prompt(card_ptr, false, args.targets, [=, this]{
+                    play_modifiers(modifiers);
+                    add_gold(-cost);
+                    do_play_card(card_ptr, false, args.targets);
+                    set_last_played_card(nullptr);
+                });
             } else {
                 if (m_game->has_scenario(scenario_flags::judge)) throw game_error("ERROR_CANT_EQUIP_CARDS");
                 verify_equip_target(card_ptr, args.targets);
                 play_modifiers(modifiers);
                 auto *target = m_game->find_player(args.targets.front().get<play_card_target_type::player>());
                 if (card *card = target->find_equipped_card(card_ptr)) throw game_error("ERROR_DUPLICATED_CARD", card);
+                m_game->add_private_update<game_update_type::confirm_play>(this);
                 add_gold(-cost);
                 target->equip_card(card_ptr);
                 set_last_played_card(nullptr);
@@ -798,20 +866,20 @@ namespace banggame {
         case card_pile_type::scenario_card:
         case card_pile_type::specials:
             verify_card_targets(card_ptr, false, args.targets);
-            do_play_card(card_ptr, false, args.targets);
-            set_last_played_card(nullptr);
+            check_prompt(card_ptr, false, args.targets, [=, this]{
+                do_play_card(card_ptr, false, args.targets);
+                set_last_played_card(nullptr);
+            });
             break;
         default:
             throw game_error("play_card: invalid card"_nonloc);
         }
-        remove_player_flags(player_flags::start_of_turn);
-        if (was_forced_card) {
-            m_forced_card = nullptr;
-        }
     }
     
     void player::respond_card(const play_card_args &args) {
-        confirmer _confirm{this};
+        if (m_prompt) return;
+        
+        [[maybe_unused]] confirmer _confirm{this};
         
         card *card_ptr = m_game->find_card(args.card_id);
 
@@ -841,10 +909,19 @@ namespace banggame {
         }
         
         verify_card_targets(card_ptr, true, args.targets);
-        do_play_card(card_ptr, true, args.targets);
-        set_last_played_card(nullptr);
-        if (was_forced_card) {
-            m_forced_card = nullptr;
+        check_prompt(card_ptr, true, args.targets, [=, this]{
+            do_play_card(card_ptr, true, args.targets);
+            set_last_played_card(nullptr);
+        });
+    }
+
+    void player::prompt_response(bool response) {
+        if (m_prompt) {
+            m_game->add_private_update<game_update_type::confirm_play>(this);
+            if (response) {
+                std::invoke(*m_prompt);
+            }
+            m_prompt.reset();
         }
     }
 

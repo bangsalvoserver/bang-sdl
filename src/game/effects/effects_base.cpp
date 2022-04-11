@@ -29,6 +29,16 @@ namespace banggame {
         origin->verify_pass_turn();
     }
 
+    std::optional<game_formatted_string> effect_pass_turn::on_prompt(card *origin_card, player *origin) const {
+        int diff = origin->m_hand.size() - origin->max_cards_end_of_turn();
+        if (diff == 1) {
+            return game_formatted_string{"PROMPT_PASS_DISCARD"};
+        } else if (diff > 1) {
+            return game_formatted_string{"PROMPT_PASS_DISCARD_PLURAL", diff};
+        }
+        return std::nullopt;
+    }
+
     void effect_pass_turn::on_play(card *origin_card, player *origin) {
         origin->pass_turn();
     }
@@ -126,6 +136,13 @@ namespace banggame {
         origin->m_game->queue_request<request_generalstore>(origin_card, origin, origin);
     }
 
+    std::optional<game_formatted_string> effect_heal::on_prompt(card *origin_card, player *origin, player *target) const {
+        if (target->m_hp == target->m_max_hp) {
+            return game_formatted_string{"PROMPT_CARD_NO_EFFECT", origin_card};
+        }
+        return std::nullopt;
+    }
+
     void effect_heal::on_play(card *origin_card, player *origin, player *target) {
         target->heal(amount);
     }
@@ -134,6 +151,14 @@ namespace banggame {
         if (target->m_hp == target->m_max_hp) {
             throw game_error("ERROR_CANT_HEAL_PAST_FULL_HP");
         }
+    }
+
+    std::optional<game_formatted_string> effect_beer::on_prompt(card *origin_card, player *origin, player *target) const {
+        if ((target->m_game->m_players.size() > 2 && target->m_game->num_alive() == 2)
+            || (target->m_hp == target->m_max_hp)) {
+            return game_formatted_string{"PROMPT_CARD_NO_EFFECT", origin_card};
+        }
+        return std::nullopt;
     }
 
     void effect_beer::on_play(card *origin_card, player *origin, player *target) {

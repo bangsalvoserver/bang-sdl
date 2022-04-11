@@ -4,6 +4,8 @@ BEGIN_LOCALE(italian)
 
 LOCALE_VALUE(BANG_TITLE,                          "Bang!")
 
+LOCALE_VALUE(BUTTON_YES,                          "Sì")
+LOCALE_VALUE(BUTTON_NO,                           "No")
 LOCALE_VALUE(BUTTON_CONNECT,                      "Connetti")
 LOCALE_VALUE(BUTTON_CANCEL,                       "Annulla")
 LOCALE_VALUE(BUTTON_CREATE_SERVER,                "Crea Server")
@@ -39,6 +41,10 @@ LOCALE_VALUE(BUTTON_TOLOBBY,                      "Torna a Lobby")
 LOCALE_VALUE(GAME_USER_CONNECTED,                 "{} è entrato")
 LOCALE_VALUE(GAME_USER_DISCONNECTED,              "{} è uscito")
 LOCALE_VALUE(USERNAME_DISCONNECTED,               "(Disconnesso)")
+
+LOCALE_VALUE(PROMPT_CARD_NO_EFFECT,               "Giocare {} non avrebbe effetto. Continuare?")
+LOCALE_VALUE(PROMPT_PASS_DISCARD,                 "Devi scartare 1 carta. Continuare?")
+LOCALE_VALUE(PROMPT_PASS_DISCARD_PLURAL,          "Devi scartare {} carte. Continuare?")
 
 LOCALE_VALUE(STATUS_GAME_OVER,                    "Partita Finita")
 LOCALE_VALUE(STATUS_YOUR_TURN,                    "Tocca a te ... Pesca dal mazzo")

@@ -4,6 +4,8 @@ BEGIN_LOCALE(english)
 
 LOCALE_VALUE(BANG_TITLE,                          "Bang!")
 
+LOCALE_VALUE(BUTTON_YES,                          "Yes")
+LOCALE_VALUE(BUTTON_NO,                           "No")
 LOCALE_VALUE(BUTTON_CONNECT,                      "Connect")
 LOCALE_VALUE(BUTTON_CANCEL,                       "Cancel")
 LOCALE_VALUE(BUTTON_CREATE_SERVER,                "Create Server")
@@ -39,6 +41,10 @@ LOCALE_VALUE(BUTTON_TOLOBBY,                      "Return To Lobby")
 LOCALE_VALUE(GAME_USER_CONNECTED,                 "{} joined")
 LOCALE_VALUE(GAME_USER_DISCONNECTED,              "{} left")
 LOCALE_VALUE(USERNAME_DISCONNECTED,               "(Disconnected)")
+
+LOCALE_VALUE(PROMPT_CARD_NO_EFFECT,               "Playing {} would have no effect. Continue?")
+LOCALE_VALUE(PROMPT_PASS_DISCARD,                 "You must discard 1 card. Continue?")
+LOCALE_VALUE(PROMPT_PASS_DISCARD_PLURAL,          "You must discard {} cards. Continue?")
 
 LOCALE_VALUE(STATUS_GAME_OVER,                    "Game Over")
 LOCALE_VALUE(STATUS_YOUR_TURN,                    "Your turn ... Draw from the deck")

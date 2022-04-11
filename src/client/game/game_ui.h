@@ -6,12 +6,17 @@
 
 #include "../widgets/text_list.h"
 #include "../widgets/button.h"
+#include "game_message_box.h"
+
+#include <optional>
 
 namespace banggame {
 
+    class game_scene;
+
     class game_ui {
     public:
-        game_ui(class game_scene *parent);
+        game_ui(game_scene *parent);
 
         void refresh_layout();
         void render(sdl::renderer &renderer);
@@ -31,8 +36,17 @@ namespace banggame {
         void add_special(card_view *card);
         void remove_special(card_view *card);
 
+        void show_message_box(const std::string &message, auto &&on_click_yes, auto &&on_click_no) {
+            m_message_box.emplace(message, std::forward<decltype(on_click_yes)>(on_click_yes), std::forward<decltype(on_click_no)>(on_click_no));
+            refresh_layout();
+        }
+
+        void close_message_box() {
+            m_message_box.reset();
+        }
+
     private:
-        class game_scene *parent;
+        game_scene *parent;
 
         widgets::text_list m_game_log;
 
@@ -47,6 +61,8 @@ namespace banggame {
         widgets::button m_golobby_btn;
 
         widgets::button m_chat_btn;
+
+        std::optional<game_message_box> m_message_box;
     };
 
 }

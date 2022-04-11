@@ -136,6 +136,7 @@ namespace banggame {
         (game_over, game_over_update)
         (game_error, game_formatted_string)
         (game_log, game_formatted_string)
+        (game_prompt, game_formatted_string)
         (add_cards, add_cards_update)
         (remove_cards, remove_cards_update)
         (move_card, move_card_update)

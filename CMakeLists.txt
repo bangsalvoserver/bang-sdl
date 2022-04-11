@@ -40,6 +40,7 @@ set(bangclient_srcs
     src/client/game/player.cpp
     src/client/game/game.cpp
     src/client/game/game_ui.cpp
+    src/client/game/game_message_box.cpp
     src/client/game/target_finder.cpp
     src/client/scenes/connect.cpp
     src/client/scenes/loading.cpp

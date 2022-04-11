@@ -43,6 +43,8 @@ namespace banggame {
 
         std::map<card *, predraw_check> m_predraw_checks;
 
+        std::optional<std::function<void()>> m_prompt;
+
         int8_t m_range_mod = 0;
         int8_t m_weapon_range = 1;
         int8_t m_distance_mod = 0;
@@ -149,6 +151,9 @@ namespace banggame {
 
         void play_card(const play_card_args &args);
         void respond_card(const play_card_args &args);
+
+        void check_prompt(card *c, bool is_response, const std::vector<play_card_target> &targets, std::function<void()> &&fun);
+        void prompt_response(bool response);
 
         void draw_from_deck();
 

@@ -53,6 +53,36 @@ namespace banggame {
         }, *this);
     }
 
+    opt_fmt_str effect_holder::on_prompt(card *origin_card, player *origin) const {
+        return visit_effect([=](const auto &value) -> opt_fmt_str {
+            if constexpr (requires { value.on_prompt(origin_card, origin); }) {
+                return value.on_prompt(origin_card, origin);
+            } else {
+                return std::nullopt;
+            }
+        }, *this);
+    }
+
+    opt_fmt_str effect_holder::on_prompt(card *origin_card, player *origin, player *target) const {
+        return visit_effect([=](const auto &value) -> opt_fmt_str {
+            if constexpr (requires { value.on_prompt(origin_card, origin, target); }) {
+                return value.on_prompt(origin_card, origin, target);
+            } else {
+                return std::nullopt;
+            }
+        }, *this);
+    }
+
+    opt_fmt_str effect_holder::on_prompt(card *origin_card, player *origin, player *target, card *target_card) const {
+        return visit_effect([=](const auto &value) -> opt_fmt_str {
+            if constexpr (requires { value.on_prompt(origin_card, origin, target, target_card); }) {
+                return value.on_prompt(origin_card, origin, target, target_card);
+            } else {
+                return std::nullopt;
+            }
+        }, *this);
+    }
+
     bool effect_holder::can_respond(card *origin_card, player *target) const {
         return visit_effect([=](const auto &value) {
             if constexpr (requires { value.can_respond(origin_card, target); }) {

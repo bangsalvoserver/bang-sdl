@@ -40,6 +40,10 @@ void game_ui::refresh_layout() {
     m_golobby_btn.set_rect(sdl::rect{140, 20, 180, 25});
 
     m_chat_btn.set_rect(sdl::rect{win_rect.w - 120, win_rect.h - 40, 100, 25});
+
+    if (m_message_box) {
+        m_message_box->refresh_layout(win_rect);
+    }
 }
 
 void game_ui::render(sdl::renderer &renderer) {
@@ -69,6 +73,10 @@ void game_ui::render(sdl::renderer &renderer) {
     };
     
     draw_status(m_status_text);
+
+    if (m_message_box) {
+        m_message_box->render(renderer);
+    }
 }
 
 void game_ui::add_game_log(const std::string &message) {
