@@ -233,7 +233,6 @@ namespace banggame {
 
     void player::set_last_played_card(card *c) {
         m_last_played_card = c;
-        if (c == m_forced_card) m_forced_card = nullptr;
         m_game->add_private_update<game_update_type::last_played_card>(this, c ? c->id : 0);
         remove_player_flags(player_flags::start_of_turn);
     }
@@ -721,12 +720,12 @@ namespace banggame {
             m_mandatory_card = nullptr;
         }
         
-        bool was_forced_card = false;
         if (m_forced_card) {
             if (card_ptr != m_forced_card && std::ranges::find(modifiers, m_forced_card) == modifiers.end()) {
                 throw game_error("ERROR_INVALID_ACTION");
+            } else {
+                m_forced_card = nullptr;
             }
-            was_forced_card = true;
         }
 
         switch(card_ptr->pile) {
@@ -804,7 +803,7 @@ namespace banggame {
             check_prompt(card_ptr, false, args.targets, [=, this]{
                 play_modifiers(modifiers);
                 do_play_card(card_ptr, false, args.targets);
-                    set_last_played_card(nullptr);
+                set_last_played_card(nullptr);
             });
             break;
         case card_pile_type::hidden_deck:
@@ -827,7 +826,7 @@ namespace banggame {
                     break;
                 }
             }
-            if (was_forced_card) {
+            if (m_game->m_shop_selection.size() > 3) {
                 cost = 0;
             }
             if (m_gold < cost) throw game_error("ERROR_NOT_ENOUGH_GOLD");
@@ -885,12 +884,12 @@ namespace banggame {
 
         if (!can_respond_with(card_ptr)) throw game_error("ERROR_INVALID_ACTION");
         
-        bool was_forced_card = false;
         if (m_forced_card) {
             if (card_ptr != m_forced_card) {
                 throw game_error("ERROR_INVALID_ACTION");
+            } else {
+                m_forced_card = nullptr;
             }
-            was_forced_card = true;
         }
 
         switch (card_ptr->pile) {
