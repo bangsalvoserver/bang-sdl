@@ -277,9 +277,9 @@ namespace banggame {
         };
 
         std::array roles_3players {
-            player_role::deputy,
-            player_role::outlaw,
-            player_role::renegade
+            player_role::deputy_3p,
+            player_role::outlaw_3p,
+            player_role::renegade_3p
         };
 
         auto role_it = m_players.size() > 3 ? roles.begin() : roles_3players.begin();
@@ -292,7 +292,7 @@ namespace banggame {
         if (m_players.size() > 3) {
             m_first_player = &*std::ranges::find(m_players, player_role::sheriff, &player::m_role);
         } else {
-            m_first_player = &*std::ranges::find(m_players, player_role::deputy, &player::m_role);
+            m_first_player = &*std::ranges::find(m_players, player_role::deputy_3p, &player::m_role);
         }
 
         add_log("LOG_GAME_START");
@@ -661,11 +661,11 @@ namespace banggame {
                     return player_role::outlaw;
                 }
             } else if (killer) {
-                if (target->m_role == player_role::outlaw && killer->m_role == player_role::renegade) {
+                if (target->m_role == player_role::outlaw_3p && killer->m_role == player_role::renegade_3p) {
                     return player_role::renegade;
-                } else if (target->m_role == player_role::renegade && killer->m_role == player_role::deputy) {
+                } else if (target->m_role == player_role::renegade_3p && killer->m_role == player_role::deputy_3p) {
                     return player_role::deputy;
-                } else if (target->m_role == player_role::deputy && killer->m_role == player_role::outlaw) {
+                } else if (target->m_role == player_role::deputy_3p && killer->m_role == player_role::outlaw_3p) {
                     return player_role::outlaw;
                 }
             }

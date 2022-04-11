@@ -65,6 +65,9 @@ namespace banggame {
         (deputy)
         (outlaw)
         (renegade)
+        (deputy_3p)
+        (outlaw_3p)
+        (renegade_3p)
     )
 
     DEFINE_ENUM_FLAGS(target_player_filter,
