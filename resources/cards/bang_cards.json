@@ -390,11 +390,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "class": "heal"
-                },
-                {
-                    "target": "other_players",
-                    "class": "heal"
+                    "class": "saloon"
                 }
             ]
         },

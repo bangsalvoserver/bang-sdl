@@ -173,6 +173,7 @@ namespace banggame {
         (beer,                  effect_beer)
         (heal,                  effect_heal)
         (heal_notfull,          effect_heal_notfull)
+        (saloon,                effect_saloon)
         (indians,               effect_indians)
         (draw,                  effect_draw)
         (draw_discard,          effect_draw_discard)

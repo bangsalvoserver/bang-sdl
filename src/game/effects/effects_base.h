@@ -94,6 +94,11 @@ namespace banggame {
         void verify(card *origin_card, player *origin, player *target) const;
     };
 
+    struct effect_saloon {
+        std::optional<game_formatted_string> on_prompt(card *origin_card, player *origin) const;
+        void on_play(card *origin_card, player *origin);
+    };
+
     struct effect_deathsave {
         bool can_respond(card *origin_card, player *origin) const;
         void on_play(card *origin_card, player *origin);

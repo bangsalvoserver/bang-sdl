@@ -538,11 +538,13 @@ namespace banggame {
                     return effect_it->on_prompt(card_ptr, this, target);
                 },
                 [&](enums::enum_tag_t<play_card_target_type::other_players>) -> opt_fmt_str {
+                    opt_fmt_str msg = std::nullopt;
                     for (auto *p = this;;) {
                         p = m_game->get_next_player(p);
-                        if (p == this) return std::nullopt;
-                        if (auto msg = effect_it->on_prompt(card_ptr, this, p)) {
+                        if (p == this) {
                             return msg;
+                        } else if (!(msg = effect_it->on_prompt(card_ptr, this, p))) {
+                            return std::nullopt;
                         }
                     }
                 },
@@ -552,14 +554,15 @@ namespace banggame {
                     return effect_it->on_prompt(card_ptr, this, target, target_card);
                 },
                 [&](enums::enum_tag_t<play_card_target_type::cards_other_players>, const std::vector<int> &target_card_ids) -> opt_fmt_str {
+                    opt_fmt_str msg = std::nullopt;
                     for (int id : target_card_ids) {
                         card *target_card = m_game->find_card(id);
                         player *target = target_card->owner;
-                        if (auto msg = effect_it->on_prompt(card_ptr, this, target, target_card)) {
-                            return msg;
+                        if (!(msg = effect_it->on_prompt(card_ptr, this, target, target_card))) {
+                            return std::nullopt;
                         }
                     }
-                    return std::nullopt;
+                    return msg;
                 }
             }, t);
             if (prompt_message) {
@@ -705,9 +708,8 @@ namespace banggame {
     };
 
     void player::play_card(const play_card_args &args) {
-        if (m_prompt) return;
-
         [[maybe_unused]] confirmer _confirm{this};
+        m_prompt.reset();
         
         std::vector<card *> modifiers;
         for (int id : args.modifier_ids) {
@@ -876,9 +878,8 @@ namespace banggame {
     }
     
     void player::respond_card(const play_card_args &args) {
-        if (m_prompt) return;
-        
         [[maybe_unused]] confirmer _confirm{this};
+        m_prompt.reset();
         
         card *card_ptr = m_game->find_card(args.card_id);
 

@@ -153,6 +153,26 @@ namespace banggame {
         }
     }
 
+    std::optional<game_formatted_string> effect_saloon::on_prompt(card *origin_card, player *origin) const {
+        if (std::ranges::all_of(origin->m_game->m_players | std::views::filter([](const player &p) {
+            return p.alive() && p.m_hp != 0;
+        }), [](const player &p) {
+            return p.m_hp == p.m_max_hp;
+        })) {
+            return game_formatted_string{"PROMPT_CARD_NO_EFFECT", origin_card};
+        } else {
+            return std::nullopt;
+        }
+    }
+
+    void effect_saloon::on_play(card *origin_card, player *origin) {
+        for (auto *p = origin;;) {
+            p->heal(1);
+            p = p->m_game->get_next_player(p);
+            if (p == origin) break;
+        }
+    }
+
     std::optional<game_formatted_string> effect_beer::on_prompt(card *origin_card, player *origin, player *target) const {
         if ((target->m_game->m_players.size() > 2 && target->m_game->num_alive() == 2)
             || (target->m_hp == target->m_max_hp)) {
