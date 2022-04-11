@@ -72,7 +72,7 @@ namespace banggame {
     }
 
     void effect_el_gringo::on_equip(card *target_card, player *p) {
-        p->m_game->add_event<event_type::on_hit>({target_card, 3}, [=](card *origin_card, player *origin, player *target, int damage, bool is_bang) {
+        p->m_game->add_event<event_type::on_hit>({target_card, 2}, [=](card *origin_card, player *origin, player *target, int damage, bool is_bang) {
             if (origin && p == target && p->m_game->m_playing != p) {
                 target->m_game->queue_action([=]{
                     if (target->alive() && !origin->m_hand.empty()) {

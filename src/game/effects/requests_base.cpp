@@ -148,12 +148,12 @@ namespace banggame {
     }
     
     void request_discard::on_pick(card_pile_type pile, player *target_player, card *target_card) {
+        target->discard_card(target_card);
+        target->m_game->call_event<event_type::on_effect_end>(target, origin_card);
+        
         if (--ncards == 0) {
             target->m_game->pop_request<request_discard>();
         }
-
-        target->discard_card(target_card);
-        target->m_game->call_event<event_type::on_effect_end>(target, origin_card);
     }
 
     game_formatted_string request_discard::status_text(player *owner) const {
