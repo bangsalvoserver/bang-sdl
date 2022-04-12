@@ -707,9 +707,34 @@ namespace banggame {
         }
     };
 
+    void player::pick_card(const pick_card_args &args) {
+        [[maybe_unused]] confirmer _confirm{this};
+        m_prompt.reset();
+        
+        if (m_game->m_requests.empty()) {
+            throw game_error("ERROR_INVALID_ACTION");
+        }
+
+        auto &req = m_game->top_request();
+        if (req.target() != this) {
+            throw game_error("ERROR_INVALID_ACTION");
+        }
+
+        m_game->add_private_update<game_update_type::confirm_play>(this);
+        player *target_player = args.player_id ? m_game->find_player(args.player_id) : nullptr;
+        card *target_card = args.card_id ? m_game->find_card(args.card_id) : nullptr;
+        if (req.can_pick(args.pile, target_player, target_card)) {
+            req.on_pick(args.pile, target_player, target_card);
+        }
+    }
+
     void player::play_card(const play_card_args &args) {
         [[maybe_unused]] confirmer _confirm{this};
         m_prompt.reset();
+
+        if (!m_game->m_requests.empty() || m_game->m_playing != this) {
+            throw game_error("ERROR_INVALID_ACTION");
+        }
         
         std::vector<card *> modifiers;
         for (int id : args.modifier_ids) {
@@ -916,13 +941,15 @@ namespace banggame {
     }
 
     void player::prompt_response(bool response) {
-        if (m_prompt) {
-            m_game->add_private_update<game_update_type::confirm_play>(this);
-            if (response) {
-                std::invoke(*m_prompt);
-            }
-            m_prompt.reset();
+        if (!m_prompt) {
+            throw game_error("ERROR_INVALID_ACTION");
         }
+
+        m_game->add_private_update<game_update_type::confirm_play>(this);
+        if (response) {
+            std::invoke(*m_prompt);
+        }
+        m_prompt.reset();
     }
 
     void player::draw_from_deck() {

@@ -21,20 +21,6 @@ namespace banggame {
         }
     }
 
-    card *game::find_card(int card_id) {
-        if (auto it = m_cards.find(card_id); it != m_cards.end()) {
-            return &*it;
-        }
-        throw game_error("server.find_card: ID not found"_nonloc);
-    }
-
-    player *game::find_player(int player_id) {
-        if (auto it = m_players.find(player_id); it != m_players.end()) {
-            return &*it;
-        }
-        throw game_error("server.find_player: ID not found"_nonloc);
-    }
-
     player *game::find_disconnected_player() {
         auto dc_view = std::ranges::filter_view(m_players, [](const player &p) { return p.client_id == 0; });
         if (dc_view.empty()) return nullptr;
@@ -397,12 +383,6 @@ namespace banggame {
         });
     }
 
-    void game::tick() {
-        if (!m_requests.empty()) {
-            top_request().tick();
-        }
-    }
-
     request_status_args game::make_request_update(player *p) {
         const auto &req = top_request();
         request_status_args ret{
@@ -461,38 +441,6 @@ namespace banggame {
             for (auto &p : m_players) {
                 add_private_update<game_update_type::request_status>(&p, make_request_update(&p));
             }
-        }
-    }
-
-    void game::queue_request_front(std::shared_ptr<request_base> &&value) {
-        m_requests.emplace_front(std::move(value));
-        update_request();
-    }
-
-    void game::queue_request(std::shared_ptr<request_base> &&value) {
-        m_requests.emplace_back(std::move(value));
-        if (m_requests.size() == 1) {
-            update_request();
-        }
-    }
-
-    std::vector<card *> &game::get_pile(card_pile_type pile, player *owner) {
-        switch (pile) {
-        case card_pile_type::player_hand:       return owner->m_hand;
-        case card_pile_type::player_table:      return owner->m_table;
-        case card_pile_type::player_character:  return owner->m_characters;
-        case card_pile_type::player_backup:     return owner->m_backup_character;
-        case card_pile_type::main_deck:         return m_deck;
-        case card_pile_type::discard_pile:      return m_discards;
-        case card_pile_type::selection:         return m_selection;
-        case card_pile_type::shop_deck:         return m_shop_deck;
-        case card_pile_type::shop_selection:    return m_shop_selection;
-        case card_pile_type::shop_discard:      return m_shop_discards;
-        case card_pile_type::hidden_deck:       return m_hidden_deck;
-        case card_pile_type::scenario_deck:     return m_scenario_deck;
-        case card_pile_type::scenario_card:     return m_scenario_cards;
-        case card_pile_type::specials:          return m_specials;
-        default: throw std::runtime_error("Invalid Pile");
         }
     }
 
@@ -605,22 +553,6 @@ namespace banggame {
         }
     }
 
-    void game::queue_action(std::function<void()> &&fun) {
-        if (m_requests.empty() && m_delayed_actions.empty()) {
-            fun();
-        } else {
-            m_delayed_actions.push_back(std::move(fun));
-        }
-    }
-
-    player *game::get_next_player(player *p) {
-        auto it = m_players.find(p->id);
-        do {
-            if (++it == m_players.end()) it = m_players.begin();
-        } while(!it->alive());
-        return &*it;
-    }
-
     player *game::get_next_in_turn(player *p) {
         auto it = m_players.find(p->id);
         do {
@@ -634,16 +566,6 @@ namespace banggame {
         } while(!it->alive() && !has_scenario(scenario_flags::ghosttown)
             && !(has_scenario(scenario_flags::deadman) && &*it == m_first_dead));
         return &*it;
-    }
-
-    int game::calc_distance(player *from, player *to) {
-        if (from == to) return 0;
-        if (from->check_player_flags(player_flags::disable_player_distances)) return to->m_distance_mod;
-        if (from->check_player_flags(player_flags::see_everyone_range_1)) return 1;
-        int d1=0, d2=0;
-        for (player *counter = from; counter != to; counter = get_next_player(counter), ++d1);
-        for (player *counter = to; counter != from; counter = get_next_player(counter), ++d2);
-        return std::min(d1, d2) + to->m_distance_mod;
     }
 
     void game::check_game_over(player *killer, player *target) {
@@ -791,29 +713,4 @@ namespace banggame {
         return false;
     }
 
-    void game::handle_action(ACTION_TAG(pick_card), player *p, const pick_card_args &args) {
-        if (m_requests.empty()) return;
-        if (auto &req = top_request(); req.target() == p) {
-            add_private_update<game_update_type::confirm_play>(p);
-            player *target_player = args.player_id ? find_player(args.player_id) : nullptr;
-            card *target_card = args.card_id ? find_card(args.card_id) : nullptr;
-            if (req.can_pick(args.pile, target_player, target_card)) {
-                req.on_pick(args.pile, target_player, target_card);
-            }
-        }
-    }
-
-    void game::handle_action(ACTION_TAG(play_card), player *p, const play_card_args &args) {
-        if (m_requests.empty() && m_playing == p) {
-            p->play_card(args);
-        }
-    }
-
-    void game::handle_action(ACTION_TAG(respond_card), player *p, const play_card_args &args) {
-        p->respond_card(args);
-    }
-
-    void game::handle_action(ACTION_TAG(prompt_respond), player *p, bool response) {
-        p->prompt_response(response);
-    }
 }

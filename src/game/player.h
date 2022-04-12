@@ -149,6 +149,7 @@ namespace banggame {
         void log_played_card(card *c, bool is_response);
         void do_play_card(card *c, bool is_response, const std::vector<play_card_target> &targets);
 
+        void pick_card(const pick_card_args &args);
         void play_card(const play_card_args &args);
         void respond_card(const play_card_args &args);
 
