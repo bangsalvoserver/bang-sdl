@@ -30,7 +30,11 @@ namespace banggame {
         }
         
         void update_request() {
-            static_cast<Derived &>(*this).update_request();
+            static_cast<Derived &>(*this).send_request_update();
+            while (m_requests.empty() && !m_delayed_actions.empty()) {
+                std::invoke(m_delayed_actions.front());
+                m_delayed_actions.pop_front();
+            }
         }
 
         void queue_request_front(std::shared_ptr<request_base> &&value) {

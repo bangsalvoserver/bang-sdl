@@ -429,13 +429,9 @@ namespace banggame {
         return ret;
     }
 
-    void game::update_request() {
+    void game::send_request_update() {
         if (m_requests.empty()) {
             add_public_update<game_update_type::status_clear>();
-            while (m_requests.empty() && !m_delayed_actions.empty()) {
-                std::invoke(m_delayed_actions.front());
-                m_delayed_actions.pop_front();
-            }
         } else {
             add_public_update<game_update_type::request_status>(make_request_update(nullptr));
             for (auto &p : m_players) {

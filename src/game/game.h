@@ -81,7 +81,7 @@ namespace banggame {
         }
 
         request_status_args make_request_update(player *p);
-        void update_request();
+        void send_request_update();
 
         std::vector<card *>::iterator move_to(card *c, card_pile_type pile, bool known = true, player *owner = nullptr, show_card_flags flags = {});
         card *draw_card_to(card_pile_type pile, player *owner = nullptr, show_card_flags flags = {});
