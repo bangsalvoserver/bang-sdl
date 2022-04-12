@@ -25,10 +25,10 @@ namespace banggame {
     void effect_black_jack::on_equip(card *target_card, player *target) {
         target->m_game->add_event<event_type::on_card_drawn>(target_card, [target](player *origin, card *drawn_card) {
             if (origin == target && origin->m_num_drawn_cards == 2) {
-                card_suit_type suit = target->get_card_sign(drawn_card).suit;
+                card_suit suit = target->get_card_sign(drawn_card).suit;
                 target->m_game->send_card_update(*drawn_card, nullptr, show_card_flags::short_pause);
                 target->m_game->send_card_update(*drawn_card, target);
-                if (suit == card_suit_type::hearts || suit == card_suit_type::diamonds) {
+                if (suit == card_suit::hearts || suit == card_suit::diamonds) {
                     origin->m_game->queue_action([=]{
                         ++origin->m_num_drawn_cards;
                         card *drawn_card = origin->m_game->draw_phase_one_card_to(card_pile_type::player_hand, origin);

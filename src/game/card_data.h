@@ -10,11 +10,11 @@
 namespace banggame {
 
     struct card_sign {REFLECTABLE(
-        (card_suit_type) suit,
-        (card_value_type) value
+        (card_suit) suit,
+        (card_rank) rank
     )
         explicit operator bool () const {
-            return suit != card_suit_type::none && value != card_value_type::none;
+            return suit != card_suit::none && rank != card_rank::none;
         }
     };
 

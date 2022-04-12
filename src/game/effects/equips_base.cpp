@@ -41,7 +41,7 @@ namespace banggame {
     void effect_jail::on_equip(card *target_card, player *target) {
         target->add_predraw_check(target_card, 1, [=](card *drawn_card) {
             target->discard_card(target_card);
-            if (target->get_card_sign(drawn_card).suit == card_suit_type::hearts) {
+            if (target->get_card_sign(drawn_card).suit == card_suit::hearts) {
                 target->next_predraw_check(target_card);
             } else {
                 target->skip_turn();
@@ -52,9 +52,9 @@ namespace banggame {
     void effect_dynamite::on_equip(card *target_card, player *target) {
         target->add_predraw_check(target_card, 2, [=](card *drawn_card) {
             card_sign sign = target->get_card_sign(drawn_card);
-            if (sign.suit == card_suit_type::spades
-                && enums::indexof(sign.value) >= enums::indexof(card_value_type::value_2)
-                && enums::indexof(sign.value) <= enums::indexof(card_value_type::value_9)) {
+            if (sign.suit == card_suit::spades
+                && enums::indexof(sign.rank) >= enums::indexof(card_rank::rank_2)
+                && enums::indexof(sign.rank) <= enums::indexof(card_rank::rank_9)) {
                 target->discard_card(target_card);
                 target->damage(target_card, nullptr, 3);
             } else {

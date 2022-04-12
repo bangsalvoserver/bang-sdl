@@ -352,7 +352,7 @@ namespace banggame {
                 }
                 break;
             case target_card_filter::clubs:
-                if (get_card_sign(target_card).suit != card_suit_type::clubs) {
+                if (get_card_sign(target_card).suit != card_suit::clubs) {
                     throw game_error("ERROR_TARGET_NOT_CLUBS");
                 }
                 break;

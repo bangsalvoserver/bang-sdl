@@ -26,7 +26,7 @@ namespace banggame {
 
     void effect_calumet::on_equip(card *target_card, player *target) {
         target->m_game->add_event<event_type::apply_immunity_modifier>(target_card, [=](card *origin_card, player *p, bool &value) {
-            value = value || (p == target && p->get_card_sign(origin_card).suit == card_suit_type::diamonds);
+            value = value || (p == target && p->get_card_sign(origin_card).suit == card_suit::diamonds);
         });
     }
 

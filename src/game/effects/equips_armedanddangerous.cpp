@@ -7,8 +7,8 @@ namespace banggame {
 
     void effect_bomb::on_equip(card *target_card, player *target) {
         target->add_predraw_check(target_card, 0, [=](card *drawn_card) {
-            card_suit_type suit = target->get_card_sign(drawn_card).suit;
-            if (suit == card_suit_type::spades || suit == card_suit_type::clubs) {
+            card_suit suit = target->get_card_sign(drawn_card).suit;
+            if (suit == card_suit::spades || suit == card_suit::clubs) {
                 target->pay_cubes(target_card, 2);
             } else {
                 target->m_game->queue_request_front<request_move_bomb>(target_card, target);

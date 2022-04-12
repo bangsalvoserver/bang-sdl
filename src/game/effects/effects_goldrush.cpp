@@ -43,7 +43,7 @@ namespace banggame {
     }
 
     void effect_rum::on_play(card *origin_card, player *origin) {
-        std::vector<card_suit_type> suits;
+        std::vector<card_suit> suits;
         for (int i=0; i < 3 + origin->m_num_checks; ++i) {
             suits.push_back(origin->get_card_sign(origin->m_game->draw_card_to(card_pile_type::selection)).suit);
         }

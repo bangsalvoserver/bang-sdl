@@ -31,8 +31,8 @@ namespace banggame {
                 target->m_game->queue_action([=]{
                     if (target->alive()) {
                         target->m_game->draw_check_then(target, target_card, [=](card *drawn_card) {
-                            card_suit_type suit = target->get_card_sign(drawn_card).suit;
-                            if (suit == card_suit_type::hearts || suit == card_suit_type::diamonds) {
+                            card_suit suit = target->get_card_sign(drawn_card).suit;
+                            if (suit == card_suit::hearts || suit == card_suit::diamonds) {
                                 target->m_game->queue_request<request_bang>(target_card, target, origin);
                             }
                         });
@@ -77,11 +77,11 @@ namespace banggame {
         origin_card = origin->chosen_card_or(origin_card);
         if (!bool(flags & effect_flags::single_target)) return false;
         if (origin_card->color != card_color_type::brown) return false;
-        switch (origin->get_card_sign(origin_card).value) {
-        case card_value_type::value_J:
-        case card_value_type::value_Q:
-        case card_value_type::value_K:
-        case card_value_type::value_A:
+        switch (origin->get_card_sign(origin_card).rank) {
+        case card_rank::rank_J:
+        case card_rank::rank_Q:
+        case card_rank::rank_K:
+        case card_rank::rank_A:
             return true;
         default:
             return false;

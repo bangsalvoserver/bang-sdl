@@ -8,7 +8,7 @@ namespace banggame {
 
     void effect_snake::on_equip(card *target_card, player *target) {
         target->add_predraw_check(target_card, 0, [=](card *drawn_card) {
-            if (target->get_card_sign(drawn_card).suit == card_suit_type::spades) {
+            if (target->get_card_sign(drawn_card).suit == card_suit::spades) {
                 target->damage(target_card, nullptr, 1);
             }
             target->next_predraw_check(target_card);

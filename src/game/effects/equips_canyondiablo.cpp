@@ -25,7 +25,7 @@ namespace banggame {
     void effect_taxman::on_equip(card *target_card, player *target) {
         target->add_predraw_check(target_card, -1, [=](card *drawn_card) {
             auto suit = target->get_card_sign(drawn_card).suit;
-            if (suit == card_suit_type::clubs || suit == card_suit_type::spades) {
+            if (suit == card_suit::clubs || suit == card_suit::spades) {
                 --target->m_num_cards_to_draw;
                 target->m_game->add_event<event_type::post_draw_cards>(target_card, [=](player *origin) {
                     if (origin == target) {
@@ -42,7 +42,7 @@ namespace banggame {
         target->add_predraw_check(target_card, -2, [=](card *drawn_card) {
             target->discard_card(target_card);
             auto suit = target->get_card_sign(drawn_card).suit;
-            if (suit == card_suit_type::clubs || suit == card_suit_type::spades) {
+            if (suit == card_suit::clubs || suit == card_suit::spades) {
                 event_card_key event_key{target_card, 1 + effect_holder_counter++ % 20};
                 target->m_game->add_disabler(event_key, [=](card *c) {
                     return c->pile == card_pile_type::player_character && c->owner == target;

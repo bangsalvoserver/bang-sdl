@@ -124,19 +124,19 @@ namespace banggame {
             for (const auto &json_sign : json_card["signs"]) {
                 std::string str = json_sign.asString();
                 
-                static constexpr auto suit_letters = []<card_suit_type ... Es>(enums::enum_sequence<Es...>) {
+                static constexpr auto suit_letters = []<card_suit ... Es>(enums::enum_sequence<Es...>) {
                     return std::array{ enums::enum_data_v<Es>.letter ... };
-                }(enums::make_enum_sequence<card_suit_type>());
-                c.sign.suit = enums::index_to<card_suit_type>(std::ranges::find_if(suit_letters, [&](std::string_view letter) {
+                }(enums::make_enum_sequence<card_suit>());
+                c.sign.suit = enums::index_to<card_suit>(std::ranges::find_if(suit_letters, [&](std::string_view letter) {
                     return str.ends_with(letter);
                 }) - suit_letters.begin());
 
-                static constexpr auto value_letters = []<card_value_type ... Es>(enums::enum_sequence<Es...>) {
+                static constexpr auto rank_letters = []<card_rank ... Es>(enums::enum_sequence<Es...>) {
                     return std::array { enums::enum_data_v<Es> ... };
-                }(enums::make_enum_sequence<card_value_type>());
-                c.sign.value = enums::index_to<card_value_type>(std::ranges::find_if(value_letters, [&](std::string_view letter) {
+                }(enums::make_enum_sequence<card_rank>());
+                c.sign.rank = enums::index_to<card_rank>(std::ranges::find_if(rank_letters, [&](std::string_view letter) {
                     return str.starts_with(letter);
-                }) - value_letters.begin());
+                }) - rank_letters.begin());
                 
                 deck.push_back(c);
             }

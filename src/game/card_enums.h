@@ -10,7 +10,7 @@ namespace banggame {
         std::string_view symbol;
     };
 
-    DEFINE_ENUM_DATA(card_suit_type,
+    DEFINE_ENUM_DATA(card_suit,
         (none,      card_suit_symbol{"-", "-"})
         (hearts,    card_suit_symbol{"C", "\u2665"})
         (diamonds,  card_suit_symbol{"Q", "\u2666"})
@@ -18,21 +18,21 @@ namespace banggame {
         (spades,    card_suit_symbol{"P", "\u2660"})
     )
 
-    DEFINE_ENUM_DATA(card_value_type,
+    DEFINE_ENUM_DATA(card_rank,
         (none,      "-")
-        (value_A,   "A")
-        (value_2,   "2")
-        (value_3,   "3")
-        (value_4,   "4")
-        (value_5,   "5")
-        (value_6,   "6")
-        (value_7,   "7")
-        (value_8,   "8")
-        (value_9,   "9")
-        (value_10,  "10")
-        (value_J,   "J")
-        (value_Q,   "Q")
-        (value_K,   "K")
+        (rank_A,    "A")
+        (rank_2,    "2")
+        (rank_3,    "3")
+        (rank_4,    "4")
+        (rank_5,    "5")
+        (rank_6,    "6")
+        (rank_7,    "7")
+        (rank_8,    "8")
+        (rank_9,    "9")
+        (rank_10,   "10")
+        (rank_J,    "J")
+        (rank_Q,    "Q")
+        (rank_K,    "K")
     )
     
     DEFINE_ENUM_FLAGS(card_expansion_type,

@@ -7,13 +7,13 @@ namespace banggame {
 
     void effect_blessing::on_equip(card *target_card, player *target) {
         target->m_game->add_event<event_type::apply_sign_modifier>(target_card, [](player *, card_sign &value) {
-            value.suit = card_suit_type::hearts;
+            value.suit = card_suit::hearts;
         });
     }
 
     void effect_curse::on_equip(card *target_card, player *target) {
         target->m_game->add_event<event_type::apply_sign_modifier>(target_card, [](player *, card_sign &value) {
-            value.suit = card_suit_type::spades;
+            value.suit = card_suit::spades;
         });
     }
 
@@ -164,7 +164,7 @@ namespace banggame {
 
     void request_handcuffs::on_pick(card_pile_type pile, player *target_player, card *target_card) {
         target->m_game->add_disabler(origin_card, 
-            [target=target, declared_suit = static_cast<card_suit_type>(target_card->responses.front().effect_value)]
+            [target=target, declared_suit = static_cast<card_suit>(target_card->responses.front().effect_value)]
             (card *c) {
                 return c->owner == target && c->sign && c->sign.suit != declared_suit;
             });

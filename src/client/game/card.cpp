@@ -34,17 +34,17 @@ namespace banggame {
         , backface_role         (apply_card_mask(get_card_resource("back_role")))
         , backface_goldrush     (apply_card_mask(get_card_resource("back_goldrush")))
 
-        , value_icons([&]<card_value_type ... Es>(enums::enum_sequence<Es ...>) {
+        , rank_icons([&]<card_rank ... Es>(enums::enum_sequence<Es ...>) {
             return std::array {
                 get_card_resource(enums::to_string(Es)) ...
             };
-        }(skip_none<card_value_type>()))
+        }(skip_none<card_rank>()))
 
-        , suit_icons([&]<card_suit_type ... Es>(enums::enum_sequence<Es ...>) {
+        , suit_icons([&]<card_suit ... Es>(enums::enum_sequence<Es ...>) {
             return std::array {
                 get_card_resource(fmt::format("suit_{}", enums::to_string(Es))) ...
             };
-        }(skip_none<card_suit_type>()))
+        }(skip_none<card_suit>()))
     {
         s_instance = this;
     }
@@ -84,22 +84,22 @@ namespace banggame {
             if (sign) {
                 sdl::rect card_rect = card_base_surf.get_rect();
 
-                const auto &card_value_surf = card_textures::get().value_icons[enums::indexof(sign.value) - 1];
-                sdl::rect value_rect = card_value_surf.get_rect();
+                const auto &card_rank_surf = card_textures::get().rank_icons[enums::indexof(sign.rank) - 1];
+                sdl::rect rank_rect = card_rank_surf.get_rect();
 
-                value_rect.w *= scale;
-                value_rect.h *= scale;
-                value_rect.x = options.card_suit_offset;
-                value_rect.y = card_rect.h - value_rect.h - options.card_suit_offset;
+                rank_rect.w *= scale;
+                rank_rect.h *= scale;
+                rank_rect.x = options.card_suit_offset;
+                rank_rect.y = card_rect.h - rank_rect.h - options.card_suit_offset;
                     
-                SDL_BlitScaled(card_value_surf.get(), nullptr, card_base_surf.get(), &value_rect);
+                SDL_BlitScaled(card_rank_surf.get(), nullptr, card_base_surf.get(), &rank_rect);
                 
                 const auto &card_suit_surf = card_textures::get().suit_icons[enums::indexof(sign.suit) - 1];
                 sdl::rect suit_rect = card_suit_surf.get_rect();
 
                 suit_rect.w *= scale;
                 suit_rect.h *= scale;
-                suit_rect.x = value_rect.x + value_rect.w;
+                suit_rect.x = rank_rect.x + rank_rect.w;
                 suit_rect.y = card_rect.h - suit_rect.h - options.card_suit_offset;
 
                 SDL_BlitScaled(card_suit_surf.get(), nullptr, card_base_surf.get(), &suit_rect);
