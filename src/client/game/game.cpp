@@ -749,7 +749,7 @@ void game_scene::move_player_views() {
     }
 
     if (auto it = std::ranges::find(m_players,
-        m_players.size() < 4 ? player_role::deputy : player_role::sheriff,
+        m_players.size() < 4 ? player_role::deputy_3p : player_role::sheriff,
         [](const player_view &p) { return p.m_role->role; }); it != m_players.end())
     {
         auto player_rect = it->m_bounding_rect;
