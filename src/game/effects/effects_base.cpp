@@ -203,6 +203,41 @@ namespace banggame {
         }
     }
 
+    std::optional<game_formatted_string> effect_steal::on_prompt(card *origin_card, player *origin, player *target, card *target_card) const {
+        if (origin == target && target_card->pocket == pocket_type::player_hand) {
+            return game_formatted_string{"PROMPT_STEAL_OWN_HAND", origin_card};
+        }
+        return std::nullopt;
+    }
+
+    void effect_steal::on_play(card *origin_card, player *origin, player *target, card *target_card, effect_flags flags) {
+        if (origin != target && target->can_escape(origin, origin_card, flags)) {
+            target->m_game->queue_request<request_steal>(origin_card, origin, target, target_card, flags);
+        } else {
+            on_resolve(origin_card, origin, target, target_card);
+        }
+    }
+
+    void effect_steal::on_resolve(card *origin_card, player *origin, player *target, card *target_card) {
+        auto fun = [=]{
+            if (origin->alive()) {
+                if (origin != target) {
+                    target->m_game->add_log("LOG_STOLEN_CARD", origin, target, with_owner{target_card});
+                } else {
+                    target->m_game->add_log("LOG_STOLEN_SELF_CARD", origin, target_card);
+                }
+                origin->steal_card(target, target_card);
+            }
+        };
+        if (target->m_game->num_queued_requests([&]{
+            target->m_game->call_event<event_type::on_discard_card>(origin, target, target_card);
+        })) {
+            target->m_game->queue_action(std::move(fun));
+        } else {
+            fun();
+        }
+    }
+
     void effect_destroy::on_play(card *origin_card, player *origin, player *target, card *target_card, effect_flags flags) {
         if (origin != target && target->can_escape(origin, origin_card, flags)) {
             target->m_game->queue_request<request_destroy>(origin_card, origin, target, target_card, flags);
@@ -245,34 +280,6 @@ namespace banggame {
                     origin->m_game->remove_events(origin_card);
                 }
             });
-        }
-    }
-
-    void effect_steal::on_play(card *origin_card, player *origin, player *target, card *target_card, effect_flags flags) {
-        if (origin != target && target->can_escape(origin, origin_card, flags)) {
-            target->m_game->queue_request<request_steal>(origin_card, origin, target, target_card, flags);
-        } else {
-            on_resolve(origin_card, origin, target, target_card);
-        }
-    }
-
-    void effect_steal::on_resolve(card *origin_card, player *origin, player *target, card *target_card) {
-        auto fun = [=]{
-            if (origin->alive()) {
-                if (origin != target) {
-                    target->m_game->add_log("LOG_STOLEN_CARD", origin, target, with_owner{target_card});
-                } else {
-                    target->m_game->add_log("LOG_STOLEN_SELF_CARD", origin, target_card);
-                }
-                origin->steal_card(target, target_card);
-            }
-        };
-        if (target->m_game->num_queued_requests([&]{
-            target->m_game->call_event<event_type::on_discard_card>(origin, target, target_card);
-        })) {
-            target->m_game->queue_action(std::move(fun));
-        } else {
-            fun();
         }
     }
 

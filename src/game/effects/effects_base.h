@@ -104,6 +104,12 @@ namespace banggame {
         void on_play(card *origin_card, player *origin);
     };
 
+    struct effect_steal {
+        std::optional<game_formatted_string> on_prompt(card *origin_card, player *origin, player *target, card *target_card) const;
+        void on_play(card *origin_card, player *origin, player *target, card *target_card, effect_flags flags = {});
+        void on_resolve(card *origin_card, player *origin, player *target, card *target_card);
+    };
+
     struct effect_destroy {
         void on_play(card *origin_card, player *origin, player *target, card *target_card, effect_flags flags = {});
         void on_resolve(card *origin_card, player *origin, player *target, card *target_card);
@@ -145,11 +151,6 @@ namespace banggame {
 
     struct effect_draw_one_less {
         void on_play(card *origin_card, player *target);
-    };
-
-    struct effect_steal {
-        void on_play(card *origin_card, player *origin, player *target, card *target_card, effect_flags flags = {});
-        void on_resolve(card *origin_card, player *origin, player *target, card *target_card);
     };
 
     struct effect_generalstore {

@@ -45,6 +45,7 @@ LOCALE_VALUE(USERNAME_DISCONNECTED,               "(Disconnected)")
 LOCALE_VALUE(PROMPT_CARD_NO_EFFECT,               "Playing {} would have no effect. Continue?")
 LOCALE_VALUE(PROMPT_PASS_DISCARD,                 "You must discard 1 card. Continue?")
 LOCALE_VALUE(PROMPT_PASS_DISCARD_PLURAL,          "You must discard {} cards. Continue?")
+LOCALE_VALUE(PROMPT_STEAL_OWN_HAND,               "You're playing {} on your own hand. Continue?")
 
 LOCALE_VALUE(STATUS_GAME_OVER,                    "Game Over")
 LOCALE_VALUE(STATUS_YOUR_TURN,                    "Your turn ... Draw from the deck")
@@ -131,7 +132,6 @@ LOCALE_VALUE(STATUS_CARD_SHARPER,                 "{0} to switch {1} with {2} ..
 LOCALE_VALUE(STATUS_CARD_SHARPER_OTHER,           "{0} must respond to {1} to switch {2} with {3}")
 LOCALE_VALUE(STATUS_NEWIDENTITY,                  "{0} ... Choose which character to switch to")
 LOCALE_VALUE(STATUS_NEWIDENTITY_OTHER,            "{1} ... {0} must choose which character to switch to")
-LOCALE_VALUE(ERROR_MANDATORY_CARD,                "Playing {} is mandatory")
 
 LOCALE_VALUE(ERROR_INVALID_LOBBY,                 "Invalid Lobby ID")
 LOCALE_VALUE(ERROR_PLAYER_IN_LOBBY,               "Player already in a lobby")
@@ -183,6 +183,7 @@ LOCALE_VALUE(ERROR_CANT_HEAL_PAST_FULL_HP,        "You can't heal yourself past 
 LOCALE_VALUE(ERROR_NOT_START_OF_TURN,             "It's not the start of your turn")
 LOCALE_VALUE(ERROR_DISCARD_PILE_EMPTY,            "The discard pile is empty")
 LOCALE_VALUE(ERROR_MAX_USAGES,                    "You can't play {0} more than {1} times per turn")
+LOCALE_VALUE(ERROR_MANDATORY_CARD,                "Playing {} is mandatory")
 
 LOCALE_VALUE(LOG_GAME_START,                      "Game started")
 LOCALE_VALUE(LOG_GAME_OVER,                       "Game over")

@@ -45,6 +45,7 @@ LOCALE_VALUE(USERNAME_DISCONNECTED,               "(Disconnesso)")
 LOCALE_VALUE(PROMPT_CARD_NO_EFFECT,               "Giocare {} non avrebbe effetto. Continuare?")
 LOCALE_VALUE(PROMPT_PASS_DISCARD,                 "Devi scartare 1 carta. Continuare?")
 LOCALE_VALUE(PROMPT_PASS_DISCARD_PLURAL,          "Devi scartare {} carte. Continuare?")
+LOCALE_VALUE(PROMPT_STEAL_OWN_HAND,               "Stai giocando {} sulla tua mano. Continuare?")
 
 LOCALE_VALUE(STATUS_GAME_OVER,                    "Partita Finita")
 LOCALE_VALUE(STATUS_YOUR_TURN,                    "Tocca a te ... Pesca dal mazzo")
