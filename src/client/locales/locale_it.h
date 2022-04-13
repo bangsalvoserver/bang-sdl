@@ -48,6 +48,7 @@ LOCALE_VALUE(PROMPT_PASS_DISCARD_PLURAL,          "Devi scartare {} carte. Conti
 LOCALE_VALUE(PROMPT_STEAL_OWN_HAND,               "Stai giocando {} sulla tua mano. Continuare?")
 LOCALE_VALUE(PROMPT_MOVE_BOMB_TO_SELF,            "Stai lasciando {} su te stesso. Continuare?")
 LOCALE_VALUE(PROMPT_REPLACE,                      "Vuoi giocare {0} per rimpiazzare {1}?")
+LOCALE_VALUE(PROMPT_EQUIP_ON_SELF,                "Vuoi giocare {0} su te stesso?")
 
 LOCALE_VALUE(STATUS_GAME_OVER,                    "Partita Finita")
 LOCALE_VALUE(STATUS_YOUR_TURN,                    "Tocca a te ... Pesca dal mazzo")

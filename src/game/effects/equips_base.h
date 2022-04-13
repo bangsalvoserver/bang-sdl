@@ -23,6 +23,7 @@ namespace banggame {
     };
 
     struct effect_jail : predraw_check_effect {
+        opt_fmt_str on_prompt(card *target_card, player *target) const;
         void on_equip(card *target_card, player *target);
     };
 
