@@ -127,10 +127,18 @@ namespace banggame {
         }
     };
 
+    template<typename T, typename U> struct same_function_args {};
+
+    template<typename Function, typename RetType, typename ... Ts>
+    struct same_function_args<Function, std::function<RetType(Ts...)>> : std::is_invocable_r<RetType, Function, Ts...> {};
+
+    template<typename T, event_type E>
+    concept invocable_for_event = same_function_args<T, enums::enum_type_t<E>>::value;
+
     struct event_handler_map {
         card_multimap<event_function> m_event_handlers;
 
-        template<event_type E, typename Function>
+        template<event_type E, invocable_for_event<E> Function>
         void add_event(event_card_key key, Function &&fun) {
             m_event_handlers.add(key, enums::enum_tag<E>, std::forward<Function>(fun));
         }

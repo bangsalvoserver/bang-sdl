@@ -75,10 +75,10 @@ namespace banggame {
             return false;
         }
 
-        template<typename Function>
+        template<std::invocable Function>
         int num_queued_requests(Function &&fun) {
             int nreqs = m_requests.size();
-            fun();
+            std::invoke(std::forward<Function>(fun));
             return m_requests.size() - nreqs;
         }
 
@@ -88,7 +88,7 @@ namespace banggame {
             }
         }
 
-        template<typename Function>
+        template<std::invocable Function>
         void queue_action(Function &&fun) {
             if (m_requests.empty() && m_delayed_actions.empty()) {
                 std::invoke(std::forward<Function>(fun));
