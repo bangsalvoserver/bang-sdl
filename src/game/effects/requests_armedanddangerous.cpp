@@ -72,9 +72,9 @@ namespace banggame {
 
     game_formatted_string timer_tumbleweed::status_text(player *owner) const {
         if (target == owner) {
-            return {"STATUS_CAN_PLAY_TUMBLEWEED", target->m_game->m_current_check->origin, origin_card, target_card, drawn_card};
+            return {"STATUS_CAN_PLAY_TUMBLEWEED", origin, origin_card, target_card, drawn_card};
         } else {
-            return {"STATUS_CAN_PLAY_TUMBLEWEED_OTHER", target->m_game->m_current_check->origin, origin_card, target_card, drawn_card, target};
+            return {"STATUS_CAN_PLAY_TUMBLEWEED_OTHER", origin, origin_card, target_card, drawn_card, target};
         }
     }
 

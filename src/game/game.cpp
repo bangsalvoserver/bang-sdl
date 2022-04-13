@@ -418,27 +418,8 @@ namespace banggame {
     }
     
     void game::draw_check_then(player *origin, card *origin_card, draw_check_function fun) {
-        m_current_check.emplace(std::move(fun), origin, origin_card);
-        do_draw_check();
-    }
-
-    void game::do_draw_check() {
-        if (m_current_check->origin->m_num_checks == 1) {
-            auto *c = draw_card_to(pocket_type::discard_pile);
-            add_log("LOG_CHECK_DREW_CARD", m_current_check->origin_card, m_current_check->origin, c);
-            call_event<event_type::on_draw_check>(m_current_check->origin, c);
-            if (!num_queued_requests([&]{
-                call_event<event_type::on_draw_check_select>(m_current_check->origin_card, c);
-            })) {
-                m_current_check->function(c);
-                m_current_check.reset();
-            }
-        } else {
-            for (int i=0; i<m_current_check->origin->m_num_checks; ++i) {
-                draw_card_to(pocket_type::selection);
-            }
-            queue_request_front<request_check>(m_current_check->origin_card, m_current_check->origin);
-        }
+        m_current_check.set(origin, origin_card, std::move(fun));
+        m_current_check.start();
     }
 
     void game::check_game_over(player *killer, player *target) {

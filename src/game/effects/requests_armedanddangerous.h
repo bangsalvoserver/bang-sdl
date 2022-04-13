@@ -37,8 +37,8 @@ namespace banggame {
     };
 
     struct timer_tumbleweed : timer_request {
-        timer_tumbleweed(card *origin_card, player *target, card *drawn_card, card *drawing_card)
-            : timer_request(origin_card, nullptr, target)
+        timer_tumbleweed(card *origin_card, player *origin, player *target, card *drawn_card, card *drawing_card)
+            : timer_request(origin_card, origin, target)
             , target_card(drawing_card)
             , drawn_card(drawn_card) {}
         

@@ -202,9 +202,9 @@ namespace banggame {
         }
     }
 
-    void effect_tumbleweed::on_equip(card *target_card, player *origin) {
-        origin->m_game->add_event<event_type::on_draw_check_select>(target_card, [=](card *origin_card, card *drawn_card) {
-            origin->m_game->queue_request_front<timer_tumbleweed>(target_card, origin, drawn_card, origin_card);
+    void effect_tumbleweed::on_equip(card *target_card, player *target) {
+        target->m_game->add_event<event_type::on_draw_check_select>(target_card, [=](player *origin, card *origin_card, card *drawn_card) {
+            target->m_game->queue_request_front<timer_tumbleweed>(target_card, origin, target, drawn_card, origin_card);
         });
     }
 
@@ -214,14 +214,13 @@ namespace banggame {
 
     void effect_tumbleweed::on_play(card *origin_card, player *origin) {
         origin->m_game->pop_request_noupdate<timer_tumbleweed>();
-        origin->m_game->do_draw_check();
+        origin->m_game->m_current_check.restart();
         origin->m_game->update_request();
     }
 
     void timer_tumbleweed::on_finished() {
         target->m_game->pop_request_noupdate<timer_tumbleweed>();
-        target->m_game->m_current_check->function(drawn_card);
-        target->m_game->m_current_check.reset();
+        origin->m_game->m_current_check.resolve(drawn_card);
         target->m_game->update_request();
     }
 

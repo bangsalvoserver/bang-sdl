@@ -41,19 +41,17 @@ namespace banggame {
     }
 
     void effect_john_pain::on_equip(card *target_card, player *p) {
-        p->m_game->add_event<event_type::on_draw_check>(target_card, [p](player *origin, card *drawn_card) {
-            p->m_game->queue_action([player_begin = origin, player_end = p, drawn_card] {
-                if (player_end->alive() && player_end->m_hand.size() < 6) {
-                    for (player *it = player_begin; it != player_end; it = it->m_game->get_next_player(it)) {
-                        if (std::ranges::any_of(it->m_characters, [](const card *c) {
-                            return !c->equips.empty() && c->equips.front().is(equip_type::john_pain);
-                        })) {
-                            return;
-                        }
+        p->m_game->add_event<event_type::on_draw_check>(target_card, [player_end = p](player *player_begin, card *drawn_card) {
+            if (player_end->alive() && player_end->m_hand.size() < 6) {
+                for (player *it = player_begin; it != player_end; it = it->m_game->get_next_player(it)) {
+                    if (std::ranges::any_of(it->m_characters, [](const card *c) {
+                        return !c->equips.empty() && c->equips.front().is(equip_type::john_pain);
+                    })) {
+                        return;
                     }
-                    player_end->m_game->move_to(drawn_card, pocket_type::player_hand, true, player_end, show_card_flags::short_pause);
                 }
-            });
+                player_end->m_game->move_to(drawn_card, pocket_type::player_hand, true, player_end, show_card_flags::short_pause);
+            }
         });
     }
 
