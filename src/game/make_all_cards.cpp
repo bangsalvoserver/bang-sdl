@@ -81,7 +81,7 @@ namespace banggame {
                 out.modifier = string_to_enum_or_throw<card_modifier_type>(json_card["modifier"].asString());
             }
             if (json_card.isMember("multitarget")) {
-                out.multi_target_handler = string_to_enum_or_throw<mth_type>(json_card["multitarget"].asString());
+                out.multi_target_handler.type = string_to_enum_or_throw<mth_type>(json_card["multitarget"].asString());
             }
         } catch (const invalid_effect &e) {
             throw std::runtime_error(fmt::format("{}: {}", out.name, e.what()));

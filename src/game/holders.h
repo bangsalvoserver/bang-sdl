@@ -10,9 +10,6 @@
 
 namespace banggame {
 
-    void verify_multitarget(card *origin_card, player *origin, const mth_target_list &targets);
-    void handle_multitarget(card *origin_card, player *origin, const mth_target_list &targets);
-
     template<enums::reflected_enum E>
     struct effect_base {
         using enum_type = E;
@@ -27,8 +24,6 @@ namespace banggame {
 
         bool is(enum_type value) const { return type == value; }
     };
-
-    using opt_fmt_str = std::optional<game_formatted_string>;
 
     struct effect_holder : effect_base<effect_type> {
         using effect_base<effect_type>::effect_base;
@@ -51,9 +46,18 @@ namespace banggame {
     struct equip_holder : effect_base<equip_type> {
         using effect_base<equip_type>::effect_base;
 
+        opt_fmt_str on_prompt(card *target_card, player *target) const;
         void on_pre_equip(card *target_card, player *target);
         void on_equip(card *target_card, player *target);
         void on_unequip(card *target_card, player *target);
+    };
+
+    struct mth_holder {
+        REFLECTABLE((mth_type) type)
+        
+        void verify(card *origin_card, player *origin, const mth_target_list &targets) const;
+        opt_fmt_str on_prompt(card *origin_card, player *origin, const mth_target_list &targets) const;
+        void on_play(card *origin_card, player *origin, const mth_target_list &targets);
     };
 
     class request_holder {

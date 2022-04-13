@@ -46,6 +46,8 @@ LOCALE_VALUE(PROMPT_CARD_NO_EFFECT,               "Playing {} would have no effe
 LOCALE_VALUE(PROMPT_PASS_DISCARD,                 "You must discard 1 card. Continue?")
 LOCALE_VALUE(PROMPT_PASS_DISCARD_PLURAL,          "You must discard {} cards. Continue?")
 LOCALE_VALUE(PROMPT_STEAL_OWN_HAND,               "You're playing {} on your own hand. Continue?")
+LOCALE_VALUE(PROMPT_MOVE_BOMB_TO_SELF,            "You're keeping {} on yourself. Continue?")
+LOCALE_VALUE(PROMPT_REPLACE,                      "Do you want to play {0} to replace {1}?")
 
 LOCALE_VALUE(STATUS_GAME_OVER,                    "Game Over")
 LOCALE_VALUE(STATUS_YOUR_TURN,                    "Your turn ... Draw from the deck")

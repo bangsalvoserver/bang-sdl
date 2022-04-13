@@ -19,7 +19,7 @@ namespace banggame {
 
     struct effect_pass_turn {
         void verify(card *origin_card, player *origin) const;
-        std::optional<game_formatted_string> on_prompt(card *origin_card, player *origin) const;
+        opt_fmt_str on_prompt(card *origin_card, player *origin) const;
         void on_play(card *origin_card, player *origin);
     };
 
@@ -64,10 +64,10 @@ namespace banggame {
     };
 
     struct effect_beer {
-        std::optional<game_formatted_string> on_prompt(card *origin_card, player *origin) const {
+        opt_fmt_str on_prompt(card *origin_card, player *origin) const {
             return on_prompt(origin_card, origin, origin);
         }
-        std::optional<game_formatted_string> on_prompt(card *origin_card, player *origin, player *target) const;
+        opt_fmt_str on_prompt(card *origin_card, player *origin, player *target) const;
         
         void on_play(card *origin_card, player *origin) {
             on_play(origin_card, origin, origin);
@@ -79,10 +79,10 @@ namespace banggame {
         int amount;
         effect_heal(int value) : amount(std::max(1, value)) {}
 
-        std::optional<game_formatted_string> on_prompt(card *origin_card, player *origin) const {
+        opt_fmt_str on_prompt(card *origin_card, player *origin) const {
             return on_prompt(origin_card, origin, origin);
         }
-        std::optional<game_formatted_string> on_prompt(card *origin_card, player *origin, player *target) const;
+        opt_fmt_str on_prompt(card *origin_card, player *origin, player *target) const;
 
         void on_play(card *origin_card, player *origin) {
             on_play(origin_card, origin, origin);
@@ -95,7 +95,7 @@ namespace banggame {
     };
 
     struct effect_saloon {
-        std::optional<game_formatted_string> on_prompt(card *origin_card, player *origin) const;
+        opt_fmt_str on_prompt(card *origin_card, player *origin) const;
         void on_play(card *origin_card, player *origin);
     };
 
@@ -105,7 +105,7 @@ namespace banggame {
     };
 
     struct effect_steal {
-        std::optional<game_formatted_string> on_prompt(card *origin_card, player *origin, player *target, card *target_card) const;
+        opt_fmt_str on_prompt(card *origin_card, player *origin, player *target, card *target_card) const;
         void on_play(card *origin_card, player *origin, player *target, card *target_card, effect_flags flags = {});
         void on_resolve(card *origin_card, player *origin, player *target, card *target_card);
     };

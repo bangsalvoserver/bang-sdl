@@ -155,6 +155,7 @@ namespace banggame {
         void respond_card(const play_card_args &args);
 
         void check_prompt(card *c, bool is_response, const std::vector<play_card_target> &targets, std::function<void()> &&fun);
+        void check_prompt_equip(card *c, player *target, std::function<void()> &&fun);
         void prompt_response(bool response);
 
         void draw_from_deck();

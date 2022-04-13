@@ -128,6 +128,15 @@ namespace banggame {
         }, *this);
     }
 
+    opt_fmt_str equip_holder::on_prompt(card *target_card, player *target) const {
+        return visit_effect([=](auto &&value) -> opt_fmt_str {
+            if constexpr (requires { value.on_prompt(target_card, target); }) {
+                return value.on_prompt(target_card, target);
+            }
+            return std::nullopt;
+        }, *this);
+    }
+
     void equip_holder::on_pre_equip(card *target_card, player *target) {
         visit_effect([=](auto &&value) {
             if constexpr (requires { value.on_pre_equip(target_card, target); }) {
@@ -152,7 +161,7 @@ namespace banggame {
         }, *this);
     }
 
-    void verify_multitarget(card *origin_card, player *origin, const mth_target_list &targets) {
+    void mth_holder::verify(card *origin_card, player *origin, const mth_target_list &targets) const {
         enums::visit_enum([&](enums::enum_tag_for<mth_type> auto tag) {
             if constexpr (enums::value_with_type<tag.value>) {
                 using handler_type = enums::enum_type_t<tag.value>;
@@ -160,16 +169,28 @@ namespace banggame {
                     handler_type{}.verify(origin_card, origin, targets);
                 }
             }
-        }, origin_card->multi_target_handler);
+        }, type);
+    }
+
+    opt_fmt_str mth_holder::on_prompt(card *origin_card, player *origin, const mth_target_list &targets) const {
+        return enums::visit_enum([&](enums::enum_tag_for<mth_type> auto tag) -> opt_fmt_str {
+            if constexpr (enums::value_with_type<tag.value>) {
+                using handler_type = enums::enum_type_t<tag.value>;
+                if constexpr (requires (handler_type handler) { handler.on_prompt(origin_card, origin, targets); }) {
+                    return handler_type{}.on_prompt(origin_card, origin, targets);
+                }
+            }
+            return std::nullopt;
+        }, type);
     }
     
-    void handle_multitarget(card *origin_card, player *origin, const mth_target_list &targets) {
+    void mth_holder::on_play(card *origin_card, player *origin, const mth_target_list &targets) {
         enums::visit_enum([&](enums::enum_tag_for<mth_type> auto tag) {
             if constexpr (enums::value_with_type<tag.value>) {
                 using handler_type = enums::enum_type_t<tag.value>;
                 handler_type{}.on_play(origin_card, origin, targets);
             }
-        }, origin_card->multi_target_handler);
+        }, type);
     }
 
     void request_base::on_pick(pocket_type pocket, player *target, card *target_card) {

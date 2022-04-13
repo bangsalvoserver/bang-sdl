@@ -72,20 +72,34 @@ namespace banggame {
         });
     }
 
+    static bool is_horse(const card *c) {
+        return !c->equips.empty() && c->equips.front().is(equip_type::horse);
+    }
+
+    opt_fmt_str effect_horse::on_prompt(card *target_card, player *target) const {
+        if (auto it = std::ranges::find_if(target->m_table, is_horse); it != target->m_table.end()) {
+            return game_formatted_string{"PROMPT_REPLACE", target_card, *it};
+        } else {
+            return std::nullopt;
+        }
+    }
+
     void effect_horse::on_pre_equip(card *target_card, player *target) {
-        const auto is_horse = [=](const card *c) {
-            return c != target_card && !c->equips.empty() && c->equips.front().is(equip_type::horse);
-        };
         if (auto it = std::ranges::find_if(target->m_table, is_horse); it != target->m_table.end()) {
             target->discard_card(*it);
         }
     }
 
+    opt_fmt_str effect_weapon::on_prompt(card *target_card, player *target) const {
+        if (auto it = std::ranges::find_if(target->m_table, &card::is_weapon); it != target->m_table.end()) {
+            return game_formatted_string{"PROMPT_REPLACE", target_card, *it};
+        } else {
+            return std::nullopt;
+        }
+    }
+
     void effect_weapon::on_pre_equip(card *target_card, player *target) {
-        const auto is_weapon = [](const card *c) {
-            return !c->equips.empty() && c->equips.front().is(equip_type::weapon);
-        };
-        if (auto it = std::ranges::find_if(target->m_table, is_weapon); it != target->m_table.end()) {
+        if (auto it = std::ranges::find_if(target->m_table, &card::is_weapon); it != target->m_table.end()) {
             target->discard_card(*it);
         }
     }

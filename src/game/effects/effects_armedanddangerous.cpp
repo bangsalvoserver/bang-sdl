@@ -228,6 +228,15 @@ namespace banggame {
         return origin->m_game->top_request_is<request_move_bomb>(origin);
     }
 
+    opt_fmt_str handler_move_bomb::on_prompt(card *origin_card, player *origin, const mth_target_list &targets) const {
+        auto target = std::get<player *>(targets[0]);
+        if (origin == target) {
+            return game_formatted_string{"PROMPT_MOVE_BOMB_TO_SELF", origin_card};
+        } else {
+            return std::nullopt;
+        }
+    }
+
     void handler_move_bomb::on_play(card *origin_card, player *origin, const mth_target_list &targets) {
         auto target = std::get<player *>(targets[0]);
         if (!target->immune_to(origin_card)) {

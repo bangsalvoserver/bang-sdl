@@ -29,7 +29,7 @@ namespace banggame {
         origin->verify_pass_turn();
     }
 
-    std::optional<game_formatted_string> effect_pass_turn::on_prompt(card *origin_card, player *origin) const {
+    opt_fmt_str effect_pass_turn::on_prompt(card *origin_card, player *origin) const {
         int diff = origin->m_hand.size() - origin->max_cards_end_of_turn();
         if (diff == 1) {
             return game_formatted_string{"PROMPT_PASS_DISCARD"};
@@ -136,7 +136,7 @@ namespace banggame {
         origin->m_game->queue_request<request_generalstore>(origin_card, origin, origin);
     }
 
-    std::optional<game_formatted_string> effect_heal::on_prompt(card *origin_card, player *origin, player *target) const {
+    opt_fmt_str effect_heal::on_prompt(card *origin_card, player *origin, player *target) const {
         if (target->m_hp == target->m_max_hp) {
             return game_formatted_string{"PROMPT_CARD_NO_EFFECT", origin_card};
         }
@@ -153,7 +153,7 @@ namespace banggame {
         }
     }
 
-    std::optional<game_formatted_string> effect_saloon::on_prompt(card *origin_card, player *origin) const {
+    opt_fmt_str effect_saloon::on_prompt(card *origin_card, player *origin) const {
         if (std::ranges::all_of(origin->m_game->m_players | std::views::filter([](const player &p) {
             return p.alive() && p.m_hp != 0;
         }), [](const player &p) {
@@ -173,7 +173,7 @@ namespace banggame {
         }
     }
 
-    std::optional<game_formatted_string> effect_beer::on_prompt(card *origin_card, player *origin, player *target) const {
+    opt_fmt_str effect_beer::on_prompt(card *origin_card, player *origin, player *target) const {
         if ((target->m_game->m_players.size() > 2 && target->m_game->num_alive() == 2)
             || (target->m_hp == target->m_max_hp)) {
             return game_formatted_string{"PROMPT_CARD_NO_EFFECT", origin_card};
@@ -203,7 +203,7 @@ namespace banggame {
         }
     }
 
-    std::optional<game_formatted_string> effect_steal::on_prompt(card *origin_card, player *origin, player *target, card *target_card) const {
+    opt_fmt_str effect_steal::on_prompt(card *origin_card, player *origin, player *target, card *target_card) const {
         if (origin == target && target_card->pocket == pocket_type::player_hand) {
             return game_formatted_string{"PROMPT_STEAL_OWN_HAND", origin_card};
         }

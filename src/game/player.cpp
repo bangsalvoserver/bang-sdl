@@ -475,7 +475,7 @@ namespace banggame {
             }, target);
         });
 
-        verify_multitarget(card_ptr, this, target_list);
+        card_ptr->multi_target_handler.verify(card_ptr, this, target_list);
     }
 
     void player::play_card_action(card *card_ptr) {
@@ -528,14 +528,26 @@ namespace banggame {
         auto effect_it = effects.begin();
         auto effect_end = effects.end();
 
+        mth_target_list target_list;
+
         for (auto &t : targets) {
             auto prompt_message = enums::visit_indexed(util::overloaded{
-                [&](enums::enum_tag_t<play_card_target_type::none>) {
-                    return effect_it->on_prompt(card_ptr, this);
+                [&](enums::enum_tag_t<play_card_target_type::none>) -> opt_fmt_str {
+                    if (effect_it->is(effect_type::mth_add)) {
+                        target_list.emplace_back(nullptr, nullptr);
+                        return std::nullopt;
+                    } else {
+                        return effect_it->on_prompt(card_ptr, this);
+                    }
                 },
-                [&](enums::enum_tag_t<play_card_target_type::player>, int target_id) {
+                [&](enums::enum_tag_t<play_card_target_type::player>, int target_id) -> opt_fmt_str {
                     player *target = m_game->find_player(target_id);
-                    return effect_it->on_prompt(card_ptr, this, target);
+                    if (effect_it->is(effect_type::mth_add)) {
+                        target_list.emplace_back(target, nullptr);
+                        return std::nullopt;
+                    } else {
+                        return effect_it->on_prompt(card_ptr, this, target);
+                    }
                 },
                 [&](enums::enum_tag_t<play_card_target_type::other_players>) -> opt_fmt_str {
                     opt_fmt_str msg = std::nullopt;
@@ -548,10 +560,15 @@ namespace banggame {
                         }
                     }
                 },
-                [&](enums::enum_tag_t<play_card_target_type::card>, int target_card_id) {
+                [&](enums::enum_tag_t<play_card_target_type::card>, int target_card_id) -> opt_fmt_str {
                     card *target_card = m_game->find_card(target_card_id);
                     player *target = target_card->owner;
-                    return effect_it->on_prompt(card_ptr, this, target, target_card);
+                    if (effect_it->is(effect_type::mth_add)) {
+                        target_list.emplace_back(target, target_card);
+                        return std::nullopt;
+                    } else {
+                        return effect_it->on_prompt(card_ptr, this, target, target_card);
+                    }
                 },
                 [&](enums::enum_tag_t<play_card_target_type::cards_other_players>, const std::vector<int> &target_card_ids) -> opt_fmt_str {
                     opt_fmt_str msg = std::nullopt;
@@ -567,7 +584,7 @@ namespace banggame {
             }, t);
             if (prompt_message) {
                 m_game->add_private_update<game_update_type::game_prompt>(this, std::move(*prompt_message));
-                m_prompt = fun;
+                m_prompt = std::move(fun);
                 return;
             }
             if (++effect_it == effect_end) {
@@ -576,8 +593,26 @@ namespace banggame {
             }
         }
 
+        if (auto prompt_message = card_ptr->multi_target_handler.on_prompt(card_ptr, this, target_list)) {
+            m_game->add_private_update<game_update_type::game_prompt>(this, std::move(*prompt_message));
+            m_prompt = std::move(fun);
+        } else {
+            m_game->add_private_update<game_update_type::confirm_play>(this);
+            std::invoke(fun);
+        }
+    }
+
+    void player::check_prompt_equip(card *card_ptr, player *target, std::function<void()> &&fun) {
+        if (!card_ptr->equips.empty()) {
+            if (auto prompt_message = card_ptr->equips.front().on_prompt(card_ptr, target)) {
+                m_game->add_private_update<game_update_type::game_prompt>(this, std::move(*prompt_message));
+                m_prompt = std::move(fun);
+                return;
+            }
+        }
+
         m_game->add_private_update<game_update_type::confirm_play>(this);
-        fun();
+        std::invoke(fun);
     }
 
     void player::do_play_card(card *card_ptr, bool is_response, const std::vector<play_card_target> &targets) {
@@ -690,7 +725,7 @@ namespace banggame {
             }
         }
 
-        handle_multitarget(card_ptr, this, target_list);
+        card_ptr->multi_target_handler.on_play(card_ptr, this, target_list);
         m_game->call_event<event_type::on_effect_end>(this, card_ptr);
     }
 
@@ -791,34 +826,35 @@ namespace banggame {
                 if (card_ptr->color == card_color_type::orange && m_game->m_cubes.size() < 3) {
                     throw game_error("ERROR_NOT_ENOUGH_CUBES");
                 }
-                m_game->add_private_update<game_update_type::confirm_play>(this);
-                if (target != this && target->immune_to(card_ptr)) {
-                    discard_card(card_ptr);
-                } else {
-                    target->equip_card(card_ptr);
-                    if (this == target) {
-                        m_game->add_log("LOG_EQUIPPED_CARD", card_ptr, this);
+                check_prompt_equip(card_ptr, target, [=, this]{
+                    if (target != this && target->immune_to(card_ptr)) {
+                        discard_card(card_ptr);
                     } else {
-                        m_game->add_log("LOG_EQUIPPED_CARD_TO", card_ptr, this, target);
-                    }
-                    switch (card_ptr->color) {
-                    case card_color_type::blue:
-                        if (m_game->has_expansion(card_expansion_type::armedanddangerous) && can_receive_cubes()) {
-                            m_game->queue_request<request_add_cube>(card_ptr, this);
+                        target->equip_card(card_ptr);
+                        if (this == target) {
+                            m_game->add_log("LOG_EQUIPPED_CARD", card_ptr, this);
+                        } else {
+                            m_game->add_log("LOG_EQUIPPED_CARD_TO", card_ptr, this, target);
                         }
-                        break;
-                    case card_color_type::green:
-                        card_ptr->inactive = true;
-                        m_game->add_public_update<game_update_type::tap_card>(card_ptr->id, true);
-                        break;
-                    case card_color_type::orange:
-                        add_cubes(card_ptr, 3);
-                        break;
+                        switch (card_ptr->color) {
+                        case card_color_type::blue:
+                            if (m_game->has_expansion(card_expansion_type::armedanddangerous) && can_receive_cubes()) {
+                                m_game->queue_request<request_add_cube>(card_ptr, this);
+                            }
+                            break;
+                        case card_color_type::green:
+                            card_ptr->inactive = true;
+                            m_game->add_public_update<game_update_type::tap_card>(card_ptr->id, true);
+                            break;
+                        case card_color_type::orange:
+                            add_cubes(card_ptr, 3);
+                            break;
+                        }
+                        m_game->call_event<event_type::on_equip>(this, target, card_ptr);
                     }
-                    m_game->call_event<event_type::on_equip>(this, target, card_ptr);
-                }
-                set_last_played_card(nullptr);
-                m_game->call_event<event_type::on_effect_end>(this, card_ptr);
+                    set_last_played_card(nullptr);
+                    m_game->call_event<event_type::on_effect_end>(this, card_ptr);
+                });
             }
             break;
         case pocket_type::player_character:
@@ -868,19 +904,20 @@ namespace banggame {
             } else {
                 if (m_game->has_scenario(scenario_flags::judge)) throw game_error("ERROR_CANT_EQUIP_CARDS");
                 verify_equip_target(card_ptr, args.targets);
-                play_modifiers(modifiers);
                 auto *target = m_game->find_player(args.targets.front().get<play_card_target_type::player>());
                 if (card *card = target->find_equipped_card(card_ptr)) throw game_error("ERROR_DUPLICATED_CARD", card);
-                m_game->add_private_update<game_update_type::confirm_play>(this);
-                add_gold(-cost);
-                target->equip_card(card_ptr);
-                set_last_played_card(nullptr);
-                if (this == target) {
-                    m_game->add_log("LOG_BOUGHT_EQUIP", card_ptr, this);
-                } else {
-                    m_game->add_log("LOG_BOUGHT_EQUIP_TO", card_ptr, this, target);
-                }
-                m_game->call_event<event_type::on_effect_end>(this, card_ptr);
+                check_prompt_equip(card_ptr, target, [=, this]{
+                    play_modifiers(modifiers);
+                    add_gold(-cost);
+                    target->equip_card(card_ptr);
+                    set_last_played_card(nullptr);
+                    if (this == target) {
+                        m_game->add_log("LOG_BOUGHT_EQUIP", card_ptr, this);
+                    } else {
+                        m_game->add_log("LOG_BOUGHT_EQUIP_TO", card_ptr, this, target);
+                    }
+                    m_game->call_event<event_type::on_effect_end>(this, card_ptr);
+                });
             }
             m_game->queue_action([&]{
                 while (m_game->m_shop_selection.size() < 3) {

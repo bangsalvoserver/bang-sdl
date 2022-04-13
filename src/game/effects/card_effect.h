@@ -24,6 +24,7 @@ namespace banggame {
     };
 
     using mth_target_list = std::vector<std::pair<player *, card *>>;
+    using opt_fmt_str = std::optional<game_formatted_string>;
 
     struct request_base {
         request_base(card *origin_card, player *origin, player *target, effect_flags flags = {})
