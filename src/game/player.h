@@ -4,6 +4,7 @@
 #include <map>
 #include <vector>
 #include <algorithm>
+#include <functional>
 
 #include "game_update.h"
 
@@ -12,8 +13,6 @@ namespace banggame {
     struct game;
     struct player;
     
-    using draw_check_function = std::function<void(card *drawn_card)>;
-
     struct card : card_data {
         int8_t usages = 0;
         bool inactive = false;
@@ -22,6 +21,8 @@ namespace banggame {
         card_pile_type pile = card_pile_type::none;
         player *owner = nullptr;
     };
+
+    using draw_check_function = std::function<void(card *drawn_card)>;
 
     struct player {
         game *m_game;

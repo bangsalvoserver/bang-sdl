@@ -12,15 +12,6 @@ namespace banggame {
 
     using namespace enums::flag_operators;
 
-    void game::send_card_update(const card &c, player *owner, show_card_flags flags) {
-        if (!owner || bool(flags & show_card_flags::show_everyone)) {
-            add_public_update<game_update_type::show_card>(c, flags);
-        } else {
-            add_public_update<game_update_type::hide_card>(c.id, flags, owner->id);
-            add_private_update<game_update_type::show_card>(owner, c, flags);
-        }
-    }
-
     player *game::find_disconnected_player() {
         auto dc_view = std::ranges::filter_view(m_players, [](const player &p) { return p.client_id == 0; });
         if (dc_view.empty()) return nullptr;
@@ -115,20 +106,6 @@ namespace banggame {
 
 #undef ADD_TO_RET
         return ret;
-    }
-
-    void game::shuffle_cards_and_ids(std::vector<card *> &vec) {
-        for (size_t i = vec.size() - 1; i > 0; --i) {
-            size_t i2 = std::uniform_int_distribution<size_t>{0, i}(rng);
-            if (i == i2) continue;
-
-            std::swap(vec[i], vec[i2]);
-            auto a = m_cards.extract(vec[i]->id);
-            auto b = m_cards.extract(vec[i2]->id);
-            std::swap(a->id, b->id);
-            m_cards.insert(std::move(a));
-            m_cards.insert(std::move(b));
-        }
     }
 
     void game::start_game(const game_options &options, const all_cards_t &all_cards) {
@@ -439,91 +416,6 @@ namespace banggame {
             }
         }
     }
-
-    std::vector<card *>::iterator game::move_to(card *c, card_pile_type pile, bool known, player *owner, show_card_flags flags) {
-        if (known) {
-            send_card_update(*c, owner, flags);
-        } else {
-            add_public_update<game_update_type::hide_card>(c->id, flags);
-        }
-        auto &prev_pile = get_pile(c->pile, c->owner);
-        auto card_it = std::ranges::find(prev_pile, c);
-        if (c->pile == pile && c->owner == owner) {
-            return std::next(card_it);
-        }
-        add_public_update<game_update_type::move_card>(c->id, owner ? owner->id : 0, pile, flags);
-        get_pile(pile, owner).emplace_back(c);
-        c->pile = pile;
-        c->owner = owner;
-        return prev_pile.erase(card_it);
-    }
-
-    card *game::draw_card_to(card_pile_type pile, player *owner, show_card_flags flags) {
-        card *drawn_card = m_deck.back();
-        move_to(drawn_card, pile, true, owner, flags);
-        if (m_deck.empty()) {
-            card *top_discards = m_discards.back();
-            m_discards.pop_back();
-            m_deck = std::move(m_discards);
-            for (card *c : m_deck) {
-                c->pile = card_pile_type::main_deck;
-                c->owner = nullptr;
-            }
-            m_discards.clear();
-            m_discards.emplace_back(top_discards);
-            shuffle_cards_and_ids(m_deck);
-            add_public_update<game_update_type::deck_shuffled>(card_pile_type::main_deck);
-            add_log("LOG_DECK_RESHUFFLED");
-        }
-        return drawn_card;
-    }
-
-    card *game::draw_phase_one_card_to(card_pile_type pile, player *owner, show_card_flags flags) {
-        if (!has_scenario(scenario_flags::abandonedmine) || m_discards.empty()) {
-            return draw_card_to(pile, owner, flags);
-        } else {
-            card *drawn_card = m_discards.back();
-            move_to(drawn_card, pile, true, owner, flags);
-            return drawn_card;
-        }
-    }
-
-    card *game::draw_shop_card() {
-        card *drawn_card = m_shop_deck.back();
-        move_to(drawn_card, card_pile_type::shop_selection);
-        if (drawn_card->modifier == card_modifier_type::shopchoice) {
-            for (card *c : m_hidden_deck) {
-                if (!c->effects.empty() && c->effects.front().type == drawn_card->effects.front().type) {
-                    send_card_update(*c, nullptr, show_card_flags::no_animation);
-                }
-            }
-        }
-        if (m_shop_deck.empty()) {
-            m_shop_deck = std::move(m_shop_discards);
-            for (card *c : m_shop_deck) {
-                c->pile = card_pile_type::shop_deck;
-                c->owner = nullptr;
-            }
-            m_shop_discards.clear();
-            shuffle_cards_and_ids(m_shop_deck);
-            add_public_update<game_update_type::deck_shuffled>(card_pile_type::shop_deck);
-        }
-        return drawn_card;
-    }
-
-    void game::draw_scenario_card() {
-        if (m_scenario_deck.empty()) return;
-
-        if (m_scenario_deck.size() > 1) {
-            send_card_update(**(m_scenario_deck.rbegin() + 1), nullptr, show_card_flags::no_animation);
-        }
-        if (!m_scenario_cards.empty()) {
-            m_first_player->unequip_if_enabled(m_scenario_cards.back());
-            m_scenario_flags = {};
-        }
-        move_to(m_scenario_deck.back(), card_pile_type::scenario_card);
-        m_first_player->equip_if_enabled(m_scenario_cards.back());
-    }
     
     void game::draw_check_then(player *origin, card *origin_card, draw_check_function fun) {
         m_current_check.emplace(std::move(fun), origin, origin_card);
@@ -547,21 +439,6 @@ namespace banggame {
             }
             queue_request_front<request_check>(m_current_check->origin_card, m_current_check->origin);
         }
-    }
-
-    player *game::get_next_in_turn(player *p) {
-        auto it = m_players.find(p->id);
-        do {
-            if (has_scenario(scenario_flags::invert_rotation)) {
-                if (it == m_players.begin()) it = m_players.end();
-                --it;
-            } else {
-                ++it;
-                if (it == m_players.end()) it = m_players.begin();
-            }
-        } while(!it->alive() && !has_scenario(scenario_flags::ghosttown)
-            && !(has_scenario(scenario_flags::deadman) && &*it == m_first_dead));
-        return &*it;
     }
 
     void game::check_game_over(player *killer, player *target) {

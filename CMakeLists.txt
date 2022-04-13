@@ -78,6 +78,7 @@ set(banggame_srcs
     src/game/effects/scenarios_fistfulofcards.cpp
     src/game/holders.cpp
     src/game/game.cpp
+    src/game/game_table.cpp
     src/game/make_all_cards.cpp
     src/game/player.cpp
     src/game/possible_to_play.cpp
