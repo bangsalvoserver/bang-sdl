@@ -29,13 +29,13 @@ namespace banggame {
         }
     }
 
-    bool request_thedaltons::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
-        return pile == card_pile_type::player_table
+    bool request_thedaltons::can_pick(pocket_type pocket, player *target_player, card *target_card) const {
+        return pocket == pocket_type::player_table
             && target == target_player
             && target_card->color == card_color_type::blue;
     }
 
-    void request_thedaltons::on_pick(card_pile_type pile, player *target_player, card *target_card) {
+    void request_thedaltons::on_pick(pocket_type pocket, player *target_player, card *target_card) {
         target->discard_card(target_card);
         target->m_game->pop_request<request_thedaltons>();
     }
@@ -102,7 +102,7 @@ namespace banggame {
 
     void effect_reverend::on_equip(card *target_card, player *target) {
         target->m_game->add_disabler(target_card, [](card *c) {
-            return c->pile == card_pile_type::player_hand
+            return c->pocket == pocket_type::player_hand
                 && !c->effects.empty()
                 && c->effects.front().is(effect_type::beer);
         });
@@ -114,7 +114,7 @@ namespace banggame {
 
     void effect_hangover::on_equip(card *target_card, player *target) {
         target->m_game->add_disabler(target_card, [](card *c) {
-            return c->pile == card_pile_type::player_character;
+            return c->pocket == pocket_type::player_character;
         });
     }
 
@@ -150,7 +150,7 @@ namespace banggame {
             for (auto it = vec.begin(); it != vec.end(); ) {
                 auto *card = *it;
                 if (!card->responses.empty() && card->responses.front().is(effect_type::handcuffschoice)) {
-                    it = origin->m_game->move_to(card, card_pile_type::selection, true, nullptr, show_card_flags::no_animation);
+                    it = origin->m_game->move_to(card, pocket_type::selection, true, nullptr, show_card_flags::no_animation);
                 } else {
                     ++it;
                 }
@@ -162,7 +162,7 @@ namespace banggame {
         });
     }
 
-    void request_handcuffs::on_pick(card_pile_type pile, player *target_player, card *target_card) {
+    void request_handcuffs::on_pick(pocket_type pocket, player *target_player, card *target_card) {
         target->m_game->add_disabler(origin_card, 
             [target=target, declared_suit = static_cast<card_suit>(target_card->responses.front().effect_value)]
             (card *c) {
@@ -170,7 +170,7 @@ namespace banggame {
             });
 
         while (!target->m_game->m_selection.empty()) {
-            target->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::hidden_deck, true, nullptr, show_card_flags::no_animation);
+            target->m_game->move_to(target->m_game->m_selection.front(), pocket_type::hidden_deck, true, nullptr, show_card_flags::no_animation);
         }
         target->m_game->pop_request<request_handcuffs>();
     }
@@ -185,18 +185,18 @@ namespace banggame {
 
     void effect_newidentity::on_equip(card *target_card, player *target) {
         target->m_game->add_event<event_type::pre_turn_start>(target_card, [=](player *p) {
-            target->m_game->move_to(p->m_backup_character.front(), card_pile_type::selection, true, nullptr);
+            target->m_game->move_to(p->m_backup_character.front(), pocket_type::selection, true, nullptr);
             target->m_game->queue_request<request_newidentity>(target_card, p);
         });
     }
 
-    bool request_newidentity::can_pick(card_pile_type pile, player *, card *target_card) const {
-        return pile == card_pile_type::selection
-            || (pile == card_pile_type::player_character && target_card == target->m_characters.front());
+    bool request_newidentity::can_pick(pocket_type pocket, player *, card *target_card) const {
+        return pocket == pocket_type::selection
+            || (pocket == pocket_type::player_character && target_card == target->m_characters.front());
     }
 
-    void request_newidentity::on_pick(card_pile_type pile, player *, card *target_card) {
-        if (pile == card_pile_type::selection) {
+    void request_newidentity::on_pick(pocket_type pocket, player *, card *target_card) {
+        if (pocket == pocket_type::selection) {
             for (card *c : target->m_characters) {
                 target->unequip_if_enabled(c);
             }
@@ -206,8 +206,8 @@ namespace banggame {
             }
 
             card *old_character = target->m_characters.front();
-            target->m_game->move_to(old_character, card_pile_type::player_backup, false, target);
-            target->m_game->move_to(target_card, card_pile_type::player_character, true, target, show_card_flags::show_everyone);
+            target->m_game->move_to(old_character, pocket_type::player_backup, false, target);
+            target->m_game->move_to(target_card, pocket_type::player_character, true, target, show_card_flags::show_everyone);
 
             target->equip_if_enabled(target_card);
             target->move_cubes(old_character, target_card, old_character->cubes.size());
@@ -218,7 +218,7 @@ namespace banggame {
             target->m_hp = 2;
             target->m_game->add_public_update<game_update_type::player_hp>(target->id, target->m_hp, false, false);
         } else {
-            target->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::player_backup, false, target);
+            target->m_game->move_to(target->m_game->m_selection.front(), pocket_type::player_backup, false, target);
         }
         target->m_game->pop_request<request_newidentity>();
     }

@@ -62,7 +62,7 @@ namespace banggame {
         card *find_card(int card_id);
         player *find_player(int player_id);
         
-        std::vector<card *> &get_pile(card_pile_type pile, player *owner = nullptr);
+        std::vector<card *> &get_pocket(pocket_type pocket, player *owner = nullptr);
 
         player *get_next_player(player *p);
         player *get_next_in_turn(player *p);
@@ -77,9 +77,9 @@ namespace banggame {
 
         void send_card_update(const card &c, player *owner = nullptr, show_card_flags flags = {});
 
-        std::vector<card *>::iterator move_to(card *c, card_pile_type pile, bool known = true, player *owner = nullptr, show_card_flags flags = {});
-        card *draw_card_to(card_pile_type pile, player *owner = nullptr, show_card_flags flags = {});
-        card *draw_phase_one_card_to(card_pile_type pile, player *owner = nullptr, show_card_flags flags = {});
+        std::vector<card *>::iterator move_to(card *c, pocket_type pocket, bool known = true, player *owner = nullptr, show_card_flags flags = {});
+        card *draw_card_to(pocket_type pocket, player *owner = nullptr, show_card_flags flags = {});
+        card *draw_phase_one_card_to(pocket_type pocket, player *owner = nullptr, show_card_flags flags = {});
 
         card *draw_shop_card();
         

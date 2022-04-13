@@ -56,7 +56,7 @@ namespace banggame {
     void effect_bounty::on_equip(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_hit>({target_card, 3}, [p](card *origin_card, player *origin, player *target, int damage, bool is_bang) {
             if (origin && target == p && is_bang) {
-                origin->m_game->draw_card_to(card_pile_type::player_hand, origin);
+                origin->m_game->draw_card_to(pocket_type::player_hand, origin);
             }
         });
     }

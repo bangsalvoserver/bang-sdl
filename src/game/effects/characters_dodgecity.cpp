@@ -29,7 +29,7 @@ namespace banggame {
                 target->m_game->pop_request_noupdate<request_draw>();
                 int ncards = target->m_game->num_alive() + target->m_num_cards_to_draw - 1;
                 for (int i=0; i<ncards; ++i) {
-                    target->m_game->draw_phase_one_card_to(card_pile_type::selection, target);
+                    target->m_game->draw_phase_one_card_to(pocket_type::selection, target);
                 }
                 target->m_game->queue_request<request_claus_the_saint>(target_card, target);
             }
@@ -45,7 +45,7 @@ namespace banggame {
         return p;
     }
 
-    void request_claus_the_saint::on_pick(card_pile_type pile, player *target_player, card *target_card) {
+    void request_claus_the_saint::on_pick(pocket_type pocket, player *target_player, card *target_card) {
         if (target->m_num_drawn_cards < target->m_num_cards_to_draw) {
             ++target->m_num_drawn_cards;
             target->add_to_hand(target_card);
@@ -80,8 +80,8 @@ namespace banggame {
     void effect_herb_hunter::on_equip(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_player_death>(target_card, [p](player *origin, player *target) {
             if (p != target) {
-                p->m_game->draw_card_to(card_pile_type::player_hand, p);
-                p->m_game->draw_card_to(card_pile_type::player_hand, p);
+                p->m_game->draw_card_to(pocket_type::player_hand, p);
+                p->m_game->draw_card_to(pocket_type::player_hand, p);
             }
         });
     }
@@ -104,7 +104,7 @@ namespace banggame {
             if (p == target && p->m_game->m_playing != p) {
                 p->m_game->queue_action([p]{
                     if (p->alive()) {
-                        p->m_game->draw_card_to(card_pile_type::player_hand, p);
+                        p->m_game->draw_card_to(pocket_type::player_hand, p);
                     }
                 });
             }
@@ -115,7 +115,7 @@ namespace banggame {
         p->m_game->add_event<event_type::on_turn_start>(target_card, [=](player *target) {
             if (p == target) {
                 p->m_game->add_disabler(target_card, [=](card *c) {
-                    return c->pile == card_pile_type::player_table && c->owner != target;
+                    return c->pocket == pocket_type::player_table && c->owner != target;
                 });
             }
         });
@@ -136,7 +136,7 @@ namespace banggame {
             auto copy = *c;
             copy.id = target->m_game->m_cards.first_available_id();
             copy.usages = 0;
-            copy.pile = card_pile_type::player_character;
+            copy.pocket = pocket_type::player_character;
             copy.owner = target;
 
             if (target->m_characters.size() == 2) {
@@ -150,7 +150,7 @@ namespace banggame {
             target->equip_if_enabled(target_card);
 
             target->m_game->add_public_update<game_update_type::add_cards>(
-                make_id_vector(std::views::single(target_card)), card_pile_type::player_character, target->id);
+                make_id_vector(std::views::single(target_card)), pocket_type::player_character, target->id);
             target->m_game->send_card_update(*target_card, target, show_card_flags::no_animation | show_card_flags::show_everyone);
         }
     }
@@ -178,13 +178,13 @@ namespace banggame {
         });
     }
 
-    bool request_vera_custer::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
-        return pile == card_pile_type::player_character
+    bool request_vera_custer::can_pick(pocket_type pocket, player *target_player, card *target_card) const {
+        return pocket == pocket_type::player_character
             && target_player->alive() && target_player != target
             && (target_player->m_characters.size() == 1 || target_card != target_player->m_characters.front());
     }
 
-    void request_vera_custer::on_pick(card_pile_type pile, player *target_player, card *target_card) {
+    void request_vera_custer::on_pick(pocket_type pocket, player *target_player, card *target_card) {
         target->m_game->pop_request<request_vera_custer>();
         vera_custer_copy_character(target, target_card);
     }

@@ -5,17 +5,17 @@
 
 namespace banggame {
 
-    bool request_add_cube::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
-        if (pile == card_pile_type::player_character) {
+    bool request_add_cube::can_pick(pocket_type pocket, player *target_player, card *target_card) const {
+        if (pocket == pocket_type::player_character) {
             target_card = target->m_characters.front();
-        } else if (pile != card_pile_type::player_table || target_card->color != card_color_type::orange) {
+        } else if (pocket != pocket_type::player_table || target_card->color != card_color_type::orange) {
             return false;
         }
         return target_player == target && target_card->cubes.size() < 4;
     }
 
-    void request_add_cube::on_pick(card_pile_type pile, player *target_player, card *target_card) {
-        if (pile == card_pile_type::player_character) {
+    void request_add_cube::on_pick(pocket_type pocket, player *target_player, card *target_card) {
+        if (pocket == pocket_type::player_character) {
             target_card = target->m_characters.front();
         }
         target->add_cubes(target_card, 1);

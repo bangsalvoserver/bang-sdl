@@ -38,11 +38,11 @@ namespace banggame {
 
         virtual game_formatted_string status_text(player *owner) const = 0;
 
-        virtual bool can_pick(card_pile_type pile, player *target, card *target_card) const {
+        virtual bool can_pick(pocket_type pocket, player *target, card *target_card) const {
             return false;
         }
 
-        virtual void on_pick(card_pile_type pile, player *target, card *target_card);
+        virtual void on_pick(pocket_type pocket, player *target, card *target_card);
 
         virtual void tick() {}
     };
@@ -97,8 +97,8 @@ namespace banggame {
     struct selection_picker : request_base {
         using request_base::request_base;
 
-        bool can_pick(card_pile_type pile, player *target_player, card *target_card) const override {
-            return pile == card_pile_type::selection;
+        bool can_pick(pocket_type pocket, player *target_player, card *target_card) const override {
+            return pocket == pocket_type::selection;
         }
     };
 

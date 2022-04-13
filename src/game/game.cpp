@@ -31,14 +31,14 @@ namespace banggame {
         std::vector<game_update> ret;
 #define ADD_TO_RET(name, ...) ret.emplace_back(enums::enum_tag<game_update_type::name> __VA_OPT__(,) __VA_ARGS__)
         
-        ADD_TO_RET(add_cards, make_id_vector(m_cards | std::views::transform([](const card &c) { return &c; })), card_pile_type::hidden_deck);
+        ADD_TO_RET(add_cards, make_id_vector(m_cards | std::views::transform([](const card &c) { return &c; })), pocket_type::hidden_deck);
 
         const auto show_never = [](const card &c) { return false; };
         const auto show_always = [](const card &c) { return true; };
 
         auto move_cards = [&](auto &&range, auto do_show_card) {
             for (card *c : range) {
-                ADD_TO_RET(move_card, c->id, c->owner ? c->owner->id : 0, c->pile, show_card_flags::no_animation);
+                ADD_TO_RET(move_card, c->id, c->owner ? c->owner->id : 0, c->pocket, show_card_flags::no_animation);
 
                 if (do_show_card(*c)) {
                     ADD_TO_RET(show_card, *c, show_card_flags::no_animation);
@@ -115,30 +115,30 @@ namespace banggame {
         std::vector<card *> testing_cards;
 #endif
         
-        auto add_card = [&](card_pile_type pile, const card_deck_info &c) {
+        auto add_card = [&](pocket_type pocket, const card_deck_info &c) {
             card copy(c);
             copy.id = m_cards.first_available_id();
             copy.owner = nullptr;
-            copy.pile = pile;
+            copy.pocket = pocket;
             auto *new_card = &m_cards.emplace(std::move(copy));
 
 #ifndef NDEBUG
             if (c.testing) {
                 testing_cards.push_back(new_card);
             } else {
-                get_pile(pile).push_back(new_card);
+                get_pocket(pocket).push_back(new_card);
             }
 #else
-            get_pile(pile).push_back(new_card);
+            get_pocket(pocket).push_back(new_card);
 #endif
         };
 
         for (const auto &c : all_cards.specials) {
             if ((c.expansion & m_options.expansions) == c.expansion) {
-                add_card(card_pile_type::specials, c);
+                add_card(pocket_type::specials, c);
             }
         }
-        add_public_update<game_update_type::add_cards>(make_id_vector(m_specials), card_pile_type::specials);
+        add_public_update<game_update_type::add_cards>(make_id_vector(m_specials), pocket_type::specials);
         for (const auto &c : m_specials) {
             send_card_update(*c, nullptr, show_card_flags::no_animation);
         }
@@ -146,7 +146,7 @@ namespace banggame {
         for (const auto &c : all_cards.deck) {
             if (m_players.size() <= 2 && c.discard_if_two_players) continue;
             if ((c.expansion & m_options.expansions) == c.expansion) {
-                add_card(card_pile_type::main_deck, c);
+                add_card(pocket_type::main_deck, c);
             }
         }
 
@@ -155,19 +155,19 @@ namespace banggame {
         m_deck.insert(m_deck.end(), testing_cards.begin(), testing_cards.end());
         testing_cards.clear();
 #endif
-        add_public_update<game_update_type::add_cards>(make_id_vector(m_deck), card_pile_type::main_deck);
+        add_public_update<game_update_type::add_cards>(make_id_vector(m_deck), pocket_type::main_deck);
 
         if (has_expansion(card_expansion_type::goldrush)) {
             for (const auto &c : all_cards.goldrush) {
                 if (m_players.size() <= 2 && c.discard_if_two_players) continue;
-                add_card(card_pile_type::shop_deck, c);
+                add_card(pocket_type::shop_deck, c);
             }
             shuffle_cards_and_ids(m_shop_deck);
 #ifndef NDEBUG
             m_shop_deck.insert(m_shop_deck.end(), testing_cards.begin(), testing_cards.end());
             testing_cards.clear();
 #endif
-            add_public_update<game_update_type::add_cards>(make_id_vector(m_shop_deck), card_pile_type::shop_deck);
+            add_public_update<game_update_type::add_cards>(make_id_vector(m_shop_deck), pocket_type::shop_deck);
         }
 
         if (has_expansion(card_expansion_type::armedanddangerous)) {
@@ -182,7 +182,7 @@ namespace banggame {
             for (const auto &c : all_cards.highnoon) {
                 if (m_players.size() <= 2 && c.discard_if_two_players) continue;
                 if ((c.expansion & m_options.expansions) == c.expansion) {
-                    add_card(card_pile_type::scenario_deck, c);
+                    add_card(pocket_type::scenario_deck, c);
                 }
             }
             last_scenario_cards.push_back(m_scenario_deck.back());
@@ -193,7 +193,7 @@ namespace banggame {
             for (const auto &c : all_cards.fistfulofcards) {
                 if (m_players.size() <= 2 && c.discard_if_two_players) continue;
                 if ((c.expansion & m_options.expansions) == c.expansion) {
-                    add_card(card_pile_type::scenario_deck, c);
+                    add_card(pocket_type::scenario_deck, c);
                 }
             }
             last_scenario_cards.push_back(m_scenario_deck.back());
@@ -212,7 +212,7 @@ namespace banggame {
             m_scenario_deck.push_back(last_scenario_cards[std::uniform_int_distribution<>(0, last_scenario_cards.size() - 1)(rng)]);
             std::swap(m_scenario_deck.back(), m_scenario_deck.front());
 
-            add_public_update<game_update_type::add_cards>(make_id_vector(m_scenario_deck), card_pile_type::scenario_deck);
+            add_public_update<game_update_type::add_cards>(make_id_vector(m_scenario_deck), pocket_type::scenario_deck);
 
             send_card_update(*m_scenario_deck.back(), nullptr, show_card_flags::no_animation);
         }
@@ -220,12 +220,12 @@ namespace banggame {
         for (const auto &c : all_cards.hidden) {
             if (m_players.size() <= 2 && c.discard_if_two_players) continue;
             if ((c.expansion & m_options.expansions) == c.expansion) {
-                add_card(card_pile_type::hidden_deck, c);
+                add_card(pocket_type::hidden_deck, c);
             }
         }
 
         if (!m_hidden_deck.empty()) {
-            add_public_update<game_update_type::add_cards>(make_id_vector(m_hidden_deck), card_pile_type::hidden_deck);
+            add_public_update<game_update_type::add_cards>(make_id_vector(m_hidden_deck), pocket_type::hidden_deck);
         }
         
         std::array roles {
@@ -287,9 +287,9 @@ namespace banggame {
 
         auto add_character_to = [&](card *c, player &p) {
             p.m_characters.push_back(c);
-            c->pile = card_pile_type::player_character;
+            c->pocket = pocket_type::player_character;
             c->owner = &p;
-            add_public_update<game_update_type::add_cards>(make_id_vector(std::views::single(c)), card_pile_type::player_character, p.id);
+            add_public_update<game_update_type::add_cards>(make_id_vector(std::views::single(c)), pocket_type::player_character, p.id);
         };
 
         auto character_it = character_ptrs.begin();
@@ -311,7 +311,7 @@ namespace banggame {
         if (has_expansion(card_expansion_type::characterchoice)) {
             for (auto &p : m_players) {
                 while (!p.m_characters.empty()) {
-                    move_to(p.m_characters.front(), card_pile_type::player_hand, true, &p, show_card_flags::no_animation | show_card_flags::show_everyone);
+                    move_to(p.m_characters.front(), pocket_type::player_hand, true, &p, show_card_flags::no_animation | show_card_flags::show_everyone);
                 }
             }
             auto *p = m_first_player;
@@ -328,7 +328,7 @@ namespace banggame {
                 p.m_hp = p.m_max_hp;
                 add_public_update<game_update_type::player_hp>(p.id, p.m_hp, false, true);
 
-                move_to(p.m_characters.back(), card_pile_type::player_backup, false, &p, show_card_flags::no_animation);
+                move_to(p.m_characters.back(), pocket_type::player_backup, false, &p, show_card_flags::no_animation);
             }
         }
 
@@ -344,7 +344,7 @@ namespace banggame {
             for (int i=0; i<max_initial_cards; ++i) {
                 for (auto &p : m_players) {
                     if (p.m_hand.size() < p.get_initial_cards()) {
-                        draw_card_to(card_pile_type::player_hand, &p);
+                        draw_card_to(pocket_type::player_hand, &p);
                     }
                 }
             }
@@ -386,22 +386,22 @@ namespace banggame {
 
         if (req.target() != p) return ret;
 
-        auto maybe_add_pick_id = [&](card_pile_type pile, player *target_player, card *target_card) {
-            if (req.can_pick(pile, target_player, target_card)) {
-                ret.pick_ids.emplace_back(pile,
+        auto maybe_add_pick_id = [&](pocket_type pocket, player *target_player, card *target_card) {
+            if (req.can_pick(pocket, target_player, target_card)) {
+                ret.pick_ids.emplace_back(pocket,
                     target_player ? target_player->id : 0,
                     target_card ? target_card->id : 0);
             }
         };
 
         for (player &target : m_players) {
-            std::ranges::for_each(target.m_hand, std::bind_front(maybe_add_pick_id, card_pile_type::player_hand, &target));
-            std::ranges::for_each(target.m_table, std::bind_front(maybe_add_pick_id, card_pile_type::player_table, &target));
-            std::ranges::for_each(target.m_characters, std::bind_front(maybe_add_pick_id, card_pile_type::player_character, &target));
+            std::ranges::for_each(target.m_hand, std::bind_front(maybe_add_pick_id, pocket_type::player_hand, &target));
+            std::ranges::for_each(target.m_table, std::bind_front(maybe_add_pick_id, pocket_type::player_table, &target));
+            std::ranges::for_each(target.m_characters, std::bind_front(maybe_add_pick_id, pocket_type::player_character, &target));
         }
-        maybe_add_pick_id(card_pile_type::main_deck, nullptr, nullptr);
-        maybe_add_pick_id(card_pile_type::discard_pile, nullptr, nullptr);
-        std::ranges::for_each(m_selection, std::bind_front(maybe_add_pick_id, card_pile_type::selection, nullptr));
+        maybe_add_pick_id(pocket_type::main_deck, nullptr, nullptr);
+        maybe_add_pick_id(pocket_type::discard_pile, nullptr, nullptr);
+        std::ranges::for_each(m_selection, std::bind_front(maybe_add_pick_id, pocket_type::selection, nullptr));
 
         return ret;
     }
@@ -424,7 +424,7 @@ namespace banggame {
 
     void game::do_draw_check() {
         if (m_current_check->origin->m_num_checks == 1) {
-            auto *c = draw_card_to(card_pile_type::discard_pile);
+            auto *c = draw_card_to(pocket_type::discard_pile);
             add_log("LOG_CHECK_DREW_CARD", m_current_check->origin_card, m_current_check->origin, c);
             call_event<event_type::on_draw_check>(m_current_check->origin, c);
             if (!num_queued_requests([&]{
@@ -435,7 +435,7 @@ namespace banggame {
             }
         } else {
             for (int i=0; i<m_current_check->origin->m_num_checks; ++i) {
-                draw_card_to(card_pile_type::selection);
+                draw_card_to(pocket_type::selection);
             }
             queue_request_front<request_check>(m_current_check->origin_card, m_current_check->origin);
         }
@@ -483,9 +483,9 @@ namespace banggame {
             if (m_players.size() > 3) {
                 switch (target->m_role) {
                 case player_role::outlaw:
-                    draw_card_to(card_pile_type::player_hand, killer);
-                    draw_card_to(card_pile_type::player_hand, killer);
-                    draw_card_to(card_pile_type::player_hand, killer);
+                    draw_card_to(pocket_type::player_hand, killer);
+                    draw_card_to(pocket_type::player_hand, killer);
+                    draw_card_to(pocket_type::player_hand, killer);
                     break;
                 case player_role::deputy:
                     if (killer->m_role == player_role::sheriff) {
@@ -496,9 +496,9 @@ namespace banggame {
                     break;
                 }
             } else {
-                draw_card_to(card_pile_type::player_hand, killer);
-                draw_card_to(card_pile_type::player_hand, killer);
-                draw_card_to(card_pile_type::player_hand, killer);
+                draw_card_to(pocket_type::player_hand, killer);
+                draw_card_to(pocket_type::player_hand, killer);
+                draw_card_to(pocket_type::player_hand, killer);
             }
         }
 

@@ -19,7 +19,7 @@ namespace banggame {
             e.on_pre_equip(target, this);
         }
 
-        m_game->move_to(target, card_pile_type::player_table, true, this, show_card_flags::show_everyone);
+        m_game->move_to(target, pocket_type::player_table, true, this, show_card_flags::show_everyone);
         equip_if_enabled(target);
         target->usages = 0;
     }
@@ -75,20 +75,20 @@ namespace banggame {
         return c;
     }
 
-    std::vector<card *>::iterator player::move_card_to(card *target_card, card_pile_type pile, bool known, player *owner, show_card_flags flags) {
+    std::vector<card *>::iterator player::move_card_to(card *target_card, pocket_type pocket, bool known, player *owner, show_card_flags flags) {
         if (target_card->owner != this) throw game_error("ERROR_PLAYER_DOES_NOT_OWN_CARD");
-        if (target_card->pile == card_pile_type::player_table) {
+        if (target_card->pocket == pocket_type::player_table) {
             if (target_card->inactive) {
                 target_card->inactive = false;
                 m_game->add_public_update<game_update_type::tap_card>(target_card->id, false);
             }
             drop_all_cubes(target_card);
-            auto it = m_game->move_to(target_card, pile, known, owner, flags);
+            auto it = m_game->move_to(target_card, pocket, known, owner, flags);
             m_game->call_event<event_type::post_discard_card>(this, target_card);
             unequip_if_enabled(target_card);
             return it;
-        } else if (target_card->pile == card_pile_type::player_hand) {
-            return m_game->move_to(target_card, pile, known, owner, flags);
+        } else if (target_card->pocket == pocket_type::player_hand) {
+            return m_game->move_to(target_card, pocket, known, owner, flags);
         } else {
             throw game_error("ERROR_CARD_NOT_FOUND");
         }
@@ -96,12 +96,12 @@ namespace banggame {
 
     void player::discard_card(card *target) {
         move_card_to(target, target->color == card_color_type::black
-            ? card_pile_type::shop_discard
-            : card_pile_type::discard_pile, true);
+            ? pocket_type::shop_discard
+            : pocket_type::discard_pile, true);
     }
 
     void player::steal_card(player *target, card *target_card) {
-        target->move_card_to(target_card, card_pile_type::player_hand, true, this);
+        target->move_card_to(target_card, pocket_type::player_hand, true, this);
     }
 
     void player::damage(card *origin_card, player *origin, int value, bool is_bang, bool instant) {
@@ -185,8 +185,8 @@ namespace banggame {
     }
 
     static void check_orange_card_empty(player *owner, card *target) {
-        if (target->cubes.empty() && target->pile != card_pile_type::player_character && target->pile != card_pile_type::player_backup) {
-            owner->m_game->move_to(target, card_pile_type::discard_pile);
+        if (target->cubes.empty() && target->pocket != pocket_type::player_character && target->pocket != pocket_type::player_backup) {
+            owner->m_game->move_to(target, pocket_type::discard_pile);
             owner->m_game->call_event<event_type::post_discard_orange_card>(owner, target);
             owner->unequip_if_enabled(target);
         }
@@ -228,7 +228,7 @@ namespace banggame {
     }
 
     void player::add_to_hand(card *target) {
-        m_game->move_to(target, card_pile_type::player_hand, true, this);
+        m_game->move_to(target, pocket_type::player_hand, true, this);
     }
 
     void player::set_last_played_card(card *c) {
@@ -337,12 +337,12 @@ namespace banggame {
         std::ranges::for_each(enums::enum_flag_values(effect.card_filter), [&](target_card_filter value) {
             switch (value) {
             case target_card_filter::table:
-                if (target_card->pile != card_pile_type::player_table) {
+                if (target_card->pocket != pocket_type::player_table) {
                     throw game_error("ERROR_TARGET_NOT_TABLE_CARD");
                 }
                 break;
             case target_card_filter::hand:
-                if (target_card->pile != card_pile_type::player_hand) {
+                if (target_card->pocket != pocket_type::player_hand) {
                     throw game_error("ERROR_TARGET_NOT_HAND_CARD");
                 }
                 break;
@@ -479,19 +479,19 @@ namespace banggame {
     }
 
     void player::play_card_action(card *card_ptr) {
-        switch (card_ptr->pile) {
-        case card_pile_type::player_hand:
-            m_game->move_to(card_ptr, card_pile_type::discard_pile);
+        switch (card_ptr->pocket) {
+        case pocket_type::player_hand:
+            m_game->move_to(card_ptr, pocket_type::discard_pile);
             m_game->call_event<event_type::on_play_hand_card>(this, card_ptr);
             break;
-        case card_pile_type::player_table:
+        case pocket_type::player_table:
             if (card_ptr->color == card_color_type::green) {
-                m_game->move_to(card_ptr, card_pile_type::discard_pile);
+                m_game->move_to(card_ptr, pocket_type::discard_pile);
             }
             break;
-        case card_pile_type::shop_selection:
+        case pocket_type::shop_selection:
             if (card_ptr->color == card_color_type::brown) {
-                m_game->move_to(card_ptr, card_pile_type::shop_discard);
+                m_game->move_to(card_ptr, pocket_type::shop_discard);
             }
             break;
         default:
@@ -501,22 +501,22 @@ namespace banggame {
 
     void player::log_played_card(card *card_ptr, bool is_response) {
         m_game->send_card_update(*card_ptr);
-        switch (card_ptr->pile) {
-        case card_pile_type::player_hand:
-        case card_pile_type::scenario_card:
+        switch (card_ptr->pocket) {
+        case pocket_type::player_hand:
+        case pocket_type::scenario_card:
             m_game->add_log(is_response ? "LOG_RESPONDED_WITH_CARD" : "LOG_PLAYED_CARD", card_ptr, this);
             break;
-        case card_pile_type::player_table:
+        case pocket_type::player_table:
             m_game->add_log(is_response ? "LOG_RESPONDED_WITH_CARD" : "LOG_PLAYED_TABLE_CARD", card_ptr, this);
             break;
-        case card_pile_type::player_character:
+        case pocket_type::player_character:
             m_game->add_log(is_response ?
                 card_ptr->responses.front().is(effect_type::drawing)
                     ? "LOG_DRAWN_WITH_CHARACTER"
                     : "LOG_RESPONDED_WITH_CHARACTER"
                 : "LOG_PLAYED_CHARACTER", card_ptr, this);
             break;
-        case card_pile_type::shop_selection:
+        case pocket_type::shop_selection:
             m_game->add_log("LOG_BOUGHT_CARD", card_ptr, this);
             break;
         }
@@ -658,7 +658,7 @@ namespace banggame {
                     } else if (target == this) {
                         effect_it->on_play(card_ptr, this, target, target_card, flags);
                     } else if (!target->immune_to(chosen_card_or(card_ptr))) {
-                        if (target_card->pile == card_pile_type::player_hand) {
+                        if (target_card->pocket == pocket_type::player_hand) {
                             effect_it->on_play(card_ptr, this, target, target->random_hand_card(), flags);
                         } else {
                             effect_it->on_play(card_ptr, this, target, target_card, flags);
@@ -676,7 +676,7 @@ namespace banggame {
                     for (int id : target_card_ids) {
                         auto *target_card = m_game->find_card(id);
                         auto *target = target_card->owner;
-                        if (target_card->pile == card_pile_type::player_hand) {
+                        if (target_card->pocket == pocket_type::player_hand) {
                             effect_it->on_play(card_ptr, this, target, target->random_hand_card(), flags);
                         } else {
                             effect_it->on_play(card_ptr, this, target, target_card, flags);
@@ -723,8 +723,8 @@ namespace banggame {
         m_game->add_private_update<game_update_type::confirm_play>(this);
         player *target_player = args.player_id ? m_game->find_player(args.player_id) : nullptr;
         card *target_card = args.card_id ? m_game->find_card(args.card_id) : nullptr;
-        if (req.can_pick(args.pile, target_player, target_card)) {
-            req.on_pick(args.pile, target_player, target_card);
+        if (req.can_pick(args.pocket, target_player, target_card)) {
+            req.on_pick(args.pocket, target_player, target_card);
         }
     }
 
@@ -755,8 +755,8 @@ namespace banggame {
             }
         }
 
-        switch(card_ptr->pile) {
-        case card_pile_type::player_hand:
+        switch(card_ptr->pocket) {
+        case pocket_type::player_hand:
             if (!modifiers.empty() && modifiers.front()->modifier == card_modifier_type::leevankliff) {
                 // Uso il raii eliminare il limite di bang
                 // quando lee van kliff gioca l'effetto del personaggio su una carta bang.
@@ -769,7 +769,7 @@ namespace banggame {
                 if (m_game->is_disabled(modifiers.front())) throw game_error("ERROR_CARD_IS_DISABLED", modifiers.front());
                 verify_card_targets(m_last_played_card, false, args.targets);
                 check_prompt(m_last_played_card, false, args.targets, [=, this]{
-                    m_game->move_to(card_ptr, card_pile_type::discard_pile);
+                    m_game->move_to(card_ptr, pocket_type::discard_pile);
                     m_game->call_event<event_type::on_play_hand_card>(this, card_ptr);
                     do_play_card(m_last_played_card, false, args.targets);
                     set_last_played_card(nullptr);
@@ -821,8 +821,8 @@ namespace banggame {
                 m_game->call_event<event_type::on_effect_end>(this, card_ptr);
             }
             break;
-        case card_pile_type::player_character:
-        case card_pile_type::player_table:
+        case pocket_type::player_character:
+        case pocket_type::player_table:
             if (m_game->is_disabled(card_ptr)) throw game_error("ERROR_CARD_IS_DISABLED", card_ptr);
             if (card_ptr->inactive) throw game_error("ERROR_CARD_INACTIVE", card_ptr);
             verify_modifiers(card_ptr, modifiers);
@@ -833,12 +833,12 @@ namespace banggame {
                 set_last_played_card(nullptr);
             });
             break;
-        case card_pile_type::hidden_deck:
+        case pocket_type::hidden_deck:
             if (std::ranges::find(modifiers, card_modifier_type::shopchoice, &card::modifier) == modifiers.end()) {
                 throw game_error("ERROR_INVALID_ACTION");
             }
             [[fallthrough]];
-        case card_pile_type::shop_selection: {
+        case pocket_type::shop_selection: {
             int cost = card_ptr->buy_cost();
             for (card *c : modifiers) {
                 if (m_game->is_disabled(c)) throw game_error("ERROR_CARD_IS_DISABLED", c);
@@ -889,8 +889,8 @@ namespace banggame {
             });
             break;
         }
-        case card_pile_type::scenario_card:
-        case card_pile_type::specials:
+        case pocket_type::scenario_card:
+        case pocket_type::specials:
             verify_card_targets(card_ptr, false, args.targets);
             check_prompt(card_ptr, false, args.targets, [=, this]{
                 do_play_card(card_ptr, false, args.targets);
@@ -918,16 +918,16 @@ namespace banggame {
             }
         }
 
-        switch (card_ptr->pile) {
-        case card_pile_type::player_table:
+        switch (card_ptr->pocket) {
+        case pocket_type::player_table:
             if (card_ptr->inactive) throw game_error("ERROR_CARD_INACTIVE", card_ptr);
             break;
-        case card_pile_type::player_hand:
+        case pocket_type::player_hand:
             if (card_ptr->color != card_color_type::brown) throw game_error("INVALID_ACTION");
             break;
-        case card_pile_type::player_character:
-        case card_pile_type::scenario_card:
-        case card_pile_type::specials:
+        case pocket_type::player_character:
+        case pocket_type::scenario_card:
+        case pocket_type::specials:
             break;
         default:
             throw game_error("respond_card: invalid card"_nonloc);
@@ -959,7 +959,7 @@ namespace banggame {
             m_game->add_log("LOG_DRAWN_FROM_DECK", this);
             while (m_num_drawn_cards<m_num_cards_to_draw) {
                 ++m_num_drawn_cards;
-                card *drawn_card = m_game->draw_phase_one_card_to(card_pile_type::player_hand, this);
+                card *drawn_card = m_game->draw_phase_one_card_to(pocket_type::player_hand, this);
                 m_game->add_log("LOG_DRAWN_CARD", this, drawn_card);
                 m_game->call_event<event_type::on_card_drawn>(this, drawn_card);
             }
@@ -998,8 +998,8 @@ namespace banggame {
             } else if (m_game->has_scenario(scenario_flags::deadman) && this == m_game->m_first_dead) {
                 remove_player_flags(player_flags::dead);
                 m_game->add_public_update<game_update_type::player_hp>(id, m_hp = 2);
-                m_game->draw_card_to(card_pile_type::player_hand, this);
-                m_game->draw_card_to(card_pile_type::player_hand, this);
+                m_game->draw_card_to(pocket_type::player_hand, this);
+                m_game->draw_card_to(pocket_type::player_hand, this);
                 for (auto *c : m_characters) {
                     equip_if_enabled(c);
                 }
@@ -1103,7 +1103,7 @@ namespace banggame {
         }
         drop_all_cubes(m_characters.front());
         while (!m_hand.empty()) {
-            m_game->move_to(m_hand.front(), card_pile_type::discard_pile);
+            m_game->move_to(m_hand.front(), pocket_type::discard_pile);
         }
     }
 

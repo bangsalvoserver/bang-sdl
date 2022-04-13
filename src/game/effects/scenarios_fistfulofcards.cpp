@@ -40,7 +40,7 @@ namespace banggame {
 
     void effect_lasso::on_equip(card *target_card, player *target) {
         target->m_game->add_disabler(target_card, [](card *c) {
-            return c->pile == card_pile_type::player_table;
+            return c->pocket == pocket_type::player_table;
         });
     }
 
@@ -58,7 +58,7 @@ namespace banggame {
             for (auto it = vec.begin(); it != vec.end(); ) {
                 auto *card = *it;
                 if (!card->responses.empty() && card->responses.front().is(effect_type::peyotechoice)) {
-                    it = p->m_game->move_to(card, card_pile_type::selection, true, nullptr, show_card_flags::no_animation);
+                    it = p->m_game->move_to(card, pocket_type::selection, true, nullptr, show_card_flags::no_animation);
                 } else {
                     ++it;
                 }
@@ -68,7 +68,7 @@ namespace banggame {
         });
     }
 
-    void request_peyote::on_pick(card_pile_type pile, player *target_player, card *target_card) {
+    void request_peyote::on_pick(pocket_type pocket, player *target_player, card *target_card) {
         auto *drawn_card = target->m_game->m_deck.back();
         target->m_game->send_card_update(*drawn_card, nullptr, show_card_flags::short_pause);
 
@@ -76,12 +76,12 @@ namespace banggame {
             ? (drawn_card->sign.suit == card_suit::hearts || drawn_card->sign.suit == card_suit::diamonds)
             : (drawn_card->sign.suit == card_suit::clubs || drawn_card->sign.suit == card_suit::spades))
         {
-            target->m_game->draw_card_to(card_pile_type::player_hand, target);
+            target->m_game->draw_card_to(pocket_type::player_hand, target);
         } else {
-            target->m_game->draw_card_to(card_pile_type::discard_pile);
+            target->m_game->draw_card_to(pocket_type::discard_pile);
 
             while (!target->m_game->m_selection.empty()) {
-                target->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::hidden_deck, true, nullptr, show_card_flags::no_animation);
+                target->m_game->move_to(target->m_game->m_selection.front(), pocket_type::hidden_deck, true, nullptr, show_card_flags::no_animation);
             }
             target->m_game->pop_request<request_peyote>();
             target->m_game->call_event<event_type::post_draw_cards>(target);

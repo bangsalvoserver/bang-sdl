@@ -16,7 +16,7 @@ namespace banggame {
 
     struct add_cards_update {REFLECTABLE(
         (std::vector<card_backface>) card_ids,
-        (card_pile_type) pile,
+        (pocket_type) pocket,
         (int) player_id
     )};
 
@@ -34,7 +34,7 @@ namespace banggame {
     struct move_card_update {REFLECTABLE(
         (int) card_id,
         (int) player_id,
-        (card_pile_type) pile,
+        (pocket_type) pocket,
         (show_card_flags) flags
     )};
 
@@ -119,7 +119,7 @@ namespace banggame {
     )};
 
     struct picking_args {REFLECTABLE(
-        (card_pile_type) pile,
+        (pocket_type) pocket,
         (int) player_id,
         (int) card_id
     )};
@@ -142,7 +142,7 @@ namespace banggame {
         (move_card, move_card_update)
         (add_cubes, add_cubes_update)
         (move_cube, move_cube_update)
-        (deck_shuffled, card_pile_type)
+        (deck_shuffled, pocket_type)
         (show_card, show_card_update)
         (hide_card, hide_card_update)
         (tap_card, tap_card_update)

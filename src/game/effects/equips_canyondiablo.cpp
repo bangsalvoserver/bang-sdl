@@ -45,7 +45,7 @@ namespace banggame {
             if (suit == card_suit::clubs || suit == card_suit::spades) {
                 event_card_key event_key{target_card, 1 + effect_holder_counter++ % 20};
                 target->m_game->add_disabler(event_key, [=](card *c) {
-                    return c->pile == card_pile_type::player_character && c->owner == target;
+                    return c->pocket == pocket_type::player_character && c->owner == target;
                 });
                 auto clear_events = [target, event_key](player *p) {
                     if (p == target) {
@@ -70,12 +70,12 @@ namespace banggame {
         });
         if (it != target->m_game->m_hidden_deck.end()) {
             card *discard_bronco = *it;
-            target->m_game->move_to(discard_bronco, card_pile_type::specials, false, nullptr, show_card_flags::no_animation);
+            target->m_game->move_to(discard_bronco, pocket_type::specials, false, nullptr, show_card_flags::no_animation);
             target->m_game->send_card_update(*discard_bronco, nullptr, show_card_flags::no_animation);
 
             target->m_game->add_event<event_type::post_discard_card>(origin_card, [=](player *p, card *c) {
                 if (p == target && c == origin_card) {
-                    target->m_game->move_to(discard_bronco, card_pile_type::hidden_deck, false, nullptr, show_card_flags::no_animation);
+                    target->m_game->move_to(discard_bronco, pocket_type::hidden_deck, false, nullptr, show_card_flags::no_animation);
                     target->m_game->remove_events(origin_card);
                 }
             });

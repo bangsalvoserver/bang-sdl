@@ -172,8 +172,8 @@ namespace banggame {
         }, origin_card->multi_target_handler);
     }
 
-    void request_base::on_pick(card_pile_type pile, player *target, card *target_card) {
-        throw std::runtime_error("missing on_pick(pile, target, target_card)");
+    void request_base::on_pick(pocket_type pocket, player *target, card *target_card) {
+        throw std::runtime_error("missing on_pick(pocket, target, target_card)");
     }
 
     void timer_request::tick() {

@@ -45,11 +45,11 @@ namespace banggame {
         }
     }
 
-    bool request_bandidos::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
-        return pile == card_pile_type::player_hand && target_player == target;
+    bool request_bandidos::can_pick(pocket_type pocket, player *target_player, card *target_card) const {
+        return pocket == pocket_type::player_hand && target_player == target;
     }
 
-    void request_bandidos::on_pick(card_pile_type pile, player *target_player, card *target_card) {
+    void request_bandidos::on_pick(pocket_type pocket, player *target_player, card *target_card) {
         target->discard_card(target_card);
         if (--num_cards == 0 || target->m_hand.empty()) {
             target->m_game->pop_request<request_bandidos>();
@@ -70,14 +70,14 @@ namespace banggame {
         }
     }
 
-    bool request_tornado::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
-        return pile == card_pile_type::player_hand && target_player == target;
+    bool request_tornado::can_pick(pocket_type pocket, player *target_player, card *target_card) const {
+        return pocket == pocket_type::player_hand && target_player == target;
     }
 
-    void request_tornado::on_pick(card_pile_type pile, player *target_player, card *target_card) {
+    void request_tornado::on_pick(pocket_type pocket, player *target_player, card *target_card) {
         target->discard_card(target_card);
-        target->m_game->draw_card_to(card_pile_type::player_hand, target);
-        target->m_game->draw_card_to(card_pile_type::player_hand, target);
+        target->m_game->draw_card_to(pocket_type::player_hand, target);
+        target->m_game->draw_card_to(pocket_type::player_hand, target);
         target->m_game->pop_request<request_tornado>();
     }
 
@@ -89,12 +89,12 @@ namespace banggame {
         }
     }
 
-    bool request_poker::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
-        return pile == card_pile_type::player_hand && target_player == target;
+    bool request_poker::can_pick(pocket_type pocket, player *target_player, card *target_card) const {
+        return pocket == pocket_type::player_hand && target_player == target;
     }
 
-    void request_poker::on_pick(card_pile_type pile, player *target_player, card *target_card) {
-        target->m_game->move_to(target_card, card_pile_type::selection, true, origin);
+    void request_poker::on_pick(pocket_type pocket, player *target_player, card *target_card) {
+        target->m_game->move_to(target_card, pocket_type::selection, true, origin);
         target->m_game->pop_request<request_poker>();
     }
 
@@ -106,11 +106,11 @@ namespace banggame {
         }
     }
 
-    void request_poker_draw::on_pick(card_pile_type pile, player *target_player, card *target_card) {
+    void request_poker_draw::on_pick(pocket_type pocket, player *target_player, card *target_card) {
         target->add_to_hand(target_card);
         if (--num_cards == 0 || target->m_game->m_selection.size() == 0) {
             for (auto *c : target->m_game->m_selection) {
-                target->m_game->move_to(c, card_pile_type::discard_pile);
+                target->m_game->move_to(c, pocket_type::discard_pile);
             }
             target->m_game->pop_request<request_poker_draw>();
         }
@@ -124,19 +124,19 @@ namespace banggame {
         }
     }
 
-    bool request_saved::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
-        return pile == card_pile_type::main_deck
-            || (pile == card_pile_type::player_hand && target_player == saved);
+    bool request_saved::can_pick(pocket_type pocket, player *target_player, card *target_card) const {
+        return pocket == pocket_type::main_deck
+            || (pocket == pocket_type::player_hand && target_player == saved);
     }
 
-    void request_saved::on_pick(card_pile_type pile, player *target_player, card *target_card) {
-        switch (pile) {
-        case card_pile_type::main_deck:
-            target->m_game->draw_card_to(card_pile_type::player_hand, target);
-            target->m_game->draw_card_to(card_pile_type::player_hand, target);
+    void request_saved::on_pick(pocket_type pocket, player *target_player, card *target_card) {
+        switch (pocket) {
+        case pocket_type::main_deck:
+            target->m_game->draw_card_to(pocket_type::player_hand, target);
+            target->m_game->draw_card_to(pocket_type::player_hand, target);
             target->m_game->pop_request<request_saved>();
             break;
-        case card_pile_type::player_hand:
+        case pocket_type::player_hand:
             for (int i=0; i<2 && !saved->m_hand.empty(); ++i) {
                 target->steal_card(saved, saved->random_hand_card());
             }

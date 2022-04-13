@@ -18,14 +18,14 @@ namespace banggame {
         int gold = 0;
         bool dead = false;
 
-        wide_card_pile hand{options.player_hand_width};
-        wide_card_pile table{options.player_hand_width};
+        wide_pocket hand{options.player_hand_width};
+        wide_pocket table{options.player_hand_width};
 
         sdl::rect m_bounding_rect;
         sdl::color border_color{};
 
         character_pile m_characters;
-        card_pile_view m_backup_characters;
+        pocket_view m_backup_characters;
         
         role_card *m_role;
 

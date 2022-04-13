@@ -11,7 +11,7 @@ namespace banggame {
 
     void handler_draw_atend::on_play(card *origin_card, player *origin, const mth_target_list &targets) {
         for (auto [target, _] : targets) {
-            target->m_game->draw_card_to(card_pile_type::player_hand, target);
+            target->m_game->draw_card_to(pocket_type::player_hand, target);
         }
     }
 
@@ -115,7 +115,7 @@ namespace banggame {
         origin->m_game->add_event<event_type::apply_bang_modifier>(origin_card, [=](player *p, request_bang *req) {
             if (p == origin) {
                 card *bang_card = req->origin->chosen_card_or(req->origin_card);
-                req->origin->m_game->move_to(bang_card, card_pile_type::player_hand, true, req->origin, show_card_flags::short_pause | show_card_flags::show_everyone);
+                req->origin->m_game->move_to(bang_card, pocket_type::player_hand, true, req->origin, show_card_flags::short_pause | show_card_flags::show_everyone);
 
                 req->on_cleanup([origin = req->origin, bang_card]{
                     if (bang_card->owner == origin) {
@@ -145,8 +145,8 @@ namespace banggame {
 
     void effect_bigfifty::on_play(card *origin_card, player *p) {
         p->m_game->add_disabler(origin_card, [=](card *c) {
-            return (c->pile == card_pile_type::player_table
-                || c->pile == card_pile_type::player_character)
+            return (c->pocket == pocket_type::player_table
+                || c->pocket == pocket_type::player_character)
                 && c->owner != p;
         });
         p->m_game->add_event<event_type::apply_bang_modifier>(origin_card, [=](player *origin, request_bang *req) {

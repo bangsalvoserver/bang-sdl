@@ -112,7 +112,7 @@ namespace banggame {
                 target->m_game->queue_action([=]{
                     if (target->alive()) {
                         for (int i=0; i<damage; ++i) {
-                            target->m_game->draw_card_to(card_pile_type::player_hand, target);
+                            target->m_game->draw_card_to(pocket_type::player_hand, target);
                         }
                     }
                 });

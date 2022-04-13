@@ -51,7 +51,7 @@ namespace banggame {
         }
     };
 
-    class card_pile_view;
+    class pocket_view;
     class cube_widget;
 
     class card_view : public card_data {
@@ -64,7 +64,7 @@ namespace banggame {
         bool animating = false;
         
         bool known = false;
-        card_pile_view *pile = nullptr;
+        pocket_view *pocket = nullptr;
 
         bool inactive = false;
 
@@ -114,7 +114,7 @@ namespace banggame {
         void make_texture_front();
     };
     
-    class card_pile_view {
+    class pocket_view {
     private:
         std::vector<card_view *> m_cards;
         sdl::point m_pos;
@@ -153,28 +153,28 @@ namespace banggame {
         }
 
         virtual void add_card(card_view *card) {
-            card->pile = this;
+            card->pocket = this;
             m_cards.push_back(card);
         }
 
         virtual void erase_card(card_view *card) {
             if (auto it = std::ranges::find(*this, card); it != end()) {
-                card->pile = nullptr;
+                card->pocket = nullptr;
                 m_cards.erase(it);
             }
         }
 
         virtual void clear() {
             for (card_view *card : *this) {
-                if (card->pile == this) {
-                    card->pile = nullptr;
+                if (card->pocket == this) {
+                    card->pocket = nullptr;
                 }
             }
             m_cards.clear();
         }
     };
 
-    class counting_card_pile : public card_pile_view {
+    class counting_pocket : public pocket_view {
     private:
         widgets::stattext m_count_text;
         void update_count();
@@ -183,40 +183,40 @@ namespace banggame {
         void render_count(sdl::renderer &renderer);
 
         void add_card(card_view *card) override {
-            card_pile_view::add_card(card);
+            pocket_view::add_card(card);
             update_count();
         }
 
         void erase_card(card_view *card) override {
-            card->pile = nullptr;
-            card_pile_view::erase_card(card);
+            card->pocket = nullptr;
+            pocket_view::erase_card(card);
             update_count();
         }
 
         void clear() override {
-            card_pile_view::clear();
+            pocket_view::clear();
             update_count();
         }
     };
 
-    struct wide_card_pile : card_pile_view {
+    struct wide_pocket : pocket_view {
         int width;
-        explicit wide_card_pile(int width) : width(width) {}
+        explicit wide_pocket(int width) : width(width) {}
 
         bool wide() const override { return true; }
         sdl::point get_position_of(card_view *card) const override;
     };
 
-    struct flipped_card_pile : wide_card_pile {
-        using wide_card_pile::wide_card_pile;
+    struct flipped_pocket : wide_pocket {
+        using wide_pocket::wide_pocket;
         sdl::point get_position_of(card_view *card) const override;
     };
 
-    struct character_pile : card_pile_view {
+    struct character_pile : pocket_view {
         sdl::point get_position_of(card_view *card) const override;
     };
 
-    struct role_pile : card_pile_view {
+    struct role_pile : pocket_view {
         sdl::point get_position_of(card_view *card) const override;
     };
 

@@ -116,9 +116,8 @@ namespace banggame {
         (wildwestshow)
     )
 
-    DEFINE_ENUM(card_pile_type,
+    DEFINE_ENUM(pocket_type,
         (none)
-        (player)
         (player_hand)
         (player_table)
         (player_character)

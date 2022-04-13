@@ -18,7 +18,7 @@ namespace banggame {
         bool inactive = false;
         std::vector<int> cubes;
 
-        card_pile_type pile = card_pile_type::none;
+        pocket_type pocket = pocket_type::none;
         player *owner = nullptr;
     };
 
@@ -94,7 +94,7 @@ namespace banggame {
         
         void add_to_hand(card *card);
         
-        std::vector<card *>::iterator move_card_to(card *card, card_pile_type pile,
+        std::vector<card *>::iterator move_card_to(card *card, pocket_type pocket,
             bool known = false, player *owner = nullptr, show_card_flags flags = {});
 
         void discard_card(card *card);

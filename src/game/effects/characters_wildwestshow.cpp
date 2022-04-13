@@ -8,7 +8,7 @@ namespace banggame {
 
     void effect_big_spencer::on_equip(card *target_card, player *p) {
         p->m_game->add_disabler(target_card, [=](card *c) {
-            return c->pile == card_pile_type::player_hand
+            return c->pocket == pocket_type::player_hand
                 && c->owner == p
                 && !c->responses.empty()
                 && c->responses.back().is(effect_type::missedcard);
@@ -35,7 +35,7 @@ namespace banggame {
                         return;
                     }
                 }
-                p->m_game->move_to(discarded_card, card_pile_type::player_hand, true, p, show_card_flags::short_pause);
+                p->m_game->move_to(discarded_card, pocket_type::player_hand, true, p, show_card_flags::short_pause);
             }
         });
     }
@@ -51,7 +51,7 @@ namespace banggame {
                             return;
                         }
                     }
-                    player_end->m_game->move_to(drawn_card, card_pile_type::player_hand, true, player_end, show_card_flags::short_pause);
+                    player_end->m_game->move_to(drawn_card, pocket_type::player_hand, true, player_end, show_card_flags::short_pause);
                 }
             });
         });
@@ -71,7 +71,7 @@ namespace banggame {
                 origin->m_game->pop_request<request_death>();
                 origin->m_hp = 1;
                 origin->m_game->add_public_update<game_update_type::player_hp>(origin->id, 1);
-                origin->m_game->draw_card_to(card_pile_type::player_hand, origin);
+                origin->m_game->draw_card_to(pocket_type::player_hand, origin);
             }
         });
     }
@@ -88,11 +88,11 @@ namespace banggame {
         });
     }
 
-    bool request_youl_grinner::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
-        return pile == card_pile_type::player_hand && target_player == target;
+    bool request_youl_grinner::can_pick(pocket_type pocket, player *target_player, card *target_card) const {
+        return pocket == pocket_type::player_hand && target_player == target;
     }
 
-    void request_youl_grinner::on_pick(card_pile_type pile, player *target_player, card *target_card) {
+    void request_youl_grinner::on_pick(pocket_type pocket, player *target_player, card *target_card) {
         target->m_game->pop_request<request_youl_grinner>();
         origin->steal_card(target, target_card);
         target->m_game->call_event<event_type::on_effect_end>(origin, origin_card);
@@ -120,8 +120,8 @@ namespace banggame {
         auto view = target->m_game->m_cards
             | std::views::filter([&](const card &c) {
                 return c.expansion == card_expansion_type::base
-                    && (c.pile == card_pile_type::none
-                    || (c.pile == card_pile_type::player_character && c.owner == target));
+                    && (c.pocket == pocket_type::none
+                    || (c.pocket == pocket_type::player_character && c.owner == target));
             })
             | std::views::transform([](card &c) {
                 return &c;
@@ -131,11 +131,11 @@ namespace banggame {
 
         target->m_game->add_public_update<game_update_type::add_cards>(
             make_id_vector(base_characters | std::views::take(2)),
-            card_pile_type::player_character, target->id);
+            pocket_type::player_character, target->id);
         for (int i=0; i<2; ++i) {
             auto *c = target->m_characters.emplace_back(base_characters[i]);
             target->equip_if_enabled(c);
-            c->pile = card_pile_type::player_character;
+            c->pocket = pocket_type::player_character;
             c->owner = target;
             target->m_game->send_card_update(*c, target, show_card_flags::no_animation | show_card_flags::show_everyone);
         }
@@ -145,7 +145,7 @@ namespace banggame {
         for (int i=1; i<target->m_characters.size(); ++i) {
             auto *c = target->m_characters[i];
             target->unequip_if_enabled(c);
-            c->pile = card_pile_type::none;
+            c->pocket = pocket_type::none;
             c->owner = nullptr;
         }
         if (target->m_characters.size() > 1) {

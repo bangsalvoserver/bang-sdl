@@ -39,10 +39,10 @@ namespace banggame {
     };
 
     struct deck_shuffle_animation {
-        card_pile_view *cards;
+        pocket_view *cards;
         sdl::point start_pos;
 
-        deck_shuffle_animation(card_pile_view *cards, sdl::point start_pos)
+        deck_shuffle_animation(pocket_view *cards, sdl::point start_pos)
             : cards(cards), start_pos(start_pos) {}
 
         void end();

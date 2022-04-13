@@ -131,7 +131,7 @@ namespace banggame {
 
     void effect_generalstore::on_play(card *origin_card, player *origin) {
         for (int i=0; i<origin->m_game->num_alive(); ++i) {
-            origin->m_game->draw_card_to(card_pile_type::selection);
+            origin->m_game->draw_card_to(pocket_type::selection);
         }
         origin->m_game->queue_request<request_generalstore>(origin_card, origin, origin);
     }
@@ -294,14 +294,14 @@ namespace banggame {
 
     void effect_draw::on_play(card *origin_card, player *origin, player *target) {
         for (int i=0; i<ncards; ++i) {
-            card *drawn_card = target->m_game->draw_card_to(card_pile_type::player_hand, target);
+            card *drawn_card = target->m_game->draw_card_to(pocket_type::player_hand, target);
             target->m_game->add_log("LOG_DRAWN_CARD", target, drawn_card);
         }
     }
 
     void effect_draw_discard::verify(card *origin_card, player *origin, player *target) const {
         if (target->m_game->m_discards.empty()) {
-            throw game_error("ERROR_DISCARD_PILE_EMPTY");
+            throw game_error("ERROR_discard_pile_EMPTY");
         }
     }
 
@@ -313,7 +313,7 @@ namespace banggame {
 
     void effect_draw_to_discard::on_play(card *origin_card, player *origin) {
         for (int i=0; i<ncards; ++i) {
-            origin->m_game->draw_card_to(card_pile_type::discard_pile);
+            origin->m_game->draw_card_to(pocket_type::discard_pile);
         }
     }
 
@@ -321,7 +321,7 @@ namespace banggame {
         target->m_game->queue_action([=]{
             ++target->m_num_drawn_cards;
             while (target->m_num_drawn_cards++ < target->m_num_cards_to_draw) {
-                card *drawn_card = target->m_game->draw_phase_one_card_to(card_pile_type::player_hand, target);
+                card *drawn_card = target->m_game->draw_phase_one_card_to(pocket_type::player_hand, target);
                 target->m_game->add_log("LOG_DRAWN_CARD", target, drawn_card);
                 target->m_game->call_event<event_type::on_card_drawn>(target, drawn_card);
             }

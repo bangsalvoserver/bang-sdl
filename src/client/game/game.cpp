@@ -286,9 +286,9 @@ void game_scene::handle_card_click() {
     auto mouse_in_card = [&](card_view *card) {
         return sdl::point_in_rect(m_mouse_pt, card->get_rect());
     };
-    auto find_clicked = [&](const card_pile_view &pile) {
-        auto it = std::ranges::find_if(pile | std::views::reverse, mouse_in_card);
-        return (it == pile.rend()) ? nullptr : *it;
+    auto find_clicked = [&](const pocket_view &pocket) {
+        auto it = std::ranges::find_if(pocket | std::views::reverse, mouse_in_card);
+        return (it == pocket.rend()) ? nullptr : *it;
     };
 
     if (card_view *card = find_clicked(m_selection)) {
@@ -338,13 +338,13 @@ void game_scene::find_overlay() {
     auto mouse_in_card = [&](const card_view *card) {
         return sdl::point_in_rect(m_mouse_pt, card->get_rect());
     };
-    auto find_clicked = [&](const card_pile_view &pile) {
-        auto it = std::ranges::find_if(pile | std::views::reverse,
+    auto find_clicked = [&](const pocket_view &pocket) {
+        auto it = std::ranges::find_if(pocket | std::views::reverse,
             [&](const card_view *card) {
                 return mouse_in_card(card) && card->known;
             }
         );
-        return (it == pile.rend()) ? nullptr : *it;
+        return (it == pocket.rend()) ? nullptr : *it;
     };
 
     if (m_overlay = find_clicked(m_shop_choice)) {
@@ -442,7 +442,7 @@ std::string game_scene::evaluate_format_string(const game_formatted_string &str)
                 player_view *owner = value.player_id ? find_player(value.player_id) : nullptr;
                 card_view *card = value.card_id ? find_card(value.card_id) : nullptr;
                 if (card) {
-                    if (owner && card->pile == &owner->hand) {
+                    if (owner && card->pocket == &owner->hand) {
                         return _("STATUS_CARD_FROM_HAND");
                     } else if (!card->known) {
                         return _("STATUS_UNKNOWN_CARD");
@@ -481,9 +481,9 @@ void game_scene::HANDLE_UPDATE(game_prompt, const game_formatted_string &args) {
     pop_update();
 }
 
-void game_scene::HANDLE_UPDATE(deck_shuffled, const card_pile_type &pile) {
-    switch (pile) {
-    case card_pile_type::main_deck: {
+void game_scene::HANDLE_UPDATE(deck_shuffled, const pocket_type &pocket) {
+    switch (pocket) {
+    case pocket_type::main_deck: {
         card_view *top_discard = m_discard_pile.back();
         m_discard_pile.erase_card(top_discard);
         for (card_view *card : m_discard_pile) {
@@ -495,7 +495,7 @@ void game_scene::HANDLE_UPDATE(deck_shuffled, const card_pile_type &pile) {
         add_animation<deck_shuffle_animation>(options.shuffle_deck_ticks, &m_main_deck, m_discard_pile.get_pos());
         break;
     }
-    case card_pile_type::shop_deck:
+    case pocket_type::shop_deck:
         for (card_view *card : m_shop_discard) {
             card->known = false;
             m_shop_deck.add_card(card);
@@ -506,28 +506,28 @@ void game_scene::HANDLE_UPDATE(deck_shuffled, const card_pile_type &pile) {
     }
 }
 
-card_pile_view &game_scene::get_pile(card_pile_type pile, int player_id) {
-    switch(pile) {
-    case card_pile_type::player_hand:       return find_player(player_id)->hand;
-    case card_pile_type::player_table:      return find_player(player_id)->table;
-    case card_pile_type::player_character:  return find_player(player_id)->m_characters;
-    case card_pile_type::player_backup:     return find_player(player_id)->m_backup_characters;
-    case card_pile_type::main_deck:         return m_main_deck;
-    case card_pile_type::discard_pile:      return m_discard_pile;
-    case card_pile_type::selection:         return m_selection;
-    case card_pile_type::shop_deck:         return m_shop_deck;
-    case card_pile_type::shop_selection:    return m_shop_selection;
-    case card_pile_type::shop_discard:      return m_shop_discard;
-    case card_pile_type::hidden_deck:       return m_hidden_deck;
-    case card_pile_type::scenario_deck:     return m_scenario_deck;
-    case card_pile_type::scenario_card:     return m_scenario_card;
-    case card_pile_type::specials:          return m_specials;
-    default: throw std::runtime_error("Invalid pile");
+pocket_view &game_scene::get_pocket(pocket_type pocket, int player_id) {
+    switch(pocket) {
+    case pocket_type::player_hand:       return find_player(player_id)->hand;
+    case pocket_type::player_table:      return find_player(player_id)->table;
+    case pocket_type::player_character:  return find_player(player_id)->m_characters;
+    case pocket_type::player_backup:     return find_player(player_id)->m_backup_characters;
+    case pocket_type::main_deck:         return m_main_deck;
+    case pocket_type::discard_pile:      return m_discard_pile;
+    case pocket_type::selection:         return m_selection;
+    case pocket_type::shop_deck:         return m_shop_deck;
+    case pocket_type::shop_selection:    return m_shop_selection;
+    case pocket_type::shop_discard:      return m_shop_discard;
+    case pocket_type::hidden_deck:       return m_hidden_deck;
+    case pocket_type::scenario_deck:     return m_scenario_deck;
+    case pocket_type::scenario_card:     return m_scenario_card;
+    case pocket_type::specials:          return m_specials;
+    default: throw std::runtime_error("Invalid pocket");
     }
 }
 
 void game_scene::HANDLE_UPDATE(add_cards, const add_cards_update &args) {
-    auto &pile = get_pile(args.pile, args.player_id);
+    auto &pocket = get_pocket(args.pocket, args.player_id);
 
     for (auto [id, deck] : args.card_ids) {
         card_view c;
@@ -542,8 +542,8 @@ void game_scene::HANDLE_UPDATE(add_cards, const add_cards_update &args) {
         }(c.deck = deck);
 
         card_view *card_ptr = &m_cards.emplace(std::move(c));
-        pile.add_card(card_ptr);
-        card_ptr->set_pos(pile.get_position_of(card_ptr));
+        pocket.add_card(card_ptr);
+        card_ptr->set_pos(pocket.get_position_of(card_ptr));
     }
 
     pop_update();
@@ -552,8 +552,8 @@ void game_scene::HANDLE_UPDATE(add_cards, const add_cards_update &args) {
 void game_scene::HANDLE_UPDATE(remove_cards, const remove_cards_update &args) {
     for (auto [id, deck] : args.card_ids) {
         auto *c = find_card(id);
-        if (c && c->pile) {
-            c->pile->erase_card(c);
+        if (c && c->pocket) {
+            c->pocket->erase_card(c);
         }
         m_cards.erase(id);
     }
@@ -568,8 +568,8 @@ void game_scene::HANDLE_UPDATE(move_card, const move_card_update &args) {
         return;
     }
 
-    card_pile_view *old_pile = card->pile;
-    card_pile_view *new_pile = &get_pile(args.pile, args.player_id);
+    pocket_view *old_pile = card->pocket;
+    pocket_view *new_pile = &get_pocket(args.pocket, args.player_id);
     
     if (old_pile == new_pile) {
         pop_update();
@@ -658,11 +658,11 @@ void game_scene::HANDLE_UPDATE(show_card, const show_card_update &args) {
             card->make_texture_front();
         }
 
-        if (card->pile == &m_main_deck) {
+        if (card->pocket == &m_main_deck) {
             std::swap(*std::ranges::find(m_main_deck, card), m_main_deck.back());
-        } else if (card->pile == &m_shop_deck) {
+        } else if (card->pocket == &m_shop_deck) {
             std::swap(*std::ranges::find(m_shop_deck, card), m_shop_deck.back());
-        } else if (card->pile == &m_specials) {
+        } else if (card->pocket == &m_specials) {
             m_ui.add_special(card);
         }
         if (bool(args.flags & show_card_flags::no_animation)) {
@@ -685,7 +685,7 @@ void game_scene::HANDLE_UPDATE(hide_card, const hide_card_update &args) {
     card_view *card = find_card(args.card_id);
 
     if (card && card->known && (m_player_own_id == 0 || args.ignore_player_id != m_player_own_id)) {
-        if (card->pile == &m_specials) {
+        if (card->pocket == &m_specials) {
             m_ui.remove_special(card);
         }
         card->known = false;

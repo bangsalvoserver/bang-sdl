@@ -21,8 +21,8 @@ namespace banggame {
         request_thedaltons(card *origin_card, player *target)
             : request_base(origin_card, nullptr, target) {}
 
-        bool can_pick(card_pile_type pile, player *target, card *target_card) const override;
-        void on_pick(card_pile_type pile, player *target, card *target_card) override;
+        bool can_pick(pocket_type pocket, player *target, card *target_card) const override;
+        void on_pick(pocket_type pocket, player *target, card *target_card) override;
         game_formatted_string status_text(player *owner) const override;
     };
 
@@ -79,7 +79,7 @@ namespace banggame {
         request_handcuffs(card *origin_card, player *target)
             : selection_picker(origin_card, nullptr, target) {}
 
-        void on_pick(card_pile_type pile, player *target, card *target_card) override;
+        void on_pick(pocket_type pocket, player *target, card *target_card) override;
         game_formatted_string status_text(player *owner) const override;
     };
 
@@ -91,8 +91,8 @@ namespace banggame {
         request_newidentity(card *origin_card, player *target)
             : request_base(origin_card, nullptr, target) {}
 
-        bool can_pick(card_pile_type pile, player *target, card *target_card) const override;
-        void on_pick(card_pile_type pile, player *target, card *target_card) override;
+        bool can_pick(pocket_type pocket, player *target, card *target_card) const override;
+        void on_pick(pocket_type pocket, player *target, card *target_card) override;
         game_formatted_string status_text(player *owner) const override;
     };
 }

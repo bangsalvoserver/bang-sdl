@@ -8,7 +8,7 @@
 namespace banggame {
 
     struct pick_card_args {REFLECTABLE(
-        (card_pile_type) pile,
+        (pocket_type) pocket,
         (int) player_id,
         (int) card_id
     )};

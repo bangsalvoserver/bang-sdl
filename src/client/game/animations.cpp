@@ -14,7 +14,7 @@ namespace banggame {
 
     void card_move_animation::end() {
         for (auto &[card, _] : data) {
-            card->set_pos(card->pile->get_position_of(card));
+            card->set_pos(card->pocket->get_position_of(card));
             card->animating = false;
         }
     }
@@ -22,7 +22,7 @@ namespace banggame {
     void card_move_animation::do_animation_impl(float amt) {
         for (auto &[card, start] : data) {
             card->animating = true;
-            sdl::point dest = card->pile->get_position_of(card);
+            sdl::point dest = card->pocket->get_position_of(card);
             card->set_pos(sdl::point{
                 (int) std::lerp(start.x, dest.x, amt),
                 (int) std::lerp(start.y, dest.y, amt)

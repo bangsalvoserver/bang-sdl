@@ -23,7 +23,7 @@ namespace banggame {
 
     void effect_madam_yto::on_equip(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_play_beer>(target_card, [p](player *target) {
-            p->m_game->draw_card_to(card_pile_type::player_hand, p);
+            p->m_game->draw_card_to(pocket_type::player_hand, p);
         });
     }
 
@@ -33,7 +33,7 @@ namespace banggame {
                 if (target->m_num_cards_to_draw > 1) {
                     target->m_game->pop_request_noupdate<request_draw>();
                     for (int i=0; i<target->m_num_cards_to_draw; ++i) {
-                        target->m_game->draw_phase_one_card_to(card_pile_type::selection, target);
+                        target->m_game->draw_phase_one_card_to(pocket_type::selection, target);
                     }
                     target->m_game->queue_request<request_dutch_will>(target_card, target);
                 }
@@ -41,13 +41,13 @@ namespace banggame {
         });
     }
 
-    void request_dutch_will::on_pick(card_pile_type pile, player *target_player, card *target_card) {
+    void request_dutch_will::on_pick(pocket_type pocket, player *target_player, card *target_card) {
         ++target->m_num_drawn_cards;
         target->add_to_hand(target_card);
         target->m_game->call_event<event_type::on_card_drawn>(target, target_card);
         if (target->m_game->m_selection.size() == 1) {
             target->m_game->pop_request<request_dutch_will>();
-            target->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::discard_pile);
+            target->m_game->move_to(target->m_game->m_selection.front(), pocket_type::discard_pile);
             target->add_gold(1);
         }
     }
@@ -63,7 +63,7 @@ namespace banggame {
     void effect_josh_mccloud::on_play(card *origin_card, player *target) {
         auto *card = target->m_game->draw_shop_card();
         if (!target->is_possible_to_play(card)) {
-            target->m_game->move_to(card, card_pile_type::shop_discard, true, nullptr, show_card_flags::pause_before_move);
+            target->m_game->move_to(card, pocket_type::shop_discard, true, nullptr, show_card_flags::pause_before_move);
         } else {
             target->set_forced_card(card);
         }

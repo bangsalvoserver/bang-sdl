@@ -12,8 +12,8 @@ namespace banggame {
 
         int ncubes = 1;
         
-        bool can_pick(card_pile_type pile, player *target, card *target_card) const override;
-        void on_pick(card_pile_type pile, player *target, card *target_card) override;
+        bool can_pick(pocket_type pocket, player *target, card *target_card) const override;
+        void on_pick(pocket_type pocket, player *target, card *target_card) override;
         game_formatted_string status_text(player *owner) const override;
     };
 

@@ -20,23 +20,23 @@ namespace banggame {
         throw game_error("server.find_player: ID not found"_nonloc);
     }
     
-    std::vector<card *> &game_table::get_pile(card_pile_type pile, player *owner) {
-        switch (pile) {
-        case card_pile_type::player_hand:       return owner->m_hand;
-        case card_pile_type::player_table:      return owner->m_table;
-        case card_pile_type::player_character:  return owner->m_characters;
-        case card_pile_type::player_backup:     return owner->m_backup_character;
-        case card_pile_type::main_deck:         return m_deck;
-        case card_pile_type::discard_pile:      return m_discards;
-        case card_pile_type::selection:         return m_selection;
-        case card_pile_type::shop_deck:         return m_shop_deck;
-        case card_pile_type::shop_selection:    return m_shop_selection;
-        case card_pile_type::shop_discard:      return m_shop_discards;
-        case card_pile_type::hidden_deck:       return m_hidden_deck;
-        case card_pile_type::scenario_deck:     return m_scenario_deck;
-        case card_pile_type::scenario_card:     return m_scenario_cards;
-        case card_pile_type::specials:          return m_specials;
-        default: throw std::runtime_error("Invalid Pile");
+    std::vector<card *> &game_table::get_pocket(pocket_type pocket, player *owner) {
+        switch (pocket) {
+        case pocket_type::player_hand:       return owner->m_hand;
+        case pocket_type::player_table:      return owner->m_table;
+        case pocket_type::player_character:  return owner->m_characters;
+        case pocket_type::player_backup:     return owner->m_backup_character;
+        case pocket_type::main_deck:         return m_deck;
+        case pocket_type::discard_pile:      return m_discards;
+        case pocket_type::selection:         return m_selection;
+        case pocket_type::shop_deck:         return m_shop_deck;
+        case pocket_type::shop_selection:    return m_shop_selection;
+        case pocket_type::shop_discard:      return m_shop_discards;
+        case pocket_type::hidden_deck:       return m_hidden_deck;
+        case pocket_type::scenario_deck:     return m_scenario_deck;
+        case pocket_type::scenario_card:     return m_scenario_cards;
+        case pocket_type::specials:          return m_specials;
+        default: throw std::runtime_error("Invalid pocket");
         }
     }
 
@@ -105,57 +105,57 @@ namespace banggame {
         }
     }
 
-    std::vector<card *>::iterator game_table::move_to(card *c, card_pile_type pile, bool known, player *owner, show_card_flags flags) {
+    std::vector<card *>::iterator game_table::move_to(card *c, pocket_type pocket, bool known, player *owner, show_card_flags flags) {
         if (known) {
             send_card_update(*c, owner, flags);
         } else {
             add_public_update<game_update_type::hide_card>(c->id, flags);
         }
-        auto &prev_pile = get_pile(c->pile, c->owner);
+        auto &prev_pile = get_pocket(c->pocket, c->owner);
         auto card_it = std::ranges::find(prev_pile, c);
-        if (c->pile == pile && c->owner == owner) {
+        if (c->pocket == pocket && c->owner == owner) {
             return std::next(card_it);
         }
-        add_public_update<game_update_type::move_card>(c->id, owner ? owner->id : 0, pile, flags);
-        get_pile(pile, owner).emplace_back(c);
-        c->pile = pile;
+        add_public_update<game_update_type::move_card>(c->id, owner ? owner->id : 0, pocket, flags);
+        get_pocket(pocket, owner).emplace_back(c);
+        c->pocket = pocket;
         c->owner = owner;
         return prev_pile.erase(card_it);
     }
 
-    card *game_table::draw_card_to(card_pile_type pile, player *owner, show_card_flags flags) {
+    card *game_table::draw_card_to(pocket_type pocket, player *owner, show_card_flags flags) {
         card *drawn_card = m_deck.back();
-        move_to(drawn_card, pile, true, owner, flags);
+        move_to(drawn_card, pocket, true, owner, flags);
         if (m_deck.empty()) {
             card *top_discards = m_discards.back();
             m_discards.pop_back();
             m_deck = std::move(m_discards);
             for (card *c : m_deck) {
-                c->pile = card_pile_type::main_deck;
+                c->pocket = pocket_type::main_deck;
                 c->owner = nullptr;
             }
             m_discards.clear();
             m_discards.emplace_back(top_discards);
             shuffle_cards_and_ids(m_deck);
-            add_public_update<game_update_type::deck_shuffled>(card_pile_type::main_deck);
+            add_public_update<game_update_type::deck_shuffled>(pocket_type::main_deck);
             add_log("LOG_DECK_RESHUFFLED");
         }
         return drawn_card;
     }
 
-    card *game_table::draw_phase_one_card_to(card_pile_type pile, player *owner, show_card_flags flags) {
+    card *game_table::draw_phase_one_card_to(pocket_type pocket, player *owner, show_card_flags flags) {
         if (!has_scenario(scenario_flags::abandonedmine) || m_discards.empty()) {
-            return draw_card_to(pile, owner, flags);
+            return draw_card_to(pocket, owner, flags);
         } else {
             card *drawn_card = m_discards.back();
-            move_to(drawn_card, pile, true, owner, flags);
+            move_to(drawn_card, pocket, true, owner, flags);
             return drawn_card;
         }
     }
 
     card *game_table::draw_shop_card() {
         card *drawn_card = m_shop_deck.back();
-        move_to(drawn_card, card_pile_type::shop_selection);
+        move_to(drawn_card, pocket_type::shop_selection);
         if (drawn_card->modifier == card_modifier_type::shopchoice) {
             for (card *c : m_hidden_deck) {
                 if (!c->effects.empty() && c->effects.front().type == drawn_card->effects.front().type) {
@@ -166,12 +166,12 @@ namespace banggame {
         if (m_shop_deck.empty()) {
             m_shop_deck = std::move(m_shop_discards);
             for (card *c : m_shop_deck) {
-                c->pile = card_pile_type::shop_deck;
+                c->pocket = pocket_type::shop_deck;
                 c->owner = nullptr;
             }
             m_shop_discards.clear();
             shuffle_cards_and_ids(m_shop_deck);
-            add_public_update<game_update_type::deck_shuffled>(card_pile_type::shop_deck);
+            add_public_update<game_update_type::deck_shuffled>(pocket_type::shop_deck);
         }
         return drawn_card;
     }
@@ -186,7 +186,7 @@ namespace banggame {
             m_first_player->unequip_if_enabled(m_scenario_cards.back());
             m_scenario_flags = {};
         }
-        move_to(m_scenario_deck.back(), card_pile_type::scenario_card);
+        move_to(m_scenario_deck.back(), pocket_type::scenario_card);
         m_first_player->equip_if_enabled(m_scenario_cards.back());
     }
 }

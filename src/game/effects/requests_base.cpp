@@ -6,18 +6,18 @@
 
 namespace banggame {
 
-    bool request_characterchoice::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
-        return pile == card_pile_type::player_hand && target_player == target;
+    bool request_characterchoice::can_pick(pocket_type pocket, player *target_player, card *target_card) const {
+        return pocket == pocket_type::player_hand && target_player == target;
     }
 
-    void request_characterchoice::on_pick(card_pile_type pile, player *target_player, card *target_card) {
-        target->m_game->move_to(target_card, card_pile_type::player_character, true, target, show_card_flags::show_everyone);
+    void request_characterchoice::on_pick(pocket_type pocket, player *target_player, card *target_card) {
+        target->m_game->move_to(target_card, pocket_type::player_character, true, target, show_card_flags::show_everyone);
         target->equip_if_enabled(target_card);
 
         target->m_hp = target->m_max_hp;
         target->m_game->add_public_update<game_update_type::player_hp>(target->id, target->m_hp, false, true);
 
-        target->m_game->move_to(target->m_hand.front(), card_pile_type::player_backup, false, target);
+        target->m_game->move_to(target->m_hand.front(), pocket_type::player_backup, false, target);
         target->m_game->pop_request<request_characterchoice>();
     }
 
@@ -29,13 +29,13 @@ namespace banggame {
         }
     }
 
-    bool request_draw::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
+    bool request_draw::can_pick(pocket_type pocket, player *target_player, card *target_card) const {
         return target->m_game->has_scenario(scenario_flags::abandonedmine) && !target->m_game->m_discards.empty()
-            ? pile == card_pile_type::discard_pile
-            : pile == card_pile_type::main_deck;
+            ? pocket == pocket_type::discard_pile
+            : pocket == pocket_type::main_deck;
     }
 
-    void request_draw::on_pick(card_pile_type pile, player *target_player, card *target_card) {
+    void request_draw::on_pick(pocket_type pocket, player *target_player, card *target_card) {
         target->draw_from_deck();
     }
 
@@ -47,8 +47,8 @@ namespace banggame {
         }
     }
     
-    bool request_predraw::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
-        if (pile == card_pile_type::player_table && target == target_player) {
+    bool request_predraw::can_pick(pocket_type pocket, player *target_player, card *target_card) const {
+        if (pocket == pocket_type::player_table && target == target_player) {
             int top_priority = std::ranges::max(target->m_predraw_checks
                 | std::views::values
                 | std::views::filter(std::not_fn(&player::predraw_check::resolved))
@@ -63,7 +63,7 @@ namespace banggame {
         return false;
     }
     
-    void request_predraw::on_pick(card_pile_type pile, player *target_player, card *target_card) {
+    void request_predraw::on_pick(pocket_type pocket, player *target_player, card *target_card) {
         target->m_game->pop_request<request_predraw>();
         target->m_game->draw_check_then(target, target_card, target->m_predraw_checks.find(target_card)->second.check_fun);
     }
@@ -94,12 +94,12 @@ namespace banggame {
         }
     }
 
-    void request_check::on_pick(card_pile_type pile, player *target_player, card *target_card) {
+    void request_check::on_pick(pocket_type pocket, player *target_player, card *target_card) {
         target->m_game->pop_request_noupdate<request_check>();
         target->m_game->add_log("LOG_CHECK_DREW_CARD", target->m_game->m_current_check->origin_card, target, target_card);
         while (!target->m_game->m_selection.empty()) {
             card *drawn_card = target->m_game->m_selection.front();
-            target->m_game->move_to(drawn_card, card_pile_type::discard_pile);
+            target->m_game->move_to(drawn_card, pocket_type::discard_pile);
             target->m_game->call_event<event_type::on_draw_check>(target, drawn_card);
         }
         if (!target->m_game->num_queued_requests([&]{
@@ -119,7 +119,7 @@ namespace banggame {
         }
     }
 
-    void request_generalstore::on_pick(card_pile_type pile, player *target_player, card *target_card) {
+    void request_generalstore::on_pick(pocket_type pocket, player *target_player, card *target_card) {
         auto next = target->m_game->get_next_player(target);
         if (target->m_game->m_selection.size() == 2) {
             target->m_game->add_log("LOG_DRAWN_FROM_GENERALSTORE", target, target_card, origin_card);
@@ -143,11 +143,11 @@ namespace banggame {
         }
     }
 
-    bool request_discard::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
-        return pile == card_pile_type::player_hand && target_player == target;
+    bool request_discard::can_pick(pocket_type pocket, player *target_player, card *target_card) const {
+        return pocket == pocket_type::player_hand && target_player == target;
     }
     
-    void request_discard::on_pick(card_pile_type pile, player *target_player, card *target_card) {
+    void request_discard::on_pick(pocket_type pocket, player *target_player, card *target_card) {
         target->discard_card(target_card);
         target->m_game->call_event<event_type::on_effect_end>(target, origin_card);
         
@@ -164,13 +164,13 @@ namespace banggame {
         }
     }
 
-    bool request_discard_pass::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
-        return pile == card_pile_type::player_hand && target_player == target;
+    bool request_discard_pass::can_pick(pocket_type pocket, player *target_player, card *target_card) const {
+        return pocket == pocket_type::player_hand && target_player == target;
     }
 
-    void request_discard_pass::on_pick(card_pile_type pile, player *target_player, card *target_card) {
+    void request_discard_pass::on_pick(pocket_type pocket, player *target_player, card *target_card) {
         if (target->m_game->has_scenario(scenario_flags::abandonedmine)) {
-            target->move_card_to(target_card, card_pile_type::main_deck);
+            target->move_card_to(target_card, pocket_type::main_deck);
         } else {
             target->discard_card(target_card);
         }
@@ -206,11 +206,11 @@ namespace banggame {
         }
     }
 
-    bool request_indians::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
-        return pile == card_pile_type::player_hand && target_player == target && target->is_bangcard(target_card);
+    bool request_indians::can_pick(pocket_type pocket, player *target_player, card *target_card) const {
+        return pocket == pocket_type::player_hand && target_player == target && target->is_bangcard(target_card);
     }
 
-    void request_indians::on_pick(card_pile_type pile, player *target_player, card *target_card) {
+    void request_indians::on_pick(pocket_type pocket, player *target_player, card *target_card) {
         target->m_game->call_event<event_type::on_play_hand_card>(target, target_card);
         target->discard_card(target_card);
         target->m_game->pop_request<request_indians>();
@@ -230,11 +230,11 @@ namespace banggame {
         }
     }
 
-    bool request_duel::can_pick(card_pile_type pile, player *target_player, card *target_card) const {
-        return pile == card_pile_type::player_hand && target_player == target && target->is_bangcard(target_card);
+    bool request_duel::can_pick(pocket_type pocket, player *target_player, card *target_card) const {
+        return pocket == pocket_type::player_hand && target_player == target && target->is_bangcard(target_card);
     }
 
-    void request_duel::on_pick(card_pile_type pile, player *target_player, card *target_card) {
+    void request_duel::on_pick(pocket_type pocket, player *target_player, card *target_card) {
         target->m_game->call_event<event_type::on_play_hand_card>(target, target_card);
         target->discard_card(target_card);
         target->m_game->pop_request_noupdate<request_duel>();

@@ -185,7 +185,7 @@ namespace banggame {
         }
     }
 
-    void card_pile_view::set_pos(const sdl::point &pos) {
+    void pocket_view::set_pos(const sdl::point &pos) {
         for (card_view *c : *this) {
             int dx = c->get_pos().x - m_pos.x;
             int dy = c->get_pos().y - m_pos.y;
@@ -194,7 +194,7 @@ namespace banggame {
         m_pos = pos;
     }
 
-    sdl::point wide_card_pile::get_position_of(card_view *card) const {
+    sdl::point wide_pocket::get_position_of(card_view *card) const {
         if (size() == 1) {
             return get_pos();
         }
@@ -205,8 +205,8 @@ namespace banggame {
             get_pos().y};
     }
 
-    sdl::point flipped_card_pile::get_position_of(card_view *card) const {
-        auto pt = wide_card_pile::get_position_of(card);
+    sdl::point flipped_pocket::get_position_of(card_view *card) const {
+        auto pt = wide_pocket::get_position_of(card);
         return {get_pos().x * 2 - pt.x, pt.y};
     }
 
@@ -220,11 +220,11 @@ namespace banggame {
         return sdl::point{get_pos().x, get_pos().y + options.card_yoffset * diff};
     }
 
-    void counting_card_pile::update_count() {
+    void counting_pocket::update_count() {
         m_count_text.set_value(std::to_string(size()));
     }
 
-    void counting_card_pile::render_count(sdl::renderer &renderer) {
+    void counting_pocket::render_count(sdl::renderer &renderer) {
         if (empty()) return;
         
         sdl::rect rect = m_count_text.get_rect();

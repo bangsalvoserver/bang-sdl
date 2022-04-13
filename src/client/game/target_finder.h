@@ -53,7 +53,7 @@ namespace banggame {
         void set_border_colors();
 
         bool can_respond_with(card_view *card) const;
-        bool can_pick(card_pile_type pile, player_view *player, card_view *card) const;
+        bool can_pick(pocket_type pocket, player_view *player, card_view *card) const;
         bool can_play_in_turn(player_view *player, card_view *card) const;
         bool can_confirm() const;
 
@@ -111,7 +111,7 @@ namespace banggame {
         const std::vector<effect_holder> &get_current_card_effects() const;
         const std::vector<effect_holder> &get_optional_effects() const;
 
-        void send_pick_card(card_pile_type pile, player_view *player = nullptr, card_view *card = nullptr);
+        void send_pick_card(pocket_type pocket, player_view *player = nullptr, card_view *card = nullptr);
         void send_play_card();
 
         const effect_holder &get_effect_holder(int index);
@@ -122,7 +122,7 @@ namespace banggame {
         game_scene *m_game;
 
         std::vector<card_view *> m_response_highlights;
-        std::vector<std::tuple<card_pile_type, player_view *, card_view *>> m_picking_highlights;
+        std::vector<std::tuple<pocket_type, player_view *, card_view *>> m_picking_highlights;
 
         card_view *m_last_played_card = nullptr;
         card_view *m_forced_card = nullptr;

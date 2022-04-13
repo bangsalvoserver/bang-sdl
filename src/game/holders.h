@@ -77,12 +77,12 @@ namespace banggame {
             return m_value->status_text(owner);
         }
 
-        bool can_pick(card_pile_type pile, player *target, card *target_card) const {
-            return m_value->can_pick(pile, target, target_card);
+        bool can_pick(pocket_type pocket, player *target, card *target_card) const {
+            return m_value->can_pick(pocket, target, target_card);
         }
-        void on_pick(card_pile_type pile, player *target, card *target_card) {
+        void on_pick(pocket_type pocket, player *target, card *target_card) {
             auto copy = m_value;
-            copy->on_pick(pile, target, target_card);
+            copy->on_pick(pocket, target, target_card);
         }
 
         void tick() {

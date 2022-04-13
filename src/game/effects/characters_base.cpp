@@ -31,7 +31,7 @@ namespace banggame {
                 if (suit == card_suit::hearts || suit == card_suit::diamonds) {
                     origin->m_game->queue_action([=]{
                         ++origin->m_num_drawn_cards;
-                        card *drawn_card = origin->m_game->draw_phase_one_card_to(card_pile_type::player_hand, origin);
+                        card *drawn_card = origin->m_game->draw_phase_one_card_to(pocket_type::player_hand, origin);
                         origin->m_game->call_event<event_type::on_card_drawn>(target, drawn_card);
                     });
                 }
@@ -44,20 +44,20 @@ namespace banggame {
             if (target == origin && target->m_num_cards_to_draw < 3) {
                 target->m_game->pop_request_noupdate<request_draw>();
                 for (int i=0; i<3; ++i) {
-                    target->m_game->draw_phase_one_card_to(card_pile_type::selection, target);
+                    target->m_game->draw_phase_one_card_to(pocket_type::selection, target);
                 }
                 target->m_game->queue_request<request_kit_carlson>(target_card, target);
             }
         });
     }
 
-    void request_kit_carlson::on_pick(card_pile_type pile, player *target_player, card *target_card) {
+    void request_kit_carlson::on_pick(pocket_type pocket, player *target_player, card *target_card) {
         ++target->m_num_drawn_cards;
         target->add_to_hand(target_card);
         target->m_game->call_event<event_type::on_card_drawn>(target, target_card);
         if (target->m_num_drawn_cards >= target->m_num_cards_to_draw) {
             while (!target->m_game->m_selection.empty()) {
-                target->m_game->move_to(target->m_game->m_selection.front(), card_pile_type::main_deck, false);
+                target->m_game->move_to(target->m_game->m_selection.front(), pocket_type::main_deck, false);
             }
             target->m_game->pop_request<request_kit_carlson>();
         }
@@ -88,7 +88,7 @@ namespace banggame {
         origin->m_game->add_event<event_type::on_effect_end>(origin_card, [origin](player *, card *) {
             origin->m_game->queue_action([origin]{
                 if (origin->alive() && origin->m_hand.empty()) {
-                    origin->m_game->draw_card_to(card_pile_type::player_hand, origin);
+                    origin->m_game->draw_card_to(pocket_type::player_hand, origin);
                 }
             });
         });
@@ -100,7 +100,7 @@ namespace banggame {
                 for (auto it = target->m_table.begin(); it != target->m_table.end(); ) {
                     card *target_card = *it;
                     if (target_card->color != card_color_type::black) {
-                        it = target->move_card_to(target_card, card_pile_type::player_hand, true, p);
+                        it = target->move_card_to(target_card, pocket_type::player_hand, true, p);
                     } else {
                         ++it;
                     }

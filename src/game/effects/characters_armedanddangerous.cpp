@@ -54,7 +54,7 @@ namespace banggame {
     void effect_bloody_mary::on_equip(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_missed>(target_card, [=](card *origin_card, player *origin, player *target, bool is_bang) {
             if (origin == p && is_bang) {
-                origin->m_game->draw_card_to(card_pile_type::player_hand, p);
+                origin->m_game->draw_card_to(pocket_type::player_hand, p);
             }
         });
     }

@@ -31,8 +31,8 @@ namespace banggame {
         request_youl_grinner(card *origin_card, player *origin, player *target)
             : request_base(origin_card, origin, target) {}
 
-        bool can_pick(card_pile_type pile, player *target, card *target_card) const override;
-        void on_pick(card_pile_type pile, player *target, card *target_card) override;
+        bool can_pick(pocket_type pocket, player *target, card *target_card) const override;
+        void on_pick(pocket_type pocket, player *target, card *target_card) override;
         game_formatted_string status_text(player *owner) const override;
     };
 

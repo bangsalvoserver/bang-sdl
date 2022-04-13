@@ -11,9 +11,9 @@ namespace banggame {
     void effect_graverobber::on_play(card *origin_card, player *origin) {
         for (int i=0; i<origin->m_game->num_alive(); ++i) {
             if (origin->m_game->m_discards.empty()) {
-                origin->m_game->draw_card_to(card_pile_type::selection);
+                origin->m_game->draw_card_to(pocket_type::selection);
             } else {
-                origin->m_game->move_to(origin->m_game->m_discards.back(), card_pile_type::selection);
+                origin->m_game->move_to(origin->m_game->m_discards.back(), pocket_type::selection);
             }
         }
         origin->m_game->queue_request<request_generalstore>(origin_card, origin, origin);
@@ -92,10 +92,10 @@ namespace banggame {
         origin->damage(origin_card, origin, 1);
         origin->m_game->queue_action([=]{
             if (origin->alive()) {
-                origin->m_game->draw_card_to(card_pile_type::player_hand, origin);
-                origin->m_game->draw_card_to(card_pile_type::player_hand, origin);
+                origin->m_game->draw_card_to(pocket_type::player_hand, origin);
+                origin->m_game->draw_card_to(pocket_type::player_hand, origin);
                 if (fatal) {
-                    origin->m_game->draw_card_to(card_pile_type::player_hand, origin);
+                    origin->m_game->draw_card_to(pocket_type::player_hand, origin);
                 }
             }
         });

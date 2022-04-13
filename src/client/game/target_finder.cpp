@@ -17,18 +17,18 @@ void target_finder::add_action(Ts && ... args) {
 }
 
 void target_finder::set_border_colors() {
-    for (auto [pile, player, card] : m_picking_highlights) {
-        switch (pile) {
-        case card_pile_type::player_hand:
-        case card_pile_type::player_table:
-        case card_pile_type::player_character:
-        case card_pile_type::selection:
+    for (auto [pocket, player, card] : m_picking_highlights) {
+        switch (pocket) {
+        case pocket_type::player_hand:
+        case pocket_type::player_table:
+        case pocket_type::player_character:
+        case pocket_type::selection:
             card->border_color = options.target_finder_can_pick;
             break;
-        case card_pile_type::main_deck:
+        case pocket_type::main_deck:
             m_game->m_main_deck.border_color = options.target_finder_can_pick;
             break;
-        case card_pile_type::discard_pile:
+        case pocket_type::discard_pile:
             m_game->m_discard_pile.border_color = options.target_finder_can_pick;
             break;
         }
@@ -78,8 +78,8 @@ bool target_finder::can_respond_with(card_view *card) const {
     return std::ranges::find(m_response_highlights, card) != m_response_highlights.end();
 }
 
-bool target_finder::can_pick(card_pile_type pile, player_view *player, card_view *card) const {
-    return std::ranges::find(m_picking_highlights, std::tuple{pile, player, card}) != m_picking_highlights.end();
+bool target_finder::can_pick(pocket_type pocket, player_view *player, card_view *card) const {
+    return std::ranges::find(m_picking_highlights, std::tuple{pocket, player, card}) != m_picking_highlights.end();
 }
 
 bool target_finder::can_play_in_turn(player_view *player, card_view *card) const {
@@ -97,7 +97,7 @@ void target_finder::set_response_highlights(const request_status_args &args) {
     }
 
     for (const picking_args &args : args.pick_ids) {
-        m_picking_highlights.emplace_back(args.pile,
+        m_picking_highlights.emplace_back(args.pocket,
             args.player_id ? m_game->find_player(args.player_id) : nullptr,
             args.card_id ? m_game->find_card(args.card_id) : nullptr);
     }
@@ -107,18 +107,18 @@ void target_finder::clear_status() {
     for (card_view *card : m_response_highlights) {
         card->border_color = {};
     }
-    for (auto &[pile, player, card] : m_picking_highlights) {
-        switch (pile) {
-        case card_pile_type::player_hand:
-        case card_pile_type::player_table:
-        case card_pile_type::player_character:
-        case card_pile_type::selection:
+    for (auto &[pocket, player, card] : m_picking_highlights) {
+        switch (pocket) {
+        case pocket_type::player_hand:
+        case pocket_type::player_table:
+        case pocket_type::player_character:
+        case pocket_type::selection:
             card->border_color = {};
             break;
-        case card_pile_type::main_deck:
+        case pocket_type::main_deck:
             m_game->m_main_deck.border_color = {};
             break;
-        case card_pile_type::discard_pile:
+        case pocket_type::discard_pile:
             m_game->m_discard_pile.border_color = {};
             break;
         }
@@ -185,7 +185,7 @@ void target_finder::set_forced_card(card_view *card) {
         return;
     }
 
-    if (card->pile == &m_game->find_player(m_game->m_player_own_id)->table || card->color == card_color_type::brown) {
+    if (card->pocket == &m_game->find_player(m_game->m_player_own_id)->table || card->color == card_color_type::brown) {
         if (can_respond_with(card)) {
             m_playing_card = card;
             m_response = true;
@@ -208,26 +208,26 @@ void target_finder::set_forced_card(card_view *card) {
     }
 }
 
-void target_finder::send_pick_card(card_pile_type pile, player_view *player, card_view *card) {
-    add_action<game_action_type::pick_card>(pile, player ? player->id : 0, card ? card->id : 0);
+void target_finder::send_pick_card(pocket_type pocket, player_view *player, card_view *card) {
+    add_action<game_action_type::pick_card>(pocket, player ? player->id : 0, card ? card->id : 0);
     m_waiting_confirm = true;
 }
 
 void target_finder::on_click_discard_pile() {
-    if (can_pick(card_pile_type::discard_pile, nullptr, nullptr)) {
-        send_pick_card(card_pile_type::discard_pile);
+    if (can_pick(pocket_type::discard_pile, nullptr, nullptr)) {
+        send_pick_card(pocket_type::discard_pile);
     }
 }
 
 void target_finder::on_click_main_deck() {
-    if (can_pick(card_pile_type::main_deck, nullptr, nullptr)) {
-        send_pick_card(card_pile_type::main_deck);
+    if (can_pick(pocket_type::main_deck, nullptr, nullptr)) {
+        send_pick_card(pocket_type::main_deck);
     }
 }
 
 void target_finder::on_click_selection_card(card_view *card) {
-    if (can_pick(card_pile_type::selection, nullptr, card)) {
-        send_pick_card(card_pile_type::selection, nullptr, card);
+    if (can_pick(pocket_type::selection, nullptr, card)) {
+        send_pick_card(pocket_type::selection, nullptr, card);
     }
 }
 
@@ -269,8 +269,8 @@ void target_finder::on_click_table_card(player_view *player, card_view *card) {
             m_playing_card = card;
             m_response = true;
             handle_auto_targets();
-        } else if (can_pick(card_pile_type::player_table, player, card)) {
-            send_pick_card(card_pile_type::player_table, player, card);
+        } else if (can_pick(pocket_type::player_table, player, card)) {
+            send_pick_card(pocket_type::player_table, player, card);
         } else if (can_play_in_turn(player, card) && !card->inactive) {
             if (card->modifier != card_modifier_type::none) {
                 add_modifier(card);
@@ -290,8 +290,8 @@ void target_finder::on_click_hand_card(player_view *player, card_view *card) {
             m_playing_card = card;
             m_response = true;
             handle_auto_targets();
-        } else if (can_pick(card_pile_type::player_hand, player, card)) {
-            send_pick_card(card_pile_type::player_hand, player, card);
+        } else if (can_pick(pocket_type::player_hand, player, card)) {
+            send_pick_card(pocket_type::player_hand, player, card);
         } else if (can_play_in_turn(player, card)) {
             if (card->color == card_color_type::brown) {
                 if (card->modifier != card_modifier_type::none) {
@@ -325,8 +325,8 @@ void target_finder::on_click_character(player_view *player, card_view *card) {
             m_playing_card = card;
             m_response = true;
             handle_auto_targets();
-        } else if (can_pick(card_pile_type::player_character, player, card)) {
-            send_pick_card(card_pile_type::player_character, player, card);
+        } else if (can_pick(pocket_type::player_character, player, card)) {
+            send_pick_card(pocket_type::player_character, player, card);
         } else if (can_play_in_turn(player, card)) {
             if (card->modifier != card_modifier_type::none) {
                 add_modifier(card);
@@ -611,8 +611,8 @@ bool target_finder::verify_card_target(const effect_holder &args, target_card ta
         switch (value) {
         case target_card_filter::black:
         case target_card_filter::can_repeat: return true;
-        case target_card_filter::table: return target.card->pile == &target.player->table;
-        case target_card_filter::hand: return target.card->pile == &target.player->hand;
+        case target_card_filter::table: return target.card->pocket == &target.player->table;
+        case target_card_filter::hand: return target.card->pocket == &target.player->hand;
         case target_card_filter::blue: return target.card->color == card_color_type::blue;
         case target_card_filter::clubs: return target.card->sign.suit == card_suit::clubs;
         case target_card_filter::bang: return is_bangcard(target.card);

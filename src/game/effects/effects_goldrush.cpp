@@ -45,11 +45,11 @@ namespace banggame {
     void effect_rum::on_play(card *origin_card, player *origin) {
         std::vector<card_suit> suits;
         for (int i=0; i < 3 + origin->m_num_checks; ++i) {
-            suits.push_back(origin->get_card_sign(origin->m_game->draw_card_to(card_pile_type::selection)).suit);
+            suits.push_back(origin->get_card_sign(origin->m_game->draw_card_to(pocket_type::selection)).suit);
         }
         while (!origin->m_game->m_selection.empty()) {
             card *drawn_card = origin->m_game->m_selection.front();
-            origin->m_game->move_to(drawn_card, card_pile_type::discard_pile);
+            origin->m_game->move_to(drawn_card, pocket_type::discard_pile);
             origin->m_game->call_event<event_type::on_draw_check>(origin, drawn_card);
         }
         std::sort(suits.begin(), suits.end());
