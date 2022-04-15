@@ -602,8 +602,8 @@ namespace banggame {
     }
 
     void player::check_prompt_equip(card *card_ptr, player *target, std::function<void()> &&fun) {
-        if (!card_ptr->equips.empty()) {
-            if (auto prompt_message = card_ptr->equips.front().on_prompt(card_ptr, target)) {
+        for (const auto &e : card_ptr->equips) {
+            if (auto prompt_message = e.on_prompt(card_ptr, target)) {
                 m_game->add_private_update<game_update_type::game_prompt>(this, std::move(*prompt_message));
                 m_prompt = std::move(fun);
                 return;

@@ -5,7 +5,7 @@
 
 namespace banggame {
 
-    struct effect_snake : predraw_check_effect {
+    struct effect_snake : predraw_check_effect, effect_prompt_on_self_equip {
         void on_equip(card *target_card, player *target);
     };
 
@@ -19,7 +19,7 @@ namespace banggame {
         void on_equip(card *target_card, player *target);
     };
 
-    struct effect_bounty : event_based_effect {
+    struct effect_bounty : event_based_effect, effect_prompt_on_self_equip {
         void on_equip(card *target_card, player *target);
     };
 }

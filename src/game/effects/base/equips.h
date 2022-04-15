@@ -22,8 +22,7 @@ namespace banggame {
         void on_unequip(card *target_card, player *target);
     };
 
-    struct effect_jail : predraw_check_effect {
-        opt_fmt_str on_prompt(card *target_card, player *target) const;
+    struct effect_jail : predraw_check_effect, effect_prompt_on_self_equip {
         void on_equip(card *target_card, player *target);
     };
 

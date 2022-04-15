@@ -5,7 +5,7 @@
 
 namespace banggame {
     
-    struct effect_bomb {
+    struct effect_bomb : effect_prompt_on_self_equip {
         void on_equip(card *target_card, player *target);
         void on_unequip(card *target_card, player *target);
     };

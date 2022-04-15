@@ -25,7 +25,7 @@ namespace banggame {
         void on_equip(card *target_card, player *target);
     };
 
-    struct effect_wanted : event_based_effect {
+    struct effect_wanted : event_based_effect, effect_prompt_on_self_equip {
         void on_equip(card *target_card, player *target);
     };
 }

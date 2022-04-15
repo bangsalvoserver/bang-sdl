@@ -2356,6 +2356,9 @@
                     "target": "player",
                     "class": "weapon",
                     "value": 0
+                },
+                {
+                    "class": "prompt_on_self_equip"
                 }
             ]
         },

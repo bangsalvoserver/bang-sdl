@@ -11,6 +11,9 @@ namespace banggame {
     struct player;
     struct card;
 
+    using mth_target_list = std::vector<std::pair<player *, card *>>;
+    using opt_fmt_str = std::optional<game_formatted_string>;
+
     struct effect_empty {
         void on_play(card *origin_card, player *origin) {}
     };
@@ -23,8 +26,9 @@ namespace banggame {
         void on_unequip(card *target_card, player *target);
     };
 
-    using mth_target_list = std::vector<std::pair<player *, card *>>;
-    using opt_fmt_str = std::optional<game_formatted_string>;
+    struct effect_prompt_on_self_equip {
+        opt_fmt_str on_prompt(card *target_card, player *target) const;
+    };
 
     struct request_base {
         request_base(card *origin_card, player *origin, player *target, effect_flags flags = {})

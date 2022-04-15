@@ -38,7 +38,7 @@ namespace banggame {
         target->send_player_status();
     }
 
-    opt_fmt_str effect_jail::on_prompt(card *target_card, player *target) const {
+    opt_fmt_str effect_prompt_on_self_equip::on_prompt(card *target_card, player *target) const {
         if (target == target_card->owner) {
             return game_formatted_string{"PROMPT_EQUIP_ON_SELF", target_card};
         } else {
