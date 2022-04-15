@@ -158,7 +158,7 @@ namespace banggame {
         move_to(drawn_card, pocket_type::shop_selection);
         if (drawn_card->modifier == card_modifier_type::shopchoice) {
             for (card *c : m_hidden_deck) {
-                if (!c->effects.empty() && c->effects.front().type == drawn_card->effects.front().type) {
+                if (c->effects.first_is(drawn_card->effects.front().type)) {
                     send_card_update(*c, nullptr, show_card_flags::no_animation);
                 }
             }

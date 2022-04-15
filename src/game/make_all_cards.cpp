@@ -26,11 +26,11 @@ namespace banggame {
     }
 
     template<typename Holder>
-    static std::vector<Holder> make_effects_from_json(const Json::Value &json_effects) {
+    static effect_list_base<Holder> make_effects_from_json(const Json::Value &json_effects) {
         using enum_type = typename Holder::enum_type;
         using namespace enums::flag_operators;
 
-        std::vector<Holder> ret;
+        effect_list_base<Holder> ret;
         for (const auto &json_effect : json_effects) {
             Holder effect;
             effect.type = string_to_enum_or_throw<enum_type>(json_effect["class"].asString());

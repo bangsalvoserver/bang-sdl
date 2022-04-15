@@ -251,8 +251,7 @@ namespace banggame {
             if (m_game->is_disabled(mod_card)) {
                 throw game_error("ERROR_CARD_IS_DISABLED", mod_card);
             }
-            if (mod_card->modifier != card_modifier_type::bangcard
-                || std::ranges::find(c->effects, effect_type::bangcard, &effect_holder::type) == c->effects.end()) {
+            if (mod_card->modifier != card_modifier_type::bangcard || !c->effects.last_is(effect_type::bangcard)) {
                 throw game_error("ERROR_INVALID_ACTION");
             }
             for (const auto &e : mod_card->effects) {
@@ -279,8 +278,8 @@ namespace banggame {
 
     bool player::is_bangcard(card *card_ptr) {
         return (check_player_flags(player_flags::treat_missed_as_bang)
-                && !card_ptr->responses.empty() && card_ptr->responses.back().is(effect_type::missedcard))
-            || (!card_ptr->effects.empty() && card_ptr->effects.front().is(effect_type::bangcard));
+                && card_ptr->responses.last_is(effect_type::missedcard))
+            || card_ptr->effects.last_is(effect_type::bangcard);
     };
 
     void player::verify_effect_player_target(target_player_filter filter, player *target) {
@@ -362,17 +361,17 @@ namespace banggame {
                 }
                 break;
             case target_card_filter::missed:
-                if (target_card->responses.empty() || !target_card->responses.back().is(effect_type::missedcard)) {
+                if (!target_card->responses.last_is(effect_type::missedcard)) {
                     throw game_error("ERROR_TARGET_NOT_MISSED");
                 }
                 break;
             case target_card_filter::beer:
-                if (target_card->effects.empty() || !target_card->effects.front().is(effect_type::beer)) {
+                if (!target_card->effects.first_is(effect_type::beer)) {
                     throw game_error("ERROR_TARGET_NOT_BEER");
                 }
                 break;
             case target_card_filter::bronco:
-                if (target_card->equips.empty() || !target_card->equips.back().is(equip_type::bronco)) {
+                if (!target_card->equips.last_is(equip_type::bronco)) {
                     throw game_error("ERROR_TARGET_NOT_BRONCO");
                 }
                 break;
@@ -400,7 +399,7 @@ namespace banggame {
         }
 
         int diff = targets.size() - effects.size();
-        if (!card_ptr->optionals.empty() && card_ptr->optionals.back().is(effect_type::repeatable)) {
+        if (card_ptr->optionals.last_is(effect_type::repeatable)) {
             if (diff < 0 || diff % card_ptr->optionals.size() != 0
                 || (card_ptr->optionals.back().effect_value > 0
                     && diff > (card_ptr->optionals.size() * card_ptr->optionals.back().effect_value)))
@@ -511,7 +510,7 @@ namespace banggame {
             break;
         case pocket_type::player_character:
             m_game->add_log(is_response ?
-                card_ptr->responses.front().is(effect_type::drawing)
+                card_ptr->responses.first_is(effect_type::drawing)
                     ? "LOG_DRAWN_WITH_CHARACTER"
                     : "LOG_RESPONDED_WITH_CHARACTER"
                 : "LOG_PLAYED_CHARACTER", card_ptr, this);
@@ -884,7 +883,9 @@ namespace banggame {
                     --cost;
                     break;
                 case card_modifier_type::shopchoice:
-                    if (c->effects.front().type != card_ptr->effects.front().type) throw game_error("ERROR_INVALID_ACTION");
+                    if (!c->effects.first_is(card_ptr->effects.front().type)) {
+                        throw game_error("ERROR_INVALID_ACTION");
+                    }
                     cost += c->buy_cost();
                     break;
                 }

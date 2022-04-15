@@ -81,7 +81,7 @@ namespace banggame {
     }
 
     static bool is_horse(const card *c) {
-        return !c->equips.empty() && c->equips.front().is(equip_type::horse);
+        return c->equips.first_is(equip_type::horse);
     }
 
     opt_fmt_str effect_horse::on_prompt(card *target_card, player *target) const {

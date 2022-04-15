@@ -11,8 +11,7 @@ namespace banggame {
         p->m_game->add_disabler(target_card, [=](card *c) {
             return c->pocket == pocket_type::player_hand
                 && c->owner == p
-                && !c->responses.empty()
-                && c->responses.back().is(effect_type::missedcard);
+                && c->responses.last_is(effect_type::missedcard);
         });
         p->m_game->add_event<event_type::apply_initial_cards_modifier>(target_card, [=](player *target, int &value) {
             if (p == target) {
@@ -31,7 +30,7 @@ namespace banggame {
             if (p != origin) {
                 for (;origin != p; origin = origin->m_game->get_next_player(origin)) {
                     if (std::ranges::any_of(origin->m_characters, [](const card *c) {
-                        return !c->equips.empty() && c->equips.front().is(equip_type::gary_looter);
+                        return c->equips.first_is(equip_type::gary_looter);
                     })) {
                         return;
                     }
@@ -46,7 +45,7 @@ namespace banggame {
             if (player_end->alive() && player_end->m_hand.size() < 6) {
                 for (player *it = player_begin; it != player_end; it = it->m_game->get_next_player(it)) {
                     if (std::ranges::any_of(it->m_characters, [](const card *c) {
-                        return !c->equips.empty() && c->equips.front().is(equip_type::john_pain);
+                        return c->equips.first_is(equip_type::john_pain);
                     })) {
                         return;
                     }

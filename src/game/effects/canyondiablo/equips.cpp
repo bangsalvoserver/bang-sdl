@@ -16,7 +16,7 @@ namespace banggame {
 
     void effect_indianguide::on_equip(card *target_card, player *p) {
         p->m_game->add_event<event_type::apply_immunity_modifier>(target_card, [p](card *origin_card, player *origin, bool &value) {
-            value = value || (origin == p && !origin_card->effects.empty() && origin_card->effects.front().is(effect_type::indians));
+            value = value || (origin == p && origin_card->effects.first_is(effect_type::indians));
         });
     }
 
@@ -62,8 +62,7 @@ namespace banggame {
 
     void effect_bronco::on_pre_equip(card *origin_card, player *target) {
         auto it = std::ranges::find_if(target->m_game->m_hidden_deck, [](card *c) {
-            return !c->effects.empty()
-                && c->effects.back().type == effect_type::destroy
+            return c->effects.last_is(effect_type::destroy)
                 && bool(c->effects.back().card_filter & target_card_filter::bronco);
         });
         if (it != target->m_game->m_hidden_deck.end()) {

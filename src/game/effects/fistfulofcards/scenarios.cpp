@@ -58,7 +58,7 @@ namespace banggame {
             auto &vec = p->m_game->m_hidden_deck;
             for (auto it = vec.begin(); it != vec.end(); ) {
                 auto *card = *it;
-                if (!card->responses.empty() && card->responses.front().is(effect_type::peyotechoice)) {
+                if (card->responses.first_is(effect_type::peyotechoice)) {
                     it = p->m_game->move_to(card, pocket_type::selection, true, nullptr, show_card_flags::no_animation);
                 } else {
                     ++it;

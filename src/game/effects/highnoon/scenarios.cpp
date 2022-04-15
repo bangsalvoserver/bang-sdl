@@ -103,8 +103,7 @@ namespace banggame {
     void effect_reverend::on_equip(card *target_card, player *target) {
         target->m_game->add_disabler(target_card, [](card *c) {
             return c->pocket == pocket_type::player_hand
-                && !c->effects.empty()
-                && c->effects.front().is(effect_type::beer);
+                && c->effects.first_is(effect_type::beer);
         });
     }
 
@@ -126,8 +125,7 @@ namespace banggame {
     void effect_sermon::on_equip(card *target_card, player *target) {
         target->m_game->add_event<event_type::pre_turn_start>(target_card, [=](player *p) {
             target->m_game->add_disabler(target_card, [=](card *c) {
-                return c->owner == p
-                    && std::ranges::find(c->effects, effect_type::bangcard, &effect_holder::type) != c->effects.end();
+                return c->owner == p && c->effects.last_is(effect_type::bangcard);
             });
         });
         target->m_game->add_event<event_type::on_turn_end>(target_card, [=](player *p) {
@@ -149,7 +147,7 @@ namespace banggame {
             auto &vec = origin->m_game->m_hidden_deck;
             for (auto it = vec.begin(); it != vec.end(); ) {
                 auto *card = *it;
-                if (!card->responses.empty() && card->responses.front().is(effect_type::handcuffschoice)) {
+                if (card->responses.first_is(effect_type::handcuffschoice)) {
                     it = origin->m_game->move_to(card, pocket_type::selection, true, nullptr, show_card_flags::no_animation);
                 } else {
                     ++it;

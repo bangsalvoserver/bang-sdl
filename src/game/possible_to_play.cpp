@@ -80,9 +80,9 @@ namespace banggame {
                         || !make_card_target_set(this, holder.target, holder.player_filter, holder.card_filter).empty();
                 });
             case card_modifier_type::bangcard: {
-                return (std::ranges::any_of(m_hand, [](card *c) {
-                    return std::ranges::find(c->effects, effect_type::bangcard, &effect_holder::type) != c->effects.end();
-                })) && !make_card_target_set(this,
+                return std::ranges::any_of(m_hand, [](card *c) {
+                    return c->effects.last_is(effect_type::bangcard);
+                }) && !make_card_target_set(this,
                     play_card_target_type::player,
                     target_player_filter::reachable | target_player_filter::notself,
                     target_card_filter{}).empty();

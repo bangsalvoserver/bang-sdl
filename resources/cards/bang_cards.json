@@ -194,12 +194,12 @@
             "color": "brown",
             "effects": [
                 {
+                    "class": "banglimit"
+                },
+                {
                     "target": "player",
                     "player_filter": "reachable notself",
                     "class": "bangcard"
-                },
-                {
-                    "class": "banglimit"
                 }
             ],
             "responses": [
@@ -528,12 +528,12 @@
             "color": "brown",
             "effects": [
                 {
+                    "class": "banglimit"
+                },
+                {
                     "target": "player",
                     "player_filter": "reachable notself",
                     "class": "bangcard"
-                },
-                {
-                    "class": "banglimit"
                 }
             ],
             "responses": [
@@ -1032,6 +1032,9 @@
             ],
             "effects": [
                 {
+                    "class": "banglimit"
+                },
+                {
                     "target": "card",
                     "player_filter": "self",
                     "card_filter": "hand",
@@ -1041,9 +1044,6 @@
                     "target": "player",
                     "player_filter": "reachable notself",
                     "class": "bangcard"
-                },
-                {
-                    "class": "banglimit"
                 }
             ]
         },
@@ -1278,12 +1278,12 @@
             "color": "brown",
             "effects": [
                 {
+                    "class": "banglimit"
+                },
+                {
                     "target": "player",
                     "player_filter": "reachable notself",
                     "class": "bangcard"
-                },
-                {
-                    "class": "banglimit"
                 }
             ],
             "responses": [
@@ -2026,12 +2026,12 @@
             "color": "brown",
             "effects": [
                 {
+                    "class": "banglimit"
+                },
+                {
                     "target": "player",
                     "player_filter": "reachable notself",
                     "class": "bangcard"
-                },
-                {
-                    "class": "banglimit"
                 }
             ],
             "responses": [
@@ -2457,6 +2457,9 @@
             ],
             "effects": [
                 {
+                    "class": "banglimit"
+                },
+                {
                     "target": "card",
                     "player_filter": "self",
                     "card_filter": "hand bang",
@@ -2466,9 +2469,6 @@
                     "target": "player",
                     "player_filter": "reachable notself",
                     "class": "bangcard"
-                },
-                {
-                    "class": "banglimit"
                 }
             ]
         },
