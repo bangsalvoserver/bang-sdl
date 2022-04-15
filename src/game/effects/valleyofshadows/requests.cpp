@@ -20,12 +20,9 @@ namespace banggame {
     }
     
     void timer_damaging::on_finished() {
-        if (target->m_hp <= damage) {
-            target->m_game->pop_request_noupdate<timer_damaging>();
-        } else {
-            target->m_game->pop_request<timer_damaging>();
-        }
+        target->m_game->pop_request_noupdate<timer_damaging>();
         target->damage(origin_card, origin, damage, is_bang, true);
+        target->m_game->update_request();
     }
 
     game_formatted_string timer_damaging::status_text(player *owner) const {

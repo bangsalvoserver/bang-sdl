@@ -88,10 +88,10 @@ namespace banggame {
         player *saved = req.target;
         bool fatal = saved->m_hp <= req.damage;
         if (0 == --req.damage) {
-            origin->m_game->pop_request<timer_damaging>();
+            origin->m_game->pop_request_noupdate<timer_damaging>();
         }
         origin->damage(origin_card, origin, 1);
-        origin->m_game->queue_action([=]{
+        origin->m_game->queue_action_front([=]{
             if (origin->alive()) {
                 origin->m_game->draw_card_to(pocket_type::player_hand, origin);
                 origin->m_game->draw_card_to(pocket_type::player_hand, origin);

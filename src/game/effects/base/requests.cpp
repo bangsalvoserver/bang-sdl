@@ -232,8 +232,9 @@ namespace banggame {
     }
 
     void request_duel::on_resolve() {
-        target->m_game->pop_request<request_duel>();
+        target->m_game->pop_request_noupdate<request_duel>();
         target->damage(origin_card, origin, 1);
+        target->m_game->update_request();
     }
 
     game_formatted_string request_duel::status_text(player *owner) const {

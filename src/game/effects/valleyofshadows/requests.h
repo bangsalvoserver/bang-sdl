@@ -96,8 +96,8 @@ namespace banggame {
         game_formatted_string status_text(player *owner) const override;
     };
 
-    struct timer_lemonade_jim : request_base {
-        using request_base::request_base;
+    struct timer_lemonade_jim : timer_request {
+        using timer_request::timer_request;
         game_formatted_string status_text(player *owner) const override;
     };
 
