@@ -1,5 +1,4 @@
 #include "effects.h"
-#include "requests.h"
 
 #include "../valleyofshadows/requests.h"
 #include "../base/requests.h"
@@ -55,6 +54,27 @@ namespace banggame {
             throw game_error("ERROR_DUPLICATED_CARD", c);
         }
     }
+
+    struct request_card_sharper : request_targeting {
+        request_card_sharper(card *origin_card, player *origin, player *target, card *chosen_card, card *target_card)
+            : request_targeting(origin_card, origin, target, target_card, effect_flags::escapable)
+            , chosen_card(chosen_card) {}
+
+        card *chosen_card;
+
+        void on_resolve() override {
+            target->m_game->pop_request<request_card_sharper>();
+            handler_card_sharper{}.on_resolve(origin_card, origin, target, chosen_card, target_card);
+        }
+
+        game_formatted_string status_text(player *owner) const override {
+            if (target == owner) {
+                return {"STATUS_CARD_SHARPER", origin_card, target_card, chosen_card};
+            } else {
+                return {"STATUS_CARD_SHARPER_OTHER", target, origin_card, target_card, chosen_card};
+            }
+        }
+    };
 
     void handler_card_sharper::on_play(card *origin_card, player *origin, const mth_target_list &targets) {
         auto chosen_card = std::get<card *>(targets[0]);

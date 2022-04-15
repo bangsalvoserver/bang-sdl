@@ -75,7 +75,6 @@ set(banggame_srcs
     src/game/effects/armedanddangerous/requests.cpp
     src/game/effects/canyondiablo/effects.cpp
     src/game/effects/canyondiablo/equips.cpp
-    src/game/effects/canyondiablo/requests.cpp
     src/game/holders.cpp
     src/game/game.cpp
     src/game/game_table.cpp
