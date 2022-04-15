@@ -233,7 +233,7 @@ namespace banggame {
         if (target->m_game->num_queued_requests([&]{
             target->m_game->call_event<event_type::on_discard_card>(origin, target, target_card);
         })) {
-            target->m_game->queue_action(std::move(fun));
+            target->m_game->queue_action_front(std::move(fun));
         } else {
             fun();
         }
@@ -261,7 +261,7 @@ namespace banggame {
         if (target->m_game->num_queued_requests([&]{
             target->m_game->call_event<event_type::on_discard_card>(origin, target, target_card);
         })) {
-            target->m_game->queue_action(std::move(fun));
+            target->m_game->queue_action_front(std::move(fun));
         } else {
             fun();
         }

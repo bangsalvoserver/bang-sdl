@@ -93,14 +93,14 @@ namespace banggame {
     void effect_saved::on_play(card *origin_card, player *origin) {
         auto &req = origin->m_game->top_request().get<timer_damaging>();
         player *saved = req.target;
-        if (0 == --req.damage) {
-            origin->m_game->pop_request<timer_damaging>();
-        }
-        origin->m_game->queue_action([=]{
+        origin->m_game->queue_action_front([=]{
             if (saved->alive()) {
                 origin->m_game->queue_request<request_saved>(origin_card, origin, saved);
             }
         });
+        if (0 == --req.damage) {
+            origin->m_game->pop_request<timer_damaging>();
+        }
     }
 
     bool effect_escape::can_respond(card *origin_card, player *origin) const {

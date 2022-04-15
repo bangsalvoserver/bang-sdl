@@ -96,6 +96,15 @@ namespace banggame {
                 m_delayed_actions.push_back(std::forward<Function>(fun));
             }
         }
+
+        template<std::invocable Function>
+        void queue_action_front(Function &&fun) {
+            if (m_requests.empty() && m_delayed_actions.empty()) {
+                std::invoke(std::forward<Function>(fun));
+            } else {
+                m_delayed_actions.push_front(std::forward<Function>(fun));
+            }
+        }
     };
 
 }

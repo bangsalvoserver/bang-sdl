@@ -22,7 +22,7 @@ namespace banggame {
         }
         target->m_game->add_event<event_type::post_discard_card>(target_card, [=](player *p, card *c) {
             if (p == target && c == target_card) {
-                target->m_game->queue_action([=]{
+                target->m_game->queue_action_front([=]{
                     target->remove_player_flags(player_flags::ghost);
                     target->m_game->player_death(nullptr, target);
                     target->m_game->check_game_over(nullptr, target);
