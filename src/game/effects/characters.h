@@ -1,11 +1,11 @@
 #ifndef __CHARACTERS_H__
 #define __CHARACTERS_H__
 
-#include "characters_base.h"
-#include "characters_dodgecity.h"
-#include "characters_goldrush.h"
-#include "characters_armedanddangerous.h"
-#include "characters_valleyofshadows.h"
-#include "characters_wildwestshow.h"
+#include "base/characters.h"
+#include "dodgecity/characters.h"
+#include "goldrush/characters.h"
+#include "armedanddangerous/characters.h"
+#include "valleyofshadows/characters.h"
+#include "wildwestshow/characters.h"
 
 #endif

@@ -54,28 +54,28 @@ set(bangclient_srcs
 )
 
 set(banggame_srcs
-    src/game/effects/characters_armedanddangerous.cpp
-    src/game/effects/characters_base.cpp
-    src/game/effects/characters_dodgecity.cpp
-    src/game/effects/characters_goldrush.cpp
-    src/game/effects/characters_valleyofshadows.cpp
-    src/game/effects/characters_wildwestshow.cpp
-    src/game/effects/effects_armedanddangerous.cpp
-    src/game/effects/effects_base.cpp
-    src/game/effects/effects_canyondiablo.cpp
-    src/game/effects/effects_goldrush.cpp
-    src/game/effects/effects_valleyofshadows.cpp
-    src/game/effects/equips_armedanddangerous.cpp
-    src/game/effects/equips_base.cpp
-    src/game/effects/equips_canyondiablo.cpp
-    src/game/effects/equips_goldrush.cpp
-    src/game/effects/equips_valleyofshadows.cpp
-    src/game/effects/requests_armedanddangerous.cpp
-    src/game/effects/requests_base.cpp
-    src/game/effects/requests_canyondiablo.cpp
-    src/game/effects/requests_valleyofshadows.cpp
-    src/game/effects/scenarios_highnoon.cpp
-    src/game/effects/scenarios_fistfulofcards.cpp
+    src/game/effects/base/effects.cpp
+    src/game/effects/base/equips.cpp
+    src/game/effects/base/characters.cpp
+    src/game/effects/base/requests.cpp
+    src/game/effects/dodgecity/characters.cpp
+    src/game/effects/highnoon/scenarios.cpp
+    src/game/effects/fistfulofcards/scenarios.cpp
+    src/game/effects/goldrush/effects.cpp
+    src/game/effects/goldrush/equips.cpp
+    src/game/effects/goldrush/characters.cpp
+    src/game/effects/valleyofshadows/effects.cpp
+    src/game/effects/valleyofshadows/equips.cpp
+    src/game/effects/valleyofshadows/characters.cpp
+    src/game/effects/valleyofshadows/requests.cpp
+    src/game/effects/wildwestshow/characters.cpp
+    src/game/effects/armedanddangerous/equips.cpp
+    src/game/effects/armedanddangerous/effects.cpp
+    src/game/effects/armedanddangerous/characters.cpp
+    src/game/effects/armedanddangerous/requests.cpp
+    src/game/effects/canyondiablo/effects.cpp
+    src/game/effects/canyondiablo/equips.cpp
+    src/game/effects/canyondiablo/requests.cpp
     src/game/holders.cpp
     src/game/game.cpp
     src/game/game_table.cpp

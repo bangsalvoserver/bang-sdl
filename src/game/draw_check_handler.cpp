@@ -1,7 +1,7 @@
 #include "draw_check_handler.h"
 
 #include "game.h"
-#include "effects/requests_base.h"
+#include "effects/base/requests.h"
 
 namespace banggame {
 

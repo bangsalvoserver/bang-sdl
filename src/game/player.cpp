@@ -5,9 +5,9 @@
 #include "holders.h"
 #include "server/net_enums.h"
 
-#include "effects/requests_base.h"
-#include "effects/requests_armedanddangerous.h"
-#include "effects/requests_valleyofshadows.h"
+#include "effects/base/requests.h"
+#include "effects/armedanddangerous/requests.h"
+#include "effects/valleyofshadows/requests.h"
 
 #include <cassert>
 
