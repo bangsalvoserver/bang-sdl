@@ -24,10 +24,11 @@ namespace banggame {
         game_formatted_string status_text(player *owner) const override;
     };
 
-    struct request_rust : request_base, resolvable_request {
+    struct request_rust : request_base {
         using request_base::request_base;
 
-        void on_resolve() override;
+        bool can_pick(pocket_type pocket, player *target, card *target_card) const override;
+        void on_pick(pocket_type pocket, player *target, card *target_card) override;
         game_formatted_string status_text(player *owner) const override;
     };
 

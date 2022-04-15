@@ -6,6 +6,18 @@
 #include "../../game.h"
 
 namespace banggame {
+
+    bool request_targeting::can_pick(pocket_type pocket, player *target_player, card *c) const {
+        if (target_player == target) {
+            switch (pocket) {
+            case pocket_type::player_hand:
+                return target_card->pocket == pocket_type::player_hand;
+            case pocket_type::player_table:
+                return target_card == c;
+            }
+        }
+        return false;
+    }
     
     void timer_damaging::on_finished() {
         if (target->m_hp <= damage) {
