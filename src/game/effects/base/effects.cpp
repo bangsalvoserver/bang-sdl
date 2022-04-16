@@ -309,7 +309,7 @@ namespace banggame {
 
     void effect_draw_discard::verify(card *origin_card, player *origin, player *target) const {
         if (target->m_game->m_discards.empty()) {
-            throw game_error("ERROR_discard_pile_EMPTY");
+            throw game_error("ERROR_DISCARD_PILE_EMPTY");
         }
     }
 
