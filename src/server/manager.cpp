@@ -4,6 +4,7 @@
 #include <stdexcept>
 
 #include "net_enums.h"
+#include "utils/json_serial.h"
 
 using namespace banggame;
 using namespace enums::flag_operators;
@@ -271,6 +272,9 @@ void game_manager::HANDLE_MESSAGE(game_start, user_ptr user) {
 }
 
 void game_manager::HANDLE_MESSAGE(game_action, user_ptr user, const game_action &value) {
+#ifdef DEBUG_PRINT_GAME_UPDATES
+    std::cout << "/*** GAME ACTION *** ID = " << user->first << " ***/ " << json::serialize(value) << '\n';
+#endif
     if (user->second.in_lobby == lobby_ptr{}) {
         throw lobby_error("ERROR_PLAYER_NOT_IN_LOBBY");
     }

@@ -389,6 +389,9 @@ void game_scene::find_overlay() {
 }
 
 void game_scene::handle_game_update(const game_update &update) {
+#ifdef DEBUG_PRINT_GAME_UPDATES
+    std::cout << "/*** GAME UPDATE ***/ " << json::serialize(update) << '\n';
+#endif
     m_pending_updates.push_back(update);
 }
 
@@ -412,7 +415,6 @@ void game_scene::pop_update() {
     try {
         if (!m_pending_updates.empty()) {
             const auto update = std::move(m_pending_updates.front());
-
             m_pending_updates.pop_front();
             enums::visit_indexed([this]<game_update_type E>(enums::enum_tag_t<E> tag, const auto & ... data) {
                 handle_game_update(tag, data ...);

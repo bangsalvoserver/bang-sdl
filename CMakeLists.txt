@@ -120,6 +120,11 @@ target_link_libraries(bangclient bangnet)
 add_executable(bangserver src/server/main.cpp)
 target_link_libraries(bangserver bangnet)
 
+option(DEBUG_PRINT_GAME_UPDATES "Debug Option: Print Game Updates" OFF)
+if (DEBUG_PRINT_GAME_UPDATES)
+    target_compile_definitions(banggame PUBLIC DEBUG_PRINT_GAME_UPDATES)
+endif()
+
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     if (WIN32)
         add_executable(banglauncher WIN32 src/client/main.c resources/bang.rc)
