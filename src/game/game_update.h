@@ -47,6 +47,10 @@ namespace banggame {
         (int) card_id
     )};
 
+    struct move_scenario_deck_args {REFLECTABLE(
+        (int) player_id
+    )};
+
     struct show_card_update {REFLECTABLE(
         (card_data) info,
         (show_card_flags) flags
@@ -142,6 +146,7 @@ namespace banggame {
         (move_card, move_card_update)
         (add_cubes, add_cubes_update)
         (move_cube, move_cube_update)
+        (move_scenario_deck, move_scenario_deck_args)
         (deck_shuffled, pocket_type)
         (show_card, show_card_update)
         (hide_card, hide_card_update)

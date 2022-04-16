@@ -41,6 +41,7 @@ namespace banggame {
         void HANDLE_UPDATE(move_card,        const move_card_update &args);
         void HANDLE_UPDATE(add_cubes,        const add_cubes_update &args);
         void HANDLE_UPDATE(move_cube,        const move_cube_update &args);
+        void HANDLE_UPDATE(move_scenario_deck, const move_scenario_deck_args &args);
         void HANDLE_UPDATE(deck_shuffled,    const pocket_type &pocket);
         void HANDLE_UPDATE(show_card,        const show_card_update &args);
         void HANDLE_UPDATE(hide_card,        const hide_card_update &args);
@@ -93,6 +94,8 @@ namespace banggame {
 
         pocket_view m_scenario_deck;
         pocket_view m_scenario_card;
+
+        int m_scenario_player_id = 0;
 
         wide_pocket m_selection{options.selection_width};
 

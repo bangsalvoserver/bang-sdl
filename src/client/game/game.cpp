@@ -647,6 +647,12 @@ void game_scene::HANDLE_UPDATE(move_cube, const move_cube_update &args) {
     }
 }
 
+void game_scene::HANDLE_UPDATE(move_scenario_deck, const move_scenario_deck_args &args) {
+    m_scenario_player_id = args.player_id;
+    move_player_views();
+    pop_update();
+}
+
 void game_scene::HANDLE_UPDATE(show_card, const show_card_update &args) {
     card_view *card = find_card(args.info.id);
 
@@ -748,11 +754,8 @@ void game_scene::move_player_views() {
         if (it == own_player) break;
     }
 
-    if (auto it = std::ranges::find(m_players,
-        m_players.size() < 4 ? player_role::deputy_3p : player_role::sheriff,
-        [](const player_view &p) { return p.m_role->role; }); it != m_players.end())
-    {
-        auto player_rect = it->m_bounding_rect;
+    if (player_view *p = find_player(m_scenario_player_id)) {
+        auto player_rect = p->m_bounding_rect;
         m_scenario_deck.set_pos(sdl::point{
             player_rect.x + player_rect.w + options.scenario_deck_xoff,
             player_rect.y + player_rect.h / 2});

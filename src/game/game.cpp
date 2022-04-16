@@ -213,8 +213,6 @@ namespace banggame {
             std::swap(m_scenario_deck.back(), m_scenario_deck.front());
 
             add_public_update<game_update_type::add_cards>(make_id_vector(m_scenario_deck), pocket_type::scenario_deck);
-
-            send_card_update(*m_scenario_deck.back(), nullptr, show_card_flags::no_animation);
         }
 
         for (const auto &c : all_cards.hidden) {
@@ -355,6 +353,11 @@ namespace banggame {
                 }
             }
 
+            if (!m_scenario_deck.empty()) {
+                add_public_update<game_update_type::move_scenario_deck>(m_first_player->id);
+                send_card_update(*m_scenario_deck.back(), nullptr, show_card_flags::no_animation);
+            }
+
             m_playing = m_first_player;
             m_first_player->start_of_turn();
         });
@@ -484,6 +487,11 @@ namespace banggame {
                 draw_card_to(pocket_type::player_hand, killer);
                 draw_card_to(pocket_type::player_hand, killer);
             }
+        }
+        
+        if (target == m_first_player) {
+            m_first_player = get_next_player(m_first_player);
+            add_public_update<game_update_type::move_scenario_deck>(m_first_player->id);
         }
 
         if (!has_expansion(card_expansion_type::ghostcards)) {
