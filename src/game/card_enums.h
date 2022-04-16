@@ -316,7 +316,7 @@ namespace banggame {
         (packmule,              effect_packmule)
         (indianguide,           effect_indianguide)
         (taxman,                effect_taxman)
-        (prompt_on_self_equip,  prompt_on_self_equip)
+        (prompt_on_self_equip,  effect_prompt_on_self_equip)
         (brothel,               effect_brothel)
         (newidentity,           effect_newidentity)
         (lawofthewest,          effect_lawofthewest)

@@ -99,11 +99,12 @@ namespace banggame {
     }
 
     opt_fmt_str effect_weapon::on_prompt(card *target_card, player *target) const {
-        if (auto it = std::ranges::find_if(target->m_table, &card::is_weapon); it != target->m_table.end()) {
-            return game_formatted_string{"PROMPT_REPLACE", target_card, *it};
-        } else {
-            return std::nullopt;
+        if (target == target_card->owner) {
+            if (auto it = std::ranges::find_if(target->m_table, &card::is_weapon); it != target->m_table.end()) {
+                return game_formatted_string{"PROMPT_REPLACE", target_card, *it};
+            }
         }
+        return std::nullopt;
     }
 
     void effect_weapon::on_pre_equip(card *target_card, player *target) {
