@@ -423,30 +423,33 @@ namespace banggame {
     }
 
     void game::check_game_over(player *killer, player *target) {
+        if (m_game_over) return;
         if (killer != m_playing) killer = nullptr;
         
-        auto winner_role = [&]{
-            auto alive_players_view = m_players | std::views::filter(&player::alive);
-            int num_alive = std::ranges::distance(alive_players_view);
-            if (std::ranges::distance(alive_players_view) == 1 || std::ranges::all_of(alive_players_view, [](player_role role) {
-                return role == player_role::sheriff || role == player_role::deputy;
-            }, &player::m_role)) {
-                return alive_players_view.front().m_role;
-            } else if (m_players.size() > 3) {
-                if (target->m_role == player_role::sheriff) {
-                    return player_role::outlaw;
-                }
-            } else if (killer) {
-                if (target->m_role == player_role::outlaw_3p && killer->m_role == player_role::renegade_3p) {
-                    return player_role::renegade;
-                } else if (target->m_role == player_role::renegade_3p && killer->m_role == player_role::deputy_3p) {
-                    return player_role::deputy;
-                } else if (target->m_role == player_role::deputy_3p && killer->m_role == player_role::outlaw_3p) {
-                    return player_role::outlaw;
-                }
+        player_role winner_role = player_role::unknown;
+
+        auto alive_players_view = m_players | std::views::filter(&player::alive);
+        int num_alive = std::ranges::distance(alive_players_view);
+
+        if (num_alive == 0) {
+            winner_role = player_role::outlaw;
+        } else if (num_alive == 1 || std::ranges::all_of(alive_players_view, [](player_role role) {
+            return role == player_role::sheriff || role == player_role::deputy;
+        }, &player::m_role)) {
+            winner_role = alive_players_view.front().m_role;
+        } else if (m_players.size() > 3) {
+            if (target->m_role == player_role::sheriff) {
+                winner_role = player_role::outlaw;
             }
-            return player_role::unknown;
-        }();
+        } else if (killer) {
+            if (target->m_role == player_role::outlaw_3p && killer->m_role == player_role::renegade_3p) {
+                winner_role = player_role::renegade_3p;
+            } else if (target->m_role == player_role::renegade_3p && killer->m_role == player_role::deputy_3p) {
+                winner_role = player_role::deputy_3p;
+            } else if (target->m_role == player_role::deputy_3p && killer->m_role == player_role::outlaw_3p) {
+                winner_role = player_role::outlaw_3p;
+            }
+        }
 
         if (winner_role != player_role::unknown) {
             add_public_update<game_update_type::status_clear>();
