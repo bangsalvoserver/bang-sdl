@@ -389,9 +389,9 @@ bool target_finder::on_click_player(player_view *player) {
 void target_finder::add_modifier(card_view *card) {
     if (std::ranges::find(m_modifiers, card) == m_modifiers.end()) {
         switch (card->modifier) {
-        case card_modifier_type::bangcard:
+        case card_modifier_type::bangmod:
             if (std::ranges::all_of(m_modifiers, [](const card_view *c) {
-                return c->modifier == card_modifier_type::bangcard;
+                return c->modifier == card_modifier_type::bangmod;
             })) {
                 m_modifiers.push_back(card);
             }
@@ -435,10 +435,10 @@ bool target_finder::is_bangcard(card_view *card) {
 bool target_finder::verify_modifier(card_view *card) {
     return std::ranges::all_of(m_modifiers, [&](card_view *c) {
         switch (c->modifier) {
-        case card_modifier_type::bangcard:
+        case card_modifier_type::bangmod:
             return is_bangcard(card);
         case card_modifier_type::leevankliff:
-            return is_bangcard(card) && m_last_played_card;
+            return is_bangcard(card) && card->equips.empty() && m_last_played_card;
         case card_modifier_type::discount:
             return card->expansion == card_expansion_type::goldrush;
         case card_modifier_type::shopchoice:
@@ -615,7 +615,7 @@ bool target_finder::verify_card_target(const effect_holder &args, target_card ta
         case target_card_filter::hand: return target.card->pocket == &target.player->hand;
         case target_card_filter::blue: return target.card->color == card_color_type::blue;
         case target_card_filter::clubs: return target.card->sign.suit == card_suit::clubs;
-        case target_card_filter::bang: return is_bangcard(target.card);
+        case target_card_filter::bang: return target.card->equips.empty() && is_bangcard(target.card);
         case target_card_filter::missed: return target.card->responses.last_is(effect_type::missedcard);
         case target_card_filter::beer: return target.card->effects.first_is(effect_type::beer);
         case target_card_filter::bronco: return target.card->equips.last_is(equip_type::bronco);

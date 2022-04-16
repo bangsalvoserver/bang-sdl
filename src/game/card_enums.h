@@ -136,7 +136,7 @@ namespace banggame {
 
     DEFINE_ENUM(card_modifier_type,
         (none)
-        (bangcard)
+        (bangmod)
         (discount)
         (leevankliff)
         (shopchoice)

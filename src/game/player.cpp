@@ -251,7 +251,7 @@ namespace banggame {
             if (m_game->is_disabled(mod_card)) {
                 throw game_error("ERROR_CARD_IS_DISABLED", mod_card);
             }
-            if (mod_card->modifier != card_modifier_type::bangcard || !c->effects.last_is(effect_type::bangcard)) {
+            if (mod_card->modifier != card_modifier_type::bangmod || !c->effects.last_is(effect_type::bangcard)) {
                 throw game_error("ERROR_INVALID_ACTION");
             }
             for (const auto &e : mod_card->effects) {
@@ -356,7 +356,7 @@ namespace banggame {
                 }
                 break;
             case target_card_filter::bang:
-                if (!is_bangcard(target_card)) {
+                if (!is_bangcard(target_card) || !target_card->equips.empty()) {
                     throw game_error("ERROR_TARGET_NOT_BANG");
                 }
                 break;

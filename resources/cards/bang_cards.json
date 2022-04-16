@@ -1137,7 +1137,7 @@
             "image": "07_mira",
             "expansion": "valleyofshadows",
             "color": "brown",
-            "modifier": "bangcard",
+            "modifier": "bangmod",
             "effects": [
                 {
                     "class": "aim"
@@ -1643,7 +1643,7 @@
             "image": "17_bigfifty",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "modifier": "bangcard",
+            "modifier": "bangmod",
             "equip": [
                 {
                     "class": "weapon",
@@ -1692,7 +1692,7 @@
             "image": "17_buntlinespecial",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "modifier": "bangcard",
+            "modifier": "bangmod",
             "equip": [
                 {
                     "class": "weapon",
@@ -1773,7 +1773,7 @@
             "image": "17_doppiacanna",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "modifier": "bangcard",
+            "modifier": "bangmod",
             "equip": [
                 {
                     "class": "weapon",
@@ -1856,7 +1856,7 @@
             "image": "17_thunderer",
             "expansion": "armedanddangerous",
             "color": "orange",
-            "modifier": "bangcard",
+            "modifier": "bangmod",
             "equip": [
                 {
                     "class": "weapon",
