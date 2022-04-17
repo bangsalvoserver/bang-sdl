@@ -93,9 +93,8 @@ namespace banggame {
         bool can_escape(player *origin, card *origin_card, effect_flags flags) const;
         
         void add_to_hand(card *card);
-        
-        std::vector<card *>::iterator move_card_to(card *card, pocket_type pocket,
-            bool known = false, player *owner = nullptr, show_card_flags flags = {});
+
+        std::vector<card *>::iterator move_card_to(card *target_card, pocket_type pocket, player *owner = nullptr, show_card_flags flags = {});
 
         void discard_card(card *card);
         void steal_card(player *target, card *card);

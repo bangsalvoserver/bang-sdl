@@ -12,13 +12,13 @@ namespace banggame {
     }
 
     void request_characterchoice::on_pick(pocket_type pocket, player *target_player, card *target_card) {
-        target->m_game->move_to(target_card, pocket_type::player_character, true, target, show_card_flags::show_everyone);
+        target->m_game->move_card(target_card, pocket_type::player_character, target, show_card_flags::shown);
         target->equip_if_enabled(target_card);
 
         target->m_hp = target->m_max_hp;
         target->m_game->add_public_update<game_update_type::player_hp>(target->id, target->m_hp, false, true);
 
-        target->m_game->move_to(target->m_hand.front(), pocket_type::player_backup, false, target);
+        target->m_game->move_card(target->m_hand.front(), pocket_type::player_backup, target, show_card_flags::hidden);
         target->m_game->pop_request<request_characterchoice>();
     }
 

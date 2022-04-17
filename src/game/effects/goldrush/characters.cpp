@@ -47,7 +47,7 @@ namespace banggame {
         target->m_game->call_event<event_type::on_card_drawn>(target, target_card);
         if (target->m_game->m_selection.size() == 1) {
             target->m_game->pop_request<request_dutch_will>();
-            target->m_game->move_to(target->m_game->m_selection.front(), pocket_type::discard_pile);
+            target->m_game->move_card(target->m_game->m_selection.front(), pocket_type::discard_pile);
             target->add_gold(1);
         }
     }
@@ -63,7 +63,7 @@ namespace banggame {
     void effect_josh_mccloud::on_play(card *origin_card, player *target) {
         auto *card = target->m_game->draw_shop_card();
         if (!target->is_possible_to_play(card)) {
-            target->m_game->move_to(card, pocket_type::shop_discard, true, nullptr, show_card_flags::pause_before_move);
+            target->m_game->move_card(card, pocket_type::shop_discard, nullptr, show_card_flags::pause_before_move);
         } else {
             target->set_forced_card(card);
         }

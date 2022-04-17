@@ -26,8 +26,8 @@ namespace banggame {
         target->m_game->add_event<event_type::on_card_drawn>(target_card, [target](player *origin, card *drawn_card) {
             if (origin == target && origin->m_num_drawn_cards == 2) {
                 card_suit suit = target->get_card_sign(drawn_card).suit;
-                target->m_game->send_card_update(*drawn_card, nullptr, show_card_flags::short_pause);
-                target->m_game->send_card_update(*drawn_card, target);
+                target->m_game->send_card_update(drawn_card, nullptr, show_card_flags::short_pause);
+                target->m_game->send_card_update(drawn_card, target);
                 if (suit == card_suit::hearts || suit == card_suit::diamonds) {
                     origin->m_game->queue_action([=]{
                         ++origin->m_num_drawn_cards;
@@ -57,7 +57,7 @@ namespace banggame {
         target->m_game->call_event<event_type::on_card_drawn>(target, target_card);
         if (target->m_num_drawn_cards >= target->m_num_cards_to_draw) {
             while (!target->m_game->m_selection.empty()) {
-                target->m_game->move_to(target->m_game->m_selection.front(), pocket_type::main_deck, false);
+                target->m_game->move_card(target->m_game->m_selection.front(), pocket_type::main_deck, nullptr, show_card_flags::hidden);
             }
             target->m_game->pop_request<request_kit_carlson>();
         }
@@ -100,7 +100,7 @@ namespace banggame {
                 for (auto it = target->m_table.begin(); it != target->m_table.end(); ) {
                     card *target_card = *it;
                     if (target_card->color != card_color_type::black) {
-                        it = target->move_card_to(target_card, pocket_type::player_hand, true, p);
+                        it = target->move_card_to(target_card, pocket_type::player_hand, p);
                     } else {
                         ++it;
                     }

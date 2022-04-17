@@ -67,12 +67,12 @@ namespace banggame {
         });
         if (it != target->m_game->m_hidden_deck.end()) {
             card *discard_bronco = *it;
-            target->m_game->move_to(discard_bronco, pocket_type::specials, false, nullptr, show_card_flags::no_animation);
-            target->m_game->send_card_update(*discard_bronco, nullptr, show_card_flags::no_animation);
+            target->m_game->move_card(discard_bronco, pocket_type::specials, nullptr, show_card_flags::instant | show_card_flags::hidden);
+            target->m_game->send_card_update(discard_bronco, nullptr, show_card_flags::instant);
 
             target->m_game->add_event<event_type::post_discard_card>(origin_card, [=](player *p, card *c) {
                 if (p == target && c == origin_card) {
-                    target->m_game->move_to(discard_bronco, pocket_type::hidden_deck, false, nullptr, show_card_flags::no_animation);
+                    target->m_game->move_card(discard_bronco, pocket_type::hidden_deck, nullptr, show_card_flags::instant | show_card_flags::hidden);
                     target->m_game->remove_events(origin_card);
                 }
             });

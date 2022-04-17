@@ -148,7 +148,7 @@ namespace banggame {
             for (auto it = vec.begin(); it != vec.end(); ) {
                 auto *card = *it;
                 if (card->responses.first_is(effect_type::handcuffschoice)) {
-                    it = origin->m_game->move_to(card, pocket_type::selection, true, nullptr, show_card_flags::no_animation);
+                    it = origin->m_game->move_card(card, pocket_type::selection, nullptr, show_card_flags::instant);
                 } else {
                     ++it;
                 }
@@ -168,7 +168,7 @@ namespace banggame {
             });
 
         while (!target->m_game->m_selection.empty()) {
-            target->m_game->move_to(target->m_game->m_selection.front(), pocket_type::hidden_deck, true, nullptr, show_card_flags::no_animation);
+            target->m_game->move_card(target->m_game->m_selection.front(), pocket_type::hidden_deck, nullptr, show_card_flags::instant);
         }
         target->m_game->pop_request<request_handcuffs>();
     }
@@ -183,7 +183,7 @@ namespace banggame {
 
     void effect_newidentity::on_equip(card *target_card, player *target) {
         target->m_game->add_event<event_type::pre_turn_start>(target_card, [=](player *p) {
-            target->m_game->move_to(p->m_backup_character.front(), pocket_type::selection, true, nullptr);
+            target->m_game->move_card(p->m_backup_character.front(), pocket_type::selection);
             target->m_game->queue_request<request_newidentity>(target_card, p);
         });
     }
@@ -204,8 +204,8 @@ namespace banggame {
             }
 
             card *old_character = target->m_characters.front();
-            target->m_game->move_to(old_character, pocket_type::player_backup, false, target);
-            target->m_game->move_to(target_card, pocket_type::player_character, true, target, show_card_flags::show_everyone);
+            target->m_game->move_card(old_character, pocket_type::player_backup, target, show_card_flags::hidden);
+            target->m_game->move_card(target_card, pocket_type::player_character, target, show_card_flags::shown);
 
             target->equip_if_enabled(target_card);
             target->move_cubes(old_character, target_card, old_character->cubes.size());
@@ -216,7 +216,7 @@ namespace banggame {
             target->m_hp = 2;
             target->m_game->add_public_update<game_update_type::player_hp>(target->id, target->m_hp, false, false);
         } else {
-            target->m_game->move_to(target->m_game->m_selection.front(), pocket_type::player_backup, false, target);
+            target->m_game->move_card(target->m_game->m_selection.front(), pocket_type::player_backup, target, show_card_flags::hidden);
         }
         target->m_game->pop_request<request_newidentity>();
     }

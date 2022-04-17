@@ -27,8 +27,9 @@ namespace banggame {
     DEFINE_ENUM_FLAGS(show_card_flags,
         (pause_before_move)
         (short_pause)
-        (no_animation)
-        (show_everyone)
+        (instant)
+        (shown)
+        (hidden)
     )
 
     struct move_card_update {REFLECTABLE(

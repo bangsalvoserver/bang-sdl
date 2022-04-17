@@ -61,17 +61,17 @@ namespace banggame {
         };
         origin->m_game->queue_action([=]{
             for (auto it = origin->m_game->m_selection.begin(); it != origin->m_game->m_selection.end(); ++it) {
-                auto flags = show_card_flags::show_everyone;
+                auto flags = show_card_flags::shown;
                 if (std::next(it) == origin->m_game->m_selection.end()) {
                     flags |= show_card_flags::short_pause;
                 }
-                origin->m_game->send_card_update(**it, nullptr, flags);
+                origin->m_game->send_card_update(*it, nullptr, flags);
             }
             if (std::ranges::any_of(origin->m_game->m_selection, [origin](card *card_ptr) {
                 return origin->get_card_sign(card_ptr).rank == card_rank::rank_A;
             })) {
                 while (!target->m_game->m_selection.empty()) {
-                    origin->m_game->move_to(target->m_game->m_selection.front(), pocket_type::discard_pile);
+                    origin->m_game->move_card(target->m_game->m_selection.front(), pocket_type::discard_pile);
                 }
             } else if (origin->m_game->m_selection.size() <= 2) {
                 while (!origin->m_game->m_selection.empty()) {

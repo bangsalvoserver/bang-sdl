@@ -104,7 +104,7 @@ namespace banggame {
     }
 
     void request_poker::on_pick(pocket_type pocket, player *target_player, card *target_card) {
-        target->m_game->move_to(target_card, pocket_type::selection, true, origin);
+        target->m_game->move_card(target_card, pocket_type::selection, origin);
         target->m_game->pop_request<request_poker>();
     }
 
@@ -120,7 +120,7 @@ namespace banggame {
         target->add_to_hand(target_card);
         if (--num_cards == 0 || target->m_game->m_selection.size() == 0) {
             for (auto *c : target->m_game->m_selection) {
-                target->m_game->move_to(c, pocket_type::discard_pile);
+                target->m_game->move_card(c, pocket_type::discard_pile);
             }
             target->m_game->pop_request<request_poker_draw>();
         }

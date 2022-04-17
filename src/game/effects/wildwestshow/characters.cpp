@@ -35,7 +35,7 @@ namespace banggame {
                         return;
                     }
                 }
-                p->m_game->move_to(discarded_card, pocket_type::player_hand, true, p, show_card_flags::short_pause);
+                p->m_game->move_card(discarded_card, pocket_type::player_hand, p, show_card_flags::short_pause);
             }
         });
     }
@@ -50,7 +50,7 @@ namespace banggame {
                         return;
                     }
                 }
-                player_end->m_game->move_to(drawn_card, pocket_type::player_hand, true, player_end, show_card_flags::short_pause);
+                player_end->m_game->move_card(drawn_card, pocket_type::player_hand, player_end, show_card_flags::short_pause);
             }
         });
     }
@@ -135,7 +135,7 @@ namespace banggame {
             target->equip_if_enabled(c);
             c->pocket = pocket_type::player_character;
             c->owner = target;
-            target->m_game->send_card_update(*c, target, show_card_flags::no_animation | show_card_flags::show_everyone);
+            target->m_game->send_card_update(c, target, show_card_flags::instant | show_card_flags::shown);
         }
     }
     

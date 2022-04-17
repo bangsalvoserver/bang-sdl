@@ -33,7 +33,7 @@ namespace banggame {
 
     void draw_check_handler::restart() {
         while (!m_origin->m_game->m_selection.empty()) {
-            m_origin->m_game->move_to(m_origin->m_game->m_selection.front(), pocket_type::discard_pile);
+            m_origin->m_game->move_card(m_origin->m_game->m_selection.front(), pocket_type::discard_pile);
         }
         start();
     }
@@ -44,7 +44,7 @@ namespace banggame {
                 card *c = m_origin->m_game->m_selection.front();
                 m_origin->m_game->call_event<event_type::on_draw_check>(m_origin, c);
                 if (c->pocket == pocket_type::selection) {
-                    m_origin->m_game->move_to(c, pocket_type::discard_pile);
+                    m_origin->m_game->move_card(c, pocket_type::discard_pile);
                 }
             }
         } else {

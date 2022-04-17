@@ -81,9 +81,9 @@ namespace banggame {
 
         void shuffle_cards_and_ids(std::vector<card *> &vec);
 
-        void send_card_update(const card &c, player *owner = nullptr, show_card_flags flags = {});
+        void send_card_update(card *c, player *owner = nullptr, show_card_flags flags = {});
 
-        std::vector<card *>::iterator move_to(card *c, pocket_type pocket, bool known = true, player *owner = nullptr, show_card_flags flags = {});
+        std::vector<card *>::iterator move_card(card *c, pocket_type pocket, player *owner = nullptr, show_card_flags flags = {});
         card *draw_card_to(pocket_type pocket, player *owner = nullptr, show_card_flags flags = {});
         card *draw_phase_one_card_to(pocket_type pocket, player *owner = nullptr, show_card_flags flags = {});
 

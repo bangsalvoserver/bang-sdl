@@ -96,21 +96,19 @@ namespace banggame {
         }
     }
 
-    void game_table::send_card_update(const card &c, player *owner, show_card_flags flags) {
-        if (!owner || bool(flags & show_card_flags::show_everyone)) {
-            add_public_update<game_update_type::show_card>(c, flags);
+    void game_table::send_card_update(card *c, player *owner, show_card_flags flags) {
+        if (bool(flags & show_card_flags::hidden)) {
+            add_public_update<game_update_type::hide_card>(c->id, flags);
+        } else if (!owner || bool(flags & show_card_flags::shown)) {
+            add_public_update<game_update_type::show_card>(*c, flags);
         } else {
-            add_public_update<game_update_type::hide_card>(c.id, flags, owner->id);
-            add_private_update<game_update_type::show_card>(owner, c, flags);
+            add_public_update<game_update_type::hide_card>(c->id, flags, owner->id);
+            add_private_update<game_update_type::show_card>(owner, *c, flags);
         }
     }
 
-    std::vector<card *>::iterator game_table::move_to(card *c, pocket_type pocket, bool known, player *owner, show_card_flags flags) {
-        if (known) {
-            send_card_update(*c, owner, flags);
-        } else {
-            add_public_update<game_update_type::hide_card>(c->id, flags);
-        }
+    std::vector<card *>::iterator game_table::move_card(card *c, pocket_type pocket, player *owner, show_card_flags flags) {
+        send_card_update(c, owner, flags);
         auto &prev_pile = get_pocket(c->pocket, c->owner);
         auto card_it = std::ranges::find(prev_pile, c);
         if (c->pocket == pocket && c->owner == owner) {
@@ -125,7 +123,7 @@ namespace banggame {
 
     card *game_table::draw_card_to(pocket_type pocket, player *owner, show_card_flags flags) {
         card *drawn_card = m_deck.back();
-        move_to(drawn_card, pocket, true, owner, flags);
+        move_card(drawn_card, pocket, owner, flags);
         if (m_deck.empty()) {
             card *top_discards = m_discards.back();
             if (m_options.keep_last_card_shuffling) {
@@ -152,18 +150,18 @@ namespace banggame {
             return draw_card_to(pocket, owner, flags);
         } else {
             card *drawn_card = m_discards.back();
-            move_to(drawn_card, pocket, true, owner, flags);
+            move_card(drawn_card, pocket, owner, flags);
             return drawn_card;
         }
     }
 
     card *game_table::draw_shop_card() {
         card *drawn_card = m_shop_deck.back();
-        move_to(drawn_card, pocket_type::shop_selection);
+        move_card(drawn_card, pocket_type::shop_selection);
         if (drawn_card->modifier == card_modifier_type::shopchoice) {
             for (card *c : m_hidden_deck) {
                 if (c->effects.first_is(drawn_card->effects.front().type)) {
-                    send_card_update(*c, nullptr, show_card_flags::no_animation);
+                    send_card_update(c, nullptr, show_card_flags::instant);
                 }
             }
         }
@@ -184,13 +182,13 @@ namespace banggame {
         if (m_scenario_deck.empty()) return;
 
         if (m_scenario_deck.size() > 1) {
-            send_card_update(**(m_scenario_deck.rbegin() + 1), nullptr, show_card_flags::no_animation);
+            send_card_update(*(m_scenario_deck.rbegin() + 1), nullptr, show_card_flags::instant);
         }
         if (!m_scenario_cards.empty()) {
             m_first_player->unequip_if_enabled(m_scenario_cards.back());
             m_scenario_flags = {};
         }
-        move_to(m_scenario_deck.back(), pocket_type::scenario_card);
+        move_card(m_scenario_deck.back(), pocket_type::scenario_card);
         m_first_player->equip_if_enabled(m_scenario_cards.back());
     }
 

@@ -38,10 +38,10 @@ namespace banggame {
 
         auto move_cards = [&](auto &&range, auto do_show_card) {
             for (card *c : range) {
-                ADD_TO_RET(move_card, c->id, c->owner ? c->owner->id : 0, c->pocket, show_card_flags::no_animation);
+                ADD_TO_RET(move_card, c->id, c->owner ? c->owner->id : 0, c->pocket, show_card_flags::instant);
 
                 if (do_show_card(*c)) {
-                    ADD_TO_RET(show_card, *c, show_card_flags::no_animation);
+                    ADD_TO_RET(show_card, *c, show_card_flags::instant);
 
                     for (int id : c->cubes) {
                         ADD_TO_RET(move_cube, id, c->id);
@@ -139,8 +139,8 @@ namespace banggame {
             }
         }
         add_public_update<game_update_type::add_cards>(make_id_vector(m_specials), pocket_type::specials);
-        for (const auto &c : m_specials) {
-            send_card_update(*c, nullptr, show_card_flags::no_animation);
+        for (card *c : m_specials) {
+            send_card_update(c, nullptr, show_card_flags::instant);
         }
 
         for (const auto &c : all_cards.deck) {
@@ -309,7 +309,7 @@ namespace banggame {
         if (has_expansion(card_expansion_type::characterchoice)) {
             for (auto &p : m_players) {
                 while (!p.m_characters.empty()) {
-                    move_to(p.m_characters.front(), pocket_type::player_hand, true, &p, show_card_flags::no_animation | show_card_flags::show_everyone);
+                    move_card(p.m_characters.front(), pocket_type::player_hand, &p, show_card_flags::instant | show_card_flags::shown);
                 }
             }
             auto *p = m_first_player;
@@ -321,12 +321,12 @@ namespace banggame {
             }
         } else {
             for (auto &p : m_players) {
-                send_card_update(*p.m_characters.front(), &p, show_card_flags::no_animation | show_card_flags::show_everyone);
+                send_card_update(p.m_characters.front(), &p, show_card_flags::instant | show_card_flags::shown);
                 p.equip_if_enabled(p.m_characters.front());
                 p.m_hp = p.m_max_hp;
                 add_public_update<game_update_type::player_hp>(p.id, p.m_hp, false, true);
 
-                move_to(p.m_characters.back(), pocket_type::player_backup, false, &p, show_card_flags::no_animation);
+                move_card(p.m_characters.back(), pocket_type::player_backup, &p, show_card_flags::instant | show_card_flags::hidden);
             }
         }
 
@@ -355,7 +355,7 @@ namespace banggame {
 
             if (!m_scenario_deck.empty()) {
                 add_public_update<game_update_type::move_scenario_deck>(m_first_player->id);
-                send_card_update(*m_scenario_deck.back(), nullptr, show_card_flags::no_animation);
+                send_card_update(m_scenario_deck.back(), nullptr, show_card_flags::instant);
             }
 
             m_playing = m_first_player;

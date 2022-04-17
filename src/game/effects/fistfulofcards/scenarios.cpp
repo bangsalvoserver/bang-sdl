@@ -59,7 +59,7 @@ namespace banggame {
             for (auto it = vec.begin(); it != vec.end(); ) {
                 auto *card = *it;
                 if (card->responses.first_is(effect_type::peyotechoice)) {
-                    it = p->m_game->move_to(card, pocket_type::selection, true, nullptr, show_card_flags::no_animation);
+                    it = p->m_game->move_card(card, pocket_type::selection, nullptr, show_card_flags::instant);
                 } else {
                     ++it;
                 }
@@ -71,7 +71,7 @@ namespace banggame {
 
     void request_peyote::on_pick(pocket_type pocket, player *target_player, card *target_card) {
         auto *drawn_card = target->m_game->m_deck.back();
-        target->m_game->send_card_update(*drawn_card, nullptr, show_card_flags::short_pause);
+        target->m_game->send_card_update(drawn_card, nullptr, show_card_flags::short_pause);
 
         if ((target_card->responses.front().effect_value == 1)
             ? (drawn_card->sign.suit == card_suit::hearts || drawn_card->sign.suit == card_suit::diamonds)
@@ -82,7 +82,7 @@ namespace banggame {
             target->m_game->draw_card_to(pocket_type::discard_pile);
 
             while (!target->m_game->m_selection.empty()) {
-                target->m_game->move_to(target->m_game->m_selection.front(), pocket_type::hidden_deck, true, nullptr, show_card_flags::no_animation);
+                target->m_game->move_card(target->m_game->m_selection.front(), pocket_type::hidden_deck, nullptr, show_card_flags::instant);
             }
             target->m_game->pop_request<request_peyote>();
             target->m_game->call_event<event_type::post_draw_cards>(target);
@@ -140,8 +140,8 @@ namespace banggame {
         target->m_game->add_event<event_type::on_card_drawn>(target_card, [](player *origin, card *drawn_card) {
             if (origin->m_num_drawn_cards == 2) {
                 origin->m_game->queue_action([=]{
-                    origin->m_game->send_card_update(*drawn_card, origin, show_card_flags::show_everyone | show_card_flags::short_pause);
-                    origin->m_game->send_card_update(*drawn_card, origin);
+                    origin->m_game->send_card_update(drawn_card, origin, show_card_flags::shown | show_card_flags::short_pause);
+                    origin->m_game->send_card_update(drawn_card, origin);
 
                     if (origin->is_possible_to_play(drawn_card)) {
                         origin->set_mandatory_card(drawn_card);

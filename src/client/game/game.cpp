@@ -599,7 +599,7 @@ void game_scene::HANDLE_UPDATE(move_card, const move_card_update &args) {
         anim.add_move_card(card);
     }
     
-    if (bool(args.flags & show_card_flags::no_animation)) {
+    if (bool(args.flags & show_card_flags::instant)) {
         anim.end();
         pop_update();
     } else {
@@ -676,7 +676,7 @@ void game_scene::HANDLE_UPDATE(show_card, const show_card_update &args) {
         } else if (card->pocket == &m_specials) {
             m_ui.add_special(card);
         }
-        if (bool(args.flags & show_card_flags::no_animation)) {
+        if (bool(args.flags & show_card_flags::instant)) {
             card->flip_amt = 1.f;
             pop_update();
         } else {
@@ -700,7 +700,7 @@ void game_scene::HANDLE_UPDATE(hide_card, const hide_card_update &args) {
             m_ui.remove_special(card);
         }
         card->known = false;
-        if (bool(args.flags & show_card_flags::no_animation)) {
+        if (bool(args.flags & show_card_flags::instant)) {
             card->flip_amt = 0.f;
             pop_update();
         } else {
