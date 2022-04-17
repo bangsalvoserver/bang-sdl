@@ -84,6 +84,7 @@ namespace banggame {
 
     struct handler_move_bomb {
         opt_fmt_str on_prompt(card *origin_card, player *origin, const mth_target_list &targets) const;
+        void verify(card *origin_card, player *origin, const mth_target_list &targets) const;
         void on_play(card *origin_card, player *origin, const mth_target_list &targets);
     };
 }

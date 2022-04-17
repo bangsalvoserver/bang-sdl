@@ -238,19 +238,24 @@ namespace banggame {
         }
     }
 
+    void handler_move_bomb::verify(card *origin_card, player *origin, const mth_target_list &targets) const {
+        auto target = std::get<player *>(targets[0]);
+        if (target != origin) {
+            if (auto c = target->find_equipped_card(origin_card)) {
+                throw game_error("ERROR_DUPLICATED_CARD", c);
+            }
+        }
+    }
+
     void handler_move_bomb::on_play(card *origin_card, player *origin, const mth_target_list &targets) {
         auto target = std::get<player *>(targets[0]);
-        if (!target->immune_to(origin_card)) {
-            if (target == origin) {
-                origin->m_game->pop_request<request_move_bomb>();
-            } else if (!target->find_equipped_card(origin_card)) {
-                origin->unequip_if_enabled(origin_card);
-                target->equip_card(origin_card);
-                origin->m_game->pop_request<request_move_bomb>();
-            }
-        } else {
+        if (target->immune_to(origin_card)) {
+            // Non ne sono tanto sicuro
             origin->discard_card(origin_card);
-            origin->m_game->pop_request<request_move_bomb>();
+        } else if (target != origin) {
+            origin->unequip_if_enabled(origin_card);
+            target->equip_card(origin_card);
         }
+        origin->m_game->pop_request<request_move_bomb>();
     }
 }
