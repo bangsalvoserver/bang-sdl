@@ -73,10 +73,6 @@ struct lobby_chat_args {REFLECTABLE(
     (std::string) message
 )};
 
-struct game_started_args {REFLECTABLE(
-    (banggame::card_expansion_type) expansions
-)};
-
 DEFINE_ENUM_TYPES(server_message_type,
     (client_accepted, client_accepted_args)
     (lobby_error, std::string)
@@ -86,7 +82,7 @@ DEFINE_ENUM_TYPES(server_message_type,
     (lobby_add_user, lobby_add_user_args)
     (lobby_remove_user, lobby_remove_user_args)
     (lobby_chat, lobby_chat_args)
-    (game_started, game_started_args)
+    (game_started, banggame::game_options)
     (game_update, banggame::game_update)
 )
 

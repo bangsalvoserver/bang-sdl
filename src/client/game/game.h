@@ -19,7 +19,7 @@ namespace banggame {
 
     class game_scene : public scene_base {
     public:
-        game_scene(client_manager *parent, const game_started_args &args);
+        game_scene(client_manager *parent, const game_options &options);
         
         void refresh_layout() override;
         void render(sdl::renderer &renderer) override;
@@ -111,7 +111,7 @@ namespace banggame {
         bool m_middle_click = false;
         card_view *m_overlay = nullptr;
 
-        card_expansion_type m_expansions;
+        game_options m_game_options;
         
         int m_player_own_id = 0;
         int m_playing_id = 0;

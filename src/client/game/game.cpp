@@ -10,18 +10,17 @@
 using namespace banggame;
 using namespace enums::flag_operators;
 
-game_scene::game_scene(client_manager *parent, const game_started_args &args)
+game_scene::game_scene(client_manager *parent, const game_options &options)
     : scene_base(parent)
     , m_card_textures(parent->get_base_path())
     , m_ui(this)
     , m_target(this)
+    , m_game_options(options)
 {
     std::random_device rd;
     rng.seed(rd());
 
     m_ui.enable_golobby(false);
-    
-    m_expansions = args.expansions;
 }
 
 static sdl::point cube_pile_offset(auto &rng) {
@@ -487,13 +486,17 @@ void game_scene::HANDLE_UPDATE(deck_shuffled, const pocket_type &pocket) {
     switch (pocket) {
     case pocket_type::main_deck: {
         card_view *top_discard = m_discard_pile.back();
-        m_discard_pile.erase_card(top_discard);
+        if (m_game_options.keep_last_card_shuffling) {
+            m_discard_pile.erase_card(top_discard);
+        }
         for (card_view *card : m_discard_pile) {
             card->known = false;
             m_main_deck.add_card(card);
         }
         m_discard_pile.clear();
-        m_discard_pile.add_card(top_discard);
+        if (m_game_options.keep_last_card_shuffling) {
+            m_discard_pile.add_card(top_discard);
+        }
         add_animation<deck_shuffle_animation>(options.shuffle_deck_ticks, &m_main_deck, m_discard_pile.get_pos());
         break;
     }

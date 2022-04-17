@@ -150,7 +150,7 @@ void game_manager::HANDLE_MESSAGE(lobby_join, user_ptr user, const lobby_join_ar
             send_message<server_message_type::lobby_add_user>(user->first, p->first, p->second.name, p->second.profile_image);
         }
         if (lobby.state != lobby_state::waiting) {
-            send_message<server_message_type::game_started>(user->first, lobby.game.m_options.expansions);
+            send_message<server_message_type::game_started>(user->first, lobby.game.m_options);
 
             player *controlling = lobby.game.find_disconnected_player();
             if (controlling) {
@@ -266,9 +266,7 @@ void game_manager::HANDLE_MESSAGE(game_start, user_ptr user) {
     lobby.state = lobby_state::playing;
     send_lobby_update(user->second.in_lobby);
 
-    broadcast_message<server_message_type::game_started>(lobby, lobby.expansions | card_expansion_type::base);
-
-    lobby.start_game(all_cards);
+    lobby.start_game(*this, all_cards);
 }
 
 void game_manager::HANDLE_MESSAGE(game_action, user_ptr user, const game_action &value) {
@@ -309,11 +307,14 @@ void lobby::send_updates(game_manager &mgr) {
     }
 }
 
-void lobby::start_game(const banggame::all_cards_t &all_cards) {
-    game = {};
-
+void lobby::start_game(game_manager &mgr, const banggame::all_cards_t &all_cards) {
     game_options opts;
     opts.expansions = expansions | banggame::card_expansion_type::base;
+    opts.keep_last_card_shuffling = false;
+
+    mgr.broadcast_message<server_message_type::game_started>(*this, opts);
+
+    game = {};
     
     std::vector<player *> ids;
     for (const auto &_ : users) {

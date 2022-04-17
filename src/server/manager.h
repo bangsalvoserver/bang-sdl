@@ -23,7 +23,7 @@ struct lobby : lobby_info {
     lobby_state state;
 
     banggame::game game;
-    void start_game(const banggame::all_cards_t &all_cards);
+    void start_game(game_manager &mgr, const banggame::all_cards_t &all_cards);
     void send_updates(game_manager &mgr);
 };
 

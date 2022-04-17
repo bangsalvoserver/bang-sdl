@@ -128,14 +128,18 @@ namespace banggame {
         move_to(drawn_card, pocket, true, owner, flags);
         if (m_deck.empty()) {
             card *top_discards = m_discards.back();
-            m_discards.pop_back();
+            if (m_options.keep_last_card_shuffling) {
+                m_discards.pop_back();
+            }
             m_deck = std::move(m_discards);
             for (card *c : m_deck) {
                 c->pocket = pocket_type::main_deck;
                 c->owner = nullptr;
             }
             m_discards.clear();
-            m_discards.emplace_back(top_discards);
+            if (m_options.keep_last_card_shuffling) {
+                m_discards.emplace_back(top_discards);
+            }
             shuffle_cards_and_ids(m_deck);
             add_public_update<game_update_type::deck_shuffled>(pocket_type::main_deck);
             add_log("LOG_DECK_RESHUFFLED");
@@ -188,5 +192,52 @@ namespace banggame {
         }
         move_to(m_scenario_deck.back(), pocket_type::scenario_card);
         m_first_player->equip_if_enabled(m_scenario_cards.back());
+    }
+
+    void game_table::add_disabler(event_card_key key, card_disabler_fun &&fun) {
+        const auto disable_if_new = [&](card *c) {
+            if (!is_disabled(c) && fun(c)) {
+                for (auto &e : c->equips) {
+                    e.on_unequip(c, c->owner);
+                }
+            }
+        };
+
+        for (auto &p : m_players) {
+            std::ranges::for_each(p.m_table, disable_if_new);
+            std::ranges::for_each(p.m_characters, disable_if_new);
+        }
+
+        m_disablers.add(key, std::move(fun));
+    }
+
+    void game_table::remove_disablers(event_card_key key) {
+        const auto enable_if_old = [&](card *c) {
+            bool a = false;
+            bool b = false;
+            for (const auto &[t, fun] : m_disablers) {
+                if (t != key) a = a || fun(c);
+                else b = b || fun(c);
+            }
+            if (!a && b) {
+                for (auto &e : c->equips) {
+                    e.on_equip(c, c->owner);
+                }
+            }
+        };
+
+        for (auto &p : m_players) {
+            std::ranges::for_each(p.m_table, enable_if_old);
+            std::ranges::for_each(p.m_characters, enable_if_old);
+        }
+
+        m_disablers.erase(key);
+    }
+
+    bool game_table::is_disabled(card *target_card) const {
+        for (const auto &fun : m_disablers | std::views::values) {
+            if (fun(target_card)) return true;
+        }
+        return false;
     }
 }

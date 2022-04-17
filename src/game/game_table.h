@@ -7,6 +7,7 @@
 #include "player.h"
 #include "formatter.h"
 #include "game_net.h"
+#include "events.h"
 
 #include "utils/id_map.h"
 
@@ -27,6 +28,8 @@ namespace banggame {
         (abandonedmine) // fase 1 : pesca dagli scarti, fase 3 : scarta coperto nel mazzo
         (deadman) // il primo morto ritorna in vita con 2 carte e 2 hp nel suo turno
     )
+
+    using card_disabler_fun = std::function<bool(card *)>;
 
     struct game_table : game_net_manager {
         std::default_random_engine rng;
@@ -50,9 +53,12 @@ namespace banggame {
         std::vector<int> m_cubes;
 
         scenario_flags m_scenario_flags{};
+        game_options m_options;
 
         player *m_first_player = nullptr;
         player *m_first_dead = nullptr;
+
+        card_multimap<card_disabler_fun> m_disablers;
 
         game_table() {
             std::random_device rd;
@@ -84,6 +90,15 @@ namespace banggame {
         card *draw_shop_card();
         
         void draw_scenario_card();
+
+        void add_disabler(event_card_key key, card_disabler_fun &&fun);
+        void remove_disablers(event_card_key key);
+        bool is_disabled(card *target_card) const;
+
+        bool has_expansion(card_expansion_type type) const {
+            using namespace enums::flag_operators;
+            return bool(m_options.expansions & type);
+        }
     };
 
 }

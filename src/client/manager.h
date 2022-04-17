@@ -93,7 +93,7 @@ private:
     void HANDLE_SRV_MESSAGE(lobby_add_user, const lobby_add_user_args &args);
     void HANDLE_SRV_MESSAGE(lobby_remove_user, const lobby_remove_user_args &args);
     void HANDLE_SRV_MESSAGE(lobby_chat, const lobby_chat_args &args);
-    void HANDLE_SRV_MESSAGE(game_started, const game_started_args &args);
+    void HANDLE_SRV_MESSAGE(game_started, const banggame::game_options &options);
     void HANDLE_SRV_MESSAGE(game_update, const banggame::game_update &args);
 
 private:

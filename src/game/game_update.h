@@ -166,6 +166,11 @@ namespace banggame {
     )
 
     using game_update = enums::enum_variant<game_update_type>;
+
+    struct game_options {REFLECTABLE(
+        (card_expansion_type) expansions,
+        (bool) keep_last_card_shuffling
+    )};
 }
 
 #endif
