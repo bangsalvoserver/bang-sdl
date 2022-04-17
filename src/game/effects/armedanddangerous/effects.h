@@ -9,6 +9,11 @@ namespace banggame {
         void on_play(card *origin_card, player *origin, const mth_target_list &targets);
     };
 
+    struct handler_heal_multi {
+        opt_fmt_str on_prompt(card *origin_card, player *origin, const mth_target_list &targets) const;
+        void on_play(card *origin_card, player *origin, const mth_target_list &targets);
+    };
+
     struct effect_select_cube {
         void verify(card *origin_card, player *origin, player *target, card *target_card) const;
         void on_play(card *origin_card, player *origin, player *target, card *target_card);

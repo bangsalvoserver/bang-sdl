@@ -266,9 +266,6 @@
                 {
                     "class": "draw",
                     "value": 2
-                },
-                {
-                    "class": "changewws"
                 }
             ]
         },
@@ -406,9 +403,6 @@
                 {
                     "class": "draw",
                     "value": 3
-                },
-                {
-                    "class": "changewws"
                 }
             ]
         },
@@ -804,10 +798,10 @@
             "color": "green",
             "responses": [
                 {
-                    "class": "missed"
+                    "class": "draw"
                 },
                 {
-                    "class": "draw"
+                    "class": "missed"
                 }
             ]
         },
@@ -962,9 +956,6 @@
                 {
                     "class": "draw",
                     "value": 3
-                },
-                {
-                    "class": "changewws"
                 }
             ]
         },
@@ -1302,17 +1293,10 @@
             "color": "brown",
             "effects": [
                 {
-                    "target": "player",
-                    "player_filter": "self",
                     "class": "mth_add"
                 },
                 {
-                    "target": "player",
-                    "player_filter": "self",
                     "class": "mth_add"
-                },
-                {
-                    "class": "changewws"
                 }
             ],
             "optional": [
@@ -1329,8 +1313,6 @@
                     "class": "select_cube"
                 },
                 {
-                    "target": "player",
-                    "player_filter": "self",
                     "class": "mth_add"
                 },
                 {
@@ -1364,7 +1346,7 @@
             "color": "brown",
             "effects": [
                 {
-                    "class": "heal"
+                    "class": "mth_add"
                 }
             ],
             "optional": [
@@ -1387,12 +1369,13 @@
                     "class": "select_cube"
                 },
                 {
-                    "class": "heal"
+                    "class": "mth_add"
                 },
                 {
                     "class": "repeatable"
                 }
-            ]
+            ],
+            "multitarget": "heal_multi"
         },
         {
             "name": "Colpo Rapido",
@@ -4046,8 +4029,6 @@
                     "class": "destroy"
                 },
                 {
-                    "target": "player",
-                    "player_filter": "self",
                     "class": "mth_add"
                 }
             ],
@@ -4059,8 +4040,6 @@
                     "class": "destroy"
                 },
                 {
-                    "target": "player",
-                    "player_filter": "self",
                     "class": "mth_add"
                 },
                 {
@@ -4473,9 +4452,6 @@
                 {
                     "class": "draw",
                     "value": 4
-                },
-                {
-                    "class": "changewws"
                 }
             ],
             "equip": [

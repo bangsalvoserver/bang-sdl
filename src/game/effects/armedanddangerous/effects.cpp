@@ -11,9 +11,15 @@ namespace banggame {
     using namespace enums::flag_operators;
 
     void handler_draw_atend::on_play(card *origin_card, player *origin, const mth_target_list &targets) {
-        for (auto [target, _] : targets) {
-            target->m_game->draw_card_to(pocket_type::player_hand, target);
-        }
+        effect_draw(targets.size()).on_play(origin_card, origin);
+    }
+
+    opt_fmt_str handler_heal_multi::on_prompt(card *origin_card, player *origin, const mth_target_list &targets) const {
+        return effect_heal(targets.size()).on_prompt(origin_card, origin);
+    }
+
+    void handler_heal_multi::on_play(card *origin_card, player *origin, const mth_target_list &targets) {
+        effect_heal(targets.size()).on_play(origin_card, origin);
     }
 
     void effect_select_cube::verify(card *origin_card, player *origin, player *target, card *target_card) const {
@@ -173,6 +179,7 @@ namespace banggame {
 
     void effect_duck::on_play(card *origin_card, player *origin) {
         origin->add_to_hand(origin_card);
+        origin->m_game->update_request();
     }
 
     void handler_squaw::verify(card *origin_card, player *origin, const mth_target_list &targets) const {
