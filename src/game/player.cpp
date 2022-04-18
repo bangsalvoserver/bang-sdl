@@ -919,6 +919,11 @@ namespace banggame {
                     add_gold(-cost);
                     do_play_card(card_ptr, false, args.targets);
                     set_last_played_card(nullptr);
+                    m_game->queue_action([&]{
+                        while (m_game->m_shop_selection.size() < 3) {
+                            m_game->draw_shop_card();
+                        }
+                    });
                 });
             } else {
                 if (m_game->has_scenario(scenario_flags::judge)) throw game_error("ERROR_CANT_EQUIP_CARDS");
@@ -936,13 +941,13 @@ namespace banggame {
                         m_game->add_log("LOG_BOUGHT_EQUIP_TO", card_ptr, this, target);
                     }
                     m_game->call_event<event_type::on_effect_end>(this, card_ptr);
+                    m_game->queue_action([&]{
+                        while (m_game->m_shop_selection.size() < 3) {
+                            m_game->draw_shop_card();
+                        }
+                    });
                 });
             }
-            m_game->queue_action([&]{
-                while (m_game->m_shop_selection.size() < 3) {
-                    m_game->draw_shop_card();
-                }
-            });
             break;
         }
         case pocket_type::scenario_card:
