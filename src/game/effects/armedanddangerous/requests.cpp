@@ -19,24 +19,36 @@ namespace banggame {
             target_card = target->m_characters.front();
         }
         target->add_cubes(target_card, 1);
-        if (--ncubes == 0 || !target->can_receive_cubes()) {
+        if (--ncubes == 0) {
             target->m_game->pop_request<request_add_cube>();
+        } else {
+            target->m_game->update_request();
         }
     }
 
     game_formatted_string request_add_cube::status_text(player *owner) const {
         if (owner == target) {
-            if (origin_card) {
-                return {"STATUS_ADD_CUBE_FOR", origin_card};
+            if (ncubes == 1) {
+                if (origin_card) {
+                    return {"STATUS_ADD_CUBE_FOR", origin_card};
+                } else {
+                    return "STATUS_ADD_CUBE";
+                }
+            } else if (origin_card) {
+                return {"STATUS_ADD_CUBE_PLURAL_FOR", origin_card, ncubes};
             } else {
-                return "STATUS_ADD_CUBE";
+                return {"STATUS_ADD_CUBE_PLURAL", ncubes};
             }
-        } else {
+        } else if (ncubes == 1) {
             if (origin_card) {
                 return {"STATUS_ADD_CUBE_FOR_OTHER", target, origin_card};
             } else {
                 return {"STATUS_ADD_CUBE_OTHER", target};
             }
+        } else if (origin_card) {
+            return {"STATUS_ADD_CUBE_PLURAL_FOR_OTHER", target, origin_card, ncubes};
+        } else {
+            return {"STATUS_ADD_CUBE_PLURAL_OTHER", target, ncubes};
         }
     }
 

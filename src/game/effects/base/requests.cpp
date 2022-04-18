@@ -164,16 +164,13 @@ namespace banggame {
         } else {
             target->discard_card(target_card);
         }
+        ++ndiscarded;
         target->m_game->add_log("LOG_DISCARDED_SELF_CARD", target, target_card);
         target->m_game->call_event<event_type::on_discard_pass>(target, target_card);
-        if (target->m_game->has_expansion(card_expansion_type::armedanddangerous)) {
-            target->m_game->queue_action([target = target]{
-                if (target->can_receive_cubes()) {
-                    target->m_game->queue_request<request_add_cube>(nullptr, target);
-                }
-            });
-        }
         if (target->m_hand.size() <= target->max_cards_end_of_turn()) {
+            if (target->m_game->has_expansion(card_expansion_type::armedanddangerous)) {
+                target->queue_request_add_cube(nullptr, ndiscarded);
+            }
             target->m_game->pop_request<request_discard_pass>();
             target->m_game->queue_action([target = target]{ target->pass_turn(); });
         } else {

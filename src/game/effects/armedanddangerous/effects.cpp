@@ -51,9 +51,7 @@ namespace banggame {
     }
 
     void effect_reload::on_play(card *origin_card, player *origin) {
-        if (origin->can_receive_cubes()) {
-            origin->m_game->queue_request<request_add_cube>(origin_card, origin, 3);
-        }
+        origin->queue_request_add_cube(origin_card, 3);
     }
     
     void effect_rust::on_play(card *origin_card, player *origin, player *target, effect_flags flags) {

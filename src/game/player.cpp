@@ -157,12 +157,30 @@ namespace banggame {
             });
     }
 
-    bool player::can_receive_cubes() const {
-        if (m_game->m_cubes.empty()) return false;
-        if (m_characters.front()->cubes.size() < 4) return true;
-        return std::ranges::any_of(m_table, [](const card *card) {
-            return card->color == card_color_type::orange && card->cubes.size() < 4;
-        });
+    void player::queue_request_add_cube(card *origin_card, int ncubes) {
+        int nslots = 4 - m_characters.front()->cubes.size();
+        int ncards = nslots > 0;
+        for (card *c : m_table) {
+            if (c->color == card_color_type::orange) {
+                ncards += c->cubes.size() < 4;
+                nslots += 4 - c->cubes.size();
+            }
+        }
+        if (nslots <= ncubes || ncards <= 1) {
+            auto do_add_cubes = [&](card *c) {
+                int cubes_to_add = std::min<int>(ncubes, 4 - c->cubes.size());
+                ncubes -= cubes_to_add;
+                add_cubes(c, cubes_to_add);
+            };
+            do_add_cubes(m_characters.front());
+            for (card *c : m_table) {
+                if (c->color == card_color_type::orange) {
+                    do_add_cubes(c);
+                }
+            }
+        } else {
+            m_game->queue_request<request_add_cube>(origin_card, this, ncubes);
+        }
     }
 
     bool player::can_escape(player *origin, card *origin_card, effect_flags flags) const {
@@ -837,8 +855,8 @@ namespace banggame {
                         }
                         switch (card_ptr->color) {
                         case card_color_type::blue:
-                            if (m_game->has_expansion(card_expansion_type::armedanddangerous) && can_receive_cubes()) {
-                                m_game->queue_request<request_add_cube>(card_ptr, this);
+                            if (m_game->has_expansion(card_expansion_type::armedanddangerous)) {
+                                queue_request_add_cube(card_ptr);
                             }
                             break;
                         case card_color_type::green:
