@@ -103,7 +103,7 @@ namespace banggame {
         (cards_other_players, std::vector<int>)
     )
 
-    using play_card_target = enums::enum_variant<play_card_target_type>;
+    using play_card_target_ids = enums::enum_variant<play_card_target_type>;
 
     DEFINE_ENUM(card_deck_type,
         (none)

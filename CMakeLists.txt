@@ -81,6 +81,7 @@ set(banggame_srcs
     src/game/make_all_cards.cpp
     src/game/draw_check_handler.cpp
     src/game/player.cpp
+    src/game/play_verify.cpp
     src/game/possible_to_play.cpp
 )
 

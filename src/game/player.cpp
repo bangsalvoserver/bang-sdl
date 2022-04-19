@@ -3,6 +3,7 @@
 #include "game.h"
 
 #include "holders.h"
+#include "play_verify.h"
 #include "server/net_enums.h"
 
 #include "effects/base/requests.h"
@@ -264,487 +265,11 @@ namespace banggame {
         m_mandatory_card = c;
     }
 
-    void player::verify_modifiers(card *c, const std::vector<card *> &modifiers) {
-        for (card *mod_card : modifiers) {
-            if (m_game->is_disabled(mod_card)) {
-                throw game_error("ERROR_CARD_IS_DISABLED", mod_card);
-            }
-            if (mod_card->modifier != card_modifier_type::bangmod || !c->effects.last_is(effect_type::bangcard)) {
-                throw game_error("ERROR_INVALID_ACTION");
-            }
-            for (const auto &e : mod_card->effects) {
-                e.verify(mod_card, this);
-            }
-        }
-    }
-
-    void player::play_modifiers(const std::vector<card *> &modifiers) {
-        for (card *mod_card : modifiers) {
-            do_play_card(mod_card, false, std::vector{mod_card->effects.size(),
-                play_card_target{enums::enum_tag<play_card_target_type::none>}});
-        }
-    }
-
-    void player::verify_equip_target(card *c, const std::vector<play_card_target> &targets) {
-        if (m_game->is_disabled(c)) throw game_error("ERROR_CARD_IS_DISABLED", c);
-        if (c->equips.empty()) return;
-        if (targets.size() != 1) throw game_error("ERROR_INVALID_ACTION");
-        if (targets.front().enum_index() != play_card_target_type::player) throw game_error("ERROR_INVALID_ACTION");
-        int target_player_id = targets.front().get<play_card_target_type::player>();
-        verify_effect_player_target(c->equips.front().player_filter, m_game->find_player(target_player_id));
-    }
-
     bool player::is_bangcard(card *card_ptr) {
         return (check_player_flags(player_flags::treat_missed_as_bang)
                 && card_ptr->responses.last_is(effect_type::missedcard))
             || card_ptr->effects.last_is(effect_type::bangcard);
     };
-
-    void player::verify_effect_player_target(target_player_filter filter, player *target) {
-        if (target->alive() == bool(filter & target_player_filter::dead)) {
-            throw game_error("ERROR_TARGET_DEAD");
-        }
-
-        std::ranges::for_each(enums::enum_flag_values(filter), [&](target_player_filter value) {
-            switch (value) {
-            case target_player_filter::self:
-                if (target != this) {
-                    throw game_error("ERROR_TARGET_NOT_SELF");
-                }
-                break;
-            case target_player_filter::notself:
-                if (target == this) {
-                    throw game_error("ERROR_TARGET_SELF");
-                }
-                break;
-            case target_player_filter::notsheriff:
-                if (target->m_role == player_role::sheriff) {
-                    throw game_error("ERROR_TARGET_SHERIFF");
-                }
-                break;
-            case target_player_filter::reachable:
-                if (!m_weapon_range || m_game->calc_distance(this, target) > m_weapon_range + m_range_mod) {
-                    throw game_error("ERROR_TARGET_NOT_IN_RANGE");
-                }
-                break;
-            case target_player_filter::range_1:
-                if (m_game->calc_distance(this, target) > 1 + m_range_mod) {
-                    throw game_error("ERROR_TARGET_NOT_IN_RANGE");
-                }
-                break;
-            case target_player_filter::range_2:
-                if (m_game->calc_distance(this, target) > 2 + m_range_mod) {
-                    throw game_error("ERROR_TARGET_NOT_IN_RANGE");
-                }
-                break;
-            case target_player_filter::dead:
-                break;
-            default: throw game_error("ERROR_INVALID_ACTION");
-            }
-        });
-    }
-
-    void player::verify_effect_card_target(const effect_holder &effect, player *target, card *target_card) {
-        verify_effect_player_target(effect.player_filter, target);
-
-        if ((target_card->color == card_color_type::black) != bool(effect.card_filter & target_card_filter::black)) {
-            throw game_error("ERROR_TARGET_BLACK_CARD");
-        }
-
-        std::ranges::for_each(enums::enum_flag_values(effect.card_filter), [&](target_card_filter value) {
-            switch (value) {
-            case target_card_filter::table:
-                if (target_card->pocket != pocket_type::player_table) {
-                    throw game_error("ERROR_TARGET_NOT_TABLE_CARD");
-                }
-                break;
-            case target_card_filter::hand:
-                if (target_card->pocket != pocket_type::player_hand) {
-                    throw game_error("ERROR_TARGET_NOT_HAND_CARD");
-                }
-                break;
-            case target_card_filter::blue:
-                if (target_card->color != card_color_type::blue) {
-                    throw game_error("ERROR_TARGET_NOT_BLUE_CARD");
-                }
-                break;
-            case target_card_filter::clubs:
-                if (get_card_sign(target_card).suit != card_suit::clubs) {
-                    throw game_error("ERROR_TARGET_NOT_CLUBS");
-                }
-                break;
-            case target_card_filter::bang:
-                if (!is_bangcard(target_card) || !target_card->equips.empty()) {
-                    throw game_error("ERROR_TARGET_NOT_BANG");
-                }
-                break;
-            case target_card_filter::missed:
-                if (!target_card->responses.last_is(effect_type::missedcard)) {
-                    throw game_error("ERROR_TARGET_NOT_MISSED");
-                }
-                break;
-            case target_card_filter::beer:
-                if (!target_card->effects.first_is(effect_type::beer)) {
-                    throw game_error("ERROR_TARGET_NOT_BEER");
-                }
-                break;
-            case target_card_filter::bronco:
-                if (!target_card->equips.last_is(equip_type::bronco)) {
-                    throw game_error("ERROR_TARGET_NOT_BRONCO");
-                }
-                break;
-            case target_card_filter::cube_slot:
-            case target_card_filter::cube_slot_card:
-                if (target_card != target->m_characters.front() && target_card->color != card_color_type::orange)
-                    throw game_error("ERROR_TARGET_NOT_CUBE_SLOT");
-                break;
-            case target_card_filter::can_repeat:
-            case target_card_filter::black:
-                break;
-            default: throw game_error("ERROR_INVALID_ACTION");
-            }
-        });
-    }
-
-    void player::verify_card_targets(card *card_ptr, bool is_response, const std::vector<play_card_target> &targets) {
-        auto &effects = is_response ? card_ptr->responses : card_ptr->effects;
-
-        if (m_mandatory_card && m_mandatory_card != card_ptr
-            && std::ranges::find(m_mandatory_card->effects, effect_type::banglimit, &effect_holder::type) != m_mandatory_card->effects.end()
-            && std::ranges::find(effects, effect_type::banglimit, &effect_holder::type) != effects.end())
-        {
-            throw game_error("ERROR_MANDATORY_CARD", m_mandatory_card);
-        }
-
-        int diff = targets.size() - effects.size();
-        if (card_ptr->optionals.last_is(effect_type::repeatable)) {
-            if (diff < 0 || diff % card_ptr->optionals.size() != 0
-                || (card_ptr->optionals.back().effect_value > 0
-                    && diff > (card_ptr->optionals.size() * card_ptr->optionals.back().effect_value)))
-            {
-                throw game_error("ERROR_INVALID_TARGETS");
-            }
-        } else {
-            if (diff != 0 && diff != card_ptr->optionals.size()) throw game_error("ERROR_INVALID_TARGETS");
-        }
-
-        mth_target_list target_list;
-        std::ranges::for_each(targets, [&, it = effects.begin(), end = effects.end()] (const play_card_target &target) mutable {
-            const effect_holder &e = *it++;
-            if (it == end) {
-                it = card_ptr->optionals.begin();
-                end = card_ptr->optionals.end();
-            }
-            enums::visit_indexed(util::overloaded{
-                [&](enums::enum_tag_t<play_card_target_type::none>) {
-                    if (e.target != play_card_target_type::none) throw game_error("ERROR_INVALID_ACTION");
-                    if (e.is(effect_type::mth_add)) target_list.emplace_back(nullptr, nullptr);
-
-                    e.verify(card_ptr, this);
-                },
-                [&](enums::enum_tag_t<play_card_target_type::player>, int target_id) {
-                    if (e.target != play_card_target_type::player) throw game_error("ERROR_INVALID_ACTION");
-
-                    player *target = m_game->find_player(target_id);
-
-                    verify_effect_player_target(e.player_filter, target);
-                    e.verify(card_ptr, this, target);
-
-                    if (e.is(effect_type::mth_add)) target_list.emplace_back(target, nullptr);
-                },
-                [&](enums::enum_tag_t<play_card_target_type::card>, int target_card_id) {
-                    if (e.target != play_card_target_type::card) throw game_error("ERROR_INVALID_ACTION");
-
-                    card *target_card = m_game->find_card(target_card_id);
-                    player *target = target_card->owner;
-                    if (!target) throw game_error("ERROR_INVALID_ACTION");
-
-                    verify_effect_card_target(e, target, target_card);
-                    e.verify(card_ptr, this, target, target_card);
-
-                    if (e.is(effect_type::mth_add)) target_list.emplace_back(target, target_card);
-                },
-                [&](enums::enum_tag_t<play_card_target_type::other_players>) {
-                    if (e.target != play_card_target_type::other_players) throw game_error("ERROR_INVALID_ACTION");
-                    for (auto *p = this;;) {
-                        p = m_game->get_next_player(p);
-                        if (p == this) break;
-                        e.verify(card_ptr, this, p);
-                    }
-                },
-                [&](enums::enum_tag_t<play_card_target_type::cards_other_players>, const std::vector<int> &target_ids) {
-                    if (e.target != play_card_target_type::cards_other_players) throw game_error("ERROR_INVALID_ACTION");
-                    std::vector<card *> target_cards;
-                    for (int id : target_ids) {
-                        target_cards.push_back(m_game->find_card(id));
-                    }
-                    if (!std::ranges::all_of(m_game->m_players | std::views::filter(&player::alive), [&](const player &p) {
-                        int found = std::ranges::count(target_cards, &p, &card::owner);
-                        if (p.m_hand.empty() && p.m_table.empty()) return found == 0;
-                        if (&p == this) return found == 0;
-                        else return found == 1;
-                    })) throw game_error("ERROR_INVALID_TARGETS");
-                    std::ranges::for_each(target_cards, [&](card *c) {
-                        if (!c->owner) throw game_error("ERROR_INVALID_ACTION");
-                        e.verify(card_ptr, this, c->owner, c);
-                    });
-                }
-            }, target);
-        });
-
-        card_ptr->multi_target_handler.verify(card_ptr, this, target_list);
-    }
-
-    void player::play_card_action(card *card_ptr) {
-        switch (card_ptr->pocket) {
-        case pocket_type::player_hand:
-            m_game->move_card(card_ptr, pocket_type::discard_pile);
-            m_game->call_event<event_type::on_play_hand_card>(this, card_ptr);
-            break;
-        case pocket_type::player_table:
-            if (card_ptr->color == card_color_type::green) {
-                m_game->move_card(card_ptr, pocket_type::discard_pile);
-            }
-            break;
-        case pocket_type::shop_selection:
-            if (card_ptr->color == card_color_type::brown) {
-                m_game->move_card(card_ptr, pocket_type::shop_discard);
-            }
-            break;
-        default:
-            break;
-        }
-    }
-
-    void player::log_played_card(card *card_ptr, bool is_response) {
-        m_game->send_card_update(card_ptr);
-        switch (card_ptr->pocket) {
-        case pocket_type::player_hand:
-        case pocket_type::scenario_card:
-            m_game->add_log(is_response ? "LOG_RESPONDED_WITH_CARD" : "LOG_PLAYED_CARD", card_ptr, this);
-            break;
-        case pocket_type::player_table:
-            m_game->add_log(is_response ? "LOG_RESPONDED_WITH_CARD" : "LOG_PLAYED_TABLE_CARD", card_ptr, this);
-            break;
-        case pocket_type::player_character:
-            m_game->add_log(is_response ?
-                card_ptr->responses.first_is(effect_type::drawing)
-                    ? "LOG_DRAWN_WITH_CHARACTER"
-                    : "LOG_RESPONDED_WITH_CHARACTER"
-                : "LOG_PLAYED_CHARACTER", card_ptr, this);
-            break;
-        case pocket_type::shop_selection:
-            m_game->add_log("LOG_BOUGHT_CARD", card_ptr, this);
-            break;
-        }
-    }
-
-    void player::check_prompt(card *card_ptr, bool is_response, const std::vector<play_card_target> &targets, std::function<void()> &&fun) {
-        auto &effects = is_response ? card_ptr->responses : card_ptr->effects;
-        
-        auto effect_it = effects.begin();
-        auto effect_end = effects.end();
-
-        mth_target_list target_list;
-
-        for (auto &t : targets) {
-            auto prompt_message = enums::visit_indexed(util::overloaded{
-                [&](enums::enum_tag_t<play_card_target_type::none>) -> opt_fmt_str {
-                    if (effect_it->is(effect_type::mth_add)) {
-                        target_list.emplace_back(nullptr, nullptr);
-                        return std::nullopt;
-                    } else {
-                        return effect_it->on_prompt(card_ptr, this);
-                    }
-                },
-                [&](enums::enum_tag_t<play_card_target_type::player>, int target_id) -> opt_fmt_str {
-                    player *target = m_game->find_player(target_id);
-                    if (effect_it->is(effect_type::mth_add)) {
-                        target_list.emplace_back(target, nullptr);
-                        return std::nullopt;
-                    } else {
-                        return effect_it->on_prompt(card_ptr, this, target);
-                    }
-                },
-                [&](enums::enum_tag_t<play_card_target_type::other_players>) -> opt_fmt_str {
-                    opt_fmt_str msg = std::nullopt;
-                    for (auto *p = this;;) {
-                        p = m_game->get_next_player(p);
-                        if (p == this) {
-                            return msg;
-                        } else if (!(msg = effect_it->on_prompt(card_ptr, this, p))) {
-                            return std::nullopt;
-                        }
-                    }
-                },
-                [&](enums::enum_tag_t<play_card_target_type::card>, int target_card_id) -> opt_fmt_str {
-                    card *target_card = m_game->find_card(target_card_id);
-                    player *target = target_card->owner;
-                    if (effect_it->is(effect_type::mth_add)) {
-                        target_list.emplace_back(target, target_card);
-                        return std::nullopt;
-                    } else {
-                        return effect_it->on_prompt(card_ptr, this, target, target_card);
-                    }
-                },
-                [&](enums::enum_tag_t<play_card_target_type::cards_other_players>, const std::vector<int> &target_card_ids) -> opt_fmt_str {
-                    opt_fmt_str msg = std::nullopt;
-                    for (int id : target_card_ids) {
-                        card *target_card = m_game->find_card(id);
-                        player *target = target_card->owner;
-                        if (!(msg = effect_it->on_prompt(card_ptr, this, target, target_card))) {
-                            return std::nullopt;
-                        }
-                    }
-                    return msg;
-                }
-            }, t);
-            if (prompt_message) {
-                m_game->add_private_update<game_update_type::game_prompt>(this, std::move(*prompt_message));
-                m_prompt = std::move(fun);
-                return;
-            }
-            if (++effect_it == effect_end) {
-                effect_it = card_ptr->optionals.begin();
-                effect_end = card_ptr->optionals.end();
-            }
-        }
-
-        if (auto prompt_message = card_ptr->multi_target_handler.on_prompt(card_ptr, this, target_list)) {
-            m_game->add_private_update<game_update_type::game_prompt>(this, std::move(*prompt_message));
-            m_prompt = std::move(fun);
-        } else {
-            m_game->add_private_update<game_update_type::confirm_play>(this);
-            std::invoke(fun);
-        }
-    }
-
-    void player::check_prompt_equip(card *card_ptr, player *target, std::function<void()> &&fun) {
-        for (const auto &e : card_ptr->equips) {
-            if (auto prompt_message = e.on_prompt(card_ptr, target)) {
-                m_game->add_private_update<game_update_type::game_prompt>(this, std::move(*prompt_message));
-                m_prompt = std::move(fun);
-                return;
-            }
-        }
-
-        m_game->add_private_update<game_update_type::confirm_play>(this);
-        std::invoke(fun);
-    }
-
-    void player::do_play_card(card *card_ptr, bool is_response, const std::vector<play_card_target> &targets) {
-        assert(card_ptr != nullptr);
-
-        if (m_mandatory_card == card_ptr) {
-            m_mandatory_card = nullptr;
-        }
-        
-        auto &effects = is_response ? card_ptr->responses : card_ptr->effects;
-        log_played_card(card_ptr, is_response);
-        if (std::ranges::find(effects, effect_type::play_card_action, &effect_holder::type) == effects.end()) {
-            play_card_action(card_ptr);
-        }
-        
-        auto effect_it = effects.begin();
-        auto effect_end = effects.end();
-
-        mth_target_list target_list;
-        for (auto &t : targets) {
-            enums::visit_indexed(util::overloaded{
-                [&](enums::enum_tag_t<play_card_target_type::none>) {
-                    if (effect_it->is(effect_type::mth_add)) {
-                        target_list.emplace_back(nullptr, nullptr);
-                    } else {
-                        effect_it->on_play(card_ptr, this, effect_flags{});
-                    }
-                },
-                [&](enums::enum_tag_t<play_card_target_type::player>, int target_id) {
-                    auto *target = m_game->find_player(target_id);
-                    if (effect_it->is(effect_type::mth_add)) {
-                        target_list.emplace_back(target, nullptr);
-                    } else {
-                        if (target != this && target->immune_to(chosen_card_or(card_ptr))) {
-                            if (effect_it->is(effect_type::bangcard)) {
-                                request_bang req{card_ptr, this, target};
-                                m_game->call_event<event_type::apply_bang_modifier>(this, &req);
-                            }
-                        } else {
-                            auto flags = effect_flags::single_target;
-                            if (card_ptr->sign && card_ptr->color == card_color_type::brown && !effect_it->is(effect_type::bangcard)) {
-                                flags |= effect_flags::escapable;
-                            }
-                            effect_it->on_play(card_ptr, this, target, flags);
-                        }
-                    }
-                },
-                [&](enums::enum_tag_t<play_card_target_type::other_players>) {
-                    std::vector<player *> targets;
-                    for (auto *p = this;;) {
-                        p = m_game->get_next_player(p);
-                        if (p == this) break;
-                        targets.push_back(p);
-                    }
-                    
-                    effect_flags flags{};
-                    if (card_ptr->sign && card_ptr->color == card_color_type::brown) {
-                        flags |= effect_flags::escapable;
-                    }
-                    if (targets.size() == 1) {
-                        flags |= effect_flags::single_target;
-                    }
-                    for (auto *p : targets) {
-                        if (!p->immune_to(chosen_card_or(card_ptr))) {
-                            effect_it->on_play(card_ptr, this, p, flags);
-                        }
-                    }
-                },
-                [&](enums::enum_tag_t<play_card_target_type::card>, int target_card_id) {
-                    auto *target_card = m_game->find_card(target_card_id);
-                    auto *target = target_card->owner;
-                    auto flags = effect_flags::single_target;
-                    if (card_ptr->sign && card_ptr->color == card_color_type::brown) {
-                        flags |= effect_flags::escapable;
-                    }
-                    if (effect_it->is(effect_type::mth_add)) {
-                        target_list.emplace_back(target, target_card);
-                    } else if (target == this) {
-                        effect_it->on_play(card_ptr, this, target, target_card, flags);
-                    } else if (!target->immune_to(chosen_card_or(card_ptr))) {
-                        if (target_card->pocket == pocket_type::player_hand) {
-                            effect_it->on_play(card_ptr, this, target, target->random_hand_card(), flags);
-                        } else {
-                            effect_it->on_play(card_ptr, this, target, target_card, flags);
-                        }
-                    }
-                },
-                [&](enums::enum_tag_t<play_card_target_type::cards_other_players>, const std::vector<int> &target_card_ids) {
-                    effect_flags flags{};
-                    if (card_ptr->sign && card_ptr->color == card_color_type::brown) {
-                        flags |= effect_flags::escapable;
-                    }
-                    if (target_card_ids.size() == 1) {
-                        flags |= effect_flags::single_target;
-                    }
-                    for (int id : target_card_ids) {
-                        auto *target_card = m_game->find_card(id);
-                        auto *target = target_card->owner;
-                        if (target_card->pocket == pocket_type::player_hand) {
-                            effect_it->on_play(card_ptr, this, target, target->random_hand_card(), flags);
-                        } else {
-                            effect_it->on_play(card_ptr, this, target, target_card, flags);
-                        }
-                    }
-                }
-            }, t);
-            if (++effect_it == effect_end) {
-                effect_it = card_ptr->optionals.begin();
-                effect_end = card_ptr->optionals.end();
-            }
-        }
-
-        card_ptr->multi_target_handler.on_play(card_ptr, this, target_list);
-        m_game->call_event<event_type::on_effect_end>(this, card_ptr);
-    }
 
     struct confirmer {
         player *p = nullptr;
@@ -780,6 +305,60 @@ namespace banggame {
         }
     }
 
+    void player::play_card_action(card *card_ptr) {
+        switch (card_ptr->pocket) {
+        case pocket_type::player_hand:
+            m_game->move_card(card_ptr, pocket_type::discard_pile);
+            m_game->call_event<event_type::on_play_hand_card>(this, card_ptr);
+            break;
+        case pocket_type::player_table:
+            if (card_ptr->color == card_color_type::green) {
+                m_game->move_card(card_ptr, pocket_type::discard_pile);
+            }
+            break;
+        case pocket_type::shop_selection:
+            if (card_ptr->color == card_color_type::brown) {
+                m_game->move_card(card_ptr, pocket_type::shop_discard);
+            }
+            break;
+        default:
+            break;
+        }
+    }
+
+    static std::vector<card *> find_cards(game *game, const std::vector<int> &args) {
+        std::vector<card *> ret;
+        for (int id : args) {
+            ret.push_back(game->find_card(id));
+        }
+        return ret;
+    }
+
+    static std::vector<play_card_target> parse_target_id_vector(game *game, const std::vector<play_card_target_ids> &args) {
+        std::vector<play_card_target> ret;
+        for (const auto &t : args) {
+            ret.push_back(enums::visit_indexed<play_card_target>(util::overloaded{
+                [](enums::enum_tag_t<play_card_target_type::none>) {
+                    return target_none{};
+                },
+                [](enums::enum_tag_t<play_card_target_type::other_players>) {
+                    return target_other_players{};
+                },
+                [game](enums::enum_tag_t<play_card_target_type::player>, int player_id) {
+                    return target_player{game->find_player(player_id)};
+                },
+                [game](enums::enum_tag_t<play_card_target_type::card>, int card_id) {
+                    card *c = game->find_card(card_id);
+                    return target_card{c->owner, c};
+                },
+                [game](enums::enum_tag_t<play_card_target_type::cards_other_players>, const std::vector<int> &args) {
+                    return target_cards_other_players{find_cards(game, args)};
+                }
+            }, t));
+        }
+        return ret;
+    }
+
     void player::play_card(const play_card_args &args) {
         [[maybe_unused]] confirmer _confirm{this};
         m_prompt.reset();
@@ -787,29 +366,30 @@ namespace banggame {
         if (!m_game->m_requests.empty() || m_game->m_playing != this) {
             throw game_error("ERROR_INVALID_ACTION");
         }
-        
-        std::vector<card *> modifiers;
-        for (int id : args.modifier_ids) {
-            modifiers.push_back(m_game->find_card(id));
-        }
 
-        card *card_ptr = m_game->find_card(args.card_id);
+        modifier_play_card_verify verifier{
+            this,
+            m_game->find_card(args.card_id),
+            false,
+            parse_target_id_vector(m_game, args.targets),
+            find_cards(m_game, args.modifier_ids)
+        };
 
-        if (m_mandatory_card == card_ptr) {
+        if (m_mandatory_card == verifier.card_ptr) {
             m_mandatory_card = nullptr;
         }
         
         if (m_forced_card) {
-            if (card_ptr != m_forced_card && std::ranges::find(modifiers, m_forced_card) == modifiers.end()) {
+            if (verifier.card_ptr != m_forced_card && std::ranges::find(verifier.modifiers, m_forced_card) == verifier.modifiers.end()) {
                 throw game_error("ERROR_INVALID_ACTION");
             } else {
                 m_forced_card = nullptr;
             }
         }
 
-        switch(card_ptr->pocket) {
+        switch(verifier.card_ptr->pocket) {
         case pocket_type::player_hand:
-            if (!modifiers.empty() && modifiers.front()->modifier == card_modifier_type::leevankliff) {
+            if (!verifier.modifiers.empty() && verifier.modifiers.front()->modifier == card_modifier_type::leevankliff) {
                 // Uso il raii eliminare il limite di bang
                 // quando lee van kliff gioca l'effetto del personaggio su una carta bang.
                 // Se le funzioni di verifica throwano viene chiamato il distruttore
@@ -818,32 +398,42 @@ namespace banggame {
                     banglimit_remover(int8_t &num) : num(num) { ++num; }
                     ~banglimit_remover() { --num; }
                 } _banglimit_remover{m_bangs_per_turn};
-                if (m_game->is_disabled(modifiers.front())) throw game_error("ERROR_CARD_IS_DISABLED", modifiers.front());
-                verify_card_targets(m_last_played_card, false, args.targets);
-                check_prompt(m_last_played_card, false, args.targets, [=, this]{
-                    m_game->move_card(card_ptr, pocket_type::discard_pile);
-                    m_game->call_event<event_type::on_play_hand_card>(this, card_ptr);
-                    do_play_card(m_last_played_card, false, args.targets);
-                    set_last_played_card(nullptr);
-                });
-            } else if (card_ptr->color == card_color_type::brown) {
-                if (m_game->is_disabled(card_ptr)) throw game_error("ERROR_CARD_IS_DISABLED", card_ptr);
-                verify_modifiers(card_ptr, modifiers);
-                verify_card_targets(card_ptr, false, args.targets);
-                check_prompt(card_ptr, false, args.targets, [=, this]{
-                    play_modifiers(modifiers);
-                    do_play_card(card_ptr, false, args.targets);
-                    set_last_played_card(card_ptr);
+                if (m_game->is_disabled(verifier.modifiers.front())) {
+                    throw game_error("ERROR_CARD_IS_DISABLED", verifier.modifiers.front());
+                }
+                play_card_verify leevankliff_verifier{this, m_last_played_card, false, verifier.targets};
+                leevankliff_verifier.verify_card_targets();
+                prompt_then(leevankliff_verifier.check_prompt(),
+                    [this, card_ptr = verifier.card_ptr, leevankliff_verifier]{
+                        m_game->move_card(card_ptr, pocket_type::discard_pile);
+                        m_game->call_event<event_type::on_play_hand_card>(this, card_ptr);
+                        leevankliff_verifier.do_play_card();
+                        set_last_played_card(nullptr);
+                    });
+            } else if (verifier.card_ptr->color == card_color_type::brown) {
+                if (m_game->is_disabled(verifier.card_ptr)) {
+                    throw game_error("ERROR_CARD_IS_DISABLED", verifier.card_ptr);
+                }
+                verifier.verify_modifiers();
+                verifier.verify_card_targets();
+                prompt_then(verifier.check_prompt(), [this, verifier]{
+                    verifier.play_modifiers();
+                    verifier.do_play_card();
+                    set_last_played_card(verifier.card_ptr);
                 });
             } else {
-                if (m_game->has_scenario(scenario_flags::judge)) throw game_error("ERROR_CANT_EQUIP_CARDS");
-                verify_equip_target(card_ptr, args.targets);
-                auto *target = m_game->find_player(args.targets.front().get<play_card_target_type::player>());
-                if (auto *card = target->find_equipped_card(card_ptr)) throw game_error("ERROR_DUPLICATED_CARD", card);
-                if (card_ptr->color == card_color_type::orange && m_game->m_cubes.size() < 3) {
+                if (m_game->has_scenario(scenario_flags::judge)) {
+                    throw game_error("ERROR_CANT_EQUIP_CARDS");
+                }
+                verifier.verify_equip_target();
+                auto *target = std::get<target_player>(verifier.targets.front()).target;
+                if (auto *card = target->find_equipped_card(verifier.card_ptr)) {
+                    throw game_error("ERROR_DUPLICATED_CARD", card);
+                }
+                if (verifier.card_ptr->color == card_color_type::orange && m_game->m_cubes.size() < 3) {
                     throw game_error("ERROR_NOT_ENOUGH_CUBES");
                 }
-                check_prompt_equip(card_ptr, target, [=, this]{
+                prompt_then(verifier.check_prompt_equip(target), [this, card_ptr = verifier.card_ptr, target]{
                     if (target != this && target->immune_to(card_ptr)) {
                         discard_card(card_ptr);
                     } else {
@@ -876,32 +466,40 @@ namespace banggame {
             break;
         case pocket_type::player_character:
         case pocket_type::player_table:
-            if (m_game->is_disabled(card_ptr)) throw game_error("ERROR_CARD_IS_DISABLED", card_ptr);
-            if (card_ptr->inactive) throw game_error("ERROR_CARD_INACTIVE", card_ptr);
-            verify_modifiers(card_ptr, modifiers);
-            verify_card_targets(card_ptr, false, args.targets);
-            check_prompt(card_ptr, false, args.targets, [=, this]{
-                play_modifiers(modifiers);
-                do_play_card(card_ptr, false, args.targets);
+        case pocket_type::scenario_card:
+        case pocket_type::specials:
+            if (m_game->is_disabled(verifier.card_ptr)) {
+                throw game_error("ERROR_CARD_IS_DISABLED", verifier.card_ptr);
+            }
+            if (verifier.card_ptr->inactive) {
+                throw game_error("ERROR_CARD_INACTIVE", verifier.card_ptr);
+            }
+            verifier.verify_modifiers();
+            verifier.verify_card_targets();
+            prompt_then(verifier.check_prompt(), [this, verifier]{
+                verifier.play_modifiers();
+                verifier.do_play_card();
                 set_last_played_card(nullptr);
             });
             break;
         case pocket_type::hidden_deck:
-            if (std::ranges::find(modifiers, card_modifier_type::shopchoice, &card::modifier) == modifiers.end()) {
+            if (std::ranges::find(verifier.modifiers, card_modifier_type::shopchoice, &card::modifier) == verifier.modifiers.end()) {
                 throw game_error("ERROR_INVALID_ACTION");
             }
             [[fallthrough]];
         case pocket_type::shop_selection: {
-            int cost = card_ptr->buy_cost();
-            for (card *c : modifiers) {
-                if (m_game->is_disabled(c)) throw game_error("ERROR_CARD_IS_DISABLED", c);
+            int cost = verifier.card_ptr->buy_cost();
+            for (card *c : verifier.modifiers) {
+                if (m_game->is_disabled(c)) {
+                    throw game_error("ERROR_CARD_IS_DISABLED", c);
+                }
                 switch (c->modifier) {
                 case card_modifier_type::discount:
                     if (c->usages) throw game_error("ERROR_MAX_USAGES", c, 1);
                     --cost;
                     break;
                 case card_modifier_type::shopchoice:
-                    if (!c->effects.first_is(card_ptr->effects.front().type)) {
+                    if (!c->effects.first_is(verifier.card_ptr->effects.front().type)) {
                         throw game_error("ERROR_INVALID_ACTION");
                     }
                     cost += c->buy_cost();
@@ -911,13 +509,15 @@ namespace banggame {
             if (m_game->m_shop_selection.size() > 3) {
                 cost = 0;
             }
-            if (m_gold < cost) throw game_error("ERROR_NOT_ENOUGH_GOLD");
-            if (card_ptr->color == card_color_type::brown) {
-                verify_card_targets(card_ptr, false, args.targets);
-                check_prompt(card_ptr, false, args.targets, [=, this]{
-                    play_modifiers(modifiers);
+            if (m_gold < cost) {
+                throw game_error("ERROR_NOT_ENOUGH_GOLD");
+            }
+            if (verifier.card_ptr->color == card_color_type::brown) {
+                verifier.verify_card_targets();
+                prompt_then(verifier.check_prompt(), [=, this]{
+                    verifier.play_modifiers();
                     add_gold(-cost);
-                    do_play_card(card_ptr, false, args.targets);
+                    verifier.do_play_card();
                     set_last_played_card(nullptr);
                     m_game->queue_action([&]{
                         while (m_game->m_shop_selection.size() < 3) {
@@ -926,21 +526,25 @@ namespace banggame {
                     });
                 });
             } else {
-                if (m_game->has_scenario(scenario_flags::judge)) throw game_error("ERROR_CANT_EQUIP_CARDS");
-                verify_equip_target(card_ptr, args.targets);
-                auto *target = m_game->find_player(args.targets.front().get<play_card_target_type::player>());
-                if (card *card = target->find_equipped_card(card_ptr)) throw game_error("ERROR_DUPLICATED_CARD", card);
-                check_prompt_equip(card_ptr, target, [=, this]{
-                    play_modifiers(modifiers);
+                if (m_game->has_scenario(scenario_flags::judge)) {
+                    throw game_error("ERROR_CANT_EQUIP_CARDS");
+                }
+                verifier.verify_equip_target();
+                auto *target = std::get<target_player>(verifier.targets.front()).target;
+                if (card *card = target->find_equipped_card(verifier.card_ptr)) {
+                    throw game_error("ERROR_DUPLICATED_CARD", card);
+                }
+                prompt_then(verifier.check_prompt_equip(target), [=, this]{
+                    verifier.play_modifiers();
                     add_gold(-cost);
-                    target->equip_card(card_ptr);
+                    target->equip_card(verifier.card_ptr);
                     set_last_played_card(nullptr);
                     if (this == target) {
-                        m_game->add_log("LOG_BOUGHT_EQUIP", card_ptr, this);
+                        m_game->add_log("LOG_BOUGHT_EQUIP", verifier.card_ptr, this);
                     } else {
-                        m_game->add_log("LOG_BOUGHT_EQUIP_TO", card_ptr, this, target);
+                        m_game->add_log("LOG_BOUGHT_EQUIP_TO", verifier.card_ptr, this, target);
                     }
-                    m_game->call_event<event_type::on_effect_end>(this, card_ptr);
+                    m_game->call_event<event_type::on_effect_end>(this, verifier.card_ptr);
                     m_game->queue_action([&]{
                         while (m_game->m_shop_selection.size() < 3) {
                             m_game->draw_shop_card();
@@ -950,14 +554,6 @@ namespace banggame {
             }
             break;
         }
-        case pocket_type::scenario_card:
-        case pocket_type::specials:
-            verify_card_targets(card_ptr, false, args.targets);
-            check_prompt(card_ptr, false, args.targets, [=, this]{
-                do_play_card(card_ptr, false, args.targets);
-                set_last_played_card(nullptr);
-            });
-            break;
         default:
             throw game_error("play_card: invalid card"_nonloc);
         }
@@ -994,11 +590,22 @@ namespace banggame {
             throw game_error("respond_card: invalid card"_nonloc);
         }
         
-        verify_card_targets(card_ptr, true, args.targets);
-        check_prompt(card_ptr, true, args.targets, [=, this]{
-            do_play_card(card_ptr, true, args.targets);
+        play_card_verify verifier{this, m_game->find_card(args.card_id), true, parse_target_id_vector(m_game, args.targets)};
+        verifier.verify_card_targets();
+        prompt_then(verifier.check_prompt(), [=, this]{
+            verifier.do_play_card();
             set_last_played_card(nullptr);
         });
+    }
+
+    void player::prompt_then(opt_fmt_str &&message, std::function<void()> &&fun) {
+        if (message) {
+            m_game->add_private_update<game_update_type::game_prompt>(this, std::move(*message));
+            m_prompt = std::move(fun);
+        } else {
+            m_game->add_private_update<game_update_type::confirm_play>(this);
+            std::invoke(fun);
+        }
     }
 
     void player::prompt_response(bool response) {

@@ -1,7 +1,6 @@
 #ifndef __GAME_TABLE_H__
 #define __GAME_TABLE_H__
 
-#include <stdexcept>
 #include <random>
 
 #include "player.h"
@@ -12,14 +11,6 @@
 #include "utils/id_map.h"
 
 namespace banggame {
-
-    struct game_error : std::exception, game_formatted_string {
-        using game_formatted_string::game_formatted_string;
-
-        const char *what() const noexcept override {
-            return format_str.c_str();
-        }
-    };
 
     DEFINE_ENUM_FLAGS(scenario_flags,
         (invert_rotation) // inverti giro

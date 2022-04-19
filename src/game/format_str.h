@@ -4,6 +4,8 @@
 #include "utils/enums.h"
 #include "utils/reflector.h"
 
+#include <stdexcept>
+
 namespace banggame {
 
     struct card_format_id {REFLECTABLE(
@@ -28,6 +30,14 @@ namespace banggame {
     
         template<std::convertible_to<std::string> T, typename ... Ts>
         game_formatted_string(T &&message, Ts && ... args);
+    };
+
+    struct game_error : std::exception, game_formatted_string {
+        using game_formatted_string::game_formatted_string;
+
+        const char *what() const noexcept override {
+            return format_str.c_str();
+        }
     };
 }
 

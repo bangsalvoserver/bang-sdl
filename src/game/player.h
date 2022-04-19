@@ -136,27 +136,6 @@ namespace banggame {
 
         bool is_bangcard(card *card_ptr);
 
-        void verify_modifiers(card *c, const std::vector<card *> &modifiers);
-        void play_modifiers(const std::vector<card *> &modifiers);
-
-        void verify_effect_player_target(target_player_filter filter, player *target);
-        void verify_effect_card_target(const effect_holder &effect, player *target, card *target_card);
-
-        void verify_equip_target(card *c, const std::vector<play_card_target> &targets);
-        void verify_card_targets(card *c, bool is_response, const std::vector<play_card_target> &targets);
-
-        void play_card_action(card *c);
-        void log_played_card(card *c, bool is_response);
-        void do_play_card(card *c, bool is_response, const std::vector<play_card_target> &targets);
-
-        void pick_card(const pick_card_args &args);
-        void play_card(const play_card_args &args);
-        void respond_card(const play_card_args &args);
-
-        void check_prompt(card *c, bool is_response, const std::vector<play_card_target> &targets, std::function<void()> &&fun);
-        void check_prompt_equip(card *c, player *target, std::function<void()> &&fun);
-        void prompt_response(bool response);
-
         void draw_from_deck();
 
         void start_of_turn();
@@ -176,6 +155,15 @@ namespace banggame {
         int count_cubes() const;
 
         void untap_inactive_cards();
+
+        void play_card_action(card *card_ptr);
+
+        void pick_card(const pick_card_args &args);
+        void play_card(const play_card_args &args);
+        void respond_card(const play_card_args &args);
+
+        void prompt_then(opt_fmt_str &&message, std::function<void()> &&args);
+        void prompt_response(bool response);
     };
 
 }

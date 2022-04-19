@@ -16,7 +16,7 @@ namespace banggame {
     struct play_card_args {REFLECTABLE(
         (int) card_id,
         (std::vector<int>) modifier_ids,
-        (std::vector<play_card_target>) targets
+        (std::vector<play_card_target_ids>) targets
     )};
 
     DEFINE_ENUM_TYPES(game_action_type,
