@@ -203,23 +203,8 @@ namespace banggame {
         }
     }
 
-    static void check_orange_card_empty(player *owner, card *target) {
-        if (target->cubes.empty() && target->pocket != pocket_type::player_character && target->pocket != pocket_type::player_backup) {
-            owner->m_game->move_card(target, pocket_type::discard_pile);
-            owner->m_game->call_event<event_type::post_discard_orange_card>(owner, target);
-            owner->unequip_if_enabled(target);
-        }
-    }
-
-    void player::pay_cubes(card *target, int ncubes) {
-        for (;ncubes!=0 && !target->cubes.empty(); --ncubes) {
-            int cube = target->cubes.back();
-            target->cubes.pop_back();
-
-            m_game->m_cubes.push_back(cube);
-            m_game->add_public_update<game_update_type::move_cube>(cube, 0);
-        }
-        check_orange_card_empty(this, target);
+    void player::pay_cubes(card *origin, int ncubes) {
+        move_cubes(origin, nullptr, ncubes);
     }
 
     void player::move_cubes(card *origin, card *target, int ncubes) {
@@ -227,7 +212,7 @@ namespace banggame {
             int cube = origin->cubes.back();
             origin->cubes.pop_back();
             
-            if (target->cubes.size() < 4) {
+            if (target && target->cubes.size() < 4) {
                 target->cubes.push_back(cube);
                 m_game->add_public_update<game_update_type::move_cube>(cube, target->id);
             } else {
@@ -235,7 +220,11 @@ namespace banggame {
                 m_game->add_public_update<game_update_type::move_cube>(cube, 0);
             }
         }
-        check_orange_card_empty(this, origin);
+        if (origin->sign && origin->cubes.empty()) {
+            m_game->move_card(origin, pocket_type::discard_pile);
+            m_game->call_event<event_type::post_discard_orange_card>(this, origin);
+            unequip_if_enabled(origin);
+        }
     }
 
     void player::drop_all_cubes(card *target) {
