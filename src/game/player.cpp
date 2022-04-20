@@ -433,31 +433,27 @@ namespace banggame {
                     throw game_error("ERROR_NOT_ENOUGH_CUBES");
                 }
                 prompt_then(verifier.check_prompt_equip(target), [this, card_ptr = verifier.card_ptr, target]{
-                    if (target != this && target->immune_to(card_ptr)) {
-                        discard_card(card_ptr);
+                    target->equip_card(card_ptr);
+                    if (this == target) {
+                        m_game->add_log("LOG_EQUIPPED_CARD", card_ptr, this);
                     } else {
-                        target->equip_card(card_ptr);
-                        if (this == target) {
-                            m_game->add_log("LOG_EQUIPPED_CARD", card_ptr, this);
-                        } else {
-                            m_game->add_log("LOG_EQUIPPED_CARD_TO", card_ptr, this, target);
-                        }
-                        switch (card_ptr->color) {
-                        case card_color_type::blue:
-                            if (m_game->has_expansion(card_expansion_type::armedanddangerous)) {
-                                queue_request_add_cube(card_ptr);
-                            }
-                            break;
-                        case card_color_type::green:
-                            card_ptr->inactive = true;
-                            m_game->add_public_update<game_update_type::tap_card>(card_ptr->id, true);
-                            break;
-                        case card_color_type::orange:
-                            add_cubes(card_ptr, 3);
-                            break;
-                        }
-                        m_game->call_event<event_type::on_equip>(this, target, card_ptr);
+                        m_game->add_log("LOG_EQUIPPED_CARD_TO", card_ptr, this, target);
                     }
+                    switch (card_ptr->color) {
+                    case card_color_type::blue:
+                        if (m_game->has_expansion(card_expansion_type::armedanddangerous)) {
+                            queue_request_add_cube(card_ptr);
+                        }
+                        break;
+                    case card_color_type::green:
+                        card_ptr->inactive = true;
+                        m_game->add_public_update<game_update_type::tap_card>(card_ptr->id, true);
+                        break;
+                    case card_color_type::orange:
+                        add_cubes(card_ptr, 3);
+                        break;
+                    }
+                    m_game->call_event<event_type::on_equip>(this, target, card_ptr);
                     set_last_played_card(nullptr);
                     m_game->call_event<event_type::on_effect_end>(this, card_ptr);
                 });

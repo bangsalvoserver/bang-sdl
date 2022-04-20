@@ -17,7 +17,7 @@ namespace banggame {
             target->next_predraw_check(target_card);
         });
         target->m_game->add_event<event_type::post_discard_orange_card>(target_card, [=](player *p, card *c) {
-            if (c == target_card && p == target) {
+            if (c == target_card && p == target && !target->immune_to(target_card)) {
                 target->damage(target_card, nullptr, 2);
             }
         });

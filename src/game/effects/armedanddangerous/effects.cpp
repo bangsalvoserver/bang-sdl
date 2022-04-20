@@ -255,10 +255,7 @@ namespace banggame {
 
     void handler_move_bomb::on_play(card *origin_card, player *origin, const target_list &targets) {
         player *target = std::get<target_player_t>(targets[0]).target;
-        if (target->immune_to(origin_card)) {
-            // Non ne sono tanto sicuro
-            origin->discard_card(origin_card);
-        } else if (target != origin) {
+        if (target != origin) {
             origin->unequip_if_enabled(origin_card);
             target->equip_card(origin_card);
         }
