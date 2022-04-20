@@ -13,7 +13,7 @@ namespace banggame {
             if (origin->m_game->is_disabled(mod_card)) {
                 throw game_error("ERROR_CARD_IS_DISABLED", mod_card);
             }
-            if (mod_card->modifier != card_modifier_type::bangmod || !card_ptr->effects.last_is(effect_type::bangcard)) {
+            if (mod_card->modifier == card_modifier_type::bangmod && !card_ptr->effects.last_is(effect_type::bangcard)) {
                 throw game_error("ERROR_INVALID_ACTION");
             }
             for (const auto &e : mod_card->effects) {
@@ -29,16 +29,28 @@ namespace banggame {
         }
     }
 
-    void play_card_verify::verify_equip_target() {
+    player *play_card_verify::verify_equip_target() {
         if (origin->m_game->is_disabled(card_ptr)) {
             throw game_error("ERROR_CARD_IS_DISABLED", card_ptr);
         }
+        if (origin->m_game->has_scenario(scenario_flags::judge)) {
+            throw game_error("ERROR_CANT_EQUIP_CARDS");
+        }
+        player *target = origin;
         if (!card_ptr->equips.empty()) {
             if (targets.size() != 1 || !std::holds_alternative<target_player_t>(targets.front())) {
                 throw game_error("ERROR_INVALID_ACTION");
             }
-            verify_effect_player_target(card_ptr->equips.front().player_filter, std::get<target_player_t>(targets.front()).target);
+            target = std::get<target_player_t>(targets.front()).target;
+            verify_effect_player_target(card_ptr->equips.front().player_filter, target);
         }
+        if (auto *card = target->find_equipped_card(card_ptr)) {
+            throw game_error("ERROR_DUPLICATED_CARD", card);
+        }
+        if (card_ptr->color == card_color_type::orange && origin->m_game->m_cubes.size() < 3) {
+            throw game_error("ERROR_NOT_ENOUGH_CUBES");
+        }
+        return target;
     }
 
     void play_card_verify::verify_effect_player_target(target_player_filter filter, player *target) {
@@ -147,8 +159,25 @@ namespace banggame {
         });
     }
 
+    void modifier_play_card_verify::verify_card_targets() {
+        if (origin->m_forced_card
+            && card_ptr != origin->m_forced_card
+            && std::ranges::find(modifiers, origin->m_forced_card) == modifiers.end()) {
+            throw game_error("ERROR_INVALID_ACTION");
+        }
+
+        play_card_verify::verify_card_targets();
+    }
+
     void play_card_verify::verify_card_targets() {
         auto &effects = is_response ? card_ptr->responses : card_ptr->effects;
+
+        if (origin->m_game->is_disabled(card_ptr)) {
+            throw game_error("ERROR_CARD_IS_DISABLED", card_ptr);
+        }
+        if (card_ptr->inactive) {
+            throw game_error("ERROR_CARD_INACTIVE", card_ptr);
+        }
 
         if (origin->m_mandatory_card && origin->m_mandatory_card != card_ptr
             && std::ranges::find(origin->m_mandatory_card->effects, effect_type::banglimit, &effect_holder::type) != origin->m_mandatory_card->effects.end()
@@ -334,6 +363,7 @@ namespace banggame {
         if (origin->m_mandatory_card == card_ptr) {
             origin->m_mandatory_card = nullptr;
         }
+        origin->m_forced_card = nullptr;
         
         auto &effects = is_response ? card_ptr->responses : card_ptr->effects;
         log_played_card();

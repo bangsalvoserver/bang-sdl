@@ -27,7 +27,9 @@ namespace banggame {
     }
 
     void effect_pass_turn::verify(card *origin_card, player *origin) const {
-        origin->verify_pass_turn();
+        if (origin->m_mandatory_card && origin->m_mandatory_card->owner == origin && origin->is_possible_to_play(origin->m_mandatory_card)) {
+            throw game_error("ERROR_MANDATORY_CARD", origin->m_mandatory_card);
+        }
     }
 
     opt_fmt_str effect_pass_turn::on_prompt(card *origin_card, player *origin) const {

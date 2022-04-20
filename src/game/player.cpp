@@ -363,18 +363,6 @@ namespace banggame {
             find_cards(m_game, args.modifier_ids)
         };
 
-        if (m_mandatory_card == verifier.card_ptr) {
-            m_mandatory_card = nullptr;
-        }
-        
-        if (m_forced_card) {
-            if (verifier.card_ptr != m_forced_card && std::ranges::find(verifier.modifiers, m_forced_card) == verifier.modifiers.end()) {
-                throw game_error("ERROR_INVALID_ACTION");
-            } else {
-                m_forced_card = nullptr;
-            }
-        }
-
         switch(verifier.card_ptr->pocket) {
         case pocket_type::player_hand:
             if (!verifier.modifiers.empty() && verifier.modifiers.front()->modifier == card_modifier_type::leevankliff) {
@@ -386,22 +374,16 @@ namespace banggame {
                     banglimit_remover(int8_t &num) : num(num) { ++num; }
                     ~banglimit_remover() { --num; }
                 } _banglimit_remover{m_bangs_per_turn};
-                if (m_game->is_disabled(verifier.modifiers.front())) {
-                    throw game_error("ERROR_CARD_IS_DISABLED", verifier.modifiers.front());
-                }
-                play_card_verify leevankliff_verifier{this, m_last_played_card, false, verifier.targets};
-                leevankliff_verifier.verify_card_targets();
-                prompt_then(leevankliff_verifier.check_prompt(),
-                    [this, card_ptr = verifier.card_ptr, leevankliff_verifier]{
-                        m_game->move_card(card_ptr, pocket_type::discard_pile);
-                        m_game->call_event<event_type::on_play_hand_card>(this, card_ptr);
-                        leevankliff_verifier.do_play_card();
-                        set_last_played_card(nullptr);
-                    });
+                card *bang_card = std::exchange(verifier.card_ptr, m_last_played_card);
+                verifier.verify_modifiers();
+                verifier.verify_card_targets();
+                prompt_then(verifier.check_prompt(), [=, this]{
+                    m_game->move_card(bang_card, pocket_type::discard_pile);
+                    m_game->call_event<event_type::on_play_hand_card>(this, bang_card);
+                    verifier.do_play_card();
+                    set_last_played_card(nullptr);
+                });
             } else if (verifier.card_ptr->color == card_color_type::brown) {
-                if (m_game->is_disabled(verifier.card_ptr)) {
-                    throw game_error("ERROR_CARD_IS_DISABLED", verifier.card_ptr);
-                }
                 verifier.verify_modifiers();
                 verifier.verify_card_targets();
                 prompt_then(verifier.check_prompt(), [this, verifier]{
@@ -410,18 +392,12 @@ namespace banggame {
                     set_last_played_card(verifier.card_ptr);
                 });
             } else {
-                if (m_game->has_scenario(scenario_flags::judge)) {
-                    throw game_error("ERROR_CANT_EQUIP_CARDS");
-                }
-                verifier.verify_equip_target();
-                auto *target = std::get<target_player_t>(verifier.targets.front()).target;
-                if (auto *card = target->find_equipped_card(verifier.card_ptr)) {
-                    throw game_error("ERROR_DUPLICATED_CARD", card);
-                }
-                if (verifier.card_ptr->color == card_color_type::orange && m_game->m_cubes.size() < 3) {
-                    throw game_error("ERROR_NOT_ENOUGH_CUBES");
-                }
+                player *target = verifier.verify_equip_target();
                 prompt_then(verifier.check_prompt_equip(target), [this, card_ptr = verifier.card_ptr, target]{
+                    if (m_mandatory_card == card_ptr) {
+                        m_mandatory_card = nullptr;
+                    }
+                    m_forced_card = nullptr;
                     target->equip_card(card_ptr);
                     if (this == target) {
                         m_game->add_log("LOG_EQUIPPED_CARD", card_ptr, this);
@@ -452,12 +428,6 @@ namespace banggame {
         case pocket_type::player_table:
         case pocket_type::scenario_card:
         case pocket_type::specials:
-            if (m_game->is_disabled(verifier.card_ptr)) {
-                throw game_error("ERROR_CARD_IS_DISABLED", verifier.card_ptr);
-            }
-            if (verifier.card_ptr->inactive) {
-                throw game_error("ERROR_CARD_INACTIVE", verifier.card_ptr);
-            }
             verifier.verify_modifiers();
             verifier.verify_card_targets();
             prompt_then(verifier.check_prompt(), [this, verifier]{
@@ -473,10 +443,8 @@ namespace banggame {
             [[fallthrough]];
         case pocket_type::shop_selection: {
             int cost = verifier.card_ptr->buy_cost();
+            verifier.verify_modifiers();
             for (card *c : verifier.modifiers) {
-                if (m_game->is_disabled(c)) {
-                    throw game_error("ERROR_CARD_IS_DISABLED", c);
-                }
                 switch (c->modifier) {
                 case card_modifier_type::discount:
                     if (c->usages) throw game_error("ERROR_MAX_USAGES", c, 1);
@@ -510,15 +478,9 @@ namespace banggame {
                     });
                 });
             } else {
-                if (m_game->has_scenario(scenario_flags::judge)) {
-                    throw game_error("ERROR_CANT_EQUIP_CARDS");
-                }
-                verifier.verify_equip_target();
-                auto *target = std::get<target_player_t>(verifier.targets.front()).target;
-                if (card *card = target->find_equipped_card(verifier.card_ptr)) {
-                    throw game_error("ERROR_DUPLICATED_CARD", card);
-                }
+                player *target = verifier.verify_equip_target();
                 prompt_then(verifier.check_prompt_equip(target), [=, this]{
+                    m_forced_card = nullptr;
                     verifier.play_modifiers();
                     add_gold(-cost);
                     target->equip_card(verifier.card_ptr);
@@ -547,34 +509,22 @@ namespace banggame {
         [[maybe_unused]] confirmer _confirm{this};
         m_prompt.reset();
         
-        card *card_ptr = m_game->find_card(args.card_id);
+        modifier_play_card_verify verifier{
+            this,
+            m_game->find_card(args.card_id),
+            true,
+            parse_target_id_vector(m_game, args.targets),
+            find_cards(m_game, args.modifier_ids)
+        };
 
-        if (!can_respond_with(card_ptr)) throw game_error("ERROR_INVALID_ACTION");
-        
-        if (m_forced_card) {
-            if (card_ptr != m_forced_card) {
-                throw game_error("ERROR_INVALID_ACTION");
-            } else {
-                m_forced_card = nullptr;
-            }
-        }
-
-        switch (card_ptr->pocket) {
-        case pocket_type::player_table:
-            if (card_ptr->inactive) throw game_error("ERROR_CARD_INACTIVE", card_ptr);
-            break;
-        case pocket_type::player_hand:
-            if (card_ptr->color != card_color_type::brown) throw game_error("INVALID_ACTION");
-            break;
-        case pocket_type::player_character:
-        case pocket_type::scenario_card:
-        case pocket_type::specials:
-            break;
-        default:
-            throw game_error("respond_card: invalid card"_nonloc);
+        if (!can_respond_with(verifier.card_ptr)
+            || (verifier.card_ptr->pocket == pocket_type::player_hand
+            && verifier.card_ptr->color != card_color_type::brown)
+            || (!verifier.modifiers.empty())
+        ) {
+            throw game_error("ERROR_INVALID_ACTION");
         }
         
-        play_card_verify verifier{this, m_game->find_card(args.card_id), true, parse_target_id_vector(m_game, args.targets)};
         verifier.verify_card_targets();
         prompt_then(verifier.check_prompt(), [=, this]{
             verifier.do_play_card();
@@ -697,12 +647,6 @@ namespace banggame {
                 m_game->queue_request<request_draw>(this);
             }
         });
-    }
-
-    void player::verify_pass_turn() {
-        if (m_mandatory_card && m_mandatory_card->owner == this && is_possible_to_play(m_mandatory_card)) {
-            throw game_error("ERROR_MANDATORY_CARD", m_mandatory_card);
-        }
     }
 
     void player::pass_turn() {

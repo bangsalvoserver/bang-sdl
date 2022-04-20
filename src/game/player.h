@@ -141,7 +141,6 @@ namespace banggame {
         void start_of_turn();
         void request_drawing();
         
-        void verify_pass_turn();
         void pass_turn();
         void skip_turn();
 

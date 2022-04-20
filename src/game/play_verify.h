@@ -18,7 +18,7 @@ namespace banggame {
         void verify_effect_player_target(target_player_filter filter, player *target);
         void verify_effect_card_target(const effect_holder &effect, card *target);
 
-        void verify_equip_target();
+        player *verify_equip_target();
         void verify_card_targets();
 
         void play_card_action() const;
@@ -32,6 +32,7 @@ namespace banggame {
     struct modifier_play_card_verify : play_card_verify {
         std::vector<card *> modifiers;
 
+        void verify_card_targets();
         void verify_modifiers();
         void play_modifiers() const;
     };
