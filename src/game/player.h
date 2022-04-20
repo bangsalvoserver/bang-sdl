@@ -156,6 +156,7 @@ namespace banggame {
         void untap_inactive_cards();
 
         void play_card_action(card *card_ptr);
+        void log_played_card(card *card_ptr, bool is_response);
 
         void pick_card(const pick_card_args &args);
         void play_card(const play_card_args &args);

@@ -315,6 +315,29 @@ namespace banggame {
         }
     }
 
+    void player::log_played_card(card *card_ptr, bool is_response) {
+        m_game->send_card_update(card_ptr);
+        switch (card_ptr->pocket) {
+        case pocket_type::player_hand:
+        case pocket_type::scenario_card:
+            m_game->add_log(is_response ? "LOG_RESPONDED_WITH_CARD" : "LOG_PLAYED_CARD", card_ptr, this);
+            break;
+        case pocket_type::player_table:
+            m_game->add_log(is_response ? "LOG_RESPONDED_WITH_CARD" : "LOG_PLAYED_TABLE_CARD", card_ptr, this);
+            break;
+        case pocket_type::player_character:
+            m_game->add_log(is_response ?
+                card_ptr->responses.first_is(effect_type::drawing)
+                    ? "LOG_DRAWN_WITH_CHARACTER"
+                    : "LOG_RESPONDED_WITH_CHARACTER"
+                : "LOG_PLAYED_CHARACTER", card_ptr, this);
+            break;
+        case pocket_type::shop_selection:
+            m_game->add_log("LOG_BOUGHT_CARD", card_ptr, this);
+            break;
+        }
+    }
+
     static std::vector<card *> find_cards(game *game, const std::vector<int> &args) {
         std::vector<card *> ret;
         for (int id : args) {
@@ -355,7 +378,7 @@ namespace banggame {
             throw game_error("ERROR_INVALID_ACTION");
         }
 
-        modifier_play_card_verify verifier{
+        play_card_verify verifier{
             this,
             m_game->find_card(args.card_id),
             false,
@@ -366,14 +389,6 @@ namespace banggame {
         switch(verifier.card_ptr->pocket) {
         case pocket_type::player_hand:
             if (!verifier.modifiers.empty() && verifier.modifiers.front()->modifier == card_modifier_type::leevankliff) {
-                // Uso il raii eliminare il limite di bang
-                // quando lee van kliff gioca l'effetto del personaggio su una carta bang.
-                // Se le funzioni di verifica throwano viene chiamato il distruttore
-                struct banglimit_remover {
-                    int8_t &num;
-                    banglimit_remover(int8_t &num) : num(num) { ++num; }
-                    ~banglimit_remover() { --num; }
-                } _banglimit_remover{m_bangs_per_turn};
                 card *bang_card = std::exchange(verifier.card_ptr, m_last_played_card);
                 verifier.verify_modifiers();
                 verifier.verify_card_targets();
@@ -447,7 +462,6 @@ namespace banggame {
             for (card *c : verifier.modifiers) {
                 switch (c->modifier) {
                 case card_modifier_type::discount:
-                    if (c->usages) throw game_error("ERROR_MAX_USAGES", c, 1);
                     --cost;
                     break;
                 case card_modifier_type::shopchoice:
@@ -509,7 +523,7 @@ namespace banggame {
         [[maybe_unused]] confirmer _confirm{this};
         m_prompt.reset();
         
-        modifier_play_card_verify verifier{
+        play_card_verify verifier{
             this,
             m_game->find_card(args.card_id),
             true,

@@ -202,6 +202,7 @@ namespace banggame {
         (thunderer,             effect_thunderer)
         (buntlinespecial,       effect_buntlinespecial)
         (bigfifty,              effect_bigfifty)
+        (bandolier,             effect_bandolier)
         (flintlock,             effect_flintlock)
         (duck,                  effect_duck)
         (move_bomb,             effect_move_bomb)

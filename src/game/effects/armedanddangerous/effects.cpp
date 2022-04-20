@@ -141,6 +141,12 @@ namespace banggame {
         });
     }
 
+    void effect_bandolier::verify(card *origin_card, player *origin) const {
+        if (origin->m_bangs_played == 0) {
+            throw game_error("ERROR_CANT_PLAY_CARD", origin_card);
+        }
+    }
+
     void effect_duck::on_play(card *origin_card, player *origin) {
         origin->add_to_hand(origin_card);
         origin->m_game->update_request();

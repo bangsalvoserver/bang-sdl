@@ -8,7 +8,7 @@
 namespace banggame {
     using namespace enums::flag_operators;
 
-    void modifier_play_card_verify::verify_modifiers() {
+    void play_card_verify::verify_modifiers() {
         for (card *mod_card : modifiers) {
             if (origin->m_game->is_disabled(mod_card)) {
                 throw game_error("ERROR_CARD_IS_DISABLED", mod_card);
@@ -22,10 +22,13 @@ namespace banggame {
         }
     }
 
-    void modifier_play_card_verify::play_modifiers() const {
+    void play_card_verify::play_modifiers() const {
         for (card *mod_card : modifiers) {
-            play_card_verify{origin, mod_card, false,
-                {mod_card->effects.size(), target_none_t{}}}.do_play_card();
+            origin->log_played_card(mod_card, false);
+            origin->play_card_action(mod_card);
+            for (effect_holder &e : mod_card->effects) {
+                e.on_play(mod_card, origin, effect_flags{});
+            }
         }
     }
 
@@ -161,35 +164,18 @@ namespace banggame {
 
     template<typename T, T Diff = 1>
     struct raii_modifier {
-        T &value;
+        T *ptr = nullptr;
 
-        raii_modifier(T &value) : value(value) {
-            value += Diff;
+        void set(T &value) {
+            ptr = &value;
+            *ptr += Diff;
         }
         ~raii_modifier() {
-            value -= Diff;
-        }
-    };
-
-    void modifier_play_card_verify::verify_card_targets() {
-        if (origin->m_forced_card
-            && card_ptr != origin->m_forced_card
-            && std::ranges::find(modifiers, origin->m_forced_card) == modifiers.end()) {
-            throw game_error("ERROR_INVALID_ACTION");
-        }
-
-        std::optional<raii_modifier<decltype(player::m_range_mod), 50>> _belltower_mod;
-        std::optional<raii_modifier<decltype(player::m_bangs_per_turn)>> _bandolier_mod;
-
-        for (card *c : modifiers) {
-            switch (c->modifier) {
-            case card_modifier_type::belltower: _belltower_mod.emplace(origin->m_range_mod); break;
-            case card_modifier_type::bandolier: _bandolier_mod.emplace(origin->m_bangs_per_turn); break;
+            if (ptr) {
+                *ptr -= Diff;
             }
         }
-
-        play_card_verify::verify_card_targets();
-    }
+    };
 
     void play_card_verify::verify_card_targets() {
         auto &effects = is_response ? card_ptr->responses : card_ptr->effects;
@@ -206,6 +192,24 @@ namespace banggame {
             && std::ranges::find(effects, effect_type::banglimit, &effect_holder::type) != effects.end())
         {
             throw game_error("ERROR_MANDATORY_CARD", origin->m_mandatory_card);
+        }
+
+        if (origin->m_forced_card
+            && card_ptr != origin->m_forced_card
+            && std::ranges::find(modifiers, origin->m_forced_card) == modifiers.end()) {
+            throw game_error("ERROR_INVALID_ACTION");
+        }
+
+        raii_modifier<decltype(player::m_range_mod), 50> _belltower_mod;
+        raii_modifier<decltype(player::m_bangs_per_turn)> _bandolier_mod;
+        raii_modifier<decltype(player::m_bangs_per_turn), 10> _leevankliff_mod;
+
+        for (card *c : modifiers) {
+            switch (c->modifier) {
+            case card_modifier_type::belltower: _belltower_mod.set(origin->m_range_mod); break;
+            case card_modifier_type::bandolier: _bandolier_mod.set(origin->m_bangs_per_turn); break;
+            case card_modifier_type::leevankliff: _leevankliff_mod.set(origin->m_bangs_per_turn); break;
+            }
         }
 
         int diff = targets.size() - effects.size();
@@ -296,29 +300,6 @@ namespace banggame {
         card_ptr->multi_target_handler.verify(card_ptr, origin, mth_targets);
     }
 
-    void play_card_verify::log_played_card() const {
-        origin->m_game->send_card_update(card_ptr);
-        switch (card_ptr->pocket) {
-        case pocket_type::player_hand:
-        case pocket_type::scenario_card:
-            origin->m_game->add_log(is_response ? "LOG_RESPONDED_WITH_CARD" : "LOG_PLAYED_CARD", card_ptr, origin);
-            break;
-        case pocket_type::player_table:
-            origin->m_game->add_log(is_response ? "LOG_RESPONDED_WITH_CARD" : "LOG_PLAYED_TABLE_CARD", card_ptr, origin);
-            break;
-        case pocket_type::player_character:
-            origin->m_game->add_log(is_response ?
-                card_ptr->responses.first_is(effect_type::drawing)
-                    ? "LOG_DRAWN_WITH_CHARACTER"
-                    : "LOG_RESPONDED_WITH_CHARACTER"
-                : "LOG_PLAYED_CHARACTER", card_ptr, origin);
-            break;
-        case pocket_type::shop_selection:
-            origin->m_game->add_log("LOG_BOUGHT_CARD", card_ptr, origin);
-            break;
-        }
-    }
-
     opt_fmt_str play_card_verify::check_prompt() {
         auto &effects = is_response ? card_ptr->responses : card_ptr->effects;
         
@@ -388,7 +369,7 @@ namespace banggame {
         origin->m_forced_card = nullptr;
         
         auto &effects = is_response ? card_ptr->responses : card_ptr->effects;
-        log_played_card();
+        origin->log_played_card(card_ptr, is_response);
         if (std::ranges::find(effects, effect_type::play_card_action, &effect_holder::type) == effects.end()) {
             origin->play_card_action(card_ptr);
         }

@@ -390,8 +390,11 @@ void target_finder::add_modifier(card_view *card) {
     if (std::ranges::find(m_modifiers, card) == m_modifiers.end()) {
         switch (card->modifier) {
         case card_modifier_type::bangmod:
+        case card_modifier_type::bandolier:
             if (std::ranges::all_of(m_modifiers, [](const card_view *c) {
-                return c->modifier == card_modifier_type::bangmod;
+                return c->modifier == card_modifier_type::bangmod
+                    || c->modifier == card_modifier_type::bandolier
+                    || c->modifier == card_modifier_type::belltower;
             })) {
                 m_modifiers.push_back(card);
             }
@@ -405,7 +408,8 @@ void target_finder::add_modifier(card_view *card) {
         case card_modifier_type::shopchoice:
             if (std::ranges::all_of(m_modifiers, [](const card_view *c) {
                 return c->modifier == card_modifier_type::discount
-                    || c->modifier == card_modifier_type::shopchoice;
+                    || c->modifier == card_modifier_type::shopchoice
+                    || c->modifier == card_modifier_type::belltower;
             })) {
                 if (card->modifier == card_modifier_type::shopchoice) {
                     for (card_view *c : m_game->m_hidden_deck) {
@@ -421,8 +425,9 @@ void target_finder::add_modifier(card_view *card) {
             }
             break;
         case card_modifier_type::belltower:
-        case card_modifier_type::bandolier:
-            m_modifiers.push_back(card);
+            if (m_modifiers.empty() || m_modifiers.front()->modifier != card_modifier_type::leevankliff) {
+                m_modifiers.push_back(card);
+            }
             break;
         default:
             break;
@@ -448,8 +453,16 @@ bool target_finder::verify_modifier(card_view *card) {
             return card->expansion == card_expansion_type::goldrush;
         case card_modifier_type::shopchoice:
             return std::ranges::find(m_game->m_shop_choice, card) != m_game->m_shop_choice.end();
-        case card_modifier_type::belltower:
-            return true;
+        case card_modifier_type::belltower: {
+            player_view *p = m_game->find_player(m_game->m_player_own_id);
+            if (card->pocket == &p->hand) {
+                return card->color == card_color_type::brown;
+            } else if (card->pocket == &p->table) {
+                return !card->effects.empty();
+            } else {
+                return card->color != card_color_type::black;
+            }
+        }
         default:
             return false;
         }

@@ -64,6 +64,10 @@ namespace banggame {
         void on_play(card *origin_card, player *origin);
     };
 
+    struct effect_bandolier : effect_empty {
+        void verify(card *origin_card, player *origin) const;
+    };
+
     struct effect_duck {
         void on_play(card *origin_card, player *origin);
     };
