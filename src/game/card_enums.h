@@ -135,6 +135,8 @@ namespace banggame {
         (discount)
         (leevankliff)
         (shopchoice)
+        (belltower)
+        (bandolier)
     )
 
     DEFINE_ENUM_FLAGS(effect_flags,
@@ -196,8 +198,6 @@ namespace banggame {
         (add_cube,              effect_add_cube)
         (reload,                effect_reload)
         (rust,                  effect_rust)
-        (bandolier,             effect_bandolier)
-        (belltower,             effect_belltower)
         (doublebarrel,          effect_doublebarrel)
         (thunderer,             effect_thunderer)
         (buntlinespecial,       effect_buntlinespecial)

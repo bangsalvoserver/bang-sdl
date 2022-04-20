@@ -1605,6 +1605,7 @@
             "image": "17_bandoliera",
             "expansion": "armedanddangerous",
             "color": "orange",
+            "modifier": "bandolier",
             "effects": [
                 {
                     "class": "max_usages",
@@ -1612,9 +1613,6 @@
                 },
                 {
                     "class": "pay_cube"
-                },
-                {
-                    "class": "bandolier"
                 }
             ]
         },
@@ -1699,12 +1697,10 @@
             "image": "17_campanile",
             "expansion": "armedanddangerous",
             "color": "orange",
+            "modifier": "belltower",
             "effects": [
                 {
                     "class": "pay_cube"
-                },
-                {
-                    "class": "belltower"
                 }
             ]
         },

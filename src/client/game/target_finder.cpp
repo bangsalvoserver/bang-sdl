@@ -420,6 +420,10 @@ void target_finder::add_modifier(card_view *card) {
                 m_modifiers.push_back(card);
             }
             break;
+        case card_modifier_type::belltower:
+        case card_modifier_type::bandolier:
+            m_modifiers.push_back(card);
+            break;
         default:
             break;
         }
@@ -436,6 +440,7 @@ bool target_finder::verify_modifier(card_view *card) {
     return std::ranges::all_of(m_modifiers, [&](card_view *c) {
         switch (c->modifier) {
         case card_modifier_type::bangmod:
+        case card_modifier_type::bandolier:
             return is_bangcard(card);
         case card_modifier_type::leevankliff:
             return is_bangcard(card) && card->equips.empty() && m_last_played_card;
@@ -443,6 +448,8 @@ bool target_finder::verify_modifier(card_view *card) {
             return card->expansion == card_expansion_type::goldrush;
         case card_modifier_type::shopchoice:
             return std::ranges::find(m_game->m_shop_choice, card) != m_game->m_shop_choice.end();
+        case card_modifier_type::belltower:
+            return true;
         default:
             return false;
         }
@@ -509,6 +516,10 @@ int target_finder::get_target_index() {
 }
 
 int target_finder::calc_distance(player_view *from, player_view *to) {
+    if (std::ranges::find(m_modifiers, card_modifier_type::belltower, &card_view::modifier) != m_modifiers.end()) {
+        return 1;
+    }
+    
     auto get_next_player = [&](player_view *p) {
         auto it = m_game->m_players.find(p->id);
         do {
@@ -519,7 +530,6 @@ int target_finder::calc_distance(player_view *from, player_view *to) {
 
     if (from == to) return 0;
     if (from->has_player_flags(player_flags::disable_player_distances)) return to->m_distance_mod;
-    if (from->has_player_flags(player_flags::see_everyone_range_1)) return 1;
     int d1=0, d2=0;
     for (player_view *counter = from; counter != to; counter = get_next_player(counter), ++d1);
     for (player_view *counter = to; counter != from; counter = get_next_player(counter), ++d2);

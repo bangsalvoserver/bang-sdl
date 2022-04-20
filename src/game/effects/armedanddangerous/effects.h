@@ -44,16 +44,6 @@ namespace banggame {
         void on_resolve(card *origin_card, player *origin, player *target);
     };
 
-    struct effect_bandolier {
-        void verify(card *origin_card, player *origin) const;
-        void on_play(card *origin_card, player *origin);
-    };
-
-    struct effect_belltower {
-        void verify(card *origin_card, player *origin) const;
-        void on_play(card *origin_card, player *origin);
-    };
-
     struct effect_doublebarrel {
         void on_play(card *origin_card, player *origin);
     };

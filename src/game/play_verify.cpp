@@ -159,11 +159,33 @@ namespace banggame {
         });
     }
 
+    template<typename T, T Diff = 1>
+    struct raii_modifier {
+        T &value;
+
+        raii_modifier(T &value) : value(value) {
+            value += Diff;
+        }
+        ~raii_modifier() {
+            value -= Diff;
+        }
+    };
+
     void modifier_play_card_verify::verify_card_targets() {
         if (origin->m_forced_card
             && card_ptr != origin->m_forced_card
             && std::ranges::find(modifiers, origin->m_forced_card) == modifiers.end()) {
             throw game_error("ERROR_INVALID_ACTION");
+        }
+
+        std::optional<raii_modifier<decltype(player::m_range_mod), 50>> _belltower_mod;
+        std::optional<raii_modifier<decltype(player::m_bangs_per_turn)>> _bandolier_mod;
+
+        for (card *c : modifiers) {
+            switch (c->modifier) {
+            case card_modifier_type::belltower: _belltower_mod.emplace(origin->m_range_mod); break;
+            case card_modifier_type::bandolier: _bandolier_mod.emplace(origin->m_bangs_per_turn); break;
+            }
         }
 
         play_card_verify::verify_card_targets();

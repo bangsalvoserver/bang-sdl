@@ -73,40 +73,6 @@ namespace banggame {
         }
     }
 
-    void effect_bandolier::verify(card *origin_card, player *origin) const {
-        if (origin->m_bangs_played == 0) {
-            throw game_error("ERROR_CANT_PLAY_CARD", origin_card);
-        }
-    }
-
-    void effect_bandolier::on_play(card *origin_card, player *origin) {
-        ++origin->m_bangs_per_turn;
-    }
-
-    void effect_belltower::verify(card *origin_card, player *origin) const {
-        if (origin->check_player_flags(player_flags::see_everyone_range_1)) {
-            throw game_error("ERROR_CANT_PLAY_CARD", origin_card);
-        }
-    }
-
-    void effect_belltower::on_play(card *origin_card, player *origin) {
-        origin->add_player_flags(player_flags::see_everyone_range_1);
-
-        auto clear_flags = [=](player *p) {
-            if (p == origin) {
-                origin->remove_player_flags(player_flags::see_everyone_range_1);
-                origin->m_game->remove_events(origin_card);
-            }
-        };
-
-        origin->m_game->add_event<event_type::on_turn_end>(origin_card, clear_flags);
-        origin->m_game->add_event<event_type::on_effect_end>(origin_card, [=](player *p, card *target_card) {
-            if (origin_card != target_card) {
-                clear_flags(p);
-            }
-        });
-    }
-
     void effect_doublebarrel::on_play(card *origin_card, player *origin) {
         origin->m_game->add_event<event_type::apply_bang_modifier>(origin_card, [=](player *p, request_bang *req) {
             if (p == origin) {
