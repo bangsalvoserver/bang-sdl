@@ -3,8 +3,8 @@
         {
             "name": "Barile",
             "signs": [
-                "QP",
-                "KP"
+                "Q spades",
+                "K spades"
             ],
             "image": "01_barile",
             "expansion": "base",
@@ -18,7 +18,7 @@
         {
             "name": "Dinamite",
             "signs": [
-                "2C"
+                "2 hearts"
             ],
             "image": "01_dinamite",
             "expansion": "base",
@@ -32,7 +32,7 @@
         {
             "name": "Mirino",
             "signs": [
-                "AP"
+                "A spades"
             ],
             "image": "01_mirino",
             "expansion": "base",
@@ -46,8 +46,8 @@
         {
             "name": "Mustang",
             "signs": [
-                "8C",
-                "9C"
+                "8 hearts",
+                "9 hearts"
             ],
             "image": "01_mustang",
             "expansion": "base",
@@ -64,9 +64,9 @@
         {
             "name": "Prigione",
             "signs": [
-                "JP",
-                "4C",
-                "10P"
+                "J spades",
+                "4 hearts",
+                "10 spades"
             ],
             "image": "01_prigione",
             "expansion": "base",
@@ -82,7 +82,7 @@
         {
             "name": "Remington",
             "signs": [
-                "KF"
+                "K clubs"
             ],
             "image": "01_remington",
             "expansion": "base",
@@ -97,7 +97,7 @@
         {
             "name": "Rev. Carabine",
             "signs": [
-                "AF"
+                "A clubs"
             ],
             "image": "01_carabine",
             "expansion": "base",
@@ -112,9 +112,9 @@
         {
             "name": "Schofield",
             "signs": [
-                "JF",
-                "QF",
-                "KP"
+                "J clubs",
+                "Q clubs",
+                "K spades"
             ],
             "image": "01_schofield",
             "expansion": "base",
@@ -129,8 +129,8 @@
         {
             "name": "Volcanic",
             "signs": [
-                "10P",
-                "10F"
+                "10 spades",
+                "10 clubs"
             ],
             "image": "01_volcanic",
             "expansion": "base",
@@ -148,7 +148,7 @@
         {
             "name": "Winchester",
             "signs": [
-                "8P"
+                "8 spades"
             ],
             "image": "01_winchester",
             "expansion": "base",
@@ -163,31 +163,31 @@
         {
             "name": "Bang!",
             "signs": [
-                "2F",
-                "3F",
-                "4F",
-                "5F",
-                "6F",
-                "7F",
-                "8F",
-                "9F",
-                "AQ",
-                "2Q",
-                "3Q",
-                "4Q",
-                "5Q",
-                "6Q",
-                "7Q",
-                "8Q",
-                "9Q",
-                "10Q",
-                "JQ",
-                "QQ",
-                "KQ",
-                "AC",
-                "QC",
-                "KC",
-                "AP"
+                "2 clubs",
+                "3 clubs",
+                "4 clubs",
+                "5 clubs",
+                "6 clubs",
+                "7 clubs",
+                "8 clubs",
+                "9 clubs",
+                "A diamonds",
+                "2 diamonds",
+                "3 diamonds",
+                "4 diamonds",
+                "5 diamonds",
+                "6 diamonds",
+                "7 diamonds",
+                "8 diamonds",
+                "9 diamonds",
+                "10 diamonds",
+                "J diamonds",
+                "Q diamonds",
+                "K diamonds",
+                "A hearts",
+                "Q hearts",
+                "K hearts",
+                "A spades"
             ],
             "image": "01_bang",
             "expansion": "base",
@@ -211,12 +211,12 @@
         {
             "name": "Birra",
             "signs": [
-                "6C",
-                "7C",
-                "8C",
-                "9C",
-                "10C",
-                "JC"
+                "6 hearts",
+                "7 hearts",
+                "8 hearts",
+                "9 hearts",
+                "10 hearts",
+                "J hearts"
             ],
             "image": "01_birra",
             "expansion": "base",
@@ -238,10 +238,10 @@
         {
             "name": "Cat Balou",
             "signs": [
-                "KC",
-                "9Q",
-                "10Q",
-                "JQ"
+                "K hearts",
+                "9 diamonds",
+                "10 diamonds",
+                "J diamonds"
             ],
             "image": "01_catbalou",
             "expansion": "base",
@@ -256,8 +256,8 @@
         {
             "name": "Diligenza",
             "signs": [
-                "9P",
-                "9P"
+                "9 spades",
+                "9 spades"
             ],
             "image": "01_diligenza",
             "expansion": "base",
@@ -272,9 +272,9 @@
         {
             "name": "Duello",
             "signs": [
-                "QQ",
-                "JP",
-                "8F"
+                "Q diamonds",
+                "J spades",
+                "8 clubs"
             ],
             "image": "01_duello",
             "expansion": "base",
@@ -290,8 +290,8 @@
         {
             "name": "Emporio",
             "signs": [
-                "9F",
-                "QP"
+                "9 clubs",
+                "Q spades"
             ],
             "image": "01_emporio",
             "expansion": "base",
@@ -305,7 +305,7 @@
         {
             "name": "Gatling",
             "signs": [
-                "10C"
+                "10 hearts"
             ],
             "image": "01_gatling",
             "expansion": "base",
@@ -320,8 +320,8 @@
         {
             "name": "Indiani!",
             "signs": [
-                "KQ",
-                "AQ"
+                "K diamonds",
+                "A diamonds"
             ],
             "image": "01_indiani",
             "expansion": "base",
@@ -336,18 +336,18 @@
         {
             "name": "Mancato!",
             "signs": [
-                "2P",
-                "3P",
-                "4P",
-                "5P",
-                "6P",
-                "7P",
-                "8P",
-                "AF",
-                "10F",
-                "JF",
-                "QF",
-                "KF"
+                "2 spades",
+                "3 spades",
+                "4 spades",
+                "5 spades",
+                "6 spades",
+                "7 spades",
+                "8 spades",
+                "A clubs",
+                "10 clubs",
+                "J clubs",
+                "Q clubs",
+                "K clubs"
             ],
             "image": "01_mancato",
             "expansion": "base",
@@ -361,10 +361,10 @@
         {
             "name": "Panico!",
             "signs": [
-                "JC",
-                "QC",
-                "AC",
-                "8Q"
+                "J hearts",
+                "Q hearts",
+                "A hearts",
+                "8 diamonds"
             ],
             "image": "01_panico",
             "expansion": "base",
@@ -380,7 +380,7 @@
         {
             "name": "Saloon",
             "signs": [
-                "5C"
+                "5 hearts"
             ],
             "image": "01_saloon",
             "expansion": "base",
@@ -394,7 +394,7 @@
         {
             "name": "Wells Fargo",
             "signs": [
-                "3C"
+                "3 hearts"
             ],
             "image": "01_wellsfargo",
             "expansion": "base",
@@ -409,7 +409,7 @@
         {
             "name": "Barile",
             "signs": [
-                "AF"
+                "A clubs"
             ],
             "image": "03_barile",
             "expansion": "dodgecity",
@@ -423,7 +423,7 @@
         {
             "name": "Binocolo",
             "signs": [
-                "10Q"
+                "10 diamonds"
             ],
             "image": "03_binocolo",
             "expansion": "dodgecity",
@@ -437,7 +437,7 @@
         {
             "name": "Dinamite",
             "signs": [
-                "10F"
+                "10 clubs"
             ],
             "image": "03_dinamite",
             "expansion": "dodgecity",
@@ -451,7 +451,7 @@
         {
             "name": "Mustang",
             "signs": [
-                "5C"
+                "5 hearts"
             ],
             "image": "03_mustang",
             "expansion": "dodgecity",
@@ -468,7 +468,7 @@
         {
             "name": "Remington",
             "signs": [
-                "6Q"
+                "6 diamonds"
             ],
             "image": "03_remington",
             "expansion": "dodgecity",
@@ -483,7 +483,7 @@
         {
             "name": "Rev. Carabine",
             "signs": [
-                "5P"
+                "5 spades"
             ],
             "image": "03_rev_carabine",
             "expansion": "dodgecity",
@@ -498,7 +498,7 @@
         {
             "name": "Riparo",
             "signs": [
-                "KQ"
+                "K diamonds"
             ],
             "image": "03_riparo",
             "expansion": "dodgecity",
@@ -512,10 +512,10 @@
         {
             "name": "Bang!",
             "signs": [
-                "8P",
-                "5F",
-                "6F",
-                "KF"
+                "8 spades",
+                "5 clubs",
+                "6 clubs",
+                "K clubs"
             ],
             "image": "03_bang",
             "expansion": "dodgecity",
@@ -539,8 +539,8 @@
         {
             "name": "Birra",
             "signs": [
-                "6C",
-                "6P"
+                "6 hearts",
+                "6 spades"
             ],
             "image": "03_birra",
             "expansion": "dodgecity",
@@ -562,7 +562,7 @@
         {
             "name": "Cat Balou",
             "signs": [
-                "8F"
+                "8 clubs"
             ],
             "image": "03_cat_balou",
             "expansion": "dodgecity",
@@ -577,7 +577,7 @@
         {
             "name": "Emporio",
             "signs": [
-                "AP"
+                "A spades"
             ],
             "image": "03_emporio",
             "expansion": "dodgecity",
@@ -591,7 +591,7 @@
         {
             "name": "Indiani",
             "signs": [
-                "5Q"
+                "5 diamonds"
             ],
             "image": "03_indiani",
             "expansion": "dodgecity",
@@ -606,7 +606,7 @@
         {
             "name": "Mancato!",
             "signs": [
-                "8Q"
+                "8 diamonds"
             ],
             "image": "03_mancato",
             "expansion": "dodgecity",
@@ -620,7 +620,7 @@
         {
             "name": "Panico!",
             "signs": [
-                "JC"
+                "J hearts"
             ],
             "image": "03_panico",
             "expansion": "dodgecity",
@@ -636,7 +636,7 @@
         {
             "name": "Pugno",
             "signs": [
-                "10P"
+                "10 spades"
             ],
             "image": "03_pugno",
             "expansion": "dodgecity",
@@ -652,7 +652,7 @@
         {
             "name": "Rag Time",
             "signs": [
-                "9C"
+                "9 hearts"
             ],
             "image": "03_rag_time",
             "expansion": "dodgecity",
@@ -676,7 +676,7 @@
         {
             "name": "Rissa",
             "signs": [
-                "JP"
+                "J spades"
             ],
             "image": "03_rissa",
             "expansion": "dodgecity",
@@ -700,8 +700,8 @@
         {
             "name": "Schivata",
             "signs": [
-                "7Q",
-                "KC"
+                "7 diamonds",
+                "K hearts"
             ],
             "image": "03_schivata",
             "expansion": "dodgecity",
@@ -718,7 +718,7 @@
         {
             "name": "Springfield",
             "signs": [
-                "KP"
+                "K spades"
             ],
             "image": "03_springfield",
             "expansion": "dodgecity",
@@ -743,7 +743,7 @@
         {
             "name": "Tequila",
             "signs": [
-                "9F"
+                "9 clubs"
             ],
             "image": "03_tequila",
             "expansion": "dodgecity",
@@ -767,7 +767,7 @@
         {
             "name": "Whisky",
             "signs": [
-                "QC"
+                "Q hearts"
             ],
             "image": "03_whisky",
             "expansion": "dodgecity",
@@ -791,7 +791,7 @@
         {
             "name": "Bibbia",
             "signs": [
-                "10C"
+                "10 hearts"
             ],
             "image": "03_bibbia",
             "expansion": "dodgecity",
@@ -808,7 +808,7 @@
         {
             "name": "Borraccia",
             "signs": [
-                "7C"
+                "7 hearts"
             ],
             "image": "03_borraccia",
             "expansion": "dodgecity",
@@ -822,7 +822,7 @@
         {
             "name": "Can Can",
             "signs": [
-                "JF"
+                "J clubs"
             ],
             "image": "03_can_can",
             "expansion": "dodgecity",
@@ -837,7 +837,7 @@
         {
             "name": "Cappello",
             "signs": [
-                "JQ"
+                "J diamonds"
             ],
             "image": "03_cappello",
             "expansion": "dodgecity",
@@ -851,7 +851,7 @@
         {
             "name": "Conestoga",
             "signs": [
-                "9Q"
+                "9 diamonds"
             ],
             "image": "03_conestoga",
             "expansion": "dodgecity",
@@ -866,7 +866,7 @@
         {
             "name": "Derringer",
             "signs": [
-                "7P"
+                "7 spades"
             ],
             "image": "03_derringer",
             "expansion": "dodgecity",
@@ -885,7 +885,7 @@
         {
             "name": "Fucile da Caccia",
             "signs": [
-                "9F"
+                "9 clubs"
             ],
             "image": "03_fucile_da_caccia",
             "expansion": "dodgecity",
@@ -901,7 +901,7 @@
         {
             "name": "Howitzer",
             "signs": [
-                "9P"
+                "9 spades"
             ],
             "image": "03_howitzer",
             "expansion": "dodgecity",
@@ -916,7 +916,7 @@
         {
             "name": "Pepperbox",
             "signs": [
-                "AC"
+                "A hearts"
             ],
             "image": "03_pepperbox",
             "expansion": "dodgecity",
@@ -932,8 +932,8 @@
         {
             "name": "Placca di Ferro",
             "signs": [
-                "AQ",
-                "QP"
+                "A diamonds",
+                "Q spades"
             ],
             "image": "03_placca_di_ferro",
             "expansion": "dodgecity",
@@ -947,7 +947,7 @@
         {
             "name": "Pony Express",
             "signs": [
-                "QQ"
+                "Q diamonds"
             ],
             "image": "03_pony_express",
             "expansion": "dodgecity",
@@ -962,7 +962,7 @@
         {
             "name": "Pugnale",
             "signs": [
-                "8C"
+                "8 hearts"
             ],
             "image": "03_pugnale",
             "expansion": "dodgecity",
@@ -978,7 +978,7 @@
         {
             "name": "Sombrero",
             "signs": [
-                "7F"
+                "7 clubs"
             ],
             "image": "03_sombrero",
             "expansion": "dodgecity",
@@ -993,8 +993,8 @@
             "discard_if_two_players": true,
             "name": "Fantasma",
             "signs": [
-                "9P",
-                "10P"
+                "9 spades",
+                "10 spades"
             ],
             "image": "07_fantasma",
             "expansion": "valleyofshadows ghostcards",
@@ -1010,7 +1010,7 @@
         {
             "name": "Lemat",
             "signs": [
-                "4Q"
+                "4 diamonds"
             ],
             "image": "07_lemat",
             "expansion": "valleyofshadows",
@@ -1041,7 +1041,7 @@
         {
             "name": "Serpente a Sonagli",
             "signs": [
-                "7C"
+                "7 hearts"
             ],
             "image": "07_serpenteasonagli",
             "expansion": "valleyofshadows",
@@ -1056,7 +1056,7 @@
         {
             "name": "Shotgun",
             "signs": [
-                "KP"
+                "K spades"
             ],
             "image": "07_shotgun",
             "expansion": "valleyofshadows",
@@ -1074,7 +1074,7 @@
         {
             "name": "Taglia",
             "signs": [
-                "9F"
+                "9 clubs"
             ],
             "image": "07_taglia",
             "expansion": "valleyofshadows",
@@ -1089,7 +1089,7 @@
         {
             "name": "Bandidos",
             "signs": [
-                "QQ"
+                "Q diamonds"
             ],
             "image": "07_bandidos",
             "expansion": "valleyofshadows",
@@ -1109,7 +1109,7 @@
         {
             "name": "Fuga",
             "signs": [
-                "3C"
+                "3 hearts"
             ],
             "image": "07_fuga",
             "expansion": "valleyofshadows",
@@ -1123,7 +1123,7 @@
         {
             "name": "Mira",
             "signs": [
-                "6F"
+                "6 clubs"
             ],
             "image": "07_mira",
             "expansion": "valleyofshadows",
@@ -1138,7 +1138,7 @@
         {
             "name": "Poker",
             "signs": [
-                "JC"
+                "J hearts"
             ],
             "image": "07_poker",
             "expansion": "valleyofshadows",
@@ -1152,7 +1152,7 @@
         {
             "name": "Ritorno di Fiamma",
             "signs": [
-                "QF"
+                "Q clubs"
             ],
             "image": "07_ritornodifiamma",
             "expansion": "valleyofshadows",
@@ -1169,7 +1169,7 @@
         {
             "name": "Salvo!",
             "signs": [
-                "5C"
+                "5 hearts"
             ],
             "image": "07_salvo",
             "expansion": "valleyofshadows",
@@ -1184,7 +1184,7 @@
             "discard_if_two_players": true,
             "name": "Sventagliata",
             "signs": [
-                "2P"
+                "2 spades"
             ],
             "image": "07_sventagliata",
             "expansion": "valleyofshadows",
@@ -1209,7 +1209,7 @@
         {
             "name": "Tomahawk",
             "signs": [
-                "AQ"
+                "A diamonds"
             ],
             "image": "07_tomahawk",
             "expansion": "valleyofshadows",
@@ -1225,7 +1225,7 @@
         {
             "name": "Tornado",
             "signs": [
-                "AF"
+                "A clubs"
             ],
             "image": "07_tornado",
             "expansion": "valleyofshadows",
@@ -1245,7 +1245,7 @@
         {
             "name": "Ultimo Giro",
             "signs": [
-                "8Q"
+                "8 diamonds"
             ],
             "image": "07_ultimogiro",
             "expansion": "valleyofshadows",
@@ -1259,10 +1259,10 @@
         {
             "name": "Bang!",
             "signs": [
-                "6C",
-                "2F",
-                "2Q",
-                "3Q"
+                "6 hearts",
+                "2 clubs",
+                "2 diamonds",
+                "3 diamonds"
             ],
             "image": "17_bang",
             "expansion": "armedanddangerous",
@@ -1286,7 +1286,7 @@
         {
             "name": "Carovana",
             "signs": [
-                "2P"
+                "2 spades"
             ],
             "image": "17_carovana",
             "expansion": "armedanddangerous",
@@ -1324,7 +1324,7 @@
         {
             "name": "Cat Balou",
             "signs": [
-                "3C"
+                "3 hearts"
             ],
             "image": "17_catbalou",
             "expansion": "armedanddangerous",
@@ -1339,7 +1339,7 @@
         {
             "name": "Cicchetto",
             "signs": [
-                "5C"
+                "5 hearts"
             ],
             "image": "17_cicchetto",
             "expansion": "armedanddangerous",
@@ -1380,7 +1380,7 @@
         {
             "name": "Colpo Rapido",
             "signs": [
-                "3P"
+                "3 spades"
             ],
             "image": "17_colporapido",
             "expansion": "armedanddangerous",
@@ -1412,7 +1412,7 @@
         {
             "name": "Flintlock",
             "signs": [
-                "AP"
+                "A spades"
             ],
             "image": "17_flintlock",
             "expansion": "armedanddangerous",
@@ -1445,7 +1445,7 @@
         {
             "name": "Freccia",
             "signs": [
-                "5Q"
+                "5 diamonds"
             ],
             "image": "17_freccia",
             "expansion": "armedanddangerous",
@@ -1477,7 +1477,7 @@
         {
             "name": "Gi\u00f9 la Testa!",
             "signs": [
-                "3Q"
+                "3 diamonds"
             ],
             "image": "17_giulatesta",
             "expansion": "armedanddangerous",
@@ -1508,7 +1508,7 @@
         {
             "name": "Mancato!",
             "signs": [
-                "KP"
+                "K spades"
             ],
             "image": "17_mancato",
             "expansion": "armedanddangerous",
@@ -1522,7 +1522,7 @@
         {
             "name": "Ricarica",
             "signs": [
-                "4Q"
+                "4 diamonds"
             ],
             "image": "17_ricarica",
             "expansion": "armedanddangerous",
@@ -1536,7 +1536,7 @@
         {
             "name": "Ruggine",
             "signs": [
-                "9P"
+                "9 spades"
             ],
             "image": "17_ruggine",
             "expansion": "armedanddangerous",
@@ -1551,7 +1551,7 @@
         {
             "name": "Squaw",
             "signs": [
-                "3Q"
+                "3 diamonds"
             ],
             "image": "17_squaw",
             "expansion": "armedanddangerous",
@@ -1582,7 +1582,7 @@
         {
             "name": "Asso nella Manica",
             "signs": [
-                "AC"
+                "A hearts"
             ],
             "image": "17_assonellamanica",
             "expansion": "armedanddangerous",
@@ -1600,7 +1600,7 @@
         {
             "name": "Bandoliera",
             "signs": [
-                "2C"
+                "2 hearts"
             ],
             "image": "17_bandoliera",
             "expansion": "armedanddangerous",
@@ -1621,7 +1621,7 @@
         {
             "name": "Big Fifty",
             "signs": [
-                "QP"
+                "Q spades"
             ],
             "image": "17_bigfifty",
             "expansion": "armedanddangerous",
@@ -1645,7 +1645,7 @@
         {
             "name": "Bomba",
             "signs": [
-                "7Q"
+                "7 diamonds"
             ],
             "image": "17_bomba",
             "expansion": "armedanddangerous",
@@ -1670,7 +1670,7 @@
         {
             "name": "Buntline Special",
             "signs": [
-                "JP"
+                "J spades"
             ],
             "image": "17_buntlinespecial",
             "expansion": "armedanddangerous",
@@ -1694,7 +1694,7 @@
         {
             "name": "Campanile",
             "signs": [
-                "7F"
+                "7 clubs"
             ],
             "image": "17_campanile",
             "expansion": "armedanddangerous",
@@ -1711,7 +1711,7 @@
         {
             "name": "Cassa",
             "signs": [
-                "3C"
+                "3 hearts"
             ],
             "image": "17_cassa",
             "expansion": "armedanddangerous",
@@ -1729,7 +1729,7 @@
         {
             "name": "Cespuglio",
             "signs": [
-                "4F"
+                "4 clubs"
             ],
             "image": "17_cespuglio",
             "expansion": "armedanddangerous",
@@ -1751,7 +1751,7 @@
         {
             "name": "Doppia Canna",
             "signs": [
-                "6F"
+                "6 clubs"
             ],
             "image": "17_doppiacanna",
             "expansion": "armedanddangerous",
@@ -1775,7 +1775,7 @@
         {
             "name": "Frusta",
             "signs": [
-                "5F"
+                "5 clubs"
             ],
             "image": "17_frusta",
             "expansion": "armedanddangerous",
@@ -1795,7 +1795,7 @@
         {
             "name": "Fusto di Birra",
             "signs": [
-                "4C"
+                "4 hearts"
             ],
             "image": "17_fustodibirra",
             "expansion": "armedanddangerous",
@@ -1813,7 +1813,7 @@
         {
             "name": "Grimaldello",
             "signs": [
-                "2F"
+                "2 clubs"
             ],
             "image": "17_grimaldello",
             "expansion": "armedanddangerous",
@@ -1834,7 +1834,7 @@
         {
             "name": "Thunderer",
             "signs": [
-                "3F"
+                "3 clubs"
             ],
             "image": "17_thunderer",
             "expansion": "armedanddangerous",
@@ -1858,7 +1858,7 @@
         {
             "name": "Tombarolo",
             "signs": [
-                "8P"
+                "8 spades"
             ],
             "image": "20_tombarolo",
             "expansion": "canyondiablo",
@@ -1875,7 +1875,7 @@
         {
             "name": "Baro",
             "signs": [
-                "10F"
+                "10 clubs"
             ],
             "image": "20_baro",
             "expansion": "canyondiablo",
@@ -1899,7 +1899,7 @@
         {
             "name": "Miraggio",
             "signs": [
-                "8C"
+                "8 hearts"
             ],
             "image": "20_miraggio",
             "expansion": "canyondiablo",
@@ -1916,7 +1916,7 @@
         {
             "name": "Patto di Sangue",
             "signs": [
-                "JC"
+                "J hearts"
             ],
             "image": "20_pattodisangue",
             "expansion": "canyondiablo",
@@ -1937,7 +1937,7 @@
         {
             "name": "Sacrificio",
             "signs": [
-                "10C"
+                "10 hearts"
             ],
             "image": "20_sacrificio",
             "expansion": "canyondiablo",
@@ -1951,7 +1951,7 @@
         {
             "name": "Disarmare",
             "signs": [
-                "7C"
+                "7 hearts"
             ],
             "image": "20_disarmare",
             "expansion": "canyondiablo",
@@ -1968,7 +1968,7 @@
         {
             "name": "Molotov",
             "signs": [
-                "AC"
+                "A hearts"
             ],
             "image": "20_molotov",
             "expansion": "canyondiablo",
@@ -1984,8 +1984,8 @@
         {
             "name": "Mancato!",
             "signs": [
-                "JP",
-                "6F"
+                "J spades",
+                "6 clubs"
             ],
             "image": "20_mancato",
             "expansion": "canyondiablo",
@@ -1999,10 +1999,10 @@
         {
             "name": "Bang!",
             "signs": [
-                "10P",
-                "QF",
-                "8Q",
-                "6Q"
+                "10 spades",
+                "Q clubs",
+                "8 diamonds",
+                "6 diamonds"
             ],
             "image": "20_bang",
             "expansion": "canyondiablo",
@@ -2026,7 +2026,7 @@
         {
             "name": "Panico!",
             "signs": [
-                "9C"
+                "9 hearts"
             ],
             "image": "01_panico",
             "expansion": "canyondiablo",
@@ -2042,7 +2042,7 @@
         {
             "name": "Birra",
             "signs": [
-                "QC"
+                "Q hearts"
             ],
             "image": "01_birra",
             "expansion": "canyondiablo",
@@ -2064,7 +2064,7 @@
         {
             "name": "Cat Balou",
             "signs": [
-                "JF"
+                "J clubs"
             ],
             "image": "01_catbalou",
             "expansion": "canyondiablo",
@@ -2079,7 +2079,7 @@
         {
             "name": "Bulldog",
             "signs": [
-                "7Q"
+                "7 diamonds"
             ],
             "image": "20_bulldog",
             "expansion": "canyondiablo",
@@ -2117,7 +2117,7 @@
             "discard_if_two_players": true,
             "name": "Ultime Volont\u00e0",
             "signs": [
-                "AP"
+                "A spades"
             ],
             "image": "20_ultimevolonta",
             "expansion": "canyondiablo",
@@ -2163,7 +2163,7 @@
         {
             "name": "Guida Indiana",
             "signs": [
-                "8F"
+                "8 clubs"
             ],
             "image": "20_guidaindiana",
             "expansion": "canyondiablo",
@@ -2177,7 +2177,7 @@
         {
             "name": "Remington",
             "signs": [
-                "KP"
+                "K spades"
             ],
             "image": "20_remington",
             "expansion": "canyondiablo",
@@ -2192,7 +2192,7 @@
         {
             "name": "Esattore",
             "signs": [
-                "KF"
+                "K clubs"
             ],
             "image": "20_esattore",
             "expansion": "canyondiablo",
@@ -2207,7 +2207,7 @@
         {
             "name": "Bordello",
             "signs": [
-                "7F"
+                "7 clubs"
             ],
             "image": "20_bordello",
             "expansion": "canyondiablo",
@@ -2222,7 +2222,7 @@
         {
             "name": "Bronco",
             "signs": [
-                "QQ"
+                "Q diamonds"
             ],
             "image": "20_bronco",
             "expansion": "canyondiablo",
@@ -2242,7 +2242,7 @@
         {
             "name": "Mulo",
             "signs": [
-                "QP"
+                "Q spades"
             ],
             "image": "20_mulo",
             "expansion": "canyondiablo",
@@ -2259,7 +2259,7 @@
         {
             "name": "Sentiero di Guerra",
             "signs": [
-                "KQ"
+                "K diamonds"
             ],
             "image": "20_sentierodiguerra",
             "expansion": "canyondiablo",
@@ -2274,7 +2274,7 @@
         {
             "name": "Incendio",
             "signs": [
-                "JQ"
+                "J diamonds"
             ],
             "image": "20_incendio",
             "expansion": "canyondiablo",
@@ -2289,7 +2289,7 @@
         {
             "name": "Proiettile Vagante",
             "signs": [
-                "10Q"
+                "10 diamonds"
             ],
             "image": "20_proiettilevagante",
             "expansion": "canyondiablo",
@@ -2310,7 +2310,7 @@
         {
             "name": "Offre La Casa",
             "signs": [
-                "KC"
+                "K hearts"
             ],
             "image": "20_offrelacasa",
             "expansion": "canyondiablo",
@@ -2329,7 +2329,7 @@
         {
             "name": "Chitarra",
             "signs": [
-                "9F"
+                "9 clubs"
             ],
             "image": "20_chitarra",
             "expansion": "canyondiablo",
@@ -2348,7 +2348,7 @@
         {
             "name": "Attaccabrighe",
             "signs": [
-                "9P"
+                "9 spades"
             ],
             "image": "20_attaccabrighe",
             "expansion": "canyondiablo",
@@ -2364,7 +2364,7 @@
         {
             "name": "Strozzino",
             "signs": [
-                "9Q"
+                "9 diamonds"
             ],
             "image": "20_strozzino",
             "expansion": "canyondiablo",
@@ -2384,7 +2384,7 @@
         {
             "name": "Schivata",
             "signs": [
-                "7P"
+                "7 spades"
             ],
             "image": "20_schivata",
             "expansion": "canyondiablo",

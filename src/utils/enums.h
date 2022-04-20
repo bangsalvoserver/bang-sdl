@@ -156,12 +156,13 @@ namespace enums {
 
     template<typename T, typename U>
     concept full_data_enum_of_type = std::same_as<U, full_data_enum_type_t<T>>;
+    
+    template<full_data_enum Enum> constexpr auto enum_data_array_v = []<Enum ... Es>(enum_sequence<Es...>) {
+        return std::array{ enum_data_v<Es> ... };
+    }(make_enum_sequence<Enum>());
 
     template<full_data_enum Enum> auto get_data(Enum value) -> full_data_enum_type_t<Enum> {
-        static constexpr auto data_array = []<Enum ... Es>(enum_sequence<Es...>) {
-            return std::array{ enum_data_v<Es> ... };
-        }(make_enum_sequence<Enum>());
-        return data_array[indexof(value)];
+        return enum_data_array_v<Enum>[indexof(value)];
     }
 
     template<auto E> concept value_with_type = requires {
