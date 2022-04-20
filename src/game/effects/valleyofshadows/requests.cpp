@@ -30,7 +30,7 @@ namespace banggame {
     }
 
     void request_destroy::on_resolve() {
-        effect_destroy{}.on_resolve(origin_card, origin, target, target_card);
+        effect_destroy{}.on_resolve(origin_card, origin, target_card);
         target->m_game->pop_request<request_destroy>();
     }
 
@@ -43,7 +43,7 @@ namespace banggame {
     }
 
     void request_steal::on_resolve() {
-        effect_steal{}.on_resolve(origin_card, origin, target, target_card);
+        effect_steal{}.on_resolve(origin_card, origin, target_card);
         target->m_game->pop_request<request_steal>();
     }
 
@@ -148,7 +148,7 @@ namespace banggame {
             break;
         case pocket_type::player_hand:
             for (int i=0; i<2 && !saved->m_hand.empty(); ++i) {
-                target->steal_card(saved, saved->random_hand_card());
+                target->steal_card(saved->random_hand_card());
             }
             target->m_game->pop_request<request_saved>();
             break;

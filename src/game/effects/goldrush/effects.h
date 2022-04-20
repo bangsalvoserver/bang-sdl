@@ -6,12 +6,12 @@
 namespace banggame {
 
     struct effect_sell_beer {
-        void on_play(card *origin_card, player *origin, player *target, card *target_card);
+        void on_play(card *origin_card, player *origin, card *target);
     };
 
     struct effect_discard_black {
-        void verify(card *origin_card, player *origin, player *target, card *target_card) const;
-        void on_play(card *origin_card, player *origin, player *target, card *target_card);
+        void verify(card *origin_card, player *origin, card *target) const;
+        void on_play(card *origin_card, player *origin, card *target);
     };
 
     struct effect_add_gold {

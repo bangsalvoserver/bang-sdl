@@ -11,7 +11,27 @@ namespace banggame {
     struct player;
     struct card;
 
-    using mth_target_list = std::vector<std::pair<player *, card *>>;
+    struct target_none_t {};
+    struct target_player_t {
+        player *target;
+    };
+    struct target_card_t {
+        card *target;
+    };
+    struct target_other_players_t {};
+    struct target_cards_other_players_t {
+        std::vector<card *> target_cards;
+    };
+
+    using play_card_target = std::variant<
+        target_none_t,
+        target_player_t,
+        target_card_t,
+        target_other_players_t,
+        target_cards_other_players_t
+    >;
+
+    using target_list = std::vector<play_card_target>;
     using opt_fmt_str = std::optional<game_formatted_string>;
 
     struct effect_empty {

@@ -6,17 +6,17 @@
 namespace banggame {
 
     struct handler_draw_atend {
-        void on_play(card *origin_card, player *origin, const mth_target_list &targets);
+        void on_play(card *origin_card, player *origin, const target_list &targets);
     };
 
     struct handler_heal_multi {
-        opt_fmt_str on_prompt(card *origin_card, player *origin, const mth_target_list &targets) const;
-        void on_play(card *origin_card, player *origin, const mth_target_list &targets);
+        opt_fmt_str on_prompt(card *origin_card, player *origin, const target_list &targets) const;
+        void on_play(card *origin_card, player *origin, const target_list &targets);
     };
 
     struct effect_select_cube {
-        void verify(card *origin_card, player *origin, player *target, card *target_card) const;
-        void on_play(card *origin_card, player *origin, player *target, card *target_card);
+        void verify(card *origin_card, player *origin, card *target) const;
+        void on_play(card *origin_card, player *origin, card *target);
     };
 
     struct effect_pay_cube {
@@ -32,7 +32,7 @@ namespace banggame {
         int ncubes;
         effect_add_cube(int value) : ncubes(std::max(1, value)) {}
 
-        void on_play(card *origin_card, player *origin, player *target, card *target_card);
+        void on_play(card *origin_card, player *origin, card *target);
     };
     
     struct effect_reload {
@@ -79,8 +79,8 @@ namespace banggame {
     };
 
     struct handler_squaw {
-        void verify(card *origin_card, player *origin, const mth_target_list &targets) const;
-        void on_play(card *origin_card, player *origin, const mth_target_list &targets);
+        void verify(card *origin_card, player *origin, const target_list &targets) const;
+        void on_play(card *origin_card, player *origin, const target_list &targets);
     };
 
     struct effect_move_bomb : effect_empty {
@@ -88,9 +88,9 @@ namespace banggame {
     };
 
     struct handler_move_bomb {
-        opt_fmt_str on_prompt(card *origin_card, player *origin, const mth_target_list &targets) const;
-        void verify(card *origin_card, player *origin, const mth_target_list &targets) const;
-        void on_play(card *origin_card, player *origin, const mth_target_list &targets);
+        opt_fmt_str on_prompt(card *origin_card, player *origin, const target_list &targets) const;
+        void verify(card *origin_card, player *origin, const target_list &targets) const;
+        void on_play(card *origin_card, player *origin, const target_list &targets);
     };
 }
 

@@ -20,9 +20,9 @@ namespace banggame {
     };
 
     struct handler_card_sharper {
-        void verify(card *origin_card, player *origin, const mth_target_list &targets) const;
-        void on_play(card *origin_card, player *origin, const mth_target_list &targets);
-        void on_resolve(card *origin_card, player *origin, player *target, card *chosen_card, card *target_card);
+        void verify(card *origin_card, player *origin, const target_list &targets) const;
+        void on_play(card *origin_card, player *origin, const target_list &targets);
+        void on_resolve(card *origin_card, player *origin, card *chosen_card, card *target_card);
     };
 
     struct effect_sacrifice {
@@ -36,7 +36,7 @@ namespace banggame {
     };
 
     struct handler_lastwill {
-        void on_play(card *origin_card, player *origin, const mth_target_list &targets);
+        void on_play(card *origin_card, player *origin, const target_list &targets);
     };
 
 }

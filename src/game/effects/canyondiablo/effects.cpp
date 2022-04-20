@@ -43,14 +43,14 @@ namespace banggame {
         }
     }
 
-    void handler_card_sharper::verify(card *origin_card, player *origin, const mth_target_list &targets) const {
-        auto chosen_card = std::get<card *>(targets[0]);
-        auto [target, target_card] = targets[1];
+    void handler_card_sharper::verify(card *origin_card, player *origin, const target_list &targets) const {
+        auto chosen_card = std::get<target_card_t>(targets[0]).target;
+        auto target_card = std::get<target_card_t>(targets[1]).target;
 
         if (auto *c = origin->find_equipped_card(target_card)) {
             throw game_error("ERROR_DUPLICATED_CARD", c);
         }
-        if (auto *c = target->find_equipped_card(chosen_card)) {
+        if (auto *c = target_card->owner->find_equipped_card(chosen_card)) {
             throw game_error("ERROR_DUPLICATED_CARD", c);
         }
     }
@@ -64,7 +64,7 @@ namespace banggame {
 
         void on_resolve() override {
             target->m_game->pop_request<request_card_sharper>();
-            handler_card_sharper{}.on_resolve(origin_card, origin, target, chosen_card, target_card);
+            handler_card_sharper{}.on_resolve(origin_card, origin, chosen_card, target_card);
         }
 
         game_formatted_string status_text(player *owner) const override {
@@ -76,18 +76,19 @@ namespace banggame {
         }
     };
 
-    void handler_card_sharper::on_play(card *origin_card, player *origin, const mth_target_list &targets) {
-        auto chosen_card = std::get<card *>(targets[0]);
-        auto [target, target_card] = targets[1];
+    void handler_card_sharper::on_play(card *origin_card, player *origin, const target_list &targets) {
+        auto chosen_card = std::get<target_card_t>(targets[0]).target;
+        auto target_card = std::get<target_card_t>(targets[1]).target;
 
-        if (target->can_escape(origin, origin_card, effect_flags::escapable)) {
-            origin->m_game->queue_request<request_card_sharper>(origin_card, origin, target, chosen_card, target_card);
+        if (target_card->owner->can_escape(origin, origin_card, effect_flags::escapable)) {
+            origin->m_game->queue_request<request_card_sharper>(origin_card, origin, target_card->owner, chosen_card, target_card);
         } else {
-            on_resolve(origin_card, origin, target, chosen_card, target_card);
+            on_resolve(origin_card, origin, chosen_card, target_card);
         }
     }
 
-    void handler_card_sharper::on_resolve(card *origin_card, player *origin, player *target, card *chosen_card, card *target_card) {
+    void handler_card_sharper::on_resolve(card *origin_card, player *origin, card *chosen_card, card *target_card) {
+        player *target = target_card->owner;
         target->unequip_if_enabled(target_card);
         origin->equip_card(target_card);
         if (chosen_card->owner == origin) {
@@ -130,11 +131,11 @@ namespace banggame {
         origin->m_game->update_request();
     }
 
-    void handler_lastwill::on_play(card *origin_card, player *origin, const mth_target_list &targets) {
-        player *target = std::get<player *>(targets[0]);
+    void handler_lastwill::on_play(card *origin_card, player *origin, const target_list &targets) {
+        player *target = std::get<target_player_t>(targets[0]).target;
 
-        for (auto [p, c] : targets | std::views::drop(1)) {
-            target->add_to_hand(c);
+        for (auto c : targets | std::views::drop(1)) {
+            target->add_to_hand(std::get<target_card_t>(c).target);
         }
     }
 }

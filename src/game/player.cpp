@@ -101,8 +101,8 @@ namespace banggame {
             : pocket_type::discard_pile);
     }
 
-    void player::steal_card(player *target, card *target_card) {
-        target->move_card_to(target_card, pocket_type::player_hand, this);
+    void player::steal_card(card *target) {
+        target->owner->move_card_to(target, pocket_type::player_hand, this);
     }
 
     void player::damage(card *origin_card, player *origin, int value, bool is_bang, bool instant) {
@@ -334,25 +334,24 @@ namespace banggame {
         return ret;
     }
 
-    static std::vector<play_card_target> parse_target_id_vector(game *game, const std::vector<play_card_target_ids> &args) {
-        std::vector<play_card_target> ret;
+    static target_list parse_target_id_vector(game *game, const std::vector<play_card_target_ids> &args) {
+        target_list ret;
         for (const auto &t : args) {
             ret.push_back(enums::visit_indexed<play_card_target>(util::overloaded{
                 [](enums::enum_tag_t<play_card_target_type::none>) {
-                    return target_none{};
+                    return target_none_t{};
                 },
                 [](enums::enum_tag_t<play_card_target_type::other_players>) {
-                    return target_other_players{};
+                    return target_other_players_t{};
                 },
                 [game](enums::enum_tag_t<play_card_target_type::player>, int player_id) {
-                    return target_player{game->find_player(player_id)};
+                    return target_player_t{game->find_player(player_id)};
                 },
                 [game](enums::enum_tag_t<play_card_target_type::card>, int card_id) {
-                    card *c = game->find_card(card_id);
-                    return target_card{c->owner, c};
+                    return target_card_t{game->find_card(card_id)};
                 },
                 [game](enums::enum_tag_t<play_card_target_type::cards_other_players>, const std::vector<int> &args) {
-                    return target_cards_other_players{find_cards(game, args)};
+                    return target_cards_other_players_t{find_cards(game, args)};
                 }
             }, t));
         }
@@ -426,7 +425,7 @@ namespace banggame {
                     throw game_error("ERROR_CANT_EQUIP_CARDS");
                 }
                 verifier.verify_equip_target();
-                auto *target = std::get<target_player>(verifier.targets.front()).target;
+                auto *target = std::get<target_player_t>(verifier.targets.front()).target;
                 if (auto *card = target->find_equipped_card(verifier.card_ptr)) {
                     throw game_error("ERROR_DUPLICATED_CARD", card);
                 }
@@ -530,7 +529,7 @@ namespace banggame {
                     throw game_error("ERROR_CANT_EQUIP_CARDS");
                 }
                 verifier.verify_equip_target();
-                auto *target = std::get<target_player>(verifier.targets.front()).target;
+                auto *target = std::get<target_player_t>(verifier.targets.front()).target;
                 if (card *card = target->find_equipped_card(verifier.card_ptr)) {
                     throw game_error("ERROR_DUPLICATED_CARD", card);
                 }

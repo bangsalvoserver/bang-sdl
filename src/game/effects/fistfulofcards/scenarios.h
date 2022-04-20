@@ -52,7 +52,7 @@ namespace banggame {
     };
 
     struct effect_ricochet {
-        void on_play(card *origin_card, player *origin, player *target, card *target_card);
+        void on_play(card *origin_card, player *origin, card *target);
     };
     
     struct request_ricochet : request_destroy, missable_request {

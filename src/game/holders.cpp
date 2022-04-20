@@ -45,10 +45,10 @@ namespace banggame {
         }, *this);
     }
 
-    void effect_holder::verify(card *origin_card, player *origin, player *target, card *target_card) const {
+    void effect_holder::verify(card *origin_card, player *origin, card *target) const {
         visit_effect([=](const auto &value) {
-            if constexpr (requires { value.verify(origin_card, origin, target, target_card); }) {
-                value.verify(origin_card, origin, target, target_card);
+            if constexpr (requires { value.verify(origin_card, origin, target); }) {
+                value.verify(origin_card, origin, target);
             }
         }, *this);
     }
@@ -73,10 +73,10 @@ namespace banggame {
         }, *this);
     }
 
-    opt_fmt_str effect_holder::on_prompt(card *origin_card, player *origin, player *target, card *target_card) const {
+    opt_fmt_str effect_holder::on_prompt(card *origin_card, player *origin, card *target) const {
         return visit_effect([=](const auto &value) -> opt_fmt_str {
-            if constexpr (requires { value.on_prompt(origin_card, origin, target, target_card); }) {
-                return value.on_prompt(origin_card, origin, target, target_card);
+            if constexpr (requires { value.on_prompt(origin_card, origin, target); }) {
+                return value.on_prompt(origin_card, origin, target);
             } else {
                 return std::nullopt;
             }
@@ -116,14 +116,14 @@ namespace banggame {
         }, *this);
     }
 
-    void effect_holder::on_play(card *origin_card, player *origin, player *target, card *target_card, effect_flags flags) {
+    void effect_holder::on_play(card *origin_card, player *origin, card *target, effect_flags flags) {
         visit_effect([=](auto &&value) {
-            if constexpr (requires { value.on_play(origin_card, origin, target, target_card, flags); }) {
-                value.on_play(origin_card, origin, target, target_card, flags);
-            } else if constexpr (requires { value.on_play(origin_card, origin, target, target_card); }) {
-                value.on_play(origin_card, origin, target, target_card);
+            if constexpr (requires { value.on_play(origin_card, origin, target, flags); }) {
+                value.on_play(origin_card, origin, target, flags);
+            } else if constexpr (requires { value.on_play(origin_card, origin, target); }) {
+                value.on_play(origin_card, origin, target);
             } else {
-                throw std::runtime_error("missing on_play(origin_card, origin, target, target_card)");
+                throw std::runtime_error("missing on_play(origin_card, origin, target_card)");
             }
         }, *this);
     }
@@ -161,7 +161,7 @@ namespace banggame {
         }, *this);
     }
 
-    void mth_holder::verify(card *origin_card, player *origin, const mth_target_list &targets) const {
+    void mth_holder::verify(card *origin_card, player *origin, const target_list &targets) const {
         enums::visit_enum([&](enums::enum_tag_for<mth_type> auto tag) {
             if constexpr (enums::value_with_type<tag.value>) {
                 using handler_type = enums::enum_type_t<tag.value>;
@@ -172,7 +172,7 @@ namespace banggame {
         }, type);
     }
 
-    opt_fmt_str mth_holder::on_prompt(card *origin_card, player *origin, const mth_target_list &targets) const {
+    opt_fmt_str mth_holder::on_prompt(card *origin_card, player *origin, const target_list &targets) const {
         return enums::visit_enum([&](enums::enum_tag_for<mth_type> auto tag) -> opt_fmt_str {
             if constexpr (enums::value_with_type<tag.value>) {
                 using handler_type = enums::enum_type_t<tag.value>;
@@ -184,7 +184,7 @@ namespace banggame {
         }, type);
     }
     
-    void mth_holder::on_play(card *origin_card, player *origin, const mth_target_list &targets) {
+    void mth_holder::on_play(card *origin_card, player *origin, const target_list &targets) {
         enums::visit_enum([&](enums::enum_tag_for<mth_type> auto tag) {
             if constexpr (enums::value_with_type<tag.value>) {
                 using handler_type = enums::enum_type_t<tag.value>;

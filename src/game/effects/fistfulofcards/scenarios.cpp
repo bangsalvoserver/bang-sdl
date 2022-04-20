@@ -97,8 +97,8 @@ namespace banggame {
         }
     }
 
-    void effect_ricochet::on_play(card *origin_card, player *origin, player *target, card *target_card) {
-        target->m_game->queue_request<request_ricochet>(origin_card, origin, target, target_card);
+    void effect_ricochet::on_play(card *origin_card, player *origin, card *target_card) {
+        origin->m_game->queue_request<request_ricochet>(origin_card, origin, target_card->owner, target_card);
     }
 
     game_formatted_string request_ricochet::status_text(player *owner) const {

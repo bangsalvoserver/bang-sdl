@@ -61,7 +61,7 @@ namespace banggame {
     };
 
     struct handler_doc_holyday {
-        void on_play(card *origin_card, player *origin, const mth_target_list &targets);
+        void on_play(card *origin_card, player *origin, const target_list &targets);
     };
 }
 

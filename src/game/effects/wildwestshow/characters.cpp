@@ -92,7 +92,7 @@ namespace banggame {
 
     void request_youl_grinner::on_pick(pocket_type pocket, player *target_player, card *target_card) {
         target->m_game->pop_request<request_youl_grinner>();
-        origin->steal_card(target, target_card);
+        origin->steal_card(target_card);
         target->m_game->call_event<event_type::on_effect_end>(origin, origin_card);
     }
 
@@ -104,14 +104,14 @@ namespace banggame {
         }
     }
 
-    void handler_flint_westwood::on_play(card *origin_card, player *origin, const mth_target_list &targets) {
-        auto chosen_card = std::get<card *>(targets[0]);
-        auto target = std::get<player *>(targets[1]);
+    void handler_flint_westwood::on_play(card *origin_card, player *origin, const target_list &targets) {
+        auto chosen_card = std::get<target_card_t>(targets[0]).target;
+        auto target = std::get<target_player_t>(targets[1]).target;
 
         for (int i=2; i && !target->m_hand.empty(); --i) {
-            origin->steal_card(target, target->random_hand_card());
+            origin->steal_card(target->random_hand_card());
         }
-        target->steal_card(origin, chosen_card);
+        target->steal_card(chosen_card);
     }
 
     void effect_greygory_deck::on_pre_equip(card *target_card, player *target) {

@@ -5,23 +5,23 @@
 namespace banggame {
     using namespace enums::flag_operators;
 
-    void effect_sell_beer::on_play(card *origin_card, player *origin, player *target, card *target_card) {
-        target->discard_card(target_card);
+    void effect_sell_beer::on_play(card *origin_card, player *origin, card *target_card) {
+        origin->discard_card(target_card);
         origin->add_gold(1);
         origin->m_game->add_log("LOG_SOLD_BEER", origin, target_card);
         origin->m_game->call_event<event_type::on_play_beer>(origin);
     }
 
-    void effect_discard_black::verify(card *origin_card, player *origin, player *target, card *target_card) const {
+    void effect_discard_black::verify(card *origin_card, player *origin, card *target_card) const {
         if (origin->m_gold < target_card->buy_cost() + 1) {
             throw game_error("ERROR_NOT_ENOUGH_GOLD");
         }
     }
 
-    void effect_discard_black::on_play(card *origin_card, player *origin, player *target, card *target_card) {
+    void effect_discard_black::on_play(card *origin_card, player *origin, card *target_card) {
         origin->add_gold(-target_card->buy_cost() - 1);
-        target->discard_card(target_card);
-        origin->m_game->add_log("LOG_DISCARDED_CARD", origin, target, target_card);
+        target_card->owner->discard_card(target_card);
+        origin->m_game->add_log("LOG_DISCARDED_CARD", origin, target_card->owner, target_card);
     }
 
     void effect_add_gold::on_play(card *origin_card, player *origin, player *target) {

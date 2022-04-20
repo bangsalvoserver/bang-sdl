@@ -204,64 +204,64 @@ namespace banggame {
         }
     }
 
-    opt_fmt_str effect_steal::on_prompt(card *origin_card, player *origin, player *target, card *target_card) const {
-        if (origin == target && target_card->pocket == pocket_type::player_hand) {
+    opt_fmt_str effect_steal::on_prompt(card *origin_card, player *origin, card *target_card) const {
+        if (origin == target_card->owner && target_card->pocket == pocket_type::player_hand) {
             return game_formatted_string{"PROMPT_STEAL_OWN_HAND", origin_card};
         }
         return std::nullopt;
     }
 
-    void effect_steal::on_play(card *origin_card, player *origin, player *target, card *target_card, effect_flags flags) {
-        if (origin != target && target->can_escape(origin, origin_card, flags)) {
-            target->m_game->queue_request<request_steal>(origin_card, origin, target, target_card, flags);
+    void effect_steal::on_play(card *origin_card, player *origin, card *target_card, effect_flags flags) {
+        if (origin != target_card->owner && target_card->owner->can_escape(origin, origin_card, flags)) {
+            origin->m_game->queue_request<request_steal>(origin_card, origin, target_card->owner, target_card, flags);
         } else {
-            on_resolve(origin_card, origin, target, target_card);
+            on_resolve(origin_card, origin, target_card);
         }
     }
 
-    void effect_steal::on_resolve(card *origin_card, player *origin, player *target, card *target_card) {
+    void effect_steal::on_resolve(card *origin_card, player *origin, card *target_card) {
         auto fun = [=]{
             if (origin->alive()) {
-                if (origin != target) {
-                    target->m_game->add_log("LOG_STOLEN_CARD", origin, target, with_owner{target_card});
+                if (origin != target_card->owner) {
+                    origin->m_game->add_log("LOG_STOLEN_CARD", origin, target_card->owner, with_owner{target_card});
                 } else {
-                    target->m_game->add_log("LOG_STOLEN_SELF_CARD", origin, target_card);
+                    origin->m_game->add_log("LOG_STOLEN_SELF_CARD", origin, target_card);
                 }
-                origin->steal_card(target, target_card);
+                origin->steal_card(target_card);
             }
         };
-        if (target->m_game->num_queued_requests([&]{
-            target->m_game->call_event<event_type::on_discard_card>(origin, target, target_card);
+        if (origin->m_game->num_queued_requests([&]{
+            origin->m_game->call_event<event_type::on_discard_card>(origin, target_card->owner, target_card);
         })) {
-            target->m_game->queue_action_front(std::move(fun));
+            origin->m_game->queue_action_front(std::move(fun));
         } else {
             fun();
         }
     }
 
-    void effect_destroy::on_play(card *origin_card, player *origin, player *target, card *target_card, effect_flags flags) {
-        if (origin != target && target->can_escape(origin, origin_card, flags)) {
-            target->m_game->queue_request<request_destroy>(origin_card, origin, target, target_card, flags);
+    void effect_destroy::on_play(card *origin_card, player *origin, card *target_card, effect_flags flags) {
+        if (origin != target_card->owner && target_card->owner->can_escape(origin, origin_card, flags)) {
+            origin->m_game->queue_request<request_destroy>(origin_card, origin, target_card->owner, target_card, flags);
         } else {
-            on_resolve(origin_card, origin, target, target_card);
+            on_resolve(origin_card, origin, target_card);
         }
     }
 
-    void effect_destroy::on_resolve(card *origin_card, player *origin, player *target, card *target_card) {
+    void effect_destroy::on_resolve(card *origin_card, player *origin, card *target_card) {
         auto fun = [=]{
             if (origin->alive()) {
-                if (origin != target) {
-                    target->m_game->add_log("LOG_DISCARDED_CARD", origin, target, with_owner{target_card});
+                if (origin != target_card->owner) {
+                    origin->m_game->add_log("LOG_DISCARDED_CARD", origin, target_card->owner, with_owner{target_card});
                 } else {
-                    target->m_game->add_log("LOG_DISCARDED_SELF_CARD", origin, target_card);
+                    origin->m_game->add_log("LOG_DISCARDED_SELF_CARD", origin, target_card);
                 }
-                target->discard_card(target_card);
+                target_card->owner->discard_card(target_card);
             }
         };
-        if (target->m_game->num_queued_requests([&]{
-            target->m_game->call_event<event_type::on_discard_card>(origin, target, target_card);
+        if (origin->m_game->num_queued_requests([&]{
+            origin->m_game->call_event<event_type::on_discard_card>(origin, target_card->owner, target_card);
         })) {
-            target->m_game->queue_action_front(std::move(fun));
+            origin->m_game->queue_action_front(std::move(fun));
         } else {
             fun();
         }
@@ -284,16 +284,16 @@ namespace banggame {
         }
     }
 
-    void effect_choose_card::on_play(card *origin_card, player *origin, player *target, card *target_card) {
-        target->discard_card(target_card);
-        target->m_game->add_log("LOG_CHOSE_CARD_FOR", origin_card, origin, target_card);
-        target->m_game->add_event<event_type::apply_chosen_card_modifier>(target_card, [=](player *p, card* &c) {
+    void effect_choose_card::on_play(card *origin_card, player *origin, card *target_card) {
+        origin->discard_card(target_card);
+        origin->m_game->add_log("LOG_CHOSE_CARD_FOR", origin_card, origin, target_card);
+        origin->m_game->add_event<event_type::apply_chosen_card_modifier>(target_card, [=](player *p, card* &c) {
             if (p == origin && c == origin_card) {
                 c = target_card;
             }
         });
 
-        target->m_game->add_event<event_type::on_effect_end>(target_card, [=](player *p, card *c) {
+        origin->m_game->add_event<event_type::on_effect_end>(target_card, [=](player *p, card *c) {
             if (p == origin && c == origin_card) {
                 origin->m_game->remove_events(target_card);
             }

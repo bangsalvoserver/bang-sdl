@@ -43,13 +43,13 @@ namespace banggame {
         });
     }
 
-    void effect_frankie_canton::verify(card *origin_card, player *origin, player *target, card *target_card) const {
+    void effect_frankie_canton::verify(card *origin_card, player *origin, card *target_card) const {
         if (target_card == origin->m_characters.front()) throw game_error("ERROR_INVALID_ACTION");
         if (target_card->cubes.empty()) throw game_error("ERROR_NOT_ENOUGH_CUBES_ON", target_card);
     }
 
-    void effect_frankie_canton::on_play(card *origin_card, player *origin, player *target, card *target_card) {
-        target->move_cubes(target_card, origin->m_characters.front(), 1);
+    void effect_frankie_canton::on_play(card *origin_card, player *origin, card *target_card) {
+        target_card->owner->move_cubes(target_card, origin->m_characters.front(), 1);
     }
 
     void effect_bloody_mary::on_equip(card *target_card, player *p) {
@@ -64,12 +64,12 @@ namespace banggame {
         target->add_cubes(target->m_characters.front(), 4);
     }
 
-    void effect_red_ringo::verify(card *origin_card, player *origin, player *target, card *target_card) const {
+    void effect_red_ringo::verify(card *origin_card, player *origin, card *target_card) const {
         if (origin->m_characters.front()->cubes.size() == 0) throw game_error("ERROR_NOT_ENOUGH_CUBES_ON", origin->m_characters.front());
         if (target_card->cubes.size() >= 4) throw game_error("ERROR_CARD_HAS_FULL_CUBES", target_card);
     }
 
-    void effect_red_ringo::on_play(card *origin_card, player *origin, player *target, card *target_card) {
+    void effect_red_ringo::on_play(card *origin_card, player *origin, card *target_card) {
         origin->move_cubes(origin->m_characters.front(), target_card, 1);
     }
 

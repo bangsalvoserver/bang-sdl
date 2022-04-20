@@ -76,7 +76,7 @@ namespace banggame {
             if (origin && p == target && p->m_game->m_playing != p) {
                 target->m_game->queue_action([=]{
                     if (target->alive() && !origin->m_hand.empty()) {
-                        target->steal_card(origin, origin->random_hand_card());
+                        target->steal_card(origin->random_hand_card());
                         target->m_game->call_event<event_type::on_effect_end>(p, target_card);
                     }
                 });

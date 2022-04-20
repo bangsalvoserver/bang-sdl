@@ -10,26 +10,26 @@
 namespace banggame {
     using namespace enums::flag_operators;
 
-    void handler_draw_atend::on_play(card *origin_card, player *origin, const mth_target_list &targets) {
+    void handler_draw_atend::on_play(card *origin_card, player *origin, const target_list &targets) {
         effect_draw(targets.size()).on_play(origin_card, origin);
     }
 
-    opt_fmt_str handler_heal_multi::on_prompt(card *origin_card, player *origin, const mth_target_list &targets) const {
+    opt_fmt_str handler_heal_multi::on_prompt(card *origin_card, player *origin, const target_list &targets) const {
         return effect_heal(targets.size()).on_prompt(origin_card, origin);
     }
 
-    void handler_heal_multi::on_play(card *origin_card, player *origin, const mth_target_list &targets) {
+    void handler_heal_multi::on_play(card *origin_card, player *origin, const target_list &targets) {
         effect_heal(targets.size()).on_play(origin_card, origin);
     }
 
-    void effect_select_cube::verify(card *origin_card, player *origin, player *target, card *target_card) const {
-        if (target_card->cubes.size() < 1) {
-            throw game_error("ERROR_NOT_ENOUGH_CUBES_ON", target_card);
+    void effect_select_cube::verify(card *origin_card, player *origin, card *target) const {
+        if (target->cubes.size() < 1) {
+            throw game_error("ERROR_NOT_ENOUGH_CUBES_ON", target);
         }
     }
 
-    void effect_select_cube::on_play(card *origin_card, player *origin, player *target, card *target_card) {
-        target->pay_cubes(target_card, 1);
+    void effect_select_cube::on_play(card *origin_card, player *origin, card *target) {
+        target->owner->pay_cubes(target, 1);
     }
 
     bool effect_pay_cube::can_respond(card *origin_card, player *origin) const {
@@ -46,8 +46,8 @@ namespace banggame {
         origin->pay_cubes(origin_card, ncubes);
     }
 
-    void effect_add_cube::on_play(card *origin_card, player *origin, player *target, card *target_card) {
-        target->add_cubes(target_card, ncubes);
+    void effect_add_cube::on_play(card *origin_card, player *origin, card *target) {
+        target->owner->add_cubes(target, ncubes);
     }
 
     void effect_reload::on_play(card *origin_card, player *origin) {
@@ -180,31 +180,32 @@ namespace banggame {
         origin->m_game->update_request();
     }
 
-    void handler_squaw::verify(card *origin_card, player *origin, const mth_target_list &targets) const {
+    void handler_squaw::verify(card *origin_card, player *origin, const target_list &targets) const {
         if (targets.size() == 3) {
-            auto discarded_card = std::get<card *>(targets[0]);
-            for (auto [target, target_card] : targets | std::views::drop(1)) {
+            auto discarded_card = std::get<target_card_t>(targets[0]).target;
+            for (auto target : targets | std::views::drop(1)) {
+                card *target_card = std::get<target_card_t>(target).target;
                 if (target_card == discarded_card) {
                     throw game_error("ERROR_INVALID_ACTION");
                 }
-                effect_select_cube().verify(origin_card, origin, target, target_card);
+                effect_select_cube().verify(origin_card, origin, target_card);
             };
         }
     }
 
-    void handler_squaw::on_play(card *origin_card, player *origin, const mth_target_list &targets) {
-        auto [target, target_card] = targets[0];
+    void handler_squaw::on_play(card *origin_card, player *origin, const target_list &targets) {
+        card *target_card = std::get<target_card_t>(targets[0]).target;
 
-        bool immune = target->immune_to(origin_card);
+        bool immune = target_card->owner->immune_to(origin_card);
         if (targets.size() == 3) {
-            effect_select_cube().on_play(origin_card, origin, std::get<player *>(targets[1]), std::get<card *>(targets[1]));
-            effect_select_cube().on_play(origin_card, origin, std::get<player *>(targets[2]), std::get<card *>(targets[2]));
+            effect_select_cube().on_play(origin_card, origin, std::get<target_card_t>(targets[1]).target);
+            effect_select_cube().on_play(origin_card, origin, std::get<target_card_t>(targets[2]).target);
 
             if (!immune) {
-                effect_steal{}.on_play(origin_card, origin, target, target_card, effect_flags::escapable | effect_flags::single_target);
+                effect_steal{}.on_play(origin_card, origin, target_card, effect_flags::escapable | effect_flags::single_target);
             }
         } else if (!immune) {
-            effect_destroy{}.on_play(origin_card, origin, target, target_card, effect_flags::escapable | effect_flags::single_target);
+            effect_destroy{}.on_play(origin_card, origin, target_card, effect_flags::escapable | effect_flags::single_target);
         }
     }
 
@@ -234,8 +235,8 @@ namespace banggame {
         return origin->m_game->top_request_is<request_move_bomb>(origin);
     }
 
-    opt_fmt_str handler_move_bomb::on_prompt(card *origin_card, player *origin, const mth_target_list &targets) const {
-        auto target = std::get<player *>(targets[0]);
+    opt_fmt_str handler_move_bomb::on_prompt(card *origin_card, player *origin, const target_list &targets) const {
+        auto target = std::get<target_player_t>(targets[0]).target;
         if (origin == target) {
             return game_formatted_string{"PROMPT_MOVE_BOMB_TO_SELF", origin_card};
         } else {
@@ -243,8 +244,8 @@ namespace banggame {
         }
     }
 
-    void handler_move_bomb::verify(card *origin_card, player *origin, const mth_target_list &targets) const {
-        auto target = std::get<player *>(targets[0]);
+    void handler_move_bomb::verify(card *origin_card, player *origin, const target_list &targets) const {
+        auto target = std::get<target_player_t>(targets[0]).target;
         if (target != origin) {
             if (auto c = target->find_equipped_card(origin_card)) {
                 throw game_error("ERROR_DUPLICATED_CARD", c);
@@ -252,8 +253,8 @@ namespace banggame {
         }
     }
 
-    void handler_move_bomb::on_play(card *origin_card, player *origin, const mth_target_list &targets) {
-        auto target = std::get<player *>(targets[0]);
+    void handler_move_bomb::on_play(card *origin_card, player *origin, const target_list &targets) {
+        player *target = std::get<target_player_t>(targets[0]).target;
         if (target->immune_to(origin_card)) {
             // Non ne sono tanto sicuro
             origin->discard_card(origin_card);

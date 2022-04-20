@@ -112,10 +112,10 @@ namespace banggame {
         origin->m_game->pop_request();
     }
 
-    void handler_fanning::verify(card *origin_card, player *origin, const mth_target_list &targets) const {
+    void handler_fanning::verify(card *origin_card, player *origin, const target_list &targets) const {
         player *target_players[] = {
-            std::get<player *>(targets[0]),
-            std::get<player *>(targets[1])
+            std::get<target_player_t>(targets[0]).target,
+            std::get<target_player_t>(targets[1]).target
         };
         if (origin->m_game->calc_distance(target_players[0], target_players[1]) > 1
             && target_players[0] != target_players[1])
@@ -124,9 +124,9 @@ namespace banggame {
         }
     }
 
-    void handler_fanning::on_play(card *origin_card, player *origin, const mth_target_list &targets) {
-        for (auto [target, _] : targets) {
-            effect_bang{}.on_play(origin_card, origin, target, effect_flags::escapable);
+    void handler_fanning::on_play(card *origin_card, player *origin, const target_list &targets) {
+        for (auto target : targets) {
+            effect_bang{}.on_play(origin_card, origin, std::get<target_player_t>(target).target, effect_flags::escapable);
         }
     }
 

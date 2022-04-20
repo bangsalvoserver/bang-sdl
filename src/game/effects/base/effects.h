@@ -105,18 +105,18 @@ namespace banggame {
     };
 
     struct effect_steal {
-        opt_fmt_str on_prompt(card *origin_card, player *origin, player *target, card *target_card) const;
-        void on_play(card *origin_card, player *origin, player *target, card *target_card, effect_flags flags = {});
-        void on_resolve(card *origin_card, player *origin, player *target, card *target_card);
+        opt_fmt_str on_prompt(card *origin_card, player *origin, card *target) const;
+        void on_play(card *origin_card, player *origin, card *target, effect_flags flags = {});
+        void on_resolve(card *origin_card, player *origin, card *target);
     };
 
     struct effect_destroy {
-        void on_play(card *origin_card, player *origin, player *target, card *target_card, effect_flags flags = {});
-        void on_resolve(card *origin_card, player *origin, player *target, card *target_card);
+        void on_play(card *origin_card, player *origin, card *target, effect_flags flags = {});
+        void on_resolve(card *origin_card, player *origin, card *target);
     };
 
     struct effect_choose_card {
-        void on_play(card *origin_card, player *origin, player *target, card *target_card);
+        void on_play(card *origin_card, player *origin, card *target);
     };
 
     struct effect_draw {

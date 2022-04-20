@@ -96,8 +96,8 @@ namespace banggame {
 
         std::vector<card *>::iterator move_card_to(card *target_card, pocket_type pocket, player *owner = nullptr, show_card_flags flags = {});
 
-        void discard_card(card *card);
-        void steal_card(player *target, card *card);
+        void discard_card(card *target);
+        void steal_card(card *target);
 
         int get_initial_cards();
 
