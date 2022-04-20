@@ -26,8 +26,6 @@ namespace banggame {
     };
 
     struct effect_holder : effect_base<effect_type> {
-        using effect_base<effect_type>::effect_base;
-
         bool can_respond(card *origin_card, player *target) const;
 
         void verify(card *origin_card, player *origin) const;
@@ -44,8 +42,6 @@ namespace banggame {
     };
     
     struct equip_holder : effect_base<equip_type> {
-        using effect_base<equip_type>::effect_base;
-
         opt_fmt_str on_prompt(card *target_card, player *target) const;
         void on_pre_equip(card *target_card, player *target);
         void on_equip(card *target_card, player *target);
