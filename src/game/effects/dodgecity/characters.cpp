@@ -132,62 +132,68 @@ namespace banggame {
         target->m_game->remove_events(target_card);
     }
 
-    static void vera_custer_copy_character(player *target, card *c) {
-        if (c != target->m_characters.back()) {
-            auto copy = *c;
-            copy.id = target->m_game->m_cards.first_available_id();
-            copy.usages = 0;
-            copy.pocket = pocket_type::player_character;
-            copy.owner = target;
+    void effect_vera_custer::copy_characters(player *origin, player *target) {
+        remove_characters(origin);
 
-            if (target->m_characters.size() == 2) {
-                target->m_game->add_public_update<game_update_type::remove_cards>(make_id_vector(target->m_characters | std::views::drop(1)));
-                target->unequip_if_enabled(target->m_characters.back());
-                target->m_game->m_cards.erase(target->m_characters.back()->id);
-                target->m_characters.pop_back();
+        std::ranges::for_each(
+            target->m_characters
+                | std::views::reverse
+                | std::views::take(2)
+                | std::views::reverse,
+            [origin](card *target_card) {
+                auto card_copy = std::make_unique<card>(static_cast<const card_data &>(*target_card));
+                card_copy->id = origin->m_game->m_cards.first_available_id();
+                card_copy->pocket = pocket_type::player_character;
+                card_copy->owner = origin;
+
+                card *card_ptr = origin->m_game->m_cards.insert(std::move(card_copy)).get();
+                
+                origin->m_characters.emplace_back(card_ptr);
+                origin->equip_if_enabled(card_ptr);
+
+                origin->m_game->add_public_update<game_update_type::add_cards>(
+                    make_id_vector(std::views::single(card_ptr)), pocket_type::player_character, origin->id);
+                origin->m_game->send_card_update(card_ptr, origin, show_card_flags::instant | show_card_flags::shown);
+            });
+    }
+
+    void effect_vera_custer::remove_characters(player *origin) {
+        if (origin->m_characters.size() > 1) {
+            origin->m_game->add_public_update<game_update_type::remove_cards>(make_id_vector(origin->m_characters | std::views::drop(1)));
+            while (origin->m_characters.size() > 1) {
+                origin->unequip_if_enabled(origin->m_characters.back());
+                origin->m_game->m_cards.erase(origin->m_characters.back()->id);
+                origin->m_characters.pop_back();
             }
-            card *target_card = &target->m_game->m_cards.emplace(std::move(copy));
-            target->m_characters.emplace_back(target_card);
-            target->equip_if_enabled(target_card);
-
-            target->m_game->add_public_update<game_update_type::add_cards>(
-                make_id_vector(std::views::single(target_card)), pocket_type::player_character, target->id);
-            target->m_game->send_card_update(target_card, target, show_card_flags::instant | show_card_flags::shown);
         }
     }
 
-    void effect_vera_custer::on_equip(card *target_card, player *p) {
-        p->m_game->add_event<event_type::on_turn_start>({target_card, 1}, [=, &usages = target_card->usages](player *target) {
-            if (p == target) {
+    void effect_vera_custer::on_equip(card *origin_card, player *origin) {
+        origin->m_game->add_event<event_type::on_turn_start>({origin_card, 1}, [=, &usages = origin_card->usages](player *target) {
+            if (origin == target) {
                 ++usages;
-                if (p->m_game->num_alive() == 2 && p->m_game->get_next_player(p)->m_characters.size() == 1) {
-                    vera_custer_copy_character(p, p->m_game->get_next_player(p)->m_characters.front());
-                } else if (p->m_game->num_alive() > 2) {
-                    p->m_game->queue_request<request_vera_custer>(target_card, target);
+                if (origin->m_game->num_alive() == 2) {
+                    copy_characters(origin, origin->m_game->get_next_player(origin));
+                } else {
+                    origin->m_game->queue_request<request_vera_custer>(origin_card, target);
                 }
             }
         });
-        p->m_game->add_event<event_type::on_turn_end>(target_card, [p, &usages = target_card->usages](player *target) {
-            if (p == target && usages == 0) {
-                if (p->m_characters.size() == 2) {
-                    p->m_game->add_public_update<game_update_type::remove_cards>(make_id_vector(p->m_characters | std::views::drop(1)));
-                    p->unequip_if_enabled(p->m_characters.back());
-                    p->m_game->m_cards.erase(p->m_characters.back()->id);
-                    p->m_characters.pop_back();
-                }
+        origin->m_game->add_event<event_type::on_turn_end>(origin_card, [origin, &usages = origin_card->usages](player *target) {
+            if (origin == target && usages == 0) {
+                remove_characters(origin);
             }
         });
     }
 
     bool request_vera_custer::can_pick(pocket_type pocket, player *target_player, card *target_card) const {
         return pocket == pocket_type::player_character
-            && target_player->alive() && target_player != target
-            && (target_player->m_characters.size() == 1 || target_card != target_player->m_characters.front());
+            && target_player->alive() && target_player != target;
     }
 
     void request_vera_custer::on_pick(pocket_type pocket, player *target_player, card *target_card) {
         target->m_game->pop_request<request_vera_custer>();
-        vera_custer_copy_character(target, target_card);
+        effect_vera_custer::copy_characters(target, target_player);
     }
 
     game_formatted_string request_vera_custer::status_text(player *owner) const {

@@ -49,6 +49,9 @@ namespace banggame {
 
     struct effect_vera_custer : event_based_effect {
         void on_equip(card *target_card, player *target);
+
+        static void copy_characters(player *origin, player *target);
+        static void remove_characters(player *origin);
     };
 
     struct request_vera_custer : request_base {
