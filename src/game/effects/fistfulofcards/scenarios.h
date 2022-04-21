@@ -19,7 +19,7 @@ namespace banggame {
     };
 
     struct effect_startofturn : effect_empty {
-        void verify(card *origin_card, player *origin) const;
+        opt_error verify(card *origin_card, player *origin) const;
     };
 
     struct effect_deadman {

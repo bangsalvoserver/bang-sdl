@@ -22,10 +22,11 @@ namespace banggame {
         effect_heal(targets.size()).on_play(origin_card, origin);
     }
 
-    void effect_select_cube::verify(card *origin_card, player *origin, card *target) const {
+    opt_error effect_select_cube::verify(card *origin_card, player *origin, card *target) const {
         if (target->cubes.size() < 1) {
-            throw game_error("ERROR_NOT_ENOUGH_CUBES_ON", target);
+            return game_error("ERROR_NOT_ENOUGH_CUBES_ON", target);
         }
+        return std::nullopt;
     }
 
     void effect_select_cube::on_play(card *origin_card, player *origin, card *target) {
@@ -36,10 +37,11 @@ namespace banggame {
         return origin_card->cubes.size() >= ncubes;
     }
 
-    void effect_pay_cube::verify(card *origin_card, player *origin) const {
+    opt_error effect_pay_cube::verify(card *origin_card, player *origin) const {
         if (origin_card->cubes.size() < ncubes) {
-            throw game_error("ERROR_NOT_ENOUGH_CUBES_ON", origin_card);
+            return game_error("ERROR_NOT_ENOUGH_CUBES_ON", origin_card);
         }
+        return std::nullopt;
     }
 
     void effect_pay_cube::on_play(card *origin_card, player *origin) {
@@ -141,10 +143,11 @@ namespace banggame {
         });
     }
 
-    void effect_bandolier::verify(card *origin_card, player *origin) const {
+    opt_error effect_bandolier::verify(card *origin_card, player *origin) const {
         if (origin->m_bangs_played == 0) {
-            throw game_error("ERROR_CANT_PLAY_CARD", origin_card);
+            return game_error("ERROR_CANT_PLAY_CARD", origin_card);
         }
+        return std::nullopt;
     }
 
     void effect_duck::on_play(card *origin_card, player *origin) {
@@ -152,17 +155,20 @@ namespace banggame {
         origin->m_game->update_request();
     }
 
-    void handler_squaw::verify(card *origin_card, player *origin, const target_list &targets) const {
+    opt_error handler_squaw::verify(card *origin_card, player *origin, const target_list &targets) const {
         if (targets.size() == 3) {
             auto discarded_card = std::get<target_card_t>(targets[0]).target;
             for (auto target : targets | std::views::drop(1)) {
                 card *target_card = std::get<target_card_t>(target).target;
                 if (target_card == discarded_card) {
-                    throw game_error("ERROR_INVALID_ACTION");
+                    return game_error("ERROR_INVALID_ACTION");
                 }
-                effect_select_cube().verify(origin_card, origin, target_card);
+                if (auto error = effect_select_cube().verify(origin_card, origin, target_card)) {
+                    return error;
+                }
             };
         }
+        return std::nullopt;
     }
 
     void handler_squaw::on_play(card *origin_card, player *origin, const target_list &targets) {
@@ -216,13 +222,14 @@ namespace banggame {
         }
     }
 
-    void handler_move_bomb::verify(card *origin_card, player *origin, const target_list &targets) const {
+    opt_error handler_move_bomb::verify(card *origin_card, player *origin, const target_list &targets) const {
         auto target = std::get<target_player_t>(targets[0]).target;
         if (target != origin) {
             if (auto c = target->find_equipped_card(origin_card)) {
-                throw game_error("ERROR_DUPLICATED_CARD", c);
+                return game_error("ERROR_DUPLICATED_CARD", c);
             }
         }
+        return std::nullopt;
     }
 
     void handler_move_bomb::on_play(card *origin_card, player *origin, const target_list &targets) {

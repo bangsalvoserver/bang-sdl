@@ -29,27 +29,30 @@ namespace banggame {
         }, holder.type);
     }
 
-    void effect_holder::verify(card *origin_card, player *origin) const {
-        visit_effect([=](const auto &value) {
+    opt_error effect_holder::verify(card *origin_card, player *origin) const {
+        return visit_effect([=](const auto &value) -> opt_error {
             if constexpr (requires { value.verify(origin_card, origin); }) {
-                value.verify(origin_card, origin);
+                return value.verify(origin_card, origin);
             }
+            return std::nullopt;
         }, *this);
     }
 
-    void effect_holder::verify(card *origin_card, player *origin, player *target) const {
-        visit_effect([=](const auto &value) {
+    opt_error effect_holder::verify(card *origin_card, player *origin, player *target) const {
+        return visit_effect([=](const auto &value) -> opt_error {
             if constexpr (requires { value.verify(origin_card, origin, target); }) {
-                value.verify(origin_card, origin, target);
+                return value.verify(origin_card, origin, target);
             }
+            return std::nullopt;
         }, *this);
     }
 
-    void effect_holder::verify(card *origin_card, player *origin, card *target) const {
-        visit_effect([=](const auto &value) {
+    opt_error effect_holder::verify(card *origin_card, player *origin, card *target) const {
+        return visit_effect([=](const auto &value) -> opt_error {
             if constexpr (requires { value.verify(origin_card, origin, target); }) {
-                value.verify(origin_card, origin, target);
+                return value.verify(origin_card, origin, target);
             }
+            return std::nullopt;
         }, *this);
     }
 
@@ -161,14 +164,15 @@ namespace banggame {
         }, *this);
     }
 
-    void mth_holder::verify(card *origin_card, player *origin, const target_list &targets) const {
-        enums::visit_enum([&](enums::enum_tag_for<mth_type> auto tag) {
+    opt_error mth_holder::verify(card *origin_card, player *origin, const target_list &targets) const {
+        return enums::visit_enum([&](enums::enum_tag_for<mth_type> auto tag) -> opt_error {
             if constexpr (enums::value_with_type<tag.value>) {
                 using handler_type = enums::enum_type_t<tag.value>;
                 if constexpr (requires (handler_type handler) { handler.verify(origin_card, origin, targets); }) {
-                    handler_type{}.verify(origin_card, origin, targets);
+                    return handler_type{}.verify(origin_card, origin, targets);
                 }
             }
+            return std::nullopt;
         }, type);
     }
 

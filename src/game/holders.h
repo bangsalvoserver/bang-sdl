@@ -28,15 +28,15 @@ namespace banggame {
     struct effect_holder : effect_base<effect_type> {
         bool can_respond(card *origin_card, player *target) const;
 
-        void verify(card *origin_card, player *origin) const;
+        opt_error verify(card *origin_card, player *origin) const;
         opt_fmt_str on_prompt(card *origin_card, player *origin) const;
         void on_play(card *origin_card, player *origin, effect_flags flags);
         
-        void verify(card *origin_card, player *origin, player *target) const;
+        opt_error verify(card *origin_card, player *origin, player *target) const;
         opt_fmt_str on_prompt(card *origin_card, player *origin, player *target) const;
         void on_play(card *origin_card, player *origin, player *target, effect_flags flags);
         
-        void verify(card *origin_card, player *origin, card *target) const;
+        opt_error verify(card *origin_card, player *origin, card *target) const;
         opt_fmt_str on_prompt(card *origin_card, player *origin, card *target) const;
         void on_play(card *origin_card, player *origin, card *target, effect_flags flags);
     };
@@ -51,7 +51,7 @@ namespace banggame {
     struct mth_holder {
         REFLECTABLE((mth_type) type)
         
-        void verify(card *origin_card, player *origin, const target_list &targets) const;
+        opt_error verify(card *origin_card, player *origin, const target_list &targets) const;
         opt_fmt_str on_prompt(card *origin_card, player *origin, const target_list &targets) const;
         void on_play(card *origin_card, player *origin, const target_list &targets);
     };

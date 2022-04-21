@@ -12,13 +12,13 @@ namespace banggame {
     struct effect_max_usages {
         int max_usages;
         
-        void verify(card *origin_card, player *origin) const;
+        opt_error verify(card *origin_card, player *origin) const;
         bool can_respond(card *origin_card, player *origin) const;
         void on_play(card *origin_card, player *origin);
     };
 
     struct effect_pass_turn {
-        void verify(card *origin_card, player *origin) const;
+        opt_error verify(card *origin_card, player *origin) const;
         opt_fmt_str on_prompt(card *origin_card, player *origin) const;
         void on_play(card *origin_card, player *origin);
     };
@@ -37,7 +37,7 @@ namespace banggame {
     };
 
     struct effect_banglimit {
-        void verify(card *origin_card, player *origin) const;
+        opt_error verify(card *origin_card, player *origin) const;
         void on_play(card *origin_card, player *origin);
     };
 
@@ -91,7 +91,7 @@ namespace banggame {
     };
 
     struct effect_heal_notfull : effect_heal {
-        void verify(card *origin_card, player *origin, player *target) const;
+        opt_error verify(card *origin_card, player *origin, player *target) const;
     };
 
     struct effect_saloon {
@@ -130,7 +130,7 @@ namespace banggame {
     };
 
     struct effect_draw_discard {
-        void verify(card *origin_card, player *origin, player *target) const;
+        opt_error verify(card *origin_card, player *origin, player *target) const;
         void on_play(card *origin_card, player *origin, player *target);
     };
 
@@ -158,7 +158,7 @@ namespace banggame {
     };
 
     struct effect_damage {
-        void verify(card *origin_card, player *origin, player *target) const;
+        opt_error verify(card *origin_card, player *origin, player *target) const;
         void on_play(card *origin_card, player *origin, player *target);
     };
 

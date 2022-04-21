@@ -19,21 +19,23 @@ namespace banggame {
         origin->m_game->queue_request<request_generalstore>(origin_card, origin, origin);
     }
 
-    void effect_mirage::verify(card *origin_card, player *origin) const {
+    opt_error effect_mirage::verify(card *origin_card, player *origin) const {
         if (origin->m_game->m_requests.empty()
             || origin->m_game->top_request().origin() != origin->m_game->m_playing) {
-            throw game_error("ERROR_CANT_PLAY_CARD", origin_card);
+            return game_error("ERROR_CANT_PLAY_CARD", origin_card);
         }
+        return std::nullopt;
     }
 
     void effect_mirage::on_play(card *origin_card, player *origin) {
         origin->m_game->m_playing->skip_turn();
     }
 
-    void effect_disarm::verify(card *origin_card, player *origin) const {
+    opt_error effect_disarm::verify(card *origin_card, player *origin) const {
         if (origin->m_game->m_requests.empty() || !origin->m_game->top_request().origin()) {
-            throw game_error("ERROR_CANT_PLAY_CARD", origin_card);
+            return game_error("ERROR_CANT_PLAY_CARD", origin_card);
         }
+        return std::nullopt;
     }
 
     void effect_disarm::on_play(card *origin_card, player *origin) {
@@ -43,16 +45,17 @@ namespace banggame {
         }
     }
 
-    void handler_card_sharper::verify(card *origin_card, player *origin, const target_list &targets) const {
+    opt_error handler_card_sharper::verify(card *origin_card, player *origin, const target_list &targets) const {
         auto chosen_card = std::get<target_card_t>(targets[0]).target;
         auto target_card = std::get<target_card_t>(targets[1]).target;
 
         if (auto *c = origin->find_equipped_card(target_card)) {
-            throw game_error("ERROR_DUPLICATED_CARD", c);
+            return game_error("ERROR_DUPLICATED_CARD", c);
         }
         if (auto *c = target_card->owner->find_equipped_card(chosen_card)) {
-            throw game_error("ERROR_DUPLICATED_CARD", c);
+            return game_error("ERROR_DUPLICATED_CARD", c);
         }
+        return std::nullopt;
     }
 
     struct request_card_sharper : request_targeting {

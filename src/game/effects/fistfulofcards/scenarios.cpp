@@ -25,10 +25,11 @@ namespace banggame {
         target->m_game->queue_request(std::move(req));
     }
 
-    void effect_startofturn::verify(card *origin_card, player *origin) const {
+    opt_error effect_startofturn::verify(card *origin_card, player *origin) const {
         if (!origin->check_player_flags(player_flags::start_of_turn)) {
-            throw game_error("ERROR_NOT_START_OF_TURN");
+            return game_error("ERROR_NOT_START_OF_TURN");
         }
+        return std::nullopt;
     }
 
     void effect_deadman::on_equip(card *target_card, player *target) {

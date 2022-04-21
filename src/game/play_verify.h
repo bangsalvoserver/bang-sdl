@@ -9,8 +9,8 @@
 
 namespace banggame {
 
-    std::optional<game_error> check_player_filter(player *origin, target_player_filter filter, player *target);
-    std::optional<game_error> check_card_filter(player *origin, target_card_filter filter, card *target);
+    opt_error check_player_filter(player *origin, target_player_filter filter, player *target);
+    opt_error check_card_filter(player *origin, target_card_filter filter, card *target);
 
     struct play_card_verify {
         player *origin;
@@ -19,18 +19,19 @@ namespace banggame {
         target_list targets;
         std::vector<card *> modifiers;
 
-        void verify_modifiers();
+        [[nodiscard]] opt_error verify_modifiers() const;
+        [[nodiscard]] opt_error verify_equip_target() const;
+        [[nodiscard]] opt_error verify_card_targets() const;
 
-        player *verify_equip_target();
-        void verify_card_targets();
+        opt_fmt_str check_prompt() const;
+        opt_fmt_str check_prompt_equip() const;
 
-        opt_fmt_str check_prompt();
-        opt_fmt_str check_prompt_equip(player *target);
+        player *get_equip_target() const;
         
         void play_modifiers() const;
         void do_play_card() const;
 
-        void verify_and_play();
+        [[nodiscard]] opt_error verify_and_play();
     };
 
 }

@@ -10,7 +10,7 @@ namespace banggame {
     };
     
     struct effect_backfire {
-        void verify(card *origin_card, player *origin) const;
+        opt_error verify(card *origin_card, player *origin) const;
         void on_play(card *origin_card, player *origin);
     };
 
@@ -37,7 +37,7 @@ namespace banggame {
     };
 
     struct handler_fanning {
-        void verify(card *origin_card, player *origin, const target_list &targets) const;
+        opt_error verify(card *origin_card, player *origin, const target_list &targets) const;
         void on_play(card *origin_card, player *origin, const target_list &targets);
     };
 }
