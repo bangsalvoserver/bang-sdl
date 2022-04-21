@@ -36,6 +36,8 @@ namespace banggame {
 
     struct effect_empty {
         void on_play(card *origin_card, player *origin) {}
+        void on_play(card *origin_card, player *origin, player *target) {}
+        void on_play(card *origin_card, player *origin, card *target) {}
     };
 
     struct event_based_effect {

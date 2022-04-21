@@ -7,19 +7,10 @@
 namespace banggame {
     using namespace enums::flag_operators;
 
-    static bool valid_player(player *origin, player *target, target_player_filter filter) {
-        try {
-            play_card_verify{origin}.verify_effect_player_target(filter, target);
-            return true;
-        } catch (const game_error &error) {
-            return false;
-        }
-    }
-
     static std::vector<player *> make_equip_set(player *origin, card *card, target_player_filter filter) {
         std::vector<player *> ret;
         for (player &p : origin->m_game->m_players) {
-            if (valid_player(origin, &p, filter) && !p.find_equipped_card(card)) {
+            if (!check_player_filter(origin, filter, &p) && !p.find_equipped_card(card)) {
                 ret.push_back(&p);
             }
         }
@@ -30,7 +21,7 @@ namespace banggame {
         target_list ret;
 
         for (player &target : origin->m_game->m_players) {
-            if (valid_player(origin, &target, holder.player_filter)) {
+            if (!check_player_filter(origin, holder.player_filter, &target)) {
                 if (holder.target == play_card_target_type::player) {
                     ret.emplace_back(target_player_t{&target});
                 }

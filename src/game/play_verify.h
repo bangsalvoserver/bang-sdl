@@ -9,15 +9,15 @@
 
 namespace banggame {
 
+    std::optional<game_error> check_player_filter(player *origin, target_player_filter filter, player *target);
+    std::optional<game_error> check_card_filter(player *origin, target_card_filter filter, card *target);
+
     struct play_card_verify {
         player *origin;
         card *card_ptr;
         bool is_response;
         target_list targets;
         std::vector<card *> modifiers;
-
-        void verify_effect_player_target(target_player_filter filter, player *target);
-        void verify_effect_card_target(const effect_holder &effect, card *target);
 
         void verify_modifiers();
 
@@ -29,6 +29,8 @@ namespace banggame {
         
         void play_modifiers() const;
         void do_play_card() const;
+
+        void verify_and_play();
     };
 
 }
