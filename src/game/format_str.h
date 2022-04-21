@@ -5,6 +5,7 @@
 #include "utils/reflector.h"
 
 #include <stdexcept>
+#include <optional>
 
 namespace banggame {
 
@@ -32,6 +33,8 @@ namespace banggame {
         game_formatted_string(T &&message, Ts && ... args);
     };
 
+    using opt_fmt_str = std::optional<game_formatted_string>;
+
     struct game_error : std::exception, game_formatted_string {
         using game_formatted_string::game_formatted_string;
 
@@ -39,6 +42,8 @@ namespace banggame {
             return format_str.c_str();
         }
     };
+
+    using opt_error = std::optional<game_error>;
 }
 
 #endif

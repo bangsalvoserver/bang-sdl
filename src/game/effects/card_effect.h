@@ -32,7 +32,6 @@ namespace banggame {
     >;
 
     using target_list = std::vector<play_card_target>;
-    using opt_fmt_str = std::optional<game_formatted_string>;
 
     struct effect_empty {
         void on_play(card *origin_card, player *origin) {}

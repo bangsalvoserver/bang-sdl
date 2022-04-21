@@ -10,7 +10,7 @@ namespace banggame {
     };
 
     struct effect_frankie_canton {
-        void verify(card *origin_card, player *origin, card *target) const;
+        opt_error verify(card *origin_card, player *origin, card *target) const;
         void on_play(card *origin_card, player *origin, card *target);
     };
 
@@ -21,7 +21,7 @@ namespace banggame {
     struct effect_red_ringo : event_based_effect {
         void on_pre_equip(card *target_card, player *target);
 
-        void verify(card *origin_card, player *origin, card *target) const;
+        opt_error verify(card *origin_card, player *origin, card *target) const;
         void on_play(card *origin_card, player *origin, card *target);
     };
 

@@ -18,10 +18,11 @@ namespace banggame {
         });
     }
     
-    void effect_backfire::verify(card *origin_card, player *origin) const {
+    opt_error effect_backfire::verify(card *origin_card, player *origin) const {
         if (origin->m_game->m_requests.empty() || !origin->m_game->top_request().origin()) {
-            throw game_error("ERROR_CANT_PLAY_CARD", origin_card);
+            return game_error("ERROR_CANT_PLAY_CARD", origin_card);
         }
+        return std::nullopt;
     }
 
     void effect_backfire::on_play(card *origin_card, player *origin) {
@@ -112,7 +113,7 @@ namespace banggame {
         origin->m_game->pop_request();
     }
 
-    void handler_fanning::verify(card *origin_card, player *origin, const target_list &targets) const {
+    opt_error handler_fanning::verify(card *origin_card, player *origin, const target_list &targets) const {
         player *target_players[] = {
             std::get<target_player_t>(targets[0]).target,
             std::get<target_player_t>(targets[1]).target
@@ -120,8 +121,9 @@ namespace banggame {
         if (origin->m_game->calc_distance(target_players[0], target_players[1]) > 1
             && target_players[0] != target_players[1])
         {
-            throw game_error("ERROR_TARGET_NOT_IN_RANGE");
+            return game_error("ERROR_TARGET_NOT_IN_RANGE");
         }
+        return std::nullopt;
     }
 
     void handler_fanning::on_play(card *origin_card, player *origin, const target_list &targets) {

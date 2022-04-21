@@ -12,10 +12,11 @@ namespace banggame {
         origin->play_card_action(origin_card);
     }
 
-    void effect_max_usages::verify(card *origin_card, player *origin) const {
+    opt_error effect_max_usages::verify(card *origin_card, player *origin) const {
         if (origin_card->usages >= max_usages) {
-            throw game_error("ERROR_MAX_USAGES", origin_card, max_usages);
+            return game_error("ERROR_MAX_USAGES", origin_card, max_usages);
         }
+        return std::nullopt;
     }
 
     bool effect_max_usages::can_respond(card *origin_card, player *origin) const {
@@ -26,10 +27,11 @@ namespace banggame {
         ++origin_card->usages;
     }
 
-    void effect_pass_turn::verify(card *origin_card, player *origin) const {
+    opt_error effect_pass_turn::verify(card *origin_card, player *origin) const {
         if (origin->m_mandatory_card && origin->m_mandatory_card->owner == origin && origin->is_possible_to_play(origin->m_mandatory_card)) {
-            throw game_error("ERROR_MANDATORY_CARD", origin->m_mandatory_card);
+            return game_error("ERROR_MANDATORY_CARD", origin->m_mandatory_card);
         }
+        return std::nullopt;
     }
 
     opt_fmt_str effect_pass_turn::on_prompt(card *origin_card, player *origin) const {
@@ -55,10 +57,11 @@ namespace banggame {
         copy.get<resolvable_request>().on_resolve();
     }
 
-    void effect_damage::verify(card *origin_card, player *origin, player *target) const {
+    opt_error effect_damage::verify(card *origin_card, player *origin, player *target) const {
         if (target->m_hp <= 1) {
-            throw game_error("ERROR_CANT_SELF_DAMAGE");
+            return game_error("ERROR_CANT_SELF_DAMAGE");
         }
+        return std::nullopt;
     }
 
     void effect_damage::on_play(card *origin_card, player *origin, player *target) {
@@ -110,12 +113,13 @@ namespace banggame {
         });
     }
 
-    void effect_banglimit::verify(card *origin_card, player *origin) const {
+    opt_error effect_banglimit::verify(card *origin_card, player *origin) const {
         bool value = origin->m_bangs_played < origin->m_bangs_per_turn;
         origin->m_game->call_event<event_type::apply_volcanic_modifier>(origin, value);
         if (!value) {
-            throw game_error("ERROR_ONE_BANG_PER_TURN");
+            return game_error("ERROR_ONE_BANG_PER_TURN");
         }
+        return std::nullopt;
     }
 
     void effect_banglimit::on_play(card *origin_card, player *origin) {
@@ -150,10 +154,11 @@ namespace banggame {
         target->heal(amount);
     }
 
-    void effect_heal_notfull::verify(card *origin_card, player *origin, player *target) const {
+    opt_error effect_heal_notfull::verify(card *origin_card, player *origin, player *target) const {
         if (target->m_hp == target->m_max_hp) {
-            throw game_error("ERROR_CANT_HEAL_PAST_FULL_HP");
+            return game_error("ERROR_CANT_HEAL_PAST_FULL_HP");
         }
+        return std::nullopt;
     }
 
     opt_fmt_str effect_saloon::on_prompt(card *origin_card, player *origin) const {
@@ -309,10 +314,11 @@ namespace banggame {
         }
     }
 
-    void effect_draw_discard::verify(card *origin_card, player *origin, player *target) const {
+    opt_error effect_draw_discard::verify(card *origin_card, player *origin, player *target) const {
         if (target->m_game->m_discards.empty()) {
-            throw game_error("ERROR_DISCARD_PILE_EMPTY");
+            return game_error("ERROR_DISCARD_PILE_EMPTY");
         }
+        return std::nullopt;
     }
 
     void effect_draw_discard::on_play(card *origin_card, player *origin, player *target) {

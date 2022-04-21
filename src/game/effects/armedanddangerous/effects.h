@@ -15,7 +15,7 @@ namespace banggame {
     };
 
     struct effect_select_cube {
-        void verify(card *origin_card, player *origin, card *target) const;
+        opt_error verify(card *origin_card, player *origin, card *target) const;
         void on_play(card *origin_card, player *origin, card *target);
     };
 
@@ -24,7 +24,7 @@ namespace banggame {
         effect_pay_cube(int value) : ncubes(std::max(1, value)) {}
         
         bool can_respond(card *origin_card, player *origin) const;
-        void verify(card *origin_card, player *origin) const;
+        opt_error verify(card *origin_card, player *origin) const;
         void on_play(card *origin_card, player *origin);
     };
 
@@ -65,7 +65,7 @@ namespace banggame {
     };
 
     struct effect_bandolier : effect_empty {
-        void verify(card *origin_card, player *origin) const;
+        opt_error verify(card *origin_card, player *origin) const;
     };
 
     struct effect_duck {
@@ -73,7 +73,7 @@ namespace banggame {
     };
 
     struct handler_squaw {
-        void verify(card *origin_card, player *origin, const target_list &targets) const;
+        opt_error verify(card *origin_card, player *origin, const target_list &targets) const;
         void on_play(card *origin_card, player *origin, const target_list &targets);
     };
 
@@ -83,7 +83,7 @@ namespace banggame {
 
     struct handler_move_bomb {
         opt_fmt_str on_prompt(card *origin_card, player *origin, const target_list &targets) const;
-        void verify(card *origin_card, player *origin, const target_list &targets) const;
+        opt_error verify(card *origin_card, player *origin, const target_list &targets) const;
         void on_play(card *origin_card, player *origin, const target_list &targets);
     };
 }

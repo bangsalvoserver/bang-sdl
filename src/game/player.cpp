@@ -77,21 +77,20 @@ namespace banggame {
     }
 
     std::vector<card *>::iterator player::move_card_to(card *target_card, pocket_type pocket, player *target, show_card_flags flags) {
-        if (target_card->owner != this) throw game_error("ERROR_PLAYER_DOES_NOT_OWN_CARD");
-        if (target_card->pocket == pocket_type::player_table) {
-            if (target_card->inactive) {
-                target_card->inactive = false;
-                m_game->add_public_update<game_update_type::tap_card>(target_card->id, false);
+        if (target_card->owner == this) {
+            if (target_card->pocket == pocket_type::player_table) {
+                if (target_card->inactive) {
+                    target_card->inactive = false;
+                    m_game->add_public_update<game_update_type::tap_card>(target_card->id, false);
+                }
+                drop_all_cubes(target_card);
+                auto it = m_game->move_card(target_card, pocket, target, flags);
+                m_game->call_event<event_type::post_discard_card>(this, target_card);
+                unequip_if_enabled(target_card);
+                return it;
+            } else if (target_card->pocket == pocket_type::player_hand) {
+                return m_game->move_card(target_card, pocket, target, flags);
             }
-            drop_all_cubes(target_card);
-            auto it = m_game->move_card(target_card, pocket, target, flags);
-            m_game->call_event<event_type::post_discard_card>(this, target_card);
-            unequip_if_enabled(target_card);
-            return it;
-        } else if (target_card->pocket == pocket_type::player_hand) {
-            return m_game->move_card(target_card, pocket, target, flags);
-        } else {
-            throw game_error("ERROR_CARD_NOT_FOUND");
         }
     }
 
@@ -378,13 +377,15 @@ namespace banggame {
             throw game_error("ERROR_INVALID_ACTION");
         }
 
-        play_card_verify{
+        if (auto error = play_card_verify{
             this,
             m_game->find_card(args.card_id),
             false,
             parse_target_id_vector(m_game, args.targets),
             find_cards(m_game, args.modifier_ids)
-        }.verify_and_play();
+        }.verify_and_play()) {
+            throw std::move(*error);
+        }
     }
     
     void player::respond_card(const play_card_args &args) {
@@ -407,7 +408,9 @@ namespace banggame {
             throw game_error("ERROR_INVALID_ACTION");
         }
         
-        verifier.verify_card_targets();
+        if (auto error = verifier.verify_card_targets()) {
+            throw std::move(*error);
+        }
         prompt_then(verifier.check_prompt(), [=, this]{
             verifier.do_play_card();
             set_last_played_card(nullptr);

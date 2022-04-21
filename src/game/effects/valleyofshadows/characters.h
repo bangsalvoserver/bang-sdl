@@ -24,7 +24,7 @@ namespace banggame {
     };
     
     struct effect_evelyn_shebang : event_based_effect {
-        void verify(card *origin_card, player *origin, player *target) const;
+        opt_error verify(card *origin_card, player *origin, player *target) const;
         void on_play(card *origin_card, player *origin, player *target);
     };
 }
