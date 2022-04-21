@@ -30,7 +30,7 @@ namespace banggame {
             if (p != origin) {
                 for (;origin != p; origin = origin->m_game->get_next_player(origin)) {
                     if (std::ranges::any_of(origin->m_characters, [](const card *c) {
-                        return c->equips.first_is(equip_type::gary_looter);
+                        return c->equips.last_is(equip_type::gary_looter);
                     })) {
                         return;
                     }
@@ -45,7 +45,7 @@ namespace banggame {
             if (player_end->alive() && player_end->m_hand.size() < 6) {
                 for (player *it = player_begin; it != player_end; it = it->m_game->get_next_player(it)) {
                     if (std::ranges::any_of(it->m_characters, [](const card *c) {
-                        return c->equips.first_is(equip_type::john_pain);
+                        return c->equips.last_is(equip_type::john_pain);
                     })) {
                         return;
                     }
