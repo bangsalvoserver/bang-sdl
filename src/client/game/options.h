@@ -6,7 +6,7 @@
 
 #include "utils/sdl.h"
 
-#ifdef NDEBUG
+#ifdef GAME_OPTIONS_LINKED
 
 #include <sstream>
 DECLARE_RESOURCE(game_options_json)
@@ -137,7 +137,7 @@ namespace banggame {
     )};
 
     static inline const options_t options = []{
-        #ifndef NDEBUG
+        #ifndef GAME_OPTIONS_LINKED
             std::ifstream options_stream("resources/game_options.json");
             if (!options_stream) {
                 throw std::runtime_error("Could not load game_options.json");

@@ -107,6 +107,7 @@ target_link_libraries(bangclient PkgConfig::SDL2 PkgConfig::SDL2_ttf PkgConfig::
 add_dependencies(bangclient cards_pak media_pak)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
+    target_compile_definitions(bangclient PUBLIC GAME_OPTIONS_LINKED)
     target_link_libraries(bangclient game_options)
 endif()
 
@@ -126,7 +127,7 @@ if (DEBUG_PRINT_GAME_UPDATES)
     target_compile_definitions(banggame PUBLIC DEBUG_PRINT_GAME_UPDATES)
 endif()
 
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+if (NOT CMAKE_BUILD_TYPE STREQUAL "Release")
     if (WIN32)
         add_executable(banglauncher WIN32 src/client/main.c resources/bang.rc)
         if (MINGW)
