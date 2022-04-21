@@ -100,8 +100,8 @@ namespace banggame {
 
         void handle_auto_targets();
 
-        bool verify_player_target(target_player_filter filter, player_view *target_player);
-        bool verify_card_target(const effect_holder &args, target_card target);
+        std::optional<std::string> verify_player_target(target_player_filter filter, player_view *target_player);
+        std::optional<std::string> verify_card_target(const effect_holder &args, target_card target);
 
         void add_card_target(target_card target);
         void add_character_target(target_card target);

@@ -360,11 +360,12 @@ bool target_finder::on_click_player(player_view *player) {
                 return false;
             }
         }
-        if (verify_player_target(args.player_filter, player))  {
-            return true;
-        } else {
+        if (auto error = verify_player_target(args.player_filter, player))  {
+            m_game->parent->add_chat_message(message_type::error, *error);
             os_api::play_bell();
             return false;
+        } else {
+            return true;
         }
     };
 
@@ -601,54 +602,73 @@ void target_finder::handle_auto_targets() {
     }
 }
 
-bool target_finder::verify_player_target(target_player_filter filter, player_view *target_player) {
-    player_view *own_player = m_game->find_player(m_game->m_player_own_id);
+std::optional<std::string> target_finder::verify_player_target(target_player_filter filter, player_view *target_player) {
+    if (bool(filter & target_player_filter::dead) != target_player->dead)
+        return _("ERROR_TARGET_DEAD");
 
-    if (target_player->dead != bool(filter & target_player_filter::dead)) return false;
+    if (bool(filter & target_player_filter::self) && target_player->id != m_game->m_player_own_id)
+        return _("ERROR_TARGET_NOT_SELF");
 
-    return std::ranges::all_of(enums::enum_flag_values(filter), [&](target_player_filter value) {
-        switch (value) {
-        case target_player_filter::self: return target_player->id == m_game->m_player_own_id;
-        case target_player_filter::notself: return target_player->id != m_game->m_player_own_id;
-        case target_player_filter::notsheriff: return target_player->m_role->role != player_role::sheriff;
-        case target_player_filter::reachable:
-            return own_player->m_weapon_range > 0
-                && calc_distance(own_player, target_player) <= own_player->m_weapon_range + own_player->m_range_mod;
-        case target_player_filter::range_1:
-            return calc_distance(own_player, target_player) <= 1 + own_player->m_range_mod;
-        case target_player_filter::range_2:
-            return calc_distance(own_player, target_player) <= 2 + own_player->m_range_mod;
-        case target_player_filter::dead:
-            return true;
-        default:
-            return false;
+    if (bool(filter & target_player_filter::notself) && target_player->id == m_game->m_player_own_id)
+        return _("ERROR_TARGET_SELF");
+
+    if (bool(filter & target_player_filter::notsheriff) && target_player->m_role->role == player_role::sheriff)
+        return _("ERROR_TARGET_SHERIFF");
+
+    if (bool(filter & (target_player_filter::reachable | target_player_filter::range_1 | target_player_filter::range_2))) {
+        player_view *own_player = m_game->find_player(m_game->m_player_own_id);
+        int distance = own_player->m_range_mod;
+        if (bool(filter & target_player_filter::reachable)) {
+            distance += own_player->m_weapon_range;
+        } else if (bool(filter & target_player_filter::range_1)) {
+            ++distance;
+        } else if (bool(filter & target_player_filter::range_2)) {
+            distance += 2;
         }
-    });
+        if (calc_distance(own_player, target_player) > distance) {
+            return _("ERROR_TARGET_NOT_IN_RANGE");
+        }
+    }
+
+    return std::nullopt;
 }
 
-bool target_finder::verify_card_target(const effect_holder &args, target_card target) {
-    if (!verify_player_target(args.player_filter, target.player)) return false;
-    if ((target.card->color == card_color_type::black) != bool(args.card_filter & target_card_filter::black)) return false;
+std::optional<std::string> target_finder::verify_card_target(const effect_holder &args, target_card target) {
+    if (auto error = verify_player_target(args.player_filter, target.player))
+        return error;
 
-    return std::ranges::all_of(enums::enum_flag_values(args.card_filter), [&](target_card_filter value) {
-        switch (value) {
-        case target_card_filter::black:
-        case target_card_filter::can_repeat: return true;
-        case target_card_filter::table: return target.card->pocket == &target.player->table;
-        case target_card_filter::hand: return target.card->pocket == &target.player->hand;
-        case target_card_filter::blue: return target.card->color == card_color_type::blue;
-        case target_card_filter::clubs: return target.card->sign.suit == card_suit::clubs;
-        case target_card_filter::bang: return target.card->equips.empty() && is_bangcard(target.card);
-        case target_card_filter::missed: return target.card->responses.last_is(effect_type::missedcard);
-        case target_card_filter::beer: return target.card->effects.first_is(effect_type::beer);
-        case target_card_filter::bronco: return target.card->equips.last_is(equip_type::bronco);
-        case target_card_filter::cube_slot:
-        case target_card_filter::cube_slot_card:
-            return target.card->color == card_color_type::orange
-                || target.card == target.player->m_characters.front();
-        default: return false;
-        }
-    });
+    if (bool(args.card_filter & target_card_filter::black) != (target.card->color == card_color_type::black))
+        return _("ERROR_TARGET_BLACK_CARD");
+    
+    if (bool(args.card_filter & target_card_filter::table) && target.card->pocket != &target.player->table)
+        return _("ERROR_TARGET_NOT_TABLE_CARD");
+
+    if (bool(args.card_filter & target_card_filter::hand) && target.card->pocket != &target.player->hand)
+        return _("ERROR_TARGET_NOT_HAND_CARD");
+    
+    if (bool(args.card_filter & target_card_filter::blue) && target.card->color != card_color_type::blue)
+        return _("ERROR_TARGET_NOT_BLUE_CARD");
+
+    if (bool(args.card_filter & target_card_filter::clubs) && target.card->sign.suit != card_suit::clubs)
+        return _("ERROR_TARGET_NOT_CLUBS");
+    
+    if (bool(args.card_filter & target_card_filter::bang) && !(target.card->equips.empty() && is_bangcard(target.card)))
+        return _("ERROR_TARGET_NOT_BANG");
+    
+    if (bool(args.card_filter & target_card_filter::missed) && !target.card->responses.last_is(effect_type::missedcard))
+        return _("ERROR_TARGET_NOT_MISSED");
+    
+    if (bool(args.card_filter & target_card_filter::beer) && !target.card->effects.first_is(effect_type::beer))
+        return _("ERROR_TARGET_NOT_BEER");
+    
+    if (bool(args.card_filter & target_card_filter::bronco) && !target.card->equips.last_is(equip_type::bronco))
+        return _("ERROR_TARGET_NOT_BRONCO");
+    
+    if (bool(args.card_filter & (target_card_filter::cube_slot | target_card_filter::cube_slot_card))
+        && (target.card != target.player ->m_characters.front() && target.card->color != card_color_type::orange))
+        return _("ERROR_TARGET_NOT_CUBE_SLOT");
+
+    return std::nullopt;
 }
 
 void target_finder::add_card_target(target_card target) {
@@ -658,7 +678,8 @@ void target_finder::add_card_target(target_card target) {
     auto cur_target = get_effect_holder(index);
 
     if (cur_target.target == play_card_target_type::card || cur_target.target == play_card_target_type::cards_other_players) {
-        if (!verify_card_target(cur_target, target)) {
+        if (auto error = verify_card_target(cur_target, target)) {
+            m_game->parent->add_chat_message(message_type::error, *error);
             os_api::play_bell();
             return;
         }
@@ -708,7 +729,8 @@ void target_finder::add_character_target(target_card target) {
         return;
     }
 
-    if (!verify_card_target(effect, target)) {
+    if (auto error = verify_card_target(effect, target)) {
+        m_game->parent->add_chat_message(message_type::error, *error);
         os_api::play_bell();
         return;
     }

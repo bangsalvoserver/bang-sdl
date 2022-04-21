@@ -290,15 +290,6 @@ namespace enums {
             return out << to_string(value);
         }
     }
-
-    template<flags_enum E>
-    auto enum_flag_values(E value) {
-        return enum_values_v<E>
-            | std::views::filter([value](E item) {
-                using namespace flag_operators;
-                return bool(item & value);
-            });
-    }
     
     template<flags_enum T>
     class bitset {

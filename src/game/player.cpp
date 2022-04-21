@@ -92,6 +92,7 @@ namespace banggame {
                 return m_game->move_card(target_card, pocket, target, flags);
             }
         }
+        throw std::runtime_error("Invalid card move");
     }
 
     void player::discard_card(card *target) {

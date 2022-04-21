@@ -8,109 +8,68 @@
 namespace banggame {
     using namespace enums::flag_operators;
 
-    std::optional<game_error> check_player_filter(player *origin, target_player_filter filter, player *target) {
-        if (target->alive() == bool(filter & target_player_filter::dead)) {
+    opt_error check_player_filter(player *origin, target_player_filter filter, player *target) {
+        if (bool(filter & target_player_filter::dead) == target->alive())
             return game_error("ERROR_TARGET_DEAD");
-        }
 
-        for (auto value : enums::enum_flag_values(filter)) {
-            switch (value) {
-            case target_player_filter::self:
-                if (target != origin) {
-                    return game_error("ERROR_TARGET_NOT_SELF");
-                }
-                break;
-            case target_player_filter::notself:
-                if (target == origin) {
-                    return game_error("ERROR_TARGET_SELF");
-                }
-                break;
-            case target_player_filter::notsheriff:
-                if (target->m_role == player_role::sheriff) {
-                    return game_error("ERROR_TARGET_SHERIFF");
-                }
-                break;
-            case target_player_filter::reachable:
-                if (!origin->m_weapon_range || origin->m_game->calc_distance(origin, target) > origin->m_weapon_range + origin->m_range_mod) {
-                    return game_error("ERROR_TARGET_NOT_IN_RANGE");
-                }
-                break;
-            case target_player_filter::range_1:
-                if (origin->m_game->calc_distance(origin, target) > 1 + origin->m_range_mod) {
-                    return game_error("ERROR_TARGET_NOT_IN_RANGE");
-                }
-                break;
-            case target_player_filter::range_2:
-                if (origin->m_game->calc_distance(origin, target) > 2 + origin->m_range_mod) {
-                    return game_error("ERROR_TARGET_NOT_IN_RANGE");
-                }
-                break;
-            case target_player_filter::dead:
-                break;
-            default: return game_error("ERROR_INVALID_ACTION");
+        if (bool(filter & target_player_filter::self) && target != origin)
+            return game_error("ERROR_TARGET_NOT_SELF");
+
+        if (bool(filter & target_player_filter::notself) && target == origin)
+            return game_error("ERROR_TARGET_SELF");
+
+        if (bool(filter & target_player_filter::notsheriff) && target->m_role == player_role::sheriff)
+            return game_error("ERROR_TARGET_SHERIFF");
+
+        if (bool(filter & (target_player_filter::reachable | target_player_filter::range_1 | target_player_filter::range_2))) {
+            int distance = origin->m_range_mod;
+            if (bool(filter & target_player_filter::reachable)) {
+                distance += origin->m_weapon_range;
+            } else if (bool(filter & target_player_filter::range_1)) {
+                ++distance;
+            } else if (bool(filter & target_player_filter::range_2)) {
+                distance += 2;
+            }
+            if (origin->m_game->calc_distance(origin, target) > distance) {
+                return game_error("ERROR_TARGET_NOT_IN_RANGE");
             }
         }
+
         return std::nullopt;
     }
 
-    std::optional<game_error> check_card_filter(player *origin, target_card_filter filter, card *target) {
-        if ((target->color == card_color_type::black) != bool(filter & target_card_filter::black)) {
+    opt_error check_card_filter(player *origin, target_card_filter filter, card *target) {
+        if (bool(filter & target_card_filter::black) != (target->color == card_color_type::black))
             return game_error("ERROR_TARGET_BLACK_CARD");
-        }
 
-        for (auto value : enums::enum_flag_values(filter)) {
-            switch (value) {
-            case target_card_filter::table:
-                if (target->pocket != pocket_type::player_table) {
-                    return game_error("ERROR_TARGET_NOT_TABLE_CARD");
-                }
-                break;
-            case target_card_filter::hand:
-                if (target->pocket != pocket_type::player_hand) {
-                    return game_error("ERROR_TARGET_NOT_HAND_CARD");
-                }
-                break;
-            case target_card_filter::blue:
-                if (target->color != card_color_type::blue) {
-                    return game_error("ERROR_TARGET_NOT_BLUE_CARD");
-                }
-                break;
-            case target_card_filter::clubs:
-                if (origin->get_card_sign(target).suit != card_suit::clubs) {
-                    return game_error("ERROR_TARGET_NOT_CLUBS");
-                }
-                break;
-            case target_card_filter::bang:
-                if (!origin->is_bangcard(target) || !target->equips.empty()) {
-                    return game_error("ERROR_TARGET_NOT_BANG");
-                }
-                break;
-            case target_card_filter::missed:
-                if (!target->responses.last_is(effect_type::missedcard)) {
-                    return game_error("ERROR_TARGET_NOT_MISSED");
-                }
-                break;
-            case target_card_filter::beer:
-                if (!target->effects.first_is(effect_type::beer)) {
-                    return game_error("ERROR_TARGET_NOT_BEER");
-                }
-                break;
-            case target_card_filter::bronco:
-                if (!target->equips.last_is(equip_type::bronco)) {
-                    return game_error("ERROR_TARGET_NOT_BRONCO");
-                }
-                break;
-            case target_card_filter::cube_slot:
-            case target_card_filter::cube_slot_card:
-                if (target != target->owner->m_characters.front() && target->color != card_color_type::orange)
-                    return game_error("ERROR_TARGET_NOT_CUBE_SLOT");
-                break;
-            case target_card_filter::can_repeat:
-            case target_card_filter::black:
-                break;
-            default: return game_error("ERROR_INVALID_ACTION");
-            }
-        }
+        if (bool(filter & target_card_filter::table) && target->pocket != pocket_type::player_table)
+            return game_error("ERROR_TARGET_NOT_TABLE_CARD");
+
+        if (bool(filter & target_card_filter::hand) && target->pocket != pocket_type::player_hand)
+            return game_error("ERROR_TARGET_NOT_HAND_CARD");
+
+        if (bool(filter & target_card_filter::blue) && target->color != card_color_type::blue)
+            return game_error("ERROR_TARGET_NOT_BLUE_CARD");
+
+        if (bool(filter & target_card_filter::clubs) && origin->get_card_sign(target).suit != card_suit::clubs)
+            return game_error("ERROR_TARGET_NOT_CLUBS");
+
+        if (bool(filter & target_card_filter::bang) && !(target->equips.empty() && origin->is_bangcard(target)))
+            return game_error("ERROR_TARGET_NOT_BANG");
+
+        if (bool(filter & target_card_filter::missed) && !target->responses.last_is(effect_type::missedcard))
+            return game_error("ERROR_TARGET_NOT_MISSED");
+
+        if (bool(filter & target_card_filter::beer) && !target->effects.first_is(effect_type::beer))
+            return game_error("ERROR_TARGET_NOT_BEER");
+
+        if (bool(filter & target_card_filter::bronco) && !target->equips.last_is(equip_type::bronco))
+            return game_error("ERROR_TARGET_NOT_BRONCO");
+
+        if (bool(filter & (target_card_filter::cube_slot | target_card_filter::cube_slot_card))
+            && (target != target->owner->m_characters.front() && target->color != card_color_type::orange))
+            return game_error("ERROR_TARGET_NOT_CUBE_SLOT");
+        
         return std::nullopt;
     }
 
