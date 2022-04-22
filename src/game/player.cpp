@@ -84,11 +84,11 @@ namespace banggame {
                     owner->m_game->add_public_update<game_update_type::tap_card>(target_card->id, false);
                 }
                 owner->unequip_if_enabled(target_card);
+                owner->drop_all_cubes(target_card);
                 owner->m_game->move_card(target_card, pocket, target, flags);
                 for (auto &e : target_card->equips) {
                     e.on_post_unequip(target_card, owner);
                 }
-                owner->drop_all_cubes(target_card);
             } else if (target_card->pocket == pocket_type::player_hand) {
                 owner->m_game->move_card(target_card, pocket, target, flags);
             }
@@ -223,6 +223,7 @@ namespace banggame {
         if (origin->sign && origin->cubes.empty()) {
             unequip_if_enabled(origin);
             m_game->move_card(origin, pocket_type::discard_pile);
+            m_game->call_event<event_type::on_discard_orange_card>(this, origin);
             for (auto &e : origin->equips) {
                 e.on_post_unequip(origin, this);
             }

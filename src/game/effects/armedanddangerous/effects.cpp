@@ -236,6 +236,9 @@ namespace banggame {
         player *target = std::get<target_player_t>(targets[0]).target;
         if (target != origin) {
             origin->unequip_if_enabled(origin_card);
+            for (auto &e : origin_card->equips) {
+                e.on_post_unequip(origin_card, origin);
+            }
             target->equip_card(origin_card);
         }
         origin->m_game->pop_request<request_move_bomb>();

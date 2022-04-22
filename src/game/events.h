@@ -40,6 +40,9 @@ namespace banggame {
         // viene chiamato quando si scarta VOLONTARIAMENTE una carta (si gioca cat balou o panico contro una carta)
         EVENT(on_discard_card, player *origin, player *target, card *target_card)
 
+        // viene chiamato quando una carta arancione viene scartata perche' sono finiti i cubetti
+        EVENT(on_discard_orange_card, player *target, card *target_card)
+
         // viene chiamato quando un giocatore viene colpito
         EVENT(on_hit, card *origin_card, player *origin, player *target, int damage, bool is_bang)
 
