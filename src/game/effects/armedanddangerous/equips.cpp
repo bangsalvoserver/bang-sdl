@@ -18,6 +18,7 @@ namespace banggame {
         });
         target->m_game->add_event<event_type::post_discard_orange_card>(target_card, [=](player *p, card *c) {
             if (c == target_card && p == target && !target->immune_to(target_card)) {
+                target->m_game->move_card(target_card, pocket_type::discard_pile);
                 target->damage(target_card, nullptr, 2);
             }
         });
