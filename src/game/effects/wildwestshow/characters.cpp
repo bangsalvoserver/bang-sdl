@@ -106,7 +106,7 @@ namespace banggame {
 
     void handler_flint_westwood::on_play(card *origin_card, player *origin, const target_list &targets) {
         auto chosen_card = std::get<target_card_t>(targets[0]).target;
-        auto target = std::get<target_player_t>(targets[1]).target;
+        auto target = std::get<target_card_t>(targets[1]).target->owner;
 
         for (int i=2; i && !target->m_hand.empty(); --i) {
             origin->steal_card(target->random_hand_card());
