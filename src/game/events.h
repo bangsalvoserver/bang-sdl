@@ -55,12 +55,6 @@ namespace banggame {
         // viene chiamato quando un giocatore gioca una carta dalla mano
         EVENT(on_play_hand_card, player *origin, card *target_card)
 
-        // viene chiamato dopo che una carta viene disequipaggiata e scartata
-        EVENT(post_discard_card, player *target, card *target_card)
-
-        // viene chiamato dopo che una carta arancione viene disequipaggiata quando finiscono i cubetti
-        EVENT(post_discard_orange_card, player *target, card *target_card)
-
         // viene chiamato dopo la fine di un effetto
         EVENT(on_effect_end, player *origin, card *target_card)
 

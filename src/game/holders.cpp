@@ -164,6 +164,14 @@ namespace banggame {
         }, *this);
     }
 
+    void equip_holder::on_post_unequip(card *target_card, player *target) {
+        visit_effect([=](auto &&value) {
+            if constexpr (requires { value.on_post_unequip(target_card, target); }) {
+                value.on_post_unequip(target_card, target);
+            }
+        }, *this);
+    }
+
     opt_error mth_holder::verify(card *origin_card, player *origin, const target_list &targets) const {
         return enums::visit_enum([&](enums::enum_tag_for<mth_type> auto tag) -> opt_error {
             if constexpr (enums::value_with_type<tag.value>) {

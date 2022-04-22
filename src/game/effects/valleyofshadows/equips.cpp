@@ -20,16 +20,6 @@ namespace banggame {
         for (card *c : target->m_characters) {
             target->equip_if_enabled(c);
         }
-        target->m_game->add_event<event_type::post_discard_card>(target_card, [=](player *p, card *c) {
-            if (p == target && c == target_card) {
-                target->m_game->queue_action_front([=]{
-                    target->remove_player_flags(player_flags::ghost);
-                    target->m_game->player_death(nullptr, target);
-                    target->m_game->check_game_over(nullptr, target);
-                });
-                target->m_game->remove_events(target_card);
-            }
-        });
     }
 
     void effect_ghost::on_equip(card *target_card, player *target) {
@@ -40,6 +30,15 @@ namespace banggame {
     void effect_ghost::on_unequip(card *target_card, player *target) {
         target->m_game->add_public_update<game_update_type::player_hp>(target->id, 0, true);
         target->remove_player_flags(player_flags::ghost);
+    }
+    
+    void effect_ghost::on_post_unequip(card *target_card, player *target) {
+        target->m_game->queue_action_front([=]{
+            target->remove_player_flags(player_flags::ghost);
+            target->m_game->player_death(nullptr, target);
+            target->m_game->check_game_over(nullptr, target);
+        });
+        target->m_game->remove_events(target_card);
     }
 
     void effect_shotgun::on_equip(card *target_card, player *p) {

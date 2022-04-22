@@ -46,6 +46,7 @@ namespace banggame {
         void on_pre_equip(card *target_card, player *target);
         void on_equip(card *target_card, player *target);
         void on_unequip(card *target_card, player *target);
+        void on_post_unequip(card *target_card, player *target);
     };
 
     struct mth_holder {

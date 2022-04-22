@@ -16,16 +16,11 @@ namespace banggame {
             }
             target->next_predraw_check(target_card);
         });
-        target->m_game->add_event<event_type::post_discard_orange_card>(target_card, [=](player *p, card *c) {
-            if (c == target_card && p == target && !target->immune_to(target_card)) {
-                target->m_game->move_card(target_card, pocket_type::discard_pile);
-                target->damage(target_card, nullptr, 2);
-            }
-        });
     }
 
-    void effect_bomb::on_unequip(card *target_card, player *target) {
-        predraw_check_effect{}.on_unequip(target_card, target);
-        event_based_effect{}.on_unequip(target_card, target);
+    void effect_bomb::on_post_unequip(card *target_card, player *target) {
+        if (target_card->cubes.empty() && !target->immune_to(target_card)) {
+            target->damage(target_card, nullptr, 2);
+        }
     }
 }

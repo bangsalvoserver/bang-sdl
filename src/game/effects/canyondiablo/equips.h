@@ -25,6 +25,7 @@ namespace banggame {
 
     struct effect_bronco {
         void on_pre_equip(card *target_card, player *target);
+        void on_post_unequip(card *target_card, player *target);
     };
 
 }
