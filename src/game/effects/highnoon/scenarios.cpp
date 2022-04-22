@@ -144,14 +144,14 @@ namespace banggame {
 
     void effect_handcuffs::on_equip(card *target_card, player *target) {
         target->m_game->add_event<event_type::post_draw_cards>(target_card, [=](player *origin) {
-            auto &vec = origin->m_game->m_hidden_deck;
-            for (auto it = vec.begin(); it != vec.end(); ) {
-                auto *card = *it;
-                if (card->responses.first_is(effect_type::handcuffschoice)) {
-                    it = origin->m_game->move_card(card, pocket_type::selection, nullptr, show_card_flags::instant);
-                } else {
-                    ++it;
+            std::vector<card *> target_cards;
+            for (card *c : origin->m_game->m_hidden_deck) {
+                if (c->responses.first_is(effect_type::handcuffschoice)) {
+                    target_cards.push_back(c);
                 }
+            }
+            for (card *c : target_cards) {
+                origin->m_game->move_card(c, pocket_type::selection, nullptr, show_card_flags::instant);
             }
             origin->m_game->queue_request<request_handcuffs>(target_card, origin);
         });

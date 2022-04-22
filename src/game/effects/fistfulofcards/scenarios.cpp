@@ -56,14 +56,14 @@ namespace banggame {
 
     void effect_peyote::on_equip(card *target_card, player *target) {
         target->m_game->add_event<event_type::on_request_draw>(target_card, [=](player *p) {
-            auto &vec = p->m_game->m_hidden_deck;
-            for (auto it = vec.begin(); it != vec.end(); ) {
-                auto *card = *it;
-                if (card->responses.first_is(effect_type::peyotechoice)) {
-                    it = p->m_game->move_card(card, pocket_type::selection, nullptr, show_card_flags::instant);
-                } else {
-                    ++it;
+            std::vector<card *> target_cards;
+            for (card *c : p->m_game->m_hidden_deck) {
+                if (c->responses.first_is(effect_type::peyotechoice)) {
+                    target_cards.push_back(c);
                 }
+            }
+            for (card *c : target_cards) {
+                p->m_game->move_card(c, pocket_type::selection, nullptr, show_card_flags::instant);
             }
             
             p->m_game->queue_request<request_peyote>(target_card, p);

@@ -160,7 +160,7 @@ namespace banggame {
 
     void request_discard_pass::on_pick(pocket_type pocket, player *target_player, card *target_card) {
         if (target->m_game->has_scenario(scenario_flags::abandonedmine)) {
-            target->move_card_to(target_card, pocket_type::main_deck);
+            target->m_game->move_card(target_card, pocket_type::main_deck, nullptr, show_card_flags::hidden);
         } else {
             target->discard_card(target_card);
         }

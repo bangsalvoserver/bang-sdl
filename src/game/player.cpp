@@ -76,33 +76,31 @@ namespace banggame {
         return c;
     }
 
-    std::vector<card *>::iterator player::move_card_to(card *target_card, pocket_type pocket, player *target, show_card_flags flags) {
-        if (target_card->owner == this) {
+    static void move_owned_card(player *owner, card *target_card, pocket_type pocket, player *target = nullptr, show_card_flags flags = {}) {
+        if (target_card->owner == owner) {
             if (target_card->pocket == pocket_type::player_table) {
                 if (target_card->inactive) {
                     target_card->inactive = false;
-                    m_game->add_public_update<game_update_type::tap_card>(target_card->id, false);
+                    owner->m_game->add_public_update<game_update_type::tap_card>(target_card->id, false);
                 }
-                drop_all_cubes(target_card);
-                auto it = m_game->move_card(target_card, pocket, target, flags);
-                m_game->call_event<event_type::post_discard_card>(this, target_card);
-                unequip_if_enabled(target_card);
-                return it;
+                owner->drop_all_cubes(target_card);
+                owner->m_game->move_card(target_card, pocket, target, flags);
+                owner->m_game->call_event<event_type::post_discard_card>(owner, target_card);
+                owner->unequip_if_enabled(target_card);
             } else if (target_card->pocket == pocket_type::player_hand) {
-                return m_game->move_card(target_card, pocket, target, flags);
+                owner->m_game->move_card(target_card, pocket, target, flags);
             }
         }
-        throw std::runtime_error("Invalid card move");
     }
 
     void player::discard_card(card *target) {
-        move_card_to(target, target->color == card_color_type::black
+        move_owned_card(this, target, target->color == card_color_type::black
             ? pocket_type::shop_discard
             : pocket_type::discard_pile);
     }
 
     void player::steal_card(card *target) {
-        target->owner->move_card_to(target, pocket_type::player_hand, this);
+        move_owned_card(target->owner, target, pocket_type::player_hand, this);
     }
 
     void player::damage(card *origin_card, player *origin, int value, bool is_bang, bool instant) {

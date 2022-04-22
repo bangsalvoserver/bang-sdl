@@ -97,16 +97,27 @@ namespace banggame {
     void effect_vulture_sam::on_equip(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_player_death>(target_card, [p](player *origin, player *target) {
             if (p != target) {
-                for (auto it = target->m_table.begin(); it != target->m_table.end(); ) {
-                    card *target_card = *it;
-                    if (target_card->color != card_color_type::black) {
-                        it = target->move_card_to(target_card, pocket_type::player_hand, p);
-                    } else {
-                        ++it;
+                std::vector<card *> target_cards;
+                for (card *c : target->m_table) {
+                    if (c->color != card_color_type::black) {
+                        target_cards.push_back(c);
                     }
                 }
-                while (!target->m_hand.empty()) {
-                    p->add_to_hand(target->m_hand.front());
+                for (card *c : target->m_hand) {
+                    target_cards.push_back(c);
+                }
+
+                auto next_vulture_sam = [p = target, target]() mutable {
+                    while (true) {
+                        p = p->m_game->get_next_player(p);
+                        if (p != target && std::ranges::any_of(p->m_characters, [](card *c) {
+                            return c->equips.last_is(equip_type::vulture_sam);
+                        })) return p;
+                    }
+                };
+
+                for (card *c : target_cards) {
+                    next_vulture_sam()->steal_card(c);
                 }
             }
         });
