@@ -6,7 +6,7 @@
 namespace banggame {
 
     struct effect_julie_cutter : event_based_effect {
-        void on_equip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
     };
 
     struct effect_frankie_canton {
@@ -15,18 +15,18 @@ namespace banggame {
     };
 
     struct effect_bloody_mary : event_based_effect {
-        void on_equip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
     };
 
     struct effect_red_ringo : event_based_effect {
-        void on_pre_equip(card *target_card, player *target);
+        void on_equip(card *target_card, player *target);
 
         opt_error verify(card *origin_card, player *origin, card *target) const;
         void on_play(card *origin_card, player *origin, card *target);
     };
 
     struct effect_al_preacher : event_based_effect {
-        void on_equip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
 
         bool can_respond(card *origin_card, player *origin) const;
         void on_play(card *origin_card, player *origin);
@@ -38,7 +38,7 @@ namespace banggame {
         bool can_respond(card *origin_card, player *target) const;
         void on_play(card *origin_card, player *origin);
 
-        void on_equip(card *origin_card, player *origin);
+        void on_enable(card *origin_card, player *origin);
     };
 
 }

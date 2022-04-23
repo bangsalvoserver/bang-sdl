@@ -186,19 +186,17 @@ namespace banggame {
             send_card_update(*(m_scenario_deck.rbegin() + 1), nullptr, show_card_flags::instant);
         }
         if (!m_scenario_cards.empty()) {
-            m_first_player->unequip_if_enabled(m_scenario_cards.back());
+            m_scenario_cards.back()->on_disable(m_first_player);
             m_scenario_flags = {};
         }
         move_card(m_scenario_deck.back(), pocket_type::scenario_card);
-        m_first_player->equip_if_enabled(m_scenario_cards.back());
+        m_scenario_cards.back()->on_enable(m_first_player);
     }
 
     void game_table::add_disabler(event_card_key key, card_disabler_fun &&fun) {
         const auto disable_if_new = [&](card *c) {
             if (!is_disabled(c) && fun(c)) {
-                for (auto &e : c->equips) {
-                    e.on_unequip(c, c->owner);
-                }
+                c->on_disable(c->owner);
             }
         };
 
@@ -219,9 +217,7 @@ namespace banggame {
                 else b = b || fun(c);
             }
             if (!a && b) {
-                for (auto &e : c->equips) {
-                    e.on_equip(c, c->owner);
-                }
+                c->on_enable(c->owner);
             }
         };
 

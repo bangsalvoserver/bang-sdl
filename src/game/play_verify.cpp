@@ -505,7 +505,7 @@ namespace banggame {
                         origin->add_cubes(card_ptr, 3);
                         break;
                     }
-                    origin->m_game->call_event<event_type::on_equip>(origin, target, card_ptr);
+                    origin->m_game->call_event<event_type::on_equip_card>(origin, target, card_ptr);
                     origin->set_last_played_card(nullptr);
                     origin->m_game->call_event<event_type::on_effect_end>(origin, card_ptr);
                 });

@@ -187,7 +187,7 @@ namespace banggame {
         }
     }
 
-    void effect_tumbleweed::on_equip(card *target_card, player *target) {
+    void effect_tumbleweed::on_enable(card *target_card, player *target) {
         target->m_game->add_event<event_type::on_draw_check_select>(target_card, [=](player *origin, card *origin_card, card *drawn_card) {
             target->m_game->queue_request_front<timer_tumbleweed>(target_card, origin, target, drawn_card, origin_card);
         });
@@ -235,10 +235,8 @@ namespace banggame {
     void handler_move_bomb::on_play(card *origin_card, player *origin, const target_list &targets) {
         player *target = std::get<target_player_t>(targets[0]).target;
         if (target != origin) {
-            origin->unequip_if_enabled(origin_card);
-            for (auto &e : origin_card->equips) {
-                e.on_post_unequip(origin_card, origin);
-            }
+            origin_card->on_disable(origin);
+            origin_card->on_unequip(origin);
             target->equip_card(origin_card);
         }
         origin->m_game->pop_request<request_move_bomb>();

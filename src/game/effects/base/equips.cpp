@@ -4,36 +4,36 @@
 
 namespace banggame {
 
-    void event_based_effect::on_unequip(card *target_card, player *target) {
+    void event_based_effect::on_disable(card *target_card, player *target) {
         target->m_game->remove_events(target_card);
     }
 
-    void predraw_check_effect::on_unequip(card *target_card, player *target) {
+    void predraw_check_effect::on_disable(card *target_card, player *target) {
         target->remove_predraw_check(target_card);
     }
 
-    void effect_max_hp::on_equip(card *target_card, player *target) {
+    void effect_max_hp::on_enable(card *target_card, player *target) {
         if (target_card == target->m_characters.front()) {
             target->m_max_hp = value + (target->m_role == player_role::sheriff);
         }
     }
 
-    void effect_mustang::on_equip(card *target_card, player *target) {
+    void effect_mustang::on_enable(card *target_card, player *target) {
         ++target->m_distance_mod;
         target->send_player_status();
     }
 
-    void effect_mustang::on_unequip(card *target_card, player *target) {
+    void effect_mustang::on_disable(card *target_card, player *target) {
         --target->m_distance_mod;
         target->send_player_status();
     }
 
-    void effect_scope::on_equip(card *target_card, player *target) {
+    void effect_scope::on_enable(card *target_card, player *target) {
         ++target->m_range_mod;
         target->send_player_status();
     }
 
-    void effect_scope::on_unequip(card *target_card, player *target) {
+    void effect_scope::on_disable(card *target_card, player *target) {
         --target->m_range_mod;
         target->send_player_status();
     }
@@ -46,7 +46,7 @@ namespace banggame {
         }
     }
 
-    void effect_jail::on_equip(card *target_card, player *target) {
+    void effect_jail::on_enable(card *target_card, player *target) {
         target->add_predraw_check(target_card, 1, [=](card *drawn_card) {
             target->discard_card(target_card);
             if (target->get_card_sign(drawn_card).suit == card_suit::hearts) {
@@ -57,7 +57,7 @@ namespace banggame {
         });
     }
 
-    void effect_dynamite::on_equip(card *target_card, player *target) {
+    void effect_dynamite::on_enable(card *target_card, player *target) {
         target->add_predraw_check(target_card, 2, [=](card *drawn_card) {
             card_sign sign = target->get_card_sign(drawn_card);
             if (sign.suit == card_suit::spades
@@ -72,7 +72,7 @@ namespace banggame {
                 } while (p->find_equipped_card(target_card) && p != target);
 
                 if (p != target) {
-                    target->unequip_if_enabled(target_card);
+                    target_card->on_disable(target);
                     p->equip_card(target_card);
                 }
             }
@@ -92,7 +92,7 @@ namespace banggame {
         }
     }
 
-    void effect_horse::on_pre_equip(card *target_card, player *target) {
+    void effect_horse::on_equip(card *target_card, player *target) {
         if (auto it = std::ranges::find_if(target->m_table, is_horse); it != target->m_table.end()) {
             target->discard_card(*it);
         }
@@ -107,29 +107,29 @@ namespace banggame {
         return std::nullopt;
     }
 
-    void effect_weapon::on_pre_equip(card *target_card, player *target) {
+    void effect_weapon::on_equip(card *target_card, player *target) {
         if (auto it = std::ranges::find_if(target->m_table, &card::is_weapon); it != target->m_table.end()) {
             target->discard_card(*it);
         }
     }
 
-    void effect_weapon::on_equip(card *target_card, player *target) {
+    void effect_weapon::on_enable(card *target_card, player *target) {
         target->m_weapon_range = range;
         target->send_player_status();
     }
 
-    void effect_weapon::on_unequip(card *target_card, player *target) {
+    void effect_weapon::on_disable(card *target_card, player *target) {
         target->m_weapon_range = 1;
         target->send_player_status();
     }
 
-    void effect_volcanic::on_equip(card *target_card, player *target) {
+    void effect_volcanic::on_enable(card *target_card, player *target) {
         target->m_game->add_event<event_type::apply_volcanic_modifier>(target_card, [=](player *p, bool &value) {
             value = value || p == target;
         });
     }
 
-    void effect_boots::on_equip(card *target_card, player *p) {
+    void effect_boots::on_enable(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_hit>({target_card, 1}, [p](card *origin_card, player *origin, player *target, int damage, bool is_bang){
             if (p == target) {
                 target->m_game->queue_action([=]{
@@ -143,11 +143,11 @@ namespace banggame {
         });
     }
 
-    void effect_horsecharm::on_equip(card *target_card, player *target) {
+    void effect_horsecharm::on_enable(card *target_card, player *target) {
         ++target->m_num_checks;
     }
 
-    void effect_horsecharm::on_unequip(card *target_card, player *target) {
+    void effect_horsecharm::on_disable(card *target_card, player *target) {
         --target->m_num_checks;
     }
 }

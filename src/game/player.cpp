@@ -16,28 +16,21 @@ namespace banggame {
     using namespace enums::flag_operators;
 
     void player::equip_card(card *target) {
-        for (auto &e : target->equips) {
-            e.on_pre_equip(target, this);
-        }
-
+        target->on_equip(this);
         m_game->move_card(target, pocket_type::player_table, this, show_card_flags::shown);
-        equip_if_enabled(target);
+        enable_equip(target);
         target->usages = 0;
     }
 
-    void player::equip_if_enabled(card *target_card) {
+    void player::enable_equip(card *target_card) {
         if (!m_game->is_disabled(target_card)) {
-            for (auto &e : target_card->equips) {
-                e.on_equip(target_card, this);
-            }
+            target_card->on_enable(this);
         }
     }
 
-    void player::unequip_if_enabled(card *target_card) {
+    void player::disable_equip(card *target_card) {
         if (!m_game->is_disabled(target_card)) {
-            for (auto &e : target_card->equips) {
-                e.on_unequip(target_card, this);
-            }
+            target_card->on_disable(this);
         }
     }
 
@@ -83,12 +76,10 @@ namespace banggame {
                     target_card->inactive = false;
                     owner->m_game->add_public_update<game_update_type::tap_card>(target_card->id, false);
                 }
-                owner->unequip_if_enabled(target_card);
+                owner->disable_equip(target_card);
                 owner->drop_all_cubes(target_card);
                 owner->m_game->move_card(target_card, pocket, target, flags);
-                for (auto &e : target_card->equips) {
-                    e.on_post_unequip(target_card, owner);
-                }
+                target_card->on_unequip(owner);
             } else if (target_card->pocket == pocket_type::player_hand) {
                 owner->m_game->move_card(target_card, pocket, target, flags);
             }
@@ -221,12 +212,10 @@ namespace banggame {
             }
         }
         if (origin->sign && origin->cubes.empty()) {
-            unequip_if_enabled(origin);
+            disable_equip(origin);
             m_game->move_card(origin, pocket_type::discard_pile);
             m_game->call_event<event_type::on_discard_orange_card>(this, origin);
-            for (auto &e : origin->equips) {
-                e.on_post_unequip(origin, this);
-            }
+            origin->on_unequip(this);
         }
     }
 
@@ -484,7 +473,7 @@ namespace banggame {
             if (m_game->has_scenario(scenario_flags::ghosttown)) {
                 ++m_num_cards_to_draw;
                 for (auto *c : m_characters) {
-                    equip_if_enabled(c);
+                    enable_equip(c);
                 }
             } else if (m_game->has_scenario(scenario_flags::deadman) && this == m_game->m_first_dead) {
                 remove_player_flags(player_flags::dead);
@@ -492,7 +481,7 @@ namespace banggame {
                 m_game->draw_card_to(pocket_type::player_hand, this);
                 m_game->draw_card_to(pocket_type::player_hand, this);
                 for (auto *c : m_characters) {
-                    equip_if_enabled(c);
+                    enable_equip(c);
                 }
             }
         }

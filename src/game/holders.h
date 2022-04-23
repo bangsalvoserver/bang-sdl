@@ -43,10 +43,10 @@ namespace banggame {
     
     struct equip_holder : effect_base<equip_type> {
         opt_fmt_str on_prompt(card *target_card, player *target) const;
-        void on_pre_equip(card *target_card, player *target);
         void on_equip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
+        void on_disable(card *target_card, player *target);
         void on_unequip(card *target_card, player *target);
-        void on_post_unequip(card *target_card, player *target);
     };
 
     struct mth_holder {

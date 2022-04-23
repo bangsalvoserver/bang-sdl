@@ -5,19 +5,19 @@
 namespace banggame {
     using namespace enums::flag_operators;
 
-    void effect_blessing::on_equip(card *target_card, player *target) {
+    void effect_blessing::on_enable(card *target_card, player *target) {
         target->m_game->add_event<event_type::apply_sign_modifier>(target_card, [](player *, card_sign &value) {
             value.suit = card_suit::hearts;
         });
     }
 
-    void effect_curse::on_equip(card *target_card, player *target) {
+    void effect_curse::on_enable(card *target_card, player *target) {
         target->m_game->add_event<event_type::apply_sign_modifier>(target_card, [](player *, card_sign &value) {
             value.suit = card_suit::spades;
         });
     }
 
-    void effect_thedaltons::on_equip(card *target_card, player *target) {
+    void effect_thedaltons::on_enable(card *target_card, player *target) {
         player *p = target;
         while(true) {
             if (std::ranges::find(p->m_table, card_color_type::blue, &card::color) != p->m_table.end()) {
@@ -48,7 +48,7 @@ namespace banggame {
         }
     }
 
-    void effect_thedoctor::on_equip(card *target_card, player *target) {
+    void effect_thedoctor::on_enable(card *target_card, player *target) {
         int min_hp = std::ranges::min(target->m_game->m_players
             | std::views::filter(&player::alive)
             | std::views::transform(&player::m_hp));
@@ -60,69 +60,69 @@ namespace banggame {
         }
     }
 
-    void effect_trainarrival::on_equip(card *target_card, player *target) {
+    void effect_trainarrival::on_enable(card *target_card, player *target) {
         for (auto &p : target->m_game->m_players) {
             ++p.m_num_cards_to_draw;
         }
     }
 
-    void effect_trainarrival::on_unequip(card *target_card, player *target) {
+    void effect_trainarrival::on_disable(card *target_card, player *target) {
         for (auto &p : target->m_game->m_players) {
             --p.m_num_cards_to_draw;
         }
     }
 
-    void effect_thirst::on_equip(card *target_card, player *target) {
+    void effect_thirst::on_enable(card *target_card, player *target) {
         for (auto &p : target->m_game->m_players) {
             --p.m_num_cards_to_draw;
         }
     }
 
-    void effect_thirst::on_unequip(card *target_card, player *target) {
+    void effect_thirst::on_disable(card *target_card, player *target) {
         for (auto &p : target->m_game->m_players) {
             ++p.m_num_cards_to_draw;
         }
     }
 
-    void effect_highnoon::on_equip(card *target_card, player *target) {
+    void effect_highnoon::on_enable(card *target_card, player *target) {
         target->m_game->add_event<event_type::pre_turn_start>(target_card, [=](player *p) {
             p->damage(target_card, nullptr, 1);
         });
     }
 
-    void effect_shootout::on_equip(card *target_card, player *target) {
+    void effect_shootout::on_enable(card *target_card, player *target) {
         target->m_game->add_event<event_type::on_turn_start>(target_card, [](player *p) {
             ++p->m_bangs_per_turn;
         });
     }
 
-    void effect_invert_rotation::on_equip(card *target_card, player *target) {
+    void effect_invert_rotation::on_enable(card *target_card, player *target) {
         target->m_game->m_scenario_flags |= scenario_flags::invert_rotation;
     }
 
-    void effect_reverend::on_equip(card *target_card, player *target) {
+    void effect_reverend::on_enable(card *target_card, player *target) {
         target->m_game->add_disabler(target_card, [](card *c) {
             return c->pocket == pocket_type::player_hand
                 && c->effects.first_is(effect_type::beer);
         });
     }
 
-    void effect_reverend::on_unequip(card *target_card, player *target) {
+    void effect_reverend::on_disable(card *target_card, player *target) {
         target->m_game->remove_disablers(target_card);
     }
 
-    void effect_hangover::on_equip(card *target_card, player *target) {
+    void effect_hangover::on_enable(card *target_card, player *target) {
         target->m_game->add_disabler(target_card, [](card *c) {
             return c->pocket == pocket_type::player_character;
         });
     }
 
-    void effect_hangover::on_unequip(card *target_card, player *target) {
+    void effect_hangover::on_disable(card *target_card, player *target) {
         target->m_game->remove_disablers(target_card);
         target->m_game->call_event<event_type::on_effect_end>(target, target_card);
     }
 
-    void effect_sermon::on_equip(card *target_card, player *target) {
+    void effect_sermon::on_enable(card *target_card, player *target) {
         target->m_game->add_event<event_type::pre_turn_start>(target_card, [=](player *p) {
             target->m_game->add_disabler(target_card, [=](card *c) {
                 return c->owner == p && c->effects.last_is(effect_type::bangcard);
@@ -133,16 +133,16 @@ namespace banggame {
         });
     }
 
-    void effect_sermon::on_unequip(card *target_card, player *target) {
+    void effect_sermon::on_disable(card *target_card, player *target) {
         target->m_game->remove_disablers(target_card);
         target->m_game->remove_events(target_card);
     }
 
-    void effect_ghosttown::on_equip(card *target_card, player *target) {
+    void effect_ghosttown::on_enable(card *target_card, player *target) {
         target->m_game->m_scenario_flags |= scenario_flags::ghosttown;
     }
 
-    void effect_handcuffs::on_equip(card *target_card, player *target) {
+    void effect_handcuffs::on_enable(card *target_card, player *target) {
         target->m_game->add_event<event_type::post_draw_cards>(target_card, [=](player *origin) {
             std::vector<card *> target_cards;
             for (card *c : origin->m_game->m_hidden_deck) {
@@ -181,7 +181,7 @@ namespace banggame {
         }
     }
 
-    void effect_newidentity::on_equip(card *target_card, player *target) {
+    void effect_newidentity::on_enable(card *target_card, player *target) {
         target->m_game->add_event<event_type::pre_turn_start>(target_card, [=](player *p) {
             target->m_game->move_card(p->m_backup_character.front(), pocket_type::selection);
             target->m_game->queue_request<request_newidentity>(target_card, p);
@@ -196,7 +196,7 @@ namespace banggame {
     void request_newidentity::on_pick(pocket_type pocket, player *, card *target_card) {
         if (pocket == pocket_type::selection) {
             for (card *c : target->m_characters) {
-                target->unequip_if_enabled(c);
+                target->disable_equip(c);
             }
             if (target->m_characters.size() > 1) {
                 target->m_game->add_public_update<game_update_type::remove_cards>(make_id_vector(target->m_characters | std::views::drop(1)));
@@ -207,11 +207,9 @@ namespace banggame {
             target->m_game->move_card(old_character, pocket_type::player_backup, target, show_card_flags::hidden);
             target->m_game->move_card(target_card, pocket_type::player_character, target, show_card_flags::shown);
 
-            target->equip_if_enabled(target_card);
+            target->enable_equip(target_card);
             target->move_cubes(old_character, target_card, old_character->cubes.size());
-            for (auto &e : target_card->equips) {
-                e.on_pre_equip(target_card, target);
-            }
+            target_card->on_equip(target);
             
             target->m_hp = 2;
             target->m_game->add_public_update<game_update_type::player_hp>(target->id, target->m_hp, false, false);

@@ -53,7 +53,7 @@ namespace banggame {
         EVENT(on_player_death, player *origin, player *target)
 
         // viene chiamato quando un giocatore equipaggia una carta
-        EVENT(on_equip, player *origin, player *target, card *target_card)
+        EVENT(on_equip_card, player *origin, player *target, card *target_card)
 
         // viene chiamato quando un giocatore gioca una carta dalla mano
         EVENT(on_play_hand_card, player *origin, card *target_card)

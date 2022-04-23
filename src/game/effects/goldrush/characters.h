@@ -6,15 +6,15 @@
 namespace banggame {
 
     struct effect_don_bell : event_based_effect {
-        void on_equip(card *target_card, player *origin);
+        void on_enable(card *target_card, player *origin);
     };
 
     struct effect_madam_yto : event_based_effect {
-        void on_equip(card *target_card, player *origin);
+        void on_enable(card *target_card, player *origin);
     };
 
     struct effect_dutch_will : event_based_effect {
-        void on_equip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
     };
 
     struct request_dutch_will : selection_picker {

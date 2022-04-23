@@ -7,7 +7,7 @@
 namespace banggame {
     using namespace enums::flag_operators;
 
-    void effect_big_spencer::on_equip(card *target_card, player *p) {
+    void effect_big_spencer::on_enable(card *target_card, player *p) {
         p->m_game->add_disabler(target_card, [=](card *c) {
             return c->pocket == pocket_type::player_hand
                 && c->owner == p
@@ -20,12 +20,12 @@ namespace banggame {
         });
     }
 
-    void effect_big_spencer::on_unequip(card *target_card, player *p) {
+    void effect_big_spencer::on_disable(card *target_card, player *p) {
         p->m_game->remove_disablers(target_card);
         p->m_game->remove_events(target_card);
     }
 
-    void effect_gary_looter::on_equip(card *target_card, player *p) {
+    void effect_gary_looter::on_enable(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_discard_pass>(target_card, [p](player *origin, card *discarded_card) {
             if (p != origin) {
                 for (;origin != p; origin = origin->m_game->get_next_player(origin)) {
@@ -40,7 +40,7 @@ namespace banggame {
         });
     }
 
-    void effect_john_pain::on_equip(card *target_card, player *p) {
+    void effect_john_pain::on_enable(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_draw_check>(target_card, [player_end = p](player *player_begin, card *drawn_card) {
             if (player_end->alive() && player_end->m_hand.size() < 6) {
                 for (player *it = player_begin; it != player_end; it = it->m_game->get_next_player(it)) {
@@ -74,7 +74,7 @@ namespace banggame {
         });
     }
 
-    void effect_youl_grinner::on_equip(card *target_card, player *target) {
+    void effect_youl_grinner::on_enable(card *target_card, player *target) {
         target->m_game->add_event<event_type::on_turn_start>(target_card, [=](player *origin) {
             if (target == origin) {
                 for (auto &p : target->m_game->m_players) {
@@ -114,7 +114,7 @@ namespace banggame {
         target->steal_card(chosen_card);
     }
 
-    void effect_greygory_deck::on_pre_equip(card *target_card, player *target) {
+    void effect_greygory_deck::on_equip(card *target_card, player *target) {
         std::vector<card *> base_characters;
         for (card &c : target->m_game->m_cards) {
             if (c.expansion == card_expansion_type{}
@@ -129,9 +129,9 @@ namespace banggame {
             pocket_type::player_character, target->id);
         for (int i=0; i<2; ++i) {
             auto *c = target->m_characters.emplace_back(base_characters[i]);
-            target->equip_if_enabled(c);
             c->pocket = pocket_type::player_character;
             c->owner = target;
+            c->on_enable(target);
             target->m_game->send_card_update(c, target, show_card_flags::instant | show_card_flags::shown);
         }
     }
@@ -139,7 +139,7 @@ namespace banggame {
     void effect_greygory_deck::on_play(card *target_card, player *target) {
         for (int i=1; i<target->m_characters.size(); ++i) {
             auto *c = target->m_characters[i];
-            target->unequip_if_enabled(c);
+            target->disable_equip(c);
             c->pocket = pocket_type::none;
             c->owner = nullptr;
         }
@@ -147,7 +147,7 @@ namespace banggame {
             target->m_game->add_public_update<game_update_type::remove_cards>(make_id_vector(target->m_characters | std::views::drop(1)));
             target->m_characters.resize(1);
         }
-        on_pre_equip(target_card, target);
+        on_equip(target_card, target);
         target->m_game->update_request();
     }
 

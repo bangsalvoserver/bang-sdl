@@ -8,7 +8,7 @@
 namespace banggame {
     using namespace enums::flag_operators;
 
-    void effect_bill_noface::on_equip(card *target_card, player *target) {
+    void effect_bill_noface::on_enable(card *target_card, player *target) {
         target->m_game->add_event<event_type::on_draw_from_deck>(target_card, [target](player *origin) {
             if (target == origin) {
                 target->m_num_cards_to_draw = target->m_num_cards_to_draw - 1 + target->m_max_hp - target->m_hp;
@@ -16,7 +16,7 @@ namespace banggame {
         });
     }
 
-    void effect_tequila_joe::on_equip(card *target_card, player *target) {
+    void effect_tequila_joe::on_enable(card *target_card, player *target) {
         target->m_game->add_event<event_type::apply_beer_modifier>(target_card, [target](player *origin, int &value) {
             if (target == origin) {
                 ++value;
@@ -24,7 +24,7 @@ namespace banggame {
         });
     }
 
-    void effect_claus_the_saint::on_equip(card *target_card, player *target) {
+    void effect_claus_the_saint::on_enable(card *target_card, player *target) {
         target->m_game->add_event<event_type::on_draw_from_deck>(target_card, [=](player *origin) {
             if (origin == target) {
                 target->m_game->pop_request_noupdate<request_draw>();
@@ -78,7 +78,7 @@ namespace banggame {
         }
     }
     
-    void effect_herb_hunter::on_equip(card *target_card, player *p) {
+    void effect_herb_hunter::on_enable(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_player_death>(target_card, [p](player *origin, player *target) {
             if (p != target) {
                 p->m_game->draw_card_to(pocket_type::player_hand, p);
@@ -87,8 +87,8 @@ namespace banggame {
         });
     }
 
-    void effect_johnny_kisch::on_equip(card *target_card, player *p) {
-        p->m_game->add_event<event_type::on_equip>(target_card, [=](player *origin, player *target, card *equipped_card) {
+    void effect_johnny_kisch::on_enable(card *target_card, player *p) {
+        p->m_game->add_event<event_type::on_equip_card>(target_card, [=](player *origin, player *target, card *equipped_card) {
             if (p == origin) {
                 for (auto &other : p->m_game->m_players) {
                     if (&other == target) continue;
@@ -100,7 +100,7 @@ namespace banggame {
         });
     }
 
-    void effect_molly_stark::on_equip(card *target_card, player *p) {
+    void effect_molly_stark::on_enable(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_play_hand_card>(target_card, [p](player *target, card *card) {
             if (p == target && p->m_game->m_playing != p) {
                 p->m_game->queue_action([p]{
@@ -112,7 +112,7 @@ namespace banggame {
         });
     }
 
-    void effect_bellestar::on_equip(card *target_card, player *p) {
+    void effect_bellestar::on_enable(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_turn_start>(target_card, [=](player *target) {
             if (p == target) {
                 p->m_game->add_disabler(target_card, [=](card *c) {
@@ -127,7 +127,7 @@ namespace banggame {
         });
     }
 
-    void effect_bellestar::on_unequip(card *target_card, player *target) {
+    void effect_bellestar::on_disable(card *target_card, player *target) {
         target->m_game->remove_disablers(target_card);
         target->m_game->remove_events(target_card);
     }
@@ -149,7 +149,7 @@ namespace banggame {
                 card *card_ptr = origin->m_game->m_cards.insert(std::move(card_copy)).get();
                 
                 origin->m_characters.emplace_back(card_ptr);
-                origin->equip_if_enabled(card_ptr);
+                card_ptr->on_enable(origin);
 
                 origin->m_game->add_public_update<game_update_type::add_cards>(
                     make_id_vector(std::views::single(card_ptr)), pocket_type::player_character, origin->id);
@@ -161,14 +161,14 @@ namespace banggame {
         if (origin->m_characters.size() > 1) {
             origin->m_game->add_public_update<game_update_type::remove_cards>(make_id_vector(origin->m_characters | std::views::drop(1)));
             while (origin->m_characters.size() > 1) {
-                origin->unequip_if_enabled(origin->m_characters.back());
+                origin->disable_equip(origin->m_characters.back());
                 origin->m_game->m_cards.erase(origin->m_characters.back()->id);
                 origin->m_characters.pop_back();
             }
         }
     }
 
-    void effect_vera_custer::on_equip(card *origin_card, player *origin) {
+    void effect_vera_custer::on_enable(card *origin_card, player *origin) {
         origin->m_game->add_event<event_type::on_turn_start>({origin_card, 1}, [=, &usages = origin_card->usages](player *target) {
             if (origin == target) {
                 ++usages;
@@ -215,7 +215,7 @@ namespace banggame {
         }
     }
 
-    void effect_greg_digger::on_equip(card *target_card, player *p) {
+    void effect_greg_digger::on_enable(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_player_death>(target_card, [p](player *origin, player *target) {
             if (p != target) {
                 p->heal(2);

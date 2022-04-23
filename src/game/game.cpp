@@ -322,7 +322,7 @@ namespace banggame {
         } else {
             for (auto &p : m_players) {
                 send_card_update(p.m_characters.front(), &p, show_card_flags::instant | show_card_flags::shown);
-                p.equip_if_enabled(p.m_characters.front());
+                p.m_characters.front()->on_enable(&p);
                 p.m_hp = p.m_max_hp;
                 add_public_update<game_update_type::player_hp>(p.id, p.m_hp, false, true);
 
@@ -332,10 +332,7 @@ namespace banggame {
 
         queue_action([this] {
             for (auto &p : m_players) {
-                card *c = p.m_characters.front();
-                for (auto &e : c->equips) {
-                    e.on_pre_equip(c, &p);
-                }
+                p.m_characters.front()->on_equip(&p);
             }
 
             int max_initial_cards = std::ranges::max(m_players | std::views::transform(&player::get_initial_cards));
@@ -503,7 +500,7 @@ namespace banggame {
         if (killer != m_playing) killer = nullptr;
         
         for (card *c : target->m_characters) {
-            target->unequip_if_enabled(c);
+            target->disable_equip(c);
         }
 
         if (target->m_characters.size() > 1) {

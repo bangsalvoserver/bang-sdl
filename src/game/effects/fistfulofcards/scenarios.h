@@ -10,8 +10,8 @@
 namespace banggame {
 
     struct effect_ambush {
-        void on_equip(card *target_card, player *target);
-        void on_unequip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
+        void on_disable(card *target_card, player *target);
     };
 
     struct effect_sniper {
@@ -23,24 +23,24 @@ namespace banggame {
     };
 
     struct effect_deadman {
-        void on_equip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
     };
 
     struct effect_judge {
-        void on_equip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
     };
 
     struct effect_lasso {
-        void on_equip(card *target_card, player *target);
-        void on_unequip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
+        void on_disable(card *target_card, player *target);
     };
 
     struct effect_abandonedmine {
-        void on_equip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
     };
 
     struct effect_peyote : event_based_effect {
-        void on_equip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
     };
 
     struct request_peyote : selection_picker {
@@ -62,19 +62,19 @@ namespace banggame {
     };
     
     struct effect_russianroulette  {
-        void on_equip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
     };
 
     struct effect_fistfulofcards : event_based_effect {
-        void on_equip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
     };
 
     struct effect_lawofthewest : event_based_effect {
-        void on_equip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
     };
 
     struct effect_vendetta : event_based_effect {
-        void on_equip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
     };
 
 }

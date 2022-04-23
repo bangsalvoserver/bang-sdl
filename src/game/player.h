@@ -20,6 +20,30 @@ namespace banggame {
 
         pocket_type pocket = pocket_type::none;
         player *owner = nullptr;
+
+        void on_equip(player *target) {
+            for (auto &e : equips) {
+                e.on_equip(this, target);
+            }
+        }
+
+        void on_enable(player *target) {
+            for (auto &e : equips) {
+                e.on_enable(this, target);
+            }
+        }
+
+        void on_disable(player *target) {
+            for (auto &e : equips) {
+                e.on_disable(this, target);
+            }
+        }
+
+        void on_unequip(player *target) {
+            for (auto &e : equips) {
+                e.on_unequip(this, target);
+            }
+        }
     };
 
     using draw_check_function = std::function<void(card *drawn_card)>;
@@ -76,8 +100,8 @@ namespace banggame {
         void equip_card(card *card);
         card *find_equipped_card(card *card);
 
-        void equip_if_enabled(card *target_card);
-        void unequip_if_enabled(card *target_card);
+        void enable_equip(card *target_card);
+        void disable_equip(card *target_card);
 
         card *random_hand_card();
 

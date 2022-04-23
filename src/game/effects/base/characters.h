@@ -6,20 +6,20 @@
 namespace banggame {
 
     struct effect_black_jack : event_based_effect {
-        void on_equip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
     };
 
     struct effect_calamity_janet {
-        void on_equip(card *target_card, player *target);
-        void on_unequip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
+        void on_disable(card *target_card, player *target);
     };
 
     struct effect_slab_the_killer : event_based_effect {
-        void on_equip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
     };
 
     struct effect_kit_carlson : event_based_effect {
-        void on_equip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
     };
 
     struct request_kit_carlson : selection_picker {
@@ -31,15 +31,15 @@ namespace banggame {
     };
 
     struct effect_el_gringo : event_based_effect {
-        void on_equip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
     };
 
     struct effect_suzy_lafayette : event_based_effect {
-        void on_equip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
     };
 
     struct effect_vulture_sam : event_based_effect {
-        void on_equip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
     };
 }
 

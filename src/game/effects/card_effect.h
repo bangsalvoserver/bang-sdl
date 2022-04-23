@@ -40,11 +40,11 @@ namespace banggame {
     };
 
     struct event_based_effect {
-        void on_unequip(card *target_card, player *target);
+        void on_disable(card *target_card, player *target);
     };
 
     struct predraw_check_effect {
-        void on_unequip(card *target_card, player *target);
+        void on_disable(card *target_card, player *target);
     };
 
     struct effect_prompt_on_self_equip {

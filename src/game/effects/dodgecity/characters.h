@@ -6,15 +6,15 @@
 namespace banggame {
     
     struct effect_bill_noface : event_based_effect {
-        void on_equip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
     };
 
     struct effect_tequila_joe : event_based_effect {
-        void on_equip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
     };
 
     struct effect_claus_the_saint : event_based_effect {
-        void on_equip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
     };
 
     struct request_claus_the_saint : selection_picker {
@@ -27,28 +27,28 @@ namespace banggame {
     };
 
     struct effect_greg_digger : event_based_effect {
-        void on_equip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
     };
 
     struct effect_herb_hunter : event_based_effect {
-        void on_equip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
     };
 
     struct effect_johnny_kisch : event_based_effect {
-        void on_equip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
     };
 
     struct effect_molly_stark : event_based_effect {
-        void on_equip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
     };
 
     struct effect_bellestar {
-        void on_equip(card *target_card, player *target);
-        void on_unequip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
+        void on_disable(card *target_card, player *target);
     };
 
     struct effect_vera_custer : event_based_effect {
-        void on_equip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
 
         static void copy_characters(player *origin, player *target);
         static void remove_characters(player *origin);

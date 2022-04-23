@@ -140,14 +140,6 @@ namespace banggame {
         }, *this);
     }
 
-    void equip_holder::on_pre_equip(card *target_card, player *target) {
-        visit_effect([=](auto &&value) {
-            if constexpr (requires { value.on_pre_equip(target_card, target); }) {
-                value.on_pre_equip(target_card, target);
-            }
-        }, *this);
-    }
-
     void equip_holder::on_equip(card *target_card, player *target) {
         visit_effect([=](auto &&value) {
             if constexpr (requires { value.on_equip(target_card, target); }) {
@@ -156,18 +148,26 @@ namespace banggame {
         }, *this);
     }
 
-    void equip_holder::on_unequip(card *target_card, player *target) {
+    void equip_holder::on_enable(card *target_card, player *target) {
         visit_effect([=](auto &&value) {
-            if constexpr (requires { value.on_unequip(target_card, target); }) {
-                value.on_unequip(target_card, target);
+            if constexpr (requires { value.on_enable(target_card, target); }) {
+                value.on_enable(target_card, target);
             }
         }, *this);
     }
 
-    void equip_holder::on_post_unequip(card *target_card, player *target) {
+    void equip_holder::on_disable(card *target_card, player *target) {
         visit_effect([=](auto &&value) {
-            if constexpr (requires { value.on_post_unequip(target_card, target); }) {
-                value.on_post_unequip(target_card, target);
+            if constexpr (requires { value.on_disable(target_card, target); }) {
+                value.on_disable(target_card, target);
+            }
+        }, *this);
+    }
+
+    void equip_holder::on_unequip(card *target_card, player *target) {
+        visit_effect([=](auto &&value) {
+            if constexpr (requires { value.on_unequip(target_card, target); }) {
+                value.on_unequip(target_card, target);
             }
         }, *this);
     }

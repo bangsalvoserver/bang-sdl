@@ -8,8 +8,8 @@
 namespace banggame {
     using namespace enums::flag_operators;
 
-    void effect_al_preacher::on_equip(card *target_card, player *p) {
-        p->m_game->add_event<event_type::on_equip>(target_card, [=](player *origin, player *target, card *equipped_card) {
+    void effect_al_preacher::on_enable(card *target_card, player *p) {
+        p->m_game->add_event<event_type::on_equip_card>(target_card, [=](player *origin, player *target, card *equipped_card) {
             if (p != origin && (equipped_card->color == card_color_type::blue || equipped_card->color == card_color_type::orange)) {
                 if (p->count_cubes() >= 2) {
                     p->m_game->queue_request<timer_al_preacher>(target_card, origin, p);
@@ -26,7 +26,7 @@ namespace banggame {
         origin->m_game->pop_request<timer_al_preacher>();
     }
 
-    void effect_julie_cutter::on_equip(card *target_card, player *p) {
+    void effect_julie_cutter::on_enable(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_hit>(target_card, [=](card *origin_card, player *origin, player *target, int damage, bool is_bang) {
             if (origin && p == target && origin != target) {
                 target->m_game->queue_action([=]{
@@ -57,7 +57,7 @@ namespace banggame {
         target_card->owner->move_cubes(target_card, origin->m_characters.front(), 1);
     }
 
-    void effect_bloody_mary::on_equip(card *target_card, player *p) {
+    void effect_bloody_mary::on_enable(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_missed>(target_card, [=](card *origin_card, player *origin, player *target, bool is_bang) {
             if (origin == p && is_bang) {
                 origin->m_game->draw_card_to(pocket_type::player_hand, p);
@@ -65,7 +65,7 @@ namespace banggame {
         });
     }
 
-    void effect_red_ringo::on_pre_equip(card *target_card, player *target) {
+    void effect_red_ringo::on_equip(card *target_card, player *target) {
         target->add_cubes(target->m_characters.front(), 4);
     }
 
@@ -111,7 +111,7 @@ namespace banggame {
         origin->m_game->pop_request();
     }
 
-    void effect_ms_abigail::on_equip(card *origin_card, player *origin) {
+    void effect_ms_abigail::on_enable(card *origin_card, player *origin) {
         origin->m_game->add_event<event_type::apply_escapable_modifier>(origin_card,
             [=](card *e_origin_card, player *e_origin, const player *e_target, effect_flags e_flags, bool &value) {
                 value = value || (e_target == origin) && effect_ms_abigail{}.can_escape(e_origin, e_origin_card, e_flags);

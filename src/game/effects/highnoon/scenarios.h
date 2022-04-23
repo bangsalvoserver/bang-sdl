@@ -6,15 +6,15 @@
 namespace banggame {
 
     struct effect_blessing : event_based_effect {
-        void on_equip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
     };
 
     struct effect_curse : event_based_effect {
-        void on_equip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
     };
 
     struct effect_thedaltons  {
-        void on_equip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
     };
 
     struct request_thedaltons : request_base {
@@ -27,52 +27,52 @@ namespace banggame {
     };
 
     struct effect_thedoctor  {
-        void on_equip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
     };
 
     struct effect_trainarrival {
-        void on_equip(card *target_card, player *target);
-        void on_unequip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
+        void on_disable(card *target_card, player *target);
     };
 
     struct effect_thirst {
-        void on_equip(card *target_card, player *target);
-        void on_unequip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
+        void on_disable(card *target_card, player *target);
     };
 
     struct effect_highnoon : event_based_effect {
-        void on_equip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
     };
 
     struct effect_shootout : event_based_effect {
-        void on_equip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
     };
 
     struct effect_invert_rotation  {
-        void on_equip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
     };
 
     struct effect_reverend {
-        void on_equip(card *target_card, player *target);
-        void on_unequip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
+        void on_disable(card *target_card, player *target);
     };
 
     struct effect_hangover {
-        void on_equip(card *target_card, player *target);
-        void on_unequip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
+        void on_disable(card *target_card, player *target);
     };
 
     struct effect_sermon {
-        void on_equip(card *target_card, player *target);
-        void on_unequip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
+        void on_disable(card *target_card, player *target);
     };
 
     struct effect_ghosttown  {
-        void on_equip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
     };
 
     struct effect_handcuffs : event_based_effect {
-        void on_equip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
     };
 
     struct request_handcuffs : selection_picker {
@@ -84,7 +84,7 @@ namespace banggame {
     };
 
     struct effect_newidentity : event_based_effect {
-        void on_equip(card *target_card, player *target);
+        void on_enable(card *target_card, player *target);
     };
 
     struct request_newidentity : request_base {
