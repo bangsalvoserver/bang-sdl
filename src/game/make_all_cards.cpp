@@ -13,6 +13,8 @@
 
 namespace banggame {
 
+    using namespace enums::flag_operators;
+
     struct invalid_effect : std::runtime_error {
         using std::runtime_error::runtime_error;
     };
@@ -25,10 +27,16 @@ namespace banggame {
         }
     }
 
+    static card_expansion_type get_expansion(const Json::Value &value) {
+        if (value.isMember("expansion")) {
+            return string_to_enum_or_throw<card_expansion_type>(value["expansion"].asString());
+        }
+        return {};
+    }
+
     template<typename Holder>
     static effect_list_base<Holder> make_effects_from_json(const Json::Value &json_effects) {
         using enum_type = typename Holder::enum_type;
-        using namespace enums::flag_operators;
 
         effect_list_base<Holder> ret;
         for (const auto &json_effect : json_effects) {
@@ -118,7 +126,7 @@ namespace banggame {
             if (is_disabled(json_card)) continue;
             card_deck_info c;
             c.deck = card_deck_type::main_deck;
-            c.expansion = string_to_enum_or_throw<card_expansion_type>(json_card["expansion"].asString());
+            c.expansion = get_expansion(json_card);
             make_all_effects(c, json_card);
             c.color = string_to_enum_or_throw<card_color_type>(json_card["color"].asString());
             for (const auto &json_sign : json_card["signs"]) {
@@ -139,7 +147,7 @@ namespace banggame {
             if (is_disabled(json_character)) continue;
             card_deck_info c;
             c.deck = card_deck_type::character;
-            c.expansion = string_to_enum_or_throw<card_expansion_type>(json_character["expansion"].asString());
+            c.expansion = get_expansion(json_character);
             make_all_effects(c, json_character);
             characters.push_back(c);
         }
@@ -165,10 +173,7 @@ namespace banggame {
             if (is_disabled(json_card)) continue;
             card_deck_info c;
             c.deck = card_deck_type::highnoon;
-            c.expansion = card_expansion_type::highnoon;
-            if (json_card.isMember("expansion")) {
-                c.expansion |= string_to_enum_or_throw<card_expansion_type>(json_card["expansion"].asString());
-            }
+            c.expansion = card_expansion_type::highnoon | get_expansion(json_card);
             make_all_effects(c, json_card);
             if (c.hidden) {
                 hidden.push_back(c);
@@ -194,10 +199,7 @@ namespace banggame {
             if (is_disabled(json_card)) continue;
             card_deck_info c;
             c.deck = card_deck_type::wildwestshow;
-            c.expansion = card_expansion_type::wildwestshow;
-            if (json_card.isMember("expansion")) {
-                c.expansion |= string_to_enum_or_throw<card_expansion_type>(json_card["expansion"].asString());
-            }
+            c.expansion = card_expansion_type::wildwestshow | get_expansion(json_card);
             make_all_effects(c, json_card);
             wildwestshow.push_back(c);
         }
@@ -205,7 +207,7 @@ namespace banggame {
         for (const auto &json_card : json_cards["hidden"]) {
             if (is_disabled(json_card)) continue;
             card_deck_info c;
-            c.expansion = string_to_enum_or_throw<card_expansion_type>(json_card["expansion"].asString());
+            c.expansion = get_expansion(json_card);
             if (json_card.isMember("color")) c.color = string_to_enum_or_throw<card_color_type>(json_card["color"].asString());
             make_all_effects(c, json_card);
             hidden.push_back(c);
@@ -214,7 +216,7 @@ namespace banggame {
         for (const auto &json_card : json_cards["specials"]) {
             if (is_disabled(json_card)) continue;
             card_deck_info c;
-            c.expansion = string_to_enum_or_throw<card_expansion_type>(json_card["expansion"].asString());
+            c.expansion = get_expansion(json_card);
             make_all_effects(c, json_card);
             if (c.hidden) {
                 hidden.push_back(c);

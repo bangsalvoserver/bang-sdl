@@ -55,15 +55,6 @@ lobby_scene::expansion_box::expansion_box(const std::string &label, banggame::ca
     set_value(bool(flag & check));
 }
 
-template<typename ESeq> struct remove_first {};
-
-template<enums::reflected_enum auto First, enums::reflected_enum auto ... Es>
-struct remove_first<enums::enum_sequence<First, Es...>> {
-    using type = enums::enum_sequence<Es ...>;
-};
-
-using card_expansions_with_label = typename remove_first<enums::make_enum_sequence<banggame::card_expansion_type>>::type;
-
 lobby_scene::lobby_scene(client_manager *parent, const lobby_entered_args &args)
     : scene_base(parent)
     , m_lobby_name_text(args.info.name, widgets::text_style {
@@ -73,30 +64,38 @@ lobby_scene::lobby_scene(client_manager *parent, const lobby_entered_args &args)
     , m_start_btn(_("BUTTON_START"), [parent]{ parent->add_message<client_message_type::game_start>(); })
     , m_chat_btn(_("BUTTON_CHAT"), [parent]{ parent->enable_chat(); })
 {
-    if (parent->get_lobby_owner_id() == parent->get_user_own_id()) {
-        [this, expansions = args.info.expansions]
-        <banggame::card_expansion_type ... Es>(enums::enum_sequence<Es ...>){
-            (m_checkboxes.emplace_back(_(Es), Es, expansions).set_ontoggle(
-                [this]{ send_lobby_edited(); }
-            ), ...);
-        }(card_expansions_with_label());
-    } else {
-        m_start_btn.disable();
+    static constexpr auto unofficials = []<banggame::card_expansion_type ... Es>(enums::enum_sequence<Es ...>) {
+        return ([]{
+            constexpr auto E = Es;
+            if constexpr (enums::value_with_data<E>) {
+                if constexpr (std::is_convertible_v<enums::enum_data_t<E>, banggame::unofficial_expansion>) {
+                    return E;
+                }
+            }
+            return banggame::card_expansion_type{};
+        }() | ...);
+    }(enums::make_enum_sequence<banggame::card_expansion_type>());
 
-        [this, expansions = args.info.expansions]
-        <banggame::card_expansion_type ... Es>(enums::enum_sequence<Es ...>){
-            (m_checkboxes.emplace_back(_(Es), Es, expansions).set_locked(true), ...);
-        }(card_expansions_with_label());
+    for (auto E : enums::enum_values_v<banggame::card_expansion_type>) {
+        if (!parent->get_config().allow_unofficial_expansions && bool(unofficials & E)) continue;
+
+        auto &checkbox = m_checkboxes.emplace_back(_(E), E, args.info.expansions);
+        if (parent->get_lobby_owner_id() == parent->get_user_own_id()) {
+            checkbox.set_ontoggle([this]{ send_lobby_edited(); });
+        } else {
+            checkbox.set_locked(true);
+        }
     }
+
+    m_start_btn.set_enabled(parent->get_lobby_owner_id() == parent->get_user_own_id());
 }
 
 void lobby_scene::set_lobby_info(const lobby_info &info) {
     m_lobby_name_text.set_value(info.name);
     
-    [expansions = info.expansions, it = m_checkboxes.begin()]
-    <banggame::card_expansion_type ... Es>(enums::enum_sequence<Es ...>) mutable {
-        ((it++)->set_value(bool(Es & expansions)), ...);
-    }(card_expansions_with_label());
+    for (auto &checkbox : m_checkboxes) {
+        checkbox.set_value(bool(info.expansions & checkbox.m_flag));
+    }
 }
 
 void lobby_scene::send_lobby_edited() {

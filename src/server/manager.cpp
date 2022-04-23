@@ -309,7 +309,7 @@ void lobby::send_updates(game_manager &mgr) {
 
 void lobby::start_game(game_manager &mgr, const banggame::all_cards_t &all_cards) {
     game_options opts;
-    opts.expansions = expansions | banggame::card_expansion_type::base;
+    opts.expansions = expansions;
     opts.keep_last_card_shuffling = false;
 
     mgr.broadcast_message<server_message_type::game_started>(*this, opts);

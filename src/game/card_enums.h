@@ -29,15 +29,16 @@ namespace banggame {
         (rank_Q,    "Q")
         (rank_K,    "K")
     )
+
+    struct unofficial_expansion{};
     
-    DEFINE_ENUM_FLAGS(card_expansion_type,
-        (base)
+    DEFINE_ENUM_FLAGS_DATA(card_expansion_type,
         (characterchoice)
         (dodgecity)
         (goldrush)
         (armedanddangerous)
         (valleyofshadows)
-        (canyondiablo)
+        (canyondiablo,      unofficial_expansion{})
         (highnoon)
         (fistfulofcards)
         (wildwestshow)

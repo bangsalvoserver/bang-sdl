@@ -261,7 +261,7 @@ namespace banggame {
         std::vector<card *> character_ptrs;
         for (const auto &c : all_cards.characters) {
             if (m_players.size() <= 2 && c.discard_if_two_players) continue;
-            if (bool(c.expansion & options.expansions)) {
+            if (c.expansion == card_expansion_type{} || bool(c.expansion & options.expansions)) {
                 card copy(c);
                 copy.id = m_cards.first_available_id();
                 auto *new_card = &m_cards.emplace(std::move(copy));

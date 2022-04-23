@@ -35,6 +35,7 @@ struct config {
         (sdl::texture) profile_image_data,
         (std::string) lobby_name,
         (banggame::card_expansion_type) expansions,
+        (bool) allow_unofficial_expansions,
         (uint16_t) server_port
     )
 

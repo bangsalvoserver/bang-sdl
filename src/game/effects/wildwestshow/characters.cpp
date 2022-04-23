@@ -115,16 +115,13 @@ namespace banggame {
     }
 
     void effect_greygory_deck::on_pre_equip(card *target_card, player *target) {
-        auto view = target->m_game->m_cards
-            | std::views::filter([&](const card &c) {
-                return c.expansion == card_expansion_type::base
-                    && (c.pocket == pocket_type::none
-                    || (c.pocket == pocket_type::player_character && c.owner == target));
-            })
-            | std::views::transform([](card &c) {
-                return &c;
-            });
-        std::vector<card *> base_characters(view.begin(), view.end());
+        std::vector<card *> base_characters;
+        for (card &c : target->m_game->m_cards) {
+            if (c.expansion == card_expansion_type{}
+                && (c.pocket == pocket_type::none
+                || (c.pocket == pocket_type::player_character && c.owner == target)))
+                base_characters.push_back(&c);
+        }
         std::ranges::shuffle(base_characters, target->m_game->rng);
 
         target->m_game->add_public_update<game_update_type::add_cards>(
