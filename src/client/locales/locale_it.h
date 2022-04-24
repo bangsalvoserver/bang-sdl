@@ -1,6 +1,6 @@
 #include "locales.h"
 
-BEGIN_LOCALE(italian)
+BEGIN_LOCALE(basic, italian)
 
 LOCALE_VALUE(BANG_TITLE,                          "Bang!")
 
@@ -31,11 +31,6 @@ LOCALE_VALUE(DIALOG_IMAGE_FILES,                  "File Immagine")
 LOCALE_VALUE(DIALOG_ALL_FILES,                    "Tutti i File")
 
 LOCALE_VALUE(GAME_CONFIRM,                        "Conferma")
-LOCALE_VALUE(GAME_PASS,                           "Passa")
-LOCALE_VALUE(GAME_RESOLVE,                        "Prendi danno")
-LOCALE_VALUE(GAME_SELL_BEER,                      "Vendi birra")
-LOCALE_VALUE(GAME_DISCARD_BLACK,                  "Scarta equip")
-LOCALE_VALUE(GAME_DISCARD_BRONCO,                 "Scarta Bronco")
 LOCALE_VALUE(BUTTON_TOLOBBY,                      "Torna a Lobby")
 
 LOCALE_VALUE(GAME_USER_CONNECTED,                 "{} è entrato")

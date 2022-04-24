@@ -6,13 +6,13 @@
 #include <fmt/format.h>
 #include <fmt/args.h>
 
-#include "utils/enums.h"
+#include "locales/locales.h"
 
 namespace intl {
-    std::string translate(std::string_view str);
+    std::string translate(category cat, std::string_view str);
 
-    std::string translate(enums::reflected_enum auto value) {
-        return translate(fmt::format("{}::{}", enums::enum_name_v<decltype(value)>, enums::to_string(value)));
+    std::string translate(category cat, enums::reflected_enum auto value) {
+        return translate(cat, fmt::format("{}::{}", enums::enum_name_v<decltype(value)>, enums::to_string(value)));
     }
 
     template<typename ... Ts>
@@ -39,13 +39,17 @@ namespace intl {
     }
 }
 
-std::string _(const auto &str) {
-    return intl::translate(str);
+std::string _(intl::category cat, const auto &str) {
+    return intl::translate(cat, str);
 }
 
 template<typename T, typename ... Ts>
-std::string _(const T &str, const Ts & ... args) {
-    return intl::format(intl::translate(str), args ...);
+std::string _(intl::category cat, const T &str, const Ts & ... args) {
+    return intl::format(intl::translate(cat, str), args ...);
+}
+
+std::string _(const auto & ... args) {
+    return _(intl::category::basic, args ...);
 }
 
 #endif

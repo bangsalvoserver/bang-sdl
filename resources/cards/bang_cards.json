@@ -1,7 +1,7 @@
 {
     "cards": [
         {
-            "name": "Barile",
+            "name": "BARREL",
             "signs": [
                 "Q spades",
                 "K spades"
@@ -15,7 +15,7 @@
             ]
         },
         {
-            "name": "Dinamite",
+            "name": "DYNAMITE",
             "signs": [
                 "2 hearts"
             ],
@@ -28,7 +28,7 @@
             ]
         },
         {
-            "name": "Mirino",
+            "name": "SCOPE",
             "signs": [
                 "A spades"
             ],
@@ -41,7 +41,7 @@
             ]
         },
         {
-            "name": "Mustang",
+            "name": "MUSTANG",
             "signs": [
                 "8 hearts",
                 "9 hearts"
@@ -58,7 +58,7 @@
             ]
         },
         {
-            "name": "Prigione",
+            "name": "JAIL",
             "signs": [
                 "J spades",
                 "4 hearts",
@@ -75,7 +75,7 @@
             ]
         },
         {
-            "name": "Remington",
+            "name": "REMINGTON",
             "signs": [
                 "K clubs"
             ],
@@ -89,7 +89,7 @@
             ]
         },
         {
-            "name": "Rev. Carabine",
+            "name": "REV_CARABINE",
             "signs": [
                 "A clubs"
             ],
@@ -103,7 +103,7 @@
             ]
         },
         {
-            "name": "Schofield",
+            "name": "SCHOFIELD",
             "signs": [
                 "J clubs",
                 "Q clubs",
@@ -119,7 +119,7 @@
             ]
         },
         {
-            "name": "Volcanic",
+            "name": "VOLCANIC",
             "signs": [
                 "10 spades",
                 "10 clubs"
@@ -137,7 +137,7 @@
             ]
         },
         {
-            "name": "Winchester",
+            "name": "WINCHESTER",
             "signs": [
                 "8 spades"
             ],
@@ -151,7 +151,7 @@
             ]
         },
         {
-            "name": "Bang!",
+            "name": "BANG",
             "signs": [
                 "2 clubs",
                 "3 clubs",
@@ -198,7 +198,7 @@
             ]
         },
         {
-            "name": "Birra",
+            "name": "BEER",
             "signs": [
                 "6 hearts",
                 "7 hearts",
@@ -224,7 +224,7 @@
             ]
         },
         {
-            "name": "Cat Balou",
+            "name": "CAT_BALOU",
             "signs": [
                 "K hearts",
                 "9 diamonds",
@@ -241,7 +241,7 @@
             ]
         },
         {
-            "name": "Diligenza",
+            "name": "STAGECOACH",
             "signs": [
                 "9 spades",
                 "9 spades"
@@ -256,7 +256,7 @@
             ]
         },
         {
-            "name": "Duello",
+            "name": "DUEL",
             "signs": [
                 "Q diamonds",
                 "J spades",
@@ -273,7 +273,7 @@
             ]
         },
         {
-            "name": "Emporio",
+            "name": "GENERAL_STORE",
             "signs": [
                 "9 clubs",
                 "Q spades"
@@ -287,7 +287,7 @@
             ]
         },
         {
-            "name": "Gatling",
+            "name": "GATLING",
             "signs": [
                 "10 hearts"
             ],
@@ -301,7 +301,7 @@
             ]
         },
         {
-            "name": "Indiani!",
+            "name": "INDIANS",
             "signs": [
                 "K diamonds",
                 "A diamonds"
@@ -316,7 +316,7 @@
             ]
         },
         {
-            "name": "Mancato!",
+            "name": "MISSED",
             "signs": [
                 "2 spades",
                 "3 spades",
@@ -340,7 +340,7 @@
             ]
         },
         {
-            "name": "Panico!",
+            "name": "PANIC",
             "signs": [
                 "J hearts",
                 "Q hearts",
@@ -358,7 +358,7 @@
             ]
         },
         {
-            "name": "Saloon",
+            "name": "SALOON",
             "signs": [
                 "5 hearts"
             ],
@@ -371,7 +371,7 @@
             ]
         },
         {
-            "name": "Wells Fargo",
+            "name": "WELLS_FARGO",
             "signs": [
                 "3 hearts"
             ],
@@ -385,7 +385,7 @@
             ]
         },
         {
-            "name": "Barile",
+            "name": "BARREL",
             "signs": [
                 "A clubs"
             ],
@@ -399,7 +399,7 @@
             ]
         },
         {
-            "name": "Binocolo",
+            "name": "BINOCULAR",
             "signs": [
                 "10 diamonds"
             ],
@@ -413,7 +413,7 @@
             ]
         },
         {
-            "name": "Dinamite",
+            "name": "DYNAMITE",
             "signs": [
                 "10 clubs"
             ],
@@ -427,7 +427,7 @@
             ]
         },
         {
-            "name": "Mustang",
+            "name": "MUSTANG",
             "signs": [
                 "5 hearts"
             ],
@@ -444,7 +444,7 @@
             ]
         },
         {
-            "name": "Remington",
+            "name": "REMINGTON",
             "signs": [
                 "6 diamonds"
             ],
@@ -459,7 +459,7 @@
             ]
         },
         {
-            "name": "Rev. Carabine",
+            "name": "REV_CARABINE",
             "signs": [
                 "5 spades"
             ],
@@ -474,7 +474,7 @@
             ]
         },
         {
-            "name": "Riparo",
+            "name": "HIDEOUT",
             "signs": [
                 "K diamonds"
             ],
@@ -488,7 +488,7 @@
             ]
         },
         {
-            "name": "Bang!",
+            "name": "BANG",
             "signs": [
                 "8 spades",
                 "5 clubs",
@@ -515,7 +515,7 @@
             ]
         },
         {
-            "name": "Birra",
+            "name": "BEER",
             "signs": [
                 "6 hearts",
                 "6 spades"
@@ -538,7 +538,7 @@
             ]
         },
         {
-            "name": "Cat Balou",
+            "name": "CAT_BALOU",
             "signs": [
                 "8 clubs"
             ],
@@ -553,7 +553,7 @@
             ]
         },
         {
-            "name": "Emporio",
+            "name": "GENERAL_STORE",
             "signs": [
                 "A spades"
             ],
@@ -567,7 +567,7 @@
             ]
         },
         {
-            "name": "Indiani",
+            "name": "INDIANS",
             "signs": [
                 "5 diamonds"
             ],
@@ -582,7 +582,7 @@
             ]
         },
         {
-            "name": "Mancato!",
+            "name": "MISSED",
             "signs": [
                 "8 diamonds"
             ],
@@ -596,7 +596,7 @@
             ]
         },
         {
-            "name": "Panico!",
+            "name": "PANIC",
             "signs": [
                 "J hearts"
             ],
@@ -612,7 +612,7 @@
             ]
         },
         {
-            "name": "Pugno",
+            "name": "PUNCH",
             "signs": [
                 "10 spades"
             ],
@@ -628,7 +628,7 @@
             ]
         },
         {
-            "name": "Rag Time",
+            "name": "RAG_TIME",
             "signs": [
                 "9 hearts"
             ],
@@ -652,7 +652,7 @@
             ]
         },
         {
-            "name": "Rissa",
+            "name": "BRAWL",
             "signs": [
                 "J spades"
             ],
@@ -676,7 +676,7 @@
             ]
         },
         {
-            "name": "Schivata",
+            "name": "DODGE",
             "signs": [
                 "7 diamonds",
                 "K hearts"
@@ -694,7 +694,7 @@
             ]
         },
         {
-            "name": "Springfield",
+            "name": "SPRINGFIELD",
             "signs": [
                 "K spades"
             ],
@@ -719,7 +719,7 @@
             ]
         },
         {
-            "name": "Tequila",
+            "name": "TEQUILA",
             "signs": [
                 "9 clubs"
             ],
@@ -743,7 +743,7 @@
             ]
         },
         {
-            "name": "Whisky",
+            "name": "WHISKY",
             "signs": [
                 "Q hearts"
             ],
@@ -767,7 +767,7 @@
             ]
         },
         {
-            "name": "Bibbia",
+            "name": "BIBLE",
             "signs": [
                 "10 hearts"
             ],
@@ -784,7 +784,7 @@
             ]
         },
         {
-            "name": "Borraccia",
+            "name": "CANTEEN",
             "signs": [
                 "7 hearts"
             ],
@@ -798,7 +798,7 @@
             ]
         },
         {
-            "name": "Can Can",
+            "name": "CAN_CAN",
             "signs": [
                 "J clubs"
             ],
@@ -813,7 +813,7 @@
             ]
         },
         {
-            "name": "Cappello",
+            "name": "TEN_GALLON_HAT",
             "signs": [
                 "J diamonds"
             ],
@@ -827,7 +827,7 @@
             ]
         },
         {
-            "name": "Conestoga",
+            "name": "CONESTOGA",
             "signs": [
                 "9 diamonds"
             ],
@@ -842,7 +842,7 @@
             ]
         },
         {
-            "name": "Derringer",
+            "name": "DERRINGER",
             "signs": [
                 "7 spades"
             ],
@@ -861,7 +861,7 @@
             ]
         },
         {
-            "name": "Fucile da Caccia",
+            "name": "BUFFALO_RIFLE",
             "signs": [
                 "9 clubs"
             ],
@@ -877,7 +877,7 @@
             ]
         },
         {
-            "name": "Howitzer",
+            "name": "HOWITZER",
             "signs": [
                 "9 spades"
             ],
@@ -892,7 +892,7 @@
             ]
         },
         {
-            "name": "Pepperbox",
+            "name": "PEPPERBOX",
             "signs": [
                 "A hearts"
             ],
@@ -908,7 +908,7 @@
             ]
         },
         {
-            "name": "Placca di Ferro",
+            "name": "IRON_PLATE",
             "signs": [
                 "A diamonds",
                 "Q spades"
@@ -923,7 +923,7 @@
             ]
         },
         {
-            "name": "Pony Express",
+            "name": "PONY_EXPRESS",
             "signs": [
                 "Q diamonds"
             ],
@@ -938,7 +938,7 @@
             ]
         },
         {
-            "name": "Pugnale",
+            "name": "KNIFE",
             "signs": [
                 "8 hearts"
             ],
@@ -954,7 +954,7 @@
             ]
         },
         {
-            "name": "Sombrero",
+            "name": "SOMBRERO",
             "signs": [
                 "7 clubs"
             ],
@@ -969,7 +969,7 @@
         },
         {
             "discard_if_two_players": true,
-            "name": "Fantasma",
+            "name": "GHOST",
             "signs": [
                 "9 spades",
                 "10 spades"
@@ -986,7 +986,7 @@
             ]
         },
         {
-            "name": "Lemat",
+            "name": "LEMAT",
             "signs": [
                 "4 diamonds"
             ],
@@ -1017,7 +1017,7 @@
             ]
         },
         {
-            "name": "Serpente a Sonagli",
+            "name": "RATTLESNAKE",
             "signs": [
                 "7 hearts"
             ],
@@ -1032,7 +1032,7 @@
             ]
         },
         {
-            "name": "Shotgun",
+            "name": "SHOTGUN",
             "signs": [
                 "K spades"
             ],
@@ -1050,7 +1050,7 @@
             ]
         },
         {
-            "name": "Taglia",
+            "name": "BOUNTY",
             "signs": [
                 "9 clubs"
             ],
@@ -1065,7 +1065,7 @@
             ]
         },
         {
-            "name": "Bandidos",
+            "name": "BANDIDOS",
             "signs": [
                 "Q diamonds"
             ],
@@ -1085,7 +1085,7 @@
             ]
         },
         {
-            "name": "Fuga",
+            "name": "ESCAPE",
             "signs": [
                 "3 hearts"
             ],
@@ -1099,7 +1099,7 @@
             ]
         },
         {
-            "name": "Mira",
+            "name": "AIM",
             "signs": [
                 "6 clubs"
             ],
@@ -1114,7 +1114,7 @@
             ]
         },
         {
-            "name": "Poker",
+            "name": "POKER",
             "signs": [
                 "J hearts"
             ],
@@ -1128,7 +1128,7 @@
             ]
         },
         {
-            "name": "Ritorno di Fiamma",
+            "name": "BACKFIRE",
             "signs": [
                 "Q clubs"
             ],
@@ -1145,7 +1145,7 @@
             ]
         },
         {
-            "name": "Salvo!",
+            "name": "SAVED",
             "signs": [
                 "5 hearts"
             ],
@@ -1160,7 +1160,7 @@
         },
         {
             "discard_if_two_players": true,
-            "name": "Sventagliata",
+            "name": "FANNING",
             "signs": [
                 "2 spades"
             ],
@@ -1185,7 +1185,7 @@
             "multitarget": "fanning"
         },
         {
-            "name": "Tomahawk",
+            "name": "TOMAHAWK",
             "signs": [
                 "A diamonds"
             ],
@@ -1201,7 +1201,7 @@
             ]
         },
         {
-            "name": "Tornado",
+            "name": "TORNADO",
             "signs": [
                 "A clubs"
             ],
@@ -1221,7 +1221,7 @@
             ]
         },
         {
-            "name": "Ultimo Giro",
+            "name": "LAST_CALL",
             "signs": [
                 "8 diamonds"
             ],
@@ -1235,7 +1235,7 @@
             ]
         },
         {
-            "name": "Bang!",
+            "name": "BANG",
             "signs": [
                 "6 hearts",
                 "2 clubs",
@@ -1262,7 +1262,7 @@
             ]
         },
         {
-            "name": "Carovana",
+            "name": "CARAVAN",
             "signs": [
                 "2 spades"
             ],
@@ -1300,7 +1300,7 @@
             "multitarget": "draw_atend"
         },
         {
-            "name": "Cat Balou",
+            "name": "CAT_BALOU",
             "signs": [
                 "3 hearts"
             ],
@@ -1315,7 +1315,7 @@
             ]
         },
         {
-            "name": "Cicchetto",
+            "name": "A_LITTLE_NIP",
             "signs": [
                 "5 hearts"
             ],
@@ -1356,7 +1356,7 @@
             "multitarget": "heal_multi"
         },
         {
-            "name": "Colpo Rapido",
+            "name": "QUICK_SHOT",
             "signs": [
                 "3 spades"
             ],
@@ -1388,7 +1388,7 @@
             ]
         },
         {
-            "name": "Flintlock",
+            "name": "FLINTLOCK",
             "signs": [
                 "A spades"
             ],
@@ -1421,7 +1421,7 @@
             ]
         },
         {
-            "name": "Freccia",
+            "name": "ARROW",
             "signs": [
                 "5 diamonds"
             ],
@@ -1453,7 +1453,7 @@
             ]
         },
         {
-            "name": "Gi\u00f9 la Testa!",
+            "name": "DUCK",
             "signs": [
                 "3 diamonds"
             ],
@@ -1484,7 +1484,7 @@
             ]
         },
         {
-            "name": "Mancato!",
+            "name": "MISSED",
             "signs": [
                 "K spades"
             ],
@@ -1498,7 +1498,7 @@
             ]
         },
         {
-            "name": "Ricarica",
+            "name": "RELOAD",
             "signs": [
                 "4 diamonds"
             ],
@@ -1512,7 +1512,7 @@
             ]
         },
         {
-            "name": "Ruggine",
+            "name": "RUST",
             "signs": [
                 "9 spades"
             ],
@@ -1527,7 +1527,7 @@
             ]
         },
         {
-            "name": "Squaw",
+            "name": "SQUAW",
             "signs": [
                 "3 diamonds"
             ],
@@ -1558,7 +1558,7 @@
             "multitarget": "squaw"
         },
         {
-            "name": "Asso nella Manica",
+            "name": "ACE_UP_THE_SLEEVE",
             "signs": [
                 "A hearts"
             ],
@@ -1576,7 +1576,7 @@
             ]
         },
         {
-            "name": "Bandoliera",
+            "name": "BANDOLIER",
             "signs": [
                 "2 hearts"
             ],
@@ -1598,7 +1598,7 @@
             ]
         },
         {
-            "name": "Big Fifty",
+            "name": "BIG_FIFTY",
             "signs": [
                 "Q spades"
             ],
@@ -1622,7 +1622,7 @@
             ]
         },
         {
-            "name": "Bomba",
+            "name": "BOMB",
             "signs": [
                 "7 diamonds"
             ],
@@ -1647,7 +1647,7 @@
             "multitarget": "move_bomb"
         },
         {
-            "name": "Buntline Special",
+            "name": "BUNTLINE_SPECIAL",
             "signs": [
                 "J spades"
             ],
@@ -1671,7 +1671,7 @@
             ]
         },
         {
-            "name": "Campanile",
+            "name": "BELL_TOWER",
             "signs": [
                 "7 clubs"
             ],
@@ -1686,7 +1686,7 @@
             ]
         },
         {
-            "name": "Cassa",
+            "name": "CRATE",
             "signs": [
                 "3 hearts"
             ],
@@ -1704,7 +1704,7 @@
             ]
         },
         {
-            "name": "Cespuglio",
+            "name": "TUMBLEWEED",
             "signs": [
                 "4 clubs"
             ],
@@ -1726,7 +1726,7 @@
             ]
         },
         {
-            "name": "Doppia Canna",
+            "name": "DOUBLE_BARREL",
             "signs": [
                 "6 clubs"
             ],
@@ -1750,7 +1750,7 @@
             ]
         },
         {
-            "name": "Frusta",
+            "name": "WHIP",
             "signs": [
                 "5 clubs"
             ],
@@ -1770,7 +1770,7 @@
             ]
         },
         {
-            "name": "Fusto di Birra",
+            "name": "BEER_KEG",
             "signs": [
                 "4 hearts"
             ],
@@ -1788,7 +1788,7 @@
             ]
         },
         {
-            "name": "Grimaldello",
+            "name": "LOCKPICK",
             "signs": [
                 "2 clubs"
             ],
@@ -1809,7 +1809,7 @@
             ]
         },
         {
-            "name": "Thunderer",
+            "name": "THUNDERER",
             "signs": [
                 "3 clubs"
             ],
@@ -1833,7 +1833,7 @@
             ]
         },
         {
-            "name": "Tombarolo",
+            "name": "GRAVE_ROBBER",
             "signs": [
                 "8 spades"
             ],
@@ -1850,7 +1850,7 @@
             ]
         },
         {
-            "name": "Baro",
+            "name": "CARD_SHARPER",
             "signs": [
                 "10 clubs"
             ],
@@ -1874,7 +1874,7 @@
             "multitarget": "card_sharper"
         },
         {
-            "name": "Miraggio",
+            "name": "MIRAGE",
             "signs": [
                 "8 hearts"
             ],
@@ -1891,7 +1891,7 @@
             ]
         },
         {
-            "name": "Patto di Sangue",
+            "name": "BLOOD_PACT",
             "signs": [
                 "J hearts"
             ],
@@ -1912,7 +1912,7 @@
             ]
         },
         {
-            "name": "Sacrificio",
+            "name": "SACRIFICE",
             "signs": [
                 "10 hearts"
             ],
@@ -1926,7 +1926,7 @@
             ]
         },
         {
-            "name": "Disarmare",
+            "name": "DISARM",
             "signs": [
                 "7 hearts"
             ],
@@ -1943,7 +1943,7 @@
             ]
         },
         {
-            "name": "Molotov",
+            "name": "MOLOTOV",
             "signs": [
                 "A hearts"
             ],
@@ -1959,7 +1959,7 @@
             ]
         },
         {
-            "name": "Mancato!",
+            "name": "MISSED",
             "signs": [
                 "J spades",
                 "6 clubs"
@@ -1974,7 +1974,7 @@
             ]
         },
         {
-            "name": "Bang!",
+            "name": "BANG",
             "signs": [
                 "10 spades",
                 "Q clubs",
@@ -2001,7 +2001,7 @@
             ]
         },
         {
-            "name": "Panico!",
+            "name": "PANIC",
             "signs": [
                 "9 hearts"
             ],
@@ -2017,7 +2017,7 @@
             ]
         },
         {
-            "name": "Birra",
+            "name": "BEER",
             "signs": [
                 "Q hearts"
             ],
@@ -2039,7 +2039,7 @@
             ]
         },
         {
-            "name": "Cat Balou",
+            "name": "CAT_BALOU",
             "signs": [
                 "J clubs"
             ],
@@ -2054,7 +2054,7 @@
             ]
         },
         {
-            "name": "Bulldog",
+            "name": "BULLDOG",
             "signs": [
                 "7 diamonds"
             ],
@@ -2092,7 +2092,7 @@
         },
         {
             "discard_if_two_players": true,
-            "name": "Ultime Volont\u00e0",
+            "name": "LAST_WILL",
             "signs": [
                 "A spades"
             ],
@@ -2138,7 +2138,7 @@
             "multitarget": "lastwill"
         },
         {
-            "name": "Guida Indiana",
+            "name": "INDIAN_GUIDE",
             "signs": [
                 "8 clubs"
             ],
@@ -2152,7 +2152,7 @@
             ]
         },
         {
-            "name": "Remington",
+            "name": "REMINGTON",
             "signs": [
                 "K spades"
             ],
@@ -2167,7 +2167,7 @@
             ]
         },
         {
-            "name": "Esattore",
+            "name": "TAXMAN",
             "signs": [
                 "K clubs"
             ],
@@ -2182,7 +2182,7 @@
             ]
         },
         {
-            "name": "Bordello",
+            "name": "BROTHEL",
             "signs": [
                 "7 clubs"
             ],
@@ -2197,7 +2197,7 @@
             ]
         },
         {
-            "name": "Bronco",
+            "name": "BRONCO",
             "signs": [
                 "Q diamonds"
             ],
@@ -2217,7 +2217,7 @@
             ]
         },
         {
-            "name": "Mulo",
+            "name": "PACK_MULE",
             "signs": [
                 "Q spades"
             ],
@@ -2234,7 +2234,7 @@
             ]
         },
         {
-            "name": "Sentiero di Guerra",
+            "name": "WAR_PATH",
             "signs": [
                 "K diamonds"
             ],
@@ -2249,7 +2249,7 @@
             ]
         },
         {
-            "name": "Incendio",
+            "name": "ARSON",
             "signs": [
                 "J diamonds"
             ],
@@ -2264,7 +2264,7 @@
             ]
         },
         {
-            "name": "Proiettile Vagante",
+            "name": "FLYING_BULLET",
             "signs": [
                 "10 diamonds"
             ],
@@ -2285,7 +2285,7 @@
             ]
         },
         {
-            "name": "Offre La Casa",
+            "name": "ON_THE_HOUSE",
             "signs": [
                 "K hearts"
             ],
@@ -2304,7 +2304,7 @@
             ]
         },
         {
-            "name": "Chitarra",
+            "name": "GUITAR",
             "signs": [
                 "9 clubs"
             ],
@@ -2323,7 +2323,7 @@
             ]
         },
         {
-            "name": "Attaccabrighe",
+            "name": "SCRAPPER",
             "signs": [
                 "9 spades"
             ],
@@ -2339,7 +2339,7 @@
             ]
         },
         {
-            "name": "Strozzino",
+            "name": "SHYLOCK",
             "signs": [
                 "9 diamonds"
             ],
@@ -2359,7 +2359,7 @@
             ]
         },
         {
-            "name": "Schivata",
+            "name": "DODGE",
             "signs": [
                 "7 spades"
             ],
@@ -2378,7 +2378,7 @@
     ],
     "characters": [
         {
-            "name": "Bart Cassidy",
+            "name": "BART_CASSIDY",
             "image": "01_bartcassidy",
             "equip": [
                 {
@@ -2391,7 +2391,7 @@
             ]
         },
         {
-            "name": "Black Jack",
+            "name": "BLACK_JACK",
             "image": "01_blackjack",
             "equip": [
                 {
@@ -2404,7 +2404,7 @@
             ]
         },
         {
-            "name": "Calamity Janet",
+            "name": "CALAMITY_JANET",
             "image": "01_calamityjanet",
             "equip": [
                 {
@@ -2433,7 +2433,7 @@
             ]
         },
         {
-            "name": "El Gringo",
+            "name": "EL_GRINGO",
             "image": "01_elgringo",
             "equip": [
                 {
@@ -2446,7 +2446,7 @@
             ]
         },
         {
-            "name": "Jesse Jones",
+            "name": "JESSE_JONES",
             "image": "01_jessejones",
             "equip": [
                 {
@@ -2470,7 +2470,7 @@
             ]
         },
         {
-            "name": "Jourdonnais",
+            "name": "JOURDONNAINS",
             "image": "01_jourdonnais",
             "equip": [
                 {
@@ -2485,7 +2485,7 @@
             ]
         },
         {
-            "name": "Kit Carlson",
+            "name": "KIT_CARLSON",
             "image": "01_kitcarlson",
             "equip": [
                 {
@@ -2498,7 +2498,7 @@
             ]
         },
         {
-            "name": "Lucky Duke",
+            "name": "LUCKY_DUKE",
             "image": "01_luckyduke",
             "equip": [
                 {
@@ -2511,7 +2511,7 @@
             ]
         },
         {
-            "name": "Paul Regret",
+            "name": "PAUL_REGRET",
             "image": "01_paulregret",
             "equip": [
                 {
@@ -2524,7 +2524,7 @@
             ]
         },
         {
-            "name": "Pedro Ramirez",
+            "name": "PEDRO_RAMIREZ",
             "image": "01_pedroramirez",
             "equip": [
                 {
@@ -2547,7 +2547,7 @@
             ]
         },
         {
-            "name": "Rose Doolan",
+            "name": "ROSE_DOOLAN",
             "image": "01_rosedoolan",
             "equip": [
                 {
@@ -2560,7 +2560,7 @@
             ]
         },
         {
-            "name": "Sid Ketchum",
+            "name": "SID_KETCHUM",
             "image": "01_sidketchum",
             "equip": [
                 {
@@ -2607,7 +2607,7 @@
             ]
         },
         {
-            "name": "Slab the Killer",
+            "name": "SLAB_THE_KILLER",
             "image": "01_slab",
             "equip": [
                 {
@@ -2620,7 +2620,7 @@
             ]
         },
         {
-            "name": "Suzy Lafayette",
+            "name": "SUZY_LAFAYETTE",
             "image": "01_suzylafayette",
             "equip": [
                 {
@@ -2634,7 +2634,7 @@
         },
         {
             "discard_if_two_players": true,
-            "name": "Vulture Sam",
+            "name": "VULTURE_SAM",
             "image": "01_vulturesam",
             "equip": [
                 {
@@ -2647,7 +2647,7 @@
             ]
         },
         {
-            "name": "Willy the Kid",
+            "name": "WILLY_THE_KID",
             "image": "01_willythekid",
             "equip": [
                 {
@@ -2674,7 +2674,7 @@
             ]
         },
         {
-            "name": "Johnny Kisch",
+            "name": "JOHNYY_KISCH",
             "image": "02_johnnykisch",
             "expansion": "thebullet",
             "equip": [
@@ -2688,7 +2688,7 @@
             ]
         },
         {
-            "name": "Uncle Will",
+            "name": "UNCLE_WILL",
             "image": "02_unclewill",
             "expansion": "thebullet",
             "equip": [
@@ -2714,7 +2714,7 @@
             ]
         },
         {
-            "name": "Apache Kid",
+            "name": "APACHE_KID",
             "image": "03_apache_kid",
             "expansion": "dodgecity",
             "equip": [
@@ -2728,7 +2728,7 @@
             ]
         },
         {
-            "name": "Belle Star",
+            "name": "BELLE_STAR",
             "image": "03_belle_star",
             "expansion": "dodgecity",
             "equip": [
@@ -2742,7 +2742,7 @@
             ]
         },
         {
-            "name": "Bill Noface",
+            "name": "BILL_NOFACE",
             "image": "03_bill_noface",
             "expansion": "dodgecity",
             "equip": [
@@ -2756,7 +2756,7 @@
             ]
         },
         {
-            "name": "Chuck Wengam",
+            "name": "CHUCK_WENGAM",
             "image": "03_chuck_wengam",
             "expansion": "dodgecity",
             "equip": [
@@ -2778,7 +2778,7 @@
             ]
         },
         {
-            "name": "Doc Holyday",
+            "name": "DOC_HOLYDAY",
             "image": "03_doc_holyday",
             "expansion": "dodgecity",
             "equip": [
@@ -2813,7 +2813,7 @@
             "multitarget": "doc_holyday"
         },
         {
-            "name": "Elena Fuente",
+            "name": "ELENA_FUENTE",
             "image": "03_elena_fuente",
             "expansion": "dodgecity",
             "equip": [
@@ -2836,7 +2836,7 @@
         },
         {
             "discard_if_two_players": true,
-            "name": "Greg Digger",
+            "name": "GREG_DIGGER",
             "image": "03_greg_digger",
             "expansion": "dodgecity",
             "equip": [
@@ -2851,7 +2851,7 @@
         },
         {
             "discard_if_two_players": true,
-            "name": "Herb Hunter",
+            "name": "HERB_HUNTER",
             "image": "03_herb_hunter",
             "expansion": "dodgecity",
             "equip": [
@@ -2865,7 +2865,7 @@
             ]
         },
         {
-            "name": "Jos\u00e8 Delgado",
+            "name": "JOSE_DELGADO",
             "image": "03_jose_delgado",
             "expansion": "dodgecity",
             "equip": [
@@ -2892,7 +2892,7 @@
             ]
         },
         {
-            "name": "Molly Stark",
+            "name": "MOLLY_STARK",
             "image": "03_molly_stark",
             "expansion": "dodgecity",
             "equip": [
@@ -2906,7 +2906,7 @@
             ]
         },
         {
-            "name": "Pat Brennan",
+            "name": "PAT_BRENNAN",
             "image": "03_pat_brennan",
             "expansion": "dodgecity",
             "equip": [
@@ -2927,7 +2927,7 @@
             ]
         },
         {
-            "name": "Pixie Pete",
+            "name": "PIXIE_PETE",
             "image": "03_pixie_pete",
             "expansion": "dodgecity",
             "equip": [
@@ -2941,7 +2941,7 @@
             ]
         },
         {
-            "name": "Sean Mallory",
+            "name": "SEAN_MALLORY",
             "image": "03_sean_mallory",
             "expansion": "dodgecity",
             "equip": [
@@ -2956,7 +2956,7 @@
             ]
         },
         {
-            "name": "Tequila Joe",
+            "name": "TEQUILA_JOE",
             "image": "03_tequila_joe",
             "expansion": "dodgecity",
             "equip": [
@@ -2970,7 +2970,7 @@
             ]
         },
         {
-            "name": "Vera Custer",
+            "name": "VERA_CUSTER",
             "image": "03_vera_custer",
             "expansion": "dodgecity",
             "equip": [
@@ -2984,7 +2984,7 @@
             ]
         },
         {
-            "name": "Black Flower",
+            "name": "BLACK_FLOWER",
             "image": "07_blackflower",
             "expansion": "valleyofshadows",
             "equip": [
@@ -3012,7 +3012,7 @@
             ]
         },
         {
-            "name": "Colorado Bill",
+            "name": "COLORADO_BILL",
             "image": "07_coloradobill",
             "expansion": "valleyofshadows",
             "equip": [
@@ -3026,7 +3026,7 @@
             ]
         },
         {
-            "name": "Der Spot - Burst Ringer",
+            "name": "DER_SPOT_BURST_RINGER",
             "image": "07_derspot",
             "expansion": "valleyofshadows",
             "equip": [
@@ -3053,7 +3053,7 @@
             ]
         },
         {
-            "name": "Evelyn Shebang",
+            "name": "EVELYN_SHEBANG",
             "image": "07_evelynshebang",
             "expansion": "valleyofshadows",
             "equip": [
@@ -3077,7 +3077,7 @@
             ]
         },
         {
-            "name": "Henry Block",
+            "name": "HENRY_BLOCK",
             "image": "07_henryblock",
             "expansion": "valleyofshadows",
             "equip": [
@@ -3091,7 +3091,7 @@
             ]
         },
         {
-            "name": "Lemonade Jim",
+            "name": "LEMONADE_JIM",
             "image": "07_lemonadejim",
             "expansion": "valleyofshadows",
             "equip": [
@@ -3119,7 +3119,7 @@
             ]
         },
         {
-            "name": "Mick Defender",
+            "name": "MICK_DEFENDER",
             "image": "07_mickdefender",
             "expansion": "valleyofshadows",
             "equip": [
@@ -3141,7 +3141,7 @@
             ]
         },
         {
-            "name": "Tuco Franziskaner",
+            "name": "TUCO_FRANZISKANER",
             "image": "07_tucofranziskaner",
             "expansion": "valleyofshadows",
             "equip": [
@@ -3155,7 +3155,7 @@
             ]
         },
         {
-            "name": "Big Spencer",
+            "name": "BIG_SPENCER",
             "image": "06_bigspencer",
             "expansion": "wildwestshow",
             "equip": [
@@ -3169,7 +3169,7 @@
             ]
         },
         {
-            "name": "Flint Westwood",
+            "name": "FLINT_WESTWOOD",
             "image": "06_flintwestwood",
             "expansion": "wildwestshow",
             "equip": [
@@ -3199,7 +3199,7 @@
             "multitarget": "flint_westwood"
         },
         {
-            "name": "Gary Looter",
+            "name": "GARY_LOOTER",
             "image": "06_garylooter",
             "expansion": "wildwestshow",
             "equip": [
@@ -3213,7 +3213,7 @@
             ]
         },
         {
-            "name": "Greygory Deck",
+            "name": "GREYGORY_DECK",
             "image": "06_greygorydeck",
             "expansion": "wildwestshow",
             "responses": [
@@ -3239,7 +3239,7 @@
             ]
         },
         {
-            "name": "John Pain",
+            "name": "JOHN_PAIN",
             "image": "06_johnpain",
             "expansion": "wildwestshow",
             "equip": [
@@ -3253,7 +3253,7 @@
             ]
         },
         {
-            "name": "Lee Van Kliff",
+            "name": "LEE_VAN_KLIFF",
             "image": "06_leevankliff",
             "expansion": "wildwestshow",
             "modifier": "leevankliff",
@@ -3265,7 +3265,7 @@
             ]
         },
         {
-            "name": "Teren Kill",
+            "name": "TEREN_KILL",
             "image": "06_terenkill",
             "expansion": "wildwestshow",
             "equip": [
@@ -3281,7 +3281,7 @@
             ]
         },
         {
-            "name": "Youl Grinner",
+            "name": "YOUL_GRINNER",
             "image": "06_youlgrinner",
             "expansion": "wildwestshow",
             "equip": [
@@ -3295,7 +3295,7 @@
             ]
         },
         {
-            "name": "Al Preacher",
+            "name": "AL_PREACHER",
             "image": "17_alpreacher",
             "expansion": "armedanddangerous",
             "equip": [
@@ -3329,7 +3329,7 @@
             ]
         },
         {
-            "name": "Bass Greeves",
+            "name": "BASS_GREEVES",
             "image": "17_bassgreeves",
             "expansion": "armedanddangerous",
             "equip": [
@@ -3359,7 +3359,7 @@
             ]
         },
         {
-            "name": "Bloody Mary",
+            "name": "BLOODY_MARY",
             "image": "17_bloodymary",
             "expansion": "armedanddangerous",
             "equip": [
@@ -3373,7 +3373,7 @@
             ]
         },
         {
-            "name": "Frankie Canton",
+            "name": "FRANKIE_CANTON",
             "image": "17_frankiecanton",
             "expansion": "armedanddangerous",
             "equip": [
@@ -3395,7 +3395,7 @@
             ]
         },
         {
-            "name": "Julie Cutter",
+            "name": "JULIE_CUTTER",
             "image": "17_juliecutter",
             "expansion": "armedanddangerous",
             "equip": [
@@ -3409,7 +3409,7 @@
             ]
         },
         {
-            "name": "Mexicali Kid",
+            "name": "MEXICALI_KID",
             "image": "17_mexicalikid",
             "expansion": "armedanddangerous",
             "equip": [
@@ -3443,7 +3443,7 @@
             ]
         },
         {
-            "name": "Ms. Abigail",
+            "name": "MS_ABIGAIL",
             "image": "17_msabigail",
             "expansion": "armedanddangerous",
             "equip": [
@@ -3462,7 +3462,7 @@
             ]
         },
         {
-            "name": "Red Ringo",
+            "name": "RED_RINGO",
             "image": "17_redringo",
             "expansion": "armedanddangerous",
             "equip": [
@@ -3496,7 +3496,7 @@
             ]
         },
         {
-            "name": "Don Bell",
+            "name": "DON_BELL",
             "image": "04_don_bell",
             "expansion": "goldrush",
             "equip": [
@@ -3510,7 +3510,7 @@
             ]
         },
         {
-            "name": "Dutch Will",
+            "name": "DUTCH_WILL",
             "image": "04_dutch_will",
             "expansion": "goldrush",
             "equip": [
@@ -3524,7 +3524,7 @@
             ]
         },
         {
-            "name": "Jacky Murieta",
+            "name": "JACKY_MURIETA",
             "image": "04_jacky_murieta",
             "expansion": "goldrush",
             "equip": [
@@ -3550,7 +3550,7 @@
             ]
         },
         {
-            "name": "Josh McCloud",
+            "name": "JOSH_MCCLOUD",
             "image": "04_josh_mccloud",
             "expansion": "goldrush",
             "equip": [
@@ -3570,7 +3570,7 @@
             ]
         },
         {
-            "name": "Madame Yto",
+            "name": "MADAME_YTO",
             "image": "04_madame_yto",
             "expansion": "goldrush",
             "equip": [
@@ -3584,7 +3584,7 @@
             ]
         },
         {
-            "name": "Pretty Luzena",
+            "name": "PRETTY_LUZENA",
             "image": "04_pretty_luzena",
             "expansion": "goldrush",
             "modifier": "discount",
@@ -3602,7 +3602,7 @@
             ]
         },
         {
-            "name": "Raddie Snake",
+            "name": "RADDIE_SNAKE",
             "image": "04_raddie_snake",
             "expansion": "goldrush",
             "equip": [
@@ -3626,7 +3626,7 @@
             ]
         },
         {
-            "name": "Simeon Picos",
+            "name": "SIMEON_PICOS",
             "image": "04_simeon_picos",
             "expansion": "goldrush",
             "equip": [
@@ -3642,7 +3642,7 @@
     ],
     "highnoon": [
         {
-            "name": "Benedizione",
+            "name": "BLESSING",
             "image": "05_benedizione",
             "equip": [
                 {
@@ -3652,7 +3652,7 @@
         },
         {
             "discard_if_two_players": true,
-            "name": "Citt\u00e0 Fantasma",
+            "name": "GHOST_TOWN",
             "image": "05_cittafantasma",
             "expansion": "ghostcards",
             "equip": [
@@ -3663,7 +3663,7 @@
         },
         {
             "discard_if_two_players": true,
-            "name": "Corsa all'Oro",
+            "name": "INVERT_ROTATION",
             "image": "05_corsaalloro",
             "equip": [
                 {
@@ -3672,7 +3672,7 @@
             ]
         },
         {
-            "name": "I Dalton",
+            "name": "THE_DALTONS",
             "image": "05_idalton",
             "equip": [
                 {
@@ -3681,7 +3681,7 @@
             ]
         },
         {
-            "name": "Il Dottore",
+            "name": "THE_DOCTOR",
             "image": "05_ildottore",
             "equip": [
                 {
@@ -3690,7 +3690,7 @@
             ]
         },
         {
-            "name": "Il Reverendo",
+            "name": "THE_REVEREND",
             "image": "05_ilreverendo",
             "equip": [
                 {
@@ -3699,7 +3699,7 @@
             ]
         },
         {
-            "name": "Il Treno",
+            "name": "TRAIN_ARRIVAL",
             "image": "05_iltreno",
             "equip": [
                 {
@@ -3708,7 +3708,7 @@
             ]
         },
         {
-            "name": "Maledizione",
+            "name": "CURSE",
             "image": "05_maledizione",
             "equip": [
                 {
@@ -3717,7 +3717,7 @@
             ]
         },
         {
-            "name": "Sbornia",
+            "name": "HANGOVER",
             "image": "05_sbornia",
             "equip": [
                 {
@@ -3726,7 +3726,7 @@
             ]
         },
         {
-            "name": "Sermone",
+            "name": "SERMON",
             "image": "05_sermone",
             "equip": [
                 {
@@ -3735,7 +3735,7 @@
             ]
         },
         {
-            "name": "Sete",
+            "name": "THIRST",
             "image": "05_sete",
             "equip": [
                 {
@@ -3744,7 +3744,7 @@
             ]
         },
         {
-            "name": "Sparatoria",
+            "name": "SHOOTOUT",
             "image": "05_sparatoria",
             "equip": [
                 {
@@ -3753,7 +3753,7 @@
             ]
         },
         {
-            "name": "Manette",
+            "name": "HANDCUFFS",
             "image": "05_manette",
             "expansion": "thebullet",
             "equip": [
@@ -3765,7 +3765,7 @@
         {
             "hidden": true,
             "expansion": "thebullet",
-            "name": "Manette: Dichiaro Cuori",
+            "name": "HANDCUFFS_HEARTS",
             "image": "05_manette_hearts",
             "responses": [
                 {
@@ -3777,7 +3777,7 @@
         {
             "hidden": true,
             "expansion": "thebullet",
-            "name": "Manette: Dichiaro Quadri",
+            "name": "HANDCUFFS_DIAMONDS",
             "image": "05_manette_diamonds",
             "responses": [
                 {
@@ -3789,7 +3789,7 @@
         {
             "hidden": true,
             "expansion": "thebullet",
-            "name": "Manette: Dichiaro Fiori",
+            "name": "HANDCUFFS_CLUBS",
             "image": "05_manette_clubs",
             "responses": [
                 {
@@ -3801,7 +3801,7 @@
         {
             "hidden": true,
             "expansion": "thebullet",
-            "name": "Manette: Dichiaro Picche",
+            "name": "HANDCUFFS_SPADES",
             "image": "05_manette_spades",
             "responses": [
                 {
@@ -3811,7 +3811,7 @@
             ]
         },
         {
-            "name": "Nuova Identit\u00e0",
+            "name": "NEW_IDENTITY",
             "image": "05_nuovaidentita",
             "expansion": "thebullet",
             "equip": [
@@ -3821,7 +3821,7 @@
             ]
         },
         {
-            "name": "Mezzogiorno di Fuoco",
+            "name": "HIGH_NOON",
             "image": "05_mezzogiornodifuoco",
             "equip": [
                 {
@@ -3833,7 +3833,7 @@
     "fistfulofcards": [
         {
             "discard_if_two_players": true,
-            "name": "Agguato",
+            "name": "AMBUSH",
             "image": "05_agguato",
             "equip": [
                 {
@@ -3842,7 +3842,7 @@
             ]
         },
         {
-            "name": "Cecchino",
+            "name": "SNIPER",
             "image": "05_cecchino",
             "effects": [
                 {
@@ -3866,7 +3866,7 @@
         },
         {
             "discard_if_two_players": true,
-            "name": "Dead Man",
+            "name": "DEAD_MAN",
             "image": "05_deadman",
             "expansion": "ghostcards",
             "equip": [
@@ -3876,7 +3876,7 @@
             ]
         },
         {
-            "name": "Fratelli di Sangue",
+            "name": "BLOOD_BROTHERS",
             "image": "05_fratellidisangue",
             "responses": [
                 {
@@ -3898,7 +3898,7 @@
             ]
         },
         {
-            "name": "Il Giudice",
+            "name": "THE_JUDGE",
             "image": "05_ilgiudice",
             "equip": [
                 {
@@ -3907,7 +3907,7 @@
             ]
         },
         {
-            "name": "Lazo",
+            "name": "LASSO",
             "image": "05_lazo",
             "equip": [
                 {
@@ -3916,7 +3916,7 @@
             ]
         },
         {
-            "name": "Legge del West",
+            "name": "LAW_OF_THE_WEST",
             "image": "05_leggedelwest",
             "equip": [
                 {
@@ -3925,7 +3925,7 @@
             ]
         },
         {
-            "name": "Liquore Forte",
+            "name": "HARD_LIQUOR",
             "image": "05_liquoreforte",
             "responses": [
                 {
@@ -3937,7 +3937,7 @@
             ]
         },
         {
-            "name": "Miniera Abbandonata",
+            "name": "ABANDONED_MINE",
             "image": "05_minieraabbandonata",
             "equip": [
                 {
@@ -3946,7 +3946,7 @@
             ]
         },
         {
-            "name": "Peyote",
+            "name": "PEYOTE",
             "image": "05_peyote",
             "equip": [
                 {
@@ -3956,7 +3956,7 @@
         },
         {
             "hidden": true,
-            "name": "Peyote: Dichiaro Rosso",
+            "name": "PEYOTE_RED",
             "image": "05_peyote_rosso",
             "responses": [
                 {
@@ -3967,7 +3967,7 @@
         },
         {
             "hidden": true,
-            "name": "Peyote: Dichiaro Nero",
+            "name": "PEYOTE_BLACK",
             "image": "05_peyote_nero",
             "responses": [
                 {
@@ -3977,7 +3977,7 @@
             ]
         },
         {
-            "name": "Ranch",
+            "name": "RANCH",
             "image": "05_ranch",
             "effects": [
                 {
@@ -4010,7 +4010,7 @@
             "multitarget": "draw_atend"
         },
         {
-            "name": "Rimbalzo",
+            "name": "RICOCHET",
             "image": "05_rimbalzo",
             "effects": [
                 {
@@ -4028,7 +4028,7 @@
             ]
         },
         {
-            "name": "Roulette Russa",
+            "name": "RUSSIAN_ROULETTE",
             "image": "05_rouletterussa",
             "equip": [
                 {
@@ -4037,7 +4037,7 @@
             ]
         },
         {
-            "name": "Vendetta",
+            "name": "VENDETTA",
             "image": "05_vendetta",
             "equip": [
                 {
@@ -4046,7 +4046,7 @@
             ]
         },
         {
-            "name": "Per un Pugno di Carte",
+            "name": "A_FISTFUL_OF_CARDS",
             "image": "05_perunpugnodicarte",
             "equip": [
                 {
@@ -4057,50 +4057,50 @@
     ],
     "wildwestshow": [
         {
-            "name": "Bavaglio",
+            "name": "GAG",
             "image": "06_bavaglio"
         },
         {
-            "name": "Camposanto",
+            "name": "BONE_ORCHARD",
             "image": "06_camposanto"
         },
         {
-            "name": "Darling Valentine",
+            "name": "DARLING_VALENTINE",
             "image": "06_darlingvalentine"
         },
         {
-            "name": "Dorothy Rage",
+            "name": "DOROTHY_RAGE",
             "image": "06_dorothyrage"
         },
         {
-            "name": "Helena Zontero",
+            "name": "HELENA_ZONTERO",
             "image": "06_helenazontero"
         },
         {
-            "name": "Lady Rosa del Texas",
+            "name": "LADY_ROSA_OF_TEXAS",
             "image": "06_ladyrosadeltexas"
         },
         {
-            "name": "Miss Susanna",
+            "name": "MISS_SUSANNA",
             "image": "06_misssusanna"
         },
         {
-            "name": "Regolamento di Conti",
+            "name": "SHOWDOWN",
             "image": "06_regolamentodiconti"
         },
         {
-            "name": "Sacagaway",
+            "name": "SACAGAWAY",
             "image": "06_sacagaway"
         },
         {
-            "name": "Wild West Show",
+            "name": "WILD_WEST_SHOW",
             "image": "06_wildwestshow"
         }
     ],
     "goldrush": [
         {
             "count": 3,
-            "name": "Bicchierino",
+            "name": "SHOT",
             "image": "04_bicchierino",
             "color": "brown",
             "effects": [
@@ -4118,7 +4118,7 @@
         },
         {
             "count": 3,
-            "name": "Bottiglia",
+            "name": "BOTTLE",
             "image": "04_bottiglia",
             "color": "brown",
             "modifier": "shopchoice",
@@ -4136,7 +4136,7 @@
         },
         {
             "hidden": true,
-            "name": "Bottiglia come Panico!",
+            "name": "BOTTLE_PANIC",
             "image": "04_bottiglia_panico",
             "color": "brown",
             "effects": [
@@ -4152,7 +4152,7 @@
         },
         {
             "hidden": true,
-            "name": "Bottiglia come Birra",
+            "name": "BOTTLE_BEER",
             "image": "04_bottiglia_birra",
             "color": "brown",
             "effects": [
@@ -4166,7 +4166,7 @@
         },
         {
             "hidden": true,
-            "name": "Bottiglia come Bang!",
+            "name": "BOTTLE_BANG",
             "image": "04_bottiglia_bang",
             "color": "brown",
             "effects": [
@@ -4181,7 +4181,7 @@
             ]
         },
         {
-            "name": "Calumet",
+            "name": "CALUMET",
             "image": "04_calumet",
             "color": "black",
             "equip": [
@@ -4195,7 +4195,7 @@
             ]
         },
         {
-            "name": "Cinturone",
+            "name": "GUN_BELT",
             "image": "04_cinturone",
             "color": "black",
             "equip": [
@@ -4211,7 +4211,7 @@
         },
         {
             "count": 3,
-            "name": "Complice",
+            "name": "PARDNER",
             "image": "04_complice",
             "color": "brown",
             "modifier": "shopchoice",
@@ -4229,7 +4229,7 @@
         },
         {
             "hidden": true,
-            "name": "Complice come Emporio",
+            "name": "PARDNER_GENERAL_STORE",
             "image": "04_complice_emporio",
             "color": "brown",
             "effects": [
@@ -4243,7 +4243,7 @@
         },
         {
             "hidden": true,
-            "name": "Complice come Duello",
+            "name": "PARDNER_DUEL",
             "image": "04_complice_duello",
             "color": "brown",
             "effects": [
@@ -4259,7 +4259,7 @@
         },
         {
             "hidden": true,
-            "name": "Complice come Cat Balou",
+            "name": "PARDNER_CAT_BALOU",
             "image": "04_complice_catbalou",
             "color": "brown",
             "effects": [
@@ -4273,7 +4273,7 @@
             ]
         },
         {
-            "name": "Corsa all' Oro",
+            "name": "GOLD_RUSH",
             "image": "04_corsa_all_oro",
             "color": "brown",
             "effects": [
@@ -4292,7 +4292,7 @@
             ]
         },
         {
-            "name": "Ferro di Cavallo",
+            "name": "HORSESHOE",
             "image": "04_ferro_di_cavallo",
             "color": "black",
             "equip": [
@@ -4306,7 +4306,7 @@
             ]
         },
         {
-            "name": "Piccone",
+            "name": "PICKAXE",
             "image": "04_piccone",
             "color": "black",
             "equip": [
@@ -4322,7 +4322,7 @@
         {
             "discard_if_two_players": true,
             "count": 3,
-            "name": "Ricercato",
+            "name": "WANTED",
             "image": "04_ricercato",
             "color": "black",
             "equip": [
@@ -4338,7 +4338,7 @@
         },
         {
             "count": 2,
-            "name": "Rum",
+            "name": "RHUM",
             "image": "04_rum",
             "color": "brown",
             "effects": [
@@ -4354,7 +4354,7 @@
             ]
         },
         {
-            "name": "Setaccio",
+            "name": "GOLD_PAN",
             "image": "04_setaccio",
             "color": "black",
             "effects": [
@@ -4378,7 +4378,7 @@
             ]
         },
         {
-            "name": "Stivali",
+            "name": "BOOTS",
             "image": "04_stivali",
             "color": "black",
             "equip": [
@@ -4392,7 +4392,7 @@
             ]
         },
         {
-            "name": "Talismano",
+            "name": "LUCKY_CHARM",
             "image": "04_talismano",
             "color": "black",
             "equip": [
@@ -4406,7 +4406,7 @@
             ]
         },
         {
-            "name": "Union Pacific",
+            "name": "UNION_PACIFIC",
             "image": "04_union_pacific",
             "color": "brown",
             "effects": [
@@ -4423,7 +4423,7 @@
             ]
         },
         {
-            "name": "Zaino",
+            "name": "RUCKSACK",
             "image": "04_zaino",
             "color": "black",
             "effects": [

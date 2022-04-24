@@ -434,7 +434,7 @@ void game_scene::HANDLE_UPDATE(game_over, const game_over_update &args) {
 }
 
 std::string game_scene::evaluate_format_string(const game_formatted_string &str) {
-    return intl::format(str.localized ? intl::translate(str.format_str) : str.format_str,
+    return intl::format(str.localized ? _(str.format_str) : str.format_str,
         str.format_args | std::views::transform([&](const game_format_arg &arg) {
         return std::visit(util::overloaded{
             [](int value) { return std::to_string(value); },
@@ -448,9 +448,9 @@ std::string game_scene::evaluate_format_string(const game_formatted_string &str)
                     } else if (!card->known) {
                         return _("STATUS_UNKNOWN_CARD");
                     } else if (card->sign) {
-                        return intl::format("{} ({}{})", card->name, enums::get_data(card->sign.rank), enums::get_data(card->sign.suit));
+                        return intl::format("{} ({}{})", _(intl::category::cards, card->name), enums::get_data(card->sign.rank), enums::get_data(card->sign.suit));
                     } else {
-                        return card->name;
+                        return _(intl::category::cards, card->name);
                     }
                 } else {
                     return _("STATUS_UNKNOWN_CARD");
