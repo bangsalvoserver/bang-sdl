@@ -50,8 +50,10 @@ namespace banggame {
         target->add_predraw_check(target_card, 1, [=](card *drawn_card) {
             target->discard_card(target_card);
             if (target->get_card_sign(drawn_card).suit == card_suit::hearts) {
+                target->m_game->add_log("LOG_JAIL_BREAK", target);
                 target->next_predraw_check(target_card);
             } else {
+                target->m_game->add_log("LOG_SKIP_TURN", target);
                 target->skip_turn();
             }
         });
@@ -63,6 +65,7 @@ namespace banggame {
             if (sign.suit == card_suit::spades
                 && enums::indexof(sign.rank) >= enums::indexof(card_rank::rank_2)
                 && enums::indexof(sign.rank) <= enums::indexof(card_rank::rank_9)) {
+                target->m_game->add_log("LOG_CARD_EXPLODES", target_card);
                 target->discard_card(target_card);
                 target->damage(target_card, nullptr, 3);
             } else {
@@ -73,6 +76,7 @@ namespace banggame {
 
                 if (p != target) {
                     target_card->on_disable(target);
+                    target_card->on_equip(p);
                     p->equip_card(target_card);
                 }
             }
@@ -109,6 +113,7 @@ namespace banggame {
 
     void effect_weapon::on_equip(card *target_card, player *target) {
         if (auto it = std::ranges::find_if(target->m_table, &card::is_weapon); it != target->m_table.end()) {
+            target->m_game->add_log("LOG_DISCARDED_SELF_CARD", target, *it);
             target->discard_card(*it);
         }
     }
@@ -135,7 +140,7 @@ namespace banggame {
                 target->m_game->queue_action([=]{
                     if (target->alive()) {
                         for (int i=0; i<damage; ++i) {
-                            target->m_game->draw_card_to(pocket_type::player_hand, target);
+                            target->m_game->log_draw_card_to(target);
                         }
                     }
                 });

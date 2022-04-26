@@ -318,6 +318,7 @@ namespace banggame {
             }
         } else {
             for (auto &p : m_players) {
+                add_log("LOG_CHARACTER_CHOICE", &p, p.m_characters.front());
                 send_card_update(p.m_characters.front(), &p, show_card_flags::instant | show_card_flags::shown);
                 p.m_characters.front()->on_enable(&p);
                 p.m_hp = p.m_max_hp;
@@ -336,7 +337,7 @@ namespace banggame {
             for (int i=0; i<max_initial_cards; ++i) {
                 for (auto &p : m_players) {
                     if (p.m_hand.size() < p.get_initial_cards()) {
-                        draw_card_to(pocket_type::player_hand, &p);
+                        log_draw_card_to(&p);
                     }
                 }
             }
@@ -464,22 +465,23 @@ namespace banggame {
             if (m_players.size() > 3) {
                 switch (target->m_role) {
                 case player_role::outlaw:
-                    draw_card_to(pocket_type::player_hand, killer);
-                    draw_card_to(pocket_type::player_hand, killer);
-                    draw_card_to(pocket_type::player_hand, killer);
+                    log_draw_card_to(killer);
+                    log_draw_card_to(killer);
+                    log_draw_card_to(killer);
                     break;
                 case player_role::deputy:
                     if (killer->m_role == player_role::sheriff) {
-                        queue_action([killer]{
+                        queue_action([this, killer]{
+                            add_log("LOG_SHERIFF_KILLED_DEPUTY", killer);
                             killer->discard_all();
                         });
                     }
                     break;
                 }
             } else {
-                draw_card_to(pocket_type::player_hand, killer);
-                draw_card_to(pocket_type::player_hand, killer);
-                draw_card_to(pocket_type::player_hand, killer);
+                log_draw_card_to(killer);
+                log_draw_card_to(killer);
+                log_draw_card_to(killer);
             }
         }
         
@@ -510,15 +512,16 @@ namespace banggame {
 
         if (!m_first_dead) m_first_dead = target;
 
-        call_event<event_type::on_player_death>(killer, target);
-
-        target->discard_all();
-        target->add_gold(-target->m_gold);
         if (killer) {
             add_log("LOG_PLAYER_KILLED", killer, target);
         } else {
             add_log("LOG_PLAYER_DIED", target);
         }
+        
+        call_event<event_type::on_player_death>(killer, target);
+
+        target->discard_all();
+        target->add_gold(-target->m_gold);
 
         add_public_update<game_update_type::player_hp>(target->id, 0, true);
         add_public_update<game_update_type::player_show_role>(target->id, target->m_role);

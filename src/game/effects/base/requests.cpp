@@ -12,6 +12,7 @@ namespace banggame {
     }
 
     void request_characterchoice::on_pick(pocket_type pocket, player *target_player, card *target_card) {
+        target->m_game->add_log("LOG_CHARACTER_CHOICE", target, target_card);
         target->m_game->move_card(target_card, pocket_type::player_character, target, show_card_flags::shown);
         target_card->on_enable(target);
 
@@ -138,6 +139,7 @@ namespace banggame {
     }
     
     void request_discard::on_pick(pocket_type pocket, player *target_player, card *target_card) {
+        target->m_game->add_log("LOG_DISCARDED_SELF_CARD", target, target_card);
         target->discard_card(target_card);
         target->m_game->call_event<event_type::on_effect_end>(target, origin_card);
         
@@ -159,13 +161,13 @@ namespace banggame {
     }
 
     void request_discard_pass::on_pick(pocket_type pocket, player *target_player, card *target_card) {
+        target->m_game->add_log("LOG_DISCARDED_SELF_CARD", target, target_card);
         if (target->m_game->has_scenario(scenario_flags::abandonedmine)) {
             target->m_game->move_card(target_card, pocket_type::main_deck, nullptr, show_card_flags::hidden);
         } else {
             target->discard_card(target_card);
         }
         ++ndiscarded;
-        target->m_game->add_log("LOG_DISCARDED_SELF_CARD", target, target_card);
         target->m_game->call_event<event_type::on_discard_pass>(target, target_card);
         if (target->m_hand.size() <= target->max_cards_end_of_turn()) {
             if (target->m_game->has_expansion(card_expansion_type::armedanddangerous)) {
@@ -198,6 +200,7 @@ namespace banggame {
     }
 
     void request_indians::on_pick(pocket_type pocket, player *target_player, card *target_card) {
+        target->m_game->add_log("LOG_RESPONDED_WITH_CARD", target_card, target);
         target->m_game->call_event<event_type::on_play_hand_card>(target, target_card);
         target->discard_card(target_card);
         target->m_game->pop_request<request_indians>();
@@ -222,6 +225,7 @@ namespace banggame {
     }
 
     void request_duel::on_pick(pocket_type pocket, player *target_player, card *target_card) {
+        target->m_game->add_log("LOG_RESPONDED_WITH_CARD", target_card, target);
         target->m_game->call_event<event_type::on_play_hand_card>(target, target_card);
         target->discard_card(target_card);
         target->m_game->pop_request_noupdate<request_duel>();

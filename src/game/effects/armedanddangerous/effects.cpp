@@ -230,6 +230,7 @@ namespace banggame {
         if (target != origin) {
             origin_card->on_disable(origin);
             origin_card->on_unequip(origin);
+            origin_card->on_equip(origin);
             target->equip_card(origin_card);
         }
         origin->m_game->pop_request<request_move_bomb>();

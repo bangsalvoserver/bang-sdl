@@ -93,10 +93,12 @@ namespace banggame {
     void handler_card_sharper::on_resolve(card *origin_card, player *origin, card *chosen_card, card *target_card) {
         player *target = target_card->owner;
         target->disable_equip(target_card);
+        target_card->on_equip(origin);
         origin->equip_card(target_card);
         if (chosen_card->owner == origin) {
             origin->disable_equip(chosen_card);
         }
+        chosen_card->on_equip(target);
         target->equip_card(chosen_card);
     }
 

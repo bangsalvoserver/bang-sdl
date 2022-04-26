@@ -19,7 +19,6 @@ namespace banggame {
     using namespace enums::flag_operators;
 
     void player::equip_card(card *target) {
-        target->on_equip(this);
         m_game->move_card(target, pocket_type::player_table, this, show_card_flags::shown);
         enable_equip(target);
         target->usages = 0;
@@ -102,9 +101,9 @@ namespace banggame {
     void player::damage(card *origin_card, player *origin, int value, bool is_bang, bool instant) {
         if (!check_player_flags(player_flags::ghost) && !(m_hp == 0 && m_game->has_scenario(scenario_flags::ghosttown))) {
             if (instant || !m_game->has_expansion(card_expansion_type::valleyofshadows | card_expansion_type::canyondiablo)) {
+                m_game->add_log(value == 1 ? "LOG_TAKEN_DAMAGE" : "LOG_TAKEN_DAMAGE_PLURAL", origin_card, this, value);
                 m_hp -= value;
                 m_game->add_public_update<game_update_type::player_hp>(id, m_hp);
-                m_game->add_log(value == 1 ? "LOG_TAKEN_DAMAGE" : "LOG_TAKEN_DAMAGE_PLURAL", origin_card, this, value);
                 if (m_hp <= 0) {
                     m_game->queue_request_front<request_death>(origin_card, origin, this);
                 }
@@ -122,13 +121,13 @@ namespace banggame {
 
     void player::heal(int value) {
         if (!check_player_flags(player_flags::ghost) && !(m_hp == 0 && m_game->has_scenario(scenario_flags::ghosttown)) && m_hp != m_max_hp) {
-            m_hp = std::min<int8_t>(m_hp + value, m_max_hp);
-            m_game->add_public_update<game_update_type::player_hp>(id, m_hp);
             if (value == 1) {
                 m_game->add_log("LOG_HEALED", this);
             } else {
                 m_game->add_log("LOG_HEALED_PLURAL", this, value);
             }
+            m_hp = std::min<int8_t>(m_hp + value, m_max_hp);
+            m_game->add_public_update<game_update_type::player_hp>(id, m_hp);
         }
     }
 
@@ -441,9 +440,10 @@ namespace banggame {
             m_game->add_log("LOG_DRAWN_FROM_DECK", this);
             while (m_num_drawn_cards<m_num_cards_to_draw) {
                 ++m_num_drawn_cards;
-                card *drawn_card = m_game->draw_phase_one_card_to(pocket_type::player_hand, this);
+                card *drawn_card = m_game->phase_one_drawn_card();
                 m_game->add_log({update_target::inv_private_update, this}, "LOG_DRAWN_CARD", this, unknown_card{});
                 m_game->add_log(this, "LOG_DRAWN_CARD", this, drawn_card);
+                m_game->draw_phase_one_card_to(pocket_type::player_hand, this);
                 m_game->call_event<event_type::on_card_drawn>(this, drawn_card);
             }
         }

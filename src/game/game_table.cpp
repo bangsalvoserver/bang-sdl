@@ -140,8 +140,8 @@ namespace banggame {
                 m_discards.emplace_back(top_discards);
             }
             shuffle_cards_and_ids(m_deck);
-            add_public_update<game_update_type::deck_shuffled>(pocket_type::main_deck);
             add_log("LOG_DECK_RESHUFFLED");
+            add_public_update<game_update_type::deck_shuffled>(pocket_type::main_deck);
         }
         return drawn_card;
     }
@@ -156,8 +156,24 @@ namespace banggame {
         }
     }
 
+    void game_table::log_draw_card_to(player *target) {
+        card *drawn_card = m_deck.back();
+        add_log({update_target::inv_private_update, target}, "LOG_DRAWN_CARD", target, unknown_card{});
+        add_log(target, "LOG_DRAWN_CARD", target, drawn_card);
+        draw_card_to(pocket_type::player_hand, target);
+    }
+
+    card *game_table::phase_one_drawn_card() {
+        if (!has_scenario(scenario_flags::abandonedmine) || m_discards.empty()) {
+            return m_deck.back();
+        } else {
+            return m_discards.back();
+        }
+    }
+
     card *game_table::draw_shop_card() {
         card *drawn_card = m_shop_deck.back();
+        add_log("LOG_DRAWN_SHOP_CARD", drawn_card);
         move_card(drawn_card, pocket_type::shop_selection);
         if (drawn_card->modifier == card_modifier_type::shopchoice) {
             for (card *c : m_hidden_deck) {

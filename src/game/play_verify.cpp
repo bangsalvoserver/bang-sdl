@@ -488,12 +488,13 @@ namespace banggame {
                         origin->m_mandatory_card = nullptr;
                     }
                     origin->m_forced_card = nullptr;
-                    target->equip_card(card_ptr);
+                    card_ptr->on_equip(target);
                     if (origin == target) {
                         origin->m_game->add_log("LOG_EQUIPPED_CARD", card_ptr, origin);
                     } else {
                         origin->m_game->add_log("LOG_EQUIPPED_CARD_TO", card_ptr, origin, target);
                     }
+                    target->equip_card(card_ptr);
                     switch (card_ptr->color) {
                     case card_color_type::blue:
                         if (origin->m_game->has_expansion(card_expansion_type::armedanddangerous)) {
@@ -580,15 +581,16 @@ namespace banggame {
                 origin->prompt_then(check_prompt_equip(), [*this, cost]{
                     player *target = get_equip_target();
                     origin->m_forced_card = nullptr;
-                    play_modifiers();
-                    origin->add_gold(-cost);
-                    target->equip_card(card_ptr);
-                    origin->set_last_played_card(nullptr);
+                    card_ptr->on_equip(target);
                     if (origin == target) {
                         origin->m_game->add_log("LOG_BOUGHT_EQUIP", card_ptr, origin);
                     } else {
                         origin->m_game->add_log("LOG_BOUGHT_EQUIP_TO", card_ptr, origin, target);
                     }
+                    play_modifiers();
+                    origin->add_gold(-cost);
+                    target->equip_card(card_ptr);
+                    origin->set_last_played_card(nullptr);
                     origin->m_game->queue_action([m_game = origin->m_game]{
                         while (m_game->m_shop_selection.size() < 3) {
                             m_game->draw_shop_card();

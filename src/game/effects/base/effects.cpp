@@ -108,6 +108,7 @@ namespace banggame {
         target->m_game->update_request();
         target->m_game->draw_check_then(target, origin_card, [=](card *drawn_card) {
             if (target->get_card_sign(drawn_card).suit == card_suit::hearts) {
+                target->m_game->add_log("LOG_CARD_HAS_EFFECT", origin_card);
                 effect_missed().on_play(origin_card, target);
             }
         });
@@ -304,8 +305,8 @@ namespace banggame {
     }
 
     void effect_choose_card::on_play(card *origin_card, player *origin, card *target_card) {
-        origin->discard_card(target_card);
         origin->m_game->add_log("LOG_CHOSE_CARD_FOR", origin_card, origin, target_card);
+        origin->discard_card(target_card);
         origin->m_game->add_event<event_type::apply_chosen_card_modifier>(target_card, [=](player *p, card* &c) {
             if (p == origin && c == origin_card) {
                 c = target_card;
@@ -321,9 +322,7 @@ namespace banggame {
 
     void effect_draw::on_play(card *origin_card, player *origin, player *target) {
         for (int i=0; i<ncards; ++i) {
-            card *drawn_card = target->m_game->draw_card_to(pocket_type::player_hand, target);
-            target->m_game->add_log({update_target::inv_private_update, target}, "LOG_DRAWN_CARD", target, unknown_card{});
-            target->m_game->add_log(target, "LOG_DRAWN_CARD", target, drawn_card);
+            target->m_game->log_draw_card_to(target);
         }
     }
 
@@ -351,9 +350,10 @@ namespace banggame {
         target->m_game->queue_action([=]{
             ++target->m_num_drawn_cards;
             while (target->m_num_drawn_cards++ < target->m_num_cards_to_draw) {
-                card *drawn_card = target->m_game->draw_phase_one_card_to(pocket_type::player_hand, target);
+                card *drawn_card = target->m_game->phase_one_drawn_card();
                 target->m_game->add_log({update_target::inv_private_update, target}, "LOG_DRAWN_CARD", target, unknown_card{});
                 target->m_game->add_log(target, "LOG_DRAWN_CARD", target, drawn_card);
+                target->m_game->draw_phase_one_card_to(pocket_type::player_hand, target);
                 target->m_game->call_event<event_type::on_card_drawn>(target, drawn_card);
             }
         });
