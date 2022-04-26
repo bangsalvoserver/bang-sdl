@@ -101,7 +101,7 @@ namespace banggame {
         } else if (!owner || bool(flags & show_card_flags::shown)) {
             add_public_update<game_update_type::show_card>(*c, flags);
         } else {
-            add_public_update<game_update_type::hide_card>(c->id, flags, owner->id);
+            add_private_update<game_update_type::hide_card>({owner, update_target::inv_private_update}, c->id, flags);
             add_private_update<game_update_type::show_card>(owner, *c, flags);
         }
     }

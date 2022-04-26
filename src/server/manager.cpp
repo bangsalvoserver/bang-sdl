@@ -293,17 +293,35 @@ void game_manager::HANDLE_MESSAGE(game_action, user_ptr user, const game_action 
 
 void lobby::send_updates(game_manager &mgr) {
     while (state == lobby_state::playing && !game.m_updates.empty()) {
-        const auto &data = game.m_updates.front();
-        if (data.first) {
-            mgr.send_message<server_message_type::game_update>(data.first->client_id, data.second);
-        } else {
-            mgr.broadcast_message<server_message_type::game_update>(*this, data.second);
-        }
-        if (data.second.is(game_update_type::game_over)) {
+        auto &[target, update] = game.m_updates.front();
+        if (update.is(game_update_type::game_over)) {
             state = lobby_state::finished;
-        } else {
-            game.m_updates.pop_front();
         }
+        switch (target.type) {
+        case update_target::private_update:
+            mgr.send_message<server_message_type::game_update>(target.target->client_id, std::move(update));
+            break;
+        case update_target::inv_private_update:
+            for (auto it : users) {
+                if (it->first != target.target->client_id) {
+                    mgr.send_message<server_message_type::game_update>(it->first, update);
+                }
+            }
+            break;
+        case update_target::public_update:
+            mgr.broadcast_message<server_message_type::game_update>(*this, std::move(update));
+            break;
+        case update_target::spectator_update:
+            for (auto it : users) {
+                if (std::ranges::none_of(game.m_players, [client_id = it->first](const player &p) {
+                    return p.client_id == client_id;
+                })) {
+                    mgr.send_message<server_message_type::game_update>(it->first, update);
+                }
+            }
+            break;
+        }
+        game.m_updates.pop_front();
     }
 }
 

@@ -100,9 +100,6 @@ namespace banggame {
         if (owner && owner->m_forced_card) {
             ADD_TO_RET(force_play_card, owner->m_forced_card->id);
         }
-        for (const auto &str : m_saved_log) {
-            ADD_TO_RET(game_log, str);
-        }
 
 #undef ADD_TO_RET
         return ret;
@@ -410,7 +407,7 @@ namespace banggame {
         if (m_requests.empty()) {
             add_public_update<game_update_type::status_clear>();
         } else {
-            add_public_update<game_update_type::request_status>(make_request_update(nullptr));
+            add_private_update<game_update_type::request_status>(update_target::spectator_update, make_request_update(nullptr));
             for (auto &p : m_players) {
                 add_private_update<game_update_type::request_status>(&p, make_request_update(&p));
             }

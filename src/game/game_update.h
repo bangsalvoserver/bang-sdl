@@ -59,8 +59,7 @@ namespace banggame {
 
     struct hide_card_update {REFLECTABLE(
         (int) card_id,
-        (show_card_flags) flags,
-        (int) ignore_player_id
+        (show_card_flags) flags
     )};
 
     struct tap_card_update {REFLECTABLE(

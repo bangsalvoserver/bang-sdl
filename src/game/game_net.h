@@ -16,25 +16,42 @@ namespace banggame {
         return {view.begin(), view.end()};
     };
 
+    struct update_target {
+        player *target;
+        enum update_target_type {
+            private_update,
+            inv_private_update,
+            public_update,
+            spectator_update
+        } type;
+
+        update_target(player *target, update_target_type type = private_update) : target(target), type(type) {}
+        update_target(update_target_type type) : target(nullptr), type(type) {}
+    };
+
     struct game_net_manager {
-        std::deque<std::pair<player *, game_update>> m_updates;
-        std::deque<game_formatted_string> m_saved_log;
+        std::deque<std::pair<update_target, game_update>> m_updates;
 
         template<game_update_type E, typename ... Ts>
-        void add_private_update(player *p, Ts && ... args) {
+        void add_private_update(update_target p, Ts && ... args) {
             m_updates.emplace_back(std::piecewise_construct,
                 std::make_tuple(p),
-                std::make_tuple(enums::enum_tag<E>, std::forward<Ts>(args) ...));
+                std::make_tuple(enums::enum_tag<E>, std::forward<Ts>(args) ... ));
         }
 
         template<game_update_type E, typename ... Ts>
-        void add_public_update(const Ts & ... args) {
-            add_private_update<E>(nullptr, args ...);
+        void add_public_update(Ts && ... args) {
+            add_private_update<E>(update_target::public_update, std::forward<Ts>(args) ... );
+        }
+
+        template<typename ... Ts>
+        void add_private_log(update_target p, Ts && ... args) {
+            add_private_update<game_update_type::game_log>(p, std::forward<Ts>(args) ... );
         }
 
         template<typename ... Ts>
         void add_log(Ts && ... args) {
-            add_public_update<game_update_type::game_log>(m_saved_log.emplace_back(std::forward<Ts>(args) ...));
+            add_private_log(update_target::public_update, std::forward<Ts>(args) ... );
         }
 
         void handle_action(enums::enum_tag_t<game_action_type::pick_card>, player *p, const pick_card_args &args) {
