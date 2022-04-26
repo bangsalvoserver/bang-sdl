@@ -265,7 +265,7 @@ namespace banggame {
         }
     };
 
-    void player::pick_card(const pick_card_args &args) {
+    void player::handle_action(enums::enum_tag_t<game_action_type::pick_card>, const pick_card_args &args) {
         [[maybe_unused]] confirmer _confirm{this};
         m_prompt.reset();
         
@@ -362,7 +362,7 @@ namespace banggame {
         return ret;
     }
 
-    void player::play_card(const play_card_args &args) {
+    void player::handle_action(enums::enum_tag_t<game_action_type::play_card>, const play_card_args &args) {
         [[maybe_unused]] confirmer _confirm{this};
         m_prompt.reset();
 
@@ -381,7 +381,7 @@ namespace banggame {
         }
     }
     
-    void player::respond_card(const play_card_args &args) {
+    void player::handle_action(enums::enum_tag_t<game_action_type::respond_card>, const play_card_args &args) {
         [[maybe_unused]] confirmer _confirm{this};
         m_prompt.reset();
         
@@ -420,7 +420,7 @@ namespace banggame {
         }
     }
 
-    void player::prompt_response(bool response) {
+    void player::handle_action(enums::enum_tag_t<game_action_type::prompt_respond>, bool response) {
         if (!m_prompt) {
             throw game_error("ERROR_INVALID_ACTION");
         }

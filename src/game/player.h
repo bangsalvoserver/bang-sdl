@@ -180,12 +180,12 @@ namespace banggame {
         void play_card_action(card *card_ptr);
         void log_played_card(card *card_ptr, bool is_response);
 
-        void pick_card(const pick_card_args &args);
-        void play_card(const play_card_args &args);
-        void respond_card(const play_card_args &args);
-
         void prompt_then(opt_fmt_str &&message, std::function<void()> &&args);
-        void prompt_response(bool response);
+
+        void handle_action(enums::enum_tag_t<game_action_type::pick_card>, const pick_card_args &args);
+        void handle_action(enums::enum_tag_t<game_action_type::play_card>, const play_card_args &args);
+        void handle_action(enums::enum_tag_t<game_action_type::respond_card>, const play_card_args &args);
+        void handle_action(enums::enum_tag_t<game_action_type::prompt_respond>, bool response);
     };
 
 }

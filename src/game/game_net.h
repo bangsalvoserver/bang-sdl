@@ -53,22 +53,6 @@ namespace banggame {
         void add_log(Ts && ... args) {
             add_private_log(update_target::public_update, std::forward<Ts>(args) ... );
         }
-
-        void handle_action(enums::enum_tag_t<game_action_type::pick_card>, player *p, const pick_card_args &args) {
-            p->pick_card(args);
-        }
-
-        void handle_action(enums::enum_tag_t<game_action_type::play_card>, player *p, const play_card_args &args) {
-            p->play_card(args);
-        }
-
-        void handle_action(enums::enum_tag_t<game_action_type::respond_card>, player *p, const play_card_args &args) {
-            p->respond_card(args);
-        }
-
-        void handle_action(enums::enum_tag_t<game_action_type::prompt_respond>, player *p, bool response) {
-            p->prompt_response(response);
-        }
     };
 
 }

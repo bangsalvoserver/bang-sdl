@@ -283,8 +283,8 @@ void game_manager::HANDLE_MESSAGE(game_action, user_ptr user, const game_action 
     }
 
     if (auto it = std::ranges::find(lobby.game.m_players, user->first, &player::client_id); it != lobby.game.m_players.end()) {
-        enums::visit_indexed([&](auto tag, auto && ... args) {
-            lobby.game.handle_action(tag, &*it, std::forward<decltype(args)>(args) ...);
+        enums::visit_indexed([&](enums::enum_tag_for<game_action_type> auto tag, auto && ... args) {
+            it->handle_action(tag, std::forward<decltype(args)>(args) ...);
         }, value);
     } else {
         throw lobby_error("ERROR_USER_NOT_CONTROLLING_PLAYER");
