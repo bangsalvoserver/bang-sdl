@@ -235,14 +235,14 @@ namespace banggame {
                 if (origin != target_card->owner) {
                     origin->m_game->add_log(priv_target, "LOG_STOLEN_CARD", origin, target_card->owner, target_card);
                     if (target_card->pocket == pocket_type::player_hand) {
-                        origin->m_game->add_log(inv_target, "LOG_STOLEN_CARD", origin, target_card->owner, card_from_hand{});
+                        origin->m_game->add_log(inv_target, "LOG_STOLEN_CARD_FROM_HAND", origin, target_card->owner);
                     } else {
                         origin->m_game->add_log(inv_target, "LOG_STOLEN_CARD", origin, target_card->owner, target_card);
                     }
                 } else {
                     origin->m_game->add_log(priv_target, "LOG_STOLEN_SELF_CARD", origin, target_card);
                     if (target_card->pocket == pocket_type::player_hand) {
-                        origin->m_game->add_log(inv_target, "LOG_STOLEN_SELF_CARD", origin, card_from_hand{});
+                        origin->m_game->add_log(inv_target, "LOG_STOLEN_SELF_CARD_FROM_HAND", origin);
                     } else {
                         origin->m_game->add_log(inv_target, "LOG_STOLEN_SELF_CARD", origin, target_card);
                     }
@@ -335,7 +335,7 @@ namespace banggame {
 
     void effect_draw_discard::on_play(card *origin_card, player *origin, player *target) {
         card *drawn_card = target->m_game->m_discards.back();
-        target->m_game->add_log(update_target::excludes(target), "LOG_DRAWN_FROM_DISCARD", target, unknown_card{});
+        target->m_game->add_log(update_target::excludes(target), "LOG_DRAWN_ONE_FROM_DISCARD", target);
         target->m_game->add_log(update_target::includes(target), "LOG_DRAWN_FROM_DISCARD", target, drawn_card);
         target->add_to_hand(drawn_card);
     }
@@ -351,7 +351,7 @@ namespace banggame {
             ++target->m_num_drawn_cards;
             while (target->m_num_drawn_cards++ < target->m_num_cards_to_draw) {
                 card *drawn_card = target->m_game->phase_one_drawn_card();
-                target->m_game->add_log(update_target::excludes(target), "LOG_DRAWN_CARD", target, unknown_card{});
+                target->m_game->add_log(update_target::excludes(target), "LOG_DRAWN_A_CARD", target);
                 target->m_game->add_log(update_target::includes(target), "LOG_DRAWN_CARD", target, drawn_card);
                 target->m_game->draw_phase_one_card_to(pocket_type::player_hand, target);
                 target->m_game->call_event<event_type::on_card_drawn>(target, drawn_card);

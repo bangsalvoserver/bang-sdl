@@ -18,27 +18,27 @@ namespace banggame {
 
     class update_target {
     private:
-        std::vector<int> m_targets;
+        std::vector<player *> m_targets;
         bool m_inclusive;
 
-        update_target(bool inclusive, auto ... targets)
-            : m_targets{targets->client_id ...}, m_inclusive{inclusive} {}
+        update_target(bool inclusive, std::same_as<player *> auto ... targets)
+            : m_targets{targets ...}, m_inclusive{inclusive} {}
 
     public:
-        static update_target includes(auto ... targets) {
+        static update_target includes(std::same_as<player *> auto ... targets) {
             return update_target(true, targets...);
         }
 
-        static update_target excludes(auto ... targets) {
+        static update_target excludes(std::same_as<player *> auto ... targets) {
             return update_target(false, targets...);
         }
 
         void add(player *target) {
-            m_targets.push_back(target->client_id);
+            m_targets.push_back(target);
         }
 
         bool matches(int client_id) const {
-            return (std::ranges::find(m_targets, client_id) != m_targets.end()) == m_inclusive;
+            return (std::ranges::find(m_targets, client_id, &player::client_id) != m_targets.end()) == m_inclusive;
         }
     };
 

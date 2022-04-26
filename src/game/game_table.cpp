@@ -158,7 +158,7 @@ namespace banggame {
 
     void game_table::log_draw_card_to(player *target) {
         card *drawn_card = m_deck.back();
-        add_log(update_target::excludes(target), "LOG_DRAWN_CARD", target, unknown_card{});
+        add_log(update_target::excludes(target), "LOG_DRAWN_A_CARD", target);
         add_log(update_target::includes(target), "LOG_DRAWN_CARD", target, drawn_card);
         draw_card_to(pocket_type::player_hand, target);
     }

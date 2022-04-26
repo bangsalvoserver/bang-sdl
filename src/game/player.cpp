@@ -441,7 +441,7 @@ namespace banggame {
             while (m_num_drawn_cards<m_num_cards_to_draw) {
                 ++m_num_drawn_cards;
                 card *drawn_card = m_game->phase_one_drawn_card();
-                m_game->add_log(update_target::excludes(this), "LOG_DRAWN_CARD", this, unknown_card{});
+                m_game->add_log(update_target::excludes(this), "LOG_DRAWN_A_CARD", this);
                 m_game->add_log(update_target::includes(this), "LOG_DRAWN_CARD", this, drawn_card);
                 m_game->draw_phase_one_card_to(pocket_type::player_hand, this);
                 m_game->call_event<event_type::on_card_drawn>(this, drawn_card);

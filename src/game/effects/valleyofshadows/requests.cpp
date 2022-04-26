@@ -37,13 +37,13 @@ namespace banggame {
     game_formatted_string request_destroy::status_text(player *owner) const {
         if (target == owner) {
             if (target_card->pocket == pocket_type::player_hand) {
-                return {"STATUS_DESTROY", origin_card, card_from_hand{}};
+                return {"STATUS_DESTROY_FROM_HAND", origin_card};
             } else {
                 return {"STATUS_DESTROY", origin_card, target_card};
             }
         } else {
             if (target_card->pocket == pocket_type::player_hand) {
-                return {"STATUS_DESTROY_OTHER", target, origin_card, card_from_hand{}};
+                return {"STATUS_DESTROY_OTHER_FROM_HAND", target, origin_card};
             } else {
                 return {"STATUS_DESTROY_OTHER", target, origin_card, target_card};
             }
@@ -58,13 +58,13 @@ namespace banggame {
     game_formatted_string request_steal::status_text(player *owner) const {
         if (target == owner) {
             if (target_card->pocket == pocket_type::player_hand) {
-                return {"STATUS_STEAL", origin_card, card_from_hand{}};
+                return {"STATUS_STEAL_FROM_HAND", origin_card};
             } else {
                 return {"STATUS_STEAL", origin_card, target_card};
             }
         } else {
             if (target_card->pocket == pocket_type::player_hand) {
-                return {"STATUS_STEAL_OTHER", target, origin_card, card_from_hand{}};
+                return {"STATUS_STEAL_OTHER_FROM_HAND", target, origin_card};
             } else {
                 return {"STATUS_STEAL_OTHER", target, origin_card, target_card};
             }

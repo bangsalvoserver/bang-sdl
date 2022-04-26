@@ -5,9 +5,6 @@
 
 namespace banggame{
 
-    struct unknown_card {};
-    struct card_from_hand {};
-
     struct game_format_arg_visitor {
         game_format_arg operator()(int value) const {
             return value;
@@ -23,14 +20,6 @@ namespace banggame{
 
         game_format_arg operator()(card *value) const {
             return card_format_id{value->name, value->sign};
-        }
-
-        game_format_arg operator()(unknown_card) const {
-            return "STATUS_UNKNOWN_CARD";
-        }
-
-        game_format_arg operator()(card_from_hand) const {
-            return "STATUS_CARD_FROM_HAND";
         }
     };
 
