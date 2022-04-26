@@ -97,12 +97,12 @@ namespace banggame {
 
     void game_table::send_card_update(card *c, player *owner, show_card_flags flags) {
         if (bool(flags & show_card_flags::hidden)) {
-            add_public_update<game_update_type::hide_card>(c->id, flags);
+            add_update<game_update_type::hide_card>(c->id, flags);
         } else if (!owner || bool(flags & show_card_flags::shown)) {
-            add_public_update<game_update_type::show_card>(*c, flags);
+            add_update<game_update_type::show_card>(*c, flags);
         } else {
-            add_private_update<game_update_type::hide_card>({update_target::inv_private_update, owner}, c->id, flags);
-            add_private_update<game_update_type::show_card>(owner, *c, flags);
+            add_update<game_update_type::hide_card>(update_target::excludes(owner), c->id, flags);
+            add_update<game_update_type::show_card>(update_target::includes(owner), *c, flags);
         }
     }
 
@@ -118,7 +118,7 @@ namespace banggame {
             c->pocket = pocket;
             c->owner = owner;
             
-            add_public_update<game_update_type::move_card>(c->id, owner ? owner->id : 0, pocket, flags);
+            add_update<game_update_type::move_card>(c->id, owner ? owner->id : 0, pocket, flags);
         }
     }
 
@@ -141,7 +141,7 @@ namespace banggame {
             }
             shuffle_cards_and_ids(m_deck);
             add_log("LOG_DECK_RESHUFFLED");
-            add_public_update<game_update_type::deck_shuffled>(pocket_type::main_deck);
+            add_update<game_update_type::deck_shuffled>(pocket_type::main_deck);
         }
         return drawn_card;
     }
@@ -158,8 +158,8 @@ namespace banggame {
 
     void game_table::log_draw_card_to(player *target) {
         card *drawn_card = m_deck.back();
-        add_log({update_target::inv_private_update, target}, "LOG_DRAWN_CARD", target, unknown_card{});
-        add_log(target, "LOG_DRAWN_CARD", target, drawn_card);
+        add_log(update_target::excludes(target), "LOG_DRAWN_CARD", target, unknown_card{});
+        add_log(update_target::includes(target), "LOG_DRAWN_CARD", target, drawn_card);
         draw_card_to(pocket_type::player_hand, target);
     }
 
@@ -190,7 +190,7 @@ namespace banggame {
             }
             m_shop_discards.clear();
             shuffle_cards_and_ids(m_shop_deck);
-            add_public_update<game_update_type::deck_shuffled>(pocket_type::shop_deck);
+            add_update<game_update_type::deck_shuffled>(pocket_type::shop_deck);
         }
         return drawn_card;
     }

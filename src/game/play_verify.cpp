@@ -503,7 +503,7 @@ namespace banggame {
                         break;
                     case card_color_type::green:
                         card_ptr->inactive = true;
-                        origin->m_game->add_public_update<game_update_type::tap_card>(card_ptr->id, true);
+                        origin->m_game->add_update<game_update_type::tap_card>(card_ptr->id, true);
                         break;
                     case card_color_type::orange:
                         origin->add_cubes(card_ptr, 3);

@@ -23,12 +23,12 @@ namespace banggame {
     }
 
     void effect_ghost::on_enable(card *target_card, player *target) {
-        target->m_game->add_public_update<game_update_type::player_hp>(target->id, 0, false);
+        target->m_game->add_update<game_update_type::player_hp>(target->id, 0, false);
         target->add_player_flags(player_flags::ghost);
     }
 
     void effect_ghost::on_disable(card *target_card, player *target) {
-        target->m_game->add_public_update<game_update_type::player_hp>(target->id, 0, true);
+        target->m_game->add_update<game_update_type::player_hp>(target->id, 0, true);
         target->remove_player_flags(player_flags::ghost);
     }
     

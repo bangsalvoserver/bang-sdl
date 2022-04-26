@@ -199,7 +199,7 @@ namespace banggame {
                 target->disable_equip(c);
             }
             if (target->m_characters.size() > 1) {
-                target->m_game->add_public_update<game_update_type::remove_cards>(make_id_vector(target->m_characters | std::views::drop(1)));
+                target->m_game->add_update<game_update_type::remove_cards>(make_id_vector(target->m_characters | std::views::drop(1)));
                 target->m_characters.resize(1);
             }
 
@@ -212,7 +212,7 @@ namespace banggame {
             target_card->on_equip(target);
             
             target->m_hp = 2;
-            target->m_game->add_public_update<game_update_type::player_hp>(target->id, target->m_hp, false, false);
+            target->m_game->add_update<game_update_type::player_hp>(target->id, target->m_hp, false, false);
         } else {
             target->m_game->move_card(target->m_game->m_selection.front(), pocket_type::player_backup, target, show_card_flags::hidden);
         }

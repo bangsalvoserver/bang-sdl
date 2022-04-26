@@ -26,15 +26,15 @@ namespace banggame {
         target->m_game->add_event<event_type::on_card_drawn>(target_card, [target](player *origin, card *drawn_card) {
             if (origin == target && origin->m_num_drawn_cards == 2) {
                 card_suit suit = target->get_card_sign(drawn_card).suit;
-                target->m_game->add_log({update_target::inv_private_update, target}, "LOG_REVEALED_CARD", target, drawn_card);
+                target->m_game->add_log(update_target::excludes(target), "LOG_REVEALED_CARD", target, drawn_card);
                 target->m_game->send_card_update(drawn_card, nullptr, show_card_flags::short_pause);
                 target->m_game->send_card_update(drawn_card, target);
                 if (suit == card_suit::hearts || suit == card_suit::diamonds) {
                     origin->m_game->queue_action([=]{
                         ++origin->m_num_drawn_cards;
                         card *drawn_card = origin->m_game->phase_one_drawn_card();
-                        target->m_game->add_log({update_target::inv_private_update, target}, "LOG_DRAWN_CARD", target, unknown_card{});
-                        target->m_game->add_log(target, "LOG_DRAWN_CARD", target, drawn_card);
+                        target->m_game->add_log(update_target::excludes(target), "LOG_DRAWN_CARD", target, unknown_card{});
+                        target->m_game->add_log(update_target::includes(target), "LOG_DRAWN_CARD", target, drawn_card);
                         origin->m_game->draw_phase_one_card_to(pocket_type::player_hand, origin);
                         origin->m_game->call_event<event_type::on_card_drawn>(target, drawn_card);
                     });
@@ -57,8 +57,8 @@ namespace banggame {
 
     void request_kit_carlson::on_pick(pocket_type pocket, player *target_player, card *target_card) {
         ++target->m_num_drawn_cards;
-        target->m_game->add_log({update_target::inv_private_update, target}, "LOG_DRAWN_CARD", target, unknown_card{});
-        target->m_game->add_log(target, "LOG_DRAWN_CARD", target, target_card);
+        target->m_game->add_log(update_target::excludes(target), "LOG_DRAWN_CARD", target, unknown_card{});
+        target->m_game->add_log(update_target::includes(target), "LOG_DRAWN_CARD", target, target_card);
         target->add_to_hand(target_card);
         target->m_game->call_event<event_type::on_card_drawn>(target, target_card);
         if (target->m_num_drawn_cards >= target->m_num_cards_to_draw) {
@@ -83,8 +83,8 @@ namespace banggame {
                 target->m_game->queue_action([=]{
                     if (target->alive() && !origin->m_hand.empty()) {
                         card *stolen_card = origin->random_hand_card();
-                        target->m_game->add_log({update_target::private_update, origin, target}, "LOG_STOLEN_CARD", target, origin, stolen_card);
-                        target->m_game->add_log({update_target::inv_private_update, origin, target}, "LOG_STOLEN_CARD", target, origin, card_from_hand{});
+                        target->m_game->add_log(update_target::includes(origin, target), "LOG_STOLEN_CARD", target, origin, stolen_card);
+                        target->m_game->add_log(update_target::excludes(origin, target), "LOG_STOLEN_CARD", target, origin, card_from_hand{});
                         target->steal_card(stolen_card);
                         target->m_game->call_event<event_type::on_effect_end>(p, target_card);
                     }
@@ -128,8 +128,8 @@ namespace banggame {
                 for (card *c : target_cards) {
                     player *vulture_sam = next_vulture_sam();
                     if (c->pocket == pocket_type::player_hand) {
-                        target->m_game->add_log({update_target::private_update, target, vulture_sam}, "LOG_STOLEN_CARD", vulture_sam, target, c);
-                        target->m_game->add_log({update_target::inv_private_update, target, vulture_sam}, "LOG_STOLEN_CARD", vulture_sam, target, card_from_hand{});
+                        target->m_game->add_log(update_target::includes(target, vulture_sam), "LOG_STOLEN_CARD", vulture_sam, target, c);
+                        target->m_game->add_log(update_target::excludes(target, vulture_sam), "LOG_STOLEN_CARD", vulture_sam, target, card_from_hand{});
                     } else {
                         target->m_game->add_log("LOG_STOLEN_CARD", vulture_sam, target, c);
                     }

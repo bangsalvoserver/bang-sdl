@@ -16,43 +16,58 @@ namespace banggame {
         return {view.begin(), view.end()};
     };
 
-    struct update_target {
-        std::vector<player *> targets;
-        enum update_target_type {
-            private_update,
-            inv_private_update,
-            public_update,
-            spectator_update
-        } type;
+    class update_target {
+    private:
+        std::vector<int> m_targets;
+        bool m_inclusive;
 
-        update_target() : type(public_update) {}
-        update_target(player *target) : targets{target}, type(private_update) {}
-        update_target(update_target_type type, auto ... targets) : targets{targets...}, type(type) {}
+        update_target(bool inclusive, auto ... targets)
+            : m_targets{targets->client_id ...}, m_inclusive{inclusive} {}
+
+    public:
+        static update_target includes(auto ... targets) {
+            return update_target(true, targets...);
+        }
+
+        static update_target excludes(auto ... targets) {
+            return update_target(false, targets...);
+        }
+
+        void add(player *target) {
+            m_targets.push_back(target->client_id);
+        }
+
+        bool matches(int client_id) const {
+            return (std::ranges::find(m_targets, client_id) != m_targets.end()) == m_inclusive;
+        }
     };
 
     struct game_net_manager {
         std::deque<std::pair<update_target, game_update>> m_updates;
+        std::deque<std::pair<update_target, game_formatted_string>> m_saved_log;
 
         template<game_update_type E, typename ... Ts>
-        void add_private_update(update_target p, Ts && ... args) {
+        void add_update(update_target target, Ts && ... args) {
             m_updates.emplace_back(std::piecewise_construct,
-                std::make_tuple(p),
+                std::make_tuple(std::move(target)),
                 std::make_tuple(enums::enum_tag<E>, std::forward<Ts>(args) ... ));
         }
 
         template<game_update_type E, typename ... Ts>
-        void add_public_update(Ts && ... args) {
-            add_private_update<E>(update_target::public_update, std::forward<Ts>(args) ... );
+        void add_update(Ts && ... args) {
+            add_update<E>(update_target::excludes(), std::forward<Ts>(args) ... );
         }
 
         template<typename ... Ts>
-        void add_log(update_target p, std::string message, Ts && ... args) {
-            add_private_update<game_update_type::game_log>(p, std::move(message), std::forward<Ts>(args) ... );
+        void add_log(update_target target, Ts && ... args) {
+            const auto &log = m_saved_log.emplace_back(std::piecewise_construct,
+                std::make_tuple(target), std::make_tuple(std::forward<Ts>(args) ... ));
+            add_update<game_update_type::game_log>(std::move(target), log.second);
         }
 
         template<typename ... Ts>
-        void add_log(std::string message, Ts && ... args) {
-            add_log(update_target::public_update, std::move(message), std::forward<Ts>(args) ... );
+        void add_log(Ts && ... args) {
+            add_log(update_target::excludes(), std::forward<Ts>(args) ... );
         }
     };
 

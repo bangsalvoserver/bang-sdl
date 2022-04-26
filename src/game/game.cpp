@@ -100,6 +100,11 @@ namespace banggame {
         if (owner && owner->m_forced_card) {
             ADD_TO_RET(force_play_card, owner->m_forced_card->id);
         }
+        for (const auto &[target, str] : m_saved_log) {
+            if (target.matches(owner ? owner->client_id : 0)) {
+                ADD_TO_RET(game_log, str);
+            }
+        }
 
 #undef ADD_TO_RET
         return ret;
@@ -135,7 +140,7 @@ namespace banggame {
                 add_card(pocket_type::specials, c);
             }
         }
-        add_public_update<game_update_type::add_cards>(make_id_vector(m_specials), pocket_type::specials);
+        add_update<game_update_type::add_cards>(make_id_vector(m_specials), pocket_type::specials);
         for (card *c : m_specials) {
             send_card_update(c, nullptr, show_card_flags::instant);
         }
@@ -152,7 +157,7 @@ namespace banggame {
         m_deck.insert(m_deck.end(), testing_cards.begin(), testing_cards.end());
         testing_cards.clear();
 #endif
-        add_public_update<game_update_type::add_cards>(make_id_vector(m_deck), pocket_type::main_deck);
+        add_update<game_update_type::add_cards>(make_id_vector(m_deck), pocket_type::main_deck);
 
         if (has_expansion(card_expansion_type::goldrush)) {
             for (const auto &c : all_cards.goldrush) {
@@ -164,13 +169,13 @@ namespace banggame {
             m_shop_deck.insert(m_shop_deck.end(), testing_cards.begin(), testing_cards.end());
             testing_cards.clear();
 #endif
-            add_public_update<game_update_type::add_cards>(make_id_vector(m_shop_deck), pocket_type::shop_deck);
+            add_update<game_update_type::add_cards>(make_id_vector(m_shop_deck), pocket_type::shop_deck);
         }
 
         if (has_expansion(card_expansion_type::armedanddangerous)) {
             auto cube_ids = std::views::iota(1, 32);
             m_cubes.assign(cube_ids.begin(), cube_ids.end());
-            add_public_update<game_update_type::add_cubes>(m_cubes);
+            add_update<game_update_type::add_cubes>(m_cubes);
         }
 
         std::vector<card *> last_scenario_cards;
@@ -209,7 +214,7 @@ namespace banggame {
             m_scenario_deck.push_back(last_scenario_cards[std::uniform_int_distribution<>(0, last_scenario_cards.size() - 1)(rng)]);
             std::swap(m_scenario_deck.back(), m_scenario_deck.front());
 
-            add_public_update<game_update_type::add_cards>(make_id_vector(m_scenario_deck), pocket_type::scenario_deck);
+            add_update<game_update_type::add_cards>(make_id_vector(m_scenario_deck), pocket_type::scenario_deck);
         }
 
         for (const auto &c : all_cards.hidden) {
@@ -220,7 +225,7 @@ namespace banggame {
         }
 
         if (!m_hidden_deck.empty()) {
-            add_public_update<game_update_type::add_cards>(make_id_vector(m_hidden_deck), pocket_type::hidden_deck);
+            add_update<game_update_type::add_cards>(make_id_vector(m_hidden_deck), pocket_type::hidden_deck);
         }
         
         std::array roles {
@@ -284,7 +289,7 @@ namespace banggame {
             p.m_characters.push_back(c);
             c->pocket = pocket_type::player_character;
             c->owner = &p;
-            add_public_update<game_update_type::add_cards>(make_id_vector(std::views::single(c)), pocket_type::player_character, p.id);
+            add_update<game_update_type::add_cards>(make_id_vector(std::views::single(c)), pocket_type::player_character, p.id);
         };
 
         auto character_it = character_ptrs.begin();
@@ -322,7 +327,7 @@ namespace banggame {
                 send_card_update(p.m_characters.front(), &p, show_card_flags::instant | show_card_flags::shown);
                 p.m_characters.front()->on_enable(&p);
                 p.m_hp = p.m_max_hp;
-                add_public_update<game_update_type::player_hp>(p.id, p.m_hp, false, true);
+                add_update<game_update_type::player_hp>(p.id, p.m_hp, false, true);
 
                 move_card(p.m_characters.back(), pocket_type::player_backup, &p, show_card_flags::instant | show_card_flags::hidden);
             }
@@ -349,7 +354,7 @@ namespace banggame {
             }
 
             if (!m_scenario_deck.empty()) {
-                add_public_update<game_update_type::move_scenario_deck>(m_first_player->id);
+                add_update<game_update_type::move_scenario_deck>(m_first_player->id);
                 send_card_update(m_scenario_deck.back(), nullptr, show_card_flags::instant);
             }
 
@@ -406,12 +411,14 @@ namespace banggame {
 
     void game::send_request_update() {
         if (m_requests.empty()) {
-            add_public_update<game_update_type::status_clear>();
+            add_update<game_update_type::status_clear>();
         } else {
-            add_private_update<game_update_type::request_status>(update_target::spectator_update, make_request_update(nullptr));
+            auto spectator_target = update_target::excludes();
             for (auto &p : m_players) {
-                add_private_update<game_update_type::request_status>(&p, make_request_update(&p));
+                spectator_target.add(&p);
+                add_update<game_update_type::request_status>(update_target::includes(&p), make_request_update(&p));
             }
+            add_update<game_update_type::request_status>(std::move(spectator_target), make_request_update(nullptr));
         }
     }
     
@@ -450,14 +457,14 @@ namespace banggame {
         }
 
         if (winner_role != player_role::unknown) {
-            add_public_update<game_update_type::status_clear>();
+            add_update<game_update_type::status_clear>();
             for (const auto &p : m_players) {
                 if (!p.check_player_flags(player_flags::role_revealed)) {
-                    add_public_update<game_update_type::player_show_role>(p.id, p.m_role);
+                    add_update<game_update_type::player_show_role>(p.id, p.m_role);
                 }
             }
             add_log("LOG_GAME_OVER");
-            add_public_update<game_update_type::game_over>(winner_role);
+            add_update<game_update_type::game_over>(winner_role);
             m_game_over = true;
         } else if (m_playing == target) {
             get_next_in_turn(target)->start_of_turn();
@@ -487,11 +494,11 @@ namespace banggame {
         
         if (target == m_first_player) {
             m_first_player = get_next_player(m_first_player);
-            add_public_update<game_update_type::move_scenario_deck>(m_first_player->id);
+            add_update<game_update_type::move_scenario_deck>(m_first_player->id);
         }
 
         if (!has_expansion(card_expansion_type::ghostcards)) {
-            add_public_update<game_update_type::player_remove>(target->id);
+            add_update<game_update_type::player_remove>(target->id);
         }
     }
 
@@ -503,7 +510,7 @@ namespace banggame {
         }
 
         if (target->m_characters.size() > 1) {
-            add_public_update<game_update_type::remove_cards>(make_id_vector(target->m_characters | std::views::drop(1)));
+            add_update<game_update_type::remove_cards>(make_id_vector(target->m_characters | std::views::drop(1)));
             target->m_characters.resize(1);
         }
 
@@ -523,8 +530,8 @@ namespace banggame {
         target->discard_all();
         target->add_gold(-target->m_gold);
 
-        add_public_update<game_update_type::player_hp>(target->id, 0, true);
-        add_public_update<game_update_type::player_show_role>(target->id, target->m_role);
+        add_update<game_update_type::player_hp>(target->id, 0, true);
+        add_update<game_update_type::player_show_role>(target->id, target->m_role);
         target->add_player_flags(player_flags::role_revealed);
     }
 

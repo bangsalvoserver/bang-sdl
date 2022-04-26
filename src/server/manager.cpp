@@ -297,33 +297,10 @@ void lobby::send_updates(game_manager &mgr) {
         if (update.is(game_update_type::game_over)) {
             state = lobby_state::finished;
         }
-        switch (target.type) {
-        case update_target::private_update:
-            for (player *p : target.targets) {
-                mgr.send_message<server_message_type::game_update>(p->client_id, update);
+        for (auto it : users) {
+            if (target.matches(it->first)) {
+                mgr.send_message<server_message_type::game_update>(it->first, update);
             }
-            break;
-        case update_target::inv_private_update:
-            for (auto it : users) {
-                if (std::ranges::none_of(target.targets, [client_id = it->first](player *p) {
-                    return p->client_id == client_id;
-                })) {
-                    mgr.send_message<server_message_type::game_update>(it->first, update);
-                }
-            }
-            break;
-        case update_target::public_update:
-            mgr.broadcast_message<server_message_type::game_update>(*this, std::move(update));
-            break;
-        case update_target::spectator_update:
-            for (auto it : users) {
-                if (std::ranges::none_of(game.m_players, [client_id = it->first](const player &p) {
-                    return p.client_id == client_id;
-                })) {
-                    mgr.send_message<server_message_type::game_update>(it->first, update);
-                }
-            }
-            break;
         }
         game.m_updates.pop_front();
     }
@@ -347,7 +324,7 @@ void lobby::start_game(game_manager &mgr, const banggame::all_cards_t &all_cards
     auto it = users.begin();
     for (player *p : ids) {
         p->client_id = (*it)->first;
-        game.add_public_update<game_update_type::player_add>(p->id, p->client_id);
+        game.add_update<game_update_type::player_add>(p->id, p->client_id);
         ++it;
     }
 

@@ -76,7 +76,7 @@ namespace banggame {
             if (target_card->pocket == pocket_type::player_table) {
                 if (target_card->inactive) {
                     target_card->inactive = false;
-                    owner->m_game->add_public_update<game_update_type::tap_card>(target_card->id, false);
+                    owner->m_game->add_update<game_update_type::tap_card>(target_card->id, false);
                 }
                 owner->disable_equip(target_card);
                 owner->drop_all_cubes(target_card);
@@ -103,7 +103,7 @@ namespace banggame {
             if (instant || !m_game->has_expansion(card_expansion_type::valleyofshadows | card_expansion_type::canyondiablo)) {
                 m_game->add_log(value == 1 ? "LOG_TAKEN_DAMAGE" : "LOG_TAKEN_DAMAGE_PLURAL", origin_card, this, value);
                 m_hp -= value;
-                m_game->add_public_update<game_update_type::player_hp>(id, m_hp);
+                m_game->add_update<game_update_type::player_hp>(id, m_hp);
                 if (m_hp <= 0) {
                     m_game->queue_request_front<request_death>(origin_card, origin, this);
                 }
@@ -127,14 +127,14 @@ namespace banggame {
                 m_game->add_log("LOG_HEALED_PLURAL", this, value);
             }
             m_hp = std::min<int8_t>(m_hp + value, m_max_hp);
-            m_game->add_public_update<game_update_type::player_hp>(id, m_hp);
+            m_game->add_update<game_update_type::player_hp>(id, m_hp);
         }
     }
 
     void player::add_gold(int amount) {
         if (amount) {
             m_gold += amount;
-            m_game->add_public_update<game_update_type::player_gold>(id, m_gold);
+            m_game->add_update<game_update_type::player_gold>(id, m_gold);
         }
     }
 
@@ -192,7 +192,7 @@ namespace banggame {
             m_game->m_cubes.pop_back();
 
             target->cubes.push_back(cube);
-            m_game->add_public_update<game_update_type::move_cube>(cube, target->id);
+            m_game->add_update<game_update_type::move_cube>(cube, target->id);
         }
     }
 
@@ -207,10 +207,10 @@ namespace banggame {
             
             if (target && target->cubes.size() < 4) {
                 target->cubes.push_back(cube);
-                m_game->add_public_update<game_update_type::move_cube>(cube, target->id);
+                m_game->add_update<game_update_type::move_cube>(cube, target->id);
             } else {
                 m_game->m_cubes.push_back(cube);
-                m_game->add_public_update<game_update_type::move_cube>(cube, 0);
+                m_game->add_update<game_update_type::move_cube>(cube, 0);
             }
         }
         if (origin->sign && origin->cubes.empty()) {
@@ -224,7 +224,7 @@ namespace banggame {
     void player::drop_all_cubes(card *target) {
         for (int id : target->cubes) {
             m_game->m_cubes.push_back(id);
-            m_game->add_public_update<game_update_type::move_cube>(id, 0);
+            m_game->add_update<game_update_type::move_cube>(id, 0);
         }
         target->cubes.clear();
     }
@@ -235,13 +235,13 @@ namespace banggame {
 
     void player::set_last_played_card(card *c) {
         m_last_played_card = c;
-        m_game->add_private_update<game_update_type::last_played_card>(this, c ? c->id : 0);
+        m_game->add_update<game_update_type::last_played_card>(update_target::includes(this), c ? c->id : 0);
         remove_player_flags(player_flags::start_of_turn);
     }
 
     void player::set_forced_card(card *c) {
         m_forced_card = c;
-        m_game->add_private_update<game_update_type::force_play_card>(this, c ? c->id : 0);
+        m_game->add_update<game_update_type::force_play_card>(update_target::includes(this), c ? c->id : 0);
     }
 
     void player::set_mandatory_card(card *c) {
@@ -259,9 +259,9 @@ namespace banggame {
 
         ~confirmer() {
             if (std::uncaught_exceptions()) {
-                p->m_game->add_private_update<game_update_type::confirm_play>(p);
+                p->m_game->add_update<game_update_type::confirm_play>(update_target::includes(p));
                 if (p->m_forced_card) {
-                    p->m_game->add_private_update<game_update_type::force_play_card>(p, p->m_forced_card->id);
+                    p->m_game->add_update<game_update_type::force_play_card>(update_target::includes(p), p->m_forced_card->id);
                 }
             }
         }
@@ -280,7 +280,7 @@ namespace banggame {
             throw game_error("ERROR_INVALID_ACTION");
         }
 
-        m_game->add_private_update<game_update_type::confirm_play>(this);
+        m_game->add_update<game_update_type::confirm_play>(update_target::includes(this));
         player *target_player = args.player_id ? m_game->find_player(args.player_id) : nullptr;
         card *target_card = args.card_id ? m_game->find_card(args.card_id) : nullptr;
         if (req.can_pick(args.pocket, target_player, target_card)) {
@@ -413,10 +413,10 @@ namespace banggame {
 
     void player::prompt_then(opt_fmt_str &&message, std::function<void()> &&fun) {
         if (message) {
-            m_game->add_private_update<game_update_type::game_prompt>(this, std::move(*message));
+            m_game->add_update<game_update_type::game_prompt>(update_target::includes(this), std::move(*message));
             m_prompt = std::move(fun);
         } else {
-            m_game->add_private_update<game_update_type::confirm_play>(this);
+            m_game->add_update<game_update_type::confirm_play>(update_target::includes(this));
             std::invoke(fun);
         }
     }
@@ -426,7 +426,7 @@ namespace banggame {
             throw game_error("ERROR_INVALID_ACTION");
         }
 
-        m_game->add_private_update<game_update_type::confirm_play>(this);
+        m_game->add_update<game_update_type::confirm_play>(update_target::includes(this));
         if (response) {
             std::invoke(*m_prompt);
         }
@@ -441,8 +441,8 @@ namespace banggame {
             while (m_num_drawn_cards<m_num_cards_to_draw) {
                 ++m_num_drawn_cards;
                 card *drawn_card = m_game->phase_one_drawn_card();
-                m_game->add_log({update_target::inv_private_update, this}, "LOG_DRAWN_CARD", this, unknown_card{});
-                m_game->add_log(this, "LOG_DRAWN_CARD", this, drawn_card);
+                m_game->add_log(update_target::excludes(this), "LOG_DRAWN_CARD", this, unknown_card{});
+                m_game->add_log(update_target::includes(this), "LOG_DRAWN_CARD", this, drawn_card);
                 m_game->draw_phase_one_card_to(pocket_type::player_hand, this);
                 m_game->call_event<event_type::on_card_drawn>(this, drawn_card);
             }
@@ -480,7 +480,7 @@ namespace banggame {
                 }
             } else if (m_game->has_scenario(scenario_flags::deadman) && this == m_game->m_first_dead) {
                 remove_player_flags(player_flags::dead);
-                m_game->add_public_update<game_update_type::player_hp>(id, m_hp = 2);
+                m_game->add_update<game_update_type::player_hp>(id, m_hp = 2);
                 m_game->draw_card_to(pocket_type::player_hand, this);
                 m_game->draw_card_to(pocket_type::player_hand, this);
                 for (auto *c : m_characters) {
@@ -499,7 +499,7 @@ namespace banggame {
             obj.resolved = false;
         }
         
-        m_game->add_public_update<game_update_type::switch_turn>(id);
+        m_game->add_update<game_update_type::switch_turn>(id);
         m_game->add_log("LOG_TURN_START", this);
         m_game->call_event<event_type::pre_turn_start>(this);
         next_predraw_check(nullptr);
@@ -569,7 +569,7 @@ namespace banggame {
         for (card *c : m_table) {
             if (c->inactive) {
                 c->inactive = false;
-                m_game->add_public_update<game_update_type::tap_card>(c->id, false);
+                m_game->add_update<game_update_type::tap_card>(c->id, false);
             }
         }
     }
@@ -588,15 +588,15 @@ namespace banggame {
         m_role = role;
 
         if (role == player_role::sheriff || m_game->m_players.size() <= 3) {
-            m_game->add_public_update<game_update_type::player_show_role>(id, m_role, true);
+            m_game->add_update<game_update_type::player_show_role>(id, m_role, true);
             add_player_flags(player_flags::role_revealed);
         } else {
-            m_game->add_private_update<game_update_type::player_show_role>(this, id, m_role, true);
+            m_game->add_update<game_update_type::player_show_role>(update_target::includes(this), id, m_role, true);
         }
     }
 
     void player::send_player_status() {
-        m_game->add_public_update<game_update_type::player_status>(id, m_player_flags, m_range_mod, m_weapon_range, m_distance_mod);
+        m_game->add_update<game_update_type::player_status>(id, m_player_flags, m_range_mod, m_weapon_range, m_distance_mod);
     }
 
     void player::add_player_flags(player_flags flags) {

@@ -68,7 +68,7 @@ namespace banggame {
             if (origin->get_card_sign(drawn_card).suit != card_suit::spades) {
                 origin->m_game->pop_request<request_death>();
                 origin->m_hp = 1;
-                origin->m_game->add_public_update<game_update_type::player_hp>(origin->id, 1);
+                origin->m_game->add_update<game_update_type::player_hp>(origin->id, 1);
                 origin->m_game->draw_card_to(pocket_type::player_hand, origin);
             }
         });
@@ -124,7 +124,7 @@ namespace banggame {
         }
         std::ranges::shuffle(base_characters, target->m_game->rng);
 
-        target->m_game->add_public_update<game_update_type::add_cards>(
+        target->m_game->add_update<game_update_type::add_cards>(
             make_id_vector(base_characters | std::views::take(2)),
             pocket_type::player_character, target->id);
         for (int i=0; i<2; ++i) {
@@ -144,7 +144,7 @@ namespace banggame {
             c->owner = nullptr;
         }
         if (target->m_characters.size() > 1) {
-            target->m_game->add_public_update<game_update_type::remove_cards>(make_id_vector(target->m_characters | std::views::drop(1)));
+            target->m_game->add_update<game_update_type::remove_cards>(make_id_vector(target->m_characters | std::views::drop(1)));
             target->m_characters.resize(1);
         }
         on_equip(target_card, target);
