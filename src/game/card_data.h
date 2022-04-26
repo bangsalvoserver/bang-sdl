@@ -9,15 +9,6 @@
 
 namespace banggame {
 
-    struct card_sign {REFLECTABLE(
-        (card_suit) suit,
-        (card_rank) rank
-    )
-        explicit operator bool () const {
-            return suit != card_suit::none && rank != card_rank::none;
-        }
-    };
-
     template<typename Holder>
     struct effect_list_base : std::vector<Holder> {
         using enum_type = typename Holder::enum_type;

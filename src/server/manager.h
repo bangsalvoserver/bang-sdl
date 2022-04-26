@@ -3,7 +3,6 @@
 
 #include <json/json.h>
 
-#include "utils/utils.h"
 #include "utils/binary_serial.h"
 
 #include "net_options.h"

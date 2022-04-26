@@ -299,11 +299,15 @@ void lobby::send_updates(game_manager &mgr) {
         }
         switch (target.type) {
         case update_target::private_update:
-            mgr.send_message<server_message_type::game_update>(target.target->client_id, std::move(update));
+            for (player *p : target.targets) {
+                mgr.send_message<server_message_type::game_update>(p->client_id, update);
+            }
             break;
         case update_target::inv_private_update:
             for (auto it : users) {
-                if (it->first != target.target->client_id) {
+                if (std::ranges::none_of(target.targets, [client_id = it->first](player *p) {
+                    return p->client_id == client_id;
+                })) {
                     mgr.send_message<server_message_type::game_update>(it->first, update);
                 }
             }

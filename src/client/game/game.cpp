@@ -1,7 +1,6 @@
 #include "game.h"
 #include "../manager.h"
 #include "../media_pak.h"
-#include "utils/utils.h"
 
 #include <iostream>
 #include <numbers>
@@ -9,6 +8,9 @@
 
 using namespace banggame;
 using namespace enums::flag_operators;
+
+template<typename ... Ts> struct overloaded : Ts ... { using Ts::operator() ...; };
+template<typename ... Ts> overloaded(Ts ...) -> overloaded<Ts ...>;
 
 game_scene::game_scene(client_manager *parent, const game_options &options)
     : scene_base(parent)
@@ -434,30 +436,20 @@ void game_scene::HANDLE_UPDATE(game_over, const game_over_update &args) {
 }
 
 std::string game_scene::evaluate_format_string(const game_formatted_string &str) {
-    return intl::format(str.localized ? _(str.format_str) : str.format_str,
+    return intl::format(_(str.format_str),
         str.format_args | std::views::transform([&](const game_format_arg &arg) {
-        return std::visit(util::overloaded{
+        return std::visit(overloaded{
             [](int value) { return std::to_string(value); },
-            [](const std::string &value) { return value; },
+            [](const std::string &value) { return _(value); },
             [&](card_format_id value) {
-                player_view *owner = value.player_id ? find_player(value.player_id) : nullptr;
-                card_view *card = value.card_id ? find_card(value.card_id) : nullptr;
-                if (card) {
-                    if (owner && card->pocket == &owner->hand) {
-                        return _("STATUS_CARD_FROM_HAND");
-                    } else if (!card->known) {
-                        return _("STATUS_UNKNOWN_CARD");
-                    } else if (card->sign) {
-                        return intl::format("{} ({}{})", _(intl::category::cards, card->name), enums::get_data(card->sign.rank), enums::get_data(card->sign.suit));
-                    } else {
-                        return _(intl::category::cards, card->name);
-                    }
+                if (value.sign) {
+                    return intl::format("{} ({}{})", _(intl::category::cards, value.name), enums::get_data(value.sign.rank), enums::get_data(value.sign.suit));
                 } else {
-                    return _("STATUS_UNKNOWN_CARD");
+                    return _(intl::category::cards, value.name);
                 }
             },
             [&](player_format_id value) {
-                player_view *p = value.player_id ? find_player(value.player_id) : nullptr;
+                player_view *p = find_player(value.player_id);
                 return p ? p->m_username_text.get_value() : _("STATUS_UNKNOWN_PLAYER");
             }
         }, arg);

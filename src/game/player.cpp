@@ -12,6 +12,9 @@
 
 #include <cassert>
 
+template<typename ... Ts> struct overloaded : Ts ... { using Ts::operator() ...; };
+template<typename ... Ts> overloaded(Ts ...) -> overloaded<Ts ...>;
+
 namespace banggame {
     using namespace enums::flag_operators;
 
@@ -308,7 +311,6 @@ namespace banggame {
     }
 
     void player::log_played_card(card *card_ptr, bool is_response) {
-        m_game->send_card_update(card_ptr);
         switch (card_ptr->pocket) {
         case pocket_type::player_hand:
         case pocket_type::scenario_card:
@@ -341,7 +343,7 @@ namespace banggame {
     static target_list parse_target_id_vector(game *game, const std::vector<play_card_target_ids> &args) {
         target_list ret;
         for (const auto &t : args) {
-            ret.push_back(enums::visit_indexed<play_card_target>(util::overloaded{
+            ret.push_back(enums::visit_indexed<play_card_target>(overloaded{
                 [](enums::enum_tag_t<play_card_target_type::none>) {
                     return target_none_t{};
                 },
@@ -440,7 +442,8 @@ namespace banggame {
             while (m_num_drawn_cards<m_num_cards_to_draw) {
                 ++m_num_drawn_cards;
                 card *drawn_card = m_game->draw_phase_one_card_to(pocket_type::player_hand, this);
-                m_game->add_log("LOG_DRAWN_CARD", this, drawn_card);
+                m_game->add_log({update_target::inv_private_update, this}, "LOG_DRAWN_CARD", this, unknown_card{});
+                m_game->add_log(this, "LOG_DRAWN_CARD", this, drawn_card);
                 m_game->call_event<event_type::on_card_drawn>(this, drawn_card);
             }
         }

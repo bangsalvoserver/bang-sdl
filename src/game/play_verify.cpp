@@ -5,6 +5,9 @@
 
 #include "effects/base/requests.h"
 
+template<typename ... Ts> struct overloaded : Ts ... { using Ts::operator() ...; };
+template<typename ... Ts> overloaded(Ts ...) -> overloaded<Ts ...>;
+
 namespace banggame {
     using namespace enums::flag_operators;
 
@@ -211,7 +214,7 @@ namespace banggame {
                 mth_targets.push_back(t);
             }
 
-            if (auto error = std::visit(util::overloaded{
+            if (auto error = std::visit(overloaded{
                 [this, &e](target_none_t args) -> opt_error {
                     if (e.target != play_card_target_type::none) {
                         return game_error("ERROR_INVALID_ACTION");
@@ -297,7 +300,7 @@ namespace banggame {
                 mth_targets.push_back(t);
             }
 
-            if (auto prompt_message = std::visit(util::overloaded{
+            if (auto prompt_message = std::visit(overloaded{
                 [this, &e](target_none_t args) -> opt_fmt_str {
                     return e.on_prompt(card_ptr, origin);
                 },
@@ -371,7 +374,7 @@ namespace banggame {
                 mth_targets.push_back(t);
             }
 
-            std::visit(util::overloaded{
+            std::visit(overloaded{
                 [this, &e](target_none_t args) {
                     e.on_play(card_ptr, origin, effect_flags{});
                 },

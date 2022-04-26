@@ -17,7 +17,7 @@ namespace banggame {
     };
 
     struct update_target {
-        player *target;
+        std::vector<player *> targets;
         enum update_target_type {
             private_update,
             inv_private_update,
@@ -25,8 +25,9 @@ namespace banggame {
             spectator_update
         } type;
 
-        update_target(player *target, update_target_type type = private_update) : target(target), type(type) {}
-        update_target(update_target_type type) : target(nullptr), type(type) {}
+        update_target() : type(public_update) {}
+        update_target(player *target) : targets{target}, type(private_update) {}
+        update_target(update_target_type type, auto ... targets) : targets{targets...}, type(type) {}
     };
 
     struct game_net_manager {
@@ -45,13 +46,13 @@ namespace banggame {
         }
 
         template<typename ... Ts>
-        void add_private_log(update_target p, Ts && ... args) {
-            add_private_update<game_update_type::game_log>(p, std::forward<Ts>(args) ... );
+        void add_log(update_target p, std::string message, Ts && ... args) {
+            add_private_update<game_update_type::game_log>(p, std::move(message), std::forward<Ts>(args) ... );
         }
 
         template<typename ... Ts>
-        void add_log(Ts && ... args) {
-            add_private_log(update_target::public_update, std::forward<Ts>(args) ... );
+        void add_log(std::string message, Ts && ... args) {
+            add_log(update_target::public_update, std::move(message), std::forward<Ts>(args) ... );
         }
     };
 

@@ -229,10 +229,22 @@ namespace banggame {
     void effect_steal::on_resolve(card *origin_card, player *origin, card *target_card) {
         auto fun = [=]{
             if (origin->alive()) {
+                update_target priv_target{update_target::private_update, origin, target_card->owner};
+                update_target inv_target{update_target::inv_private_update, origin, target_card->owner};
                 if (origin != target_card->owner) {
-                    origin->m_game->add_log("LOG_STOLEN_CARD", origin, target_card->owner, with_owner{target_card});
+                    origin->m_game->add_log(priv_target, "LOG_STOLEN_CARD", origin, target_card->owner, target_card);
+                    if (target_card->pocket == pocket_type::player_hand) {
+                        origin->m_game->add_log(inv_target, "LOG_STOLEN_CARD", origin, target_card->owner, card_from_hand{});
+                    } else {
+                        origin->m_game->add_log(inv_target, "LOG_STOLEN_CARD", origin, target_card->owner, target_card);
+                    }
                 } else {
-                    origin->m_game->add_log("LOG_STOLEN_SELF_CARD", origin, target_card);
+                    origin->m_game->add_log(priv_target, "LOG_STOLEN_SELF_CARD", origin, target_card);
+                    if (target_card->pocket == pocket_type::player_hand) {
+                        origin->m_game->add_log(inv_target, "LOG_STOLEN_SELF_CARD", origin, card_from_hand{});
+                    } else {
+                        origin->m_game->add_log(inv_target, "LOG_STOLEN_SELF_CARD", origin, target_card);
+                    }
                 }
                 origin->steal_card(target_card);
             }
@@ -258,7 +270,7 @@ namespace banggame {
         auto fun = [=]{
             if (origin->alive()) {
                 if (origin != target_card->owner) {
-                    origin->m_game->add_log("LOG_DISCARDED_CARD", origin, target_card->owner, with_owner{target_card});
+                    origin->m_game->add_log("LOG_DISCARDED_CARD", origin, target_card->owner, target_card);
                 } else {
                     origin->m_game->add_log("LOG_DISCARDED_SELF_CARD", origin, target_card);
                 }
@@ -310,7 +322,8 @@ namespace banggame {
     void effect_draw::on_play(card *origin_card, player *origin, player *target) {
         for (int i=0; i<ncards; ++i) {
             card *drawn_card = target->m_game->draw_card_to(pocket_type::player_hand, target);
-            target->m_game->add_log("LOG_DRAWN_CARD", target, drawn_card);
+            target->m_game->add_log({update_target::inv_private_update, target}, "LOG_DRAWN_CARD", target, unknown_card{});
+            target->m_game->add_log(target, "LOG_DRAWN_CARD", target, drawn_card);
         }
     }
 
@@ -323,7 +336,8 @@ namespace banggame {
 
     void effect_draw_discard::on_play(card *origin_card, player *origin, player *target) {
         card *drawn_card = target->m_game->m_discards.back();
-        target->m_game->add_log("LOG_DRAWN_FROM_DISCARD", target, drawn_card);
+        target->m_game->add_log({update_target::inv_private_update, target}, "LOG_DRAWN_FROM_DISCARD", target, unknown_card{});
+        target->m_game->add_log(target, "LOG_DRAWN_FROM_DISCARD", target, drawn_card);
         target->add_to_hand(drawn_card);
     }
 
@@ -338,7 +352,8 @@ namespace banggame {
             ++target->m_num_drawn_cards;
             while (target->m_num_drawn_cards++ < target->m_num_cards_to_draw) {
                 card *drawn_card = target->m_game->draw_phase_one_card_to(pocket_type::player_hand, target);
-                target->m_game->add_log("LOG_DRAWN_CARD", target, drawn_card);
+                target->m_game->add_log({update_target::inv_private_update, target}, "LOG_DRAWN_CARD", target, unknown_card{});
+                target->m_game->add_log(target, "LOG_DRAWN_CARD", target, drawn_card);
                 target->m_game->call_event<event_type::on_card_drawn>(target, drawn_card);
             }
         });

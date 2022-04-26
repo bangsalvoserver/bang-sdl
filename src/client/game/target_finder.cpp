@@ -4,12 +4,13 @@
 #include "../manager.h"
 #include "../os_api.h"
 
-#include "utils/utils.h"
-
 #include <cassert>
 
 using namespace banggame;
 using namespace enums::flag_operators;
+
+template<typename ... Ts> struct overloaded : Ts ... { using Ts::operator() ...; };
+template<typename ... Ts> overloaded(Ts ...) -> overloaded<Ts ...>;
 
 template<game_action_type T, typename ... Ts>
 void target_finder::add_action(Ts && ... args) {
@@ -46,7 +47,7 @@ void target_finder::set_border_colors() {
 
     for (auto &[value, is_auto] : m_targets) {
         if (!is_auto) {
-            std::visit(util::overloaded{
+            std::visit(overloaded{
                 [](target_none) {},
                 [](target_other_players) {},
                 [](target_player p) {
@@ -137,7 +138,7 @@ void target_finder::clear_targets() {
     }
     for (auto &[value, is_auto] : m_targets) {
         if (!is_auto) {
-            std::visit(util::overloaded{
+            std::visit(overloaded{
                 [](target_none) {},
                 [](target_other_players) {},
                 [this](target_player p) {
@@ -521,7 +522,7 @@ int target_finder::num_targets_for(const effect_holder &data) {
 int target_finder::get_target_index() {
     if (m_targets.empty()) return 0;
     int index = m_targets.size() - 1;
-    size_t size = std::visit(util::overloaded{
+    size_t size = std::visit(overloaded{
         [](const auto &) -> size_t { return 1; },
         []<typename T>(const std::vector<T> &value) { return value.size(); }
     }, m_targets[index].value);
@@ -756,7 +757,7 @@ void target_finder::send_play_card() {
     }
 
     for (const auto &target : m_targets) {
-        std::visit(util::overloaded{
+        std::visit(overloaded{
             [&](target_none) {
                 ret.targets.emplace_back(enums::enum_tag<play_card_target_type::none>);
             },

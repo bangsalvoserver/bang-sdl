@@ -2,6 +2,7 @@
 #define __CARD_ENUMS_H__
 
 #include "utils/enum_variant.h"
+#include "utils/reflector.h"
 
 namespace banggame {
 
@@ -29,6 +30,15 @@ namespace banggame {
         (rank_Q,    "Q")
         (rank_K,    "K")
     )
+
+    struct card_sign {REFLECTABLE(
+        (card_suit) suit,
+        (card_rank) rank
+    )
+        explicit operator bool () const {
+            return suit != card_suit::none && rank != card_rank::none;
+        }
+    };
 
     struct unofficial_expansion{};
     

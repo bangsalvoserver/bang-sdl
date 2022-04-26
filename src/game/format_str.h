@@ -1,8 +1,7 @@
 #ifndef __FORMAT_STR_H__
 #define __FORMAT_STR_H__
 
-#include "utils/enums.h"
-#include "utils/reflector.h"
+#include "card_enums.h"
 
 #include <stdexcept>
 #include <optional>
@@ -10,8 +9,8 @@
 namespace banggame {
 
     struct card_format_id {REFLECTABLE(
-        (int) player_id,
-        (int) card_id
+        (std::string) name,
+        (card_sign) sign
     )};
 
     struct player_format_id {REFLECTABLE(
@@ -22,7 +21,6 @@ namespace banggame {
     
     struct game_formatted_string {
         REFLECTABLE(
-            (bool) localized,
             (std::string) format_str,
             (std::vector<game_format_arg>) format_args
         )

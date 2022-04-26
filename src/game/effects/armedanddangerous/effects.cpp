@@ -88,14 +88,7 @@ namespace banggame {
         origin->m_game->add_event<event_type::apply_bang_modifier>(origin_card, [=](player *p, request_bang *req) {
             if (p == origin) {
                 card *bang_card = req->origin->chosen_card_or(req->origin_card);
-                req->origin->m_game->move_card(bang_card, pocket_type::player_hand, req->origin, show_card_flags::short_pause | show_card_flags::shown);
-
-                req->on_cleanup([origin = req->origin, bang_card]{
-                    if (bang_card->owner == origin) {
-                        origin->m_game->send_card_update(bang_card, origin);
-                    }
-                });
-
+                req->origin->m_game->move_card(bang_card, pocket_type::player_hand, req->origin, show_card_flags::short_pause);
                 origin->m_game->remove_events(origin_card);
             }
         });
