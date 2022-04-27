@@ -87,7 +87,7 @@ namespace banggame {
         {
             target->m_game->log_draw_card_to(target);
         } else {
-            target->m_game->add_log("LOG_DISCARDED_SELF_CARD", target->m_game->m_deck.back());
+            target->m_game->add_log("LOG_DISCARDED_SELF_CARD", target, target->m_game->m_deck.back());
             target->m_game->draw_card_to(pocket_type::discard_pile);
 
             while (!target->m_game->m_selection.empty()) {
