@@ -340,11 +340,13 @@ namespace banggame {
 
             int max_initial_cards = std::ranges::max(m_players | std::views::transform(&player::get_initial_cards));
             for (int i=0; i<max_initial_cards; ++i) {
-                for (auto &p : m_players) {
-                    if (p.m_hand.size() < p.get_initial_cards()) {
-                        p.draw_card();
+                player *p = m_first_player;
+                do {
+                    if (p->m_hand.size() < p->get_initial_cards()) {
+                        p->draw_card();
                     }
-                }
+                    p = get_next_player(p);
+                } while (p != m_first_player);
             }
 
             if (!m_shop_deck.empty()) {
