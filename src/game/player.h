@@ -117,7 +117,7 @@ namespace banggame {
         bool can_escape(player *origin, card *origin_card, effect_flags flags) const;
         
         void add_to_hand(card *card);
-        void draw_card(int ncards = 1);
+        void draw_card(int ncards = 1, card *origin_card = nullptr);
 
         void discard_card(card *target);
         void steal_card(card *target);

@@ -47,7 +47,6 @@ namespace banggame {
             if (origin == p && target != p && is_bang) {
                 target->m_game->queue_action([=]{
                     if (target->alive() && !target->m_hand.empty()) {
-                        target->m_game->add_log("LOG_CARD_HAS_EFFECT", target_card);
                         target->m_game->queue_request<request_discard>(target_card, origin, target);
                     }
                 });
@@ -58,8 +57,7 @@ namespace banggame {
     void effect_bounty::on_enable(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_hit>({target_card, 3}, [=](card *origin_card, player *origin, player *target, int damage, bool is_bang) {
             if (origin && target == p && is_bang) {
-                origin->m_game->add_log("LOG_CARD_HAS_EFFECT", target_card);
-                origin->draw_card();
+                origin->draw_card(1, target_card);
             }
         });
     }

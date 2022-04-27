@@ -135,11 +135,11 @@ namespace banggame {
     }
 
     void effect_boots::on_enable(card *target_card, player *p) {
-        p->m_game->add_event<event_type::on_hit>({target_card, 1}, [p](card *origin_card, player *origin, player *target, int damage, bool is_bang){
+        p->m_game->add_event<event_type::on_hit>({target_card, 1}, [p, target_card](card *origin_card, player *origin, player *target, int damage, bool is_bang){
             if (p == target) {
                 target->m_game->queue_action([=]{
                     if (target->alive()) {
-                        target->draw_card(damage);
+                        target->draw_card(damage, target_card);
                     }
                 });
             }

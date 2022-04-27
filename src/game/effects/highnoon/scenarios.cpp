@@ -36,7 +36,7 @@ namespace banggame {
     }
 
     void request_thedaltons::on_pick(pocket_type pocket, player *target_player, card *target_card) {
-        target->m_game->add_log("LOG_DISCARDED_SELF_CARD", target, target_card);
+        target->m_game->add_log("LOG_DISCARDED_CARD_FOR", origin_card, target, target_card);
         target->discard_card(target_card);
         target->m_game->pop_request<request_thedaltons>();
     }

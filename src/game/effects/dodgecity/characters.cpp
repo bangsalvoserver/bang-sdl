@@ -88,9 +88,9 @@ namespace banggame {
     }
     
     void effect_herb_hunter::on_enable(card *target_card, player *p) {
-        p->m_game->add_event<event_type::on_player_death>(target_card, [p](player *origin, player *target) {
+        p->m_game->add_event<event_type::on_player_death>(target_card, [p, target_card](player *origin, player *target) {
             if (p != target) {
-                p->draw_card(2);
+                p->draw_card(2, target_card);
             }
         });
     }
@@ -101,7 +101,7 @@ namespace banggame {
                 for (auto &other : p->m_game->m_players) {
                     if (&other == target) continue;
                     if (card *card = other.find_equipped_card(equipped_card)) {
-                        target->m_game->add_log("LOG_DISCARDED_SELF_CARD", &other, card);
+                        target->m_game->add_log("LOG_DISCARDED_CARD_FOR", target_card, &other, card);
                         other.discard_card(card);
                     }
                 }
@@ -110,11 +110,11 @@ namespace banggame {
     }
 
     void effect_molly_stark::on_enable(card *target_card, player *p) {
-        p->m_game->add_event<event_type::on_play_hand_card>(target_card, [p](player *target, card *card) {
+        p->m_game->add_event<event_type::on_play_hand_card>(target_card, [p, target_card](player *target, card *card) {
             if (p == target && p->m_game->m_playing != p) {
-                p->m_game->queue_action([p]{
+                p->m_game->queue_action([p, target_card]{
                     if (p->alive()) {
-                        p->draw_card();
+                        p->draw_card(1, target_card);
                     }
                 });
             }

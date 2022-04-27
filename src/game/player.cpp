@@ -234,15 +234,27 @@ namespace banggame {
         m_game->move_card(target, pocket_type::player_hand, this);
     }
 
-    void player::draw_card(int ncards) {
+    void player::draw_card(int ncards, card *origin_card) {
         if (ncards == 1) {
-            m_game->add_log(update_target::excludes(this), "LOG_DRAWN_A_CARD", this);
+            if (origin_card) {
+                m_game->add_log(update_target::excludes(this), "LOG_DRAWN_A_CARD_FOR", this, origin_card);
+            } else {
+                m_game->add_log(update_target::excludes(this), "LOG_DRAWN_A_CARD", this);
+            }
         } else {
-            m_game->add_log(update_target::excludes(this), "LOG_DRAWN_N_CARDS", this, ncards);
+            if (origin_card) {
+                m_game->add_log(update_target::excludes(this), "LOG_DRAWN_N_CARDS_FOR", this, ncards, origin_card);
+            } else {
+                m_game->add_log(update_target::excludes(this), "LOG_DRAWN_N_CARDS", this, ncards);
+            }
         }
         for (int i=0; i<ncards; ++i) {
             card *drawn_card = m_game->m_deck.back();
-            m_game->add_log(update_target::includes(this), "LOG_DRAWN_CARD", this, drawn_card);
+            if (origin_card) {
+                m_game->add_log(update_target::includes(this), "LOG_DRAWN_CARD_FOR", this, drawn_card, origin_card);
+            } else {
+                m_game->add_log(update_target::includes(this), "LOG_DRAWN_CARD", this, drawn_card);
+            }
             m_game->draw_card_to(pocket_type::player_hand, this);
         }
     }

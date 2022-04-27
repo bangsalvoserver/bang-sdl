@@ -39,9 +39,9 @@ namespace banggame {
     }
 
     void effect_wanted::on_enable(card *target_card, player *p) {
-        p->m_game->add_event<event_type::on_player_death>(target_card, [p](player *origin, player *target) {
+        p->m_game->add_event<event_type::on_player_death>(target_card, [p, target_card](player *origin, player *target) {
             if (origin && p == target && origin != target) {
-                origin->draw_card(2);
+                origin->draw_card(2, target_card);
                 origin->add_gold(1);
             }
         });
