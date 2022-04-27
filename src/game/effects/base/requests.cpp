@@ -258,8 +258,9 @@ namespace banggame {
         if (--bang_strength == 0) {
             p->m_game->call_event<event_type::on_missed>(origin_card, origin, target, is_bang_card);
             p->m_game->pop_request<request_bang>();
+        } else {
+            p->m_game->update_request();
         }
-        p->m_game->update_request();
     }
 
     void request_bang::on_resolve() {
