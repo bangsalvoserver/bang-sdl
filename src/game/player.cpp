@@ -577,10 +577,12 @@ namespace banggame {
 
     void player::discard_all() {
         while (!m_table.empty()) {
+            m_game->add_log("LOG_DISCARDED_SELF_CARD", this, m_table.front());
             discard_card(m_table.front());
         }
         drop_all_cubes(m_characters.front());
         while (!m_hand.empty()) {
+            m_game->add_log("LOG_DISCARDED_SELF_CARD", this, m_hand.front());
             m_game->move_card(m_hand.front(), pocket_type::discard_pile);
         }
     }

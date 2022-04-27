@@ -14,6 +14,7 @@ namespace banggame {
     void draw_check_handler::start() {
         if (m_origin->m_num_checks > 1) {
             for (int i=0; i<m_origin->m_num_checks; ++i) {
+                m_origin->m_game->add_log("LOG_REVEALED_CARD", m_origin, m_origin->m_game->m_deck.back());
                 m_origin->m_game->draw_card_to(pocket_type::selection);
             }
             m_origin->m_game->queue_request_front<request_check>(m_origin_card, m_origin);
