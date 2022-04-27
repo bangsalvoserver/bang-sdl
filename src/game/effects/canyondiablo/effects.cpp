@@ -28,6 +28,7 @@ namespace banggame {
     }
 
     void effect_mirage::on_play(card *origin_card, player *origin) {
+        origin->m_game->add_log("LOG_SKIP_TURN", origin->m_game->m_playing);
         origin->m_game->m_playing->skip_turn();
     }
 
@@ -41,7 +42,9 @@ namespace banggame {
     void effect_disarm::on_play(card *origin_card, player *origin) {
         player *shooter = origin->m_game->top_request().origin();
         if (!shooter->m_hand.empty()) {
-            shooter->discard_card(shooter->random_hand_card());
+            card *hand_card = shooter->random_hand_card();
+            origin->m_game->add_log("LOG_DISCARDED_SELF_CARD", shooter, hand_card);
+            shooter->discard_card(hand_card);
         }
     }
 
@@ -92,6 +95,8 @@ namespace banggame {
 
     void handler_card_sharper::on_resolve(card *origin_card, player *origin, card *chosen_card, card *target_card) {
         player *target = target_card->owner;
+        origin->m_game->add_log("LOG_SWAP_CARDS", origin, target, chosen_card, target_card);
+
         target->disable_equip(target_card);
         target_card->on_equip(origin);
         origin->equip_card(target_card);
@@ -119,10 +124,10 @@ namespace banggame {
         origin->damage(origin_card, origin, 1);
         origin->m_game->queue_action_front([=]{
             if (origin->alive()) {
-                origin->m_game->draw_card_to(pocket_type::player_hand, origin);
-                origin->m_game->draw_card_to(pocket_type::player_hand, origin);
+                origin->m_game->log_draw_card_to(origin);
+                origin->m_game->log_draw_card_to(origin);
                 if (fatal) {
-                    origin->m_game->draw_card_to(pocket_type::player_hand, origin);
+                    origin->m_game->log_draw_card_to(origin);
                 }
             }
         });
@@ -140,7 +145,14 @@ namespace banggame {
         player *target = std::get<target_player_t>(targets[0]).target;
 
         for (auto c : targets | std::views::drop(1)) {
-            target->add_to_hand(std::get<target_card_t>(c).target);
+            card *chosen_card = std::get<target_card_t>(c).target;
+            if (chosen_card->pocket == pocket_type::player_hand) {
+                origin->m_game->add_log(update_target::includes(origin, target), "LOG_GIFTED_CARD", origin, target, chosen_card);
+                origin->m_game->add_log(update_target::excludes(origin, target), "LOG_GIFTED_A_CARD", origin, target);
+            } else {
+                origin->m_game->add_log("LOG_GIFTED_CARD", origin, target, chosen_card);
+            }
+            target->add_to_hand(chosen_card);
         }
     }
 }

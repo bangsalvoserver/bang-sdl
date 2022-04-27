@@ -475,15 +475,17 @@ namespace banggame {
 
         if (!check_player_flags(player_flags::ghost) && m_hp == 0) {
             if (m_game->has_scenario(scenario_flags::ghosttown)) {
+                m_game->add_log("LOG_REVIVE", this, m_game->m_scenario_cards.back());
                 ++m_num_cards_to_draw;
                 for (auto *c : m_characters) {
                     enable_equip(c);
                 }
             } else if (m_game->has_scenario(scenario_flags::deadman) && this == m_game->m_first_dead) {
                 remove_player_flags(player_flags::dead);
+                m_game->add_log("LOG_REVIVE", this, m_game->m_scenario_cards.back());
                 m_game->add_update<game_update_type::player_hp>(id, m_hp = 2);
-                m_game->draw_card_to(pocket_type::player_hand, this);
-                m_game->draw_card_to(pocket_type::player_hand, this);
+                m_game->log_draw_card_to(this);
+                m_game->log_draw_card_to(this);
                 for (auto *c : m_characters) {
                     enable_equip(c);
                 }

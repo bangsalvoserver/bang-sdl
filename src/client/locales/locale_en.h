@@ -250,6 +250,8 @@ LOCALE_VALUE(LOG_DECLARED_SPADES,                 "{0} declares Spades per {1}")
 LOCALE_VALUE(LOG_DISCARDED_CARD_FOR,              "{1} discards a card for {0}")
 LOCALE_VALUE(LOG_POKER_REVEAL,                    "{1} is revealed for {0}")
 LOCALE_VALUE(LOG_POKER_ACE,                       "There is an ace, all cards are discarded")
+LOCALE_VALUE(LOG_REVIVE,                          "{0} revives for {1}")
+LOCALE_VALUE(LOG_SWAP_CARDS,                      "{0} swaps {2} with {1}'s {3}")
 
 LOCALE_VALUE(lobby_state::waiting,                "Waiting")
 LOCALE_VALUE(lobby_state::playing,                "Playing")

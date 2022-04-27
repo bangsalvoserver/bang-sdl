@@ -250,6 +250,8 @@ LOCALE_VALUE(LOG_DECLARED_SPADES,                 "{0} dichiara Picche per {1}")
 LOCALE_VALUE(LOG_DISCARDED_CARD_FOR,              "{1} scarta una carta per {0}")
 LOCALE_VALUE(LOG_POKER_REVEAL,                    "Viene rivelata {1} per {0}")
 LOCALE_VALUE(LOG_POKER_ACE,                       "C'è un Asso, tutte le carte sono scartate")
+LOCALE_VALUE(LOG_REVIVE,                          "{0} ritorna in gioco {1}")
+LOCALE_VALUE(LOG_SWAP_CARDS,                      "{0} scambia {2} con {3} di {1}")
 
 LOCALE_VALUE(lobby_state::waiting,                "In attesa")
 LOCALE_VALUE(lobby_state::playing,                "In gioco")
