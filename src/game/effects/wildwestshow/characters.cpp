@@ -35,6 +35,7 @@ namespace banggame {
                         return;
                     }
                 }
+                p->m_game->add_log("LOG_DRAWN_CARD", p, discarded_card);
                 p->m_game->move_card(discarded_card, pocket_type::player_hand, p, show_card_flags::short_pause);
             }
         });
@@ -50,6 +51,7 @@ namespace banggame {
                         return;
                     }
                 }
+                player_end->m_game->add_log("LOG_DRAWN_CARD", player_end, drawn_card);
                 player_end->m_game->move_card(drawn_card, pocket_type::player_hand, player_end, show_card_flags::short_pause);
             }
         });
@@ -69,7 +71,7 @@ namespace banggame {
                 origin->m_game->pop_request<request_death>();
                 origin->m_hp = 1;
                 origin->m_game->add_update<game_update_type::player_hp>(origin->id, 1);
-                origin->m_game->draw_card_to(pocket_type::player_hand, origin);
+                origin->m_game->log_draw_card_to(origin);
             }
         });
     }
@@ -92,6 +94,8 @@ namespace banggame {
 
     void request_youl_grinner::on_pick(pocket_type pocket, player *target_player, card *target_card) {
         target->m_game->pop_request<request_youl_grinner>();
+        target->m_game->add_log(update_target::includes(origin, target), "LOG_GIFTED_CARD", target, origin, target_card);
+        target->m_game->add_log(update_target::excludes(origin, target), "LOG_GIFTED_A_CARD", target, origin);
         origin->steal_card(target_card);
         target->m_game->call_event<event_type::on_effect_end>(origin, origin_card);
     }
@@ -109,8 +113,13 @@ namespace banggame {
         auto target = std::get<target_card_t>(targets[1]).target->owner;
 
         for (int i=2; i && !target->m_hand.empty(); --i) {
-            origin->steal_card(target->random_hand_card());
+            card *stolen_card = target->random_hand_card();
+            target->m_game->add_log(update_target::includes(origin, target), "LOG_STOLEN_CARD", origin, target, stolen_card);
+            target->m_game->add_log(update_target::excludes(origin, target), "LOG_STOLEN_CARD_FROM_HAND", origin, target);
+            origin->steal_card(stolen_card);
         }
+        target->m_game->add_log(update_target::includes(origin, target), "LOG_GIFTED_CARD", origin, target, chosen_card);
+        target->m_game->add_log(update_target::excludes(origin, target), "LOG_GIFTED_A_CARD", origin, target);
         target->steal_card(chosen_card);
     }
 
@@ -129,6 +138,7 @@ namespace banggame {
             pocket_type::player_character, target->id);
         for (int i=0; i<2; ++i) {
             auto *c = target->m_characters.emplace_back(base_characters[i]);
+            target->m_game->add_log("LOG_CHARACTER_CHOICE", target, c);
             c->pocket = pocket_type::player_character;
             c->owner = target;
             c->on_enable(target);

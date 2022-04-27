@@ -170,7 +170,7 @@ namespace banggame {
             for (int i=0; i<2 && !saved->m_hand.empty(); ++i) {
                 card *stolen_card = saved->random_hand_card();
                 target->m_game->add_log(update_target::includes(target, saved), "LOG_STOLEN_CARD", target, saved, stolen_card);
-                target->m_game->add_log(update_target::excludes(target, saved), "LOG_STOLEN_HAND_CARD", target, saved);
+                target->m_game->add_log(update_target::excludes(target, saved), "LOG_STOLEN_CARD_FROM_HAND", target, saved);
                 target->steal_card(stolen_card);
             }
             target->m_game->pop_request<request_saved>();
