@@ -85,7 +85,7 @@ namespace banggame {
             ? (drawn_card->sign.suit == card_suit::hearts || drawn_card->sign.suit == card_suit::diamonds)
             : (drawn_card->sign.suit == card_suit::clubs || drawn_card->sign.suit == card_suit::spades))
         {
-            target->m_game->log_draw_card_to(target);
+            target->draw_card();
         } else {
             target->m_game->add_log("LOG_DISCARDED_SELF_CARD", target, target->m_game->m_deck.back());
             target->m_game->draw_card_to(pocket_type::discard_pile);

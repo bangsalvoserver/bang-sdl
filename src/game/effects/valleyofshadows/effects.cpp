@@ -37,8 +37,7 @@ namespace banggame {
     void effect_tornado::on_play(card *origin_card, player *origin, player *target) {
         if (target->m_hand.empty()) {
             target->m_game->queue_action([=]{
-                target->m_game->log_draw_card_to(target);
-                target->m_game->log_draw_card_to(target);
+                target->draw_card(2);
             });
         } else {
             target->m_game->queue_request<request_tornado>(origin_card, origin, target);

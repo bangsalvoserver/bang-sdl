@@ -63,7 +63,7 @@ namespace banggame {
         p->m_game->add_event<event_type::on_missed>(target_card, [=](card *origin_card, player *origin, player *target, bool is_bang) {
             if (origin == p && is_bang) {
                 origin->m_game->add_log("LOG_CARD_HAS_EFFECT", target_card);
-                origin->m_game->log_draw_card_to(p);
+                p->draw_card();
             }
         });
     }

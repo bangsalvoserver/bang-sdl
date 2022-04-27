@@ -90,8 +90,7 @@ namespace banggame {
     void effect_herb_hunter::on_enable(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_player_death>(target_card, [p](player *origin, player *target) {
             if (p != target) {
-                p->m_game->log_draw_card_to(p);
-                p->m_game->log_draw_card_to(p);
+                p->draw_card(2);
             }
         });
     }
@@ -115,7 +114,7 @@ namespace banggame {
             if (p == target && p->m_game->m_playing != p) {
                 p->m_game->queue_action([p]{
                     if (p->alive()) {
-                        p->m_game->log_draw_card_to(p);
+                        p->draw_card();
                     }
                 });
             }

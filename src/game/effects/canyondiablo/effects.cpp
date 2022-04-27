@@ -124,11 +124,7 @@ namespace banggame {
         origin->damage(origin_card, origin, 1);
         origin->m_game->queue_action_front([=]{
             if (origin->alive()) {
-                origin->m_game->log_draw_card_to(origin);
-                origin->m_game->log_draw_card_to(origin);
-                if (fatal) {
-                    origin->m_game->log_draw_card_to(origin);
-                }
+                origin->draw_card(2 + fatal);
             }
         });
     }

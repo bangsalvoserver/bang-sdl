@@ -342,7 +342,7 @@ namespace banggame {
             for (int i=0; i<max_initial_cards; ++i) {
                 for (auto &p : m_players) {
                     if (p.m_hand.size() < p.get_initial_cards()) {
-                        log_draw_card_to(&p);
+                        p.draw_card();
                     }
                 }
             }
@@ -471,9 +471,7 @@ namespace banggame {
             if (m_players.size() > 3) {
                 switch (target->m_role) {
                 case player_role::outlaw:
-                    log_draw_card_to(killer);
-                    log_draw_card_to(killer);
-                    log_draw_card_to(killer);
+                    killer->draw_card(3);
                     break;
                 case player_role::deputy:
                     if (killer->m_role == player_role::sheriff) {
@@ -485,9 +483,7 @@ namespace banggame {
                     break;
                 }
             } else {
-                log_draw_card_to(killer);
-                log_draw_card_to(killer);
-                log_draw_card_to(killer);
+                killer->draw_card(3);
             }
         }
         

@@ -104,8 +104,7 @@ namespace banggame {
     void request_tornado::on_pick(pocket_type pocket, player *target_player, card *target_card) {
         target->m_game->add_log("LOG_DISCARDED_SELF_CARD", target, target_card);
         target->discard_card(target_card);
-        target->m_game->log_draw_card_to(target);
-        target->m_game->log_draw_card_to(target);
+        target->draw_card(2);
         target->m_game->pop_request<request_tornado>();
     }
 
@@ -162,8 +161,7 @@ namespace banggame {
     void request_saved::on_pick(pocket_type pocket, player *target_player, card *target_card) {
         switch (pocket) {
         case pocket_type::main_deck:
-            target->m_game->log_draw_card_to(target);
-            target->m_game->log_draw_card_to(target);
+            target->draw_card(2);
             target->m_game->pop_request<request_saved>();
             break;
         case pocket_type::player_hand:

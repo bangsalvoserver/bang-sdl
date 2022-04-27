@@ -25,7 +25,7 @@ namespace banggame {
     void effect_madam_yto::on_enable(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_play_beer>(target_card, [=](player *target) {
             target->m_game->add_log("LOG_CARD_HAS_EFFECT", target_card);
-            p->m_game->log_draw_card_to(p);
+            p->draw_card();
         });
     }
 

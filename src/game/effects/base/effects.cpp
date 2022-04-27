@@ -321,9 +321,7 @@ namespace banggame {
     }
 
     void effect_draw::on_play(card *origin_card, player *origin, player *target) {
-        for (int i=0; i<ncards; ++i) {
-            target->m_game->log_draw_card_to(target);
-        }
+        target->draw_card(ncards);
     }
 
     opt_error effect_draw_discard::verify(card *origin_card, player *origin, player *target) const {

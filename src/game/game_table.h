@@ -78,7 +78,6 @@ namespace banggame {
         card *draw_card_to(pocket_type pocket, player *owner = nullptr, show_card_flags flags = {});
         card *draw_phase_one_card_to(pocket_type pocket, player *owner = nullptr, show_card_flags flags = {});
         card *phase_one_drawn_card();
-        void log_draw_card_to(player *owner);
 
         card *draw_shop_card();
         

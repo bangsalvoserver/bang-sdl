@@ -234,6 +234,19 @@ namespace banggame {
         m_game->move_card(target, pocket_type::player_hand, this);
     }
 
+    void player::draw_card(int ncards) {
+        if (ncards == 1) {
+            m_game->add_log(update_target::excludes(this), "LOG_DRAWN_A_CARD", this);
+        } else {
+            m_game->add_log(update_target::excludes(this), "LOG_DRAWN_N_CARDS", this, ncards);
+        }
+        for (int i=0; i<ncards; ++i) {
+            card *drawn_card = m_game->m_deck.back();
+            m_game->add_log(update_target::includes(this), "LOG_DRAWN_CARD", this, drawn_card);
+            m_game->draw_card_to(pocket_type::player_hand, this);
+        }
+    }
+
     void player::set_last_played_card(card *c) {
         m_last_played_card = c;
         m_game->add_update<game_update_type::last_played_card>(update_target::includes(this), c ? c->id : 0);
@@ -484,8 +497,7 @@ namespace banggame {
                 remove_player_flags(player_flags::dead);
                 m_game->add_log("LOG_REVIVE", this, m_game->m_scenario_cards.back());
                 m_game->add_update<game_update_type::player_hp>(id, m_hp = 2);
-                m_game->log_draw_card_to(this);
-                m_game->log_draw_card_to(this);
+                draw_card(2);
                 for (auto *c : m_characters) {
                     enable_equip(c);
                 }

@@ -97,7 +97,7 @@ namespace banggame {
         origin->m_game->add_event<event_type::on_effect_end>(origin_card, [origin](player *, card *) {
             origin->m_game->queue_action([origin]{
                 if (origin->alive() && origin->m_hand.empty()) {
-                    origin->m_game->log_draw_card_to(origin);
+                    origin->draw_card();
                 }
             });
         });

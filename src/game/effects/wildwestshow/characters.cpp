@@ -71,7 +71,7 @@ namespace banggame {
                 origin->m_game->pop_request<request_death>();
                 origin->m_hp = 1;
                 origin->m_game->add_update<game_update_type::player_hp>(origin->id, 1);
-                origin->m_game->log_draw_card_to(origin);
+                origin->draw_card();
             }
         });
     }

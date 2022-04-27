@@ -139,9 +139,7 @@ namespace banggame {
             if (p == target) {
                 target->m_game->queue_action([=]{
                     if (target->alive()) {
-                        for (int i=0; i<damage; ++i) {
-                            target->m_game->log_draw_card_to(target);
-                        }
+                        target->draw_card(damage);
                     }
                 });
             }
