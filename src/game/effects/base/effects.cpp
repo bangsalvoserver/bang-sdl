@@ -335,8 +335,7 @@ namespace banggame {
 
     void effect_draw_discard::on_play(card *origin_card, player *origin, player *target) {
         card *drawn_card = target->m_game->m_discards.back();
-        target->m_game->add_log(update_target::excludes(target), "LOG_DRAWN_ONE_FROM_DISCARD", target);
-        target->m_game->add_log(update_target::includes(target), "LOG_DRAWN_FROM_DISCARD", target, drawn_card);
+        target->m_game->add_log("LOG_DRAWN_FROM_DISCARD", target, drawn_card);
         target->add_to_hand(drawn_card);
     }
 

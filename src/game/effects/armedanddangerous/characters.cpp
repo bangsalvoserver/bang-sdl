@@ -34,6 +34,7 @@ namespace banggame {
                         target->m_game->draw_check_then(target, target_card, [=](card *drawn_card) {
                             card_suit suit = target->get_card_sign(drawn_card).suit;
                             if (suit == card_suit::hearts || suit == card_suit::diamonds) {
+                                target->m_game->add_log("LOG_CARD_HAS_EFFECT", target_card);
                                 target->m_game->queue_request<request_bang>(target_card, target, origin);
                             }
                         });
@@ -54,13 +55,15 @@ namespace banggame {
     }
 
     void effect_frankie_canton::on_play(card *origin_card, player *origin, card *target_card) {
+        origin->m_game->add_log("LOG_PLAYED_CARD_ON", origin_card, origin, target_card);
         target_card->owner->move_cubes(target_card, origin->m_characters.front(), 1);
     }
 
     void effect_bloody_mary::on_enable(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_missed>(target_card, [=](card *origin_card, player *origin, player *target, bool is_bang) {
             if (origin == p && is_bang) {
-                origin->m_game->draw_card_to(pocket_type::player_hand, p);
+                origin->m_game->add_log("LOG_CARD_HAS_EFFECT", target_card);
+                origin->m_game->log_draw_card_to(p);
             }
         });
     }

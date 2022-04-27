@@ -49,13 +49,22 @@ namespace banggame {
     void request_claus_the_saint::on_pick(pocket_type pocket, player *target_player, card *target_card) {
         if (target->m_num_drawn_cards < target->m_num_cards_to_draw) {
             ++target->m_num_drawn_cards;
+            target->m_game->add_log(update_target::includes(target), "LOG_DRAWN_CARD", target, target_card);
+            target->m_game->add_log(update_target::excludes(target), "LOG_DRAWN_A_CARD", target);
             target->add_to_hand(target_card);
             target->m_game->call_event<event_type::on_card_drawn>(target, target_card);
         } else {
-            get_next_target()->add_to_hand(target_card);
+            player *next_target = get_next_target();
+            target->m_game->add_log(update_target::includes(target, next_target), "LOG_GIFTED_CARD", target, next_target, target_card);
+            target->m_game->add_log(update_target::excludes(target, next_target), "LOG_GIFTED_A_CARD", target, next_target);
+            next_target->add_to_hand(target_card);
         }
         if (target->m_game->m_selection.size() == 1) {
-            get_next_target()->add_to_hand(target->m_game->m_selection.front());
+            player *next_target = get_next_target();
+            card *last_card = target->m_game->m_selection.front();
+            target->m_game->add_log(update_target::includes(target, next_target), "LOG_GIFTED_CARD", target, next_target, last_card);
+            target->m_game->add_log(update_target::excludes(target, next_target), "LOG_GIFTED_A_CARD", target, last_card);
+            next_target->add_to_hand(last_card);
             target->m_game->pop_request<request_claus_the_saint>();
         } else {
             target->m_game->update_request();
@@ -81,8 +90,8 @@ namespace banggame {
     void effect_herb_hunter::on_enable(card *target_card, player *p) {
         p->m_game->add_event<event_type::on_player_death>(target_card, [p](player *origin, player *target) {
             if (p != target) {
-                p->m_game->draw_card_to(pocket_type::player_hand, p);
-                p->m_game->draw_card_to(pocket_type::player_hand, p);
+                p->m_game->log_draw_card_to(p);
+                p->m_game->log_draw_card_to(p);
             }
         });
     }
@@ -93,6 +102,7 @@ namespace banggame {
                 for (auto &other : p->m_game->m_players) {
                     if (&other == target) continue;
                     if (card *card = other.find_equipped_card(equipped_card)) {
+                        target->m_game->add_log("LOG_DISCARDED_SELF_CARD", &other, card);
                         other.discard_card(card);
                     }
                 }
@@ -105,7 +115,7 @@ namespace banggame {
             if (p == target && p->m_game->m_playing != p) {
                 p->m_game->queue_action([p]{
                     if (p->alive()) {
-                        p->m_game->draw_card_to(pocket_type::player_hand, p);
+                        p->m_game->log_draw_card_to(p);
                     }
                 });
             }
@@ -141,6 +151,8 @@ namespace banggame {
                 | std::views::take(2)
                 | std::views::reverse,
             [origin](card *target_card) {
+                origin->m_game->add_log("LOG_COPY_CHARACTER", origin, target_card);
+                
                 auto card_copy = std::make_unique<card>(static_cast<const card_data &>(*target_card));
                 card_copy->id = origin->m_game->m_cards.first_available_id();
                 card_copy->pocket = pocket_type::player_character;
