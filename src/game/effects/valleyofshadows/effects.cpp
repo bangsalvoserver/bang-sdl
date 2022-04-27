@@ -37,8 +37,8 @@ namespace banggame {
     void effect_tornado::on_play(card *origin_card, player *origin, player *target) {
         if (target->m_hand.empty()) {
             target->m_game->queue_action([=]{
-                target->m_game->draw_card_to(pocket_type::player_hand, target);
-                target->m_game->draw_card_to(pocket_type::player_hand, target);
+                target->m_game->log_draw_card_to(target);
+                target->m_game->log_draw_card_to(target);
             });
         } else {
             target->m_game->queue_request<request_tornado>(origin_card, origin, target);
@@ -62,6 +62,7 @@ namespace banggame {
         };
         origin->m_game->queue_action([=]{
             for (auto it = origin->m_game->m_selection.begin(); it != origin->m_game->m_selection.end(); ++it) {
+                origin->m_game->add_log("LOG_POKER_REVEAL", origin_card, *it);
                 auto flags = show_card_flags::shown;
                 if (std::next(it) == origin->m_game->m_selection.end()) {
                     flags |= show_card_flags::short_pause;
@@ -71,12 +72,15 @@ namespace banggame {
             if (std::ranges::any_of(origin->m_game->m_selection, [origin](card *card_ptr) {
                 return origin->get_card_sign(card_ptr).rank == card_rank::rank_A;
             })) {
+                origin->m_game->add_log("LOG_POKER_ACE");
                 while (!target->m_game->m_selection.empty()) {
                     origin->m_game->move_card(target->m_game->m_selection.front(), pocket_type::discard_pile);
                 }
             } else if (origin->m_game->m_selection.size() <= 2) {
                 while (!origin->m_game->m_selection.empty()) {
-                    origin->add_to_hand(origin->m_game->m_selection.front());
+                    card *drawn_card = origin->m_game->m_selection.front();
+                    origin->m_game->add_log("LOG_DRAWN_CARD", origin, drawn_card);
+                    origin->add_to_hand(drawn_card);
                 }
             } else {
                 origin->m_game->queue_request<request_poker_draw>(origin_card, origin);

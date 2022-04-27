@@ -76,6 +76,7 @@ namespace banggame {
     }
 
     void request_bandidos::on_pick(pocket_type pocket, player *target_player, card *target_card) {
+        target->m_game->add_log("LOG_DISCARDED_SELF_CARD", target, target_card);
         target->discard_card(target_card);
         if (--num_cards == 0 || target->m_hand.empty()) {
             target->m_game->pop_request<request_bandidos>();
@@ -101,9 +102,10 @@ namespace banggame {
     }
 
     void request_tornado::on_pick(pocket_type pocket, player *target_player, card *target_card) {
+        target->m_game->add_log("LOG_DISCARDED_SELF_CARD", target, target_card);
         target->discard_card(target_card);
-        target->m_game->draw_card_to(pocket_type::player_hand, target);
-        target->m_game->draw_card_to(pocket_type::player_hand, target);
+        target->m_game->log_draw_card_to(target);
+        target->m_game->log_draw_card_to(target);
         target->m_game->pop_request<request_tornado>();
     }
 
@@ -120,6 +122,7 @@ namespace banggame {
     }
 
     void request_poker::on_pick(pocket_type pocket, player *target_player, card *target_card) {
+        target->m_game->add_log("LOG_DISCARDED_CARD_FOR", origin_card, target);
         target->m_game->move_card(target_card, pocket_type::selection, origin);
         target->m_game->pop_request<request_poker>();
     }
@@ -133,6 +136,7 @@ namespace banggame {
     }
 
     void request_poker_draw::on_pick(pocket_type pocket, player *target_player, card *target_card) {
+        target->m_game->add_log("LOG_DRAWN_CARD", target, target_card);
         target->add_to_hand(target_card);
         if (--num_cards == 0 || target->m_game->m_selection.size() == 0) {
             for (auto *c : target->m_game->m_selection) {
@@ -158,13 +162,16 @@ namespace banggame {
     void request_saved::on_pick(pocket_type pocket, player *target_player, card *target_card) {
         switch (pocket) {
         case pocket_type::main_deck:
-            target->m_game->draw_card_to(pocket_type::player_hand, target);
-            target->m_game->draw_card_to(pocket_type::player_hand, target);
+            target->m_game->log_draw_card_to(target);
+            target->m_game->log_draw_card_to(target);
             target->m_game->pop_request<request_saved>();
             break;
         case pocket_type::player_hand:
             for (int i=0; i<2 && !saved->m_hand.empty(); ++i) {
-                target->steal_card(saved->random_hand_card());
+                card *stolen_card = saved->random_hand_card();
+                target->m_game->add_log(update_target::includes(target, saved), "LOG_STOLEN_CARD", target, saved, stolen_card);
+                target->m_game->add_log(update_target::excludes(target, saved), "LOG_STOLEN_HAND_CARD", target, saved);
+                target->steal_card(stolen_card);
             }
             target->m_game->pop_request<request_saved>();
             break;

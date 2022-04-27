@@ -10,6 +10,7 @@ namespace banggame {
     void effect_snake::on_enable(card *target_card, player *target) {
         target->add_predraw_check(target_card, 0, [=](card *drawn_card) {
             if (target->get_card_sign(drawn_card).suit == card_suit::spades) {
+                target->m_game->add_log("LOG_CARD_HAS_EFFECT", target_card);
                 target->damage(target_card, nullptr, 1);
             }
             target->next_predraw_check(target_card);
@@ -46,6 +47,7 @@ namespace banggame {
             if (origin == p && target != p && is_bang) {
                 target->m_game->queue_action([=]{
                     if (target->alive() && !target->m_hand.empty()) {
+                        target->m_game->add_log("LOG_CARD_HAS_EFFECT", target_card);
                         target->m_game->queue_request<request_discard>(target_card, origin, target);
                     }
                 });
@@ -54,9 +56,10 @@ namespace banggame {
     }
 
     void effect_bounty::on_enable(card *target_card, player *p) {
-        p->m_game->add_event<event_type::on_hit>({target_card, 3}, [p](card *origin_card, player *origin, player *target, int damage, bool is_bang) {
+        p->m_game->add_event<event_type::on_hit>({target_card, 3}, [=](card *origin_card, player *origin, player *target, int damage, bool is_bang) {
             if (origin && target == p && is_bang) {
-                origin->m_game->draw_card_to(pocket_type::player_hand, origin);
+                origin->m_game->add_log("LOG_CARD_HAS_EFFECT", target_card);
+                origin->m_game->log_draw_card_to(origin);
             }
         });
     }
