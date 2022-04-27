@@ -427,6 +427,8 @@ void game_scene::pop_update() {
 }
 
 void game_scene::HANDLE_UPDATE(game_over, const game_over_update &args) {
+    m_target.clear_status();
+
     m_ui.set_status(_("STATUS_GAME_OVER"));
     m_winner_role = args.winner_role;
     

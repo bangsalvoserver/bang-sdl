@@ -457,7 +457,6 @@ namespace banggame {
         }
 
         if (winner_role != player_role::unknown) {
-            add_update<game_update_type::status_clear>();
             for (const auto &p : m_players) {
                 if (!p.check_player_flags(player_flags::role_revealed)) {
                     add_update<game_update_type::player_show_role>(p.id, p.m_role);
