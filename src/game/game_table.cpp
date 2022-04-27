@@ -205,6 +205,7 @@ namespace banggame {
             m_scenario_cards.back()->on_disable(m_first_player);
             m_scenario_flags = {};
         }
+        add_log("LOG_DRAWN_SCENARIO_CARD", m_scenario_deck.back());
         move_card(m_scenario_deck.back(), pocket_type::scenario_card);
         m_scenario_cards.back()->on_enable(m_first_player);
     }

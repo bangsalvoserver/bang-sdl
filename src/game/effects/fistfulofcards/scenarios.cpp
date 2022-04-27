@@ -20,6 +20,7 @@ namespace banggame {
     }
 
     void effect_sniper::on_play(card *origin_card, player *origin, player *target) {
+        target->m_game->add_log("LOG_PLAYED_CARD_ON", origin_card, origin, target);
         auto req = std::make_shared<request_bang>(origin_card, origin, target);
         req->bang_strength = 2;
         target->m_game->queue_request(std::move(req));
@@ -74,12 +75,19 @@ namespace banggame {
         auto *drawn_card = target->m_game->m_deck.back();
         target->m_game->send_card_update(drawn_card, nullptr, show_card_flags::short_pause);
 
+        if (target_card->responses.front().effect_value == 1) {
+            target->m_game->add_log("LOG_DECLARED_RED", target, origin_card);
+        } else {
+            target->m_game->add_log("LOG_DECLARED_BLACK", target, origin_card);
+        }
+
         if ((target_card->responses.front().effect_value == 1)
             ? (drawn_card->sign.suit == card_suit::hearts || drawn_card->sign.suit == card_suit::diamonds)
             : (drawn_card->sign.suit == card_suit::clubs || drawn_card->sign.suit == card_suit::spades))
         {
-            target->m_game->draw_card_to(pocket_type::player_hand, target);
+            target->m_game->log_draw_card_to(target);
         } else {
+            target->m_game->add_log("LOG_DISCARDED_SELF_CARD", target->m_game->m_deck.back());
             target->m_game->draw_card_to(pocket_type::discard_pile);
 
             while (!target->m_game->m_selection.empty()) {
@@ -131,6 +139,7 @@ namespace banggame {
 
     void effect_fistfulofcards::on_enable(card *target_card, player *target) {
         target->m_game->add_event<event_type::pre_turn_start>(target_card, [=](player *p) {
+            p->m_game->add_log("LOG_RECEIVED_N_BANGS_FOR", p, target_card, p->m_hand.size());
             for (int i=0; i<p->m_hand.size(); ++i) {
                 p->m_game->queue_request<request_bang>(target_card, nullptr, p);
             }
@@ -141,6 +150,7 @@ namespace banggame {
         target->m_game->add_event<event_type::on_card_drawn>(target_card, [](player *origin, card *drawn_card) {
             if (origin->m_num_drawn_cards == 2) {
                 origin->m_game->queue_action([=]{
+                    origin->m_game->add_log("LOG_MANDATORY_CARD", origin, drawn_card);
                     origin->m_game->send_card_update(drawn_card, origin, show_card_flags::shown | show_card_flags::short_pause);
                     origin->m_game->send_card_update(drawn_card, origin);
 
@@ -155,8 +165,9 @@ namespace banggame {
     void effect_vendetta::on_enable(card *target_card, player *p) {
         p->m_game->add_event<event_type::post_turn_end>({target_card, 2}, [target_card](player *target) {
             target->m_game->queue_action([target, target_card] {
-                target->m_game->draw_check_then(target, target_card, [target](card *drawn_card) {
+                target->m_game->draw_check_then(target, target_card, [target, target_card](card *drawn_card) {
                     if (target->get_card_sign(drawn_card).suit == card_suit::hearts) {
+                        target->m_game->add_log("LOG_CARD_HAS_EFFECT", target_card);
                         ++target->m_extra_turns;
                     }
                 });

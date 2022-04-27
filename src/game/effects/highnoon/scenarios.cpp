@@ -36,6 +36,7 @@ namespace banggame {
     }
 
     void request_thedaltons::on_pick(pocket_type pocket, player *target_player, card *target_card) {
+        target->m_game->add_log("LOG_DISCARDED_SELF_CARD", target, target_card);
         target->discard_card(target_card);
         target->m_game->pop_request<request_thedaltons>();
     }
@@ -161,11 +162,25 @@ namespace banggame {
     }
 
     void request_handcuffs::on_pick(pocket_type pocket, player *target_player, card *target_card) {
-        target->m_game->add_disabler(origin_card, 
-            [target=target, declared_suit = static_cast<card_suit>(target_card->responses.front().effect_value)]
-            (card *c) {
-                return c->owner == target && c->sign && c->sign.suit != declared_suit;
-            });
+        auto declared_suit = static_cast<card_suit>(target_card->responses.front().effect_value);
+        switch (declared_suit) {
+        case card_suit::clubs:
+            target->m_game->add_log("LOG_DECLARED_CLUBS", target, origin_card);
+            break;
+        case card_suit::diamonds:
+            target->m_game->add_log("LOG_DECLARED_DIAMONDS", target, origin_card);
+            break;
+        case card_suit::hearts:
+            target->m_game->add_log("LOG_DECLARED_HEARTS", target, origin_card);
+            break;
+        case card_suit::spades:
+            target->m_game->add_log("LOG_DECLARED_SPADES", target, origin_card);
+            break;
+        }
+
+        target->m_game->add_disabler(origin_card, [target=target, declared_suit](card *c) {
+            return c->owner == target && c->sign && c->sign.suit != declared_suit;
+        });
 
         while (!target->m_game->m_selection.empty()) {
             target->m_game->move_card(target->m_game->m_selection.front(), pocket_type::hidden_deck, nullptr, show_card_flags::instant);
@@ -202,6 +217,8 @@ namespace banggame {
                 target->m_game->add_update<game_update_type::remove_cards>(make_id_vector(target->m_characters | std::views::drop(1)));
                 target->m_characters.resize(1);
             }
+
+            target->m_game->add_log("LOG_CHARACTER_CHOICE", target, target_card);
 
             card *old_character = target->m_characters.front();
             target->m_game->move_card(old_character, pocket_type::player_backup, target, show_card_flags::hidden);
