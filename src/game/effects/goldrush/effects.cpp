@@ -51,8 +51,10 @@ namespace banggame {
         }
         while (!origin->m_game->m_selection.empty()) {
             card *drawn_card = origin->m_game->m_selection.front();
-            origin->m_game->move_card(drawn_card, pocket_type::discard_pile);
             origin->m_game->call_event<event_type::on_draw_check>(origin, drawn_card);
+            if (drawn_card->pocket == pocket_type::selection) {
+                origin->m_game->move_card(drawn_card, pocket_type::discard_pile);
+            }
         }
         std::sort(suits.begin(), suits.end());
         origin->heal(std::unique(suits.begin(), suits.end()) - suits.begin());

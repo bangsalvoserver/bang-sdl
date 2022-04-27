@@ -10,9 +10,10 @@ namespace banggame {
         p->m_game->add_event<event_type::post_turn_end>({target_card, 1}, [=](player *target) {
             if (p == target) {
                 p->m_game->queue_action([target, target_card] {
-                    target->m_game->draw_check_then(target, target_card, [target](card *drawn_card) {
+                    target->m_game->draw_check_then(target, target_card, [target, target_card](card *drawn_card) {
                         card_suit suit = target->get_card_sign(drawn_card).suit;
                         if (suit == card_suit::diamonds || suit == card_suit::hearts) {
+                            target->m_game->add_log("LOG_CARD_HAS_EFFECT", target_card);
                             ++target->m_extra_turns;
                         }
                     });
@@ -22,8 +23,9 @@ namespace banggame {
     }
 
     void effect_madam_yto::on_enable(card *target_card, player *p) {
-        p->m_game->add_event<event_type::on_play_beer>(target_card, [p](player *target) {
-            p->m_game->draw_card_to(pocket_type::player_hand, p);
+        p->m_game->add_event<event_type::on_play_beer>(target_card, [=](player *target) {
+            target->m_game->add_log("LOG_CARD_HAS_EFFECT", target_card);
+            p->m_game->log_draw_card_to(p);
         });
     }
 
@@ -43,10 +45,13 @@ namespace banggame {
 
     void request_dutch_will::on_pick(pocket_type pocket, player *target_player, card *target_card) {
         ++target->m_num_drawn_cards;
+        target->m_game->add_log(update_target::includes(target), "LOG_DRAWN_CARD", target, target_card);
+        target->m_game->add_log(update_target::excludes(target), "LOG_DRAWN_A_CARD", target);
         target->add_to_hand(target_card);
         target->m_game->call_event<event_type::on_card_drawn>(target, target_card);
         if (target->m_game->m_selection.size() == 1) {
             target->m_game->pop_request<request_dutch_will>();
+            target->m_game->add_log("LOG_DISCARDED_SELF_CARD", target, target->m_game->m_selection.front());
             target->m_game->move_card(target->m_game->m_selection.front(), pocket_type::discard_pile);
             target->add_gold(1);
         }
