@@ -112,7 +112,7 @@ private:
 private:
     boost::asio::io_context &m_ctx;
 
-    using connection_type = net::connection<server_message, client_message, banggame::bang_header>;
+    using connection_type = net::connection<net::message_types<server_message, client_message, banggame::bang_header>>;
     connection_type::pointer m_con;
 
     boost::asio::basic_waitable_timer<std::chrono::system_clock> m_accept_timer;

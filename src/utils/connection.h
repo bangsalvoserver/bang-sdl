@@ -41,18 +41,25 @@ namespace net {
     };
 
     template<binary::deserializable InputMessage, binary::serializable OutputMessage, header HeaderType>
-    class connection : public std::enable_shared_from_this<connection<InputMessage, OutputMessage, HeaderType>> {
+    struct message_types {
+        using input_message = InputMessage;
+        using output_message = OutputMessage;
+        using header_type = HeaderType;
+    };
+
+    template<typename Derived, typename MessageTypes>
+    class connection_base : public std::enable_shared_from_this<connection_base<Derived, MessageTypes>> {
     public:
-        using std::enable_shared_from_this<connection<InputMessage, OutputMessage, HeaderType>>::shared_from_this;
-        using pointer = std::shared_ptr<connection>;
+        using std::enable_shared_from_this<connection_base<Derived, MessageTypes>>::shared_from_this;
+        using pointer = std::shared_ptr<Derived>;
 
         template<typename ... Ts>
         static pointer make(Ts && ... args) {
-            return pointer(new connection(std::forward<Ts>(args) ... ));
+            return pointer(new Derived(std::forward<Ts>(args) ... ));
         }
 
-    private:
-        connection(boost::asio::io_context &ctx, boost::asio::ip::tcp::socket &&socket)
+    protected:
+        connection_base(boost::asio::io_context &ctx, boost::asio::ip::tcp::socket &&socket)
             : m_socket(std::move(socket))
             , m_strand(ctx)
             , m_timer(ctx)
@@ -62,7 +69,7 @@ namespace net {
             m_address = fmt::format("{}:{}", endpoint.address().to_string(), endpoint.port());
         }
 
-        connection(boost::asio::io_context &ctx)
+        connection_base(boost::asio::io_context &ctx)
             : m_socket(ctx)
             , m_strand(ctx)
             , m_timer(ctx)
@@ -124,7 +131,6 @@ namespace net {
                 }
             [[fallthrough]];
             default:
-                m_in_queue.clear();
                 m_out_queue.clear();
                 if (!ec) {
                     m_state = connection_state::disconnected;
@@ -140,10 +146,6 @@ namespace net {
         }
         
     public:
-        std::optional<InputMessage> pop_message() {
-            return m_in_queue.pop_front();
-        }
-
         template<typename ... Ts>
         void push_message(Ts && ... args) {
             auto self(shared_from_this());
@@ -166,13 +168,17 @@ namespace net {
         }
 
     private:
+        using input_message = typename MessageTypes::input_message;
+        using output_message = typename MessageTypes::output_message;
+        using header_type = typename MessageTypes::header_type;
+
         void read_next_message() {
             auto self(shared_from_this());
-            m_buffer.resize(sizeof(HeaderType));
+            m_buffer.resize(sizeof(header_type));
             boost::asio::async_read(m_socket, boost::asio::buffer(m_buffer),
                 [this, self](const boost::system::error_code &ec, size_t nbytes) {
                     if (!ec) {
-                        HeaderType h = binary::deserialize<HeaderType>(m_buffer);
+                        header_type h = binary::deserialize<header_type>(m_buffer);
                         if (h.validate()) {
                             m_timer.expires_after(timeout);
                             m_timer.async_wait([this](const boost::system::error_code &ec) {
@@ -189,7 +195,7 @@ namespace net {
                                     m_timer.cancel();
                                     if (!ec) {
                                         try {
-                                            m_in_queue.push_back(binary::deserialize<InputMessage>(m_buffer));
+                                            static_cast<Derived &>(*this).on_receive_message(binary::deserialize<input_message>(m_buffer));
                                             read_next_message();
                                         } catch (const binary::read_error &error) {
                                             m_ec = error.code();
@@ -213,16 +219,16 @@ namespace net {
 
         template<typename ... Ts>
         std::vector<std::byte> wrap_message(Ts && ... args) {
-            const OutputMessage msg(std::forward<Ts>(args) ... );
+            const output_message msg(std::forward<Ts>(args) ... );
             
-            HeaderType h;
+            header_type h;
             h.length = binary::get_size(msg);
 
             std::vector<std::byte> data;
             data.reserve(sizeof(h) + h.length);
 
-            binary::serializer<HeaderType>{}(h, data);
-            binary::serializer<OutputMessage>{}(msg, data);
+            binary::serializer<header_type>{}(h, data);
+            binary::serializer<output_message>{}(msg, data);
 
             return data;
         }
@@ -264,12 +270,31 @@ namespace net {
         std::atomic<connection_state> m_state;
         std::error_code m_ec;
 
-        util::tsqueue<InputMessage> m_in_queue;
         std::deque<std::vector<std::byte>> m_out_queue;
 
         std::vector<std::byte> m_buffer;
         std::string m_address;
     };
+
+    template<typename MessageTypes>
+    class connection : public connection_base<connection<MessageTypes>, MessageTypes> {
+        using input_message = typename MessageTypes::input_message;
+
+    public:
+        using connection_base<connection<MessageTypes>, MessageTypes>::connection_base;
+
+        void on_receive_message(input_message &&msg) {
+            m_in_queue.push_back(std::move(msg));
+        }
+        
+        std::optional<input_message> pop_message() {
+            return m_in_queue.pop_front();
+        }
+
+    private:
+        util::tsqueue<input_message> m_in_queue;
+    };
+
 }
 
 #endif

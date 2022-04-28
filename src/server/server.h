@@ -47,7 +47,7 @@ private:
 
     void start_accepting();
 
-    using connection_type = net::connection<client_message, server_message, banggame::bang_header>;
+    using connection_type = net::connection<net::message_types<client_message, server_message, banggame::bang_header>>;
     std::map<int, connection_type::pointer> m_clients;
 
     int m_client_id_counter = 0;
