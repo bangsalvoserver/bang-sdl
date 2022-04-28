@@ -1,7 +1,5 @@
 #include "locales.h"
 
-#include "locales.h"
-
 BEGIN_LOCALE(cards, english)
 
 LOCALE_VALUE(BARREL,                    "Barrel")

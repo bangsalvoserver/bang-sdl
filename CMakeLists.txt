@@ -69,7 +69,7 @@ if (NOT CMAKE_BUILD_TYPE STREQUAL "Release")
             target_link_options(banglauncher PRIVATE -mconsole)
         endif()
     else()
-        add_executable(banglauncher src/client/main.c)
+        add_executable(banglauncher src/main.c)
     endif()
 
     target_link_libraries(banglauncher bangclient)
