@@ -1,4 +1,3 @@
 .vscode/
 build/
 robe/
-src/client/bangclient_export.h

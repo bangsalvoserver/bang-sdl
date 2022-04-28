@@ -1,0 +1,3 @@
+[submodule "external/banggame"]
+	path = external/banggame
+	url = https://github.com/salvoilmiosi/banggameserver

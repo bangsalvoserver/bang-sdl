@@ -11,7 +11,7 @@
 #include "scenes/loading.h"
 #include "scenes/lobby_list.h"
 #include "scenes/lobby.h"
-#include "game/game.h"
+#include "gamescene/game.h"
 
 using namespace banggame;
 
