@@ -81,6 +81,7 @@ LOCALE_VALUE(STATUS_STEAL_FROM_HAND,              "{0} to steal a card from your
 LOCALE_VALUE(STATUS_STEAL_OTHER,                  "{0} must respond to {1} to steal {2}")
 LOCALE_VALUE(STATUS_STEAL_OTHER_FROM_HAND,        "{0} must respond to {1} to steal a card from their hand")
 LOCALE_VALUE(STATUS_DEATH,                        "You're about to die. You can play Beer to save yourself")
+LOCALE_VALUE(STATUS_DEATH_UNAVOIDABLE,            "You are dead! click on Take damage.")
 LOCALE_VALUE(STATUS_DEATH_OTHER,                  "{0} is about to die")
 LOCALE_VALUE(STATUS_BANDIDOS,                     "{0} ... Discard two cards or Take damage")
 LOCALE_VALUE(STATUS_BANDIDOS_OTHER,               "{0} must respond to {1}")

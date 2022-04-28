@@ -81,6 +81,7 @@ LOCALE_VALUE(STATUS_STEAL_FROM_HAND,              "{0} per rubare una carta dall
 LOCALE_VALUE(STATUS_STEAL_OTHER,                  "{0} deve rispondere a {1} per rubare {2}")
 LOCALE_VALUE(STATUS_STEAL_OTHER_FROM_HAND,        "{0} deve rispondere a {1} per rubare una carta dalla mano")
 LOCALE_VALUE(STATUS_DEATH,                        "Stai per morire. Puoi giocare Birra per salvarti")
+LOCALE_VALUE(STATUS_DEATH_UNAVOIDABLE,            "Sei morto! clicca su Prendi danno.")
 LOCALE_VALUE(STATUS_DEATH_OTHER,                  "{0} sta per morire")
 LOCALE_VALUE(STATUS_BANDIDOS,                     "{0} ... Scarta due carte o Prendi danno")
 LOCALE_VALUE(STATUS_BANDIDOS_OTHER,               "{0} deve rispondere a {1}")
