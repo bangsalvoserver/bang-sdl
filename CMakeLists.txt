@@ -30,6 +30,16 @@ set(bangclient_srcs
     src/widgets/profile_pic.cpp
 )
 
+find_package(Threads REQUIRED)
+find_package(Boost REQUIRED COMPONENTS system)
+
+add_library(asio INTERFACE)
+target_include_directories(asio INTERFACE ${Boost_INCLUDE_DIRS})
+target_link_libraries(asio INTERFACE Threads::Threads ${Boost_LIBRARIES})
+if(MINGW)
+    target_link_libraries(asio INTERFACE wsock32 ws2_32)
+endif()
+
 add_subdirectory(resources)
 add_subdirectory(external/banggame)
 
@@ -60,7 +70,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
     target_link_libraries(bangclient game_options)
 endif()
 
-target_link_libraries(bangclient banggame)
+target_link_libraries(bangclient asio banggame)
 
 if (NOT CMAKE_BUILD_TYPE STREQUAL "Release")
     if (WIN32)
@@ -74,3 +84,6 @@ if (NOT CMAKE_BUILD_TYPE STREQUAL "Release")
 
     target_link_libraries(banglauncher bangclient)
 endif()
+
+add_executable(bangserver src/server/main.cpp)
+target_link_libraries(bangserver asio banggame)
