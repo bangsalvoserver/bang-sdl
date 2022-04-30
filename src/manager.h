@@ -5,8 +5,8 @@
 #include <map>
 #include <memory>
 
+#include "game/net_enums.h"
 #include "server/server.h"
-#include "server/net_enums.h"
 
 #include "config.h"
 #include "user_info.h"
@@ -15,7 +15,22 @@
 
 #include "scenes/scene_base.h"
 
-#define HANDLE_SRV_MESSAGE(name, ...) handle_message(enums::enum_tag_t<server_message_type::name> __VA_OPT__(,) __VA_ARGS__)
+#define HANDLE_SRV_MESSAGE(name, ...) handle_message(enums::enum_tag_t<banggame::server_message_type::name> __VA_OPT__(,) __VA_ARGS__)
+
+class client_manager;
+
+struct bang_listenserver : banggame::bang_server<bang_listenserver> {
+    using base = banggame::bang_server<bang_listenserver>;
+
+    client_manager &parent;
+
+    bang_listenserver(client_manager &parent, boost::asio::io_context &ctx)
+        : base::bang_server(ctx)
+        , parent(parent) {}
+
+    void print_message(const std::string &message);
+    void print_error(const std::string &message);
+};
 
 class client_manager {
 public:
@@ -28,7 +43,7 @@ public:
 
     void handle_event(const sdl::event &event);
 
-    template<client_message_type E, typename ... Ts>
+    template<banggame::client_message_type E, typename ... Ts>
     void add_message(Ts && ... args) {
         if (m_con) {
             m_con->push_message(enums::enum_tag<E>, std::forward<Ts>(args) ...);
@@ -85,14 +100,14 @@ public:
     void add_chat_message(message_type type, const std::string &message);
 
 private:
-    void HANDLE_SRV_MESSAGE(client_accepted, const client_accepted_args &args);
+    void HANDLE_SRV_MESSAGE(client_accepted, const banggame::client_accepted_args &args);
     void HANDLE_SRV_MESSAGE(lobby_error, const std::string &message);
-    void HANDLE_SRV_MESSAGE(lobby_update, const lobby_data &args);
-    void HANDLE_SRV_MESSAGE(lobby_edited, const lobby_info &args);
-    void HANDLE_SRV_MESSAGE(lobby_entered, const lobby_entered_args &args);
-    void HANDLE_SRV_MESSAGE(lobby_add_user, const lobby_add_user_args &args);
-    void HANDLE_SRV_MESSAGE(lobby_remove_user, const lobby_remove_user_args &args);
-    void HANDLE_SRV_MESSAGE(lobby_chat, const lobby_chat_args &args);
+    void HANDLE_SRV_MESSAGE(lobby_update, const banggame::lobby_data &args);
+    void HANDLE_SRV_MESSAGE(lobby_edited, const banggame::lobby_info &args);
+    void HANDLE_SRV_MESSAGE(lobby_entered, const banggame::lobby_entered_args &args);
+    void HANDLE_SRV_MESSAGE(lobby_add_user, const banggame::lobby_add_user_args &args);
+    void HANDLE_SRV_MESSAGE(lobby_remove_user, const banggame::lobby_remove_user_args &args);
+    void HANDLE_SRV_MESSAGE(lobby_chat, const banggame::lobby_chat_args &args);
     void HANDLE_SRV_MESSAGE(game_started, const banggame::game_options &options);
     void HANDLE_SRV_MESSAGE(game_update, const banggame::game_update &args);
 
@@ -112,14 +127,15 @@ private:
 private:
     boost::asio::io_context &m_ctx;
 
-    using connection_type = net::connection<net::message_types<server_message, client_message, banggame::bang_header>>;
+    using bang_client_messages = net::message_types<banggame::server_message, banggame::client_message, banggame::bang_header>;
+    using connection_type = net::connection<bang_client_messages>;
     connection_type::pointer m_con;
 
     boost::asio::basic_waitable_timer<std::chrono::system_clock> m_accept_timer;
 
     std::map<int, user_info> m_users;
     
-    std::unique_ptr<bang_server> m_listenserver;
+    std::unique_ptr<bang_listenserver> m_listenserver;
 
 };
 

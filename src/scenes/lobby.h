@@ -12,8 +12,8 @@
 
 class lobby_scene : public scene_base {
 public:
-    lobby_scene(client_manager *parent, const lobby_entered_args &args);
-    void set_lobby_info(const lobby_info &info) override;
+    lobby_scene(client_manager *parent, const banggame::lobby_entered_args &args);
+    void set_lobby_info(const banggame::lobby_info &info) override;
 
     void refresh_layout() override;
     void render(sdl::renderer &renderer) override;

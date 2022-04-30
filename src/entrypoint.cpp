@@ -1,6 +1,6 @@
 #include "utils/sdl.h"
 
-#include "server/net_options.h"
+#include "game/net_options.h"
 
 #include "manager.h"
 #include "media_pak.h"

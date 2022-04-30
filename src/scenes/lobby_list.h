@@ -7,9 +7,9 @@
 
 class lobby_line {
 public:
-    lobby_line(class lobby_list_scene *parent, const lobby_data &args);
+    lobby_line(class lobby_list_scene *parent, const banggame::lobby_data &args);
 
-    void handle_update(const lobby_data &args);
+    void handle_update(const banggame::lobby_data &args);
 
     void set_rect(const sdl::rect &rect);
     void render(sdl::renderer &renderer);
@@ -31,7 +31,7 @@ public:
     void refresh_layout() override;
     void render(sdl::renderer &renderer) override;
 
-    void handle_lobby_update(const lobby_data &args);
+    void handle_lobby_update(const banggame::lobby_data &args);
 
     void do_join(int lobby_id);
     void do_make_lobby();

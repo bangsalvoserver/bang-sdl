@@ -14,8 +14,8 @@ game_ui::game_ui(game_scene *parent)
         }
     })
     , m_confirm_btn(_("GAME_CONFIRM"), [parent]{ parent->m_target.on_click_confirm(); })
-    , m_leave_btn(_("BUTTON_EXIT"), [parent]{ parent->parent->add_message<client_message_type::lobby_leave>(); })
-    , m_golobby_btn(_("BUTTON_TOLOBBY"), [parent]{ parent->parent->add_message<client_message_type::lobby_return>(); })
+    , m_leave_btn(_("BUTTON_EXIT"), [parent]{ parent->parent->add_message<banggame::client_message_type::lobby_leave>(); })
+    , m_golobby_btn(_("BUTTON_TOLOBBY"), [parent]{ parent->parent->add_message<banggame::client_message_type::lobby_return>(); })
     , m_chat_btn(_("BUTTON_CHAT"), [parent]{ parent->parent->enable_chat(); }) {}
 
 void game_ui::refresh_layout() {

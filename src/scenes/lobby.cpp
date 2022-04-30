@@ -5,6 +5,7 @@
 
 #include "lobby_list.h"
 
+using namespace banggame;
 using namespace enums::flag_operators;
 
 lobby_scene::lobby_player_item::lobby_player_item(lobby_scene *parent, int id, const user_info &args)
@@ -60,8 +61,8 @@ lobby_scene::lobby_scene(client_manager *parent, const lobby_entered_args &args)
     , m_lobby_name_text(args.info.name, widgets::text_style {
         .text_font = &media_pak::font_bkant_bold
     })
-    , m_leave_btn(_("BUTTON_EXIT"), [parent]{ parent->add_message<client_message_type::lobby_leave>(); })
-    , m_start_btn(_("BUTTON_START"), [parent]{ parent->add_message<client_message_type::game_start>(); })
+    , m_leave_btn(_("BUTTON_EXIT"), [parent]{ parent->add_message<banggame::client_message_type::lobby_leave>(); })
+    , m_start_btn(_("BUTTON_START"), [parent]{ parent->add_message<banggame::client_message_type::game_start>(); })
     , m_chat_btn(_("BUTTON_CHAT"), [parent]{ parent->enable_chat(); })
 {
     static constexpr auto unofficials = []<banggame::card_expansion_type ... Es>(enums::enum_sequence<Es ...>) {
@@ -106,7 +107,7 @@ void lobby_scene::send_lobby_edited() {
         }
     }
     parent->get_config().expansions = expansions;
-    parent->add_message<client_message_type::lobby_edit>(m_lobby_name_text.get_value(), expansions);
+    parent->add_message<banggame::client_message_type::lobby_edit>(m_lobby_name_text.get_value(), expansions);
 }
 
 void lobby_scene::refresh_layout() {

@@ -14,7 +14,7 @@ template<typename ... Ts> overloaded(Ts ...) -> overloaded<Ts ...>;
 
 template<game_action_type T, typename ... Ts>
 void target_finder::add_action(Ts && ... args) {
-    m_game->parent->add_message<client_message_type::game_action>(enums::enum_tag<T>, std::forward<Ts>(args) ...);
+    m_game->parent->add_message<banggame::client_message_type::game_action>(enums::enum_tag<T>, std::forward<Ts>(args) ...);
 }
 
 void target_finder::set_border_colors() {

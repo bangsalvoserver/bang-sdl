@@ -1,7 +1,9 @@
 #include "lobby_list.h"
 
 #include "../manager.h"
-#include "server/net_options.h"
+#include "game/net_options.h"
+
+using namespace banggame;
 
 lobby_line::lobby_line(lobby_list_scene *parent, const lobby_data &args)
     : parent(parent)
@@ -39,7 +41,7 @@ lobby_list_scene::lobby_list_scene(client_manager *parent)
 {
     m_lobby_name_box.set_value(parent->get_config().lobby_name);
     m_lobby_name_box.set_onenter([this]{ do_make_lobby(); });
-    parent->add_message<client_message_type::lobby_list>();
+    parent->add_message<banggame::client_message_type::lobby_list>();
 }
 
 void lobby_list_scene::refresh_layout() {
@@ -68,7 +70,7 @@ void lobby_list_scene::render(sdl::renderer &renderer) {
 }
 
 void lobby_list_scene::do_join(int lobby_id) {
-    parent->add_message<client_message_type::lobby_join>(lobby_id);
+    parent->add_message<banggame::client_message_type::lobby_join>(lobby_id);
 }
 
 void lobby_list_scene::do_make_lobby() {
@@ -76,7 +78,7 @@ void lobby_list_scene::do_make_lobby() {
         parent->add_chat_message(message_type::error, _("ERROR_NO_LOBBY_NAME"));
     } else {
         parent->get_config().lobby_name = m_lobby_name_box.get_value();
-        parent->add_message<client_message_type::lobby_make>(m_lobby_name_box.get_value(), parent->get_config().expansions);
+        parent->add_message<banggame::client_message_type::lobby_make>(m_lobby_name_box.get_value(), parent->get_config().expansions);
     }
 }
 

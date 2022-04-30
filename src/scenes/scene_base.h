@@ -1,7 +1,7 @@
 #ifndef __SCENE_BASE_H__
 #define __SCENE_BASE_H__
 
-#include "server/net_enums.h"
+#include "game/net_enums.h"
 
 #include "utils/sdl.h"
 
@@ -23,9 +23,9 @@ public:
     
     virtual void handle_event(const sdl::event &event) {}
 
-    virtual void set_lobby_info(const lobby_info &args) {}
+    virtual void set_lobby_info(const banggame::lobby_info &args) {}
 
-    virtual void handle_lobby_update(const lobby_data &args) {}
+    virtual void handle_lobby_update(const banggame::lobby_data &args) {}
 
     virtual void add_user(int id, const user_info &args) {}
 

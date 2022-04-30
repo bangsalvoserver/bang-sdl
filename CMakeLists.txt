@@ -60,7 +60,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
     target_link_libraries(bangclient game_options)
 endif()
 
-target_link_libraries(bangclient bangnet)
+target_link_libraries(bangclient banggame)
 
 if (NOT CMAKE_BUILD_TYPE STREQUAL "Release")
     if (WIN32)

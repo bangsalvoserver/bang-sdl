@@ -4,13 +4,15 @@
 #include <iostream>
 #include <charconv>
 
-#include "server/net_options.h"
+#include "game/net_options.h"
+
 #include "media_pak.h"
 
 #include "scenes/connect.h"
 #include "scenes/loading.h"
 #include "scenes/lobby_list.h"
 #include "scenes/lobby.h"
+
 #include "gamescene/game.h"
 
 using namespace banggame;
@@ -85,7 +87,7 @@ void client_manager::connect(const std::string &host) {
                 }
             });
             
-            add_message<client_message_type::connect>(m_config.user_name, binary::serialize(m_config.profile_image_data.get_surface()));
+            add_message<banggame::client_message_type::connect>(m_config.user_name, binary::serialize(m_config.profile_image_data.get_surface()));
         }
     });
 
@@ -163,14 +165,16 @@ void client_manager::add_chat_message(message_type type, const std::string &mess
     m_chat.add_message(type, message);
 }
 
+void bang_listenserver::print_message(const std::string &message) {
+    parent.add_chat_message(message_type::server_log, fmt::format("SERVER: {}", message));
+}
+
+void bang_listenserver::print_error(const std::string &message) {
+    parent.add_chat_message(message_type::error, fmt::format("SERVER: {}", message));
+}
+
 bool client_manager::start_listenserver() {
-    m_listenserver = std::make_unique<bang_server>(m_ctx);
-    m_listenserver->set_message_callback([this](const std::string &msg) {
-        add_chat_message(message_type::server_log, fmt::format("SERVER: {}", msg));
-    });
-    m_listenserver->set_error_callback([this](const std::string &msg) {
-        add_chat_message(message_type::error, fmt::format("SERVER: {}", msg));
-    });
+    m_listenserver = std::make_unique<bang_listenserver>(*this, m_ctx);
     if (!m_config.server_port) {
         m_config.server_port = default_server_port;
     }
