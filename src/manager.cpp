@@ -164,7 +164,7 @@ void client_manager::add_chat_message(message_type type, const std::string &mess
 }
 
 bool client_manager::start_listenserver() {
-    m_listenserver = std::make_unique<bang_server>(m_ctx, m_base_path);
+    m_listenserver = std::make_unique<bang_server>(m_ctx);
     m_listenserver->set_message_callback([this](const std::string &msg) {
         add_chat_message(message_type::server_log, fmt::format("SERVER: {}", msg));
     });

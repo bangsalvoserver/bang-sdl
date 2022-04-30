@@ -1,26 +1,5 @@
-function(compile_resources target_name)
-    foreach(file IN LISTS ARGN)
-        get_filename_component(varname "${file}" NAME)
-        string(MAKE_C_IDENTIFIER "${varname}" varname)
-
-        set(resource_c_file "${CMAKE_CURRENT_BINARY_DIR}/${file}.c")
-        list(APPEND out_list "${resource_c_file}")
-
-        add_custom_command(
-            OUTPUT "${resource_c_file}"
-            COMMAND ${CMAKE_COMMAND}
-                -D "resource_file_name=${CMAKE_CURRENT_SOURCE_DIR}/${file}"
-                -D "source_file_name=${resource_c_file}"
-                -D "variable_name=__resource__${varname}"
-                -P "${CMAKE_CURRENT_SOURCE_DIR}/EmbedResource.cmake"
-            DEPENDS "${file}"
-            VERBATIM
-        )
-    endforeach()
-    add_library(${target_name} OBJECT ${out_list})
-endfunction()
-
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
+    include("${CMAKE_SOURCE_DIR}/external/banggame/external/cpputils/resources/CMakeLists.txt")
     compile_resources(game_options game_options.json)
 endif()
 
@@ -45,7 +24,7 @@ function(pack_resources target_name out_file in_files)
     add_custom_target("${target_name}" DEPENDS "${out_file}")
 endfunction()
 
-set(bang_cards_json "${CMAKE_CURRENT_SOURCE_DIR}/cards/bang_cards.json")
+set(bang_cards_json "${CMAKE_SOURCE_DIR}/external/banggame/resources/bang_cards.json")
 file(READ "${bang_cards_json}" bang_cards_json_content)
 string(JSON num_of_keys LENGTH "${bang_cards_json_content}")
 math(EXPR max_index "${num_of_keys} - 1")
@@ -63,7 +42,6 @@ foreach(IDX RANGE 0 ${max_index})
     endforeach()
 endforeach()
 
-list(APPEND card_files "${bang_cards_json}")
 pack_resources(cards_pak "${CMAKE_BINARY_DIR}/cards.pak" "${card_files}")
 
 set(media_files
