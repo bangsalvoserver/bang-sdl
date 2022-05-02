@@ -30,6 +30,10 @@ namespace banggame {
                 }
             });
 
+            if constexpr (requires (Derived obj, std::string msg) { obj.print_error(msg); }) {
+                m_mgr.set_print_error_function(std::bind_front(&Derived::print_error, static_cast<Derived *>(this)));
+            }
+
             m_game_thread = std::jthread(std::bind_front(&game_manager::start, &m_mgr));
 
             return true;
