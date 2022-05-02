@@ -14,6 +14,8 @@ namespace banggame {
     struct bang_server : net::connection_server<Derived, bang_message_types> {
         using base = net::connection_server<Derived, bang_message_types>;
         using base::connection_server;
+        using connection_type = typename base::connection_type;
+        using connection_handle = typename base::connection_handle;
         
         game_manager m_mgr;
 
@@ -22,8 +24,10 @@ namespace banggame {
         bool start(uint16_t port) {
             if (!base::start(port)) return false;
 
-            m_mgr.set_send_message_function([&](int client_id, server_message message) {
-                base::push_message(client_id, std::move(message));
+            m_mgr.set_send_message_function([&](client_handle client, server_message message) {
+                if (auto ptr = std::static_pointer_cast<connection_type>(client.lock())) {
+                    ptr->push_message(std::move(message));
+                }
             });
 
             m_game_thread = std::jthread(std::bind_front(&game_manager::start, &m_mgr));
@@ -31,16 +35,16 @@ namespace banggame {
             return true;
         }
 
-        void on_receive_message(int client_id, client_message &&msg) {
-            m_mgr.on_receive_message(client_id, std::move(msg));
+        void on_receive_message(connection_handle client, client_message &&msg) {
+            m_mgr.on_receive_message(client, std::move(msg));
         }
 
-        void on_disconnect(int client_id) {
-            m_mgr.client_disconnected(client_id);
+        void on_disconnect(connection_handle client) {
+            m_mgr.client_disconnected(client);
         }
 
-        bool client_validated(int client_id) const {
-            return m_mgr.client_validated(client_id);
+        bool client_validated(connection_handle client) const {
+            return m_mgr.client_validated(client);
         }
     };
 }
