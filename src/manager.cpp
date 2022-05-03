@@ -33,24 +33,14 @@ client_manager::~client_manager() {
 
 void client_manager::update_net() {
     if (m_con) {
-        switch (m_con->state()) {
-        case net::connection_state::connected:
-            while (auto msg = m_con->pop_message()) {
-                try {
-                    enums::visit_indexed([&](auto && ... args) {
-                        handle_message(std::forward<decltype(args)>(args)...);
-                    }, *msg);
-                } catch (const std::exception &error) {
-                    add_chat_message(message_type::error, fmt::format("Error: {}", error.what()));
-                }
+        while (auto msg = m_con->pop_message()) {
+            try {
+                enums::visit_indexed([&](auto && ... args) {
+                    handle_message(std::forward<decltype(args)>(args)...);
+                }, *msg);
+            } catch (const std::exception &error) {
+                add_chat_message(message_type::error, fmt::format("Error: {}", error.what()));
             }
-            break;
-        case net::connection_state::error:
-            disconnect(ansi_to_utf8(m_con->error_message()));
-            break;
-        case net::connection_state::disconnected:
-            disconnect();
-            break;
         }
     }
 }
@@ -73,7 +63,7 @@ void client_manager::connect(const std::string &host) {
         }
     }
     
-    m_con = connection_type::make(m_ctx);
+    m_con = bang_connection::make(*this, m_ctx);
     m_con->connect(addr, port, [this](const boost::system::error_code &ec) {
         if (!ec) {
             m_con->start();
@@ -94,25 +84,25 @@ void client_manager::connect(const std::string &host) {
     switch_scene<loading_scene>(host);
 }
 
-void client_manager::disconnect(const std::string &message) {
-    if (m_con) {
-        m_con->disconnect();
-        m_con.reset();
-    }
-
+void client_manager::disconnect() {
     if (m_listenserver) {
         m_listenserver->stop();
         m_listenserver.reset();
     }
-
-    m_users.clear();
-
-    if (!message.empty()) {
-        add_chat_message(message_type::error, message);
+    if (m_con) {
+        m_con->disconnect();
     }
-    switch_scene<connect_scene>();
 }
 
+void bang_connection::on_disconnect() {
+    parent.m_con.reset();
+    parent.switch_scene<connect_scene>();
+}
+
+void bang_connection::on_error(const std::error_code &ec) {
+    parent.add_chat_message(message_type::error, ansi_to_utf8(ec.message()));
+    on_disconnect();
+}
 
 void client_manager::refresh_layout() {
     m_scene->refresh_layout();
@@ -193,6 +183,7 @@ void client_manager::HANDLE_SRV_MESSAGE(client_accepted, const client_accepted_a
             m_config.recent_servers.push_back(m_con->address_string());
         }
     }
+    m_users.clear();
     m_accept_timer.cancel();
     m_user_own_id = args.user_id;
     switch_scene<lobby_list_scene>();

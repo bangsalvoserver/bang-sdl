@@ -7,7 +7,8 @@ loading_scene::loading_scene(client_manager *parent, const std::string &address)
     : scene_base(parent)
     , m_loading_text(_("CONNECTING_TO", address))
     , m_cancel_btn(_("BUTTON_CANCEL"), [parent]{
-        parent->disconnect(_("ERROR_CONNECTION_CANCELED"));
+        parent->add_chat_message(message_type::error, _("ERROR_CONNECTION_CANCELED"));
+        parent->disconnect();
     }) {}
 
 void loading_scene::refresh_layout() {

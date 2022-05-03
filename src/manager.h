@@ -32,6 +32,30 @@ struct bang_listenserver : banggame::bang_server<bang_listenserver> {
     void print_error(const std::string &message);
 };
 
+using bang_client_messages = net::message_types<banggame::server_message, banggame::client_message, banggame::bang_header>;
+struct bang_connection : net::connection<bang_connection, bang_client_messages> {
+    using base = net::connection<bang_connection, bang_client_messages>;
+
+    client_manager &parent;
+
+    util::tsqueue<banggame::server_message> m_in_queue;
+
+    bang_connection(client_manager &parent, boost::asio::io_context &ctx)
+        : base::connection(ctx)
+        , parent(parent) {}
+    
+    void on_receive_message(banggame::server_message msg) {
+        m_in_queue.push_back(std::move(msg));
+    }
+
+    std::optional<banggame::server_message> pop_message() {
+        return m_in_queue.pop_front();
+    }
+
+    void on_disconnect();
+    void on_error(const std::error_code &ec);
+};
+
 class client_manager {
 public:
     client_manager(sdl::window &window, boost::asio::io_context &ctx, const std::filesystem::path &base_path);
@@ -53,7 +77,7 @@ public:
     void update_net();
 
     void connect(const std::string &host);
-    void disconnect(const std::string &message = {});
+    void disconnect();
 
     template<std::derived_from<scene_base> T, typename ... Ts>
     void switch_scene(Ts && ... args) {
@@ -127,9 +151,7 @@ private:
 private:
     boost::asio::io_context &m_ctx;
 
-    using bang_client_messages = net::message_types<banggame::server_message, banggame::client_message, banggame::bang_header>;
-    using connection_type = net::connection<bang_client_messages>;
-    connection_type::pointer m_con;
+    bang_connection::pointer m_con;
 
     boost::asio::basic_waitable_timer<std::chrono::system_clock> m_accept_timer;
 
@@ -137,6 +159,7 @@ private:
     
     std::unique_ptr<bang_listenserver> m_listenserver;
 
+    friend struct bang_connection;
 };
 
 #endif
