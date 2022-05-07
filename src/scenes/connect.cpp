@@ -150,5 +150,7 @@ void connect_scene::do_create_server() {
         parent->add_chat_message(message_type::error, _("ERROR_NO_USERNAME"));
     } else if (parent->start_listenserver()) {
         do_connect("localhost");
+    } else {
+        parent->add_chat_message(message_type::error, _("ERROR_STARTING_LISTENSERVER"));
     }
 }

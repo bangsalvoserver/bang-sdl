@@ -5,55 +5,57 @@
 #include <map>
 #include <memory>
 
-#include "game/net_enums.h"
-#include "server/server.h"
+#include "scenes/scene_base.h"
 
 #include "config.h"
 #include "user_info.h"
 #include "intl.h"
 #include "chat_ui.h"
 
-#include "scenes/scene_base.h"
+#include "game/messages.h"
+#include "utils/tsqueue.h"
+
+#include "net/wsconnection.h"
+
+#include "subprocess.h"
 
 #define HANDLE_SRV_MESSAGE(name, ...) handle_message(enums::enum_tag_t<banggame::server_message_type::name> __VA_OPT__(,) __VA_ARGS__)
 
 class client_manager;
 
-struct bang_listenserver : banggame::bang_server<bang_listenserver> {
-    using base = banggame::bang_server<bang_listenserver>;
+struct bang_connection : net::wsconnection<bang_connection, banggame::server_message, banggame::client_message> {
+    using base = net::wsconnection<bang_connection, banggame::server_message, banggame::client_message>;
+    using client_handle = typename base::client_handle;
 
-    client_manager &parent;
-
-    bang_listenserver(client_manager &parent, boost::asio::io_context &ctx)
-        : base::bang_server(ctx)
-        , parent(parent) {}
-
-    void print_message(const std::string &message);
-    void print_error(const std::string &message);
-};
-
-using bang_client_messages = net::message_types<banggame::server_message, banggame::client_message, banggame::bang_header>;
-struct bang_connection : net::connection<bang_connection, bang_client_messages> {
-    using base = net::connection<bang_connection, bang_client_messages>;
+    std::atomic<bool> m_closed = false;
 
     client_manager &parent;
 
     util::tsqueue<banggame::server_message> m_in_queue;
 
+    boost::asio::basic_waitable_timer<std::chrono::system_clock> m_accept_timer;
+    static constexpr std::chrono::seconds accept_timeout{5};
+
     bang_connection(client_manager &parent, boost::asio::io_context &ctx)
-        : base::connection(ctx)
-        , parent(parent) {}
-    
-    void on_receive_message(banggame::server_message msg) {
+        : base(ctx), parent(parent), m_accept_timer(ctx) {}
+
+    void on_open();
+
+    void on_close() {
+        m_closed = true;
+    }
+
+    bool handle_closed() {
+        return m_closed.exchange(false);
+    }
+
+    void on_message(banggame::server_message msg) {
         m_in_queue.push_back(std::move(msg));
     }
 
     std::optional<banggame::server_message> pop_message() {
         return m_in_queue.pop_front();
     }
-
-    void on_disconnect();
-    void on_error(const std::error_code &ec);
 };
 
 class client_manager {
@@ -69,9 +71,7 @@ public:
 
     template<banggame::client_message_type E, typename ... Ts>
     void add_message(Ts && ... args) {
-        if (m_con) {
-            m_con->push_message(enums::enum_tag<E>, std::forward<Ts>(args) ...);
-        }
+        m_con.push_message(enums::enum_tag<E>, std::forward<Ts>(args) ...);
     }
 
     void update_net();
@@ -149,16 +149,11 @@ private:
     int m_lobby_owner_id = 0;
 
 private:
-    boost::asio::io_context &m_ctx;
+    bang_connection m_con;
 
-    bang_connection::pointer m_con;
-
-    boost::asio::basic_waitable_timer<std::chrono::system_clock> m_accept_timer;
+    subprocess::process m_listenserver;
 
     std::map<int, user_info> m_users;
-    
-    std::unique_ptr<bang_listenserver> m_listenserver;
-
     friend struct bang_connection;
 };
 

@@ -6,16 +6,10 @@
 
 #include "utils/sdl.h"
 
-#ifdef GAME_OPTIONS_LINKED
-
-#include <sstream>
-DECLARE_RESOURCE(game_options_json)
-
-#else
-
 #include <fstream>
+#include <sstream>
 
-#endif
+DECLARE_RESOURCE(game_options_json)
 
 #include <charconv>
 
@@ -137,18 +131,17 @@ namespace banggame {
     )};
 
     static inline const options_t options = []{
-        #ifndef GAME_OPTIONS_LINKED
-            std::ifstream options_stream("resources/game_options.json");
-            if (!options_stream) {
-                throw std::runtime_error("Could not load game_options.json");
-            }
-        #else
+        auto load_options = [](auto &&stream) {
+            Json::Value json_value;
+            stream >> json_value;
+            return json::deserialize<options_t>(json_value);
+        };
+        if (auto stream = std::ifstream("resources/game_options.json")) {
+            return load_options(stream);
+        } else {
             auto options_res = GET_RESOURCE(game_options_json);
-            std::stringstream options_stream(std::string(options_res.data, options_res.length));
-        #endif
-        Json::Value json_value;
-        options_stream >> json_value;
-        return json::deserialize<options_t>(json_value);
+            return load_options(std::istringstream(std::string(options_res.data, options_res.length)));
+        }
     }();
 }
 

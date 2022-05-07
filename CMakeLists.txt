@@ -30,18 +30,23 @@ set(bangclient_srcs
     src/widgets/profile_pic.cpp
 )
 
-find_package(Threads REQUIRED)
-find_package(Boost REQUIRED COMPONENTS system)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(SDL2 REQUIRED sdl2 IMPORTED_TARGET)
+pkg_check_modules(SDL2_ttf REQUIRED SDL2_ttf IMPORTED_TARGET)
+pkg_check_modules(SDL2_image REQUIRED SDL2_image IMPORTED_TARGET)
+pkg_check_modules(SDL2_gfx REQUIRED SDL2_gfx IMPORTED_TARGET)
+pkg_check_modules(jsoncpp REQUIRED jsoncpp IMPORTED_TARGET)
 
-add_library(asio INTERFACE)
-target_include_directories(asio INTERFACE ${Boost_INCLUDE_DIRS})
-target_link_libraries(asio INTERFACE Threads::Threads ${Boost_LIBRARIES})
-if(MINGW)
-    target_link_libraries(asio INTERFACE wsock32 ws2_32)
+find_package(fmt REQUIRED)
+if (TARGET fmt::fmt-header-only)
+    link_libraries(fmt::fmt-header-only)
+else()
+    link_libraries(fmt::fmt)
 endif()
 
 add_subdirectory(resources)
 add_subdirectory(external/banggame)
+add_subdirectory(external/subprocess)
 
 add_library(bangclient SHARED ${bangclient_srcs})
 target_include_directories(bangclient PRIVATE src)
@@ -55,24 +60,13 @@ generate_export_header(bangclient
 
 target_include_directories(bangclient PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/exports")
 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(SDL2 REQUIRED sdl2 IMPORTED_TARGET)
-pkg_check_modules(SDL2_ttf REQUIRED SDL2_ttf IMPORTED_TARGET)
-pkg_check_modules(SDL2_image REQUIRED SDL2_image IMPORTED_TARGET)
-pkg_check_modules(SDL2_gfx REQUIRED SDL2_gfx IMPORTED_TARGET)
-
-target_link_libraries(bangclient PkgConfig::SDL2 PkgConfig::SDL2_ttf PkgConfig::SDL2_image PkgConfig::SDL2_gfx)
+target_link_libraries(bangclient PUBLIC PkgConfig::SDL2 PkgConfig::SDL2_ttf PkgConfig::SDL2_image PkgConfig::SDL2_gfx)
+target_link_libraries(bangclient PUBLIC asio PkgConfig::jsoncpp game_options subprocess)
+target_include_directories(bangclient PUBLIC $<TARGET_PROPERTY:banggame,INCLUDE_DIRECTORIES>)
 
 add_dependencies(bangclient cards_pak media_pak)
 
-if (CMAKE_BUILD_TYPE STREQUAL "Release")
-    target_compile_definitions(bangclient PUBLIC GAME_OPTIONS_LINKED)
-    target_link_libraries(bangclient game_options)
-endif()
-
-target_link_libraries(bangclient asio banggame)
-
-if (NOT CMAKE_BUILD_TYPE STREQUAL "Release")
+# if (NOT CMAKE_BUILD_TYPE STREQUAL "Release")
     if (WIN32)
         add_executable(banglauncher WIN32 src/main.c resources/bang.rc)
         if (MINGW)
@@ -83,7 +77,4 @@ if (NOT CMAKE_BUILD_TYPE STREQUAL "Release")
     endif()
 
     target_link_libraries(banglauncher bangclient)
-endif()
-
-add_executable(bangserver src/server/main.cpp)
-target_link_libraries(bangserver asio banggame)
+# endif()

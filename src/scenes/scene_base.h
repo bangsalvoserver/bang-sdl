@@ -1,7 +1,7 @@
 #ifndef __SCENE_BASE_H__
 #define __SCENE_BASE_H__
 
-#include "game/net_enums.h"
+#include "game/messages.h"
 
 #include "utils/sdl.h"
 

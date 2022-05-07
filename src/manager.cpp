@@ -12,7 +12,6 @@
 #include "scenes/loading.h"
 #include "scenes/lobby_list.h"
 #include "scenes/lobby.h"
-
 #include "gamescene/game.h"
 
 using namespace banggame;
@@ -20,8 +19,7 @@ using namespace banggame;
 client_manager::client_manager(sdl::window &window, boost::asio::io_context &ctx, const std::filesystem::path &base_path)
     : m_window(window)
     , m_base_path(base_path)
-    , m_ctx(ctx)
-    , m_accept_timer(ctx)
+    , m_con(*this, ctx)
 {
     m_config.load();
     switch_scene<connect_scene>();
@@ -32,76 +30,52 @@ client_manager::~client_manager() {
 }
 
 void client_manager::update_net() {
-    if (m_con) {
-        while (auto msg = m_con->pop_message()) {
-            try {
-                enums::visit_indexed([&](auto && ... args) {
-                    handle_message(std::forward<decltype(args)>(args)...);
-                }, *msg);
-            } catch (const std::exception &error) {
-                add_chat_message(message_type::error, fmt::format("Error: {}", error.what()));
-            }
+    if (m_con.handle_closed()) {
+        switch_scene<connect_scene>();
+    }
+    while (auto msg = m_con.pop_message()) {
+        try {
+            enums::visit_indexed([&](auto && ... args) {
+                handle_message(std::forward<decltype(args)>(args)...);
+            }, *msg);
+        } catch (const std::exception &error) {
+            add_chat_message(message_type::error, fmt::format("Error: {}", error.what()));
         }
     }
+}
+
+void bang_connection::on_open() {
+    m_accept_timer.expires_after(accept_timeout);
+    m_accept_timer.async_wait([this](const boost::system::error_code &ec) {
+        if (!ec) {
+            parent.add_chat_message(message_type::error, _("TIMEOUT_EXPIRED"));
+            disconnect();
+        }
+    });
+
+    parent.add_message<banggame::client_message_type::connect>(parent.m_config.user_name, binary::serialize(parent.m_config.profile_image_data.get_surface()));
 }
 
 void client_manager::connect(const std::string &host) {
     if (host.empty()) {
         add_chat_message(message_type::error, _("ERROR_NO_ADDRESS"));
         return;
-    }
-    
-    std::string addr = host;
-    uint16_t port = default_server_port;
-
-    if (size_t pos = addr.find(':'); pos != std::string::npos) {
-        addr = addr.substr(0, pos);
-        auto [ptr, ec] = std::from_chars(addr.data() + pos + 1, addr.data() + addr.size(), port);
-        if (ec != std::errc{}) {
-            add_chat_message(message_type::error, _("ERROR_INVALID_ADDRESS", host));
-            return;
+    } else {
+        if (host.find(":") == std::string::npos) {
+            m_con.connect(fmt::format("{}:{}", host, default_server_port));
+        } else {
+            m_con.connect(host);
         }
+
+        switch_scene<loading_scene>(host);
     }
-    
-    m_con = bang_connection::make(*this, m_ctx);
-    m_con->connect(addr, port, [this](const boost::system::error_code &ec) {
-        if (!ec) {
-            m_con->start();
-
-            m_accept_timer.expires_after(net::timeout);
-            m_accept_timer.async_wait([ptr = std::weak_ptr(m_con)](const boost::system::error_code &ec) {
-                if (!ec) {
-                    if (auto con = ptr.lock()) {
-                        con->disconnect(net::connection_error::timeout_expired);
-                    }
-                }
-            });
-            
-            add_message<banggame::client_message_type::connect>(m_config.user_name, binary::serialize(m_config.profile_image_data.get_surface()));
-        }
-    });
-
-    switch_scene<loading_scene>(host);
 }
 
 void client_manager::disconnect() {
+    m_con.disconnect();
     if (m_listenserver) {
-        m_listenserver->stop();
-        m_listenserver.reset();
+        m_listenserver.abort();
     }
-    if (m_con) {
-        m_con->disconnect();
-    }
-}
-
-void bang_connection::on_disconnect() {
-    parent.m_con.reset();
-    parent.switch_scene<connect_scene>();
-}
-
-void bang_connection::on_error(const std::error_code &ec) {
-    parent.add_chat_message(message_type::error, ansi_to_utf8(ec.message()));
-    on_disconnect();
 }
 
 void client_manager::refresh_layout() {
@@ -155,36 +129,40 @@ void client_manager::add_chat_message(message_type type, const std::string &mess
     m_chat.add_message(type, message);
 }
 
-void bang_listenserver::print_message(const std::string &message) {
-    parent.add_chat_message(message_type::server_log, fmt::format("SERVER: {}", message));
-}
-
-void bang_listenserver::print_error(const std::string &message) {
-    parent.add_chat_message(message_type::error, fmt::format("SERVER: {}", message));
-}
-
 bool client_manager::start_listenserver() {
-    m_listenserver = std::make_unique<bang_listenserver>(*this, m_ctx);
+#ifdef NDEBUG
+    auto server_path = m_base_path / "bangserver";
+#else
+    auto server_path = m_base_path / "external/banggame/bangserver";
+#endif
+#ifdef WIN32
+    server_path += ".exe";
+#endif
     if (!m_config.server_port) {
         m_config.server_port = default_server_port;
     }
-    if (m_listenserver->start(m_config.server_port)) {
-        return true;
-    } else {
-        m_listenserver.reset();
-        return false;
-    }
+    std::string port_str = std::to_string(m_config.server_port);
+    m_listenserver.open(subprocess::arguments{server_path.string(), port_str});
+    return std::async([&]{
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        if (m_listenserver) {
+            return true;
+        } else {
+            m_listenserver.close();
+            return false;
+        }
+    }).get();
 }
 
 void client_manager::HANDLE_SRV_MESSAGE(client_accepted, const client_accepted_args &args) {
     if (!m_listenserver) {
-        auto it = std::ranges::find(m_config.recent_servers, m_con->address_string());
+        auto it = std::ranges::find(m_config.recent_servers, m_con.address_string());
         if (it == m_config.recent_servers.end()) {
-            m_config.recent_servers.push_back(m_con->address_string());
+            m_config.recent_servers.push_back(m_con.address_string());
         }
     }
+    m_con.m_accept_timer.cancel();
     m_users.clear();
-    m_accept_timer.cancel();
     m_user_own_id = args.user_id;
     switch_scene<lobby_list_scene>();
 }
