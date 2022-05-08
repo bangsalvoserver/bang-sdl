@@ -108,7 +108,8 @@ namespace banggame {
         (int) shuffle_deck_ticks,
         
         (int) move_cube_ticks,
-        (float) move_cube_offset,
+        (int) move_cubes_ticks,
+        (float) move_cubes_offset,
 
         (float) shuffle_deck_offset,
 

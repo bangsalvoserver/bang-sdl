@@ -602,7 +602,7 @@ void game_scene::HANDLE_UPDATE(move_cubes, const move_cubes_update &args) {
 
         anim.add_cube(cube.get(), &target_pile);
     }
-    add_animation<cube_move_animation>(options.move_cube_ticks, std::move(anim));
+    add_animation<cube_move_animation>(args.num_cubes == 1 ? options.move_cube_ticks : options.move_cubes_ticks, std::move(anim));
 }
 
 void game_scene::HANDLE_UPDATE(move_scenario_deck, const move_scenario_deck_args &args) {

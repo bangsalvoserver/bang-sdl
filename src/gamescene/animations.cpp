@@ -109,7 +109,7 @@ namespace banggame {
     }
 
     void cube_move_animation::do_animation(float x) {
-        const float off = options.move_cube_offset;
+        const float off = options.move_cubes_offset;
         const float diff = off / data.size();
         const float m = 1.f / (1.f - off);
         

@@ -58,8 +58,9 @@
     "flip_role_ticks": 15,
     "shuffle_deck_ticks": 80,
 
-    "move_cube_ticks": 15,
-    "move_cube_offset": 0.2,
+    "move_cube_ticks": 8,
+    "move_cubes_ticks": 15,
+    "move_cubes_offset": 0.2,
 
     "shuffle_deck_offset": 0.5,
 
