@@ -40,7 +40,7 @@ namespace banggame {
         void HANDLE_UPDATE(remove_cards,     const remove_cards_update &args);
         void HANDLE_UPDATE(move_card,        const move_card_update &args);
         void HANDLE_UPDATE(add_cubes,        const add_cubes_update &args);
-        void HANDLE_UPDATE(move_cube,        const move_cube_update &args);
+        void HANDLE_UPDATE(move_cubes,       const move_cubes_update &args);
         void HANDLE_UPDATE(move_scenario_deck, const move_scenario_deck_args &args);
         void HANDLE_UPDATE(deck_shuffled,    const pocket_type &pocket);
         void HANDLE_UPDATE(show_card,        const show_card_update &args);
@@ -86,6 +86,8 @@ namespace banggame {
         pocket_view m_hidden_deck;
         flipped_pocket m_shop_selection{options.shop_selection_width};
         wide_pocket m_shop_choice{options.shop_choice_width};
+        
+        table_cube_pile m_cubes;
 
         counting_pocket m_main_deck;
         pocket_view m_discard_pile;
@@ -103,7 +105,6 @@ namespace banggame {
 
         util::id_map<card_view> m_cards;
         util::id_map<player_view> m_players;
-        util::id_map<cube_widget> m_cubes;
         util::id_map<role_card> m_role_cards;
 
         sdl::point m_mouse_pt;
@@ -117,10 +118,10 @@ namespace banggame {
         int m_playing_id = 0;
         int m_request_origin_id = 0;
         int m_request_target_id = 0;
-        
-        std::default_random_engine rng;
 
         player_role m_winner_role = player_role::unknown;
+
+        cube_pile_base &find_cube_pile(int card_id);
 
         bool has_player_flags(player_flags flags) {
             if (player_view *p = find_player(m_player_own_id)) {

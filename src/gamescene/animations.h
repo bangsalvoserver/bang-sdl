@@ -76,11 +76,13 @@ namespace banggame {
 
     struct cube_move_animation : easing_animation<cube_move_animation> {
         cube_widget *cube;
+        cube_pile_base *pile;
         sdl::point start;
-        sdl::point diff;
+        sdl::point offset;
 
-        cube_move_animation(cube_widget *cube, sdl::point diff)
-            : cube(cube), start(cube->pos), diff(diff) {}
+        cube_move_animation(cube_widget *cube, cube_pile_base *pile)
+            : cube(cube), pile(pile), start(cube->pos)
+            , offset{pile->get_offset(cube)} {}
 
         void end();
         void do_animation_impl(float amt);

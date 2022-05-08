@@ -7,6 +7,8 @@
 
 namespace banggame {
 
+    using namespace sdl::point_math;
+
     template<typename T>
     concept first_is_none = requires {
         requires enums::reflected_enum<T>;
@@ -140,10 +142,7 @@ namespace banggame {
     }
 
     void card_view::set_pos(const sdl::point &new_pos) {
-        for (auto *cube : cubes) {
-            sdl::point diff{cube->pos.x - m_pos.x, cube->pos.y - m_pos.y};
-            cube->pos = sdl::point{diff.x + new_pos.x, diff.y + new_pos.y};
-        }
+        cubes.set_pos(new_pos);
         m_pos = new_pos;
     }
 
@@ -171,7 +170,7 @@ namespace banggame {
 
             SDL_RenderCopyEx(renderer.get(), tex.get_texture(renderer), nullptr, &rect, rotation, nullptr, SDL_FLIP_NONE);
 
-            for (auto *cube : cubes) {
+            for (auto &cube : cubes) {
                 cube->render(renderer);
             }
         };
@@ -187,37 +186,33 @@ namespace banggame {
 
     void pocket_view::set_pos(const sdl::point &pos) {
         for (card_view *c : *this) {
-            int dx = c->get_pos().x - m_pos.x;
-            int dy = c->get_pos().y - m_pos.y;
-            c->set_pos(sdl::point{pos.x + dx, pos.y + dy});
+            c->set_pos(c->get_pos() - m_pos + pos);
         }
         m_pos = pos;
     }
 
-    sdl::point wide_pocket::get_position_of(card_view *card) const {
+    sdl::point wide_pocket::get_offset(card_view *card) const {
         if (size() == 1) {
-            return get_pos();
+            return {0, 0};
         }
-        float xoffset = std::min(float(width) / (size() - 1), float(options.card_width + options.card_xoffset));
-
-        return sdl::point{(int)(get_pos().x + xoffset *
-            (std::ranges::distance(begin(), std::ranges::find(*this, card)) - (size() - 1) * .5f)),
-            get_pos().y};
+        const float xoffset = std::min(float(width) / (size() - 1), float(options.card_width + options.card_xoffset));
+        const int diff = std::ranges::distance(begin(), std::ranges::find(*this, card));
+        return sdl::point{(int)(xoffset * (diff - (size() - 1) * .5f)), 0};
     }
 
-    sdl::point flipped_pocket::get_position_of(card_view *card) const {
-        auto pt = wide_pocket::get_position_of(card);
-        return {get_pos().x * 2 - pt.x, pt.y};
+    sdl::point flipped_pocket::get_offset(card_view *card) const {
+        auto pt = wide_pocket::get_offset(card);
+        return {- pt.x, pt.y};
     }
 
-    sdl::point character_pile::get_position_of(card_view *card) const {
+    sdl::point character_pile::get_offset(card_view *card) const {
         int diff = std::ranges::distance(begin(), std::ranges::find(*this, card));
-        return sdl::point{get_pos().x + options.character_offset * diff, get_pos().y + options.character_offset * diff};
+        return sdl::point{options.character_offset * diff, options.character_offset * diff};
     }
 
-    sdl::point role_pile::get_position_of(card_view *card) const {
+    sdl::point role_pile::get_offset(card_view *card) const {
         int diff = std::ranges::distance(begin(), std::ranges::find(*this, card));
-        return sdl::point{get_pos().x, get_pos().y + options.card_yoffset * diff};
+        return sdl::point{0, options.card_yoffset * diff};
     }
 
     void counting_pocket::update_count() {
@@ -232,5 +227,32 @@ namespace banggame {
         rect.y = get_pos().y - rect.h / 2;
         m_count_text.set_rect(rect);
         m_count_text.render(renderer);
+    }
+
+    sdl::point card_cube_pile::get_pos() const {
+        return owner->get_pos();
+    }
+
+    sdl::point card_cube_pile::get_offset(cube_widget *cube) const {
+        int diff = std::ranges::distance(begin(), std::ranges::find(*this, cube, &std::unique_ptr<cube_widget>::get));
+        return sdl::point{options.cube_xdiff, options.cube_ydiff + options.cube_yoff * diff};
+    }
+
+    void cube_pile_base::set_pos(sdl::point new_pos) {
+        for (auto &cube : *this) {
+            cube->pos = cube->pos + new_pos - get_pos();
+        }
+    }
+
+    void table_cube_pile::set_pos(sdl::point pos) {
+        cube_pile_base::set_pos(pos);
+        m_pos = pos;
+    }
+
+    sdl::point table_cube_pile::get_offset(cube_widget *cube) const {
+        auto rand_diff = []() -> int {
+            return ((float) std::rand() / RAND_MAX - 0.5f) * options.cube_pile_size;
+        };
+        return sdl::point{rand_diff(), rand_diff()};
     }
 }

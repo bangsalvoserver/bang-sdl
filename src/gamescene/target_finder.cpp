@@ -8,6 +8,7 @@
 
 using namespace banggame;
 using namespace enums::flag_operators;
+using namespace sdl::point_math;
 
 template<typename ... Ts> struct overloaded : Ts ... { using Ts::operator() ...; };
 template<typename ... Ts> overloaded(Ts ...) -> overloaded<Ts ...>;
@@ -54,7 +55,7 @@ void target_finder::set_border_colors() {
                     p.player->border_color = options.target_finder_target;
                 },
                 [&](target_card c) {
-                    if (std::ranges::find(m_selected_cubes, c.card, &cube_widget::owner) == m_selected_cubes.end()) {
+                    if (m_selected_cubes.find(c.card) == m_selected_cubes.end()) {
                         c.card->border_color = options.target_finder_target;
                     }
                 },
@@ -66,7 +67,7 @@ void target_finder::set_border_colors() {
             }, value);
         }
     }
-    for (auto *cube : m_selected_cubes) {
+    for (auto [card, cube] : m_selected_cubes) {
         cube->border_color = options.target_finder_target;
     }
 }
@@ -155,7 +156,7 @@ void target_finder::clear_targets() {
             }, value);
         }
     }
-    for (cube_widget *cube : m_selected_cubes) {
+    for (auto [card, cube] : m_selected_cubes) {
         cube->border_color = {};
     }
     m_game->m_shop_choice.clear();
@@ -420,7 +421,7 @@ void target_finder::add_modifier(card_view *card) {
                         }
                     }
                     for (card_view *c : m_game->m_shop_choice) {
-                        c->set_pos(m_game->m_shop_choice.get_position_of(c));
+                        c->set_pos(m_game->m_shop_choice.get_pos() + m_game->m_shop_choice.get_offset(c));
                     }
                 }
                 m_modifiers.push_back(card);
@@ -689,10 +690,10 @@ void target_finder::add_card_target(target_card target) {
     }
     
     if (bool(cur_target.card_filter & target_card_filter::cube_slot)) {
-        int ncubes = std::ranges::count(m_selected_cubes, target.card, &cube_widget::owner);
+        int ncubes = m_selected_cubes.count(target.card);
         if (ncubes < target.card->cubes.size()) {
             m_targets.emplace_back(target);
-            m_selected_cubes.push_back(*(target.card->cubes.rbegin() + ncubes));
+            m_selected_cubes.emplace(target.card, (target.card->cubes.rbegin() + ncubes)->get());
             handle_auto_targets();
         }
     } else if (target.card != m_playing_card && std::ranges::find(m_modifiers, target.card) == m_modifiers.end()) {
@@ -740,10 +741,10 @@ void target_finder::add_character_target(target_card target) {
         m_targets.emplace_back(target);
         handle_auto_targets();
     } else {
-        int ncubes = std::ranges::count(m_selected_cubes, target.card, &cube_widget::owner);
+        int ncubes = m_selected_cubes.count(target.card);
         if (ncubes < target.card->cubes.size()) {
             m_targets.emplace_back(target);
-            m_selected_cubes.push_back(*(target.card->cubes.rbegin() + ncubes));
+            m_selected_cubes.emplace(target.card, (target.card->cubes.rbegin() + ncubes)->get());
             handle_auto_targets();
         }
     }

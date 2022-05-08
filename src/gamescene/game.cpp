@@ -8,6 +8,7 @@
 
 using namespace banggame;
 using namespace enums::flag_operators;
+using namespace sdl::point_math;
 
 template<typename ... Ts> struct overloaded : Ts ... { using Ts::operator() ...; };
 template<typename ... Ts> overloaded(Ts ...) -> overloaded<Ts ...>;
@@ -19,18 +20,7 @@ game_scene::game_scene(client_manager *parent, const game_options &options)
     , m_target(this)
     , m_game_options(options)
 {
-    std::random_device rd;
-    rng.seed(rd());
-
     m_ui.enable_golobby(false);
-}
-
-static sdl::point cube_pile_offset(auto &rng) {
-    std::uniform_int_distribution<int> dist{
-        -options.cube_pile_size / 2,
-        options.cube_pile_size / 2
-    };
-    return {dist(rng), dist(rng)};
 }
 
 void game_scene::refresh_layout() {
@@ -40,9 +30,7 @@ void game_scene::refresh_layout() {
         win_rect.w / 2 + options.deck_xoffset,
         win_rect.h / 2});
 
-    m_discard_pile.set_pos(sdl::point{
-        m_main_deck.get_pos().x - options.discard_xoffset,
-        m_main_deck.get_pos().y});
+    m_discard_pile.set_pos(m_main_deck.get_pos() - sdl::point{options.discard_xoffset, 0});
     
     m_selection.set_pos(sdl::point{
         win_rect.w / 2,
@@ -58,9 +46,7 @@ void game_scene::refresh_layout() {
         win_rect.w / 2 + options.shop_xoffset - options.shop_selection_width / 2,
         win_rect.h / 2});
     
-    m_shop_choice.set_pos(sdl::point{
-        m_shop_selection.get_pos().x,
-        m_shop_selection.get_pos().y + options.shop_choice_offset});
+    m_shop_choice.set_pos(m_shop_selection.get_pos() + sdl::point{0, options.shop_choice_offset});
 
     m_scenario_card.set_pos(sdl::point{
         win_rect.w / 2 + options.deck_xoffset + options.card_width + options.card_xoffset,
@@ -73,15 +59,10 @@ void game_scene::refresh_layout() {
 
     move_player_views();
 
-    for (cube_widget &cube : m_cubes) {
-        if (!cube.owner) {
-            auto diff = cube_pile_offset(rng);
-            cube.pos = sdl::point{
-                win_rect.w / 2 + diff.x + options.cube_pile_xoffset,
-                win_rect.h / 2 + diff.y
-            };
-        }
-    }
+    m_cubes.set_pos(sdl::point{
+        win_rect.w / 2 + options.cube_pile_xoffset,
+        win_rect.h / 2
+    });
 
     m_ui.refresh_layout();
 }
@@ -150,10 +131,8 @@ void game_scene::render(sdl::renderer &renderer) {
         card->render(renderer);
     }
 
-    for (cube_widget &cube : m_cubes) {
-        if (cube.owner == nullptr) {
-            cube.render(renderer);
-        }
+    for (auto &cube : m_cubes) {
+        cube->render(renderer);
     }
 
     for (player_view &p : m_players) {
@@ -414,12 +393,12 @@ void game_scene::remove_user(int id) {
 
 void game_scene::pop_update() {
     try {
-        if (!m_pending_updates.empty()) {
-            const auto update = std::move(m_pending_updates.front());
-            m_pending_updates.pop_front();
+        while (!m_pending_updates.empty() && m_animations.empty()) {
+            const auto &update = m_pending_updates.front();
             enums::visit_indexed([this]<game_update_type E>(enums::enum_tag_t<E> tag, const auto & ... data) {
                 handle_game_update(tag, data ...);
             }, update);
+            m_pending_updates.pop_front();
         }
     } catch (const std::exception &error) {
         parent->add_chat_message(message_type::error, fmt::format("Error: {}", error.what()));
@@ -461,12 +440,10 @@ std::string game_scene::evaluate_format_string(const game_formatted_string &str)
 
 void game_scene::HANDLE_UPDATE(game_error, const game_formatted_string &args) {
     parent->add_chat_message(message_type::error, evaluate_format_string(args));
-    pop_update();
 }
 
 void game_scene::HANDLE_UPDATE(game_log, const game_formatted_string &args) {
     m_ui.add_game_log(evaluate_format_string(args));
-    pop_update();
 }
 
 void game_scene::HANDLE_UPDATE(game_prompt, const game_formatted_string &args) {
@@ -474,7 +451,6 @@ void game_scene::HANDLE_UPDATE(game_prompt, const game_formatted_string &args) {
         [&]{ m_target.send_prompt_response(true); },
         [&]{ m_target.send_prompt_response(false); }
     );
-    pop_update();
 }
 
 void game_scene::HANDLE_UPDATE(deck_shuffled, const pocket_type &pocket) {
@@ -530,23 +506,21 @@ void game_scene::HANDLE_UPDATE(add_cards, const add_cards_update &args) {
     auto &pocket = get_pocket(args.pocket, args.player_id);
 
     for (auto [id, deck] : args.card_ids) {
-        card_view c;
-        c.id = id;
-        c.texture_back = [](card_deck_type deck) -> const sdl::texture * {
+        auto c = std::make_unique<card_view>();
+        c->id = id;
+        c->texture_back = [](card_deck_type deck) -> const sdl::texture * {
             switch (deck) {
             case card_deck_type::main_deck:         return &card_textures::get().backface_maindeck;
             case card_deck_type::character:         return &card_textures::get().backface_character;
             case card_deck_type::goldrush:          return &card_textures::get().backface_goldrush;
             default:                                return nullptr;
             }
-        }(c.deck = deck);
+        }(c->deck = deck);
 
-        card_view *card_ptr = &m_cards.emplace(std::move(c));
+        card_view *card_ptr = m_cards.insert(std::move(c)).get();
         pocket.add_card(card_ptr);
-        card_ptr->set_pos(pocket.get_position_of(card_ptr));
+        card_ptr->set_pos(pocket.get_pos() + pocket.get_offset(card_ptr));
     }
-
-    pop_update();
 }
 
 void game_scene::HANDLE_UPDATE(remove_cards, const remove_cards_update &args) {
@@ -557,14 +531,11 @@ void game_scene::HANDLE_UPDATE(remove_cards, const remove_cards_update &args) {
         }
         m_cards.erase(id);
     }
-
-    pop_update();
 }
 
 void game_scene::HANDLE_UPDATE(move_card, const move_card_update &args) {
     card_view *card = find_card(args.card_id);
     if (!card) {
-        pop_update();
         return;
     }
 
@@ -572,7 +543,6 @@ void game_scene::HANDLE_UPDATE(move_card, const move_card_update &args) {
     pocket_view *new_pile = &get_pocket(args.pocket, args.player_id);
     
     if (old_pile == new_pile) {
-        pop_update();
         return;
     }
 
@@ -596,7 +566,6 @@ void game_scene::HANDLE_UPDATE(move_card, const move_card_update &args) {
     
     if (bool(args.flags & show_card_flags::instant)) {
         anim.end();
-        pop_update();
     } else {
         if (bool(args.flags & show_card_flags::pause_before_move)) {
             add_animation<pause_animation>(options.short_pause_ticks, card);
@@ -606,51 +575,37 @@ void game_scene::HANDLE_UPDATE(move_card, const move_card_update &args) {
     }
 }
 
-void game_scene::HANDLE_UPDATE(add_cubes, const add_cubes_update &args) {
-    for (int id : args.cubes) {
-        cube_widget &cube = m_cubes.emplace(id);
-
-        auto pos = cube_pile_offset(rng);
-        cube.pos = sdl::point{
-            parent->width() / 2 + pos.x + options.cube_pile_xoffset,
-            parent->height() / 2 + pos.y
-        };
+cube_pile_base &game_scene::find_cube_pile(int card_id) {
+    if (card_id) {
+        return find_card(card_id)->cubes;
+    } else {
+        return m_cubes;
     }
-    pop_update();
 }
 
-void game_scene::HANDLE_UPDATE(move_cube, const move_cube_update &args) {
-    auto [cube, inserted] = m_cubes.try_emplace(args.cube_id);
-    if (cube.owner) {
-        if (auto it = std::ranges::find(cube.owner->cubes, &cube); it != cube.owner->cubes.end()) {
-            cube.owner->cubes.erase(it);
-        }
+void game_scene::HANDLE_UPDATE(add_cubes, const add_cubes_update &args) {
+    auto &pile = find_cube_pile(args.target_card_id);
+    for (int i=0; i<args.num_cubes; ++i) {
+        auto &cube = pile.emplace_back(std::make_unique<cube_widget>());
+        cube->pos = pile.get_pos() + pile.get_offset(cube.get());
     }
-    sdl::point diff;
-    if (args.card_id) {
-        cube.owner = find_card(args.card_id);
-        diff.x = options.cube_xdiff;
-        diff.y = options.cube_ydiff + options.cube_yoff * cube.owner->cubes.size();
-        cube.owner->cubes.push_back(&cube);
-    } else {
-        cube.owner = nullptr;
-        diff = cube_pile_offset(rng);
-        diff.x += parent->width() / 2 + options.cube_pile_xoffset;
-        diff.y += parent->height() / 2;
-    }
-    cube_move_animation anim(&cube, diff);
-    if (inserted) {
-        anim.end();
-        pop_update();
-    } else {
-        add_animation<cube_move_animation>(options.move_cube_ticks, std::move(anim));
+}
+
+void game_scene::HANDLE_UPDATE(move_cubes, const move_cubes_update &args) {
+    auto &origin_pile = find_cube_pile(args.origin_card_id);
+    auto &target_pile = find_cube_pile(args.target_card_id);
+
+    for (int i=0; i<args.num_cubes; ++i) {
+        auto &cube = target_pile.emplace_back(std::move(origin_pile.back()));
+        origin_pile.pop_back();
+
+        add_animation<cube_move_animation>(options.move_cube_ticks, cube.get(), &target_pile);
     }
 }
 
 void game_scene::HANDLE_UPDATE(move_scenario_deck, const move_scenario_deck_args &args) {
     m_scenario_player_id = args.player_id;
     move_player_views();
-    pop_update();
 }
 
 void game_scene::HANDLE_UPDATE(show_card, const show_card_update &args) {
@@ -673,7 +628,6 @@ void game_scene::HANDLE_UPDATE(show_card, const show_card_update &args) {
         }
         if (bool(args.flags & show_card_flags::instant)) {
             card->flip_amt = 1.f;
-            pop_update();
         } else {
             add_animation<card_flip_animation>(options.flip_card_ticks, card, false);
 
@@ -681,9 +635,6 @@ void game_scene::HANDLE_UPDATE(show_card, const show_card_update &args) {
                 add_animation<pause_animation>(options.short_pause_ticks, card);
             }
         }
-
-    } else {
-        pop_update();
     }
 }
 
@@ -697,7 +648,6 @@ void game_scene::HANDLE_UPDATE(hide_card, const hide_card_update &args) {
         card->known = false;
         if (bool(args.flags & show_card_flags::instant)) {
             card->flip_amt = 0.f;
-            pop_update();
         } else {
             if (bool(args.flags & show_card_flags::short_pause)) {
                 add_animation<pause_animation>(options.short_pause_ticks, card);
@@ -705,8 +655,6 @@ void game_scene::HANDLE_UPDATE(hide_card, const hide_card_update &args) {
 
             add_animation<card_flip_animation>(options.flip_card_ticks, card, true);
         }
-    } else {
-        pop_update();
     }
 }
 
@@ -716,23 +664,18 @@ void game_scene::HANDLE_UPDATE(tap_card, const tap_card_update &args) {
         card->inactive = args.inactive;
         if (args.instant) {
             card->rotation = card->inactive ? 90.f : 0.f;
-            pop_update();
         } else {
             add_animation<card_tap_animation>(options.tap_card_ticks, card, args.inactive);
         }
-    } else {
-        pop_update();
     }
 }
 
 void game_scene::HANDLE_UPDATE(last_played_card, const card_id_args &args) {
     m_target.set_last_played_card(find_card(args.card_id));
-    pop_update();
 }
 
 void game_scene::HANDLE_UPDATE(force_play_card, const card_id_args &args) {
     m_target.set_forced_card(find_card(args.card_id));
-    pop_update();
 }
 
 void game_scene::move_player_views() {
@@ -768,10 +711,10 @@ void game_scene::HANDLE_UPDATE(player_add, const player_user_update &args) {
     }
     auto [p, inserted] = m_players.try_emplace(args.player_id);
     if (inserted) {
-        role_card card;
-        card.id = args.player_id;
-        card.texture_back = &card_textures::get().backface_role;
-        p.m_role = &m_role_cards.emplace(std::move(card));
+        auto card = std::make_unique<role_card>();
+        card->id = args.player_id;
+        card->texture_back = &card_textures::get().backface_role;
+        p.m_role = m_role_cards.insert(std::move(card)).get();
     }
 
     p.user_id = args.user_id;
@@ -784,7 +727,6 @@ void game_scene::HANDLE_UPDATE(player_add, const player_user_update &args) {
     }
 
     move_player_views();
-    pop_update();
 }
 
 void game_scene::HANDLE_UPDATE(player_remove, const player_remove_update &args) {
@@ -802,8 +744,6 @@ void game_scene::HANDLE_UPDATE(player_remove, const player_remove_update &args) 
         card_move_animation anim;
         anim.add_move_card(card);
         add_animation<card_move_animation>(options.move_card_ticks, std::move(anim));
-    } else {
-        pop_update();
     }
 }
 
@@ -814,24 +754,18 @@ void game_scene::HANDLE_UPDATE(player_hp, const player_hp_update &args) {
     player->hp = args.hp;
     if (args.instant) {
         player->set_hp_marker_position(args.hp);
-        pop_update();
     } else if (prev_hp != args.hp && !args.dead) {
         add_animation<player_hp_animation>(options.move_hp_ticks, player, prev_hp);
-    } else {
-        pop_update();
     }
 }
 
 void game_scene::HANDLE_UPDATE(player_gold, const player_gold_update &args) {
     find_player(args.player_id)->set_gold(args.gold);
-    pop_update();
 }
 
 void game_scene::HANDLE_UPDATE(player_show_role, const player_show_role_update &args) {
     if (auto *p = find_player(args.player_id)) {
-        if (p->m_role->role == args.role) {
-            pop_update();
-        } else {
+        if (p->m_role->role != args.role) {
             p->m_role->role = args.role;
             p->m_role->make_texture_front();
             if (args.instant) {
@@ -839,23 +773,21 @@ void game_scene::HANDLE_UPDATE(player_show_role, const player_show_role_update &
                     p->set_hp_marker_position(++p->hp);
                 }
                 p->m_role->flip_amt = 1.f;
-                pop_update();
             } else {
                 add_animation<card_flip_animation>(options.flip_role_ticks, p->m_role, false);
             }
         }
         move_player_views();
     } else {
-        role_card card;
-        card.id = args.player_id;
-        card.flip_amt = 1.f;
-        card.role = args.role;
-        card.make_texture_front();
+        auto card = std::make_unique<role_card>();
+        card->id = args.player_id;
+        card->flip_amt = 1.f;
+        card->role = args.role;
+        card->make_texture_front();
 
-        auto moved_card = &m_role_cards.emplace(std::move(card));
+        auto moved_card = m_role_cards.insert(std::move(card)).get();
         m_dead_roles_pile.add_card(moved_card);
-        moved_card->set_pos(m_dead_roles_pile.get_position_of(moved_card));
-        pop_update();
+        moved_card->set_pos(m_dead_roles_pile.get_pos() + m_dead_roles_pile.get_offset(moved_card));
     }
 }
 
@@ -866,8 +798,6 @@ void game_scene::HANDLE_UPDATE(player_status, const player_status_update &args) 
         p->m_weapon_range = args.weapon_range;
         p->m_distance_mod = args.distance_mod;
     }
-
-    pop_update();
 }
 
 void game_scene::HANDLE_UPDATE(switch_turn, const switch_turn_update &args) {
@@ -880,8 +810,6 @@ void game_scene::HANDLE_UPDATE(switch_turn, const switch_turn_update &args) {
     }
 
     m_target.clear_targets();
-
-    pop_update();
 }
 
 void game_scene::HANDLE_UPDATE(request_status, const request_status_args &args) {
@@ -890,8 +818,6 @@ void game_scene::HANDLE_UPDATE(request_status, const request_status_args &args) 
     m_target.set_response_highlights(args);
 
     m_ui.set_status(evaluate_format_string(args.status_text));
-
-    pop_update();
 }
 
 void game_scene::HANDLE_UPDATE(status_clear) {
@@ -900,11 +826,8 @@ void game_scene::HANDLE_UPDATE(status_clear) {
 
     m_ui.clear_status();
     m_target.clear_status();
-
-    pop_update();
 }
 
 void game_scene::HANDLE_UPDATE(confirm_play) {
     m_target.confirm_play();
-    pop_update();
 }

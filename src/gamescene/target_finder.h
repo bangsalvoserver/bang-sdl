@@ -40,7 +40,7 @@ namespace banggame {
         std::vector<card_view *> m_modifiers;
 
         target_vector m_targets;
-        std::vector<cube_widget *> m_selected_cubes;
+        std::multimap<card_view *, cube_widget *> m_selected_cubes;
 
         bool m_equipping = false;
         bool m_response = false;

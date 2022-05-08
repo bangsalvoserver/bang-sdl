@@ -144,7 +144,7 @@ bool client_manager::start_listenserver() {
     std::string port_str = std::to_string(m_config.server_port);
     m_listenserver.open(subprocess::arguments{server_path.string(), port_str});
     return std::async([&]{
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        std::this_thread::sleep_for(std::chrono::seconds{1});
         if (m_listenserver) {
             return true;
         } else {

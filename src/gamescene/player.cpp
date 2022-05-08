@@ -3,6 +3,8 @@
 #include "../media_pak.h"
 
 namespace banggame {
+    using namespace sdl::point_math;
+
     player_view::player_view(int id)
         : id(id)
         , m_username_text(widgets::text_style{
@@ -27,11 +29,11 @@ namespace banggame {
             m_characters.get_pos().y + options.role_yoff));
         set_hp_marker_position(hp);
         if (flipped) {
-            hand.set_pos(sdl::point{hand.get_pos().x, hand.get_pos().y + options.card_yoffset});
-            table.set_pos(sdl::point{table.get_pos().x, table.get_pos().y - options.card_yoffset});
+            hand.set_pos(hand.get_pos() + sdl::point{0, options.card_yoffset});
+            table.set_pos(table.get_pos() - sdl::point{0, options.card_yoffset});
         } else {
-            table.set_pos(sdl::point{table.get_pos().x, table.get_pos().y + options.card_yoffset});
-            hand.set_pos(sdl::point{hand.get_pos().x, hand.get_pos().y - options.card_yoffset});
+            table.set_pos(table.get_pos() + sdl::point{0, options.card_yoffset});
+            hand.set_pos(hand.get_pos() - sdl::point{0, options.card_yoffset});
         }
 
         m_propic.set_pos(sdl::point{

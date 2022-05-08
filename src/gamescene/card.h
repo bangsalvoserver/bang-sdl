@@ -13,7 +13,7 @@
 
 #include <filesystem>
 #include <vector>
-#include <list>
+#include <memory>
 
 namespace banggame {
 
@@ -52,11 +52,45 @@ namespace banggame {
     };
 
     class pocket_view;
-    class cube_widget;
+    struct cube_widget;
+    struct card_view;
+
+    struct cube_pile_base : std::vector<std::unique_ptr<cube_widget>> {
+        virtual void set_pos(sdl::point pos);
+
+        virtual sdl::point get_pos() const = 0;
+        virtual sdl::point get_offset(cube_widget *cube) const = 0;
+    };
+
+    struct card_cube_pile : cube_pile_base {
+        card_view *owner;
+
+        card_cube_pile(card_view *owner) : owner(owner) {}
+
+        sdl::point get_pos() const override;
+        sdl::point get_offset(cube_widget *cube) const override;
+    };
+
+    struct table_cube_pile : cube_pile_base {
+        sdl::point m_pos;
+
+        void set_pos(sdl::point pos) override;
+        sdl::point get_pos() const override { return m_pos; }
+        sdl::point get_offset(cube_widget *cube) const override;
+    };
+
+    struct cube_widget {
+        sdl::point pos;
+
+        bool animating = false;
+        sdl::color border_color{};
+
+        void render(sdl::renderer &renderer, bool skip_if_animating = true);
+    };
 
     class card_view : public card_data {
     public:
-        std::vector<cube_widget *> cubes;
+        card_cube_pile cubes{this};
 
         float flip_amt = 0.f;
         float rotation = 0.f;
@@ -91,21 +125,6 @@ namespace banggame {
     private:
         sdl::point m_pos;
         sdl::rect m_rect;
-    };
-
-    class cube_widget {
-    public:
-        card_view *owner = nullptr;
-
-        int id;
-        sdl::point pos;
-
-        bool animating = false;
-        sdl::color border_color{};
-
-        cube_widget(int id) : id(id) {}
-
-        void render(sdl::renderer &renderer, bool skip_if_animating = true);
     };
 
     struct role_card : card_view {
@@ -144,8 +163,8 @@ namespace banggame {
         const auto &back() const { return m_cards.back(); }
     
     public:
-        virtual sdl::point get_position_of(card_view *card) const {
-            return m_pos;
+        virtual sdl::point get_offset(card_view *card) const {
+            return {0, 0};
         }
 
         virtual bool wide() const {
@@ -204,20 +223,20 @@ namespace banggame {
         explicit wide_pocket(int width) : width(width) {}
 
         bool wide() const override { return true; }
-        sdl::point get_position_of(card_view *card) const override;
+        sdl::point get_offset(card_view *card) const override;
     };
 
     struct flipped_pocket : wide_pocket {
         using wide_pocket::wide_pocket;
-        sdl::point get_position_of(card_view *card) const override;
+        sdl::point get_offset(card_view *card) const override;
     };
 
     struct character_pile : pocket_view {
-        sdl::point get_position_of(card_view *card) const override;
+        sdl::point get_offset(card_view *card) const override;
     };
 
     struct role_pile : pocket_view {
-        sdl::point get_position_of(card_view *card) const override;
+        sdl::point get_offset(card_view *card) const override;
     };
 
 }

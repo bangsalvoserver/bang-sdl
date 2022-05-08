@@ -2,8 +2,17 @@
 
 namespace banggame {
 
+    using namespace sdl::point_math;
+
     float ease_in_out_pow(float exp, float x) {
         return x < 0.5f ? std::pow(2.f * x, exp) / 2.f : 1.f - std::pow(-2.f * x + 2.f, exp) / 2.f;
+    }
+
+    constexpr sdl::point lerp_point(sdl::point begin, sdl::point end, float amt) {
+        return {
+            (int) std::lerp(begin.x, end.x, amt),
+            (int) std::lerp(begin.y, end.y, amt)
+        };
     }
 
     void card_move_animation::add_move_card(card_view *card) {
@@ -14,19 +23,15 @@ namespace banggame {
 
     void card_move_animation::end() {
         for (auto &[card, _] : data) {
-            card->set_pos(card->pocket->get_position_of(card));
+            card->set_pos(card->pocket->get_pos() + card->pocket->get_offset(card));
             card->animating = false;
         }
     }
 
     void card_move_animation::do_animation_impl(float amt) {
         for (auto &[card, start] : data) {
+            card->set_pos(lerp_point(start, card->pocket->get_pos() + card->pocket->get_offset(card), amt));
             card->animating = true;
-            sdl::point dest = card->pocket->get_position_of(card);
-            card->set_pos(sdl::point{
-                (int) std::lerp(start.x, dest.x, amt),
-                (int) std::lerp(start.y, dest.y, amt)
-            });
         }
     }
 
@@ -68,10 +73,7 @@ namespace banggame {
             const float amt = ease_in_out_pow(options.easing_exponent, std::clamp(m * (x - n), 0.f, 1.f));
             card->animating = true;
             card->flip_amt = 1.f - amt;
-            card->set_pos(sdl::point{
-                (int) std::lerp(start_pos.x, cards->get_pos().x, amt),
-                (int) std::lerp(start_pos.y, cards->get_pos().y, amt)
-            });
+            card->set_pos(lerp_point(start_pos, cards->get_pos(), amt));
             n -= diff;
         }
     }
@@ -105,19 +107,12 @@ namespace banggame {
     }
 
     void cube_move_animation::do_animation_impl(float amt) {
-        sdl::point dest{};
-        if (cube->owner) dest = cube->owner->get_pos();
+        cube->pos = lerp_point(start, pile->get_pos() + offset, amt);
         cube->animating = true;
-        cube->pos = sdl::point{
-            (int) std::lerp(start.x, dest.x + diff.x, amt),
-            (int) std::lerp(start.y, dest.y + diff.y, amt)
-        };
     }
 
     void cube_move_animation::end() {
-        sdl::point dest{};
-        if (cube->owner) dest = cube->owner->get_pos();
-        cube->pos = sdl::point{dest.x + diff.x, dest.y + diff.y};
+        cube->pos = pile->get_pos() + offset;
         cube->animating = false;
     }
 
