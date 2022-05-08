@@ -148,9 +148,8 @@ void connect_scene::reset_propic() {
 void connect_scene::do_create_server() {
     if (m_username_box.get_value().empty()) {
         parent->add_chat_message(message_type::error, _("ERROR_NO_USERNAME"));
-    } else if (parent->start_listenserver()) {
-        do_connect("localhost");
     } else {
-        parent->add_chat_message(message_type::error, _("ERROR_STARTING_LISTENSERVER"));
+        parent->get_config().user_name = m_username_box.get_value();
+        parent->start_listenserver();
     }
 }

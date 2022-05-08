@@ -20,6 +20,7 @@ client_manager::client_manager(sdl::window &window, boost::asio::io_context &ctx
     : m_window(window)
     , m_base_path(base_path)
     , m_con(*this, ctx)
+    , m_listenserver_timer(ctx)
 {
     m_config.load();
     switch_scene<connect_scene>();
@@ -31,6 +32,9 @@ client_manager::~client_manager() {
 
 void client_manager::update_net() {
     if (m_con.handle_closed()) {
+        if (m_listenserver) {
+            m_listenserver.abort();
+        }
         switch_scene<connect_scene>();
     }
     while (auto msg = m_con.pop_message()) {
@@ -59,7 +63,6 @@ void bang_connection::on_open() {
 void client_manager::connect(const std::string &host) {
     if (host.empty()) {
         add_chat_message(message_type::error, _("ERROR_NO_ADDRESS"));
-        return;
     } else {
         if (host.find(":") == std::string::npos) {
             m_con.connect(fmt::format("{}:{}", host, default_server_port));
@@ -67,15 +70,13 @@ void client_manager::connect(const std::string &host) {
             m_con.connect(host);
         }
 
-        switch_scene<loading_scene>(host);
+        switch_scene<loading_scene>(_("CONNECTING_TO", host));
     }
 }
 
 void client_manager::disconnect() {
     m_con.disconnect();
-    if (m_listenserver) {
-        m_listenserver.abort();
-    }
+    m_listenserver_timer.cancel();
 }
 
 void client_manager::refresh_layout() {
@@ -129,7 +130,7 @@ void client_manager::add_chat_message(message_type type, const std::string &mess
     m_chat.add_message(type, message);
 }
 
-bool client_manager::start_listenserver() {
+void client_manager::start_listenserver() {
 #ifdef NDEBUG
     auto server_path = m_base_path / "bangserver";
 #else
@@ -143,15 +144,21 @@ bool client_manager::start_listenserver() {
     }
     std::string port_str = std::to_string(m_config.server_port);
     m_listenserver.open(subprocess::arguments{server_path.string(), port_str});
-    return std::async([&]{
-        std::this_thread::sleep_for(std::chrono::seconds{1});
-        if (m_listenserver) {
-            return true;
+    switch_scene<loading_scene>(_("CREATING_SERVER"));
+    m_listenserver_timer.expires_after(std::chrono::seconds{1});
+    m_listenserver_timer.async_wait([this](const boost::system::error_code &ec) {
+        if (!ec) {
+            if (m_listenserver) {
+                m_con.connect(fmt::format("localhost:{}", m_config.server_port));
+            } else {
+                add_chat_message(message_type::error, _("ERROR_CREATING_SERVER"));
+                m_listenserver.close();
+                m_con.on_close();
+            }
         } else {
-            m_listenserver.close();
-            return false;
+            m_con.on_close();
         }
-    }).get();
+    });
 }
 
 void client_manager::HANDLE_SRV_MESSAGE(client_accepted, const client_accepted_args &args) {

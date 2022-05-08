@@ -108,7 +108,7 @@ public:
     int get_user_own_id() const { return m_user_own_id; }
     int get_lobby_owner_id() const { return m_lobby_owner_id; }
 
-    bool start_listenserver();
+    void start_listenserver();
 
     user_info *get_user_info(int id) {
         auto it = m_users.find(id);
@@ -152,6 +152,7 @@ private:
     bang_connection m_con;
 
     subprocess::process m_listenserver;
+    boost::asio::basic_waitable_timer<std::chrono::system_clock> m_listenserver_timer;
 
     std::map<int, user_info> m_users;
     friend struct bang_connection;

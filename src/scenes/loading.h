@@ -5,7 +5,7 @@
 
 class loading_scene : public scene_base {
 public:
-    loading_scene(client_manager *parent, const std::string &address);
+    loading_scene(client_manager *parent, const std::string &text);
 
     void refresh_layout() override;
 

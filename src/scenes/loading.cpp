@@ -3,9 +3,9 @@
 #include "../manager.h"
 #include "../media_pak.h"
 
-loading_scene::loading_scene(client_manager *parent, const std::string &address)
+loading_scene::loading_scene(client_manager *parent, const std::string &text)
     : scene_base(parent)
-    , m_loading_text(_("CONNECTING_TO", address))
+    , m_loading_text(text)
     , m_cancel_btn(_("BUTTON_CANCEL"), [parent]{
         parent->add_chat_message(message_type::error, _("ERROR_CONNECTION_CANCELED"));
         parent->disconnect();
