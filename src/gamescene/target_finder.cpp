@@ -169,7 +169,7 @@ void target_finder::clear_targets() {
 bool target_finder::can_confirm() const {
     if (m_playing_card && !m_equipping) {
         const int neffects = get_current_card_effects().size();
-        const int noptionals = get_optional_effects().size();
+        const int noptionals = get_current_card()->optionals.size();
         return noptionals != 0
             && m_targets.size() >= neffects
             && ((m_targets.size() - neffects) % noptionals == 0);
@@ -416,7 +416,7 @@ void target_finder::add_modifier(card_view *card) {
             })) {
                 if (card->modifier == card_modifier_type::shopchoice) {
                     for (card_view *c : m_game->m_hidden_deck) {
-                        if (c->effects.first_is(card->effects.front().type)) {
+                        if (c->get_tag_value(tag_type::shopchoice) == card->get_tag_value(tag_type::shopchoice)) {
                             m_game->m_shop_choice.add_card(c);
                         }
                     }
@@ -440,8 +440,8 @@ void target_finder::add_modifier(card_view *card) {
 
 bool target_finder::is_bangcard(card_view *card) {
     return (m_game->has_player_flags(player_flags::treat_missed_as_bang)
-            && card->responses.last_is(effect_type::missedcard))
-        || card->effects.last_is(effect_type::bangcard);
+            && card->has_tag(tag_type::missedcard))
+        || card->has_tag(tag_type::bangcard);
 }
 
 bool target_finder::verify_modifier(card_view *card) {
@@ -449,9 +449,9 @@ bool target_finder::verify_modifier(card_view *card) {
         switch (c->modifier) {
         case card_modifier_type::bangmod:
         case card_modifier_type::bandolier:
-            return is_bangcard(card);
+            return is_bangcard(card) || card->has_tag(tag_type::bangproxy);
         case card_modifier_type::leevankliff:
-            return is_bangcard(card) && card->equips.empty() && m_last_played_card;
+            return is_bangcard(card) && m_last_played_card;
         case card_modifier_type::discount:
             return card->expansion == card_expansion_type::goldrush;
         case card_modifier_type::shopchoice:
@@ -472,29 +472,21 @@ bool target_finder::verify_modifier(card_view *card) {
     });
 }
 
-const effect_list &target_finder::get_current_card_effects() const {
+const card_view *target_finder::get_current_card() const {
     assert(!m_equipping);
 
-    card_view *card = nullptr;
     if (m_last_played_card && !m_modifiers.empty() && m_modifiers.front()->modifier == card_modifier_type::leevankliff) {
-        card = m_last_played_card;
+        return m_last_played_card;
     } else {
-        card = m_playing_card;
-    }
-    assert(card != nullptr);
-
-    if (m_response) {
-        return card->responses;
-    } else {
-        return card->effects;
+        return m_playing_card;
     }
 }
 
-const effect_list &target_finder::get_optional_effects() const {
-    if (m_last_played_card && !m_modifiers.empty() && m_modifiers.front()->modifier == card_modifier_type::leevankliff) {
-        return m_last_played_card->optionals;
+const effect_list &target_finder::get_current_card_effects() const {
+    if (m_response) {
+        return get_current_card()->responses;
     } else {
-        return m_playing_card->optionals;
+        return get_current_card()->effects;
     }
 }
 
@@ -504,7 +496,7 @@ const effect_holder &target_finder::get_effect_holder(int index) {
         return effects[index];
     }
 
-    auto &optionals = get_optional_effects();
+    auto &optionals = get_current_card()->optionals;
     return optionals[(index - effects.size()) % optionals.size()];
 }
 
@@ -575,8 +567,8 @@ void target_finder::handle_auto_targets() {
     };
 
     auto &effects = get_current_card_effects();
-    auto &optionals = get_optional_effects();
-    bool repeatable = optionals.last_is(effect_type::repeatable);
+    auto &optionals = get_current_card()->optionals;
+    auto repeatable = get_current_card()->get_tag_value(tag_type::repeatable);
     if (effects.empty()) {
         clear_targets();
     } else {
@@ -590,8 +582,8 @@ void target_finder::handle_auto_targets() {
         for(;;++effect_it) {
             if (effect_it == target_end) {
                 if (optionals.empty() || (target_end == optionals.end()
-                    && (!repeatable || (optionals.back().effect_value > 0
-                        && m_targets.size() - effects.size() == optionals.size() * optionals.back().effect_value))))
+                    && (!repeatable || (*repeatable > 0
+                        && m_targets.size() - effects.size() == optionals.size() * *repeatable))))
                 {
                     send_play_card();
                     break;
@@ -654,16 +646,16 @@ std::optional<std::string> target_finder::verify_card_target(const effect_holder
     if (bool(args.card_filter & target_card_filter::clubs) && target.card->sign.suit != card_suit::clubs)
         return _("ERROR_TARGET_NOT_CLUBS");
     
-    if (bool(args.card_filter & target_card_filter::bang) && !(target.card->equips.empty() && is_bangcard(target.card)))
+    if (bool(args.card_filter & target_card_filter::bang) && !is_bangcard(target.card))
         return _("ERROR_TARGET_NOT_BANG");
     
-    if (bool(args.card_filter & target_card_filter::missed) && !target.card->responses.last_is(effect_type::missedcard))
+    if (bool(args.card_filter & target_card_filter::missed) && !target.card->has_tag(tag_type::missedcard))
         return _("ERROR_TARGET_NOT_MISSED");
     
-    if (bool(args.card_filter & target_card_filter::beer) && !target.card->effects.first_is(effect_type::beer))
+    if (bool(args.card_filter & target_card_filter::beer) && !target.card->has_tag(tag_type::beer))
         return _("ERROR_TARGET_NOT_BEER");
     
-    if (bool(args.card_filter & target_card_filter::bronco) && !target.card->equips.last_is(equip_type::bronco))
+    if (bool(args.card_filter & target_card_filter::bronco) && !target.card->has_tag(tag_type::bronco))
         return _("ERROR_TARGET_NOT_BRONCO");
     
     if (bool(args.card_filter & (target_card_filter::cube_slot | target_card_filter::cube_slot_card))

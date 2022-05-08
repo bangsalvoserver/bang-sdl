@@ -108,8 +108,8 @@ namespace banggame {
         
         int calc_distance(player_view *from, player_view *to);
 
+        const card_view *get_current_card() const;
         const effect_list &get_current_card_effects() const;
-        const effect_list &get_optional_effects() const;
 
         void send_pick_card(pocket_type pocket, player_view *player = nullptr, card_view *card = nullptr);
         void send_play_card();
