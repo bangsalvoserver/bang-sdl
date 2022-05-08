@@ -74,18 +74,24 @@ namespace banggame {
         void do_animation_impl(float amt);
     };
 
-    struct cube_move_animation : easing_animation<cube_move_animation> {
-        cube_widget *cube;
-        cube_pile_base *pile;
-        sdl::point start;
-        sdl::point offset;
+    struct cube_move_animation {
+        struct cube_animation_item {
+            cube_widget *cube;
+            cube_pile_base *pile;
+            sdl::point start;
+            sdl::point offset;
+        };
 
-        cube_move_animation(cube_widget *cube, cube_pile_base *pile)
-            : cube(cube), pile(pile), start(cube->pos)
-            , offset{pile->get_offset(cube)} {}
+        std::vector<cube_animation_item> data;
+
+        cube_move_animation() = default;
+
+        void add_cube(cube_widget *cube, cube_pile_base *pile) {
+            data.emplace_back(cube, pile, cube->pos, pile->get_offset(cube));
+        }
 
         void end();
-        void do_animation_impl(float amt);
+        void do_animation(float amt);
         void render(sdl::renderer &renderer);
     };
 

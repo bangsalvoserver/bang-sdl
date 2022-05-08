@@ -100,13 +100,15 @@ namespace banggame {
         (int) username_yoff,
 
         (int) move_card_ticks,
-        (int) move_cube_ticks,
         (int) flip_card_ticks,
         (int) short_pause_ticks,
         (int) tap_card_ticks,
         (int) move_hp_ticks,
         (int) flip_role_ticks,
         (int) shuffle_deck_ticks,
+        
+        (int) move_cube_ticks,
+        (float) move_cube_offset,
 
         (float) shuffle_deck_offset,
 

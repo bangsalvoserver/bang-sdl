@@ -595,12 +595,14 @@ void game_scene::HANDLE_UPDATE(move_cubes, const move_cubes_update &args) {
     auto &origin_pile = find_cube_pile(args.origin_card_id);
     auto &target_pile = find_cube_pile(args.target_card_id);
 
+    cube_move_animation anim;
     for (int i=0; i<args.num_cubes; ++i) {
         auto &cube = target_pile.emplace_back(std::move(origin_pile.back()));
         origin_pile.pop_back();
 
-        add_animation<cube_move_animation>(options.move_cube_ticks, cube.get(), &target_pile);
+        anim.add_cube(cube.get(), &target_pile);
     }
+    add_animation<cube_move_animation>(options.move_cube_ticks, std::move(anim));
 }
 
 void game_scene::HANDLE_UPDATE(move_scenario_deck, const move_scenario_deck_args &args) {

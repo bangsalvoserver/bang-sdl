@@ -103,17 +103,31 @@ namespace banggame {
     }
 
     void cube_move_animation::render(sdl::renderer &renderer) {
-        cube->render(renderer, false);
+        for (auto &item : data) {
+            item.cube->render(renderer, false);
+        }
     }
 
-    void cube_move_animation::do_animation_impl(float amt) {
-        cube->pos = lerp_point(start, pile->get_pos() + offset, amt);
-        cube->animating = true;
+    void cube_move_animation::do_animation(float x) {
+        const float off = options.move_cube_offset;
+        const float diff = off / data.size();
+        const float m = 1.f / (1.f - off);
+        
+        float n = off;
+        for (auto &item : data) {
+            const float amt = ease_in_out_pow(options.easing_exponent, data.size() == 1 ? x : std::clamp(m * (x - n), 0.f, 1.f));
+
+            item.cube->pos = lerp_point(item.start, item.pile->get_pos() + item.offset, amt);
+            item.cube->animating = true;
+            n -= diff;
+        }
     }
 
     void cube_move_animation::end() {
-        cube->pos = pile->get_pos() + offset;
-        cube->animating = false;
+        for (auto &item : data) {
+            item.cube->pos = item.pile->get_pos() + item.offset;
+            item.cube->animating = false;
+        }
     }
 
     void pause_animation::render(sdl::renderer &renderer) {
