@@ -13,13 +13,13 @@
 class lobby_scene : public scene_base {
 public:
     lobby_scene(client_manager *parent, const banggame::lobby_entered_args &args);
-    void set_lobby_info(const banggame::lobby_info &info) override;
 
     void refresh_layout() override;
     void render(sdl::renderer &renderer) override;
 
-    void add_user(int id, const user_info &args) override;
-    void remove_user(int id) override;
+    void set_lobby_info(const banggame::lobby_info &info);
+    void add_user(int id, const user_info &args);
+    void remove_user(int id);
 
     void send_lobby_edited();
 

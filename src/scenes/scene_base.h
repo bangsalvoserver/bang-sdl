@@ -17,21 +17,11 @@ public:
     scene_base(client_manager *parent) : parent(parent) {}
     virtual ~scene_base() {}
     
-    virtual void refresh_layout() {}
+    virtual void refresh_layout() = 0;
 
     virtual void render(sdl::renderer &renderer) = 0;
     
     virtual void handle_event(const sdl::event &event) {}
-
-    virtual void set_lobby_info(const banggame::lobby_info &args) {}
-
-    virtual void handle_lobby_update(const banggame::lobby_data &args) {}
-
-    virtual void add_user(int id, const user_info &args) {}
-
-    virtual void remove_user(int id) {}
-
-    virtual void handle_game_update(const banggame::game_update &update) {}
 
 protected:
     client_manager *parent;

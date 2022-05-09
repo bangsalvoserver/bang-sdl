@@ -179,11 +179,15 @@ void client_manager::HANDLE_SRV_MESSAGE(lobby_error, const std::string &message)
 }
 
 void client_manager::HANDLE_SRV_MESSAGE(lobby_update, const lobby_data &args) {
-    m_scene->handle_lobby_update(args);
+    if (auto scene = dynamic_cast<lobby_list_scene *>(m_scene.get())) {
+        scene->handle_lobby_update(args);
+    }
 }
 
 void client_manager::HANDLE_SRV_MESSAGE(lobby_edited, const lobby_info &args) {
-    m_scene->set_lobby_info(args);
+    if (auto scene = dynamic_cast<lobby_scene *>(m_scene.get())) {
+        scene->set_lobby_info(args);
+    }
 }
 
 void client_manager::HANDLE_SRV_MESSAGE(lobby_entered, const lobby_entered_args &args) {
@@ -198,8 +202,11 @@ void client_manager::HANDLE_SRV_MESSAGE(lobby_add_user, const lobby_add_user_arg
     } catch (const binary::read_error &error) {
         // ignore
     }
+    add_chat_message(message_type::server_log, _("GAME_USER_CONNECTED", args.name));
     const auto &u = m_users.try_emplace(args.user_id, args.name, std::move(propic)).first->second;
-    m_scene->add_user(args.user_id, u);
+    if (auto scene = dynamic_cast<lobby_scene *>(m_scene.get())) {
+        scene->add_user(args.user_id, u);
+    }
 }
 
 void client_manager::HANDLE_SRV_MESSAGE(lobby_remove_user, const lobby_remove_user_args &args) {
@@ -207,8 +214,12 @@ void client_manager::HANDLE_SRV_MESSAGE(lobby_remove_user, const lobby_remove_us
         m_users.clear();
         switch_scene<lobby_list_scene>();
     } else {
-        m_scene->remove_user(args.user_id);
-        m_users.erase(args.user_id);
+        if (auto scene = dynamic_cast<lobby_scene *>(m_scene.get())) {
+            scene->remove_user(args.user_id);
+        }
+        if (auto it = m_users.find(args.user_id); it != m_users.end()) {
+            add_chat_message(message_type::server_log, _("GAME_USER_DISCONNECTED", it->second.name));
+        }
     }
 }
 
@@ -228,5 +239,7 @@ void client_manager::HANDLE_SRV_MESSAGE(game_started, const game_options &option
 }
 
 void client_manager::HANDLE_SRV_MESSAGE(game_update, const game_update &args) {
-    m_scene->handle_game_update(args);
+    if (auto scene = dynamic_cast<banggame::game_scene *>(m_scene.get())) {
+        scene->handle_game_update(args);
+    }
 }

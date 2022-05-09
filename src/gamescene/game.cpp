@@ -375,22 +375,6 @@ void game_scene::handle_game_update(const game_update &update) {
     m_pending_updates.push_back(update);
 }
 
-void game_scene::add_user(int id, const user_info &args) {
-    parent->add_chat_message(message_type::server_log, _("GAME_USER_CONNECTED", args.name));
-}
-
-void game_scene::remove_user(int id) {
-    if (auto it = std::ranges::find(m_players, id, &player_view::user_id); it != m_players.end()) {
-        it->user_id = 0;
-        it->set_username(_("USERNAME_DISCONNECTED"));
-        it->m_propic.set_texture(media_pak::get().icon_disconnected);
-    }
-    user_info *info = parent->get_user_info(id);
-    if (info) {
-        parent->add_chat_message(message_type::server_log, _("GAME_USER_DISCONNECTED", info->name));
-    }
-}
-
 void game_scene::pop_update() {
     try {
         while (!m_pending_updates.empty() && m_animations.empty()) {

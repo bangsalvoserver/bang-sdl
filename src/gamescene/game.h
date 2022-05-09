@@ -25,11 +25,7 @@ namespace banggame {
         void render(sdl::renderer &renderer) override;
         void handle_event(const sdl::event &event) override;
 
-        void handle_game_update(const game_update &update) override;
-
-        void add_user(int id, const user_info &args) override;
-
-        void remove_user(int id) override;
+        void handle_game_update(const game_update &update);
 
     private:
         void HANDLE_UPDATE(game_over,        const game_over_update &args);
