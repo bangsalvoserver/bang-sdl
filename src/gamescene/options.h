@@ -2,7 +2,7 @@
 #define __OPTIONS_H__
 
 #include "utils/reflector.h"
-#include "utils/json_serial.h"
+#include "../image_serial.h"
 
 #include "utils/sdl.h"
 
@@ -10,40 +10,6 @@
 #include <sstream>
 
 DECLARE_RESOURCE(game_options_json)
-
-#include <charconv>
-
-namespace json {
-    template<> struct deserializer<sdl::color> {
-        sdl::color operator()(const Json::Value &value) const {
-            if (value.isArray()) {
-                return {
-                    uint8_t(value[0].asInt()),
-                    uint8_t(value[1].asInt()),
-                    uint8_t(value[2].asInt()),
-                    uint8_t(value.size() == 4 ? value[3].asInt() : 0xff)
-                };
-            } else if (value.isString()) {
-                std::string str = value.asString();
-                uint32_t ret;
-                auto [ptr, ec] = std::from_chars(str.data(), str.data() + str.size(), ret, 16);
-                if (ec == std::errc{} && ptr == str.data() + str.size()) {
-                    if (value.size() == 6) {
-                        return sdl::rgb(ret);
-                    } else {
-                        return sdl::rgba(ret);
-                    }
-                } else {
-                    return {};
-                }
-            } else if (value.isInt()) {
-                return sdl::rgba(value.asInt());
-            } else {
-                return {};
-            }
-        }
-    };
-}
 
 namespace banggame {
 

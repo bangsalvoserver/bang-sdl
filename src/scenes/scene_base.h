@@ -8,8 +8,6 @@
 #include "../widgets/button.h"
 #include "../widgets/textbox.h"
 
-#include "../user_info.h"
-
 class client_manager;
 
 class scene_base {

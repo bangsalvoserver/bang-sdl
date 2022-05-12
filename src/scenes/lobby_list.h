@@ -3,7 +3,7 @@
 
 #include "scene_base.h"
 
-#include <list>
+#include <map>
 
 class lobby_line {
 public:

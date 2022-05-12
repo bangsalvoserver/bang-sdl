@@ -5,10 +5,10 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(bangclient_srcs
+    src/image_serial.cpp
     src/intl.cpp
     src/entrypoint.cpp
     src/manager.cpp
-    src/user_info.cpp
     src/chat_ui.cpp
     src/media_pak.cpp
     src/os_api.cpp

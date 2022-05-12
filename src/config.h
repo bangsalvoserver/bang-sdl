@@ -4,28 +4,13 @@
 #include <fstream>
 #include <vector>
 
+#include "image_serial.h"
+
 #include "widgets/profile_pic.h"
 
-#include "utils/json_serial.h"
 #include "utils/resource.h"
 
 #include "game/card_enums.h"
-
-#include "user_info.h"
-
-namespace json {
-    template<> struct serializer<sdl::texture> {
-        Json::Value operator()(const sdl::texture &value) const {
-            return json::serialize(binary::serialize(value.get_surface()));
-        }
-    };
-
-    template<> struct deserializer<sdl::texture> {
-        sdl::texture operator()(const Json::Value &value) const {
-            return binary::deserialize<sdl::surface>(json::deserialize<std::vector<std::byte>>(value));
-        }
-    };
-}
 
 struct config {
     REFLECTABLE(

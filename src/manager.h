@@ -8,16 +8,26 @@
 #include "scenes/scene_base.h"
 
 #include "config.h"
-#include "user_info.h"
 #include "intl.h"
 #include "chat_ui.h"
+#include "image_serial.h"
 
 #include "game/messages.h"
+
 #include "utils/tsqueue.h"
 
 #include "net/wsconnection.h"
 
 #include "subprocess.h"
+
+struct user_info {
+    std::string name;
+    sdl::texture profile_image;
+
+    user_info(std::string name, sdl::surface &&data)
+        : name(std::move(name))
+        , profile_image(std::move(data)) {}
+};
 
 #define HANDLE_SRV_MESSAGE(name, ...) handle_message(enums::enum_tag_t<banggame::server_message_type::name> __VA_OPT__(,) __VA_ARGS__)
 

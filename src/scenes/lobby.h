@@ -10,6 +10,8 @@
 
 #include <list>
 
+struct user_info;
+
 class lobby_scene : public scene_base {
 public:
     lobby_scene(client_manager *parent, const banggame::lobby_entered_args &args);

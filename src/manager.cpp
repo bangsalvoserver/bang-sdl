@@ -57,7 +57,7 @@ void bang_connection::on_open() {
         }
     });
 
-    parent.add_message<banggame::client_message_type::connect>(parent.m_config.user_name, binary::serialize(parent.m_config.profile_image_data.get_surface()));
+    parent.add_message<banggame::client_message_type::connect>(parent.m_config.user_name, parent.m_config.profile_image_data.get_surface());
 }
 
 void client_manager::connect(const std::string &host) {
@@ -196,14 +196,8 @@ void client_manager::HANDLE_SRV_MESSAGE(lobby_entered, const lobby_entered_args 
 }
 
 void client_manager::HANDLE_SRV_MESSAGE(lobby_add_user, const lobby_add_user_args &args) {
-    sdl::surface propic;
-    try {
-        propic = binary::deserialize<sdl::surface>(args.profile_image);
-    } catch (const binary::read_error &error) {
-        // ignore
-    }
+    const auto &u = m_users.try_emplace(args.user_id, args.name, args.profile_image).first->second;
     add_chat_message(message_type::server_log, _("GAME_USER_CONNECTED", args.name));
-    const auto &u = m_users.try_emplace(args.user_id, args.name, std::move(propic)).first->second;
     if (auto scene = dynamic_cast<lobby_scene *>(m_scene.get())) {
         scene->add_user(args.user_id, u);
     }
