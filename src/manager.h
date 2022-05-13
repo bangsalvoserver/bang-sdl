@@ -43,10 +43,10 @@ struct bang_connection : net::wsconnection<bang_connection, banggame::server_mes
 
     util::tsqueue<banggame::server_message> m_in_queue;
 
-    boost::asio::basic_waitable_timer<std::chrono::system_clock> m_accept_timer;
+    asio::basic_waitable_timer<std::chrono::system_clock> m_accept_timer;
     static constexpr std::chrono::seconds accept_timeout{5};
 
-    bang_connection(client_manager &parent, boost::asio::io_context &ctx)
+    bang_connection(client_manager &parent, asio::io_context &ctx)
         : base(ctx), parent(parent), m_accept_timer(ctx) {}
 
     void on_open();
@@ -70,7 +70,7 @@ struct bang_connection : net::wsconnection<bang_connection, banggame::server_mes
 
 class client_manager {
 public:
-    client_manager(sdl::window &window, boost::asio::io_context &ctx, const std::filesystem::path &base_path);
+    client_manager(sdl::window &window, asio::io_context &ctx, const std::filesystem::path &base_path);
     ~client_manager();
 
     void refresh_layout();
@@ -162,7 +162,7 @@ private:
     bang_connection m_con;
 
     subprocess::process m_listenserver;
-    boost::asio::basic_waitable_timer<std::chrono::system_clock> m_listenserver_timer;
+    asio::basic_waitable_timer<std::chrono::system_clock> m_listenserver_timer;
 
     std::map<int, user_info> m_users;
     friend struct bang_connection;

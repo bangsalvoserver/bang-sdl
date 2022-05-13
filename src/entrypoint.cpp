@@ -31,8 +31,8 @@ extern "C" BANGCLIENT_EXPORT long STDCALL entrypoint(const char *base_path) {
     media_pak resources(base_path);
     SDL_SetWindowIcon(window.get(), media_pak::get().icon_bang.get());
 
-    boost::asio::io_context ctx;
-    auto idle_work(boost::asio::make_work_guard(ctx));
+    asio::io_context ctx;
+    auto idle_work(asio::make_work_guard(ctx));
     std::thread ctx_thread([&]{ ctx.run(); });
 
     client_manager mgr{window, ctx, base_path};

@@ -61,12 +61,12 @@ generate_export_header(bangclient
 target_include_directories(bangclient PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/exports")
 
 target_link_libraries(bangclient PUBLIC PkgConfig::SDL2 PkgConfig::SDL2_ttf PkgConfig::SDL2_image PkgConfig::SDL2_gfx)
-target_link_libraries(bangclient PUBLIC asio PkgConfig::jsoncpp game_options subprocess)
+target_link_libraries(bangclient PUBLIC cpputils networking PkgConfig::jsoncpp game_options subprocess)
 target_include_directories(bangclient PUBLIC $<TARGET_PROPERTY:banggame,INCLUDE_DIRECTORIES>)
 
 add_dependencies(bangclient cards_pak media_pak)
 
-# if (NOT CMAKE_BUILD_TYPE STREQUAL "Release")
+if (NOT CMAKE_BUILD_TYPE STREQUAL "Release")
     if (WIN32)
         add_executable(banglauncher WIN32 src/main.c resources/bang.rc)
         if (MINGW)
@@ -77,4 +77,4 @@ add_dependencies(bangclient cards_pak media_pak)
     endif()
 
     target_link_libraries(banglauncher bangclient)
-# endif()
+endif()

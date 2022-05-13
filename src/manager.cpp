@@ -16,7 +16,7 @@
 
 using namespace banggame;
 
-client_manager::client_manager(sdl::window &window, boost::asio::io_context &ctx, const std::filesystem::path &base_path)
+client_manager::client_manager(sdl::window &window, asio::io_context &ctx, const std::filesystem::path &base_path)
     : m_window(window)
     , m_base_path(base_path)
     , m_con(*this, ctx)
@@ -50,7 +50,7 @@ void client_manager::update_net() {
 
 void bang_connection::on_open() {
     m_accept_timer.expires_after(accept_timeout);
-    m_accept_timer.async_wait([this](const boost::system::error_code &ec) {
+    m_accept_timer.async_wait([this](const std::error_code &ec) {
         if (!ec) {
             parent.add_chat_message(message_type::error, _("TIMEOUT_EXPIRED"));
             disconnect();
@@ -146,7 +146,7 @@ void client_manager::start_listenserver() {
     m_listenserver.open(subprocess::arguments{server_path.string(), port_str});
     switch_scene<loading_scene>(_("CREATING_SERVER"));
     m_listenserver_timer.expires_after(std::chrono::seconds{1});
-    m_listenserver_timer.async_wait([this](const boost::system::error_code &ec) {
+    m_listenserver_timer.async_wait([this](const std::error_code &ec) {
         if (!ec) {
             if (m_listenserver) {
                 m_con.connect(fmt::format("localhost:{}", m_config.server_port));
