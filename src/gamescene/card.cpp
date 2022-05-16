@@ -28,23 +28,28 @@ namespace banggame {
         : cards_pak_data(ifstream_or_throw(base_path / "cards.pak"))
         , card_resources(cards_pak_data)
 
-        , card_mask             (get_card_resource("card_mask"))
-        , card_border           (get_card_resource("card_border"))
+        , card_mask             (get_card_resource("misc/card_mask"))
+        , card_border           (get_card_resource("misc/card_border"))
 
-        , backface_maindeck     (apply_card_mask(get_card_resource("back_maindeck")))
-        , backface_character    (apply_card_mask(get_card_resource("back_character")))
-        , backface_role         (apply_card_mask(get_card_resource("back_role")))
-        , backface_goldrush     (apply_card_mask(get_card_resource("back_goldrush")))
+        , backfaces([&]<card_deck_type ... Es>(enums::enum_sequence<Es ...>) {
+            return std::array { [&](std::string_view name) -> sdl::texture {
+                if (card_resources.contains(name)) {
+                    return apply_card_mask(get_card_resource(name));
+                } else {
+                    return {};
+                }
+            }(fmt::format("backface/{}", enums::to_string(Es))) ... };
+        }(enums::make_enum_sequence<card_deck_type>()))
 
         , rank_icons([&]<card_rank ... Es>(enums::enum_sequence<Es ...>) {
             return std::array {
-                get_card_resource(enums::to_string(Es)) ...
+                get_card_resource(fmt::format("misc/{}", enums::to_string(Es))) ...
             };
         }(skip_none<card_rank>()))
 
         , suit_icons([&]<card_suit ... Es>(enums::enum_sequence<Es ...>) {
             return std::array {
-                get_card_resource(fmt::format("suit_{}", enums::to_string(Es))) ...
+                get_card_resource(fmt::format("misc/suit_{}", enums::to_string(Es))) ...
             };
         }(skip_none<card_suit>()))
     {
@@ -81,7 +86,7 @@ namespace banggame {
 
     void card_view::make_texture_front() {
         auto do_make_texture = [&](float scale) {
-            auto card_base_surf = card_textures::get().get_card_resource(image);
+            auto card_base_surf = card_textures::get().get_card_resource(fmt::format("{}/{}", enums::to_string(deck), image));
 
             if (sign) {
                 sdl::rect card_rect = card_base_surf.get_rect();
@@ -117,10 +122,8 @@ namespace banggame {
     }
 
     void role_card::make_texture_front() {
-        std::string role_string = "role_";
-        role_string.append(enums::to_string(role));
-        
-        texture_front = card_textures::get().apply_card_mask(card_textures::get().get_card_resource(role_string));
+        texture_front = card_textures::get().apply_card_mask(
+            card_textures::get().get_card_resource(fmt::format("role/{}", enums::to_string(role))));
         texture_front_scaled = sdl::scale_surface(texture_front.get_surface(),
             texture_front.get_rect().w / options.card_width);
     }
@@ -178,7 +181,7 @@ namespace banggame {
         if (!skip_if_animating || !animating) {
             if (flip_amt > 0.5f && texture_front_scaled) {
                 do_render(texture_front_scaled);
-            } else if (texture_back) {
+            } else if (texture_back && *texture_back) {
                 do_render(*texture_back);
             }
         }

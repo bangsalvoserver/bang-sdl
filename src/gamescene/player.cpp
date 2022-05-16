@@ -86,7 +86,7 @@ namespace banggame {
             if (hp > 5) {
                 sdl::rect hp_marker_rect = m_backup_characters.front()->get_rect();
                 hp_marker_rect.y += options.one_hp_size * 5;
-                card_textures::get().backface_character.render(renderer, hp_marker_rect);
+                card_textures::get().backfaces[enums::indexof(card_deck_type::character)].render(renderer, hp_marker_rect);
             }
         }
         for (card_view *c : m_characters) {

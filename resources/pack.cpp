@@ -12,7 +12,7 @@ struct file_table_item {
 };
 
 void print_usage() {
-    std::cout << "Usage: pack [-q] output_file.pak input_files...\n";
+    std::cout << "Usage: pack [-q] [-D root_path] output_file.pak input_files...\n";
 }
 
 int main(int argc, char **argv) {
@@ -22,13 +22,20 @@ int main(int argc, char **argv) {
     }
 
     bool quiet = false;
-    std::filesystem::path output_file;
+    std::filesystem::path output_file, root_path;
     std::vector<std::filesystem::path> input_files;
 
     int i=1;
     if (argv[i] == std::string_view("-q")) {
         quiet = true;
         ++i;
+    }
+    if (argv[i] == std::string_view("-D")) {
+        ++i;
+        root_path = argv[i];
+        ++i;
+    } else {
+        root_path = std::filesystem::path(argv[0]).parent_path();
     }
     if (i >= argc) {
         print_usage();
@@ -53,7 +60,10 @@ int main(int argc, char **argv) {
     for (const auto &path : input_files) {
         file_table_item item;
         item.filename = path;
-        item.name = path.stem().string();
+        item.name = std::filesystem::relative(path, root_path).replace_extension().string();
+#ifdef _WIN32
+        std::ranges::replace(item.name, '\\', '/');
+#endif
 
         if (!quiet) {
             std::cout << item.name << '\n';

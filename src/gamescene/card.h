@@ -32,10 +32,7 @@ namespace banggame {
         sdl::surface card_mask;
         sdl::texture card_border;
 
-        sdl::texture backface_maindeck;
-        sdl::texture backface_character;
-        sdl::texture backface_role;
-        sdl::texture backface_goldrush;
+        std::array<sdl::texture, enums::num_members_v<card_deck_type>> backfaces;
 
         std::array<sdl::surface, enums::num_members_v<card_rank> - 1> rank_icons;
         std::array<sdl::surface, enums::num_members_v<card_suit> - 1> suit_icons;

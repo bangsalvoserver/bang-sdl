@@ -3,7 +3,7 @@ include("${CMAKE_SOURCE_DIR}/external/banggame/external/cpputils/resources/CMake
 compile_resources(game_options game_options.json)
 
 add_executable(packer pack.cpp)
-function(pack_resources target_name out_file in_files)
+function(pack_resources target_name root_path out_file in_files)
     foreach(file ${in_files})
         if (IS_ABSOLUTE "${file}")
             list(APPEND abs_files "${file}")
@@ -15,6 +15,8 @@ function(pack_resources target_name out_file in_files)
         OUTPUT "${out_file}"
         COMMAND packer
         -q
+        -D
+        "${CMAKE_CURRENT_SOURCE_DIR}/${root_path}"
         "${out_file}"
         ${abs_files}
         DEPENDS ${abs_files} packer
@@ -41,7 +43,7 @@ foreach(IDX RANGE 0 ${max_index})
     endforeach()
 endforeach()
 
-pack_resources(cards_pak "${CMAKE_BINARY_DIR}/cards.pak" "${card_files}")
+pack_resources(cards_pak cards "${CMAKE_BINARY_DIR}/cards.pak" "${card_files}")
 
 set(media_files
     media/background.png
@@ -64,4 +66,4 @@ set(media_files
     media/fonts/perdido.ttf
 )
 
-pack_resources(media_pak "${CMAKE_BINARY_DIR}/media.pak" "${media_files}")
+pack_resources(media_pak media "${CMAKE_BINARY_DIR}/media.pak" "${media_files}")

@@ -492,14 +492,8 @@ void game_scene::HANDLE_UPDATE(add_cards, const add_cards_update &args) {
     for (auto [id, deck] : args.card_ids) {
         auto c = std::make_unique<card_view>();
         c->id = id;
-        c->texture_back = [](card_deck_type deck) -> const sdl::texture * {
-            switch (deck) {
-            case card_deck_type::main_deck:         return &card_textures::get().backface_maindeck;
-            case card_deck_type::character:         return &card_textures::get().backface_character;
-            case card_deck_type::goldrush:          return &card_textures::get().backface_goldrush;
-            default:                                return nullptr;
-            }
-        }(c->deck = deck);
+        c->deck = deck;
+        c->texture_back = &card_textures::get().backfaces[enums::indexof(deck)];
 
         card_view *card_ptr = m_cards.insert(std::move(c)).get();
         pocket.add_card(card_ptr);
@@ -699,7 +693,7 @@ void game_scene::HANDLE_UPDATE(player_add, const player_user_update &args) {
     if (inserted) {
         auto card = std::make_unique<role_card>();
         card->id = args.player_id;
-        card->texture_back = &card_textures::get().backface_role;
+        card->texture_back = &card_textures::get().backfaces[enums::indexof(card_deck_type::role)];
         p.m_role = m_role_cards.insert(std::move(card)).get();
     }
 

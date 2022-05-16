@@ -28,9 +28,9 @@ media_pak::media_pak(const std::filesystem::path &base_path) {
     sprite_cube =           sdl::texture(sdl::surface(media_pak["sprite_cube"]));
     sprite_cube_border =    sdl::texture(sdl::surface(media_pak["sprite_cube_border"]));
 
-    font_arial =            media_pak["arial"];
-    font_perdido =          media_pak["perdido"];
-    font_bkant_bold =       media_pak["bkant_bold"];
+    font_arial =            media_pak["fonts/arial"];
+    font_perdido =          media_pak["fonts/perdido"];
+    font_bkant_bold =       media_pak["fonts/bkant_bold"];
 
     s_instance = this;
 }
