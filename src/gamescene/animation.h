@@ -3,6 +3,8 @@
 
 #include "animations.h"
 
+#include <cassert>
+
 namespace banggame {
 
     struct animation_vtable {
@@ -77,15 +79,15 @@ namespace banggame {
 
         animation_object &operator = (const animation_object &other) {
             animation_object copy(other);
-            std::swap(m_data, copy.m_data);
-            std::swap(vtable, copy.vtable);
+            std::swap(*this, copy);
             return *this;
         }
 
         animation_object &operator = (animation_object &&other) noexcept {
-            animation_object copy(std::move(other));
-            std::swap(m_data, copy.m_data);
-            std::swap(vtable, copy.vtable);
+            assert(this != &other);
+            vtable->destruct(&m_data);
+            vtable = other.vtable;
+            vtable->move(&other.m_data, &m_data);
             return *this;
         }
 
