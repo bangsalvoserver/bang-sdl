@@ -44,10 +44,6 @@ extern "C" BANGCLIENT_EXPORT long STDCALL entrypoint(const char *base_path) {
     while (!quit) {
         next_frame += frames{1};
 
-        ctx.poll();
-        mgr.render(renderer);
-        SDL_RenderPresent(renderer.get());
-        
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
             case SDL_WINDOWEVENT:
@@ -63,6 +59,10 @@ extern "C" BANGCLIENT_EXPORT long STDCALL entrypoint(const char *base_path) {
                 break;
             }
         }
+
+        ctx.poll();
+        mgr.render(renderer);
+        SDL_RenderPresent(renderer.get());
         
         std::this_thread::sleep_until(next_frame);
     }
