@@ -786,9 +786,9 @@ void target_finder::send_prompt_response(bool response) {
 
 void target_finder::confirm_play(bool valid) {
     if (valid) {
-        m_game->m_ui.close_message_box();
         m_forced_card = nullptr;
     }
+    m_game->m_ui.close_message_box();
     m_waiting_confirm = false;
     clear_targets();
 }
