@@ -356,24 +356,23 @@ void target_finder::on_click_scenario_card(card_view *card) {
 }
 
 bool target_finder::on_click_player(player_view *player) {
-    auto verify_target = [&](const auto &args) {
-        if constexpr (requires { args.target; }) {
-            if (args.target != play_card_target_type::player) {
-                return false;
-            }
-        }
-        if (auto error = verify_player_target(args.player_filter, player))  {
+    auto verify_filter = [&](target_player_filter filter) {
+        if (auto error = verify_player_target(filter, player))  {
             m_game->parent->add_chat_message(message_type::error, *error);
             os_api::play_bell();
             return false;
-        } else {
-            return true;
         }
+        return true;
+    };
+
+    auto verify_target = [&](const effect_holder &args) {
+        return args.target == play_card_target_type::player
+            && verify_filter(args.player_filter);
     };
 
     if (m_playing_card) {
         if (m_equipping) {
-            if (verify_target(m_playing_card->equips[m_targets.size()])) {
+            if (verify_filter(m_playing_card->equip_target)) {
                 m_targets.emplace_back(target_player{player});
                 send_play_card();
                 return true;
