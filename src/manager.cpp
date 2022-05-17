@@ -30,24 +30,6 @@ client_manager::~client_manager() {
     m_config.save();
 }
 
-void client_manager::update_net() {
-    if (m_con.handle_closed()) {
-        if (m_listenserver) {
-            m_listenserver.abort();
-        }
-        switch_scene<connect_scene>();
-    }
-    while (auto msg = m_con.pop_message()) {
-        try {
-            enums::visit_indexed([&](auto && ... args) {
-                handle_message(std::forward<decltype(args)>(args)...);
-            }, *msg);
-        } catch (const std::exception &error) {
-            add_chat_message(message_type::error, fmt::format("Error: {}", error.what()));
-        }
-    }
-}
-
 void bang_connection::on_open() {
     m_accept_timer.expires_after(accept_timeout);
     m_accept_timer.async_wait([this](const std::error_code &ec) {
@@ -58,6 +40,23 @@ void bang_connection::on_open() {
     });
 
     parent.add_message<banggame::client_message_type::connect>(parent.m_config.user_name, parent.m_config.profile_image_data.get_surface());
+}
+
+void bang_connection::on_close() {
+    if (parent.m_listenserver) {
+        parent.m_listenserver.abort();
+    }
+    parent.switch_scene<connect_scene>();
+}
+
+void bang_connection::on_message(const server_message &message) {
+    try {
+        enums::visit_indexed([&](auto && ... args) {
+            parent.handle_message(std::forward<decltype(args)>(args)...);
+        }, message);
+    } catch (const std::exception &error) {
+        parent.add_chat_message(message_type::error, fmt::format("Error: {}", error.what()));
+    }
 }
 
 void client_manager::connect(const std::string &host) {

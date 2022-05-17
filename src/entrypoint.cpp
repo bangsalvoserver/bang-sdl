@@ -32,8 +32,6 @@ extern "C" BANGCLIENT_EXPORT long STDCALL entrypoint(const char *base_path) {
     SDL_SetWindowIcon(window.get(), media_pak::get().icon_bang.get());
 
     asio::io_context ctx;
-    auto idle_work(asio::make_work_guard(ctx));
-    std::thread ctx_thread([&]{ ctx.run(); });
 
     client_manager mgr{window, ctx, base_path};
 
@@ -46,10 +44,9 @@ extern "C" BANGCLIENT_EXPORT long STDCALL entrypoint(const char *base_path) {
     while (!quit) {
         next_frame += frames{1};
 
+        ctx.poll();
         mgr.render(renderer);
         SDL_RenderPresent(renderer.get());
-
-        mgr.update_net();
         
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
@@ -69,9 +66,6 @@ extern "C" BANGCLIENT_EXPORT long STDCALL entrypoint(const char *base_path) {
         
         std::this_thread::sleep_until(next_frame);
     }
-
-    ctx.stop();
-    ctx_thread.join();
 
     return 0;
 }

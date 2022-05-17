@@ -14,8 +14,6 @@
 
 #include "game/messages.h"
 
-#include "utils/tsqueue.h"
-
 #include "net/wsconnection.h"
 
 #include "subprocess.h"
@@ -37,11 +35,7 @@ struct bang_connection : net::wsconnection<bang_connection, banggame::server_mes
     using base = net::wsconnection<bang_connection, banggame::server_message, banggame::client_message>;
     using client_handle = typename base::client_handle;
 
-    std::atomic<bool> m_closed = false;
-
     client_manager &parent;
-
-    util::tsqueue<banggame::server_message> m_in_queue;
 
     asio::basic_waitable_timer<std::chrono::system_clock> m_accept_timer;
     static constexpr std::chrono::seconds accept_timeout{5};
@@ -50,22 +44,9 @@ struct bang_connection : net::wsconnection<bang_connection, banggame::server_mes
         : base(ctx), parent(parent), m_accept_timer(ctx) {}
 
     void on_open();
+    void on_close();
 
-    void on_close() {
-        m_closed = true;
-    }
-
-    bool handle_closed() {
-        return m_closed.exchange(false);
-    }
-
-    void on_message(banggame::server_message msg) {
-        m_in_queue.push_back(std::move(msg));
-    }
-
-    std::optional<banggame::server_message> pop_message() {
-        return m_in_queue.pop_front();
-    }
+    void on_message(const banggame::server_message &msg);
 };
 
 class client_manager {
@@ -83,8 +64,6 @@ public:
     void add_message(Ts && ... args) {
         m_con.push_message(enums::enum_tag<E>, std::forward<Ts>(args) ...);
     }
-
-    void update_net();
 
     void connect(const std::string &host);
     void disconnect();
