@@ -423,6 +423,7 @@ std::string game_scene::evaluate_format_string(const game_formatted_string &str)
 }
 
 void game_scene::HANDLE_UPDATE(game_error, const game_formatted_string &args) {
+    m_target.confirm_play(false);
     parent->add_chat_message(message_type::error, evaluate_format_string(args));
 }
 
@@ -809,5 +810,5 @@ void game_scene::HANDLE_UPDATE(status_clear) {
 }
 
 void game_scene::HANDLE_UPDATE(confirm_play) {
-    m_target.confirm_play();
+    m_target.confirm_play(true);
 }
