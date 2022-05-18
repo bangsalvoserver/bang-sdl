@@ -1,7 +1,7 @@
 #ifndef __STATTEXT_H__
 #define __STATTEXT_H__
 
-#include "utils/sdl.h"
+#include "sdl_wrap.h"
 
 #include "defaults.h"
 #include "../media_pak.h"
@@ -24,7 +24,7 @@ namespace widgets {
         text_style m_style;
         sdl::font m_font;
 
-        sdl::texture m_tex;
+        sdl::auto_texture m_tex;
 
         sdl::rect m_rect;
 

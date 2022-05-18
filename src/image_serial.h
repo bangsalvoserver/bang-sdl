@@ -4,7 +4,7 @@
 #include "game/messages.h"
 #include "utils/binary_serial.h"
 #include "utils/json_serial.h"
-#include "utils/sdl.h"
+#include "sdl_wrap.h"
 
 namespace binary {
 
@@ -36,18 +36,6 @@ namespace json {
 
     template<> struct deserializer<sdl::surface> {
         sdl::surface operator()(const Json::Value &value) const;
-    };
-
-    template<> struct serializer<sdl::texture> {
-        Json::Value operator()(const sdl::texture &value) const {
-            return json::serialize(value.get_surface());
-        }
-    };
-
-    template<> struct deserializer<sdl::texture> {
-        sdl::texture operator()(const Json::Value &value) const {
-            return json::deserialize<sdl::surface>(value);
-        }
     };
 }
 

@@ -17,20 +17,16 @@ sdl::surface profile_pic::scale_profile_image(sdl::surface &&image) {
     return std::move(image);
 }
 
-profile_pic::profile_pic() {
-    set_texture(nullptr);
-}
-
 void profile_pic::set_texture(std::nullptr_t) {
     set_texture(media_pak::get().icon_default_user);
 }
 
-void profile_pic::set_texture(const sdl::texture &tex) {
+void profile_pic::set_texture(sdl::texture_ref tex) {
     if (tex) {
-        m_texture = &tex;
+        m_texture = tex;
 
         sdl::point pos = get_pos();
-        m_rect = m_texture->get_rect();
+        m_rect = m_texture.get_rect();
         if (m_rect.w > m_rect.h) {
             sdl::scale_rect_width(m_rect, size);
         } else {
@@ -56,7 +52,7 @@ void profile_pic::render(sdl::renderer &renderer) {
         renderer.set_draw_color(m_border_color);
         renderer.fill_rect(sdl::rect{m_rect.x - 2, m_rect.y - 2, m_rect.w + 4, m_rect.h + 4});
     }
-    m_texture->render(renderer, m_rect);
+    m_texture.render(renderer, m_rect);
 }
 
 bool profile_pic::handle_event(const sdl::event &event) {

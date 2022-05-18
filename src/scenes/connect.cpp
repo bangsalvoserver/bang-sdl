@@ -43,7 +43,7 @@ connect_scene::connect_scene(client_manager *parent)
 
     m_propic.set_onclick([this]{ do_browse_propic(); });
     m_propic.set_on_rightclick([this]{ reset_propic(); });
-    m_propic.set_texture(parent->get_config().profile_image_data);
+    m_propic.set_texture(parent->add_user(0, m_username_label.get_value(), parent->get_config().profile_image_data).profile_image);
 }
 
 void connect_scene::refresh_layout() {
@@ -129,7 +129,7 @@ void connect_scene::do_browse_propic() {
         )) {
         try {
             cfg.profile_image_data = widgets::profile_pic::scale_profile_image(sdl::surface(resource(*value)));
-            m_propic.set_texture(cfg.profile_image_data);
+            m_propic.set_texture(parent->add_user(0, m_username_label.get_value(), cfg.profile_image_data).profile_image);
             cfg.profile_image = value->string();
             refresh_layout();
         } catch (const std::runtime_error &e) {

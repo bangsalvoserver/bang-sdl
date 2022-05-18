@@ -139,7 +139,7 @@ void textbox::render(sdl::renderer &renderer) {
             renderer.fill_rect(sdl::rect{min, m_border_rect.y + 1, max - min, m_border_rect.h - 2});
         }
 
-        SDL_RenderCopy(renderer.get(), m_tex.get_texture(renderer), &src_rect, &dst_rect);
+        SDL_RenderCopy(renderer.get(), m_tex.get_texture(renderer).get(), &src_rect, &dst_rect);
     }
 
     if (focused() && (m_ticks++ % 50) < 25) {

@@ -1,7 +1,7 @@
 #ifndef __MEDIA_PAK_H__
 #define __MEDIA_PAK_H__
 
-#include "utils/sdl.h"
+#include "sdl_wrap.h"
 #include "utils/resource.h"
 
 #include <filesystem>
@@ -39,7 +39,7 @@ public:
     }
 
 public:
-    media_pak(const std::filesystem::path &base_path);
+    media_pak(const std::filesystem::path &base_path, sdl::renderer &renderer);
 
 private:
     static inline media_pak *s_instance = nullptr;

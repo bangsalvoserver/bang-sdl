@@ -11,16 +11,16 @@ namespace widgets {
         static sdl::surface scale_profile_image(sdl::surface &&image);
 
     public:
-        profile_pic();
+        profile_pic() {
+            set_texture(nullptr);
+        }
 
-        profile_pic(const sdl::texture &tex) {
+        profile_pic(sdl::texture_ref tex) {
             set_texture(tex);
         }
-        profile_pic(sdl::texture &&) = delete;
 
         void set_texture(std::nullptr_t);
-        void set_texture(const sdl::texture &tex);
-        void set_texture(sdl::texture &&) = delete;
+        void set_texture(sdl::texture_ref tex);
 
         void set_pos(sdl::point pt);
         sdl::point get_pos() const;
@@ -43,7 +43,7 @@ namespace widgets {
         bool handle_event(const sdl::event &event) override;
 
     private:
-        const sdl::texture *m_texture = nullptr;
+        sdl::texture_ref m_texture;
 
         sdl::rect m_rect;
 

@@ -16,8 +16,9 @@
 
 using namespace banggame;
 
-client_manager::client_manager(sdl::window &window, asio::io_context &ctx, const std::filesystem::path &base_path)
+client_manager::client_manager(sdl::window &window, sdl::renderer &renderer, asio::io_context &ctx, const std::filesystem::path &base_path)
     : m_window(window)
+    , m_renderer(renderer)
     , m_base_path(base_path)
     , m_con(*this, ctx)
     , m_listenserver_timer(ctx)
@@ -39,7 +40,7 @@ void bang_connection::on_open() {
         }
     });
 
-    parent.add_message<banggame::client_message_type::connect>(parent.m_config.user_name, parent.m_config.profile_image_data.get_surface());
+    parent.add_message<banggame::client_message_type::connect>(parent.m_config.user_name, parent.m_config.profile_image_data);
 }
 
 void bang_connection::on_close() {
@@ -89,7 +90,7 @@ void client_manager::refresh_layout() {
     });
 }
 
-static void render_tiled(sdl::renderer &renderer, const sdl::texture &texture, const sdl::rect &dst_rect) {
+static void render_tiled(sdl::renderer &renderer, sdl::texture_ref texture, const sdl::rect &dst_rect) {
     const sdl::rect src_rect = texture.get_rect();
 
     for (int y=dst_rect.y; y<=dst_rect.w + dst_rect.h + src_rect.h; y+=src_rect.h) {
@@ -102,7 +103,7 @@ static void render_tiled(sdl::renderer &renderer, const sdl::texture &texture, c
             if (to.y + to.h > dst_rect.y + dst_rect.h) {
                 from.h = to.h = dst_rect.y + dst_rect.h - to.y;
             }
-            SDL_RenderCopy(renderer.get(), texture.get_texture(renderer), &from, &to);
+            SDL_RenderCopy(renderer.get(), texture.get(), &from, &to);
         }
     }
 }
@@ -194,8 +195,12 @@ void client_manager::HANDLE_SRV_MESSAGE(lobby_entered, const lobby_entered_args 
     switch_scene<lobby_scene>(args);
 }
 
+const user_info &client_manager::add_user(int id, std::string name, const sdl::surface &surface) {
+    return m_users[id] = {std::move(name), sdl::texture(get_renderer(), surface)};
+}
+
 void client_manager::HANDLE_SRV_MESSAGE(lobby_add_user, const lobby_add_user_args &args) {
-    const auto &u = m_users.try_emplace(args.user_id, args.name, args.profile_image).first->second;
+    const auto &u = add_user(args.user_id, args.name, args.profile_image);
     add_chat_message(message_type::server_log, _("GAME_USER_CONNECTED", args.name));
     if (auto scene = dynamic_cast<lobby_scene *>(m_scene.get())) {
         scene->add_user(args.user_id, u);

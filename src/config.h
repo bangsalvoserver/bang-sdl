@@ -17,7 +17,7 @@ struct config {
         (std::vector<std::string>) recent_servers,
         (std::string) user_name,
         (std::string) profile_image,
-        (sdl::texture) profile_image_data,
+        (sdl::surface) profile_image_data,
         (std::string) lobby_name,
         (banggame::card_expansion_type) expansions,
         (bool) allow_unofficial_expansions,
@@ -34,7 +34,7 @@ struct config {
             ifs >> value;
             *this = json::deserialize<config>(value);
             if (!profile_image.empty() && !profile_image_data) {
-                profile_image_data = sdl::texture(widgets::profile_pic::scale_profile_image(sdl::surface(resource(profile_image))));
+                profile_image_data = widgets::profile_pic::scale_profile_image(sdl::surface(resource(profile_image)));
             }
         } catch (const Json::RuntimeError &error) {
             // ignore

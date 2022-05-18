@@ -21,10 +21,6 @@
 struct user_info {
     std::string name;
     sdl::texture profile_image;
-
-    user_info(std::string name, sdl::surface &&data)
-        : name(std::move(name))
-        , profile_image(std::move(data)) {}
 };
 
 #define HANDLE_SRV_MESSAGE(name, ...) handle_message(enums::enum_tag_t<banggame::server_message_type::name> __VA_OPT__(,) __VA_ARGS__)
@@ -51,7 +47,7 @@ struct bang_connection : net::wsconnection<bang_connection, banggame::server_mes
 
 class client_manager {
 public:
-    client_manager(sdl::window &window, asio::io_context &ctx, const std::filesystem::path &base_path);
+    client_manager(sdl::window &window, sdl::renderer &renderer, asio::io_context &ctx, const std::filesystem::path &base_path);
     ~client_manager();
 
     void refresh_layout();
@@ -83,6 +79,10 @@ public:
         return m_window;
     }
 
+    sdl::renderer &get_renderer() {
+        return m_renderer;
+    }
+
     const std::filesystem::path &get_base_path() const { return m_base_path; }
 
     sdl::rect get_rect() const {
@@ -112,6 +112,8 @@ public:
 
     void add_chat_message(message_type type, const std::string &message);
 
+    const user_info &add_user(int id, std::string name, const sdl::surface &surface);
+
 private:
     void HANDLE_SRV_MESSAGE(client_accepted, const banggame::client_accepted_args &args);
     void HANDLE_SRV_MESSAGE(lobby_error, const std::string &message);
@@ -126,6 +128,7 @@ private:
 
 private:
     sdl::window &m_window;
+    sdl::renderer &m_renderer;
 
     std::filesystem::path m_base_path;
     config m_config;

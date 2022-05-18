@@ -15,7 +15,7 @@ template<typename ... Ts> overloaded(Ts ...) -> overloaded<Ts ...>;
 
 game_scene::game_scene(client_manager *parent, const game_options &options)
     : scene_base(parent)
-    , m_card_textures(parent->get_base_path())
+    , m_card_textures(parent->get_base_path(), parent->get_renderer())
     , m_ui(this)
     , m_target(this)
     , m_game_options(options)
@@ -147,7 +147,7 @@ void game_scene::render(sdl::renderer &renderer) {
 
         int x = p.m_bounding_rect.x + p.m_bounding_rect.w - 5;
 
-        auto render_icon = [&](const sdl::texture &texture, sdl::color color = sdl::rgba(0xffffffff)) {
+        auto render_icon = [&](sdl::texture_ref texture, sdl::color color = sdl::rgba(0xffffffff)) {
             sdl::rect rect = texture.get_rect();
             rect.x = x - rect.w;
             rect.y = p.m_bounding_rect.y + 5;
@@ -199,7 +199,7 @@ void game_scene::render(sdl::renderer &renderer) {
     }
 
     if (!m_dead_roles_pile.empty()) {
-        const sdl::texture &icon = media_pak::get().icon_dead_players;
+        sdl::texture_ref icon = media_pak::get().icon_dead_players;
         sdl::rect rect = icon.get_rect();
         rect.x = m_dead_roles_pile.get_pos().x - rect.w / 2;
         rect.y = options.icon_dead_players_yoff;
@@ -494,7 +494,7 @@ void game_scene::HANDLE_UPDATE(add_cards, const add_cards_update &args) {
         auto c = std::make_unique<card_view>();
         c->id = id;
         c->deck = deck;
-        c->texture_back = &card_textures::get().backfaces[enums::indexof(deck)];
+        c->texture_back = card_textures::get().backfaces[enums::indexof(deck)];
 
         card_view *card_ptr = m_cards.insert(std::move(c)).get();
         pocket.add_card(card_ptr);
@@ -597,7 +597,7 @@ void game_scene::HANDLE_UPDATE(show_card, const show_card_update &args) {
         card->known = true;
 
         if (!card->image.empty()) {
-            card->make_texture_front();
+            card->make_texture_front(parent->get_renderer());
         }
 
         if (card->pocket == &m_main_deck) {
@@ -694,7 +694,7 @@ void game_scene::HANDLE_UPDATE(player_add, const player_user_update &args) {
     if (inserted) {
         auto card = std::make_unique<role_card>();
         card->id = args.player_id;
-        card->texture_back = &card_textures::get().backfaces[enums::indexof(card_deck_type::role)];
+        card->texture_back = card_textures::get().backfaces[enums::indexof(card_deck_type::role)];
         p.m_role = m_role_cards.insert(std::move(card)).get();
     }
 
@@ -748,7 +748,7 @@ void game_scene::HANDLE_UPDATE(player_show_role, const player_show_role_update &
     if (auto *p = find_player(args.player_id)) {
         if (p->m_role->role != args.role) {
             p->m_role->role = args.role;
-            p->m_role->make_texture_front();
+            p->m_role->make_texture_front(parent->get_renderer());
             if (args.instant) {
                 if (args.role == player_role::sheriff) {
                     p->set_hp_marker_position(++p->hp);
@@ -764,7 +764,7 @@ void game_scene::HANDLE_UPDATE(player_show_role, const player_show_role_update &
         card->id = args.player_id;
         card->flip_amt = 1.f;
         card->role = args.role;
-        card->make_texture_front();
+        card->make_texture_front(parent->get_renderer());
 
         auto moved_card = m_role_cards.insert(std::move(card)).get();
         m_dead_roles_pile.add_card(moved_card);

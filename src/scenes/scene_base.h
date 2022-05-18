@@ -3,7 +3,7 @@
 
 #include "game/messages.h"
 
-#include "utils/sdl.h"
+#include "sdl_wrap.h"
 
 #include "../widgets/button.h"
 #include "../widgets/textbox.h"

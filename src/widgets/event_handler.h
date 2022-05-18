@@ -1,7 +1,7 @@
 #ifndef __EVENT_HANDLER_H__
 #define __EVENT_HANDLER_H__
 
-#include "utils/sdl.h"
+#include "sdl_wrap.h"
 
 #include <vector>
 #include <algorithm>

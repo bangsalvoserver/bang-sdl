@@ -4,7 +4,7 @@
 #include <filesystem>
 #include <optional>
 
-#include "utils/sdl.h"
+#include "sdl_wrap.h"
 
 namespace os_api {
 

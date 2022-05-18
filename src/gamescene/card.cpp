@@ -24,17 +24,17 @@ namespace banggame {
     template<first_is_none T>
     struct skip_none : remove_first<enums::make_enum_sequence<T>> {};
 
-    card_textures::card_textures(const std::filesystem::path &base_path)
+    card_textures::card_textures(const std::filesystem::path &base_path, sdl::renderer &renderer)
         : cards_pak_data(ifstream_or_throw(base_path / "cards.pak"))
         , card_resources(cards_pak_data)
 
-        , card_mask             (get_card_resource("misc/card_mask"))
-        , card_border           (get_card_resource("misc/card_border"))
+        , card_mask (get_card_resource("misc/card_mask"))
+        , card_border (renderer, get_card_resource("misc/card_border"))
 
         , backfaces([&]<card_deck_type ... Es>(enums::enum_sequence<Es ...>) {
             return std::array { [&](std::string_view name) -> sdl::texture {
                 if (card_resources.contains(name)) {
-                    return apply_card_mask(get_card_resource(name));
+                    return {renderer, apply_card_mask(get_card_resource(name))};
                 } else {
                     return {};
                 }
@@ -84,7 +84,7 @@ namespace banggame {
         return ret;
     }
 
-    void card_view::make_texture_front() {
+    void card_view::make_texture_front(sdl::renderer &renderer) {
         auto do_make_texture = [&](float scale) {
             auto card_base_surf = card_textures::get().get_card_resource(fmt::format("{}/{}", enums::to_string(deck), image));
 
@@ -115,25 +115,25 @@ namespace banggame {
             return card_base_surf;
         };
 
-        texture_front = card_textures::get().apply_card_mask(do_make_texture(1.f));
+        sdl::surface surface_front = card_textures::get().apply_card_mask(do_make_texture(1.f));;
+        texture_front = sdl::texture(renderer, surface_front);
 
         sdl::surface scaled = card_textures::get().apply_card_mask(do_make_texture(options.card_suit_scale));
-        texture_front_scaled = sdl::scale_surface(scaled, scaled.get_rect().w / options.card_width);
+        sdl::surface surface_front_scaled = sdl::scale_surface(scaled, scaled.get_rect().w / options.card_width);
+        texture_front_scaled = sdl::texture(renderer, surface_front_scaled);
     }
 
-    void role_card::make_texture_front() {
-        texture_front = card_textures::get().apply_card_mask(
+    void role_card::make_texture_front(sdl::renderer &renderer) {
+        sdl::surface surface_front = card_textures::get().apply_card_mask(
             card_textures::get().get_card_resource(fmt::format("role/{}", enums::to_string(role))));
-        texture_front_scaled = sdl::scale_surface(texture_front.get_surface(),
-            texture_front.get_rect().w / options.card_width);
+        texture_front = sdl::texture(renderer, surface_front);
+        texture_front_scaled = sdl::texture(renderer, sdl::scale_surface(surface_front,
+            texture_front.get_rect().w / options.card_width));
     }
 
     void cube_widget::render(sdl::renderer &renderer, bool skip_if_animating) {
-        auto do_render = [&](const sdl::texture &tex, sdl::color color = sdl::rgb(0xffffff)) {
-            sdl::rect rect = tex.get_rect();
-            rect.x = pos.x - rect.w / 2;
-            rect.y = pos.y - rect.h / 2;
-            tex.render_colored(renderer, rect, color);
+        auto do_render = [&](sdl::texture_ref tex, sdl::color color = sdl::rgb(0xffffff)) {
+            tex.render_colored(renderer, sdl::move_rect_center(tex.get_rect(), pos), color);
         };
 
         if (!skip_if_animating || !animating) {
@@ -150,7 +150,7 @@ namespace banggame {
     }
 
     void card_view::render(sdl::renderer &renderer, bool skip_if_animating) {
-        auto do_render = [&](const sdl::texture &tex) {
+        auto do_render = [&](sdl::texture_ref tex) {
             m_rect = tex.get_rect();
             sdl::scale_rect_width(m_rect, options.card_width);
 
@@ -171,7 +171,7 @@ namespace banggame {
                 }, border_color);
             }
 
-            SDL_RenderCopyEx(renderer.get(), tex.get_texture(renderer), nullptr, &rect, rotation, nullptr, SDL_FLIP_NONE);
+            SDL_RenderCopyEx(renderer.get(), tex.get(), nullptr, &rect, rotation, nullptr, SDL_FLIP_NONE);
 
             for (auto &cube : cubes) {
                 cube->render(renderer);
@@ -181,8 +181,8 @@ namespace banggame {
         if (!skip_if_animating || !animating) {
             if (flip_amt > 0.5f && texture_front_scaled) {
                 do_render(texture_front_scaled);
-            } else if (texture_back && *texture_back) {
-                do_render(*texture_back);
+            } else if (texture_back) {
+                do_render(texture_back);
             }
         }
     }
@@ -225,10 +225,7 @@ namespace banggame {
     void counting_pocket::render_count(sdl::renderer &renderer) {
         if (empty()) return;
         
-        sdl::rect rect = m_count_text.get_rect();
-        rect.x = get_pos().x - rect.w / 2;
-        rect.y = get_pos().y - rect.h / 2;
-        m_count_text.set_rect(rect);
+        m_count_text.set_rect(sdl::move_rect_center(m_count_text.get_rect(), get_pos()));
         m_count_text.render(renderer);
     }
 

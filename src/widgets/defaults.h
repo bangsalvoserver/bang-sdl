@@ -1,7 +1,7 @@
 #ifndef __DEFAULTS_H__
 #define __DEFAULTS_H__
 
-#include "utils/sdl.h"
+#include "sdl_wrap.h"
 
 namespace widgets {
 

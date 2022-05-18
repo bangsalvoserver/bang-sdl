@@ -34,7 +34,7 @@ void loading_scene::render(sdl::renderer &renderer) {
     m_loading_text.render(renderer);
     m_cancel_btn.render(renderer);
 
-    SDL_RenderCopyEx(renderer.get(), media_pak::get().icon_loading.get_texture(renderer), nullptr,
+    SDL_RenderCopyEx(renderer.get(), media_pak::get().icon_loading.get(), nullptr,
         &m_loading_rect, m_loading_rotation, nullptr, SDL_FLIP_NONE);
     m_loading_rotation += 10.f;
 }

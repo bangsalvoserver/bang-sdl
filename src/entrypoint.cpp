@@ -1,4 +1,4 @@
-#include "utils/sdl.h"
+#include "sdl_wrap.h"
 
 #include "game/net_options.h"
 
@@ -28,12 +28,12 @@ extern "C" BANGCLIENT_EXPORT long STDCALL entrypoint(const char *base_path) {
     sdl::renderer renderer(window, -1, SDL_RENDERER_ACCELERATED);
     SDL_SetRenderDrawBlendMode(renderer.get(), SDL_BLENDMODE_BLEND);
     
-    media_pak resources(base_path);
+    media_pak resources{base_path, renderer};
     SDL_SetWindowIcon(window.get(), media_pak::get().icon_bang.get());
 
     asio::io_context ctx;
 
-    client_manager mgr{window, ctx, base_path};
+    client_manager mgr{window, renderer, ctx, base_path};
 
     sdl::event event;
     bool quit = false;

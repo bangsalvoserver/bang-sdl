@@ -4,7 +4,7 @@
 #include "utils/reflector.h"
 #include "../image_serial.h"
 
-#include "utils/sdl.h"
+#include "sdl_wrap.h"
 
 #include <fstream>
 #include <sstream>

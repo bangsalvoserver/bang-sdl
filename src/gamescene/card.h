@@ -4,7 +4,7 @@
 #include "game/card_enums.h"
 #include "game/game_update.h"
 
-#include "utils/sdl.h"
+#include "sdl_wrap.h"
 #include "utils/unpacker.h"
 
 #include "options.h"
@@ -19,7 +19,7 @@ namespace banggame {
 
     struct card_textures {
     private:
-        card_textures(const std::filesystem::path &base_path);
+        card_textures(const std::filesystem::path &base_path, sdl::renderer &renderer);
 
         static inline card_textures *s_instance = nullptr;
 
@@ -115,9 +115,9 @@ namespace banggame {
         sdl::texture texture_front;
         sdl::texture texture_front_scaled;
 
-        const sdl::texture *texture_back = nullptr;
+        sdl::texture_ref texture_back;
         
-        void make_texture_front();
+        void make_texture_front(sdl::renderer &renderer);
 
     private:
         sdl::point m_pos;
@@ -127,7 +127,7 @@ namespace banggame {
     struct role_card : card_view {
         player_role role = player_role::unknown;
 
-        void make_texture_front();
+        void make_texture_front(sdl::renderer &renderer);
     };
     
     class pocket_view {

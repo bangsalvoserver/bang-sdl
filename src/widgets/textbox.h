@@ -19,7 +19,7 @@ namespace widgets {
         textbox_style m_style;
 
         sdl::font m_font;
-        sdl::texture m_tex;
+        sdl::auto_texture m_tex;
 
         sdl::rect m_border_rect;
 
