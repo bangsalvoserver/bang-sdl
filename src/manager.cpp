@@ -131,13 +131,9 @@ void client_manager::add_chat_message(message_type type, const std::string &mess
 }
 
 void client_manager::start_listenserver() {
-#ifdef NDEBUG
     auto server_path = m_base_path / "bangserver";
-#else
-    auto server_path = m_base_path / "external/banggame/bangserver";
-#endif
 #ifdef WIN32
-    server_path += ".exe";
+    server_path.replace_extension("exe");
 #endif
     if (!m_config.server_port) {
         m_config.server_port = default_server_port;

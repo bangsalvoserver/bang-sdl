@@ -57,7 +57,7 @@ jobs:
       run: |
         mkdir -p bang
         ldd build/libbangclient.dll | grep -i -v /c/windows/ | gawk 'match($0, /=> (.+\.dll)/, a) { print a[1]}' | xargs cp -n -t bang
-        cp -t bang build/libbangclient.dll build/external/banggame/libbanggame.dll build/external/banggame/bangserver.exe build/cards.pak build/media.pak
+        cp -t bang build/libbangclient.dll build/libbanggame.dll build/bangserver.exe build/cards.pak build/media.pak
         zip -r bang.zip bang
     
     - name: Create Release

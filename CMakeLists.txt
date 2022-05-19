@@ -48,6 +48,9 @@ add_subdirectory(resources)
 add_subdirectory(external/banggame)
 add_subdirectory(external/subprocess)
 
+set_target_properties(banggame bangserver PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
 add_library(bangclient SHARED ${bangclient_srcs})
 target_include_directories(bangclient PRIVATE src)
 
