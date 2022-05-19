@@ -43,6 +43,39 @@ foreach(IDX RANGE 0 ${max_index})
     endforeach()
 endforeach()
 
+list(APPEND card_files
+    cards/backface/character.png
+    cards/backface/goldrush.png
+    cards/backface/main_deck.png
+    cards/backface/role.png
+    cards/role/deputy.png
+    cards/role/outlaw.png
+    cards/role/renegade.png
+    cards/role/sheriff.png
+    cards/role/deputy_3p.png
+    cards/role/outlaw_3p.png
+    cards/role/renegade_3p.png
+    cards/misc/card_border.png
+    cards/misc/card_mask.png
+    cards/misc/suit_clubs.png
+    cards/misc/suit_diamonds.png
+    cards/misc/suit_hearts.png
+    cards/misc/suit_spades.png
+    cards/misc/rank_2.png
+    cards/misc/rank_3.png
+    cards/misc/rank_4.png
+    cards/misc/rank_5.png
+    cards/misc/rank_6.png
+    cards/misc/rank_7.png
+    cards/misc/rank_8.png
+    cards/misc/rank_9.png
+    cards/misc/rank_10.png
+    cards/misc/rank_J.png
+    cards/misc/rank_Q.png
+    cards/misc/rank_K.png
+    cards/misc/rank_A.png
+)
+
 pack_resources(cards_pak cards "${CMAKE_BINARY_DIR}/cards.pak" "${card_files}")
 
 set(media_files
