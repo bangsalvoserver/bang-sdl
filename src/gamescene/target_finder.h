@@ -18,6 +18,10 @@ namespace banggame {
         player_view *player;
         bool operator == (const target_player &) const = default;
     };
+    struct target_conditional_player {
+        player_view *player;
+        bool operator == (const target_conditional_player &) const = default;
+    };
     struct target_other_players {
         bool operator == (target_other_players) const { return true; }
     };
@@ -28,7 +32,14 @@ namespace banggame {
     };
     using target_cards = std::vector<target_card>;
 
-    using target_variant_base = std::variant<target_none, target_player, target_other_players, target_card, target_cards>;
+    using target_variant_base = std::variant<
+        target_none,
+        target_player,
+        target_conditional_player,
+        target_other_players,
+        target_card,
+        target_cards
+    >;
     struct target_variant {
         target_variant_base value{target_none{}};
         bool autotarget = false;
@@ -116,6 +127,7 @@ namespace banggame {
 
         const effect_holder &get_effect_holder(int index);
         int num_targets_for(const effect_holder &data);
+        std::vector<player_view *> possible_player_targets(target_player_filter filter);
         int get_target_index();
         
     private:

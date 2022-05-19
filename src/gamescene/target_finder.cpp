@@ -54,6 +54,11 @@ void target_finder::set_border_colors() {
                 [](target_player p) {
                     p.player->border_color = options.target_finder_target;
                 },
+                [](target_conditional_player p) {
+                    if (p.player) {
+                        p.player->border_color = options.target_finder_target;
+                    }
+                },
                 [&](target_card c) {
                     if (m_selected_cubes.find(c.card) == m_selected_cubes.end()) {
                         c.card->border_color = options.target_finder_target;
@@ -144,6 +149,11 @@ void target_finder::clear_targets() {
                 [](target_other_players) {},
                 [this](target_player p) {
                     p.player->border_color = m_game->m_playing_id == p.player->id ? options.turn_indicator : sdl::color{};
+                },
+                [this](target_conditional_player p) {
+                    if (p.player) {
+                        p.player->border_color = m_game->m_playing_id == p.player->id ? options.turn_indicator : sdl::color{};
+                    }
                 },
                 [](target_card c) {
                     c.card->border_color = {};
@@ -366,7 +376,8 @@ bool target_finder::on_click_player(player_view *player) {
     };
 
     auto verify_target = [&](const effect_holder &args) {
-        return args.target == play_card_target_type::player
+        return (args.target == play_card_target_type::player 
+            || args.target == play_card_target_type::conditional_player)
             && verify_filter(args.player_filter);
     };
 
@@ -377,12 +388,18 @@ bool target_finder::on_click_player(player_view *player) {
                 send_play_card();
                 return true;
             }
-        } else if (std::ranges::find(m_targets, target_variant_base{target_player{player}}, &target_variant::value) == m_targets.end()
-            && verify_target(get_effect_holder(get_target_index())))
-        {
-            m_targets.emplace_back(target_player{player});
-            handle_auto_targets();
-            return true;
+        } else if (auto args = get_effect_holder(get_target_index()); verify_target(args)) {
+            if (args.target == play_card_target_type::player) {
+                m_targets.emplace_back(target_player{player});
+                handle_auto_targets();
+                return true;
+            } else if (auto targets = possible_player_targets(args.player_filter);
+                std::ranges::find(targets, player) != targets.end())
+            {
+                m_targets.emplace_back(target_conditional_player{player});
+                handle_auto_targets();
+                return true;
+            }
         }
     }
     return false;
@@ -558,6 +575,12 @@ void target_finder::handle_auto_targets() {
                 return true;
             }
             break;
+        case play_card_target_type::conditional_player:
+            if (possible_player_targets(data.player_filter).empty()) {
+                m_targets.emplace_back(target_conditional_player{nullptr}, true);
+                return true;
+            }
+            break;
         case play_card_target_type::other_players:
             m_targets.emplace_back(target_other_players{}, true);
             return true;
@@ -570,6 +593,13 @@ void target_finder::handle_auto_targets() {
     auto repeatable = get_current_card()->get_tag_value(tag_type::repeatable);
     if (effects.empty()) {
         clear_targets();
+    } else if (get_current_card()->has_tag(tag_type::auto_confirm) && can_confirm()
+        && std::ranges::any_of(optionals, [&](const effect_holder &holder) {
+            return holder.target == play_card_target_type::conditional_player
+                && possible_player_targets(holder.player_filter).empty();
+        }))
+    {
+        send_play_card();
     } else {
         auto effect_it = effects.begin() + m_targets.size();
         auto target_end = effects.end();
@@ -664,6 +694,21 @@ std::optional<std::string> target_finder::verify_card_target(const effect_holder
     return std::nullopt;
 }
 
+std::vector<player_view *> target_finder::possible_player_targets(target_player_filter filter) {
+    std::vector<player_view *> ret;
+    for (auto &p : m_game->m_players) {
+        if (std::ranges::find_if(m_targets, [&p](const target_variant &v) {
+                return v.value == target_variant_base{target_player{&p}}
+                    || v.value == target_variant_base{target_conditional_player{&p}};
+            }) == m_targets.end()
+            && !verify_player_target(filter, &p))
+        {
+            ret.push_back(&p);
+        }
+    }
+    return ret;
+}
+
 void target_finder::add_card_target(target_card target) {
     if (m_equipping) return;
 
@@ -755,6 +800,9 @@ void target_finder::send_play_card() {
             },
             [&](target_player p) {
                 ret.targets.emplace_back(enums::enum_tag<play_card_target_type::player>, p.player->id);
+            },
+            [&](target_conditional_player p) {
+                ret.targets.emplace_back(enums::enum_tag<play_card_target_type::conditional_player>, p.player ? p.player->id : 0);
             },
             [&](target_other_players) {
                 ret.targets.emplace_back(enums::enum_tag<play_card_target_type::other_players>);
