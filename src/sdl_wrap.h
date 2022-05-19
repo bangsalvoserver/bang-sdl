@@ -242,10 +242,12 @@ namespace sdl {
     public:
         texture() = default;
         
-        texture(renderer &renderer, const surface &surf)
-            : base(SDL_CreateTextureFromSurface(renderer.get(), surf.get())) {
-            if (!*this) {
-                throw error(fmt::format("Could not create texture: {}", SDL_GetError()));
+        texture(renderer &renderer, const surface &surf) {
+            if (surf) {
+                reset(SDL_CreateTextureFromSurface(renderer.get(), surf.get()));
+                if (!*this) {
+                    throw error(fmt::format("Could not create texture: {}", SDL_GetError()));
+                }
             }
         }
 
