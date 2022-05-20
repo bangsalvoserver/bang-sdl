@@ -121,7 +121,6 @@ namespace banggame {
         std::optional<std::string> verify_card_target(const effect_holder &args, target_card target);
 
         void add_card_target(target_card target);
-        void add_character_target(target_card target);
         
         int calc_distance(player_view *from, player_view *to);
 
