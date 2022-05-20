@@ -31,6 +31,12 @@ namespace banggame {
         bool operator == (const target_card &) const = default;
     };
     using target_cards = std::vector<target_card>;
+    struct target_cube {
+        card_view *card;
+        cube_widget *cube;
+        bool operator == (const target_cube &) const = default;
+    };
+    using target_cubes = std::vector<target_cube>;
 
     using target_variant_base = std::variant<
         target_none,
@@ -38,6 +44,7 @@ namespace banggame {
         target_conditional_player,
         target_other_players,
         target_card,
+        target_cubes,
         target_cards
     >;
     struct target_variant {
@@ -51,7 +58,6 @@ namespace banggame {
         std::vector<card_view *> m_modifiers;
 
         target_vector m_targets;
-        std::multimap<card_view *, cube_widget *> m_selected_cubes;
 
         bool m_equipping = false;
         bool m_response = false;
@@ -127,6 +133,7 @@ namespace banggame {
 
         const effect_holder &get_effect_holder(int index);
         int num_targets_for(const effect_holder &data);
+        int count_selected_cubes(card_view *card);
         std::vector<player_view *> possible_player_targets(target_player_filter filter);
         int get_target_index();
         
