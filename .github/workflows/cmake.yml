@@ -30,17 +30,12 @@ jobs:
           mingw-w64-x86_64-ninja
           mingw-w64-x86_64-cmake
           mingw-w64-x86_64-jsoncpp
+          mingw-w64-x86_64-yaml-cpp
           mingw-w64-x86_64-fmt
           mingw-w64-x86_64-SDL2
           mingw-w64-x86_64-SDL2_gfx
           mingw-w64-x86_64-SDL2_image
           mingw-w64-x86_64-SDL2_ttf
-          mingw-w64-x86_64-python
-          mingw-w64-x86_64-python-pip
-      
-    - name: Install PyYaml
-      shell: msys2 {0}
-      run: pip install --no-input pyyaml
 
     - name: Configure CMake
       shell: msys2 {0}
