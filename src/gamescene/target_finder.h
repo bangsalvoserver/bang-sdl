@@ -12,36 +12,41 @@ namespace banggame {
     class game_scene;
 
     struct target_none {
-        bool operator == (target_none) const { return true; }
+        bool operator == (const target_none &) const = default;
     };
+
+    struct target_no_player {
+        bool operator == (const target_no_player &) const = default;
+    };
+
+    struct target_other_players {
+        bool operator == (const target_other_players &) const = default;
+    };
+
     struct target_player {
         player_view *player;
         bool operator == (const target_player &) const = default;
     };
-    struct target_conditional_player {
-        player_view *player;
-        bool operator == (const target_conditional_player &) const = default;
-    };
-    struct target_other_players {
-        bool operator == (target_other_players) const { return true; }
-    };
+
     struct target_card {
         player_view *player;
         card_view *card;
         bool operator == (const target_card &) const = default;
     };
-    using target_cards = std::vector<target_card>;
+
     struct target_cube {
         card_view *card;
         cube_widget *cube;
         bool operator == (const target_cube &) const = default;
     };
+
+    using target_cards = std::vector<target_card>;
     using target_cubes = std::vector<target_cube>;
 
     using target_variant_base = std::variant<
         target_none,
         target_player,
-        target_conditional_player,
+        target_no_player,
         target_other_players,
         target_card,
         target_cubes,
@@ -70,7 +75,6 @@ namespace banggame {
         void set_border_colors();
 
         bool can_respond_with(card_view *card) const;
-        bool can_pick(pocket_type pocket, player_view *player, card_view *card) const;
         bool can_play_in_turn(player_view *player, card_view *card) const;
         bool can_confirm() const;
 
@@ -127,7 +131,7 @@ namespace banggame {
         const card_view *get_current_card() const;
         const effect_list &get_current_card_effects() const;
 
-        void send_pick_card(pocket_type pocket, player_view *player = nullptr, card_view *card = nullptr);
+        bool send_pick_card(pocket_type pocket, player_view *player = nullptr, card_view *card = nullptr);
         void send_play_card();
 
         const effect_holder &get_effect_holder(int index);
