@@ -80,7 +80,7 @@ lobby_scene::lobby_scene(client_manager *parent, const lobby_entered_args &args)
     for (auto E : enums::enum_values_v<banggame::card_expansion_type>) {
         if (!parent->get_config().allow_unofficial_expansions && bool(unofficials & E)) continue;
 
-        auto &checkbox = m_checkboxes.emplace_back(_(E), E, args.info.expansions);
+        auto &checkbox = m_checkboxes.emplace_back(_(E), E, args.info.options.expansions);
         if (parent->get_lobby_owner_id() == parent->get_user_own_id()) {
             checkbox.set_ontoggle([this]{ send_lobby_edited(); });
         } else {
@@ -95,19 +95,19 @@ void lobby_scene::set_lobby_info(const lobby_info &info) {
     m_lobby_name_text.set_value(info.name);
     
     for (auto &checkbox : m_checkboxes) {
-        checkbox.set_value(bool(info.expansions & checkbox.m_flag));
+        checkbox.set_value(bool(info.options.expansions & checkbox.m_flag));
     }
 }
 
 void lobby_scene::send_lobby_edited() {
-    banggame::card_expansion_type expansions{};
+    auto &options = parent->get_config().options;
+    options.expansions = {};
     for (const auto &box : m_checkboxes) {
         if (box.get_value()) {
-            expansions |= box.m_flag;
+            options.expansions |= box.m_flag;
         }
     }
-    parent->get_config().expansions = expansions;
-    parent->add_message<banggame::client_message_type::lobby_edit>(m_lobby_name_text.get_value(), expansions);
+    parent->add_message<banggame::client_message_type::lobby_edit>(m_lobby_name_text.get_value(), options);
 }
 
 void lobby_scene::refresh_layout() {

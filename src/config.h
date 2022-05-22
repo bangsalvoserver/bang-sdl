@@ -19,7 +19,7 @@ struct config {
         (std::string) profile_image,
         (sdl::surface) profile_image_data,
         (std::string) lobby_name,
-        (banggame::card_expansion_type) expansions,
+        (banggame::game_options) options,
         (bool) allow_unofficial_expansions,
         (uint16_t) server_port
     )

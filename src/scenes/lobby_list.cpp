@@ -78,7 +78,7 @@ void lobby_list_scene::do_make_lobby() {
         parent->add_chat_message(message_type::error, _("ERROR_NO_LOBBY_NAME"));
     } else {
         parent->get_config().lobby_name = m_lobby_name_box.get_value();
-        parent->add_message<banggame::client_message_type::lobby_make>(m_lobby_name_box.get_value(), parent->get_config().expansions);
+        parent->add_message<banggame::client_message_type::lobby_make>(m_lobby_name_box.get_value(), parent->get_config().options);
     }
 }
 
