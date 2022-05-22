@@ -21,6 +21,7 @@ static std::string string_join(const std::initializer_list<std::string> &strs, s
 
 #include <memory>
 #include <cwchar>
+#include <array>
 
 #include <fmt/xchar.h>
 

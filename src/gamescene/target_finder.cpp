@@ -662,12 +662,12 @@ std::optional<std::string> target_finder::verify_card_target(const effect_holder
         && target.card == m_playing_card || std::ranges::find(m_modifiers, target.card) != m_modifiers.end())
         return _("ERROR_TARGET_PLAYING_CARD");
 
-    if (!bool(args.card_filter & target_card_filter::cube_slot) && target.card->deck != card_deck_type::main_deck)
+    if (bool(args.card_filter & target_card_filter::cube_slot)) {
+        if (target.card != target.player->m_characters.front() && target.card->color != card_color_type::orange)
+            return _("ERROR_TARGET_NOT_CUBE_SLOT");
+    } else if (target.card->deck == card_deck_type::character) {
         return _("ERROR_TARGET_NOT_CARD");
-
-    if (bool(args.card_filter & target_card_filter::cube_slot)
-        && (target.card != target.player->m_characters.front() && target.card->color != card_color_type::orange))
-        return _("ERROR_TARGET_NOT_CUBE_SLOT");
+    }
 
     if (bool(args.card_filter & target_card_filter::beer) && !target.card->has_tag(tag_type::beer))
         return _("ERROR_TARGET_NOT_BEER");
@@ -702,7 +702,7 @@ std::optional<std::string> target_finder::verify_card_target(const effect_holder
 std::vector<player_view *> target_finder::possible_player_targets(target_player_filter filter) {
     std::vector<player_view *> ret;
     for (auto &p : m_game->m_players) {
-        if ((get_current_card()->has_tag(tag_type::not_unique)
+        if ((get_current_card()->has_tag(tag_type::can_repeat)
             || std::ranges::find(m_targets, target_variant_base{target_player{&p}}, &target_variant::value) == m_targets.end())
             && !verify_player_target(filter, &p))
         {
@@ -723,7 +723,7 @@ void target_finder::add_card_target(target_card target) {
         if (auto error = verify_card_target(cur_target, target)) {
             m_game->parent->add_chat_message(message_type::error, *error);
             os_api::play_bell();
-        } else if (get_current_card()->has_tag(tag_type::not_unique)
+        } else if (get_current_card()->has_tag(tag_type::can_repeat)
             || std::ranges::find(m_targets, target_variant_base{target}, &target_variant::value) == m_targets.end())
         {
             m_targets.emplace_back(target);
