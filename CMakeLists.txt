@@ -35,7 +35,6 @@ pkg_check_modules(SDL2 REQUIRED sdl2 IMPORTED_TARGET)
 pkg_check_modules(SDL2_ttf REQUIRED SDL2_ttf IMPORTED_TARGET)
 pkg_check_modules(SDL2_image REQUIRED SDL2_image IMPORTED_TARGET)
 pkg_check_modules(SDL2_gfx REQUIRED SDL2_gfx IMPORTED_TARGET)
-pkg_check_modules(jsoncpp REQUIRED jsoncpp IMPORTED_TARGET)
 
 find_package(fmt REQUIRED)
 if (TARGET fmt::fmt-header-only)
