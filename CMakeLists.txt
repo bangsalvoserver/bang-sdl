@@ -48,7 +48,7 @@ add_subdirectory(resources)
 add_subdirectory(external/banggame)
 add_subdirectory(external/subprocess)
 
-set_target_properties(banggame bangserver PROPERTIES
+set_target_properties(bangserver PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 add_library(bangclient SHARED ${bangclient_srcs})
@@ -64,8 +64,7 @@ generate_export_header(bangclient
 target_include_directories(bangclient PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/exports")
 
 target_link_libraries(bangclient PUBLIC PkgConfig::SDL2 PkgConfig::SDL2_ttf PkgConfig::SDL2_image PkgConfig::SDL2_gfx)
-target_link_libraries(bangclient PUBLIC cpputils networking PkgConfig::jsoncpp game_options subprocess)
-target_include_directories(bangclient PUBLIC $<TARGET_PROPERTY:banggame,INCLUDE_DIRECTORIES>)
+target_link_libraries(bangclient PUBLIC bangcommon game_options subprocess)
 
 add_dependencies(bangclient cards_pak media_pak)
 
