@@ -141,11 +141,16 @@ void client_manager::start_listenserver() {
     switch_scene<loading_scene>(_("CREATING_SERVER"));
     m_con.m_closed = false;
 
+    std::filesystem::path server_path = m_base_path / "bangserver";
+#ifdef _WIN32
+    server_path.replace_extension(".exe");
+#endif
+
     if (!m_config.server_port) {
         m_config.server_port = default_server_port;
     }
     m_listenserver = std::make_unique<TinyProcessLib::Process>(
-        fmt::format("bangserver {}", m_config.server_port), m_base_path.string(),
+        fmt::format("{0} {1}", server_path.string(), m_config.server_port), "",
         [&](const char *bytes, size_t n) {
             std::string_view str{bytes, n};
             while (true) {
