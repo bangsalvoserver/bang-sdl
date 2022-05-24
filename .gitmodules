@@ -4,6 +4,6 @@
 [submodule "resources/cards"]
 	path = resources/cards
 	url = http://github.com/salvoilmiosi/bang-cards
-[submodule "external/subprocess"]
-	path = external/subprocess
-	url = http://github.com/salvoilmiosi/subprocess
+[submodule "external/tiny-process-library"]
+	path = external/tiny-process-library
+	url = https://gitlab.com/eidheim/tiny-process-library

@@ -20,18 +20,21 @@ client_manager::client_manager(sdl::window &window, sdl::renderer &renderer, asi
     : m_window(window)
     , m_renderer(renderer)
     , m_base_path(base_path)
+    , m_ctx(ctx)
     , m_con(*this, ctx)
-    , m_listenserver_timer(ctx)
 {
     m_config.load();
     switch_scene<connect_scene>();
 }
 
 client_manager::~client_manager() {
+    stop_listenserver();
     m_config.save();
 }
 
 void bang_connection::on_open() {
+    m_open = true;
+
     m_accept_timer.expires_after(accept_timeout);
     m_accept_timer.async_wait([this](const std::error_code &ec) {
         if (!ec) {
@@ -44,10 +47,12 @@ void bang_connection::on_open() {
 }
 
 void bang_connection::on_close() {
-    if (parent.m_listenserver) {
-        parent.m_listenserver.abort();
+    if (!m_closed.exchange(true)) {
+        parent.switch_scene<connect_scene>();
     }
-    parent.switch_scene<connect_scene>();
+    if (m_open.exchange(false)) {
+        parent.add_chat_message(message_type::server_log, _("ERROR_DISCONNECTED"));
+    }
 }
 
 void bang_connection::on_message(const server_message &message) {
@@ -64,6 +69,8 @@ void client_manager::connect(const std::string &host) {
     if (host.empty()) {
         add_chat_message(message_type::error, _("ERROR_NO_ADDRESS"));
     } else {
+        m_con.m_closed = false;
+
         if (host.find(":") == std::string::npos) {
             m_con.connect(fmt::format("{}:{}", host, default_server_port));
         } else {
@@ -75,8 +82,8 @@ void client_manager::connect(const std::string &host) {
 }
 
 void client_manager::disconnect() {
+    stop_listenserver();
     m_con.disconnect();
-    m_listenserver_timer.cancel();
 }
 
 void client_manager::refresh_layout() {
@@ -131,30 +138,67 @@ void client_manager::add_chat_message(message_type type, const std::string &mess
 }
 
 void client_manager::start_listenserver() {
-    auto server_path = m_base_path / "bangserver";
-#ifdef WIN32
-    server_path.replace_extension("exe");
-#endif
+    switch_scene<loading_scene>(_("CREATING_SERVER"));
+    m_con.m_closed = false;
+
     if (!m_config.server_port) {
         m_config.server_port = default_server_port;
     }
-    std::string port_str = std::to_string(m_config.server_port);
-    m_listenserver.open(subprocess::arguments{server_path.string(), port_str});
-    switch_scene<loading_scene>(_("CREATING_SERVER"));
-    m_listenserver_timer.expires_after(std::chrono::seconds{1});
-    m_listenserver_timer.async_wait([this](const std::error_code &ec) {
-        if (!ec) {
-            if (m_listenserver) {
-                m_con.connect(fmt::format("localhost:{}", m_config.server_port));
-            } else {
-                add_chat_message(message_type::error, _("ERROR_CREATING_SERVER"));
-                m_listenserver.close();
-                m_con.on_close();
+    m_listenserver = std::make_unique<TinyProcessLib::Process>(
+        fmt::format("bangserver {}", m_config.server_port), m_base_path.string(),
+        [&](const char *bytes, size_t n) {
+            std::string_view str{bytes, n};
+            while (true) {
+                size_t newline_pos = str.find('\n');
+                auto line = str.substr(0, newline_pos);
+                if (!line.empty()) {
+                    add_chat_message(message_type::server_log, std::string(line));
+                }
+                if (line.starts_with("Server listening")) {
+                    asio::post(m_ctx, [&]{
+                        m_con.connect(fmt::format("localhost:{}", m_config.server_port));
+                    });
+                }
+                if (newline_pos == std::string_view::npos) break;
+                str = str.substr(newline_pos + 1);
             }
-        } else {
+        },
+        [&, buffer = std::string()](const char *bytes, size_t n) mutable {
+            buffer.append(bytes, n);
+            while (true) {
+                size_t newline_pos = buffer.find('\n');
+                if (newline_pos == std::string_view::npos) break;
+                if (newline_pos) {
+                    add_chat_message(message_type::error, buffer.substr(0, newline_pos));
+                }
+                buffer.erase(0, newline_pos + 1);
+            }
+        });
+    
+    if (m_listenserver_thread.joinable()) {
+        m_listenserver_thread.join();
+    }
+    m_listenserver_thread = std::thread([&]{
+        m_listenserver->get_exit_status();
+        asio::post(m_ctx, [&]{
+            m_listenserver.reset();
             m_con.on_close();
-        }
+        });
     });
+}
+
+void client_manager::stop_listenserver() {
+    if (m_listenserver) {
+#ifdef _WIN32
+        m_listenserver->kill();
+#else
+        m_listenserver->signal(SIGTERM);
+#endif
+    }
+    if (m_listenserver_thread.joinable()) {
+        m_listenserver_thread.join();
+    }
+    m_listenserver.reset();
 }
 
 void client_manager::HANDLE_SRV_MESSAGE(client_accepted, const client_accepted_args &args) {

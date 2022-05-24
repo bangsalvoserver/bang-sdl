@@ -16,7 +16,7 @@
 
 #include "net/wsconnection.h"
 
-#include "subprocess.h"
+#include <process.hpp>
 
 struct user_info {
     std::string name;
@@ -32,6 +32,8 @@ struct bang_connection : net::wsconnection<bang_connection, banggame::server_mes
     using client_handle = typename base::client_handle;
 
     client_manager &parent;
+    std::atomic<bool> m_open = false;
+    std::atomic<bool> m_closed = false;
 
     asio::basic_waitable_timer<std::chrono::system_clock> m_accept_timer;
     static constexpr std::chrono::seconds accept_timeout{5};
@@ -98,6 +100,7 @@ public:
     int get_lobby_owner_id() const { return m_lobby_owner_id; }
 
     void start_listenserver();
+    void stop_listenserver();
 
     user_info *get_user_info(int id) {
         auto it = m_users.find(id);
@@ -141,10 +144,11 @@ private:
     int m_lobby_owner_id = 0;
 
 private:
+    asio::io_context &m_ctx;
     bang_connection m_con;
 
-    subprocess::process m_listenserver;
-    asio::basic_waitable_timer<std::chrono::system_clock> m_listenserver_timer;
+    std::unique_ptr<TinyProcessLib::Process> m_listenserver;
+    std::thread m_listenserver_thread;
 
     std::map<int, user_info> m_users;
     friend struct bang_connection;
