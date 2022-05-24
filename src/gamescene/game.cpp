@@ -731,11 +731,10 @@ void game_scene::HANDLE_UPDATE(player_remove, const player_remove_update &args) 
 void game_scene::HANDLE_UPDATE(player_hp, const player_hp_update &args) {
     player_view *player = find_player(args.player_id);
     int prev_hp = player->hp;
-    player->dead = args.dead;
     player->hp = args.hp;
     if (args.instant) {
         player->set_hp_marker_position(args.hp);
-    } else if (prev_hp != args.hp && !args.dead) {
+    } else if (prev_hp != args.hp) {
         add_animation<player_hp_animation>(options.move_hp_ticks, player, prev_hp);
     }
 }

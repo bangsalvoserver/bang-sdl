@@ -450,7 +450,7 @@ bool target_finder::verify_modifier(card_view *card) {
         switch (c->modifier) {
         case card_modifier_type::bangmod:
         case card_modifier_type::bandolier:
-            return is_bangcard(card) || card->has_tag(tag_type::bangproxy);
+            return is_bangcard(card) || card->has_tag(tag_type::play_as_bang);
         case card_modifier_type::leevankliff:
             return is_bangcard(card) && m_last_played_card;
         case card_modifier_type::discount:
@@ -505,7 +505,7 @@ int target_finder::num_targets_for(const effect_holder &data) {
     switch (data.target) {
     case play_card_target_type::cards_other_players:
         return std::ranges::count_if(m_game->m_players, [&](const player_view &p) {
-            if (p.dead || p.id == m_game->m_player_own_id) return false;
+            if (!p.alive() || p.id == m_game->m_player_own_id) return false;
             if (p.table.empty() && p.hand.empty()) return false;
             return true;
         });
@@ -546,7 +546,7 @@ int target_finder::calc_distance(player_view *from, player_view *to) {
         auto it = m_game->m_players.find(p->id);
         do {
             if (++it == m_game->m_players.end()) it = m_game->m_players.begin();
-        } while(it->dead);
+        } while(!it->alive());
         return &*it;
     };
 
@@ -624,8 +624,11 @@ void target_finder::handle_auto_targets() {
 }
 
 std::optional<std::string> target_finder::verify_player_target(target_player_filter filter, player_view *target_player) {
-    if (bool(filter & target_player_filter::dead) != target_player->dead)
+    if (bool(filter & target_player_filter::dead)) {
+        if (target_player->hp > 0) return _("ERROR_TARGET_NOT_DEAD");
+    } else if (!target_player->has_player_flags(player_flags::targetable) && !target_player->alive()) {
         return _("ERROR_TARGET_DEAD");
+    }
 
     if (bool(filter & target_player_filter::self) && target_player->id != m_game->m_player_own_id)
         return _("ERROR_TARGET_NOT_SELF");

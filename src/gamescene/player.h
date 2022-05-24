@@ -16,7 +16,6 @@ namespace banggame {
 
         int hp = 0;
         int gold = 0;
-        bool dead = false;
 
         wide_pocket hand{options.player_hand_width};
         wide_pocket table{options.player_hand_width};
@@ -44,6 +43,12 @@ namespace banggame {
         bool has_player_flags(player_flags flags) const {
             using namespace enums::flag_operators;
             return (m_player_flags & flags) == flags;
+        }
+
+        bool alive() const {
+            return !has_player_flags(player_flags::dead)
+                || has_player_flags(player_flags::ghost)
+                || has_player_flags(player_flags::temp_ghost);
         }
 
         void set_position(sdl::point pos, bool flipped = false);
