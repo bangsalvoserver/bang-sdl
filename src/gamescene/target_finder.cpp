@@ -585,6 +585,9 @@ void target_finder::handle_auto_targets() {
         case target_type::other_players:
             m_targets.emplace_back(enums::enum_tag<target_type::other_players>, true);
             return true;
+        case target_type::all_players:
+            m_targets.emplace_back(enums::enum_tag<target_type::all_players>, true);
+            return true;
         }
         return false;
     };
