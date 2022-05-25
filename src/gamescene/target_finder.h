@@ -12,41 +12,17 @@ namespace banggame {
 
     class game_scene;
 
-    template<target_type E> struct client_target_transform {
-        using type = void;
-    };
+    using target_card = std::pair<player_view *, card_view *>;
+    using target_cube = std::pair<card_view *, cube_widget *>;
 
-    template<> struct client_target_transform<target_type::player> {
-        using type = player_view *;
-    };
+    auto client_target_type(enums::enum_tag_for<target_type> auto) -> void;
+    auto client_target_type(enums::enum_tag_t<target_type::player>) ->              player_view *;
+    auto client_target_type(enums::enum_tag_t<target_type::conditional_player>) ->  nullable<player_view>;
+    auto client_target_type(enums::enum_tag_t<target_type::card>) ->                target_card;
+    auto client_target_type(enums::enum_tag_t<target_type::cards_other_players>) -> std::vector<target_card>;
+    auto client_target_type(enums::enum_tag_t<target_type::cube>) ->                std::vector<target_cube>;
 
-    template<> struct client_target_transform<target_type::conditional_player> {
-        using type = nullable<player_view>;
-    };
-
-    struct target_card {
-        player_view *player;
-        card_view *card;
-        bool operator == (const target_card &) const = default;
-    };
-
-    template<> struct client_target_transform<target_type::card> {
-        using type = target_card;
-    };
-
-    template<> struct client_target_transform<target_type::cards_other_players> {
-        using type = std::vector<target_card>;
-    };
-
-    struct target_cube {
-        card_view *card;
-        cube_widget *cube;
-        bool operator == (const target_cube &) const = default;
-    };
-
-    template<> struct client_target_transform<target_type::cube> {
-        using type = std::vector<target_cube>;
-    };
+    template<target_type E> struct client_target_transform { using type = decltype(client_target_type(enums::enum_tag<E>)); };
 
     using target_variant_base = enums::enum_variant<target_type, client_target_transform>;
     
@@ -120,9 +96,9 @@ namespace banggame {
         void handle_auto_targets();
 
         std::optional<std::string> verify_player_target(target_player_filter filter, player_view *target_player);
-        std::optional<std::string> verify_card_target(const effect_holder &args, target_card target);
+        std::optional<std::string> verify_card_target(const effect_holder &args, player_view *player, card_view *card);
 
-        void add_card_target(target_card target);
+        void add_card_target(player_view *player, card_view *card);
         
         int calc_distance(player_view *from, player_view *to);
 

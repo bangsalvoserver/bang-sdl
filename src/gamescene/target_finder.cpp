@@ -19,7 +19,7 @@ void target_finder::add_action(Ts && ... args) {
 }
 
 void target_finder::set_border_colors() {
-    for (auto [pocket, player, card] : m_picking_highlights) {
+    for (const auto &[pocket, player, card] : m_picking_highlights) {
         switch (pocket) {
         case pocket_type::player_hand:
         case pocket_type::player_table:
@@ -59,16 +59,16 @@ void target_finder::set_border_colors() {
                     }
                 },
                 [](enums::enum_tag_t<target_type::card>, target_card c) {
-                    c.card->border_color = options.target_finder_target;
+                    c.second->border_color = options.target_finder_target;
                 },
                 [](enums::enum_tag_t<target_type::cards_other_players>, const std::vector<target_card> &cs) {
-                    for (target_card c : cs) {
-                        c.card->border_color = options.target_finder_target;
+                    for (const auto &[player, card] : cs) {
+                        card->border_color = options.target_finder_target;
                     }
                 },
                 [](enums::enum_tag_t<target_type::cube>, const std::vector<target_cube> &cs) {
-                    for (target_cube c : cs) {
-                        c.cube->border_color = options.target_finder_target;
+                    for (const auto &[card, cube] : cs) {
+                        cube->border_color = options.target_finder_target;
                     }
                 }
             }, value);
@@ -150,16 +150,16 @@ void target_finder::clear_targets() {
                     }
                 },
                 [](enums::enum_tag_t<target_type::card>, target_card c) {
-                    c.card->border_color = {};
+                    c.second->border_color = {};
                 },
                 [](enums::enum_tag_t<target_type::cards_other_players>, const std::vector<target_card> &cs) {
-                    for (target_card c : cs) {
-                        c.card->border_color = {};
+                    for (const auto &[player, card] : cs) {
+                        card->border_color = {};
                     }
                 },
                 [](enums::enum_tag_t<target_type::cube>, const std::vector<target_cube> &cs) {
-                    for (target_cube c : cs) {
-                        c.cube->border_color = {};
+                    for (const auto &[card, cube] : cs) {
+                        cube->border_color = {};
                     }
                 }
             }, value);
@@ -285,7 +285,7 @@ void target_finder::on_click_table_card(player_view *player, card_view *card) {
             }
         }
     } else {
-        add_card_target(target_card{player, card});
+        add_card_target(player, card);
     }
 }
 
@@ -305,7 +305,7 @@ void target_finder::on_click_character(player_view *player, card_view *card) {
             }
         }
     } else {
-        add_card_target(target_card{player, player->m_characters.front()});
+        add_card_target(player, player->m_characters.front());
     }
 }
 
@@ -339,7 +339,7 @@ void target_finder::on_click_hand_card(player_view *player, card_view *card) {
             }
         }
     } else {
-        add_card_target(target_card{player, card});
+        add_card_target(player, card);
     }
 }
 
@@ -533,7 +533,7 @@ int target_finder::count_selected_cubes(card_view *card) {
     }
     for (const auto &t : m_targets) {
         if (auto *val = std::get_if<std::vector<target_cube>>(&t.value)) {
-            sum += std::ranges::count(*val, card, &target_cube::card);
+            sum += std::ranges::count(*val, card, &target_cube::first);
         }
     }
     return sum;
@@ -673,46 +673,46 @@ std::optional<std::string> target_finder::verify_player_target(target_player_fil
     return std::nullopt;
 }
 
-std::optional<std::string> target_finder::verify_card_target(const effect_holder &args, target_card target) {
-    if (auto error = verify_player_target(args.player_filter, target.player))
+std::optional<std::string> target_finder::verify_card_target(const effect_holder &args, player_view *player, card_view *card) {
+    if (auto error = verify_player_target(args.player_filter, player))
         return error;
     
     if (!get_current_card()->has_tag(tag_type::can_target_self)
-        && target.card == m_playing_card || std::ranges::find(m_modifiers, target.card) != m_modifiers.end())
+        && card == m_playing_card || std::ranges::find(m_modifiers, card) != m_modifiers.end())
         return _("ERROR_TARGET_PLAYING_CARD");
 
     if (bool(args.card_filter & target_card_filter::cube_slot)) {
-        if (target.card != target.player->m_characters.front() && target.card->color != card_color_type::orange)
+        if (card != player->m_characters.front() && card->color != card_color_type::orange)
             return _("ERROR_TARGET_NOT_CUBE_SLOT");
-    } else if (target.card->deck == card_deck_type::character) {
+    } else if (card->deck == card_deck_type::character) {
         return _("ERROR_TARGET_NOT_CARD");
     }
 
-    if (bool(args.card_filter & target_card_filter::beer) && !target.card->has_tag(tag_type::beer))
+    if (bool(args.card_filter & target_card_filter::beer) && !card->has_tag(tag_type::beer))
         return _("ERROR_TARGET_NOT_BEER");
 
-    if (bool(args.card_filter & target_card_filter::bang) && !is_bangcard(target.card))
+    if (bool(args.card_filter & target_card_filter::bang) && !is_bangcard(card))
         return _("ERROR_TARGET_NOT_BANG");
     
-    if (bool(args.card_filter & target_card_filter::missed) && !target.card->has_tag(tag_type::missedcard))
+    if (bool(args.card_filter & target_card_filter::missed) && !card->has_tag(tag_type::missedcard))
         return _("ERROR_TARGET_NOT_MISSED");
 
-    if (bool(args.card_filter & target_card_filter::bronco) && !target.card->has_tag(tag_type::bronco))
+    if (bool(args.card_filter & target_card_filter::bronco) && !card->has_tag(tag_type::bronco))
         return _("ERROR_TARGET_NOT_BRONCO");
     
-    if (bool(args.card_filter & target_card_filter::blue) && target.card->color != card_color_type::blue)
+    if (bool(args.card_filter & target_card_filter::blue) && card->color != card_color_type::blue)
         return _("ERROR_TARGET_NOT_BLUE_CARD");
     
-    if (bool(args.card_filter & target_card_filter::clubs) && target.card->sign.suit != card_suit::clubs)
+    if (bool(args.card_filter & target_card_filter::clubs) && card->sign.suit != card_suit::clubs)
         return _("ERROR_TARGET_NOT_CLUBS");
     
-    if (bool(args.card_filter & target_card_filter::black) != (target.card->color == card_color_type::black))
+    if (bool(args.card_filter & target_card_filter::black) != (card->color == card_color_type::black))
         return _("ERROR_TARGET_BLACK_CARD");
     
-    if (bool(args.card_filter & target_card_filter::table) && target.card->pocket != &target.player->table)
+    if (bool(args.card_filter & target_card_filter::table) && card->pocket != &player->table)
         return _("ERROR_TARGET_NOT_TABLE_CARD");
 
-    if (bool(args.card_filter & target_card_filter::hand) && target.card->pocket != &target.player->hand)
+    if (bool(args.card_filter & target_card_filter::hand) && card->pocket != &player->hand)
         return _("ERROR_TARGET_NOT_HAND_CARD");
 
     return std::nullopt;
@@ -731,7 +731,7 @@ std::vector<player_view *> target_finder::possible_player_targets(target_player_
     return ret;
 }
 
-void target_finder::add_card_target(target_card target) {
+void target_finder::add_card_target(player_view *player, card_view *card) {
     if (m_equipping) return;
 
     int index = get_target_index();
@@ -739,13 +739,13 @@ void target_finder::add_card_target(target_card target) {
     
     switch (cur_target.target) {
     case target_type::card:
-        if (auto error = verify_card_target(cur_target, target)) {
+        if (auto error = verify_card_target(cur_target, player, card)) {
             m_game->parent->add_chat_message(message_type::error, *error);
             os_api::play_bell();
         } else if (get_current_card()->has_tag(tag_type::can_repeat)
-            || std::ranges::find(m_targets, target_variant_base{target}, &target_variant::value) == m_targets.end())
+            || std::ranges::find(m_targets, target_variant_base{target_card{player, card}}, &target_variant::value) == m_targets.end())
         {
-            m_targets.emplace_back(target);
+            m_targets.emplace_back(target_card{player, card});
             handle_auto_targets();
         }
         break;
@@ -754,23 +754,23 @@ void target_finder::add_card_target(target_card target) {
             m_targets.emplace_back(enums::enum_tag<target_type::cards_other_players>);
         }
         if (auto &vec = m_targets.back().value.get<target_type::cards_other_players>();
-            target.card->color != card_color_type::black && target.player->id != m_game->m_player_own_id
-            && std::ranges::find(vec, target.player, &target_card::player) == vec.end())
+            card->color != card_color_type::black && player->id != m_game->m_player_own_id
+            && std::ranges::find(vec, player, &target_card::first) == vec.end())
         {
-            vec.push_back(target);
+            vec.emplace_back(player, card);
             if (vec.size() == num_targets_for(cur_target)) {
                 handle_auto_targets();
             }
         }
         break;
     case target_type::cube:
-        if (int ncubes = count_selected_cubes(target.card);
-            ncubes < target.card->cubes.size() && target.player->id == m_game->m_player_own_id) {
+        if (int ncubes = count_selected_cubes(card);
+            ncubes < card->cubes.size() && player->id == m_game->m_player_own_id) {
             if (index >= m_targets.size()) {
                 m_targets.emplace_back(enums::enum_tag<target_type::cube>);
             }
             auto &vec = m_targets.back().value.get<target_type::cube>();
-            vec.emplace_back(target.card, (target.card->cubes.rbegin() + ncubes)->get());
+            vec.emplace_back(card, (card->cubes.rbegin() + ncubes)->get());
             if (vec.size() == num_targets_for(cur_target)) {
                 handle_auto_targets();
             }
@@ -798,18 +798,18 @@ void target_finder::send_play_card() {
                 return play_card_target_ids(tag, target ? target->id : 0);
             },
             [](enums::enum_tag_t<target_type::card> tag, target_card target) {
-                return play_card_target_ids(tag, target.card->id);
+                return play_card_target_ids(tag, target.second->id);
             },
             [](enums::enum_tag_t<target_type::cards_other_players> tag, const std::vector<target_card> &cs) {
                 std::vector<int> ids;
-                for (auto [player, card] : cs) {
+                for (const auto &[player, card] : cs) {
                     ids.push_back(card->id);
                 }
                 return play_card_target_ids(tag, std::move(ids));
             },
             [](enums::enum_tag_t<target_type::cube> tag, const std::vector<target_cube> &cs) {
                 std::vector<int> ids;
-                for (auto [card, cube] : cs) {
+                for (const auto &[card, cube] : cs) {
                     ids.push_back(card->id);
                 }
                 return play_card_target_ids(tag, std::move(ids));
