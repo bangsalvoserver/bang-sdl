@@ -551,24 +551,62 @@ int target_finder::get_target_index() {
 }
 
 int target_finder::calc_distance(player_view *from, player_view *to) {
+    if (from == to) return 0;
+    if (from->has_player_flags(player_flags::disable_player_distances)) return to->m_distance_mod;
+
     if (std::ranges::find(m_modifiers, card_modifier_type::belltower, &card_view::modifier) != m_modifiers.end()) {
         return 1;
     }
-    
-    auto get_next_player = [&](player_view *p) {
-        auto it = m_game->m_players.find(p->id);
-        do {
-            if (++it == m_game->m_players.end()) it = m_game->m_players.begin();
-        } while(!it->alive());
-        return &*it;
+
+    struct player_view_iterator {
+        using iterator_category = std::bidirectional_iterator_tag;
+        using difference_type = int;
+        using value_type = player_view;
+        using pointer = player_view *;
+        using reference = player_view &;
+
+        util::id_map<banggame::player_view> *list;
+        util::id_map<banggame::player_view>::iterator m_it;
+
+        player_view_iterator() = default;
+        
+        player_view_iterator(game_scene *game, player_view *p)
+            : list(&game->m_players), m_it(list->find(p->id)) {}
+        
+        player_view_iterator &operator ++() {
+            do {
+                ++m_it;
+                if (m_it == list->end()) m_it = list->begin();
+            } while (!m_it->alive());
+            return *this;
+        }
+
+        player_view_iterator operator ++(int) { auto copy = *this; ++*this; return copy; }
+
+        player_view_iterator &operator --() {
+            do {
+                if (m_it == list->begin()) m_it = list->end();
+                --m_it;
+            } while (!m_it->alive());
+            return *this;
+        }
+
+        player_view_iterator operator --(int) { auto copy = *this; --*this; return copy; }
+
+        bool operator == (const player_view_iterator &) const = default;
     };
 
-    if (from == to) return 0;
-    if (from->has_player_flags(player_flags::disable_player_distances)) return to->m_distance_mod;
-    int d1=0, d2=0;
-    for (player_view *counter = from; counter != to; counter = get_next_player(counter), ++d1);
-    for (player_view *counter = to; counter != from; counter = get_next_player(counter), ++d2);
-    return std::min(d1, d2) + to->m_distance_mod;
+    if (to->alive()) {
+        return std::min(
+            std::distance(player_view_iterator(m_game, from), player_view_iterator(m_game, to)),
+            std::distance(player_view_iterator(m_game, to), player_view_iterator(m_game, from))
+        ) + to->m_distance_mod;
+    } else {
+        return std::min(
+            std::distance(player_view_iterator(m_game, from), std::prev(player_view_iterator(m_game, to))),
+            std::distance(std::next(player_view_iterator(m_game, to)), player_view_iterator(m_game, from))
+        ) + 1 + to->m_distance_mod;
+    }
 }
 
 void target_finder::handle_auto_targets() {
