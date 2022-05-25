@@ -51,6 +51,9 @@ void target_finder::set_border_colors() {
             enums::visit_indexed(overloaded{
                 [](enums::enum_tag_for<target_type> auto tag) {},
                 [](enums::enum_tag_t<target_type::player>, player_view *target) {
+                    target->border_color = options.target_finder_target;
+                },
+                [](enums::enum_tag_t<target_type::conditional_player>, nullable<player_view> target) {
                     if (target) {
                         target->border_color = options.target_finder_target;
                     }
@@ -139,6 +142,9 @@ void target_finder::clear_targets() {
             enums::visit_indexed(overloaded{
                 [](enums::enum_tag_for<target_type> auto) {},
                 [this](enums::enum_tag_t<target_type::player>, player_view *target) {
+                    target->border_color = m_game->m_playing_id == target->id ? options.turn_indicator : sdl::color{};
+                },
+                [this](enums::enum_tag_t<target_type::conditional_player>, nullable<player_view> target) {
                     if (target) {
                         target->border_color = m_game->m_playing_id == target->id ? options.turn_indicator : sdl::color{};
                     }
@@ -377,7 +383,11 @@ bool target_finder::on_click_player(player_view *player) {
             if (auto targets = possible_player_targets(args.player_filter);
                 std::ranges::find(targets, player) != targets.end())
             {
-                m_targets.emplace_back(player);
+                if (args.target == target_type::player) {
+                    m_targets.emplace_back(player);
+                } else {
+                    m_targets.emplace_back(nullable(player));
+                }
                 handle_auto_targets();
                 return true;
             }
@@ -777,31 +787,34 @@ void target_finder::send_play_card() {
     }
 
     for (const auto &target : m_targets) {
-        enums::visit_indexed(overloaded{
-            [&](enums::enum_tag_for<target_type> auto tag) {
-                ret.targets.emplace_back(tag);
+        ret.targets.push_back(enums::visit_indexed(overloaded{
+            [](enums::enum_tag_for<target_type> auto tag) {
+                return play_card_target_ids(tag);
             },
-            [&](enums::enum_tag_t<target_type::player> tag, player_view *target) {
-                ret.targets.emplace_back(tag, target->id);
+            [](enums::enum_tag_t<target_type::player> tag, player_view *target) {
+                return play_card_target_ids(tag, target->id);
             },
-            [&](enums::enum_tag_t<target_type::card> tag, target_card target) {
-                ret.targets.emplace_back(tag, target.card->id);
+            [](enums::enum_tag_t<target_type::conditional_player> tag, nullable<player_view> target) {
+                return play_card_target_ids(tag, target ? target->id : 0);
             },
-            [&](enums::enum_tag_t<target_type::cards_other_players> tag, const std::vector<target_card> &cs) {
+            [](enums::enum_tag_t<target_type::card> tag, target_card target) {
+                return play_card_target_ids(tag, target.card->id);
+            },
+            [](enums::enum_tag_t<target_type::cards_other_players> tag, const std::vector<target_card> &cs) {
                 std::vector<int> ids;
                 for (auto [player, card] : cs) {
                     ids.push_back(card->id);
                 }
-                ret.targets.emplace_back(enums::enum_tag<target_type::cards_other_players>, std::move(ids));
+                return play_card_target_ids(tag, std::move(ids));
             },
-            [&](enums::enum_tag_t<target_type::cube> tag, const std::vector<target_cube> &cs) {
+            [](enums::enum_tag_t<target_type::cube> tag, const std::vector<target_cube> &cs) {
                 std::vector<int> ids;
                 for (auto [card, cube] : cs) {
                     ids.push_back(card->id);
                 }
-                ret.targets.emplace_back(enums::enum_tag<target_type::cube>, std::move(ids));
+                return play_card_target_ids(tag, std::move(ids));
             }
-        }, target.value);
+        }, target.value));
     }
     if (m_response) {
         add_action<game_action_type::respond_card>(std::move(ret));

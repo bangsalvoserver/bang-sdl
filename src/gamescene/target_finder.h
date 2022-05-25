@@ -4,6 +4,7 @@
 #include "player.h"
 
 #include "game/holders.h"
+#include "utils/nullable.h"
 
 #include <vector>
 
@@ -17,6 +18,10 @@ namespace banggame {
 
     template<> struct client_target_transform<target_type::player> {
         using type = player_view *;
+    };
+
+    template<> struct client_target_transform<target_type::conditional_player> {
+        using type = nullable<player_view>;
     };
 
     struct target_card {
