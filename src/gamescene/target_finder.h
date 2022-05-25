@@ -12,24 +12,20 @@ namespace banggame {
 
     class game_scene;
 
-    using target_card = std::pair<player_view *, card_view *>;
-    using target_cube = std::pair<card_view *, cube_widget *>;
+    using player_card_pair = std::pair<player_view *, card_view *>;
+    using card_cube_pair = std::pair<card_view *, cube_widget *>;
 
     auto client_target_type(enums::enum_tag_for<target_type> auto) -> void;
     auto client_target_type(enums::enum_tag_t<target_type::player>) ->              player_view *;
     auto client_target_type(enums::enum_tag_t<target_type::conditional_player>) ->  nullable<player_view>;
-    auto client_target_type(enums::enum_tag_t<target_type::card>) ->                target_card;
-    auto client_target_type(enums::enum_tag_t<target_type::cards_other_players>) -> std::vector<target_card>;
-    auto client_target_type(enums::enum_tag_t<target_type::cube>) ->                std::vector<target_cube>;
+    auto client_target_type(enums::enum_tag_t<target_type::card>) ->                card_view *;
+    auto client_target_type(enums::enum_tag_t<target_type::extra_card>) ->          nullable<card_view>;
+    auto client_target_type(enums::enum_tag_t<target_type::cards_other_players>) -> std::vector<player_card_pair>;
+    auto client_target_type(enums::enum_tag_t<target_type::cube>) ->                std::vector<card_cube_pair>;
 
     template<target_type E> struct client_target_transform { using type = decltype(client_target_type(enums::enum_tag<E>)); };
 
-    using target_variant_base = enums::enum_variant<target_type, client_target_transform>;
-    
-    struct target_variant {
-        target_variant_base value{enums::enum_tag<target_type::none>};
-        bool autotarget = false;
-    };
+    using target_variant = enums::enum_variant<target_type, client_target_transform>;
     using target_vector = std::vector<target_variant>;
 
     struct target_status {
