@@ -11,21 +11,12 @@ namespace banggame {
 
     class game_scene;
 
-    struct target_none {
-        bool operator == (const target_none &) const = default;
+    template<target_type E> struct client_target_transform {
+        using type = void;
     };
 
-    struct target_no_player {
-        bool operator == (const target_no_player &) const = default;
-    };
-
-    struct target_other_players {
-        bool operator == (const target_other_players &) const = default;
-    };
-
-    struct target_player {
-        player_view *player;
-        bool operator == (const target_player &) const = default;
+    template<> struct client_target_transform<target_type::player> {
+        using type = player_view *;
     };
 
     struct target_card {
@@ -34,26 +25,28 @@ namespace banggame {
         bool operator == (const target_card &) const = default;
     };
 
+    template<> struct client_target_transform<target_type::card> {
+        using type = target_card;
+    };
+
+    template<> struct client_target_transform<target_type::cards_other_players> {
+        using type = std::vector<target_card>;
+    };
+
     struct target_cube {
         card_view *card;
         cube_widget *cube;
         bool operator == (const target_cube &) const = default;
     };
 
-    using target_cards = std::vector<target_card>;
-    using target_cubes = std::vector<target_cube>;
+    template<> struct client_target_transform<target_type::cube> {
+        using type = std::vector<target_cube>;
+    };
 
-    using target_variant_base = std::variant<
-        target_none,
-        target_player,
-        target_no_player,
-        target_other_players,
-        target_card,
-        target_cubes,
-        target_cards
-    >;
+    using target_variant_base = enums::enum_variant<target_type, client_target_transform>;
+    
     struct target_variant {
-        target_variant_base value{target_none{}};
+        target_variant_base value{enums::enum_tag<target_type::none>};
         bool autotarget = false;
     };
     using target_vector = std::vector<target_variant>;
