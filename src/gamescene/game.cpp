@@ -92,8 +92,6 @@ void game_scene::render(sdl::renderer &renderer) {
         }
     }
 
-    m_target.set_border_colors();
-
     if (!m_main_deck.empty() && m_main_deck.border_color.a) {
         sdl::rect rect = m_main_deck.back()->get_rect();
         card_textures::get().card_border.render_colored(renderer, sdl::rect{
@@ -781,15 +779,15 @@ void game_scene::HANDLE_UPDATE(player_status, const player_status_update &args) 
 }
 
 void game_scene::HANDLE_UPDATE(switch_turn, const switch_turn_update &args) {
-    if (m_playing_id) {
-        find_player(m_playing_id)->border_color = {};
-    }
-    m_playing_id = args.player_id;
-    if (m_playing_id) {
-        find_player(m_playing_id)->border_color = options.turn_indicator;
-    }
+    m_target.clear_status();
 
-    m_target.clear_targets();
+    m_playing_id = args.player_id;
+
+    if (m_playing_id) {
+        m_turn_border = {find_player(m_playing_id)->border_color, options.turn_indicator};
+    } else {
+        m_turn_border = {};
+    }
 }
 
 void game_scene::HANDLE_UPDATE(request_status, const request_status_args &args) {

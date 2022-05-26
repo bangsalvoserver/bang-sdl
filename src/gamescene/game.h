@@ -115,6 +115,8 @@ namespace banggame {
         int m_request_origin_id = 0;
         int m_request_target_id = 0;
 
+        raii_editor<sdl::color> m_turn_border;
+
         player_role m_winner_role = player_role::unknown;
 
         cube_pile_base &find_cube_pile(int card_id);
