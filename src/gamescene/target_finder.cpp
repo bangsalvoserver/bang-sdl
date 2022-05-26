@@ -845,33 +845,33 @@ void target_finder::send_play_card() {
     for (const auto &target : m_targets) {
         ret.targets.push_back(enums::visit_indexed(overloaded{
             [](enums::enum_tag_for<target_type> auto tag) {
-                return play_card_target_ids(tag);
+                return play_card_target_id(tag);
             },
             [](enums::enum_tag_t<target_type::player> tag, player_view *target) {
-                return play_card_target_ids(tag, target->id);
+                return play_card_target_id(tag, target->id);
             },
             [](enums::enum_tag_t<target_type::conditional_player> tag, nullable<player_view> target) {
-                return play_card_target_ids(tag, target ? target->id : 0);
+                return play_card_target_id(tag, target ? target->id : 0);
             },
             [](enums::enum_tag_t<target_type::card> tag, card_view *target) {
-                return play_card_target_ids(tag, target->id);
+                return play_card_target_id(tag, target->id);
             },
             [](enums::enum_tag_t<target_type::extra_card> tag, nullable<card_view> target) {
-                return play_card_target_ids(tag, target ? target->id : 0);
+                return play_card_target_id(tag, target ? target->id : 0);
             },
             [](enums::enum_tag_t<target_type::cards_other_players> tag, const std::vector<player_card_pair> &cs) {
                 std::vector<int> ids;
                 for (const auto &[player, card] : cs) {
                     ids.push_back(card->id);
                 }
-                return play_card_target_ids(tag, std::move(ids));
+                return play_card_target_id(tag, std::move(ids));
             },
             [](enums::enum_tag_t<target_type::cube> tag, const std::vector<card_cube_pair> &cs) {
                 std::vector<int> ids;
                 for (const auto &[card, cube] : cs) {
                     ids.push_back(card->id);
                 }
-                return play_card_target_ids(tag, std::move(ids));
+                return play_card_target_id(tag, std::move(ids));
             }
         }, target));
     }
