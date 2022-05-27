@@ -63,7 +63,7 @@ generate_export_header(bangclient
 target_include_directories(bangclient PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/exports")
 
 target_link_libraries(bangclient PUBLIC PkgConfig::SDL2 PkgConfig::SDL2_ttf PkgConfig::SDL2_image PkgConfig::SDL2_gfx)
-target_link_libraries(bangclient PUBLIC bangcommon game_options tiny-process-library::tiny-process-library)
+target_link_libraries(bangclient PUBLIC bangcommon game_options tiny-process-library)
 
 add_dependencies(bangclient cards_pak media_pak)
 
