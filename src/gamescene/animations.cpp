@@ -42,7 +42,13 @@ namespace banggame {
     }
 
     void card_flip_animation::end() {
-        card->flip_amt = float(!flips);
+        if (flips) {
+            card->texture_front.reset();
+            card->texture_front_scaled.reset();
+            card->flip_amt = 0.f;
+        } else {
+            card->flip_amt = 1.f;
+        }
         card->animating = false;
     }
 
