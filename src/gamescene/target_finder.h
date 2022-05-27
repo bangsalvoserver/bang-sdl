@@ -5,7 +5,7 @@
 
 #include "game/holders.h"
 #include "utils/nullable.h"
-#include "raii_editor.h"
+#include "utils/raii_editor.h"
 
 #include <vector>
 
@@ -32,7 +32,7 @@ namespace banggame {
         std::vector<card_view *> m_modifiers;
 
         target_vector m_targets;
-        std::vector<raii_editor<sdl::color>> m_target_borders;
+        raii_editor_stack<sdl::color> m_target_borders;
 
         bool m_equipping = false;
         bool m_response = false;
@@ -114,7 +114,7 @@ namespace banggame {
 
         std::vector<card_view *> m_response_highlights;
         std::vector<std::tuple<pocket_type, player_view *, card_view *>> m_picking_highlights;
-        std::vector<raii_editor<sdl::color>> m_response_borders;
+        raii_editor_stack<sdl::color> m_response_borders;
 
         card_view *m_last_played_card = nullptr;
         card_view *m_forced_card = nullptr;
