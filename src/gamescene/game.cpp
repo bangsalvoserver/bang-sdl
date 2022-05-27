@@ -67,8 +67,6 @@ void game_scene::refresh_layout() {
     m_ui.refresh_layout();
 }
 
-constexpr auto take_last = [](int n) { return std::views::reverse | std::views::take(n) | std::views::reverse; };
-
 void game_scene::render(sdl::renderer &renderer) {
     if (m_mouse_motion_timer >= options.card_overlay_timer) {
         if (!m_overlay) {
@@ -92,56 +90,16 @@ void game_scene::render(sdl::renderer &renderer) {
         }
     }
 
-    if (!m_main_deck.empty() && m_main_deck.border_color.a) {
-        sdl::rect rect = m_main_deck.back()->get_rect();
-        card_textures::get().card_border.render_colored(renderer, sdl::rect{
-            rect.x - options.default_border_thickness,
-            rect.y - options.default_border_thickness,
-            rect.w + options.default_border_thickness * 2,
-            rect.h + options.default_border_thickness * 2
-        }, m_main_deck.border_color);
-    }
-    for (card_view *card : m_main_deck | take_last(2)) {
-        card->render(renderer);
-    }
-    
-    m_main_deck.render_count(renderer);
-
-    for (card_view *card : m_shop_discard | std::views::take(1)) {
-        card->render(renderer);
-    }
-
-    for (card_view *card : m_shop_deck | take_last(2)) {
-        card->render(renderer);
-    }
-    
-    m_shop_deck.render_count(renderer);
-
-    for (card_view *card : m_shop_selection) {
-        card->render(renderer);
-    }
-
-    for (card_view *card : m_scenario_deck | take_last(1)) {
-        card->render(renderer);
-    }
-
-    for (card_view *card : m_scenario_card | take_last(2)) {
-        card->render(renderer);
-    }
-
-    for (auto &cube : m_cubes) {
-        cube->render(renderer);
-    }
+    m_main_deck.render_last(renderer, 2);
+    m_shop_discard.render_first(renderer, 1);
+    m_shop_deck.render_last(renderer, 2);
+    m_shop_selection.render(renderer);
+    m_scenario_deck.render_last(renderer, 1);
+    m_scenario_card.render_last(renderer, 2);
+    m_cubes.render(renderer);
 
     for (player_view &p : m_players) {
         p.render(renderer);
-
-        for (card_view *card : p.table) {
-            card->render(renderer);
-        }
-        for (card_view *card : p.hand) {
-            card->render(renderer);
-        }
 
         int x = p.m_bounding_rect.x + p.m_bounding_rect.w - 5;
 
@@ -171,30 +129,10 @@ void game_scene::render(sdl::renderer &renderer) {
         }
     }
 
-    if (!m_discard_pile.empty() && m_discard_pile.border_color.a) {
-        sdl::rect rect = m_discard_pile.back()->get_rect();
-        card_textures::get().card_border.render_colored(renderer, sdl::rect{
-            rect.x - options.default_border_thickness,
-            rect.y - options.default_border_thickness,
-            rect.w + options.default_border_thickness * 2,
-            rect.h + options.default_border_thickness * 2
-        }, m_discard_pile.border_color);
-    }
-    for (card_view *card : m_discard_pile | take_last(2)) {
-        card->render(renderer);
-    }
-
-    for (card_view *card : m_selection) {
-        card->render(renderer);
-    }
-
-    for (card_view *card : m_shop_choice) {
-        card->render(renderer);
-    }
-
-    for (card_view *card : m_dead_roles_pile) {
-        card->render(renderer);
-    }
+    m_discard_pile.render_last(renderer, 2);
+    m_selection.render(renderer);
+    m_shop_choice.render(renderer);
+    m_dead_roles_pile.render(renderer);
 
     if (!m_dead_roles_pile.empty()) {
         sdl::texture_ref icon = media_pak::get().icon_dead_players;

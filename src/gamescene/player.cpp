@@ -108,5 +108,8 @@ namespace banggame {
         m_username_text.render(renderer);
 
         m_propic.render(renderer);
+
+        table.render(renderer);
+        hand.render(renderer);
     }
 }

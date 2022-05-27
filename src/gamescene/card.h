@@ -49,14 +49,28 @@ namespace banggame {
     };
 
     class pocket_view;
-    struct cube_widget;
     struct card_view;
+
+    struct cube_widget {
+        sdl::point pos;
+
+        bool animating = false;
+        sdl::color border_color{};
+
+        void render(sdl::renderer &renderer, bool skip_if_animating = true);
+    };
 
     struct cube_pile_base : std::vector<std::unique_ptr<cube_widget>> {
         virtual void set_pos(sdl::point pos);
 
         virtual sdl::point get_pos() const = 0;
         virtual sdl::point get_offset(cube_widget *cube) const = 0;
+
+        void render(sdl::renderer &renderer) {
+            for (auto &cube : *this) {
+                cube->render(renderer);
+            }
+        }
     };
 
     struct card_cube_pile : cube_pile_base {
@@ -74,15 +88,6 @@ namespace banggame {
         void set_pos(sdl::point pos) override;
         sdl::point get_pos() const override { return m_pos; }
         sdl::point get_offset(cube_widget *cube) const override;
-    };
-
-    struct cube_widget {
-        sdl::point pos;
-
-        bool animating = false;
-        sdl::color border_color{};
-
-        void render(sdl::renderer &renderer, bool skip_if_animating = true);
     };
 
     class card_view : public card_data {
@@ -188,6 +193,42 @@ namespace banggame {
             }
             m_cards.clear();
         }
+
+        void render_border(sdl::renderer &renderer) {
+            if (!empty() && border_color.a) {
+                sdl::rect rect = back()->get_rect();
+                card_textures::get().card_border.render_colored(renderer, sdl::rect{
+                    rect.x - options.default_border_thickness,
+                    rect.y - options.default_border_thickness,
+                    rect.w + options.default_border_thickness * 2,
+                    rect.h + options.default_border_thickness * 2
+                }, border_color);
+            }
+        }
+
+        virtual void render(sdl::renderer &renderer) {
+            render_border(renderer);
+            for (card_view *c : *this) {
+                c->render(renderer);
+            }
+        }
+
+        virtual void render_first(sdl::renderer &renderer, int ncards) {
+            render_border(renderer);
+            for (card_view *c : *this | std::views::take(ncards)) {
+                c->render(renderer);
+            }
+        }
+        
+        virtual void render_last(sdl::renderer &renderer, int ncards) {
+            render_border(renderer);
+            for (card_view *c : *this
+                    | std::views::reverse
+                    | std::views::take(ncards)
+                    | std::views::reverse) {
+                c->render(renderer);
+            }
+        }
     };
 
     class counting_pocket : public pocket_view {
@@ -197,6 +238,21 @@ namespace banggame {
 
     public:
         void render_count(sdl::renderer &renderer);
+
+        void render(sdl::renderer &renderer) override {
+            pocket_view::render(renderer);
+            render_count(renderer);
+        }
+
+        void render_first(sdl::renderer &renderer, int ncards) override {
+            pocket_view::render_first(renderer, ncards);
+            render_count(renderer);
+        }
+
+        void render_last(sdl::renderer &renderer, int ncards) override {
+            pocket_view::render_last(renderer, ncards);
+            render_count(renderer);
+        }
 
         void add_card(card_view *card) override {
             pocket_view::add_card(card);
