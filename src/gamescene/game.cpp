@@ -798,6 +798,10 @@ void game_scene::HANDLE_UPDATE(request_status, const request_status_args &args) 
     m_ui.set_status(evaluate_format_string(args.status_text));
 }
 
+void game_scene::HANDLE_UPDATE(game_flags, const game_flags &args) {
+    m_game_flags = args;
+}
+
 void game_scene::HANDLE_UPDATE(status_clear) {
     m_request_origin_id = 0;
     m_request_target_id = 0;

@@ -467,7 +467,7 @@ int target_finder::get_target_index() {
 
 int target_finder::calc_distance(player_view *from, player_view *to) {
     if (from == to) return 0;
-    if (from->has_player_flags(player_flags::disable_player_distances)) return to->m_distance_mod;
+    if (bool(m_game->m_game_flags & game_flags::disable_player_distances)) return to->m_distance_mod;
 
     if (std::ranges::find(m_modifiers, card_modifier_type::belltower, &card_view::modifier) != m_modifiers.end()) {
         return 1;

@@ -52,6 +52,7 @@ namespace banggame {
         void HANDLE_UPDATE(player_status,     const player_status_update &args);
         void HANDLE_UPDATE(switch_turn,      const switch_turn_update &args);
         void HANDLE_UPDATE(request_status,   const request_status_args &args);
+        void HANDLE_UPDATE(game_flags,       const game_flags &args);
         void HANDLE_UPDATE(status_clear);
         void HANDLE_UPDATE(confirm_play);
         
@@ -118,6 +119,7 @@ namespace banggame {
         raii_editor<sdl::color> m_turn_border;
 
         player_role m_winner_role = player_role::unknown;
+        game_flags m_game_flags{};
 
         cube_pile_base &find_cube_pile(int card_id);
 
