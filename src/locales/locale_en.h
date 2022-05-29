@@ -137,6 +137,8 @@ LOCALE_VALUE(STATUS_CAN_PLAY_TUMBLEWEED,          "{0} \"draws!\" {3} for {2} ..
 LOCALE_VALUE(STATUS_CAN_PLAY_TUMBLEWEED_OTHER,    "{0} \"draws!\" {3} for {2} ... {4} can play {1}")
 LOCALE_VALUE(STATUS_CARD_SHARPER,                 "{0} to switch {1} with {2} ... You can respond with Escape")
 LOCALE_VALUE(STATUS_CARD_SHARPER_OTHER,           "{1} against {0} to switch {2} with {3}")
+LOCALE_VALUE(STATUS_LASTWILL,                     "You can play {0} to give up to three cards to a player")
+LOCALE_VALUE(STATUS_LASTWILL_OTHER,               "{1} can play {0}")
 LOCALE_VALUE(STATUS_NEWIDENTITY,                  "{0} ... Choose which character to switch to")
 LOCALE_VALUE(STATUS_NEWIDENTITY_OTHER,            "{1} ... {0} must choose which character to switch to")
 

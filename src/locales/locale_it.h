@@ -137,6 +137,8 @@ LOCALE_VALUE(STATUS_CAN_PLAY_TUMBLEWEED,          "{0} estrae {3} per {2} ... Pu
 LOCALE_VALUE(STATUS_CAN_PLAY_TUMBLEWEED_OTHER,    "{0} estrae {3} per {2} ... {4} può giocare {1}")
 LOCALE_VALUE(STATUS_CARD_SHARPER,                 "{0} per scambiare {1} con {2} ... Puoi rispondere con Fuga")
 LOCALE_VALUE(STATUS_CARD_SHARPER_OTHER,           "{1} contro {0} per scambiare {2} con {3}")
+LOCALE_VALUE(STATUS_LASTWILL,                     "Puoi giocare {0} per dare fino a tre carte a un giocatore")
+LOCALE_VALUE(STATUS_LASTWILL_OTHER,               "{1} può giocare {0}")
 LOCALE_VALUE(STATUS_NEWIDENTITY,                  "{0} ... Scegli con quale personaggio cambiare")
 LOCALE_VALUE(STATUS_NEWIDENTITY_OTHER,            "{1} ... {0} deve scegliere con quale personaggio cambiare")
 

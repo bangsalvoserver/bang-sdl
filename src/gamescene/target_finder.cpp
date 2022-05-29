@@ -527,7 +527,6 @@ int target_finder::calc_distance(player_view *from, player_view *to) {
 void target_finder::handle_auto_targets() {
     using namespace enums::flag_operators;
 
-    auto *self_player = m_game->find_player(m_game->m_player_own_id);
     auto do_handle_target = [&](const effect_holder &data) {
         switch (data.target) {
         case target_type::none:
@@ -567,20 +566,23 @@ void target_finder::handle_auto_targets() {
         }))
     {
         send_play_card();
+    } else if (repeatable && *repeatable
+        && m_targets.size() - effects.size() == optionals.size() * *repeatable)
+    {
+        send_play_card();
     } else {
-        auto effect_it = effects.begin() + m_targets.size();
+        auto effect_it = effects.begin();
         auto target_end = effects.end();
-        if (effect_it >= target_end && !optionals.empty()) {
+        if (m_targets.size() >= effects.size() && !optionals.empty()) {
             int diff = m_targets.size() - effects.size();
             effect_it = optionals.begin() + (repeatable ? diff % optionals.size() : diff);
             target_end = optionals.end();
+        } else {
+            effect_it += m_targets.size();
         }
-        for(;;++effect_it) {
+        while (true) {
             if (effect_it == target_end) {
-                if (optionals.empty() || (target_end == optionals.end()
-                    && (!repeatable || (*repeatable > 0
-                        && m_targets.size() - effects.size() == optionals.size() * *repeatable))))
-                {
+                if (optionals.empty() || (target_end == optionals.end() && !repeatable)) {
                     send_play_card();
                     break;
                 }
@@ -588,6 +590,7 @@ void target_finder::handle_auto_targets() {
                 target_end = optionals.end();
             }
             if (!do_handle_target(*effect_it)) break;
+            ++effect_it;
         }
     }
 }
