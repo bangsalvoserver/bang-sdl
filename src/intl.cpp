@@ -39,20 +39,18 @@ namespace intl {
     static const language current_language = get_system_language();
 
     std::string translate(category cat, std::string_view str) {
-        return std::string(enums::visit_enum([&]<category Cat>(enums::enum_tag_t<Cat> category_tag) {
-            return enums::visit_enum([&]<language Lang>(enums::enum_tag_t<Lang> language_tag) {
-                if constexpr (requires { get_language_translations(category_tag, language_tag); }) {
-                    static constexpr auto strings = get_language_translations(category_tag, language_tag);
-                    auto it = strings.find(str);
-                    if (it == strings.end()) {
-                        return str;
-                    } else {
-                        return it->second;
-                    }
-                } else {
+        return std::string(enums::visit_enum([&](auto category_tag, auto language_tag) {
+            if constexpr (requires { get_language_translations(category_tag, language_tag); }) {
+                static constexpr auto strings = get_language_translations(category_tag, language_tag);
+                auto it = strings.find(str);
+                if (it == strings.end()) {
                     return str;
+                } else {
+                    return it->second;
                 }
-            }, current_language);
-        }, cat));
+            } else {
+                return str;
+            }
+        }, cat, current_language));
     }
 }
