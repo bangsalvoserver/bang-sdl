@@ -111,15 +111,15 @@ void game_scene::render(sdl::renderer &renderer) {
         };
 
         if (m_winner_role == player_role::unknown) {
-            if (p.id == m_playing_id) {
+            if (&p == m_playing) {
                 render_icon(media_pak::get().icon_turn, options.turn_indicator);
                 x -= 32;
             }
-            if (p.id == m_request_target_id) {
+            if (&p == m_request_target) {
                 render_icon(media_pak::get().icon_target, options.request_target_indicator);
                 x -= 32;
             }
-            if (p.id == m_request_origin_id) {
+            if (&p == m_request_origin) {
                 render_icon(media_pak::get().icon_origin, options.request_origin_indicator);
             }
         } else if (p.m_role->role == m_winner_role
@@ -521,7 +521,7 @@ void game_scene::HANDLE_UPDATE(move_cubes, const move_cubes_update &args) {
 }
 
 void game_scene::HANDLE_UPDATE(move_scenario_deck, const move_scenario_deck_args &args) {
-    m_scenario_player_id = args.player_id;
+    m_scenario_player = find_player(args.player_id);
     move_player_views();
 }
 
@@ -596,26 +596,27 @@ void game_scene::HANDLE_UPDATE(force_play_card, const card_id_args &args) {
 }
 
 void game_scene::move_player_views() {
-    auto own_player = m_player_own_id ? m_players.find(m_player_own_id) : m_players.begin();
-    if (own_player == m_players.end()) return;
+    if (m_players.size() == 0) return;
 
-    int xradius = (parent->width() / 2) - options.player_ellipse_x_distance;
-    int yradius = (parent->height() / 2) - options.player_ellipse_y_distance;
+    const int xradius = (parent->width() / 2) - options.player_ellipse_x_distance;
+    const int yradius = (parent->height() / 2) - options.player_ellipse_y_distance;
+
+    auto begin = m_player_self ? m_players.find(m_player_self->id) : m_players.begin();
+    auto it = begin;
 
     double angle = 0.f;
-    for(auto it = own_player;;) {
+    do {
         it->set_position(sdl::point{
             int(parent->width() / 2 - std::sin(angle) * xradius),
             int(parent->height() / 2 + std::cos(angle) * yradius)
-        }, it == own_player);
+        }, &*it == m_player_self);
         
         angle += std::numbers::pi * 2.f / m_players.size();
         if (++it == m_players.end()) it = m_players.begin();
-        if (it == own_player) break;
-    }
+    } while (it != begin);
 
-    if (player_view *p = find_player(m_scenario_player_id)) {
-        auto player_rect = p->m_bounding_rect;
+    if (m_scenario_player) {
+        auto player_rect = m_scenario_player->m_bounding_rect;
         m_scenario_deck.set_pos(sdl::point{
             player_rect.x + player_rect.w + options.scenario_deck_xoff,
             player_rect.y + player_rect.h / 2});
@@ -623,11 +624,11 @@ void game_scene::move_player_views() {
 }
 
 void game_scene::HANDLE_UPDATE(player_add, const player_user_update &args) {
-    if (args.user_id == parent->get_user_own_id()) {
-        m_player_own_id = args.player_id;
-    }
     auto [p, inserted] = m_players.try_emplace(args.player_id);
     if (inserted) {
+        if (args.user_id == parent->get_user_own_id()) {
+            m_player_self = &p;
+        }
         auto card = std::make_unique<role_card>();
         card->id = args.player_id;
         card->texture_back = card_textures::get().backfaces[enums::indexof(card_deck_type::role)];
@@ -647,8 +648,8 @@ void game_scene::HANDLE_UPDATE(player_add, const player_user_update &args) {
 }
 
 void game_scene::HANDLE_UPDATE(player_remove, const player_remove_update &args) {
-    if (args.player_id == m_player_own_id) {
-        m_player_own_id = 0;
+    if (m_player_self && m_player_self->id == args.player_id) {
+        m_player_self = nullptr;
     }
 
     if (auto it = m_players.find(args.player_id); it != m_players.end()) {
@@ -719,18 +720,18 @@ void game_scene::HANDLE_UPDATE(player_status, const player_status_update &args) 
 void game_scene::HANDLE_UPDATE(switch_turn, const switch_turn_update &args) {
     m_target.clear_status();
 
-    m_playing_id = args.player_id;
+    m_playing = find_player(args.player_id);
 
-    if (m_playing_id) {
-        m_turn_border = {find_player(m_playing_id)->border_color, options.turn_indicator};
+    if (m_playing) {
+        m_turn_border = {m_playing->border_color, options.turn_indicator};
     } else {
         m_turn_border = {};
     }
 }
 
 void game_scene::HANDLE_UPDATE(request_status, const request_status_args &args) {
-    m_request_origin_id = args.origin_id;
-    m_request_target_id = args.target_id;
+    m_request_origin = find_player(args.origin_id);
+    m_request_target = find_player(args.target_id);
     m_target.set_response_highlights(args);
 
     m_ui.set_status(evaluate_format_string(args.status_text));
@@ -741,8 +742,8 @@ void game_scene::HANDLE_UPDATE(game_flags, const game_flags &args) {
 }
 
 void game_scene::HANDLE_UPDATE(status_clear) {
-    m_request_origin_id = 0;
-    m_request_target_id = 0;
+    m_request_origin = nullptr;
+    m_request_target = nullptr;
 
     m_ui.clear_status();
     m_target.clear_status();

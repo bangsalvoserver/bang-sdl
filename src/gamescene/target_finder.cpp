@@ -32,10 +32,9 @@ bool target_finder::can_respond_with(card_view *card) const {
 }
 
 bool target_finder::can_play_in_turn(player_view *player, card_view *card) const {
-    return m_game->m_request_origin_id == 0
-        && m_game->m_request_target_id == 0
-        && m_game->m_playing_id == m_game->m_player_own_id
-        && (!player || player->id == m_game->m_player_own_id);
+    return !m_game->m_request_origin && !m_game->m_request_target
+        && m_game->m_playing == m_game->m_player_self
+        && (!player || player == m_game->m_player_self);
 }
 
 void target_finder::set_response_highlights(const request_status_args &args) {
@@ -105,7 +104,7 @@ void target_finder::set_forced_card(card_view *card) {
         return;
     }
 
-    if (card->pocket == &m_game->find_player(m_game->m_player_own_id)->table || card->color == card_color_type::brown) {
+    if (card->pocket == &m_game->m_player_self->table || card->color == card_color_type::brown) {
         if (can_respond_with(card)) {
             set_playing_card(card);
             m_response = true;
@@ -149,16 +148,14 @@ void target_finder::on_click_selection_card(card_view *card) {
 }
 
 void target_finder::on_click_shop_card(card_view *card) {
-    if (!m_playing_card
-        && m_game->m_playing_id == m_game->m_player_own_id
-        && m_game->m_request_origin_id == 0
-        && m_game->m_request_target_id == 0)
+    if (!m_playing_card && m_game->m_playing == m_game->m_player_self
+        && !m_game->m_request_origin && !m_game->m_request_target)
     {
         int cost = card->buy_cost();
         if (std::ranges::find(m_modifiers, card_modifier_type::discount, &card_view::modifier) != m_modifiers.end()) {
             --cost;
         }
-        if (m_game->find_player(m_game->m_player_own_id)->gold >= cost) {
+        if (m_game->m_player_self->gold >= cost) {
             if (card->color == card_color_type::black) {
                 if (verify_modifier(card)) {
                     if (card->self_equippable()) {
@@ -361,7 +358,7 @@ void target_finder::add_modifier(card_view *card) {
 }
 
 bool target_finder::is_bangcard(card_view *card) {
-    return (m_game->has_player_flags(player_flags::treat_missed_as_bang)
+    return (m_game->m_player_self->has_player_flags(player_flags::treat_missed_as_bang)
             && card->has_tag(tag_type::missedcard))
         || card->has_tag(tag_type::bangcard);
 }
@@ -378,16 +375,14 @@ bool target_finder::verify_modifier(card_view *card) {
             return card->expansion == card_expansion_type::goldrush;
         case card_modifier_type::shopchoice:
             return std::ranges::find(m_game->m_shop_choice, card) != m_game->m_shop_choice.end();
-        case card_modifier_type::belltower: {
-            player_view *p = m_game->find_player(m_game->m_player_own_id);
-            if (card->pocket == &p->hand) {
+        case card_modifier_type::belltower:
+            if (card->pocket == &m_game->m_player_self->hand) {
                 return card->color == card_color_type::brown;
-            } else if (card->pocket == &p->table) {
+            } else if (card->pocket == &m_game->m_player_self->table) {
                 return !card->effects.empty();
             } else {
                 return card->color != card_color_type::black;
             }
-        }
         default:
             return false;
         }
@@ -422,21 +417,6 @@ const effect_holder &target_finder::get_effect_holder(int index) {
     return optionals[(index - effects.size()) % optionals.size()];
 }
 
-int target_finder::num_targets_for(const effect_holder &data) {
-    switch (data.target) {
-    case target_type::cards_other_players:
-        return std::ranges::count_if(m_game->m_players, [&](const player_view &p) {
-            if (!p.alive() || p.id == m_game->m_player_own_id) return false;
-            if (p.table.empty() && p.hand.empty()) return false;
-            return true;
-        });
-    case target_type::cube:
-        return std::max<int>(1, data.effect_value);
-    default:
-        return 1;
-    }
-};
-
 int target_finder::count_selected_cubes(card_view *card) {
     int sum = 0;
     if (std::ranges::find(m_modifiers, card) != m_modifiers.end() || card == m_playing_card) {
@@ -455,14 +435,17 @@ int target_finder::count_selected_cubes(card_view *card) {
 }
 
 int target_finder::get_target_index() {
-    if (m_targets.empty()) return 0;
-    int index = m_targets.size() - 1;
-    size_t size = std::visit(overloaded{
-        [](const auto &) -> size_t { return 1; },
-        []<typename T>(const std::vector<T> &value) { return value.size(); }
-    }, m_targets[index]);
-    index += size >= num_targets_for(get_effect_holder(index));
-    return index;
+    if (m_targets.empty()) {
+        return 0;
+    }
+    return m_targets.size() - enums::visit(overloaded{
+        [](const auto &) {
+            return false;
+        },
+        []<typename T>(const std::vector<T> &value) {
+            return value.size() != value.capacity();
+        }
+    }, m_targets.back());
 }
 
 int target_finder::calc_distance(player_view *from, player_view *to) {
@@ -602,26 +585,25 @@ std::optional<std::string> target_finder::verify_player_target(target_player_fil
         return _("ERROR_TARGET_DEAD");
     }
 
-    if (bool(filter & target_player_filter::self) && target_player->id != m_game->m_player_own_id)
+    if (bool(filter & target_player_filter::self) && target_player != m_game->m_player_self)
         return _("ERROR_TARGET_NOT_SELF");
 
-    if (bool(filter & target_player_filter::notself) && target_player->id == m_game->m_player_own_id)
+    if (bool(filter & target_player_filter::notself) && target_player == m_game->m_player_self)
         return _("ERROR_TARGET_SELF");
 
     if (bool(filter & target_player_filter::notsheriff) && target_player->m_role->role == player_role::sheriff)
         return _("ERROR_TARGET_SHERIFF");
 
     if (bool(filter & (target_player_filter::reachable | target_player_filter::range_1 | target_player_filter::range_2))) {
-        player_view *own_player = m_game->find_player(m_game->m_player_own_id);
-        int distance = own_player->m_range_mod;
+        int distance = m_game->m_player_self->m_range_mod;
         if (bool(filter & target_player_filter::reachable)) {
-            distance += own_player->m_weapon_range;
+            distance += m_game->m_player_self->m_weapon_range;
         } else if (bool(filter & target_player_filter::range_1)) {
             ++distance;
         } else if (bool(filter & target_player_filter::range_2)) {
             distance += 2;
         }
-        if (calc_distance(own_player, target_player) > distance) {
+        if (calc_distance(m_game->m_player_self, target_player) > distance) {
             return _("ERROR_TARGET_NOT_IN_RANGE");
         }
     }
@@ -707,7 +689,7 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
         }
         break;
     case target_type::extra_card:
-        if (player->id != m_game->m_player_own_id) {
+        if (player != m_game->m_player_self) {
             m_game->parent->add_chat_message(message_type::error, _("ERROR_TARGET_NOT_SELF"));
             os_api::play_bell();
         } else if (card->pocket != &player->hand) {
@@ -725,29 +707,36 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
     case target_type::cards_other_players:
         if (index >= m_targets.size()) {
             m_targets.emplace_back(enums::enum_tag<target_type::cards_other_players>);
+            m_targets.back().get<target_type::cards_other_players>().reserve(
+                std::ranges::count_if(m_game->m_players, [&](const player_view &p) {
+                    if (!p.alive() || &p == m_game->m_player_self) return false;
+                    if (p.table.empty() && p.hand.empty()) return false;
+                    return true;
+                }));
         }
         if (auto &vec = m_targets.back().get<target_type::cards_other_players>();
-            card->color != card_color_type::black && player->id != m_game->m_player_own_id
+            card->color != card_color_type::black && player != m_game->m_player_self
             && std::ranges::find(vec, player, &player_card_pair::first) == vec.end())
         {
             m_target_borders.add(card->border_color, options.target_finder_target);
             vec.emplace_back(player, card);
-            if (vec.size() == num_targets_for(cur_target)) {
+            if (vec.size() == vec.capacity()) {
                 handle_auto_targets();
             }
         }
         break;
     case target_type::cube:
         if (int ncubes = count_selected_cubes(card);
-            ncubes < card->cubes.size() && player->id == m_game->m_player_own_id) {
+            ncubes < card->cubes.size() && player == m_game->m_player_self) {
             if (index >= m_targets.size()) {
                 m_targets.emplace_back(enums::enum_tag<target_type::cube>);
+                m_targets.back().get<target_type::cube>().reserve(std::max<int>(1, cur_target.effect_value));
             }
             auto &vec = m_targets.back().get<target_type::cube>();
             auto *cube = (card->cubes.rbegin() + ncubes)->get();
             m_target_borders.add(cube->border_color, options.target_finder_target);
             vec.emplace_back(card, cube);
-            if (vec.size() == num_targets_for(cur_target)) {
+            if (vec.size() == vec.capacity()) {
                 handle_auto_targets();
             }
         }

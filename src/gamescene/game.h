@@ -94,8 +94,6 @@ namespace banggame {
         pocket_view m_scenario_deck;
         pocket_view m_scenario_card;
 
-        int m_scenario_player_id = 0;
-
         wide_pocket m_selection{options.selection_width};
 
         pocket_view m_specials;
@@ -111,10 +109,11 @@ namespace banggame {
 
         game_options m_game_options;
         
-        int m_player_own_id = 0;
-        int m_playing_id = 0;
-        int m_request_origin_id = 0;
-        int m_request_target_id = 0;
+        player_view *m_player_self = nullptr;
+        player_view *m_playing = nullptr;
+        player_view *m_request_origin = nullptr;
+        player_view *m_request_target = nullptr;
+        player_view *m_scenario_player = nullptr;
 
         raii_editor<sdl::color> m_turn_border;
 
@@ -122,13 +121,6 @@ namespace banggame {
         game_flags m_game_flags{};
 
         cube_pile_base &find_cube_pile(int card_id);
-
-        bool has_player_flags(player_flags flags) {
-            if (player_view *p = find_player(m_player_own_id)) {
-                return p->has_player_flags(flags);
-            }
-            return false;
-        }
 
         card_view *find_card(int id) {
             if (auto it = m_cards.find(id); it != m_cards.end()) {
