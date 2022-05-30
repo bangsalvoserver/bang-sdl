@@ -58,7 +58,7 @@ void bang_connection::on_close() {
 void bang_connection::on_message(const server_message &message) {
     try {
         enums::visit_indexed([&](auto && ... args) {
-            parent.handle_message(std::forward<decltype(args)>(args)...);
+            parent.handle_message(FWD(args)...);
         }, message);
     } catch (const std::exception &error) {
         parent.add_chat_message(message_type::error, fmt::format("Error: {}", error.what()));

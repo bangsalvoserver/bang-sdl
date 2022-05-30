@@ -37,7 +37,7 @@ namespace banggame {
         void remove_special(card_view *card);
 
         void show_message_box(const std::string &message, auto &&on_click_yes, auto &&on_click_no) {
-            m_message_box.emplace(message, std::forward<decltype(on_click_yes)>(on_click_yes), std::forward<decltype(on_click_no)>(on_click_no));
+            m_message_box.emplace(message, FWD(on_click_yes), FWD(on_click_no));
             refresh_layout();
         }
 

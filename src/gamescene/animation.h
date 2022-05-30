@@ -57,12 +57,12 @@ namespace banggame {
         const animation_vtable *vtable;
     
     public:
-        template<typename T, typename ... Ts>
-        animation_object(std::in_place_type_t<T>, Ts && ... args)
+        template<typename T>
+        animation_object(std::in_place_type_t<T>, auto && ... args)
             : vtable(&animation_vtable_for<T>)
         {
             static_assert(sizeof(T) <= sizeof(m_data));
-            new (&m_data) T(std::forward<Ts>(args) ... );
+            new (&m_data) T(FWD(args) ... );
         }
 
         animation_object(const animation_object &other)
@@ -116,10 +116,10 @@ namespace banggame {
         animation_object m_value;
 
     public:
-        template<typename T, typename ... Ts>
-        animation(int duration, std::in_place_type_t<T> tag, Ts && ... args)
+        template<typename T>
+        animation(int duration, std::in_place_type_t<T> tag, auto && ... args)
             : duration(duration)
-            , m_value(tag, std::forward<Ts>(args) ...) {}
+            , m_value(tag, FWD(args) ...) {}
 
         void tick() {
             ++elapsed;

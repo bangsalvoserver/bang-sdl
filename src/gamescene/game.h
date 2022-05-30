@@ -58,9 +58,9 @@ namespace banggame {
         
         void pop_update();
 
-        template<typename T, typename ... Ts>
-        void add_animation(int duration, Ts && ... args) {
-            m_animations.emplace_back(duration, std::in_place_type<T>, std::forward<Ts>(args) ... );
+        template<typename T>
+        void add_animation(int duration, auto && ... args) {
+            m_animations.emplace_back(duration, std::in_place_type<T>, FWD(args) ... );
         }
 
         void move_player_views();

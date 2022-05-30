@@ -58,18 +58,18 @@ public:
 
     void handle_event(const sdl::event &event);
 
-    template<banggame::client_message_type E, typename ... Ts>
-    void add_message(Ts && ... args) {
-        m_con.push_message(enums::enum_tag<E>, std::forward<Ts>(args) ...);
+    template<banggame::client_message_type E>
+    void add_message(auto && ... args) {
+        m_con.push_message(enums::enum_tag<E>, FWD(args) ...);
     }
 
     void connect(const std::string &host);
     void disconnect();
 
-    template<std::derived_from<scene_base> T, typename ... Ts>
-    void switch_scene(Ts && ... args) {
+    template<std::derived_from<scene_base> T>
+    void switch_scene(auto && ... args) {
         m_chat.disable();
-        m_scene = std::make_unique<T>(this, std::forward<Ts>(args) ...);
+        m_scene = std::make_unique<T>(this, FWD(args) ...);
         refresh_layout();
     }
 

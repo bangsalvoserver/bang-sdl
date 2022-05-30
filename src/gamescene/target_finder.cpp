@@ -24,9 +24,9 @@ void target_finder::set_playing_card(card_view *card) {
     m_target_borders.add(card->border_color, options.target_finder_current_card);
 }
 
-template<game_action_type T, typename ... Ts>
-void target_finder::add_action(Ts && ... args) {
-    m_game->parent->add_message<banggame::client_message_type::game_action>(enums::enum_tag<T>, std::forward<Ts>(args) ...);
+template<game_action_type T>
+void target_finder::add_action(auto && ... args) {
+    m_game->parent->add_message<banggame::client_message_type::game_action>(enums::enum_tag<T>, FWD(args) ...);
 }
 
 bool target_finder::is_card_clickable() const {
