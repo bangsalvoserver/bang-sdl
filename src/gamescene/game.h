@@ -19,7 +19,7 @@ namespace banggame {
 
     class game_scene : public scene_base {
     public:
-        game_scene(client_manager *parent, const game_options &options);
+        game_scene(client_manager *parent);
         
         void refresh_layout() override;
         void render(sdl::renderer &renderer) override;
@@ -53,6 +53,7 @@ namespace banggame {
         void HANDLE_UPDATE(switch_turn,      const switch_turn_update &args);
         void HANDLE_UPDATE(request_status,   const request_status_args &args);
         void HANDLE_UPDATE(game_flags,       const game_flags &args);
+        void HANDLE_UPDATE(game_options,     const game_options &args);
         void HANDLE_UPDATE(status_clear);
         void HANDLE_UPDATE(confirm_play);
         

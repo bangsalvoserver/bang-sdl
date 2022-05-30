@@ -277,8 +277,8 @@ void client_manager::HANDLE_SRV_MESSAGE(lobby_chat, const lobby_chat_args &args)
     }
 }
 
-void client_manager::HANDLE_SRV_MESSAGE(game_started, const game_options &options) {
-    switch_scene<banggame::game_scene>(options);
+void client_manager::HANDLE_SRV_MESSAGE(game_started) {
+    switch_scene<banggame::game_scene>();
 }
 
 void client_manager::HANDLE_SRV_MESSAGE(game_update, const game_update &args) {

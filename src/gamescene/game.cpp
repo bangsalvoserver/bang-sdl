@@ -13,12 +13,11 @@ using namespace sdl::point_math;
 template<typename ... Ts> struct overloaded : Ts ... { using Ts::operator() ...; };
 template<typename ... Ts> overloaded(Ts ...) -> overloaded<Ts ...>;
 
-game_scene::game_scene(client_manager *parent, const game_options &options)
+game_scene::game_scene(client_manager *parent)
     : scene_base(parent)
     , m_card_textures(parent->get_base_path(), parent->get_renderer())
     , m_ui(this)
     , m_target(this)
-    , m_game_options(options)
 {
     m_ui.enable_golobby(false);
 }
@@ -739,6 +738,10 @@ void game_scene::HANDLE_UPDATE(request_status, const request_status_args &args) 
 
 void game_scene::HANDLE_UPDATE(game_flags, const game_flags &args) {
     m_game_flags = args;
+}
+
+void game_scene::HANDLE_UPDATE(game_options, const game_options &args) {
+    m_game_options = args;
 }
 
 void game_scene::HANDLE_UPDATE(status_clear) {
