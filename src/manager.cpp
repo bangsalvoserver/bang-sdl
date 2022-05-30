@@ -206,6 +206,18 @@ void client_manager::stop_listenserver() {
     m_listenserver.reset();
 }
 
+void client_manager::load_replay_file(const std::filesystem::path &filename) {
+    std::ifstream ifs(filename);
+    Json::Value json_value;
+    ifs >> json_value;
+    auto updates = json::deserialize<std::vector<banggame::game_update>>(json_value);
+    switch_scene<banggame::game_scene>();
+    auto *scene = dynamic_cast<banggame::game_scene *>(m_scene.get());
+    for (const auto &value : updates) {
+        scene->handle_game_update(value);
+    }
+}
+
 void client_manager::HANDLE_SRV_MESSAGE(client_accepted, const client_accepted_args &args) {
     if (!m_listenserver) {
         auto it = std::ranges::find(m_config.recent_servers, m_con.address_string());

@@ -102,6 +102,8 @@ public:
     void start_listenserver();
     void stop_listenserver();
 
+    void load_replay_file(const std::filesystem::path &filename);
+
     user_info *get_user_info(int id) {
         auto it = m_users.find(id);
         if (it != m_users.end()) {

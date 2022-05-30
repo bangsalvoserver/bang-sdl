@@ -32,6 +32,7 @@ connect_scene::connect_scene(client_manager *parent)
         do_connect(m_address_box.get_value());
     })
     , m_create_server_btn(_("BUTTON_CREATE_SERVER"), [this]{ do_create_server(); })
+    , m_load_replay_btn(_("BUTTON_LOAD_REPLAY"), [this]{ do_load_replay(); })
 {
     m_username_box.set_value(parent->get_config().user_name);
     m_address_box.set_onenter([this]{
@@ -81,6 +82,8 @@ void connect_scene::refresh_layout() {
     m_address_box.set_rect(sdl::rect{rect.x + label_rect.w + 15, rect.y, rect.w - 125 - label_rect.w, rect.h});
     
     m_connect_btn.set_rect(sdl::rect{rect.x + rect.w - 100, rect.y, 100, rect.h});
+
+    m_load_replay_btn.set_rect(sdl::rect{win_rect.w - 120, 20, 100, 25});
 }
 
 void connect_scene::render(sdl::renderer &renderer) {
@@ -96,6 +99,7 @@ void connect_scene::render(sdl::renderer &renderer) {
     m_address_box.render(renderer);
     m_connect_btn.render(renderer);
     m_create_server_btn.render(renderer);
+    m_load_replay_btn.render(renderer);
 }
 
 void connect_scene::do_connect(const std::string &address) {
@@ -135,6 +139,19 @@ void connect_scene::do_browse_propic() {
         } catch (const std::runtime_error &e) {
             parent->add_chat_message(message_type::error, e.what());
         }
+    }
+}
+
+void connect_scene::do_load_replay() {
+    if (auto value = os_api::open_file_dialog(
+        _("BANG_TITLE"), "",
+        {
+            {{"*.json"}, _("DIALOG_REPLAY_FILES")},
+            {{"*.*"}, _("DIALOG_ALL_FILES")}
+        },
+        &parent->get_window()
+    )) {
+        parent->load_replay_file(*value);
     }
 }
 
