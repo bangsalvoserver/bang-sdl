@@ -32,6 +32,7 @@ extern "C" BANGCLIENT_EXPORT long STDCALL entrypoint(const char *base_path) {
     SDL_SetWindowIcon(window.get(), media_pak::get().icon_bang.get());
 
     asio::io_context ctx;
+    auto work_guard = asio::make_work_guard(ctx.get_executor());
 
     client_manager mgr{window, renderer, ctx, base_path};
 

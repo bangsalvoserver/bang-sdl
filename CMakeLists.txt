@@ -50,6 +50,9 @@ add_subdirectory(external/tiny-process-library)
 set_target_properties(bangserver PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
+set_target_properties(tiny-process-library PROPERTIES
+    POSITION_INDEPENDENT_CODE ON)
+
 add_library(bangclient SHARED ${bangclient_srcs})
 target_include_directories(bangclient PRIVATE src)
 
