@@ -179,7 +179,7 @@ LOCALE_VALUE(ERROR_TARGET_BLACK_CARD,             "Non puoi bersagliare le carte
 LOCALE_VALUE(ERROR_TARGET_NOT_TABLE_CARD,         "Puoi giocare questa carta solo sulle carte sul tavolo")
 LOCALE_VALUE(ERROR_TARGET_NOT_HAND_CARD,          "Puoi giocare questa carta solo sulle carte in mano")
 LOCALE_VALUE(ERROR_TARGET_NOT_BLUE_CARD,          "Puoi giocare questa carta solo sulle carte blu")
-LOCALE_VALUE(ERROR_TARGET_NOT_CLUBS,              "Puoi giocare questa carta solo sulle carte di picche")
+LOCALE_VALUE(ERROR_TARGET_NOT_CLUBS,              "Puoi giocare questa carta solo sulle carte di fiori")
 LOCALE_VALUE(ERROR_TARGET_NOT_BANG,               "Puoi giocare questa carta solo sulle carte Bang!")
 LOCALE_VALUE(ERROR_TARGET_NOT_MISSED,             "Puoi giocare questa carta solo sulle carte Mancato!")
 LOCALE_VALUE(ERROR_TARGET_NOT_BEER,               "Puoi giocare questa carta solo sulle carte Birra")
