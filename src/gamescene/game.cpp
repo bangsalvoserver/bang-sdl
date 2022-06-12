@@ -487,7 +487,11 @@ void game_scene::HANDLE_UPDATE(move_card, const move_card_update &args) {
             add_animation<pause_animation>(options.short_pause_msecs, card);
         }
         
-        add_animation<card_move_animation>(options.move_card_msecs, std::move(anim));
+        add_animation<card_move_animation>(
+            bool(args.flags & show_card_flags::fast)
+                ? options.move_card_fast_msecs
+                : options.move_card_msecs,
+            std::move(anim));
     }
 }
 

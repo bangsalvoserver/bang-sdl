@@ -66,6 +66,7 @@ namespace banggame {
         (int) username_yoff,
 
         (int) move_card_msecs,
+        (int) move_card_fast_msecs,
         (int) flip_card_msecs,
         (int) short_pause_msecs,
         (int) tap_card_msecs,
