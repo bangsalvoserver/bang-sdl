@@ -127,7 +127,7 @@ namespace banggame {
 
         void tick(anim_duration_type time_elapsed) {
             elapsed += time_elapsed;
-            m_value.do_animation(elapsed / duration);
+            m_value.do_animation(std::clamp(elapsed / duration, 0.f, 1.f));
         }
 
         void end() {
@@ -140,6 +140,10 @@ namespace banggame {
 
         bool done() const {
             return elapsed >= duration;
+        }
+
+        anim_duration_type extra_time() const {
+            return elapsed - duration;
         }
     };
 

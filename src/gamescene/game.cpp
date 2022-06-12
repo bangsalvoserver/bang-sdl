@@ -78,15 +78,34 @@ void game_scene::tick(duration_type time_elapsed) {
         m_mouse_motion_timer += time_elapsed;
     }
 
-    if (m_animations.empty()) {
-        pop_update();
-    } else {
-        auto &anim = m_animations.front();
-        anim.tick(time_elapsed);
-        if (anim.done()) {
-            anim.end();
-            m_animations.pop_front();
+    try {
+        anim_duration_type tick_time{time_elapsed};
+        while (true) {
+            if (m_animations.empty()) {
+                if (!m_pending_updates.empty()) {
+                    enums::visit_indexed([this](auto && ... args) {
+                        handle_game_update(FWD(args) ...);
+                    }, m_pending_updates.front());
+                    m_pending_updates.pop_front();
+                } else {
+                    break;
+                }
+            } else {
+                auto &anim = m_animations.front();
+                anim.tick(tick_time);
+                if (anim.done()) {
+                    tick_time -= anim.extra_time();
+
+                    anim.end();
+                    m_animations.pop_front();
+                } else {
+                    break;
+                }
+            }
         }
+    } catch (const std::exception &error) {
+        parent->add_chat_message(message_type::error, fmt::format("Error: {}", error.what()));
+        parent->disconnect();
     }
 }
 
@@ -310,21 +329,6 @@ void game_scene::handle_game_update(const game_update &update) {
     std::cout << "/*** GAME UPDATE ***/ " << json::serialize(update) << '\n';
 #endif
     m_pending_updates.push_back(update);
-}
-
-void game_scene::pop_update() {
-    try {
-        while (!m_pending_updates.empty() && m_animations.empty()) {
-            const auto &update = m_pending_updates.front();
-            enums::visit_indexed([this]<game_update_type E>(enums::enum_tag_t<E> tag, const auto & ... data) {
-                handle_game_update(tag, data ...);
-            }, update);
-            m_pending_updates.pop_front();
-        }
-    } catch (const std::exception &error) {
-        parent->add_chat_message(message_type::error, fmt::format("Error: {}", error.what()));
-        parent->disconnect();
-    }
 }
 
 void game_scene::HANDLE_UPDATE(game_over, const game_over_update &args) {

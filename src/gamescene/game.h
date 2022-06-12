@@ -57,8 +57,6 @@ namespace banggame {
         void HANDLE_UPDATE(game_options,     const game_options &args);
         void HANDLE_UPDATE(status_clear);
         void HANDLE_UPDATE(confirm_play);
-        
-        void pop_update();
 
         template<typename T>
         void add_animation(int duration, auto && ... args) {
