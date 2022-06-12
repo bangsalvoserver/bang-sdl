@@ -115,11 +115,15 @@ static void render_tiled(sdl::renderer &renderer, sdl::texture_ref texture, cons
     }
 }
 
+void client_manager::tick(duration_type time_elapsed) {
+    m_scene->tick(time_elapsed);
+    m_chat.tick(time_elapsed);
+}
+
 void client_manager::render(sdl::renderer &renderer) {
     render_tiled(renderer, media_pak::get().texture_background, sdl::rect{0, 0, width(), height()});
     
     m_scene->render(renderer);
-
     m_chat.render(renderer);
 }
 

@@ -83,6 +83,11 @@ void connect_scene::refresh_layout() {
     m_connect_btn.set_rect(sdl::rect{rect.x + rect.w - 100, rect.y, 100, rect.h});
 }
 
+void connect_scene::tick(duration_type time_elapsed) {
+    m_username_box.tick(time_elapsed);
+    m_address_box.tick(time_elapsed);
+}
+
 void connect_scene::render(sdl::renderer &renderer) {
     m_username_label.render(renderer);
     m_username_box.render(renderer);

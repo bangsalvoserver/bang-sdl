@@ -29,6 +29,7 @@ public:
     lobby_list_scene(client_manager *parent);
 
     void refresh_layout() override;
+    void tick(duration_type time_elapsed) override;
     void render(sdl::renderer &renderer) override;
 
     void handle_lobby_update(const banggame::lobby_data &args);

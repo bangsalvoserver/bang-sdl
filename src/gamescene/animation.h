@@ -1,6 +1,8 @@
 #ifndef __ANIMATION_H__
 #define __ANIMATION_H__
 
+#include "../widgets/defaults.h"
+
 #include "animations.h"
 
 #include <cassert>
@@ -108,22 +110,24 @@ namespace banggame {
         }
     };
 
+    using anim_duration_type = std::chrono::duration<float, duration_type::period>;
+
 
     class animation {
     private:
-        int duration;
-        int elapsed = 0;
+        anim_duration_type duration;
+        anim_duration_type elapsed{0};
         animation_object m_value;
 
     public:
         template<typename T>
-        animation(int duration, std::in_place_type_t<T> tag, auto && ... args)
+        animation(anim_duration_type duration, std::in_place_type_t<T> tag, auto && ... args)
             : duration(duration)
             , m_value(tag, FWD(args) ...) {}
 
-        void tick() {
-            ++elapsed;
-            m_value.do_animation((float)elapsed / (float)duration);
+        void tick(anim_duration_type time_elapsed) {
+            elapsed += time_elapsed;
+            m_value.do_animation(elapsed / duration);
         }
 
         void end() {

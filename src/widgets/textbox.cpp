@@ -73,6 +73,10 @@ static int get_text_width(const sdl::font &font, const std::string &text) {
     return x;
 }
 
+void textbox::tick(duration_type time_elapsed) {
+    m_timer += time_elapsed;
+}
+
 void textbox::render(sdl::renderer &renderer) {
     renderer.set_draw_color(m_style.background_color);
     renderer.fill_rect(m_border_rect);
@@ -142,14 +146,14 @@ void textbox::render(sdl::renderer &renderer) {
         SDL_RenderCopy(renderer.get(), m_tex.get_texture(renderer).get(), &src_rect, &dst_rect);
     }
 
-    if (focused() && (m_ticks++ % 50) < 25) {
+    if (focused() && (m_timer % m_style.cycle_duration) < (m_style.cycle_duration / 2)) {
         renderer.set_draw_color(m_style.border_color);
         SDL_RenderDrawLine(renderer.get(), linex, m_crop.y, linex, m_crop.y + m_crop.h);
     }
 }
 
 void textbox::on_gain_focus() {
-    m_ticks = 0;
+    m_timer = duration_type{0};
     SDL_StartTextInput();
 }
 
@@ -169,7 +173,7 @@ bool textbox::handle_event(const sdl::event &event) {
             }
             m_cursor_len = 0;
             m_mouse_down = true;
-            m_ticks = 0;
+            m_timer = duration_type{0};
             return true;
         }
         return false;
@@ -178,7 +182,7 @@ bool textbox::handle_event(const sdl::event &event) {
             int pos = m_cursor_pos;
             m_cursor_pos = measure_cursor(m_font, m_value, event.button.x - (m_border_rect.x + m_style.margin - m_hscroll));
             m_cursor_len += pos - m_cursor_pos;
-            m_ticks = 0;
+            m_timer = duration_type{0};
             return true;
         }
         return false;
@@ -198,7 +202,7 @@ bool textbox::handle_event(const sdl::event &event) {
                             m_cursor_pos += m_cursor_len;
                         }
                         m_cursor_len = 0;
-                        m_ticks = 0;
+                        m_timer = duration_type{0};
                         redraw();
                     }
                 }
@@ -231,7 +235,7 @@ bool textbox::handle_event(const sdl::event &event) {
                 if (event.key.keysym.mod & KMOD_CTRL) {
                     m_cursor_pos = unicode_count_chars(m_value);
                     m_cursor_len = -m_cursor_pos;
-                    m_ticks = 0;
+                    m_timer = duration_type{0};
                 }
                 return true;
             case SDLK_BACKSPACE:
@@ -242,11 +246,11 @@ bool textbox::handle_event(const sdl::event &event) {
                             m_cursor_pos += m_cursor_len;
                         }
                         m_cursor_len = 0;
-                        m_ticks = 0;
+                        m_timer = duration_type{0};
                     } else if (m_cursor_pos > 0) {
                         unicode_erase_at(m_value, m_cursor_pos - 1, 1);
                         --m_cursor_pos;
-                        m_ticks = 0;
+                        m_timer = duration_type{0};
                     }
                     redraw();
                 }
@@ -259,7 +263,7 @@ bool textbox::handle_event(const sdl::event &event) {
                             m_cursor_pos += m_cursor_len;
                         }
                         m_cursor_len = 0;
-                        m_ticks = 0;
+                        m_timer = duration_type{0};
                     } else {
                         unicode_erase_at(m_value, m_cursor_pos, 1);
                     }
@@ -280,7 +284,7 @@ bool textbox::handle_event(const sdl::event &event) {
                 } else if (m_cursor_pos > 0) {
                     --m_cursor_pos;
                 }
-                m_ticks = 0;
+                m_timer = duration_type{0};
                 return true;
             case SDLK_RIGHT:
                 if (event.key.keysym.mod & KMOD_SHIFT) {
@@ -296,7 +300,7 @@ bool textbox::handle_event(const sdl::event &event) {
                 } else if (m_cursor_pos < unicode_count_chars(m_value)) {
                     ++m_cursor_pos;
                 }
-                m_ticks = 0;
+                m_timer = duration_type{0};
                 return true;
             case SDLK_HOME:
                 if (event.key.keysym.mod & KMOD_SHIFT) {
@@ -305,7 +309,7 @@ bool textbox::handle_event(const sdl::event &event) {
                     m_cursor_len = 0;
                 }
                 m_cursor_pos = 0;
-                m_ticks = 0;
+                m_timer = duration_type{0};
                 return true;
             case SDLK_END: {
                 int len = unicode_count_chars(m_value);
@@ -315,7 +319,7 @@ bool textbox::handle_event(const sdl::event &event) {
                     m_cursor_len = 0;
                 }
                 m_cursor_pos = len;
-                m_ticks = 0;
+                m_timer = duration_type{0};
                 return true;
             }
             case SDLK_RETURN:
@@ -338,7 +342,7 @@ bool textbox::handle_event(const sdl::event &event) {
             unicode_append_at(m_value, event.text.text, m_cursor_pos);
             ++m_cursor_pos;
             redraw();
-            m_ticks = 0;
+            m_timer = duration_type{0};
             return true;
         }
         return false;

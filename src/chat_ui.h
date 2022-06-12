@@ -15,7 +15,7 @@ enum class message_type {
 
 struct chat_message {
     widgets::stattext text;
-    int lifetime;
+    duration_type lifetime;
 };
 
 struct chat_textbox : widgets::textbox {
@@ -33,6 +33,7 @@ public:
     chat_ui(client_manager *parent);
 
     void set_rect(const sdl::rect &rect);
+    void tick(duration_type time_elapsed);
     void render(sdl::renderer &renderer);
 
     void add_message(message_type, const std::string &message);

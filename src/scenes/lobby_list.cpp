@@ -59,6 +59,10 @@ void lobby_list_scene::refresh_layout() {
     m_make_lobby_btn.set_rect(sdl::rect{win_rect.w - 200, rect.y, 100, 25});
 }
 
+void lobby_list_scene::tick(duration_type time_elapsed) {
+    m_lobby_name_box.tick(time_elapsed);
+}
+
 void lobby_list_scene::render(sdl::renderer &renderer) {
     for (auto &[id, line] : m_lobby_lines) {
         line.render(renderer);

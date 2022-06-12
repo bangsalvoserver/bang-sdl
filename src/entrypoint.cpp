@@ -15,6 +15,7 @@
 
 constexpr int window_width = 900;
 constexpr int window_height = 700;
+constexpr int max_fps = 300;
 
 extern "C" BANGCLIENT_EXPORT long STDCALL entrypoint(const char *base_path) {
     sdl::initializer sdl_init(SDL_INIT_VIDEO);
@@ -39,8 +40,11 @@ extern "C" BANGCLIENT_EXPORT long STDCALL entrypoint(const char *base_path) {
     sdl::event event;
     bool quit = false;
 
-    using frames = std::chrono::duration<int64_t, std::ratio<1, banggame::fps>>;
-    auto next_frame = std::chrono::steady_clock::now() + frames{0};
+    using clock = std::chrono::steady_clock;
+    using frames = std::chrono::duration<int64_t, std::ratio<1, max_fps>>;
+
+    auto next_frame = clock::now() + frames{0};
+    auto last_tick = clock::now();
 
     while (!quit) {
         next_frame += frames{1};
@@ -62,6 +66,11 @@ extern "C" BANGCLIENT_EXPORT long STDCALL entrypoint(const char *base_path) {
         }
 
         ctx.poll();
+
+        auto next_tick = clock::now();
+        mgr.tick(next_tick - last_tick);
+        last_tick = next_tick;
+
         mgr.render(renderer);
         SDL_RenderPresent(renderer.get());
         

@@ -3,6 +3,10 @@
 
 #include "sdl_wrap.h"
 
+#include <chrono>
+
+using duration_type = std::chrono::nanoseconds;
+
 namespace widgets {
 
     constexpr sdl::color default_text_color = sdl::rgb(0x0);
@@ -19,7 +23,7 @@ namespace widgets {
     constexpr sdl::color default_textbox_border_color = sdl::rgb(0x0);
     constexpr sdl::color default_textbox_selection_color = sdl::rgb(0x00c0ff);
     
-    constexpr int chat_message_lifetime = 1000;
+    constexpr std::chrono::milliseconds chat_message_lifetime{15000};
 
     constexpr int chat_text_ptsize = 12;
     constexpr int default_text_list_yoffset = 6;

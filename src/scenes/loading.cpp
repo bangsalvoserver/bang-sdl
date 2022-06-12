@@ -30,11 +30,15 @@ void loading_scene::refresh_layout() {
     m_loading_rect.y = rect.y - m_loading_rect.h - 10;
 }
 
+void loading_scene::tick(duration_type time_elapsed) {
+    static constexpr float rotation_speed = 600.f;
+    m_loading_rotation += rotation_speed * time_elapsed / std::chrono::seconds{1};
+}
+
 void loading_scene::render(sdl::renderer &renderer) {
     m_loading_text.render(renderer);
     m_cancel_btn.render(renderer);
 
     SDL_RenderCopyEx(renderer.get(), media_pak::get().icon_loading.get(), nullptr,
         &m_loading_rect, m_loading_rotation, nullptr, SDL_FLIP_NONE);
-    m_loading_rotation += 10.f;
 }

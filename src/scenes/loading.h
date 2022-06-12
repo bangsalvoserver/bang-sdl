@@ -9,6 +9,7 @@ public:
 
     void refresh_layout() override;
 
+    void tick(duration_type time_elapsed) override;
     void render(sdl::renderer &renderer) override;
 
 private:

@@ -17,6 +17,8 @@ public:
     
     virtual void refresh_layout() = 0;
 
+    virtual void tick(duration_type time_elapsed) {}
+    
     virtual void render(sdl::renderer &renderer) = 0;
     
     virtual void handle_event(const sdl::event &event) {}

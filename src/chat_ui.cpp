@@ -30,6 +30,17 @@ void chat_ui::set_rect(const sdl::rect &rect) {
     m_chat_box.set_rect(sdl::rect{rect.x, rect.y + rect.h - 25, rect.w, 25});
 }
 
+void chat_ui::tick(duration_type time_elapsed) {
+    for (auto it = m_messages.rbegin(); it != m_messages.rend(); ++it) {
+        if (it->lifetime <= time_elapsed) {
+            m_messages.erase(m_messages.begin(), it.base());
+            break;
+        }
+        it->lifetime -= time_elapsed;
+    }
+    m_chat_box.tick(time_elapsed);
+}
+
 void chat_ui::render(sdl::renderer &renderer) {
     bool added = false;
     while (auto pair = m_pending_messages.pop_front()) {
@@ -37,12 +48,8 @@ void chat_ui::render(sdl::renderer &renderer) {
         m_messages.emplace_back(widgets::stattext{pair->second, get_text_style(pair->first)}, widgets::chat_message_lifetime);
     }
     if (added) set_rect(m_rect);
-    for (auto it = m_messages.rbegin(); it != m_messages.rend(); ++it) {
-        if (--it->lifetime <= 0) {
-            m_messages.erase(m_messages.begin(), it.base());
-            break;
-        }
-        it->text.render(renderer);
+    for (auto &msg : m_messages) {
+        msg.text.render(renderer);
     }
     if (m_chat_box.enabled()) {
         m_chat_box.render(renderer);

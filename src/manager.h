@@ -54,6 +54,7 @@ public:
 
     void refresh_layout();
 
+    void tick(duration_type time_elapsed);
     void render(sdl::renderer &renderer);
 
     void handle_event(const sdl::event &event);

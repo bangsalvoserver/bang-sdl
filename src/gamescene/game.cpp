@@ -66,8 +66,8 @@ void game_scene::refresh_layout() {
     m_ui.refresh_layout();
 }
 
-void game_scene::render(sdl::renderer &renderer) {
-    if (m_mouse_motion_timer >= options.card_overlay_timer) {
+void game_scene::tick(duration_type time_elapsed) {
+    if (m_mouse_motion_timer >= std::chrono::milliseconds{options.card_overlay_msecs}) {
         if (!m_overlay) {
             find_overlay();
         }
@@ -75,20 +75,22 @@ void game_scene::render(sdl::renderer &renderer) {
         if (!m_middle_click) {
             m_overlay = nullptr;
         }
-        ++m_mouse_motion_timer;
+        m_mouse_motion_timer += time_elapsed;
     }
 
     if (m_animations.empty()) {
         pop_update();
     } else {
         auto &anim = m_animations.front();
-        anim.tick();
+        anim.tick(time_elapsed);
         if (anim.done()) {
             anim.end();
             m_animations.pop_front();
         }
     }
+}
 
+void game_scene::render(sdl::renderer &renderer) {
     m_main_deck.render_last(renderer, 2);
     m_shop_discard.render_first(renderer, 1);
     m_shop_deck.render_last(renderer, 2);
@@ -186,7 +188,7 @@ void game_scene::handle_event(const sdl::event &event) {
         }
         break;
     case SDL_MOUSEMOTION:
-        m_mouse_motion_timer = 0;
+        m_mouse_motion_timer = duration_type{0};
         m_mouse_pt = {event.motion.x, event.motion.y};
         break;
     case SDL_KEYDOWN:
@@ -388,7 +390,7 @@ void game_scene::HANDLE_UPDATE(deck_shuffled, const pocket_type &pocket) {
         if (m_game_options.keep_last_card_shuffling) {
             m_discard_pile.add_card(top_discard);
         }
-        add_animation<deck_shuffle_animation>(options.shuffle_deck_ticks, &m_main_deck, m_discard_pile.get_pos());
+        add_animation<deck_shuffle_animation>(options.shuffle_deck_msecs, &m_main_deck, m_discard_pile.get_pos());
         break;
     }
     case pocket_type::shop_deck:
@@ -397,7 +399,7 @@ void game_scene::HANDLE_UPDATE(deck_shuffled, const pocket_type &pocket) {
             m_shop_deck.add_card(card);
         }
         m_shop_discard.clear();
-        add_animation<deck_shuffle_animation>(options.shuffle_deck_ticks, &m_shop_deck, m_shop_discard.get_pos());
+        add_animation<deck_shuffle_animation>(options.shuffle_deck_msecs, &m_shop_deck, m_shop_discard.get_pos());
         break;
     }
 }
@@ -482,10 +484,10 @@ void game_scene::HANDLE_UPDATE(move_card, const move_card_update &args) {
         anim.end();
     } else {
         if (bool(args.flags & show_card_flags::pause_before_move)) {
-            add_animation<pause_animation>(options.short_pause_ticks, card);
+            add_animation<pause_animation>(options.short_pause_msecs, card);
         }
         
-        add_animation<card_move_animation>(options.move_card_ticks, std::move(anim));
+        add_animation<card_move_animation>(options.move_card_msecs, std::move(anim));
     }
 }
 
@@ -516,7 +518,7 @@ void game_scene::HANDLE_UPDATE(move_cubes, const move_cubes_update &args) {
 
         anim.add_cube(cube.get(), &target_pile);
     }
-    add_animation<cube_move_animation>(args.num_cubes == 1 ? options.move_cube_ticks : options.move_cubes_ticks, std::move(anim));
+    add_animation<cube_move_animation>(args.num_cubes == 1 ? options.move_cube_msecs : options.move_cubes_msecs, std::move(anim));
 }
 
 void game_scene::HANDLE_UPDATE(move_scenario_deck, const move_scenario_deck_args &args) {
@@ -545,10 +547,10 @@ void game_scene::HANDLE_UPDATE(show_card, const show_card_update &args) {
         if (bool(args.flags & show_card_flags::instant)) {
             card->flip_amt = 1.f;
         } else {
-            add_animation<card_flip_animation>(options.flip_card_ticks, card, false);
+            add_animation<card_flip_animation>(options.flip_card_msecs, card, false);
 
             if (bool(args.flags & show_card_flags::short_pause)) {
-                add_animation<pause_animation>(options.short_pause_ticks, card);
+                add_animation<pause_animation>(options.short_pause_msecs, card);
             }
         }
     }
@@ -566,10 +568,10 @@ void game_scene::HANDLE_UPDATE(hide_card, const hide_card_update &args) {
             card->flip_amt = 0.f;
         } else {
             if (bool(args.flags & show_card_flags::short_pause)) {
-                add_animation<pause_animation>(options.short_pause_ticks, card);
+                add_animation<pause_animation>(options.short_pause_msecs, card);
             }
 
-            add_animation<card_flip_animation>(options.flip_card_ticks, card, true);
+            add_animation<card_flip_animation>(options.flip_card_msecs, card, true);
         }
     }
 }
@@ -581,7 +583,7 @@ void game_scene::HANDLE_UPDATE(tap_card, const tap_card_update &args) {
         if (args.instant) {
             card->rotation = card->inactive ? 90.f : 0.f;
         } else {
-            add_animation<card_tap_animation>(options.tap_card_ticks, card, args.inactive);
+            add_animation<card_tap_animation>(options.tap_card_msecs, card, args.inactive);
         }
     }
 }
@@ -660,7 +662,7 @@ void game_scene::HANDLE_UPDATE(player_remove, const player_remove_update &args) 
 
         card_move_animation anim;
         anim.add_move_card(card);
-        add_animation<card_move_animation>(options.move_card_ticks, std::move(anim));
+        add_animation<card_move_animation>(options.move_card_msecs, std::move(anim));
     }
 }
 
@@ -671,7 +673,7 @@ void game_scene::HANDLE_UPDATE(player_hp, const player_hp_update &args) {
     if (args.instant) {
         player->set_hp_marker_position(args.hp);
     } else if (prev_hp != args.hp) {
-        add_animation<player_hp_animation>(options.move_hp_ticks, player, prev_hp);
+        add_animation<player_hp_animation>(options.move_hp_msecs, player, prev_hp);
     }
 }
 
@@ -690,7 +692,7 @@ void game_scene::HANDLE_UPDATE(player_show_role, const player_show_role_update &
                 }
                 p->m_role->flip_amt = 1.f;
             } else {
-                add_animation<card_flip_animation>(options.flip_role_ticks, p->m_role, false);
+                add_animation<card_flip_animation>(options.flip_role_msecs, p->m_role, false);
             }
         }
         move_player_views();

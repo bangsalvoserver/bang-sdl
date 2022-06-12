@@ -12,6 +12,7 @@ namespace widgets {
         sdl::color border_color = default_textbox_border_color;
         sdl::color selection_color = default_textbox_selection_color;
         int margin = 4;
+        std::chrono::milliseconds cycle_duration{850};
     };
 
     class textbox : public event_handler {
@@ -27,7 +28,7 @@ namespace widgets {
 
         button_callback_fun on_enter;
 
-        int m_ticks = 0;
+        duration_type m_timer{0};
         int m_cursor_pos = 0;
         int m_cursor_len = 0;
         int m_hscroll = 0;
@@ -47,6 +48,7 @@ namespace widgets {
     public:
         textbox(const textbox_style &style = {});
 
+        void tick(duration_type time_elapsed);
         void render(sdl::renderer &renderer);
 
         const sdl::rect &get_rect() const {

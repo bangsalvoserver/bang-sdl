@@ -54,7 +54,7 @@ namespace banggame {
         (int) player_ellipse_x_distance,
         (int) player_ellipse_y_distance,
 
-        (int) card_overlay_timer,
+        (int) card_overlay_msecs,
 
         (int) default_border_thickness,
 
@@ -65,16 +65,16 @@ namespace banggame {
         (int) propic_yoff,
         (int) username_yoff,
 
-        (int) move_card_ticks,
-        (int) flip_card_ticks,
-        (int) short_pause_ticks,
-        (int) tap_card_ticks,
-        (int) move_hp_ticks,
-        (int) flip_role_ticks,
-        (int) shuffle_deck_ticks,
+        (int) move_card_msecs,
+        (int) flip_card_msecs,
+        (int) short_pause_msecs,
+        (int) tap_card_msecs,
+        (int) move_hp_msecs,
+        (int) flip_role_msecs,
+        (int) shuffle_deck_msecs,
         
-        (int) move_cube_ticks,
-        (int) move_cubes_ticks,
+        (int) move_cube_msecs,
+        (int) move_cubes_msecs,
         (float) move_cubes_offset,
 
         (float) shuffle_deck_offset,

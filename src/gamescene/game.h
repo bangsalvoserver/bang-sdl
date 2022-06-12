@@ -22,6 +22,7 @@ namespace banggame {
         game_scene(client_manager *parent);
         
         void refresh_layout() override;
+        void tick(duration_type time_elapsed) override;
         void render(sdl::renderer &renderer) override;
         void handle_event(const sdl::event &event) override;
 
@@ -61,7 +62,7 @@ namespace banggame {
 
         template<typename T>
         void add_animation(int duration, auto && ... args) {
-            m_animations.emplace_back(duration, std::in_place_type<T>, FWD(args) ... );
+            m_animations.emplace_back(std::chrono::milliseconds{duration}, std::in_place_type<T>, FWD(args) ... );
         }
 
         void move_player_views();
@@ -104,7 +105,7 @@ namespace banggame {
         util::id_map<role_card> m_role_cards;
 
         sdl::point m_mouse_pt;
-        int m_mouse_motion_timer = 0;
+        duration_type m_mouse_motion_timer{0};
         bool m_middle_click = false;
         card_view *m_overlay = nullptr;
 
