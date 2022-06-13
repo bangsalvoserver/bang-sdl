@@ -94,7 +94,7 @@ void game_scene::tick(duration_type time_elapsed) {
                 auto &anim = m_animations.front();
                 anim.tick(tick_time);
                 if (anim.done()) {
-                    tick_time -= anim.extra_time();
+                    tick_time = anim.extra_time();
 
                     anim.end();
                     m_animations.pop_front();
