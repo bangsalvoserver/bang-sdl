@@ -48,7 +48,7 @@ LOCALE_VALUE(PROMPT_REPLACE,                      "Do you want to play {0} to re
 LOCALE_VALUE(PROMPT_EQUIP_ON_SELF,                "Do you want to play {0} on yourself?")
 
 LOCALE_VALUE(STATUS_GAME_OVER,                    "Game Over")
-LOCALE_VALUE(STATUS_YOUR_TURN,                    "Your turn ... Draw from the deck")
+LOCALE_VALUE(STATUS_YOUR_TURN,                    "Your turn ... Choose how to draw")
 LOCALE_VALUE(STATUS_YOUR_TURN_OTHER,              "{}'s turn")
 LOCALE_VALUE(STATUS_CHARACTERCHOICE,              "Choose your character")
 LOCALE_VALUE(STATUS_CHARACTERCHOICE_OTHER,        "{} must choose their character")

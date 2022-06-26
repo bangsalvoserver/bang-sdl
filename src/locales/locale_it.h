@@ -48,7 +48,7 @@ LOCALE_VALUE(PROMPT_REPLACE,                      "Vuoi giocare {0} per rimpiazz
 LOCALE_VALUE(PROMPT_EQUIP_ON_SELF,                "Vuoi giocare {0} su te stesso?")
 
 LOCALE_VALUE(STATUS_GAME_OVER,                    "Partita Finita")
-LOCALE_VALUE(STATUS_YOUR_TURN,                    "Tocca a te ... Pesca dal mazzo")
+LOCALE_VALUE(STATUS_YOUR_TURN,                    "Tocca a te ... Scegli come pescare")
 LOCALE_VALUE(STATUS_YOUR_TURN_OTHER,              "Tocca a {}")
 LOCALE_VALUE(STATUS_CHARACTERCHOICE,              "Scegli il tuo personaggio")
 LOCALE_VALUE(STATUS_CHARACTERCHOICE_OTHER,        "{} deve scegliere il personaggio")
