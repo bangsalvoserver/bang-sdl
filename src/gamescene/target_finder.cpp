@@ -510,6 +510,8 @@ int target_finder::calc_distance(player_view *from, player_view *to) {
 void target_finder::handle_auto_targets() {
     using namespace enums::flag_operators;
 
+    auto *current_card = get_current_card();
+
     auto do_handle_target = [&](const effect_holder &data) {
         switch (data.target) {
         case target_type::none:
@@ -522,7 +524,7 @@ void target_finder::handle_auto_targets() {
             }
             break;
         case target_type::extra_card:
-            if (get_current_card() == m_last_played_card) {
+            if (current_card == m_last_played_card) {
                 m_targets.emplace_back(enums::enum_tag<target_type::extra_card>);
                 return true;
             }
@@ -538,20 +540,31 @@ void target_finder::handle_auto_targets() {
     };
 
     auto &effects = get_current_card_effects();
-    auto &optionals = get_current_card()->optionals;
-    auto repeatable = get_current_card()->get_tag_value(tag_type::repeatable);
+    auto &optionals = current_card->optionals;
+    auto repeatable = current_card->get_tag_value(tag_type::repeatable);
+    
+    auto is_auto_confirmable = [&]{
+        if (can_confirm()) {
+            if (current_card->has_tag(tag_type::auto_confirm)) {
+                return std::ranges::any_of(optionals, [&](const effect_holder &holder) {
+                    return holder.target == target_type::player
+                        && possible_player_targets(holder.player_filter).empty();
+                });
+            } else if (current_card->has_tag(tag_type::auto_confirm_red_ringo)) {
+                return current_card->cubes.size() <= 1
+                    || std::transform_reduce(m_game->m_playing->table.begin(), m_game->m_playing->table.end(), 0, std::plus(), [](const card_view *card) {
+                        return 4 - card->cubes.size();
+                    }) <= 1;
+            }
+        } else if (repeatable && *repeatable) {
+            return m_targets.size() - effects.size() == optionals.size() * *repeatable;
+        }
+        return false;
+    };
+
     if (effects.empty()) {
         clear_targets();
-    } else if (get_current_card()->has_tag(tag_type::auto_confirm) && can_confirm()
-        && std::ranges::any_of(optionals, [&](const effect_holder &holder) {
-            return holder.target == target_type::player
-                && possible_player_targets(holder.player_filter).empty();
-        }))
-    {
-        send_play_card();
-    } else if (repeatable && *repeatable
-        && m_targets.size() - effects.size() == optionals.size() * *repeatable)
-    {
+    } else if (is_auto_confirmable()) {
         send_play_card();
     } else {
         auto effect_it = effects.begin();
@@ -678,7 +691,13 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
             m_game->parent->add_chat_message(message_type::error, *error);
             os_api::play_bell();
         } else if (get_current_card()->has_tag(tag_type::can_repeat)
-            || !ranges_contains(m_targets, target_variant(card)))
+            || std::ranges::none_of(m_targets, [card](const target_variant &target) {
+                return enums::visit(overloaded{
+                    [](const auto &) { return false; },
+                    [card](card_view *c) { return c == card; },
+                    [card](nullable<card_view> c) { return c == nullable(card); }
+                }, target);
+            }))
         {
             if (player != m_game->m_player_self && card->pocket == &player->hand) {
                 for (card_view *hand_card : player->hand) {
