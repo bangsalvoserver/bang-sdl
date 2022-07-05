@@ -368,7 +368,11 @@ bool target_finder::verify_modifier(card_view *card) {
         switch (c->modifier) {
         case card_modifier_type::bangmod:
         case card_modifier_type::bandolier:
-            return is_bangcard(card) || card->has_tag(tag_type::play_as_bang);
+            if (card->pocket == &m_game->m_playing->hand) {
+                return is_bangcard(card);
+            } else {
+                return card->has_tag(tag_type::play_as_bang);
+            }
         case card_modifier_type::leevankliff:
             return is_bangcard(card) && m_last_played_card;
         case card_modifier_type::discount:
