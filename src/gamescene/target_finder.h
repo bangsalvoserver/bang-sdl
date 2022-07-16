@@ -56,7 +56,7 @@ namespace banggame {
 
         void set_forced_card(card_view *card);
 
-        void confirm_play(bool valid);
+        void confirm_play();
         bool waiting_confirm() const {
             return m_waiting_confirm;
         }
@@ -84,10 +84,11 @@ namespace banggame {
     private:
         bool is_bangcard(card_view *card);
         
-        void set_playing_card(card_view *card);
+        void set_playing_card(card_view *card, bool is_response = false);
         void add_modifier(card_view *card);
         bool verify_modifier(card_view *card);
 
+        void handle_auto_respond();
         void handle_auto_targets();
 
         std::optional<std::string> verify_player_target(target_player_filter filter, player_view *target_player);
@@ -115,8 +116,9 @@ namespace banggame {
         std::vector<std::tuple<pocket_type, player_view *, card_view *>> m_picking_highlights;
         raii_editor_stack<sdl::color> m_response_borders;
 
+        effect_flags m_request_flags{};
+
         card_view *m_last_played_card = nullptr;
-        card_view *m_forced_card = nullptr;
         bool m_waiting_confirm = false;
 
         template<game_action_type T, typename ... Ts>

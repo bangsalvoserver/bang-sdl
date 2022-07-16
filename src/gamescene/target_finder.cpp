@@ -19,7 +19,8 @@ constexpr bool ranges_contains(R &&r, const T &value, Proj proj = {}) {
     return std::ranges::find(r, value, proj) != std::ranges::end(r);
 }
 
-void target_finder::set_playing_card(card_view *card) {
+void target_finder::set_playing_card(card_view *card, bool is_response) {
+    m_response = is_response && !bool(m_request_flags & effect_flags::force_play);
     m_playing_card = card;
     m_target_borders.add(card->border_color, options.target_finder_current_card);
 }
@@ -38,9 +39,13 @@ bool target_finder::can_respond_with(card_view *card) const {
 }
 
 bool target_finder::can_play_in_turn(player_view *player, card_view *card) const {
-    return !m_game->m_request_origin && !m_game->m_request_target
-        && m_game->m_playing == m_game->m_player_self
-        && (!player || player == m_game->m_player_self);
+    if (bool(m_request_flags & effect_flags::force_play)) {
+        return can_respond_with(card);
+    } else {
+        return !m_game->m_request_origin && !m_game->m_request_target
+            && m_game->m_playing == m_game->m_player_self
+            && (!player || player == m_game->m_player_self);
+    }
 }
 
 void target_finder::set_response_highlights(const request_status_args &args) {
@@ -72,20 +77,37 @@ void target_finder::set_response_highlights(const request_status_args &args) {
         card_view *card = m_response_highlights.emplace_back(m_game->find_card(id));
         m_response_borders.add(card->border_color, options.target_finder_can_respond);
     }
+
+    m_request_flags = args.flags;
+    handle_auto_respond();
 }
 
 void target_finder::clear_status() {
-    clear_targets();
+    m_request_flags = {};
     m_response_highlights.clear();
     m_picking_highlights.clear();
+    clear_targets();
     m_response_borders.clear();
 }
 
 void target_finder::clear_targets() {
     m_game->m_shop_choice.clear();
     static_cast<target_status &>(*this) = {};
-    if (m_forced_card) {
-        set_forced_card(m_forced_card);
+    handle_auto_respond();
+}
+
+void target_finder::handle_auto_respond() {
+    if (!m_playing_card && !waiting_confirm() && bool(m_request_flags & effect_flags::auto_respond) && m_response_highlights.size() == 1 && m_picking_highlights.empty()) {
+        card_view *card = m_response_highlights.front();
+        if (card->color == card_color_type::black) {
+            set_playing_card(card);
+            m_equipping = true;
+        } else if (card->modifier != card_modifier_type::none) {
+            add_modifier(card);
+        } else if (verify_modifier(card)) {
+            set_playing_card(card, true);
+            handle_auto_targets();
+        }
     }
 }
 
@@ -102,34 +124,6 @@ bool target_finder::can_confirm() const {
 
 void target_finder::on_click_confirm() {
     if (can_confirm()) send_play_card();
-}
-
-void target_finder::set_forced_card(card_view *card) {
-    m_forced_card = card;
-    if (!m_forced_card) {
-        return;
-    }
-
-    if (card->pocket == &m_game->m_player_self->table || card->color == card_color_type::brown) {
-        if (can_respond_with(card)) {
-            set_playing_card(card);
-            m_response = true;
-            handle_auto_targets();
-        } else if (card->modifier != card_modifier_type::none) {
-            add_modifier(card);
-        } else if (verify_modifier(card)) {
-            set_playing_card(card);
-            handle_auto_targets();
-        }
-    } else {
-        if (card->self_equippable()) {
-            set_playing_card(card);
-            send_play_card();
-        } else {
-            set_playing_card(card);
-            m_equipping = true;
-        }
-    }
 }
 
 bool target_finder::send_pick_card(pocket_type pocket, player_view *player, card_view *card) {
@@ -154,30 +148,32 @@ void target_finder::on_click_selection_card(card_view *card) {
 }
 
 void target_finder::on_click_shop_card(card_view *card) {
+    const bool is_forced_card = bool(m_request_flags & effect_flags::force_play);
     if (!m_playing_card && m_game->m_playing == m_game->m_player_self
-        && !m_game->m_request_origin && !m_game->m_request_target)
+        && (is_forced_card || (!m_game->m_request_origin && !m_game->m_request_target)))
     {
-        int cost = card->buy_cost();
-        if (ranges_contains(m_modifiers, card_modifier_type::discount, &card_view::modifier)) {
-            --cost;
-        }
-        if (m_game->m_player_self->gold >= cost) {
-            if (card->color == card_color_type::black) {
-                if (verify_modifier(card)) {
-                    if (card->self_equippable()) {
-                        set_playing_card(card);
-                        send_play_card();
-                    } else {
-                        set_playing_card(card);
-                        m_equipping = true;
-                    }
-                }
-            } else if (card->modifier != card_modifier_type::none) {
-                add_modifier(card);
-            } else if (verify_modifier(card)) {
-                set_playing_card(card);
-                handle_auto_targets();
+        if (!is_forced_card) {
+            int cost = card->buy_cost();
+            if (ranges_contains(m_modifiers, card_modifier_type::discount, &card_view::modifier)) {
+                --cost;
             }
+            if (m_game->m_player_self->gold < cost) return;
+        }
+        if (card->color == card_color_type::black) {
+            if (verify_modifier(card)) {
+                if (card->self_equippable()) {
+                    set_playing_card(card);
+                    send_play_card();
+                } else {
+                    set_playing_card(card);
+                    m_equipping = true;
+                }
+            }
+        } else if (card->modifier != card_modifier_type::none) {
+            add_modifier(card);
+        } else if (verify_modifier(card)) {
+            set_playing_card(card);
+            handle_auto_targets();
         }
     }
 }
@@ -185,8 +181,7 @@ void target_finder::on_click_shop_card(card_view *card) {
 void target_finder::on_click_table_card(player_view *player, card_view *card) {
     if (!m_playing_card) {
         if (can_respond_with(card) && !card->inactive) {
-            set_playing_card(card);
-            m_response = true;
+            set_playing_card(card, true);
             handle_auto_targets();
         } else if (!send_pick_card(pocket_type::player_table, player, card)
                 && can_play_in_turn(player, card) && !card->inactive) {
@@ -205,8 +200,7 @@ void target_finder::on_click_table_card(player_view *player, card_view *card) {
 void target_finder::on_click_character(player_view *player, card_view *card) {
     if (!m_playing_card) {
         if (can_respond_with(card)) {
-            set_playing_card(card);
-            m_response = true;
+            set_playing_card(card, true);
             handle_auto_targets();
         } else if (!send_pick_card(pocket_type::player_character, player, card)
                 && can_play_in_turn(player, card)) {
@@ -225,8 +219,7 @@ void target_finder::on_click_character(player_view *player, card_view *card) {
 void target_finder::on_click_hand_card(player_view *player, card_view *card) {
     if (!m_playing_card) {
         if (can_respond_with(card)) {
-            set_playing_card(card);
-            m_response = true;
+            set_playing_card(card, true);
             handle_auto_targets();
         } else if (!send_pick_card(pocket_type::player_hand, player, card)
                 && can_play_in_turn(player, card)) {
@@ -258,8 +251,7 @@ void target_finder::on_click_hand_card(player_view *player, card_view *card) {
 void target_finder::on_click_scenario_card(card_view *card) {
     if (!m_playing_card) {
         if (can_respond_with(card)) {
-            set_playing_card(card);
-            m_response = true;
+            set_playing_card(card, true);
             handle_auto_targets();
         } else if (can_play_in_turn(nullptr, card)) {
             set_playing_card(card);
@@ -829,11 +821,8 @@ void target_finder::send_prompt_response(bool response) {
     add_action<game_action_type::prompt_respond>(response);
 }
 
-void target_finder::confirm_play(bool valid) {
-    if (valid) {
-        m_forced_card = nullptr;
-    }
+void target_finder::confirm_play() {
     m_game->m_ui.close_message_box();
-    m_waiting_confirm = false;
     clear_targets();
+    m_waiting_confirm = false;
 }

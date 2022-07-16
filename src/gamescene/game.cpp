@@ -364,7 +364,7 @@ std::string game_scene::evaluate_format_string(const game_formatted_string &str)
 }
 
 void game_scene::HANDLE_UPDATE(game_error, const game_formatted_string &args) {
-    m_target.confirm_play(false);
+    m_target.confirm_play();
     parent->add_chat_message(message_type::error, evaluate_format_string(args));
 }
 
@@ -600,10 +600,6 @@ void game_scene::HANDLE_UPDATE(last_played_card, const card_id_args &args) {
     m_target.set_last_played_card(find_card(args.card_id));
 }
 
-void game_scene::HANDLE_UPDATE(force_play_card, const card_id_args &args) {
-    m_target.set_forced_card(find_card(args.card_id));
-}
-
 void game_scene::move_player_views() {
     if (m_players.size() == 0) return;
 
@@ -763,5 +759,5 @@ void game_scene::HANDLE_UPDATE(status_clear) {
 }
 
 void game_scene::HANDLE_UPDATE(confirm_play) {
-    m_target.confirm_play(true);
+    m_target.confirm_play();
 }

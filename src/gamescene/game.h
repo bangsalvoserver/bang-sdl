@@ -44,7 +44,6 @@ namespace banggame {
         void HANDLE_UPDATE(hide_card,        const hide_card_update &args);
         void HANDLE_UPDATE(tap_card,         const tap_card_update &args);
         void HANDLE_UPDATE(last_played_card, const card_id_args &args);
-        void HANDLE_UPDATE(force_play_card,  const card_id_args &args);
         void HANDLE_UPDATE(player_add,       const player_user_update &args);
         void HANDLE_UPDATE(player_remove,    const player_remove_update &args);
         void HANDLE_UPDATE(player_hp,        const player_hp_update &args);
