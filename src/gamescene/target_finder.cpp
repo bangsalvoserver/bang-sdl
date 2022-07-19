@@ -652,6 +652,9 @@ std::optional<std::string> target_finder::verify_card_target(const effect_holder
     
     if (bool(args.card_filter & target_card_filter::black) != (card->color == card_color_type::black))
         return _("ERROR_TARGET_BLACK_CARD");
+
+    if (bool(args.card_filter & target_card_filter::notownhand) && card->pocket == &m_game->m_player_self->hand)
+        return _("ERROR_TARGET_OWN_HAND");
     
     if (bool(args.card_filter & target_card_filter::table) && card->pocket != &player->table)
         return _("ERROR_TARGET_NOT_TABLE_CARD");
