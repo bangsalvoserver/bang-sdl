@@ -725,12 +725,15 @@ void game_scene::HANDLE_UPDATE(player_status, const player_status_update &args) 
 void game_scene::HANDLE_UPDATE(switch_turn, const switch_turn_update &args) {
     m_target.clear_status();
 
-    m_playing = find_player(args.player_id);
+    player_view *new_player = find_player(args.player_id);
 
-    if (m_playing) {
-        m_turn_border = {m_playing->border_color, options.turn_indicator};
-    } else {
-        m_turn_border = {};
+    if (new_player != m_playing) {
+        m_playing = new_player;
+        if (m_playing) {
+            m_turn_border = {m_playing->border_color, options.turn_indicator};
+        } else {
+            m_turn_border = {};
+        }
     }
 }
 
