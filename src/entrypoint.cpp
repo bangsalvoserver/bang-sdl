@@ -76,6 +76,6 @@ extern "C" BANGCLIENT_EXPORT long STDCALL entrypoint(const char *base_path) {
         
         std::this_thread::sleep_until(next_frame);
     }
-
+    
     return 0;
 }

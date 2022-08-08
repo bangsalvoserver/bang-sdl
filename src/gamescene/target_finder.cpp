@@ -5,6 +5,7 @@
 #include "../os_api.h"
 
 #include <cassert>
+#include <numeric>
 
 using namespace banggame;
 using namespace enums::flag_operators;
@@ -113,8 +114,8 @@ void target_finder::handle_auto_respond() {
 
 bool target_finder::can_confirm() const {
     if (m_playing_card && !m_equipping) {
-        const int neffects = get_current_card_effects().size();
-        const int noptionals = get_current_card()->optionals.size();
+        const size_t neffects = get_current_card_effects().size();
+        const size_t noptionals = get_current_card()->optionals.size();
         return noptionals != 0
             && m_targets.size() >= neffects
             && ((m_targets.size() - neffects) % noptionals == 0);
@@ -414,11 +415,11 @@ const effect_holder &target_finder::get_effect_holder(int index) {
 }
 
 int target_finder::count_selected_cubes(card_view *card) {
-    int sum = 0;
+    size_t sum = 0;
     if (ranges_contains(m_modifiers, card) || card == m_playing_card) {
         for (const auto &e : card->effects) {
             if (e.type == effect_type::pay_cube) {
-                sum += std::clamp<int>(e.effect_value, 1, 4);
+                sum += std::clamp<size_t>(e.effect_value, 1, 4);
             }
         }
     }
@@ -427,21 +428,21 @@ int target_finder::count_selected_cubes(card_view *card) {
             sum += std::ranges::count(*val, card, &card_cube_pair::first);
         }
     }
-    return sum;
+    return static_cast<int>(sum);
 }
 
 int target_finder::get_target_index() {
     if (m_targets.empty()) {
         return 0;
     }
-    return m_targets.size() - enums::visit(overloaded{
+    return static_cast<int>(m_targets.size() - enums::visit(overloaded{
         [](const auto &) {
             return false;
         },
         []<typename T>(const std::vector<T> &value) {
             return value.size() != value.capacity();
         }
-    }, m_targets.back());
+    }, m_targets.back()));
 }
 
 int target_finder::calc_distance(player_view *from, player_view *to) {
@@ -549,7 +550,7 @@ void target_finder::handle_auto_targets() {
             } else if (current_card->has_tag(tag_type::auto_confirm_red_ringo)) {
                 return current_card->cubes.size() <= 1
                     || std::transform_reduce(m_game->m_playing->table.begin(), m_game->m_playing->table.end(), 0, std::plus(), [](const card_view *card) {
-                        return 4 - card->cubes.size();
+                        return static_cast<int>(4 - card->cubes.size());
                     }) <= 1;
             }
         } else if (repeatable && *repeatable) {
@@ -566,7 +567,7 @@ void target_finder::handle_auto_targets() {
         auto effect_it = effects.begin();
         auto target_end = effects.end();
         if (m_targets.size() >= effects.size() && !optionals.empty()) {
-            int diff = m_targets.size() - effects.size();
+            size_t diff = m_targets.size() - effects.size();
             effect_it = optionals.begin() + (repeatable ? diff % optionals.size() : diff);
             target_end = optionals.end();
         } else {

@@ -19,7 +19,7 @@ namespace intl {
     std::string format(const std::string &format_str, const Ts & ... args) {
         try {
             return fmt::vformat(format_str, fmt::make_format_args(args ... ));
-        } catch (const fmt::format_error &err) {
+        } catch (const fmt::format_error &) {
             return format_str;
         }
     }
@@ -33,7 +33,7 @@ namespace intl {
 
         try {
             return fmt::vformat(format_str, fmt_args);
-        } catch (const fmt::format_error &err) {
+        } catch (const fmt::format_error &) {
             return format_str;
         }
     }

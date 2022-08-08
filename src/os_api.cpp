@@ -32,8 +32,8 @@ void play_bell() {
 }
 
 inline std::wstring utf8_to_wstring(const std::string &str) {
-    std::wstring dst(MultiByteToWideChar(CP_UTF8, 0, str.data(), str.size(), nullptr, 0), L'\0');
-    MultiByteToWideChar(CP_UTF8, 0, str.data(), str.size(), dst.data(), dst.size());
+    std::wstring dst(MultiByteToWideChar(CP_UTF8, 0, str.data(), static_cast<int>(str.size()), nullptr, 0), L'\0');
+    MultiByteToWideChar(CP_UTF8, 0, str.data(), static_cast<int>(str.size()), dst.data(), static_cast<int>(dst.size()));
     return dst;
 }
 
@@ -66,9 +66,9 @@ std::optional<std::filesystem::path> open_file_dialog(
     ofn.lpstrFilter = wfilter.c_str();
 
     std::array<wchar_t, MAX_PATH> file_buf;
-    std::wcsncpy(file_buf.data(), default_path.wstring().c_str(), file_buf.size());
+    wcsncpy_s(file_buf.data(), file_buf.size(), default_path.wstring().c_str(), default_path.wstring().size());
     ofn.lpstrFile = file_buf.data();
-    ofn.nMaxFile = file_buf.size();
+    ofn.nMaxFile = static_cast<int>(file_buf.size());
 
     std::wstring wtitle = utf8_to_wstring(title);
     ofn.lpstrTitle = wtitle.c_str();

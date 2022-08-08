@@ -1,7 +1,3 @@
-include("${CMAKE_SOURCE_DIR}/external/banggame/external/cpputils/resources/CMakeLists.txt")
-
-compile_resources(game_options game_options.json)
-
 add_executable(packer pack.cpp)
 function(pack_resources target_name root_path out_file in_files)
     foreach(file ${in_files})

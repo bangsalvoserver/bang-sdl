@@ -43,7 +43,7 @@ void bang_connection::on_open() {
         }
     });
 
-    parent.add_message<banggame::client_message_type::connect>(parent.m_config.user_name, parent.m_config.profile_image_data);
+    parent.add_message<banggame::client_message_type::connect>(parent.m_config.user_name, sdl::surface_to_image_pixels(parent.m_config.profile_image_data));
 }
 
 void bang_connection::on_close() {
@@ -249,7 +249,7 @@ const user_info &client_manager::add_user(int id, std::string name, const sdl::s
 }
 
 void client_manager::HANDLE_SRV_MESSAGE(lobby_add_user, const lobby_add_user_args &args) {
-    const auto &u = add_user(args.user_id, args.name, args.profile_image);
+    const auto &u = add_user(args.user_id, args.name, sdl::image_pixels_to_surface(args.profile_image));
     add_chat_message(message_type::server_log, _("GAME_USER_CONNECTED", args.name));
     if (auto scene = dynamic_cast<lobby_scene *>(m_scene.get())) {
         scene->add_user(args.user_id, u);

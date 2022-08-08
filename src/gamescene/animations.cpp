@@ -10,8 +10,8 @@ namespace banggame {
 
     constexpr sdl::point lerp_point(sdl::point begin, sdl::point end, float amt) {
         return {
-            (int) std::lerp(begin.x, end.x, amt),
-            (int) std::lerp(begin.y, end.y, amt)
+            static_cast<int>(std::lerp(static_cast<float>(begin.x), static_cast<float>(end.x), amt)),
+            static_cast<int>(std::lerp(static_cast<float>(begin.y), static_cast<float>(end.y), amt))
         };
     }
 
@@ -105,7 +105,7 @@ namespace banggame {
     }
 
     void player_hp_animation::do_animation_impl(float amt) {
-        player->set_hp_marker_position(std::lerp(hp_from, hp_to, amt));
+        player->set_hp_marker_position(std::lerp(static_cast<float>(hp_from), static_cast<float>(hp_to), amt));
     }
 
     void cube_move_animation::render(sdl::renderer &renderer) {

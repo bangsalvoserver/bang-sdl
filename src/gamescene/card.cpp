@@ -32,13 +32,9 @@ namespace banggame {
         , card_border (renderer, get_card_resource("misc/card_border"))
 
         , backfaces([&]<card_deck_type ... Es>(enums::enum_sequence<Es ...>) {
-            return std::array { [&](std::string_view name) -> sdl::texture {
-                if (card_resources.contains(name)) {
-                    return {renderer, apply_card_mask(get_card_resource(name))};
-                } else {
-                    return {};
-                }
-            }(fmt::format("backface/{}", enums::to_string(Es))) ... };
+            return std::array {
+                make_backface_texture(renderer, Es) ...
+            };
         }(enums::make_enum_sequence<card_deck_type>()))
 
         , rank_icons([&]<card_rank ... Es>(enums::enum_sequence<Es ...>) {
@@ -54,6 +50,15 @@ namespace banggame {
         }(skip_none<card_suit>()))
     {
         s_instance = this;
+    }
+
+    sdl::texture card_textures::make_backface_texture(sdl::renderer &renderer, card_deck_type type) {
+        auto name = fmt::format("backface/{}", enums::to_string(type));
+        if (card_resources.contains(name)) {
+            return { renderer, apply_card_mask(get_card_resource(name)) };
+        } else {
+            return {};
+        }
     }
     
     sdl::surface card_textures::apply_card_mask(const sdl::surface &source) const {
@@ -94,8 +99,8 @@ namespace banggame {
                 const auto &card_rank_surf = card_textures::get().rank_icons[enums::indexof(sign.rank) - 1];
                 sdl::rect rank_rect = card_rank_surf.get_rect();
 
-                rank_rect.w *= scale;
-                rank_rect.h *= scale;
+                rank_rect.w = static_cast<int>(rank_rect.w * scale);
+                rank_rect.h = static_cast<int>(rank_rect.h * scale);
                 rank_rect.x = options.card_suit_offset;
                 rank_rect.y = card_rect.h - rank_rect.h - options.card_suit_offset;
                     
@@ -104,8 +109,8 @@ namespace banggame {
                 const auto &card_suit_surf = card_textures::get().suit_icons[enums::indexof(sign.suit) - 1];
                 sdl::rect suit_rect = card_suit_surf.get_rect();
 
-                suit_rect.w *= scale;
-                suit_rect.h *= scale;
+                suit_rect.w = static_cast<int>(suit_rect.w * scale);
+                suit_rect.h = static_cast<int>(suit_rect.h * scale);
                 suit_rect.x = rank_rect.x + rank_rect.w;
                 suit_rect.y = card_rect.h - suit_rect.h - options.card_suit_offset;
 
@@ -159,8 +164,8 @@ namespace banggame {
 
             sdl::rect rect = m_rect;
             float wscale = std::abs(1.f - 2.f * flip_amt);
-            rect.x += rect.w * (1.f - wscale) * 0.5f;
-            rect.w *= wscale;
+            rect.x += static_cast<int>(rect.w * (1.f - wscale) * 0.5f);
+            rect.w = static_cast<int>(rect.w * wscale);
 
             if (border_color.a) {
                 card_textures::get().card_border.render_colored(renderer, sdl::rect{
@@ -199,7 +204,7 @@ namespace banggame {
             return {0, 0};
         }
         const float xoffset = std::min(float(width) / (size() - 1), float(options.card_width + options.card_xoffset));
-        const int diff = std::ranges::distance(begin(), std::ranges::find(*this, card));
+        const int diff = static_cast<int>(std::ranges::distance(begin(), std::ranges::find(*this, card)));
         return sdl::point{(int)(xoffset * (diff - (size() - 1) * .5f)), 0};
     }
 
@@ -209,12 +214,12 @@ namespace banggame {
     }
 
     sdl::point character_pile::get_offset(card_view *card) const {
-        int diff = std::ranges::distance(begin(), std::ranges::find(*this, card));
+        int diff = static_cast<int>(std::ranges::distance(begin(), std::ranges::find(*this, card)));
         return sdl::point{options.character_offset * diff, options.character_offset * diff};
     }
 
     sdl::point role_pile::get_offset(card_view *card) const {
-        int diff = std::ranges::distance(begin(), std::ranges::find(*this, card));
+        int diff = static_cast<int>(std::ranges::distance(begin(), std::ranges::find(*this, card)));
         return sdl::point{0, options.card_yoffset * diff};
     }
 
@@ -234,7 +239,7 @@ namespace banggame {
     }
 
     sdl::point card_cube_pile::get_offset(cube_widget *cube) const {
-        int diff = std::ranges::distance(begin(), std::ranges::find(*this, cube, &std::unique_ptr<cube_widget>::get));
+        int diff = static_cast<int>(std::ranges::distance(begin(), std::ranges::find(*this, cube, &std::unique_ptr<cube_widget>::get)));
         return sdl::point{options.cube_xdiff, options.cube_ydiff + options.cube_yoff * diff};
     }
 
@@ -250,8 +255,8 @@ namespace banggame {
     }
 
     sdl::point table_cube_pile::get_offset(cube_widget *cube) const {
-        auto rand_diff = []() -> int {
-            return ((float) std::rand() / RAND_MAX - 0.5f) * options.cube_pile_size;
+        auto rand_diff = []() {
+            return static_cast<int>((static_cast<float>(std::rand()) / RAND_MAX - 0.5f) * options.cube_pile_size);
         };
         return sdl::point{rand_diff(), rand_diff()};
     }

@@ -36,9 +36,9 @@ struct config {
             if (!profile_image.empty() && !profile_image_data) {
                 profile_image_data = widgets::profile_pic::scale_profile_image(sdl::surface(resource(profile_image)));
             }
-        } catch (const Json::RuntimeError &error) {
+        } catch (const Json::RuntimeError &) {
             // ignore
-        } catch (const std::runtime_error &e) {
+        } catch (const std::runtime_error &) {
             profile_image.clear();
             profile_image_data.reset();
         }

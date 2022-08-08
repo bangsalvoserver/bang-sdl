@@ -6,6 +6,11 @@
 #include "utils/json_serial.h"
 #include "sdl_wrap.h"
 
+namespace sdl {
+    image_pixels surface_to_image_pixels(const surface &image);
+    surface image_pixels_to_surface(const image_pixels &image);
+}
+
 namespace binary {
 
     template<> struct serializer<sdl::surface> {
@@ -30,7 +35,7 @@ namespace json {
 
     template<> struct serializer<sdl::surface> {
         Json::Value operator()(const sdl::surface &image) const {
-            return json::serialize(sdl::image_pixels(image));
+            return json::serialize(sdl::surface_to_image_pixels(image));
         }
     };
 

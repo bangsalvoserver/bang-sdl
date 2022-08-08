@@ -37,6 +37,7 @@ namespace banggame {
         std::array<sdl::surface, enums::num_members_v<card_rank> - 1> rank_icons;
         std::array<sdl::surface, enums::num_members_v<card_suit> - 1> suit_icons;
 
+        sdl::texture make_backface_texture(sdl::renderer &renderer, card_deck_type type);
         sdl::surface apply_card_mask(const sdl::surface &source) const;
 
         sdl::surface get_card_resource(std::string_view name) const {
@@ -49,7 +50,7 @@ namespace banggame {
     };
 
     class pocket_view;
-    struct card_view;
+    class card_view;
 
     struct cube_widget {
         sdl::point pos;

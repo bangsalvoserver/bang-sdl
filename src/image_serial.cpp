@@ -3,33 +3,35 @@
 #include <charconv>
 
 namespace sdl {
+
+static image_pixels do_surface_to_image_pixels(const surface &image) {
+    image_pixels ret;
+    SDL_LockSurface(image.get());
+    ret.width = image.get()->w;
+    ret.height = image.get()->h;
+    const std::byte *pixels_ptr = static_cast<const std::byte *>(image.get()->pixels);
+    ret.pixels.assign(pixels_ptr, pixels_ptr + image.get()->h * image.get()->pitch);
+    SDL_UnlockSurface(image.get());
+    return ret;
+}
     
-image_pixels::image_pixels(const surface &image) {
-    const auto init = [this](const surface &image) {
-        SDL_LockSurface(image.get());
-        width = image.get()->w;
-        height = image.get()->h;
-        const std::byte *pixels_ptr = static_cast<const std::byte *>(image.get()->pixels);
-        pixels.assign(pixels_ptr, pixels_ptr + image.get()->h * image.get()->pitch);
-        SDL_UnlockSurface(image.get());
-    };
+image_pixels surface_to_image_pixels(const surface &image) {
     if (!image) {
-        width = 0;
-        height = 0;
+        return {};
     } else if (image.get()->format->BytesPerPixel == 4) {
-        init(image);
+        return do_surface_to_image_pixels(image);
     } else {
-        init(SDL_ConvertSurfaceFormat(image.get(), SDL_PIXELFORMAT_RGBA8888, 0));
+        return do_surface_to_image_pixels(SDL_ConvertSurfaceFormat(image.get(), SDL_PIXELFORMAT_RGBA8888, 0));
     }
 }
 
-image_pixels::operator surface() const {
-    if (width == 0 || height == 0) {
+surface image_pixels_to_surface(const image_pixels &image) {
+    if (image.width == 0 || image.height == 0) {
         return {};
     }
-    surface ret(width, height);
+    surface ret(image.width, image.height);
     SDL_LockSurface(ret.get());
-    std::memcpy(ret.get()->pixels, pixels.data(), ret.get()->h * ret.get()->pitch);
+    std::memcpy(ret.get()->pixels, image.pixels.data(), ret.get()->h * ret.get()->pitch);
     SDL_UnlockSurface(ret.get());
     return ret;
 }
@@ -135,7 +137,7 @@ sdl::surface deserializer<sdl::surface>::operator()(const Json::Value &value) co
     if (value.isString()) {
         return binary::deserialize<sdl::surface>(json::deserialize<std::vector<std::byte>>(value));
     } else if (!value.isNull()) {
-        return json::deserialize<sdl::image_pixels>(value);
+        return sdl::image_pixels_to_surface(json::deserialize<sdl::image_pixels>(value));
     } else {
         return {};
     }

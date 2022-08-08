@@ -19,21 +19,41 @@ namespace banggame {
     };
 
     template<typename T>
+    concept animation_has_do_animation = requires (T value, float amt) {
+        value.do_animation(amt);
+    };
+
+    template<typename T>
+    concept animation_has_end = requires (T value) {
+        value.end();
+    };
+
+    template<typename T>
+    concept animation_has_render = requires (T value, sdl::renderer & renderer) {
+        value.render(renderer);
+    };
+
+    template<typename T>
+    inline void destruct(T& obj) {
+        obj.~T();
+    }
+
+    template<typename T>
     const animation_vtable animation_vtable_for = {
         .do_animation = [](void *self, float amt) {
-            if constexpr (requires (T value) { value.do_animation(amt); }) {
+            if constexpr (animation_has_do_animation<T>) {
                 static_cast<T *>(self)->do_animation(amt);
             }
         },
 
         .end = [](void *self) {
-            if constexpr (requires (T value) { value.end(); }) {
+            if constexpr (animation_has_end<T>) {
                 static_cast<T *>(self)->end();
             }
         },
 
         .render = [](void *self, sdl::renderer &renderer) {
-            if constexpr (requires (T value) { value.render(renderer); }) {
+            if constexpr (animation_has_render<T>) {
                 static_cast<T *>(self)->render(renderer);
             }
         },
@@ -49,13 +69,13 @@ namespace banggame {
 
         .destruct = [](void *self) noexcept {
             static_assert(std::is_nothrow_destructible_v<T>);
-            static_cast<T *>(self)->~T();
+            destruct(*static_cast<T*>(self));
         }
     };
 
     class animation_object {
     private:
-        std::aligned_storage_t<24> m_data;
+        std::aligned_storage_t<32> m_data;
         const animation_vtable *vtable;
     
     public:

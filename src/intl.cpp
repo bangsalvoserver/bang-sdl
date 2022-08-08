@@ -6,7 +6,7 @@
 #include "locales/cards_it.h"
 
 #ifdef WIN32
-#include <winnls.h>
+#include <windows.h>
 
 namespace intl {
     language get_system_language() {

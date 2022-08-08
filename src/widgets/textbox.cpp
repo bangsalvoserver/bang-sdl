@@ -11,7 +11,7 @@ inline bool is_first_utf8_char(char c) {
 }
 
 static int unicode_count_chars(std::string_view str) {
-    size_t count = 0;
+    int count = 0;
     for (auto c = str.begin(); c != str.end(); ++c) {
         count += is_first_utf8_char(*c);
     }

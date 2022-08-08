@@ -11,9 +11,11 @@
 
 BANGCLIENT_EXPORT long STDCALL entrypoint(const char *base_path);
 
+#define BUFFER_SIZE 256
+
 int main(int argc, char **argv) {
-    char base_path[256];
-    strcpy(base_path, argv[0]);
+    char base_path[BUFFER_SIZE];
+    strcpy_s(base_path, BUFFER_SIZE, argv[0]);
 
     char *last_slash = NULL;
     for (char *c = base_path; *c != '\0'; ++c) {

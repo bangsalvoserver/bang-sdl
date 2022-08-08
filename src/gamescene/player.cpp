@@ -27,7 +27,7 @@ namespace banggame {
         m_role->set_pos(sdl::point(
             m_characters.get_pos().x + options.card_width + options.card_margin,
             m_characters.get_pos().y + options.role_yoff));
-        set_hp_marker_position(hp);
+        set_hp_marker_position(static_cast<float>(hp));
         if (flipped) {
             hand.set_pos(hand.get_pos() + sdl::point{0, options.card_yoffset});
             table.set_pos(table.get_pos() - sdl::point{0, options.card_yoffset});
@@ -55,7 +55,7 @@ namespace banggame {
     void player_view::set_hp_marker_position(float hp) {
         m_backup_characters.set_pos({
             m_characters.get_pos().x,
-            m_characters.get_pos().y - std::max<int>(0, hp * options.one_hp_size)});
+            m_characters.get_pos().y - std::max(0, static_cast<int>(hp * options.one_hp_size))});
     }
 
     void player_view::set_gold(int amount) {

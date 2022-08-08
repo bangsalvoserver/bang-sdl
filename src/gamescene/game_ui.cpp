@@ -1,6 +1,8 @@
 #include "game_ui.h"
 #include "game.h"
 
+#include <numeric>
+
 #include "../manager.h"
 
 using namespace banggame;
