@@ -564,23 +564,23 @@ void target_finder::handle_auto_targets() {
     } else if (is_auto_confirmable()) {
         send_play_card();
     } else {
-        auto effect_it = effects.begin();
-        auto target_end = effects.end();
+        auto effect_it = effects.data();
+        auto target_end = effects.data() + effects.size();
         if (m_targets.size() >= effects.size() && !optionals.empty()) {
             size_t diff = m_targets.size() - effects.size();
-            effect_it = optionals.begin() + (repeatable ? diff % optionals.size() : diff);
-            target_end = optionals.end();
+            effect_it = optionals.data() + (repeatable ? diff % optionals.size() : diff);
+            target_end = optionals.data() + optionals.size();
         } else {
             effect_it += m_targets.size();
         }
         while (true) {
             if (effect_it == target_end) {
-                if (optionals.empty() || (target_end == optionals.end() && !repeatable)) {
+                if (optionals.empty() || (target_end == (optionals.data() + optionals.size()) && !repeatable)) {
                     send_play_card();
                     break;
                 }
-                effect_it = optionals.begin();
-                target_end = optionals.end();
+                effect_it = optionals.data();
+                target_end = optionals.data() + optionals.size();
             }
             if (!do_handle_target(*effect_it)) break;
             ++effect_it;

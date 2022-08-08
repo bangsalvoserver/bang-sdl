@@ -350,7 +350,8 @@ std::string game_scene::evaluate_format_string(const game_formatted_string &str)
             [](const std::string &value) { return _(value); },
             [&](card_format_id value) {
                 if (value.sign) {
-                    return intl::format("{} ({}{})", _(intl::category::cards, value.name), enums::get_data(value.sign.rank), enums::get_data(value.sign.suit));
+                    return intl::format("{} ({}{})", _(intl::category::cards, value.name), enums::get_data(value.sign.rank),
+                        reinterpret_cast<const char *>(enums::get_data(value.sign.suit)));
                 } else {
                     return _(intl::category::cards, value.name);
                 }
