@@ -66,7 +66,7 @@ std::optional<std::filesystem::path> open_file_dialog(
     ofn.lpstrFilter = wfilter.c_str();
 
     std::array<wchar_t, MAX_PATH> file_buf;
-    wcsncpy_s(file_buf.data(), file_buf.size(), default_path.wstring().c_str(), default_path.wstring().size());
+    std::wcsncpy(file_buf.data(), default_path.wstring().c_str(), file_buf.size());
     ofn.lpstrFile = file_buf.data();
     ofn.nMaxFile = static_cast<int>(file_buf.size());
 

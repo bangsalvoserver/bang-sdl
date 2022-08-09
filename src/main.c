@@ -3,7 +3,6 @@
 #include "bangclient_export.h"
 
 #ifdef WIN32
-    #include <windows.h>
     #define STDCALL __stdcall
 #else
     #define STDCALL
@@ -15,7 +14,7 @@ BANGCLIENT_EXPORT long STDCALL entrypoint(const char *base_path);
 
 int main(int argc, char **argv) {
     char base_path[BUFFER_SIZE];
-    strcpy_s(base_path, BUFFER_SIZE, argv[0]);
+    strncpy(base_path, argv[0], BUFFER_SIZE);
 
     char *last_slash = NULL;
     for (char *c = base_path; *c != '\0'; ++c) {
