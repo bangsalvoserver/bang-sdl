@@ -55,6 +55,10 @@ void target_finder::set_response_highlights(const request_status_args &args) {
     }
     clear_status();
 
+    if (card_view *origin_card = m_game->find_card(args.origin_card_id)) {
+        m_response_borders.add(origin_card->border_color, options.target_finder_origin_card);
+    }
+
     for (const picking_args &args : args.pick_ids) {
         const auto &[pocket, player, card] = m_picking_highlights.emplace_back(
             args.pocket,
