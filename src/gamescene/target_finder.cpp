@@ -50,6 +50,7 @@ bool target_finder::can_play_in_turn(player_view *player, card_view *card) const
 }
 
 void target_finder::set_response_highlights(const request_status_args &args) {
+    add_action<game_action_type::request_confirm>();
     clear_status();
 
     for (const picking_args &args : args.pick_ids) {

@@ -55,7 +55,6 @@ namespace banggame {
         .username_yoff = 43,
 
         .move_card_msecs = 333,
-        .move_card_fast_msecs = 250,
         .flip_card_msecs = 167,
         .short_pause_msecs = 333,
         .tap_card_msecs = 167,
