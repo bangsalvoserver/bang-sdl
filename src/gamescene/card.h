@@ -49,6 +49,11 @@ namespace banggame {
         }
     };
 
+    DEFINE_ENUM_FLAGS(render_flags,
+        (no_skip_animating)
+        (no_draw_border)
+    )
+
     class pocket_view;
     class card_view;
 
@@ -58,7 +63,7 @@ namespace banggame {
         bool animating = false;
         sdl::color border_color{};
 
-        void render(sdl::renderer &renderer, bool skip_if_animating = true);
+        void render(sdl::renderer &renderer, render_flags flags = {});
     };
 
     struct cube_pile_base : std::vector<std::unique_ptr<cube_widget>> {
@@ -116,7 +121,7 @@ namespace banggame {
             return m_rect;
         }
 
-        void render(sdl::renderer &renderer, bool skip_if_animating = true);
+        void render(sdl::renderer &renderer, render_flags flags = {});
 
         sdl::texture texture_front;
         sdl::texture texture_front_scaled;
@@ -222,12 +227,16 @@ namespace banggame {
         }
         
         virtual void render_last(sdl::renderer &renderer, int ncards) {
-            render_border(renderer);
-            for (card_view *c : *this
-                    | std::views::reverse
-                    | std::views::take(ncards)
-                    | std::views::reverse) {
-                c->render(renderer);
+            if (!empty()) {
+                render_border(renderer);
+                for (card_view *c : *this
+                        | std::views::reverse
+                        | std::views::drop(1)
+                        | std::views::take(ncards - 1)
+                        | std::views::reverse) {
+                    c->render(renderer, render_flags::no_draw_border);
+                }
+                back()->render(renderer);
             }
         }
     };

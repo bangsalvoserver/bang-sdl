@@ -37,7 +37,7 @@ namespace banggame {
 
     void card_move_animation::render(sdl::renderer &renderer) {
         for (auto &[card, _] : data) {
-            card->render(renderer, false);
+            card->render(renderer, render_flags::no_skip_animating);
         }
     }
 
@@ -58,7 +58,7 @@ namespace banggame {
     }
 
     void card_flip_animation::render(sdl::renderer &renderer) {
-        card->render(renderer, false);
+        card->render(renderer, render_flags::no_skip_animating);
     }
 
     void deck_shuffle_animation::end() {
@@ -86,7 +86,7 @@ namespace banggame {
 
     void deck_shuffle_animation::render(sdl::renderer &renderer) {
         for (card_view *card : *cards) {
-            card->render(renderer, false);
+            card->render(renderer, render_flags::no_skip_animating);
         }
     }
 
@@ -101,7 +101,7 @@ namespace banggame {
     }
 
     void card_tap_animation::render(sdl::renderer &renderer) {
-        card->render(renderer, false);
+        card->render(renderer, render_flags::no_skip_animating);
     }
 
     void player_hp_animation::do_animation_impl(float amt) {
@@ -110,7 +110,7 @@ namespace banggame {
 
     void cube_move_animation::render(sdl::renderer &renderer) {
         for (auto &item : data) {
-            item.cube->render(renderer, false);
+            item.cube->render(renderer, render_flags::no_skip_animating);
         }
     }
 
@@ -137,7 +137,7 @@ namespace banggame {
     }
 
     void pause_animation::render(sdl::renderer &renderer) {
-        card->render(renderer, false);
+        card->render(renderer, render_flags::no_skip_animating);
     }
 
     void pause_animation::do_animation(float) {

@@ -8,6 +8,7 @@
 namespace banggame {
 
     using namespace sdl::point_math;
+    using namespace enums::flag_operators;
 
     template<typename T>
     concept first_is_none = requires {
@@ -136,12 +137,12 @@ namespace banggame {
             texture_front.get_rect().w / options.card_width));
     }
 
-    void cube_widget::render(sdl::renderer &renderer, bool skip_if_animating) {
+    void cube_widget::render(sdl::renderer &renderer, render_flags flags) {
         auto do_render = [&](sdl::texture_ref tex, sdl::color color = sdl::rgb(0xffffff)) {
             tex.render_colored(renderer, sdl::move_rect_center(tex.get_rect(), pos), color);
         };
 
-        if (!skip_if_animating || !animating) {
+        if (bool(flags & render_flags::no_skip_animating) || !animating) {
             if (border_color.a) {
                 do_render(media_pak::get().sprite_cube_border, border_color);
             }
@@ -154,7 +155,7 @@ namespace banggame {
         m_pos = new_pos;
     }
 
-    void card_view::render(sdl::renderer &renderer, bool skip_if_animating) {
+    void card_view::render(sdl::renderer &renderer, render_flags flags) {
         auto do_render = [&](sdl::texture_ref tex) {
             m_rect = tex.get_rect();
             sdl::scale_rect_width(m_rect, options.card_width);
@@ -167,7 +168,7 @@ namespace banggame {
             rect.x += static_cast<int>(rect.w * (1.f - wscale) * 0.5f);
             rect.w = static_cast<int>(rect.w * wscale);
 
-            if (border_color.a) {
+            if (!bool(flags & render_flags::no_draw_border) && border_color.a) {
                 card_textures::get().card_border.render_ex(renderer, sdl::rect{
                     rect.x - options.default_border_thickness,
                     rect.y - options.default_border_thickness,
@@ -186,7 +187,7 @@ namespace banggame {
             }
         };
 
-        if (!skip_if_animating || !animating) {
+        if (bool(flags & render_flags::no_skip_animating) || !animating) {
             if (flip_amt > 0.5f && texture_front_scaled) {
                 do_render(texture_front_scaled);
             } else if (texture_back) {
