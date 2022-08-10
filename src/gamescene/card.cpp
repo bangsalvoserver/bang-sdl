@@ -168,15 +168,18 @@ namespace banggame {
             rect.w = static_cast<int>(rect.w * wscale);
 
             if (border_color.a) {
-                card_textures::get().card_border.render_colored(renderer, sdl::rect{
+                card_textures::get().card_border.render_ex(renderer, sdl::rect{
                     rect.x - options.default_border_thickness,
                     rect.y - options.default_border_thickness,
                     rect.w + options.default_border_thickness * 2,
                     rect.h + options.default_border_thickness * 2
-                }, border_color);
+                }, sdl::render_ex_options{
+                    .color = border_color,
+                    .angle = rotation
+                });
             }
 
-            SDL_RenderCopyEx(renderer.get(), tex.get(), nullptr, &rect, rotation, nullptr, SDL_FLIP_NONE);
+            tex.render_ex(renderer, rect, sdl::render_ex_options{ .angle = rotation });
 
             for (auto &cube : cubes) {
                 cube->render(renderer);

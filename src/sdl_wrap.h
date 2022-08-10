@@ -195,6 +195,11 @@ namespace sdl {
         }
     };
 
+    struct render_ex_options {
+        color color = sdl::rgba(0xffffffff);
+        double angle{};
+    };
+
     class texture_ref {
     private:
         SDL_Texture *m_value;
@@ -226,13 +231,17 @@ namespace sdl {
         void render(renderer &renderer, const point &pt) const {
             render(renderer, move_rect(get_rect(), pt));
         }
-        
-        void render_colored(renderer &renderer, const rect &rect, const color &col) const {
-            SDL_SetTextureColorMod(m_value, col.r, col.g, col.b);
-            SDL_SetTextureAlphaMod(m_value, col.a);
-            render(renderer, rect);
+
+        void render_ex(renderer &renderer, const rect &rect, const render_ex_options &options) const {
+            SDL_SetTextureColorMod(m_value, options.color.r, options.color.g, options.color.b);
+            SDL_SetTextureAlphaMod(m_value, options.color.a);
+            SDL_RenderCopyEx(renderer.get(), m_value, nullptr, &rect, options.angle, nullptr, SDL_FLIP_NONE);
             SDL_SetTextureColorMod(m_value, 0xff, 0xff, 0xff);
             SDL_SetTextureAlphaMod(m_value, 0xff);
+        }
+        
+        void render_colored(renderer &renderer, const rect &rect, const color &col) const {
+            render_ex(renderer, rect, render_ex_options{ .color = col });
         }
     };
 
@@ -264,6 +273,10 @@ namespace sdl {
 
         void render(renderer &renderer, const point &pt) const {
             texture_ref(*this).render(renderer, pt);
+        }
+
+        void render_ex(renderer &renderer, const rect &rect, const render_ex_options &options) const {
+            texture_ref(*this).render_ex(renderer, rect, options);
         }
 
         void render_colored(renderer &renderer, const rect &rect, const color &col) const {
@@ -309,6 +322,10 @@ namespace sdl {
 
         void render(renderer &renderer, const point &pt) {
             get_texture(renderer).render(renderer, pt);
+        }
+
+        void render_ex(renderer &renderer, const rect &rect, const render_ex_options &options) {
+            get_texture(renderer).render_ex(renderer, rect, options);
         }
 
         void render_colored(renderer &renderer, const rect &rect, const color &col) {

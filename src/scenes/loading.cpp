@@ -39,6 +39,5 @@ void loading_scene::render(sdl::renderer &renderer) {
     m_loading_text.render(renderer);
     m_cancel_btn.render(renderer);
 
-    SDL_RenderCopyEx(renderer.get(), media_pak::get().icon_loading.get(), nullptr,
-        &m_loading_rect, m_loading_rotation, nullptr, SDL_FLIP_NONE);
+    media_pak::get().icon_loading.render_ex(renderer, m_loading_rect, sdl::render_ex_options{ .angle = m_loading_rotation });
 }
