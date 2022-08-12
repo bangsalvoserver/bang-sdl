@@ -331,7 +331,7 @@ void game_scene::handle_game_update(const game_update &update) {
     m_pending_updates.push_back(update);
 }
 
-void game_scene::HANDLE_UPDATE(game_over, const game_over_update &args) {
+void game_scene::handle_game_update(UPD_TAG(game_over), const game_over_update &args) {
     m_target.clear_status();
 
     m_ui.set_status(_("STATUS_GAME_OVER"));
@@ -364,23 +364,23 @@ std::string game_scene::evaluate_format_string(const game_formatted_string &str)
     }));
 }
 
-void game_scene::HANDLE_UPDATE(game_error, const game_formatted_string &args) {
+void game_scene::handle_game_update(UPD_TAG(game_error), const game_formatted_string &args) {
     m_target.confirm_play();
     parent->add_chat_message(message_type::error, evaluate_format_string(args));
 }
 
-void game_scene::HANDLE_UPDATE(game_log, const game_formatted_string &args) {
+void game_scene::handle_game_update(UPD_TAG(game_log), const game_formatted_string &args) {
     m_ui.add_game_log(evaluate_format_string(args));
 }
 
-void game_scene::HANDLE_UPDATE(game_prompt, const game_formatted_string &args) {
+void game_scene::handle_game_update(UPD_TAG(game_prompt), const game_formatted_string &args) {
     m_ui.show_message_box(evaluate_format_string(args),
         [&]{ m_target.send_prompt_response(true); },
         [&]{ m_target.send_prompt_response(false); }
     );
 }
 
-void game_scene::HANDLE_UPDATE(deck_shuffled, const pocket_type &pocket) {
+void game_scene::handle_game_update(UPD_TAG(deck_shuffled), const pocket_type &pocket) {
     switch (pocket) {
     case pocket_type::main_deck: {
         card_view *top_discard = m_discard_pile.back();
@@ -429,7 +429,7 @@ pocket_view &game_scene::get_pocket(pocket_type pocket, int player_id) {
     }
 }
 
-void game_scene::HANDLE_UPDATE(add_cards, const add_cards_update &args) {
+void game_scene::handle_game_update(UPD_TAG(add_cards), const add_cards_update &args) {
     auto &pocket = get_pocket(args.pocket, args.player_id);
 
     for (auto [id, deck] : args.card_ids) {
@@ -444,7 +444,7 @@ void game_scene::HANDLE_UPDATE(add_cards, const add_cards_update &args) {
     }
 }
 
-void game_scene::HANDLE_UPDATE(remove_cards, const remove_cards_update &args) {
+void game_scene::handle_game_update(UPD_TAG(remove_cards), const remove_cards_update &args) {
     for (auto [id, deck] : args.card_ids) {
         auto *c = find_card(id);
         if (c && c->pocket) {
@@ -454,7 +454,7 @@ void game_scene::HANDLE_UPDATE(remove_cards, const remove_cards_update &args) {
     }
 }
 
-void game_scene::HANDLE_UPDATE(move_card, const move_card_update &args) {
+void game_scene::handle_game_update(UPD_TAG(move_card), const move_card_update &args) {
     card_view *card = find_card(args.card_id);
     if (!card) {
         return;
@@ -504,7 +504,7 @@ cube_pile_base &game_scene::find_cube_pile(int card_id) {
     }
 }
 
-void game_scene::HANDLE_UPDATE(add_cubes, const add_cubes_update &args) {
+void game_scene::handle_game_update(UPD_TAG(add_cubes), const add_cubes_update &args) {
     auto &pile = find_cube_pile(args.target_card_id);
     for (int i=0; i<args.num_cubes; ++i) {
         auto &cube = pile.emplace_back(std::make_unique<cube_widget>());
@@ -512,7 +512,7 @@ void game_scene::HANDLE_UPDATE(add_cubes, const add_cubes_update &args) {
     }
 }
 
-void game_scene::HANDLE_UPDATE(move_cubes, const move_cubes_update &args) {
+void game_scene::handle_game_update(UPD_TAG(move_cubes), const move_cubes_update &args) {
     auto &origin_pile = find_cube_pile(args.origin_card_id);
     auto &target_pile = find_cube_pile(args.target_card_id);
 
@@ -526,12 +526,12 @@ void game_scene::HANDLE_UPDATE(move_cubes, const move_cubes_update &args) {
     add_animation<cube_move_animation>(args.num_cubes == 1 ? options.move_cube_msecs : options.move_cubes_msecs, std::move(anim));
 }
 
-void game_scene::HANDLE_UPDATE(move_scenario_deck, const move_scenario_deck_args &args) {
+void game_scene::handle_game_update(UPD_TAG(move_scenario_deck), const move_scenario_deck_args &args) {
     m_scenario_player = find_player(args.player_id);
     move_player_views();
 }
 
-void game_scene::HANDLE_UPDATE(show_card, const show_card_update &args) {
+void game_scene::handle_game_update(UPD_TAG(show_card), const show_card_update &args) {
     card_view *card = find_card(args.info.id);
 
     if (card && !card->known) {
@@ -561,7 +561,7 @@ void game_scene::HANDLE_UPDATE(show_card, const show_card_update &args) {
     }
 }
 
-void game_scene::HANDLE_UPDATE(hide_card, const hide_card_update &args) {
+void game_scene::handle_game_update(UPD_TAG(hide_card), const hide_card_update &args) {
     card_view *card = find_card(args.card_id);
 
     if (card && card->known) {
@@ -581,7 +581,7 @@ void game_scene::HANDLE_UPDATE(hide_card, const hide_card_update &args) {
     }
 }
 
-void game_scene::HANDLE_UPDATE(tap_card, const tap_card_update &args) {
+void game_scene::handle_game_update(UPD_TAG(tap_card), const tap_card_update &args) {
     card_view *card = find_card(args.card_id);
     if (card->inactive != args.inactive) {
         card->inactive = args.inactive;
@@ -593,7 +593,7 @@ void game_scene::HANDLE_UPDATE(tap_card, const tap_card_update &args) {
     }
 }
 
-void game_scene::HANDLE_UPDATE(last_played_card, const card_id_args &args) {
+void game_scene::handle_game_update(UPD_TAG(last_played_card), const card_id_args &args) {
     m_target.set_last_played_card(find_card(args.card_id));
 }
 
@@ -625,7 +625,7 @@ void game_scene::move_player_views() {
     }
 }
 
-void game_scene::HANDLE_UPDATE(player_add, const player_user_update &args) {
+void game_scene::handle_game_update(UPD_TAG(player_add), const player_user_update &args) {
     auto [p, inserted] = m_players.try_emplace(args.player_id);
     if (inserted) {
         if (args.user_id == parent->get_user_own_id()) {
@@ -649,7 +649,7 @@ void game_scene::HANDLE_UPDATE(player_add, const player_user_update &args) {
     move_player_views();
 }
 
-void game_scene::HANDLE_UPDATE(player_remove, const player_remove_update &args) {
+void game_scene::handle_game_update(UPD_TAG(player_remove), const player_remove_update &args) {
     if (m_player_self && m_player_self->id == args.player_id) {
         m_player_self = nullptr;
     }
@@ -667,7 +667,7 @@ void game_scene::HANDLE_UPDATE(player_remove, const player_remove_update &args) 
     }
 }
 
-void game_scene::HANDLE_UPDATE(player_hp, const player_hp_update &args) {
+void game_scene::handle_game_update(UPD_TAG(player_hp), const player_hp_update &args) {
     player_view *player = find_player(args.player_id);
     int prev_hp = player->hp;
     player->hp = args.hp;
@@ -678,11 +678,11 @@ void game_scene::HANDLE_UPDATE(player_hp, const player_hp_update &args) {
     }
 }
 
-void game_scene::HANDLE_UPDATE(player_gold, const player_gold_update &args) {
+void game_scene::handle_game_update(UPD_TAG(player_gold), const player_gold_update &args) {
     find_player(args.player_id)->set_gold(args.gold);
 }
 
-void game_scene::HANDLE_UPDATE(player_show_role, const player_show_role_update &args) {
+void game_scene::handle_game_update(UPD_TAG(player_show_role), const player_show_role_update &args) {
     if (auto *p = find_player(args.player_id)) {
         if (p->m_role->role != args.role) {
             p->m_role->role = args.role;
@@ -710,7 +710,7 @@ void game_scene::HANDLE_UPDATE(player_show_role, const player_show_role_update &
     }
 }
 
-void game_scene::HANDLE_UPDATE(player_status, const player_status_update &args) {
+void game_scene::handle_game_update(UPD_TAG(player_status), const player_status_update &args) {
     if (player_view *p = find_player(args.player_id)) {
         p->m_player_flags = args.flags;
         p->m_range_mod = args.range_mod;
@@ -719,7 +719,7 @@ void game_scene::HANDLE_UPDATE(player_status, const player_status_update &args) 
     }
 }
 
-void game_scene::HANDLE_UPDATE(switch_turn, const switch_turn_update &args) {
+void game_scene::handle_game_update(UPD_TAG(switch_turn), const switch_turn_update &args) {
     m_target.clear_status();
 
     player_view *new_player = find_player(args.player_id);
@@ -734,7 +734,7 @@ void game_scene::HANDLE_UPDATE(switch_turn, const switch_turn_update &args) {
     }
 }
 
-void game_scene::HANDLE_UPDATE(request_status, const request_status_args &args) {
+void game_scene::handle_game_update(UPD_TAG(request_status), const request_status_args &args) {
     m_request_origin = find_player(args.origin_id);
     m_request_target = find_player(args.target_id);
     m_target.set_response_highlights(args);
@@ -742,15 +742,15 @@ void game_scene::HANDLE_UPDATE(request_status, const request_status_args &args) 
     m_ui.set_status(evaluate_format_string(args.status_text));
 }
 
-void game_scene::HANDLE_UPDATE(game_flags, const game_flags &args) {
+void game_scene::handle_game_update(UPD_TAG(game_flags), const game_flags &args) {
     m_game_flags = args;
 }
 
-void game_scene::HANDLE_UPDATE(game_options, const game_options &args) {
+void game_scene::handle_game_update(UPD_TAG(game_options), const game_options &args) {
     m_game_options = args;
 }
 
-void game_scene::HANDLE_UPDATE(status_clear) {
+void game_scene::handle_game_update(UPD_TAG(status_clear)) {
     m_request_origin = nullptr;
     m_request_target = nullptr;
 
@@ -758,6 +758,6 @@ void game_scene::HANDLE_UPDATE(status_clear) {
     m_target.clear_status();
 }
 
-void game_scene::HANDLE_UPDATE(confirm_play) {
+void game_scene::handle_game_update(UPD_TAG(confirm_play)) {
     m_target.confirm_play();
 }

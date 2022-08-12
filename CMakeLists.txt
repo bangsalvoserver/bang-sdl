@@ -5,8 +5,9 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if (MSVC)
-    add_compile_options(/Zc:preprocessor)
     add_compile_options(/bigobj)
+    add_compile_definitions(_WIN32_WINNT=0x0601)
+    add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 endif()
 
 set(bangclient_srcs

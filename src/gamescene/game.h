@@ -13,8 +13,6 @@
 #include <deque>
 #include <random>
 
-#define HANDLE_UPDATE(name, ...) handle_game_update(enums::enum_tag_t<game_update_type::name> __VA_OPT__(,) __VA_ARGS__)
-
 namespace banggame {
 
     class game_scene : public scene_base {
@@ -29,33 +27,33 @@ namespace banggame {
         void handle_game_update(const game_update &update);
 
     private:
-        void HANDLE_UPDATE(game_over,        const game_over_update &args);
-        void HANDLE_UPDATE(game_error,       const game_formatted_string &args);
-        void HANDLE_UPDATE(game_log,         const game_formatted_string &args);
-        void HANDLE_UPDATE(game_prompt,      const game_formatted_string &args);
-        void HANDLE_UPDATE(add_cards,        const add_cards_update &args);
-        void HANDLE_UPDATE(remove_cards,     const remove_cards_update &args);
-        void HANDLE_UPDATE(move_card,        const move_card_update &args);
-        void HANDLE_UPDATE(add_cubes,        const add_cubes_update &args);
-        void HANDLE_UPDATE(move_cubes,       const move_cubes_update &args);
-        void HANDLE_UPDATE(move_scenario_deck, const move_scenario_deck_args &args);
-        void HANDLE_UPDATE(deck_shuffled,    const pocket_type &pocket);
-        void HANDLE_UPDATE(show_card,        const show_card_update &args);
-        void HANDLE_UPDATE(hide_card,        const hide_card_update &args);
-        void HANDLE_UPDATE(tap_card,         const tap_card_update &args);
-        void HANDLE_UPDATE(last_played_card, const card_id_args &args);
-        void HANDLE_UPDATE(player_add,       const player_user_update &args);
-        void HANDLE_UPDATE(player_remove,    const player_remove_update &args);
-        void HANDLE_UPDATE(player_hp,        const player_hp_update &args);
-        void HANDLE_UPDATE(player_gold,      const player_gold_update &args);
-        void HANDLE_UPDATE(player_show_role, const player_show_role_update &args);
-        void HANDLE_UPDATE(player_status,     const player_status_update &args);
-        void HANDLE_UPDATE(switch_turn,      const switch_turn_update &args);
-        void HANDLE_UPDATE(request_status,   const request_status_args &args);
-        void HANDLE_UPDATE(game_flags,       const game_flags &args);
-        void HANDLE_UPDATE(game_options,     const game_options &args);
-        void HANDLE_UPDATE(status_clear);
-        void HANDLE_UPDATE(confirm_play);
+        void handle_game_update(UPD_TAG(game_over),        const game_over_update &args);
+        void handle_game_update(UPD_TAG(game_error),       const game_formatted_string &args);
+        void handle_game_update(UPD_TAG(game_log),         const game_formatted_string &args);
+        void handle_game_update(UPD_TAG(game_prompt),      const game_formatted_string &args);
+        void handle_game_update(UPD_TAG(add_cards),        const add_cards_update &args);
+        void handle_game_update(UPD_TAG(remove_cards),     const remove_cards_update &args);
+        void handle_game_update(UPD_TAG(move_card),        const move_card_update &args);
+        void handle_game_update(UPD_TAG(add_cubes),        const add_cubes_update &args);
+        void handle_game_update(UPD_TAG(move_cubes),       const move_cubes_update &args);
+        void handle_game_update(UPD_TAG(move_scenario_deck), const move_scenario_deck_args &args);
+        void handle_game_update(UPD_TAG(deck_shuffled),    const pocket_type &pocket);
+        void handle_game_update(UPD_TAG(show_card),        const show_card_update &args);
+        void handle_game_update(UPD_TAG(hide_card),        const hide_card_update &args);
+        void handle_game_update(UPD_TAG(tap_card),         const tap_card_update &args);
+        void handle_game_update(UPD_TAG(last_played_card), const card_id_args &args);
+        void handle_game_update(UPD_TAG(player_add),       const player_user_update &args);
+        void handle_game_update(UPD_TAG(player_remove),    const player_remove_update &args);
+        void handle_game_update(UPD_TAG(player_hp),        const player_hp_update &args);
+        void handle_game_update(UPD_TAG(player_gold),      const player_gold_update &args);
+        void handle_game_update(UPD_TAG(player_show_role), const player_show_role_update &args);
+        void handle_game_update(UPD_TAG(player_status),     const player_status_update &args);
+        void handle_game_update(UPD_TAG(switch_turn),      const switch_turn_update &args);
+        void handle_game_update(UPD_TAG(request_status),   const request_status_args &args);
+        void handle_game_update(UPD_TAG(game_flags),       const game_flags &args);
+        void handle_game_update(UPD_TAG(game_options),     const game_options &args);
+        void handle_game_update(UPD_TAG(status_clear));
+        void handle_game_update(UPD_TAG(confirm_play));
 
         template<typename T>
         void add_animation(int duration, auto && ... args) {

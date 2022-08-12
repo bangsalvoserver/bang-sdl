@@ -210,7 +210,7 @@ void client_manager::stop_listenserver() {
     m_listenserver.reset();
 }
 
-void client_manager::HANDLE_SRV_MESSAGE(client_accepted, const client_accepted_args &args) {
+void client_manager::handle_message(SRV_TAG(client_accepted), const client_accepted_args &args) {
     if (!m_listenserver) {
         auto it = std::ranges::find(m_config.recent_servers, m_con.address_string());
         if (it == m_config.recent_servers.end()) {
@@ -223,23 +223,23 @@ void client_manager::HANDLE_SRV_MESSAGE(client_accepted, const client_accepted_a
     switch_scene<lobby_list_scene>();
 }
 
-void client_manager::HANDLE_SRV_MESSAGE(lobby_error, const std::string &message) {
+void client_manager::handle_message(SRV_TAG(lobby_error), const std::string &message) {
     add_chat_message(message_type::error, _(message));
 }
 
-void client_manager::HANDLE_SRV_MESSAGE(lobby_update, const lobby_data &args) {
+void client_manager::handle_message(SRV_TAG(lobby_update), const lobby_data &args) {
     if (auto scene = dynamic_cast<lobby_list_scene *>(m_scene.get())) {
         scene->handle_lobby_update(args);
     }
 }
 
-void client_manager::HANDLE_SRV_MESSAGE(lobby_edited, const lobby_info &args) {
+void client_manager::handle_message(SRV_TAG(lobby_edited), const lobby_info &args) {
     if (auto scene = dynamic_cast<lobby_scene *>(m_scene.get())) {
         scene->set_lobby_info(args);
     }
 }
 
-void client_manager::HANDLE_SRV_MESSAGE(lobby_entered, const lobby_entered_args &args) {
+void client_manager::handle_message(SRV_TAG(lobby_entered), const lobby_entered_args &args) {
     m_lobby_owner_id = args.owner_id;
     switch_scene<lobby_scene>(args);
 }
@@ -248,7 +248,7 @@ const user_info &client_manager::add_user(int id, std::string name, const sdl::s
     return m_users[id] = {std::move(name), sdl::texture(get_renderer(), surface)};
 }
 
-void client_manager::HANDLE_SRV_MESSAGE(lobby_add_user, const lobby_add_user_args &args) {
+void client_manager::handle_message(SRV_TAG(lobby_add_user), const lobby_add_user_args &args) {
     const auto &u = add_user(args.user_id, args.name, sdl::image_pixels_to_surface(args.profile_image));
     add_chat_message(message_type::server_log, _("GAME_USER_CONNECTED", args.name));
     if (auto scene = dynamic_cast<lobby_scene *>(m_scene.get())) {
@@ -256,7 +256,7 @@ void client_manager::HANDLE_SRV_MESSAGE(lobby_add_user, const lobby_add_user_arg
     }
 }
 
-void client_manager::HANDLE_SRV_MESSAGE(lobby_remove_user, const lobby_remove_user_args &args) {
+void client_manager::handle_message(SRV_TAG(lobby_remove_user), const lobby_remove_user_args &args) {
     if (args.user_id == m_user_own_id) {
         m_users.clear();
         switch_scene<lobby_list_scene>();
@@ -270,7 +270,7 @@ void client_manager::HANDLE_SRV_MESSAGE(lobby_remove_user, const lobby_remove_us
     }
 }
 
-void client_manager::HANDLE_SRV_MESSAGE(lobby_chat, const lobby_chat_args &args) {
+void client_manager::handle_message(SRV_TAG(lobby_chat), const lobby_chat_args &args) {
     user_info *info = get_user_info(args.user_id);
     if (info) {
         std::string msg = info->name;
@@ -281,11 +281,11 @@ void client_manager::HANDLE_SRV_MESSAGE(lobby_chat, const lobby_chat_args &args)
     }
 }
 
-void client_manager::HANDLE_SRV_MESSAGE(game_started) {
+void client_manager::handle_message(SRV_TAG(game_started)) {
     switch_scene<banggame::game_scene>();
 }
 
-void client_manager::HANDLE_SRV_MESSAGE(game_update, const game_update &args) {
+void client_manager::handle_message(SRV_TAG(game_update), const game_update &args) {
     if (auto scene = dynamic_cast<banggame::game_scene *>(m_scene.get())) {
         scene->handle_game_update(args);
     }

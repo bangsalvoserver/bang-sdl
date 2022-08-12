@@ -23,8 +23,6 @@ struct user_info {
     sdl::texture profile_image;
 };
 
-#define HANDLE_SRV_MESSAGE(name, ...) handle_message(enums::enum_tag_t<banggame::server_message_type::name> __VA_OPT__(,) __VA_ARGS__)
-
 class client_manager;
 
 struct bang_connection : net::wsconnection<bang_connection, banggame::server_message, banggame::client_message> {
@@ -119,16 +117,16 @@ public:
     const user_info &add_user(int id, std::string name, const sdl::surface &surface);
 
 private:
-    void HANDLE_SRV_MESSAGE(client_accepted, const banggame::client_accepted_args &args);
-    void HANDLE_SRV_MESSAGE(lobby_error, const std::string &message);
-    void HANDLE_SRV_MESSAGE(lobby_update, const banggame::lobby_data &args);
-    void HANDLE_SRV_MESSAGE(lobby_edited, const banggame::lobby_info &args);
-    void HANDLE_SRV_MESSAGE(lobby_entered, const banggame::lobby_entered_args &args);
-    void HANDLE_SRV_MESSAGE(lobby_add_user, const banggame::lobby_add_user_args &args);
-    void HANDLE_SRV_MESSAGE(lobby_remove_user, const banggame::lobby_remove_user_args &args);
-    void HANDLE_SRV_MESSAGE(lobby_chat, const banggame::lobby_chat_args &args);
-    void HANDLE_SRV_MESSAGE(game_update, const banggame::game_update &args);
-    void HANDLE_SRV_MESSAGE(game_started);
+    void handle_message(SRV_TAG(client_accepted), const banggame::client_accepted_args &args);
+    void handle_message(SRV_TAG(lobby_error), const std::string &message);
+    void handle_message(SRV_TAG(lobby_update), const banggame::lobby_data &args);
+    void handle_message(SRV_TAG(lobby_edited), const banggame::lobby_info &args);
+    void handle_message(SRV_TAG(lobby_entered), const banggame::lobby_entered_args &args);
+    void handle_message(SRV_TAG(lobby_add_user), const banggame::lobby_add_user_args &args);
+    void handle_message(SRV_TAG(lobby_remove_user), const banggame::lobby_remove_user_args &args);
+    void handle_message(SRV_TAG(lobby_chat), const banggame::lobby_chat_args &args);
+    void handle_message(SRV_TAG(game_update), const banggame::game_update &args);
+    void handle_message(SRV_TAG(game_started));
 
 private:
     sdl::window &m_window;
