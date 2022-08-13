@@ -342,7 +342,7 @@ void game_scene::handle_game_update(UPD_TAG(game_over), const game_over_update &
     }
 }
 
-std::string game_scene::evaluate_format_string(const game_formatted_string &str) {
+std::string game_scene::evaluate_format_string(const game_string &str) {
     return intl::format(_(str.format_str),
         str.format_args | std::views::transform([&](const game_format_arg &arg) {
         return std::visit(overloaded{
@@ -364,16 +364,16 @@ std::string game_scene::evaluate_format_string(const game_formatted_string &str)
     }));
 }
 
-void game_scene::handle_game_update(UPD_TAG(game_error), const game_formatted_string &args) {
+void game_scene::handle_game_update(UPD_TAG(game_error), const game_string &args) {
     m_target.confirm_play();
     parent->add_chat_message(message_type::error, evaluate_format_string(args));
 }
 
-void game_scene::handle_game_update(UPD_TAG(game_log), const game_formatted_string &args) {
+void game_scene::handle_game_update(UPD_TAG(game_log), const game_string &args) {
     m_ui.add_game_log(evaluate_format_string(args));
 }
 
-void game_scene::handle_game_update(UPD_TAG(game_prompt), const game_formatted_string &args) {
+void game_scene::handle_game_update(UPD_TAG(game_prompt), const game_string &args) {
     m_ui.show_message_box(evaluate_format_string(args),
         [&]{ m_target.send_prompt_response(true); },
         [&]{ m_target.send_prompt_response(false); }
