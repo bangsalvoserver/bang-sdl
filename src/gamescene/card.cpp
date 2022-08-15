@@ -175,7 +175,7 @@ namespace banggame {
                     rect.w + options.default_border_thickness * 2,
                     rect.h + options.default_border_thickness * 2
                 }, sdl::render_ex_options{
-                    .color = border_color,
+                    .color_modifier = border_color,
                     .angle = rotation
                 });
             }

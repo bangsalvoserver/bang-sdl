@@ -196,7 +196,7 @@ namespace sdl {
     };
 
     struct render_ex_options {
-        color color = sdl::rgba(0xffffffff);
+        color color_modifier = sdl::rgba(0xffffffff);
         double angle{};
     };
 
@@ -233,15 +233,15 @@ namespace sdl {
         }
 
         void render_ex(renderer &renderer, const rect &rect, const render_ex_options &options) const {
-            SDL_SetTextureColorMod(m_value, options.color.r, options.color.g, options.color.b);
-            SDL_SetTextureAlphaMod(m_value, options.color.a);
+            SDL_SetTextureColorMod(m_value, options.color_modifier.r, options.color_modifier.g, options.color_modifier.b);
+            SDL_SetTextureAlphaMod(m_value, options.color_modifier.a);
             SDL_RenderCopyEx(renderer.get(), m_value, nullptr, &rect, options.angle, nullptr, SDL_FLIP_NONE);
             SDL_SetTextureColorMod(m_value, 0xff, 0xff, 0xff);
             SDL_SetTextureAlphaMod(m_value, 0xff);
         }
         
         void render_colored(renderer &renderer, const rect &rect, const color &col) const {
-            render_ex(renderer, rect, render_ex_options{ .color = col });
+            render_ex(renderer, rect, render_ex_options{ .color_modifier = col });
         }
     };
 
