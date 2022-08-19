@@ -85,7 +85,7 @@ target_link_libraries(bangclient PUBLIC bangcommon sdl2_libraries tiny-process-l
 
 add_dependencies(bangclient cards_pak media_pak)
 
-set_target_properties(bangclient bangserver PROPERTIES
+set_target_properties(bangclient bangserver tiny-process-library PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
@@ -102,4 +102,5 @@ if (NOT CMAKE_BUILD_TYPE STREQUAL "Release")
     endif()
 
     target_link_libraries(banglauncher bangclient)
+    set_target_properties(banglauncher PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 endif()
