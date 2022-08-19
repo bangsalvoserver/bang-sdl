@@ -66,9 +66,6 @@ add_subdirectory(resources)
 add_subdirectory(external/banggame)
 add_subdirectory(external/tiny-process-library)
 
-set_target_properties(bangserver PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-
 set_target_properties(tiny-process-library PROPERTIES
     POSITION_INDEPENDENT_CODE ON)
 
@@ -87,6 +84,10 @@ target_include_directories(bangclient PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/export
 target_link_libraries(bangclient PUBLIC bangcommon sdl2_libraries tiny-process-library)
 
 add_dependencies(bangclient cards_pak media_pak)
+
+set_target_properties(bangclient bangserver PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 if (NOT CMAKE_BUILD_TYPE STREQUAL "Release")
     if (WIN32)
