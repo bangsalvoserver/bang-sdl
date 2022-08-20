@@ -68,6 +68,14 @@ namespace widgets {
             redraw();
         }
 
+        void clear() {
+            m_value.clear();
+            m_cursor_pos = 0;
+            m_cursor_len = 0;
+            m_hscroll = 0;
+            redraw();
+        }
+
         void set_onenter(button_callback_fun &&fun) {
             on_enter = std::move(fun);
         }

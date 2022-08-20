@@ -86,7 +86,7 @@ void chat_ui::add_message(message_type type, const std::string &message) {
 void chat_ui::send_chat_message() {
     if (!m_chat_box.get_value().empty()) {
         parent->add_message<banggame::client_message_type::lobby_chat>(m_chat_box.get_value());
-        m_chat_box.set_value("");
+        m_chat_box.clear();
     }
 }
 
