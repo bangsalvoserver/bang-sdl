@@ -93,6 +93,7 @@ namespace banggame {
         sdl::color target_finder_target;
         sdl::color target_finder_can_respond;
         sdl::color target_finder_can_pick;
+        sdl::color target_finder_picked;
     } options;
 }
 

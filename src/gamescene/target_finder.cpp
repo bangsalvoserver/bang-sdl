@@ -49,6 +49,23 @@ bool target_finder::can_play_in_turn(player_view *player, card_view *card) const
     }
 }
 
+void target_finder::set_picking_border(pocket_type pocket, player_view *player, card_view *card, sdl::color color) {
+    switch (pocket) {
+    case pocket_type::player_hand:
+    case pocket_type::player_table:
+    case pocket_type::player_character:
+    case pocket_type::selection:
+        m_response_borders.add(card->border_color, color);
+        break;
+    case pocket_type::main_deck:
+        m_response_borders.add(m_game->m_main_deck.border_color, color);
+        break;
+    case pocket_type::discard_pile:
+        m_response_borders.add(m_game->m_discard_pile.border_color, color);
+        break;
+    }
+}
+
 void target_finder::set_response_highlights(const request_status_args &args) {
     if (m_game->m_player_self) {
         add_action<game_action_type::request_confirm>();
@@ -64,21 +81,7 @@ void target_finder::set_response_highlights(const request_status_args &args) {
             args.pocket,
             args.player_id ? m_game->find_player(args.player_id) : nullptr,
             args.card_id ? m_game->find_card(args.card_id) : nullptr);
-    
-        switch (pocket) {
-        case pocket_type::player_hand:
-        case pocket_type::player_table:
-        case pocket_type::player_character:
-        case pocket_type::selection:
-            m_response_borders.add(card->border_color, options.target_finder_can_pick);
-            break;
-        case pocket_type::main_deck:
-            m_response_borders.add(m_game->m_main_deck.border_color, options.target_finder_can_pick);
-            break;
-        case pocket_type::discard_pile:
-            m_response_borders.add(m_game->m_discard_pile.border_color, options.target_finder_can_pick);
-            break;
-        }
+        set_picking_border(pocket, player, card, options.target_finder_can_pick);
     }
 
     for (int id : args.respond_ids) {
@@ -136,6 +139,7 @@ void target_finder::on_click_confirm() {
 
 bool target_finder::send_pick_card(pocket_type pocket, player_view *player, card_view *card) {
     if (ranges_contains(m_picking_highlights, std::tuple{pocket, player, card})) {
+        set_picking_border(pocket, player, card, options.target_finder_picked);
         add_action<game_action_type::pick_card>(pocket, player ? player->id : 0, card ? card->id : 0);
         m_waiting_confirm = true;
         return true;
