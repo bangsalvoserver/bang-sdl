@@ -28,7 +28,12 @@ struct config {
     
     void load() {
         std::ifstream ifs{filename};
-        if (ifs.fail()) return;
+        if (ifs.fail()) {
+#ifdef OFFICIAL_BANG_SERVER
+            recent_servers.push_back(OFFICIAL_BANG_SERVER);
+#endif
+            return;
+        }
         try {
             Json::Value value;
             ifs >> value;

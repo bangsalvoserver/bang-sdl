@@ -9,6 +9,7 @@ on:
 
 env:
   BUILD_TYPE: Release
+  OFFICIAL_BANG_SERVER: bang.salvoserver.it:47654
 
 jobs:
   build:
@@ -45,6 +46,7 @@ jobs:
         -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
         -DCMAKE_C_COMPILER=gcc
         -DCMAKE_CXX_COMPILER=g++
+        -DOFFICIAL_BANG_SERVER=${{env.OFFICIAL_BANG_SERVER}}
         -G Ninja
       
     - name: Build

@@ -74,6 +74,10 @@ target_include_directories(bangclient PRIVATE src)
 
 target_compile_definitions(bangclient PRIVATE SDL_MAIN_HANDLED)
 
+if(DEFINED OFFICIAL_BANG_SERVER)
+    target_compile_definitions(bangclient PRIVATE "OFFICIAL_BANG_SERVER=\"${OFFICIAL_BANG_SERVER}\"")
+endif()
+
 include(GenerateExportHeader)
 generate_export_header(bangclient
     EXPORT_FILE_NAME "${CMAKE_CURRENT_BINARY_DIR}/exports/bangclient_export.h"
