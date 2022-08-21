@@ -446,14 +446,14 @@ int target_finder::get_target_index() {
     if (m_targets.empty()) {
         return 0;
     }
-    return static_cast<int>(m_targets.size() - enums::visit(overloaded{
+    return static_cast<int>(m_targets.size()) - enums::visit(overloaded{
         [](const auto &) {
-            return false;
+            return 0;
         },
         []<typename T>(const std::vector<T> &value) {
-            return value.size() != value.capacity();
+            return static_cast<int>(value.size() != value.capacity());
         }
-    }, m_targets.back()));
+    }, m_targets.back());
 }
 
 int target_finder::calc_distance(player_view *from, player_view *to) {
@@ -561,7 +561,7 @@ void target_finder::handle_auto_targets() {
             } else if (current_card->has_tag(tag_type::auto_confirm_red_ringo)) {
                 return current_card->cubes.size() <= 1
                     || std::transform_reduce(m_game->m_playing->table.begin(), m_game->m_playing->table.end(), 0, std::plus(), [](const card_view *card) {
-                        return static_cast<int>(4 - card->cubes.size());
+                        return 4 - static_cast<int>(card->cubes.size());
                     }) <= 1;
             }
         } else if (repeatable && *repeatable) {
