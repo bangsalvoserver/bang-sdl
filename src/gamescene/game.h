@@ -139,6 +139,7 @@ namespace banggame {
         friend class game_ui;
         friend class target_finder;
         friend class alive_player_view;
+        friend class dead_player_view;
     };
 
 }

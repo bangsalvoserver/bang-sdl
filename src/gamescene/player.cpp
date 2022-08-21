@@ -169,5 +169,16 @@ namespace banggame {
         m_role->render(renderer);
         m_propic.render(renderer);
         m_username_text.render(renderer);
+
+        if (m_role->role == m_game->m_winner_role
+            || (m_role->role == player_role::deputy && m_game->m_winner_role == player_role::sheriff)
+            || (m_role->role == player_role::sheriff && m_game->m_winner_role == player_role::deputy)) {
+            
+            sdl::texture_ref texture = media_pak::get().icon_winner;
+            sdl::rect rect = texture.get_rect();
+            rect.x = m_propic.get_pos().x - rect.w - widgets::profile_pic::size / 2 - 5;
+            rect.y = m_propic.get_pos().y - rect.h / 2;
+            texture.render_colored(renderer, rect, options.winner_indicator);
+        }
     }
 }
