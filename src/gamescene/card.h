@@ -298,10 +298,6 @@ namespace banggame {
         sdl::point get_offset(card_view *card) const override;
     };
 
-    struct role_pile : pocket_view {
-        sdl::point get_offset(card_view *card) const override;
-    };
-
 }
 
 #endif

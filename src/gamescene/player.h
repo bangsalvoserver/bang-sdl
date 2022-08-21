@@ -7,12 +7,16 @@
 #include "../widgets/profile_pic.h"
 
 namespace banggame {
-    struct player_view {
+    class game_scene;
+
+    class player_view {
+    public:
+        game_scene *m_game;
         int id;
 
         int user_id;
         
-        explicit player_view(int id);
+        player_view(game_scene *game, int id);
 
         int hp = 0;
         int gold = 0;
@@ -51,15 +55,28 @@ namespace banggame {
                 || has_player_flags(player_flags::temp_ghost);
         }
 
-        void set_position(sdl::point pos, bool flipped = false);
-
         void set_hp_marker_position(float hp);
-
         void set_gold(int amount);
 
-        void set_username(const std::string &name);
+        virtual void set_position(sdl::point pos, bool flipped = false) = 0;
+        virtual void set_username(const std::string &name) = 0;
+        virtual void render(sdl::renderer &renderer) = 0;
+    };
 
-        void render(sdl::renderer &renderer);
+    class alive_player_view : public player_view {
+    public:
+        using player_view::player_view;
+        void set_position(sdl::point pos, bool flipped = false) override;
+        void set_username(const std::string &name) override;
+        void render(sdl::renderer &renderer) override;
+    };
+
+    class dead_player_view : public player_view {
+    public:
+        using player_view::player_view;
+        void set_position(sdl::point pos, bool flipped = false) override;
+        void set_username(const std::string &name) override;
+        void render(sdl::renderer &renderer) override;
     };
 }
 #endif

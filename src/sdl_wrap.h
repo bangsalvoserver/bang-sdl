@@ -56,6 +56,10 @@ namespace sdl {
         };
     }
 
+    constexpr color full_alpha(color col) {
+        return {col.r, col.g, col.b, 0xff};
+    };
+
     struct error : std::runtime_error {
         using std::runtime_error::runtime_error;
     };

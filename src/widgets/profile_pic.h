@@ -21,6 +21,9 @@ namespace widgets {
 
         void set_texture(std::nullptr_t);
         void set_texture(sdl::texture_ref tex);
+        sdl::texture_ref get_texture() const {
+            return m_texture;
+        }
 
         void set_pos(sdl::point pt);
         sdl::point get_pos() const;

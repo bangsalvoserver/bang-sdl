@@ -1,18 +1,34 @@
 #include "player.h"
 
 #include "../media_pak.h"
+#include "game.h"
 
 namespace banggame {
     using namespace sdl::point_math;
 
-    player_view::player_view(int id)
-        : id(id)
+    player_view::player_view(game_scene *game, int id)
+        : m_game(game)
+        , id(id)
         , m_username_text(widgets::text_style{
             .text_font = &media_pak::font_bkant_bold
         })
     {}
 
-    void player_view::set_position(sdl::point pos, bool flipped) {
+    void player_view::set_hp_marker_position(float hp) {
+        m_backup_characters.set_pos({
+            m_characters.get_pos().x,
+            m_characters.get_pos().y - std::max(0, static_cast<int>(hp * options.one_hp_size))});
+    }
+
+    void player_view::set_gold(int amount) {
+        gold = amount;
+
+        if (amount > 0) {
+            m_gold_text.set_value(std::to_string(amount));
+        }
+    }
+
+    void alive_player_view::set_position(sdl::point pos, bool flipped) {
         m_bounding_rect.w = table.width + options.card_width * 3 + options.card_margin * 4;
         m_bounding_rect.h = options.player_view_height;
         m_bounding_rect.x = pos.x - m_bounding_rect.w / 2;
@@ -44,7 +60,7 @@ namespace banggame {
         set_username(m_username_text.get_value());
     }
 
-    void player_view::set_username(const std::string &value) {
+    void alive_player_view::set_username(const std::string &value) {
         m_username_text.set_value(value);
         sdl::rect username_rect = m_username_text.get_rect();
         username_rect.x = m_role->get_pos().x - (username_rect.w) / 2;
@@ -52,26 +68,8 @@ namespace banggame {
         m_username_text.set_rect(username_rect);
     }
 
-    void player_view::set_hp_marker_position(float hp) {
-        m_backup_characters.set_pos({
-            m_characters.get_pos().x,
-            m_characters.get_pos().y - std::max(0, static_cast<int>(hp * options.one_hp_size))});
-    }
-
-    void player_view::set_gold(int amount) {
-        gold = amount;
-
-        if (amount > 0) {
-            m_gold_text.set_value(std::to_string(amount));
-        }
-    }
-
-    inline sdl::color full_alpha(sdl::color col) {
-        return {col.r, col.g, col.b, 0xff};
-    };
-
-    void player_view::render(sdl::renderer &renderer) {
-        renderer.set_draw_color(border_color.a ? border_color : full_alpha(options.player_view_border));
+    void alive_player_view::render(sdl::renderer &renderer) {
+        renderer.set_draw_color(border_color.a ? border_color : sdl::full_alpha(options.player_view_border));
         renderer.draw_rect(m_bounding_rect);
         renderer.draw_rect(sdl::rect{
             m_bounding_rect.x + 1,
@@ -111,5 +109,65 @@ namespace banggame {
 
         table.render(renderer);
         hand.render(renderer);
+
+        int x = m_bounding_rect.x + m_bounding_rect.w - 5;
+
+        auto render_icon = [&](sdl::texture_ref texture, sdl::color color = sdl::rgba(0xffffffff)) {
+            sdl::rect rect = texture.get_rect();
+            rect.x = x - rect.w;
+            rect.y = m_bounding_rect.y + 5;
+            texture.render_colored(renderer, rect, color);
+        };
+
+        if (m_game->m_winner_role == player_role::unknown) {
+            if (this == m_game->m_playing) {
+                render_icon(media_pak::get().icon_turn, options.turn_indicator);
+                x -= 32;
+            }
+            if (this == m_game->m_request_target) {
+                render_icon(media_pak::get().icon_target, options.request_target_indicator);
+                x -= 32;
+            }
+            if (this == m_game->m_request_origin) {
+                render_icon(media_pak::get().icon_origin, options.request_origin_indicator);
+            }
+        } else if (m_role->role == m_game->m_winner_role
+            || (m_role->role == player_role::deputy && m_game->m_winner_role == player_role::sheriff)
+            || (m_role->role == player_role::sheriff && m_game->m_winner_role == player_role::deputy)) {
+            render_icon(media_pak::get().icon_winner, options.winner_indicator);
+        }
+    }
+
+    void dead_player_view::set_position(sdl::point pos, bool flipped) {
+        m_bounding_rect.w = options.card_width + options.card_margin + widgets::profile_pic::size;
+        m_bounding_rect.h = 0;
+        m_bounding_rect.x = pos.x;
+        m_bounding_rect.y = pos.y;
+
+        m_role->set_pos(sdl::point{
+            m_bounding_rect.x + m_bounding_rect.w - options.card_width / 2,
+            m_bounding_rect.y
+        });
+
+        m_propic.set_pos(sdl::point{
+            m_bounding_rect.x + widgets::profile_pic::size / 2,
+            m_bounding_rect.y + options.dead_propic_yoff
+        });
+
+        set_username(m_username_text.get_value());
+    }
+
+    void dead_player_view::set_username(const std::string &value) {
+        m_username_text.set_value(value);
+        sdl::rect username_rect = m_username_text.get_rect();
+        username_rect.x = m_propic.get_pos().x - username_rect.w / 2;
+        username_rect.y = m_propic.get_pos().y + options.username_yoff - options.propic_yoff;
+        m_username_text.set_rect(username_rect);
+    }
+
+    void dead_player_view::render(sdl::renderer &renderer) {
+        m_role->render(renderer);
+        m_propic.render(renderer);
+        m_username_text.render(renderer);
     }
 }

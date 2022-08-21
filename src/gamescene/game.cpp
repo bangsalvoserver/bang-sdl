@@ -51,11 +51,6 @@ void game_scene::refresh_layout() {
         win_rect.w / 2 + options.deck_xoffset + options.card_width + options.card_xoffset,
         win_rect.h / 2});
 
-    m_dead_roles_pile.set_pos(sdl::point{
-        win_rect.w - options.card_width / 2 - options.card_margin,
-        options.pile_dead_players_yoff
-    });
-
     move_player_views();
 
     m_cubes.set_pos(sdl::point{
@@ -118,48 +113,24 @@ void game_scene::render(sdl::renderer &renderer) {
     m_scenario_card.render_last(renderer, 2);
     m_cubes.render(renderer);
 
-    for (player_view &p : m_players) {
-        p.render(renderer);
-
-        int x = p.m_bounding_rect.x + p.m_bounding_rect.w - 5;
-
-        auto render_icon = [&](sdl::texture_ref texture, sdl::color color = sdl::rgba(0xffffffff)) {
-            sdl::rect rect = texture.get_rect();
-            rect.x = x - rect.w;
-            rect.y = p.m_bounding_rect.y + 5;
-            texture.render_colored(renderer, rect, color);
-        };
-
-        if (m_winner_role == player_role::unknown) {
-            if (&p == m_playing) {
-                render_icon(media_pak::get().icon_turn, options.turn_indicator);
-                x -= 32;
-            }
-            if (&p == m_request_target) {
-                render_icon(media_pak::get().icon_target, options.request_target_indicator);
-                x -= 32;
-            }
-            if (&p == m_request_origin) {
-                render_icon(media_pak::get().icon_origin, options.request_origin_indicator);
-            }
-        } else if (p.m_role->role == m_winner_role
-            || (p.m_role->role == player_role::deputy && m_winner_role == player_role::sheriff)
-            || (p.m_role->role == player_role::sheriff && m_winner_role == player_role::deputy)) {
-            render_icon(media_pak::get().icon_winner, options.winner_indicator);
-        }
+    for (player_view *p : m_alive_players) {
+        p->render(renderer);
     }
 
     m_discard_pile.render_last(renderer, 2);
     m_selection.render(renderer);
     m_shop_choice.render(renderer);
-    m_dead_roles_pile.render(renderer);
 
-    if (!m_dead_roles_pile.empty()) {
+    for (player_view *p : m_dead_players) {
+        p->render(renderer);
+    }
+    if (!m_dead_players.empty()) {
         sdl::texture_ref icon = media_pak::get().icon_dead_players;
-        sdl::rect rect = icon.get_rect();
-        rect.x = m_dead_roles_pile.get_pos().x - rect.w / 2;
-        rect.y = options.icon_dead_players_yoff;
-        icon.render_colored(renderer, rect, options.icon_dead_players);
+        sdl::rect icon_rect = icon.get_rect();
+        sdl::rect player_rect = m_dead_players.front()->m_bounding_rect;
+        icon_rect.x = player_rect.x + (player_rect.w - icon_rect.w) / 2;
+        icon_rect.y = options.icon_dead_players_yoff;
+        icon.render_colored(renderer, icon_rect, options.icon_dead_players);
     }
 
     if (!m_animations.empty()) {
@@ -247,24 +218,24 @@ void game_scene::handle_card_click() {
         m_target.on_click_scenario_card(m_scenario_card.back());
         return;
     }
-    for (player_view &p : m_players) {
-        if (sdl::point_in_rect(m_mouse_pt, p.m_bounding_rect)) {
-            if (m_target.on_click_player(&p)) {
+    for (player_view *p : m_alive_players) {
+        if (sdl::point_in_rect(m_mouse_pt, p->m_bounding_rect)) {
+            if (m_target.on_click_player(p)) {
                 return;
             }
         }
-        for (card_view *c : p.m_characters | std::views::reverse) {
+        for (card_view *c : p->m_characters | std::views::reverse) {
             if (sdl::point_in_rect(m_mouse_pt, c->get_rect())) {
-                m_target.on_click_character(&p, c);
+                m_target.on_click_character(p, c);
                 return;
             }
         }
-        if (card_view *card = find_clicked(p.table)) {
-            m_target.on_click_table_card(&p, card);
+        if (card_view *card = find_clicked(p->table)) {
+            m_target.on_click_table_card(p, card);
             return;
         }
-        if (card_view *card = find_clicked(p.hand)) {
-            m_target.on_click_hand_card(&p, card);
+        if (card_view *card = find_clicked(p->hand)) {
+            m_target.on_click_hand_card(p, card);
             return;
         }
     }
@@ -304,21 +275,21 @@ void game_scene::find_overlay() {
         m_overlay = m_scenario_card.back();
         return;
     }
-    for (player_view &p : m_players) {
-        for (card_view *c : p.m_characters | std::views::reverse) {
+    for (player_view *p : m_alive_players) {
+        for (card_view *c : p->m_characters | std::views::reverse) {
             if (sdl::point_in_rect(m_mouse_pt, c->get_rect())) {
                 m_overlay = c;
                 return;
             }
         }
-        if (mouse_in_card(p.m_role)) {
-            m_overlay = p.m_role;
+        if (mouse_in_card(p->m_role)) {
+            m_overlay = p->m_role;
             return;
         }
-        if (m_overlay = find_clicked(p.table)) {
+        if (m_overlay = find_clicked(p->table)) {
             return;
         }
-        if (m_overlay = find_clicked(p.hand)) {
+        if (m_overlay = find_clicked(p->hand)) {
             return;
         }
     }
@@ -598,24 +569,23 @@ void game_scene::handle_game_update(UPD_TAG(last_played_card), const card_id_arg
 }
 
 void game_scene::move_player_views() {
-    if (m_players.size() == 0) return;
+    if (m_alive_players.size() == 0) return;
 
     const int xradius = (parent->width() / 2) - options.player_ellipse_x_distance;
     const int yradius = (parent->height() / 2) - options.player_ellipse_y_distance;
 
-    auto begin = m_player_self ? m_players.find(m_player_self->id) : m_players.begin();
-    auto it = begin;
+    auto it = m_alive_players.begin();
 
     double angle = 0.f;
     do {
-        it->set_position(sdl::point{
+        (*it)->set_position(sdl::point{
             int(parent->width() / 2 - std::sin(angle) * xradius),
             int(parent->height() / 2 + std::cos(angle) * yradius)
-        }, &*it == m_player_self);
+        }, *it == m_player_self);
         
-        angle += std::numbers::pi * 2.f / m_players.size();
-        if (++it == m_players.end()) it = m_players.begin();
-    } while (it != begin);
+        angle += std::numbers::pi * 2.f / m_alive_players.size();
+        if (++it == m_alive_players.end()) it = m_alive_players.begin();
+    } while (it != m_alive_players.begin());
 
     if (m_scenario_player) {
         auto player_rect = m_scenario_player->m_bounding_rect;
@@ -623,10 +593,19 @@ void game_scene::move_player_views() {
             player_rect.x + player_rect.w + options.scenario_deck_xoff,
             player_rect.y + player_rect.h / 2});
     }
+
+    sdl::point dead_roles_pos{
+        parent->get_rect().w - options.card_width - widgets::profile_pic::size - options.card_margin * 2,
+        options.pile_dead_players_yoff
+    };
+    for (player_view *p : m_dead_players) {
+        p->set_position(dead_roles_pos);
+        dead_roles_pos.y += options.card_yoffset;
+    }
 }
 
 void game_scene::handle_game_update(UPD_TAG(player_add), const player_user_update &args) {
-    auto [p, inserted] = m_players.try_emplace(args.player_id);
+    auto [p, inserted] = m_players.try_insert(std::make_unique<alive_player_view>(this, args.player_id));
     if (inserted) {
         if (args.user_id == parent->get_user_own_id()) {
             m_player_self = &p;
@@ -635,6 +614,11 @@ void game_scene::handle_game_update(UPD_TAG(player_add), const player_user_updat
         card->id = args.player_id;
         card->texture_back = card_textures::get().backfaces[enums::indexof(card_deck_type::role)];
         p.m_role = m_role_cards.insert(std::move(card)).get();
+        m_alive_players.push_back(&p);
+    }
+    std::ranges::sort(m_alive_players, {}, &player_view::id);
+    if (m_player_self) {
+        std::ranges::rotate(m_alive_players, std::ranges::find(m_alive_players, m_player_self->id, &player_view::id));
     }
 
     p.user_id = args.user_id;
@@ -654,16 +638,18 @@ void game_scene::handle_game_update(UPD_TAG(player_remove), const player_remove_
         m_player_self = nullptr;
     }
 
-    if (auto it = m_players.find(args.player_id); it != m_players.end()) {
-        role_card *card = it->m_role;
-        m_dead_roles_pile.add_card(card);
+    auto it = std::ranges::find(m_alive_players, args.player_id, &player_view::id);
+    if (it != m_alive_players.end()) {
+        player_view *alive_player = *it;
+        m_alive_players.erase(it);
 
-        m_players.erase(it);
+        auto dead_player = std::make_unique<dead_player_view>(this, args.player_id);
+        dead_player->m_role = alive_player->m_role;
+        dead_player->set_username(alive_player->m_username_text.get_value());
+        dead_player->m_propic.set_texture(alive_player->m_propic.get_texture());
+        m_dead_players.push_back(m_players.insert(std::move(dead_player)).get());
+
         move_player_views();
-
-        card_move_animation anim;
-        anim.add_move_card(card);
-        add_animation<card_move_animation>(options.move_card_msecs, std::move(anim));
     }
 }
 
@@ -703,10 +689,7 @@ void game_scene::handle_game_update(UPD_TAG(player_show_role), const player_show
         card->flip_amt = 1.f;
         card->role = args.role;
         card->make_texture_front(parent->get_renderer());
-
-        auto moved_card = m_role_cards.insert(std::move(card)).get();
-        m_dead_roles_pile.add_card(moved_card);
-        moved_card->set_pos(m_dead_roles_pile.get_pos() + m_dead_roles_pile.get_offset(moved_card));
+        m_role_cards.insert(std::move(card));
     }
 }
 

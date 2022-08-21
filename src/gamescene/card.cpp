@@ -222,11 +222,6 @@ namespace banggame {
         return sdl::point{options.character_offset * diff, options.character_offset * diff};
     }
 
-    sdl::point role_pile::get_offset(card_view *card) const {
-        int diff = static_cast<int>(std::ranges::distance(begin(), std::ranges::find(*this, card)));
-        return sdl::point{0, options.card_yoffset * diff};
-    }
-
     void counting_pocket::update_count() {
         m_count_text.set_value(std::to_string(size()));
     }

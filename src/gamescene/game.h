@@ -47,7 +47,7 @@ namespace banggame {
         void handle_game_update(UPD_TAG(player_hp),        const player_hp_update &args);
         void handle_game_update(UPD_TAG(player_gold),      const player_gold_update &args);
         void handle_game_update(UPD_TAG(player_show_role), const player_show_role_update &args);
-        void handle_game_update(UPD_TAG(player_status),     const player_status_update &args);
+        void handle_game_update(UPD_TAG(player_status),    const player_status_update &args);
         void handle_game_update(UPD_TAG(switch_turn),      const switch_turn_update &args);
         void handle_game_update(UPD_TAG(request_status),   const request_status_args &args);
         void handle_game_update(UPD_TAG(game_flags),       const game_flags &args);
@@ -86,8 +86,6 @@ namespace banggame {
         counting_pocket m_main_deck;
         pocket_view m_discard_pile;
 
-        role_pile m_dead_roles_pile;
-
         pocket_view m_scenario_deck;
         pocket_view m_scenario_card;
 
@@ -98,6 +96,9 @@ namespace banggame {
         util::id_map<card_view> m_cards;
         util::id_map<player_view> m_players;
         util::id_map<role_card> m_role_cards;
+
+        std::vector<player_view *> m_alive_players;
+        std::vector<player_view *> m_dead_players;
 
         sdl::point m_mouse_pt;
         duration_type m_mouse_motion_timer{0};
@@ -137,6 +138,7 @@ namespace banggame {
 
         friend class game_ui;
         friend class target_finder;
+        friend class alive_player_view;
     };
 
 }
