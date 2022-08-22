@@ -18,6 +18,8 @@ namespace banggame {
         
         player_view(game_scene *game, int id);
 
+        virtual ~player_view() = default;
+
         int hp = 0;
         int gold = 0;
 
@@ -58,7 +60,7 @@ namespace banggame {
         void set_hp_marker_position(float hp);
         void set_gold(int amount);
 
-        virtual void set_position(sdl::point pos, bool flipped = false) = 0;
+        virtual void set_position(sdl::point pos) = 0;
         virtual void set_username(const std::string &name) = 0;
         virtual void render(sdl::renderer &renderer) = 0;
     };
@@ -66,7 +68,7 @@ namespace banggame {
     class alive_player_view : public player_view {
     public:
         using player_view::player_view;
-        void set_position(sdl::point pos, bool flipped = false) override;
+        void set_position(sdl::point pos) override;
         void set_username(const std::string &name) override;
         void render(sdl::renderer &renderer) override;
     };
@@ -74,7 +76,7 @@ namespace banggame {
     class dead_player_view : public player_view {
     public:
         using player_view::player_view;
-        void set_position(sdl::point pos, bool flipped = false) override;
+        void set_position(sdl::point pos) override;
         void set_username(const std::string &name) override;
         void render(sdl::renderer &renderer) override;
     };

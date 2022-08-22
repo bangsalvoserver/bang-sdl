@@ -28,7 +28,7 @@ namespace banggame {
         }
     }
 
-    void alive_player_view::set_position(sdl::point pos, bool flipped) {
+    void alive_player_view::set_position(sdl::point pos) {
         m_bounding_rect.w = table.width + options.card_width * 3 + options.card_margin * 4;
         m_bounding_rect.h = options.player_view_height;
         m_bounding_rect.x = pos.x - m_bounding_rect.w / 2;
@@ -44,7 +44,7 @@ namespace banggame {
             m_characters.get_pos().x + options.card_width + options.card_margin,
             m_characters.get_pos().y + options.role_yoff));
         set_hp_marker_position(static_cast<float>(hp));
-        if (flipped) {
+        if (this == m_game->m_player_self) {
             hand.set_pos(hand.get_pos() + sdl::point{0, options.card_yoffset});
             table.set_pos(table.get_pos() - sdl::point{0, options.card_yoffset});
         } else {
@@ -138,7 +138,7 @@ namespace banggame {
         }
     }
 
-    void dead_player_view::set_position(sdl::point pos, bool flipped) {
+    void dead_player_view::set_position(sdl::point pos) {
         m_bounding_rect.w = options.card_width + options.card_margin + widgets::profile_pic::size;
         m_bounding_rect.h = 0;
         m_bounding_rect.x = pos.x;

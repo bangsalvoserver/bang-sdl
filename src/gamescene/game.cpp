@@ -583,7 +583,7 @@ void game_scene::move_player_views() {
         p->set_position(sdl::point{
             int(parent->width() / 2 - std::sin(angle) * xradius),
             int(parent->height() / 2 + std::cos(angle) * yradius)
-        }, p == m_player_self);
+        });
         
         angle += std::numbers::pi * 2.f / m_alive_players.size();
     }
