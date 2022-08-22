@@ -574,18 +574,15 @@ void game_scene::move_player_views() {
     const int xradius = (parent->width() / 2) - options.player_ellipse_x_distance;
     const int yradius = (parent->height() / 2) - options.player_ellipse_y_distance;
 
-    auto it = m_alive_players.begin();
-
     double angle = 0.f;
-    do {
-        (*it)->set_position(sdl::point{
+    for (player_view *p : m_alive_players) {
+        p->set_position(sdl::point{
             int(parent->width() / 2 - std::sin(angle) * xradius),
             int(parent->height() / 2 + std::cos(angle) * yradius)
-        }, *it == m_player_self);
+        }, p == m_player_self);
         
         angle += std::numbers::pi * 2.f / m_alive_players.size();
-        if (++it == m_alive_players.end()) it = m_alive_players.begin();
-    } while (it != m_alive_players.begin());
+    }
 
     if (m_scenario_player) {
         auto player_rect = m_scenario_player->m_bounding_rect;
@@ -607,18 +604,19 @@ void game_scene::move_player_views() {
 void game_scene::handle_game_update(UPD_TAG(player_add), const player_user_update &args) {
     auto [p, inserted] = m_players.try_insert(std::make_unique<alive_player_view>(this, args.player_id));
     if (inserted) {
-        if (args.user_id == parent->get_user_own_id()) {
-            m_player_self = &p;
-        }
         auto card = std::make_unique<role_card>();
         card->id = args.player_id;
         card->texture_back = card_textures::get().backfaces[enums::indexof(card_deck_type::role)];
         p.m_role = m_role_cards.insert(std::move(card)).get();
-        m_alive_players.push_back(&p);
-    }
-    std::ranges::sort(m_alive_players, {}, &player_view::id);
-    if (m_player_self) {
-        std::ranges::rotate(m_alive_players, std::ranges::find(m_alive_players, m_player_self->id, &player_view::id));
+
+        auto it = m_alive_players.insert(m_alive_players.empty()
+            ? m_alive_players.end()
+            : std::next(std::ranges::max_element(m_alive_players, {}, &player_view::id)), &p);
+        
+        if (args.user_id == parent->get_user_own_id()) {
+            m_player_self = &p;
+            std::ranges::rotate(m_alive_players, it);
+        }
     }
 
     p.user_id = args.user_id;
@@ -647,6 +645,8 @@ void game_scene::handle_game_update(UPD_TAG(player_remove), const player_remove_
         dead_player->m_role = alive_player->m_role;
         dead_player->set_username(alive_player->m_username_text.get_value());
         dead_player->m_propic.set_texture(alive_player->m_propic.get_texture());
+        dead_player->m_player_flags = player_flags::dead;
+
         m_dead_players.push_back(m_players.insert(std::move(dead_player)).get());
 
         move_player_views();
