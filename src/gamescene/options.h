@@ -65,6 +65,7 @@ namespace banggame {
         int flip_card_msecs;
         int short_pause_msecs;
         int tap_card_msecs;
+        int flash_card_msecs;
         int move_hp_msecs;
         int flip_role_msecs;
         int shuffle_deck_msecs;
@@ -79,6 +80,8 @@ namespace banggame {
         int icon_dead_players_yoff;
         int pile_dead_players_yoff;
 
+        sdl::color flash_card_color;
+        
         sdl::color status_text_background;
 
         sdl::color player_view_border;

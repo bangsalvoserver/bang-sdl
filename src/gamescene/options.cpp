@@ -59,6 +59,7 @@ namespace banggame {
         .flip_card_msecs = 167,
         .short_pause_msecs = 333,
         .tap_card_msecs = 167,
+        .flash_card_msecs = 167,
         .move_hp_msecs = 333,
         .flip_role_msecs = 250,
         .shuffle_deck_msecs = 1333,
@@ -72,6 +73,8 @@ namespace banggame {
         .status_text_y_distance = 270,
         .icon_dead_players_yoff = 10,
         .pile_dead_players_yoff = 80,
+        
+        .flash_card_color = sdl::rgba(0xffff00c0),
 
         .status_text_background = sdl::rgba(0xffffff80),
 

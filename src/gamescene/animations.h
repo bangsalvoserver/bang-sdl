@@ -62,6 +62,18 @@ namespace banggame {
         void render(sdl::renderer &renderer);
     };
 
+    struct card_flash_animation {
+        card_view *card;
+        sdl::color color_from;
+        sdl::color color_to;
+
+        card_flash_animation(card_view *card, sdl::color color_to);
+
+        void end();
+        void do_animation(float x);
+        void render(sdl::renderer &renderer);
+    };
+
     struct player_hp_animation : easing_animation<player_hp_animation> {
         player_view *player;
 

@@ -15,6 +15,15 @@ namespace banggame {
         };
     }
 
+    constexpr sdl::color lerp_color(sdl::color begin, sdl::color end, float amt) {
+        return {
+            static_cast<uint8_t>(std::lerp(static_cast<float>(begin.r), static_cast<float>(end.r), amt)),
+            static_cast<uint8_t>(std::lerp(static_cast<float>(begin.g), static_cast<float>(end.g), amt)),
+            static_cast<uint8_t>(std::lerp(static_cast<float>(begin.b), static_cast<float>(end.b), amt)),
+            static_cast<uint8_t>(std::lerp(static_cast<float>(begin.a), static_cast<float>(end.a), amt))
+        };
+    }
+
     void card_move_animation::add_move_card(card_view *card) {
         if (std::ranges::find(data, card, &decltype(data)::value_type::first) == data.end()) {
             data.emplace_back(card, card->get_pos());
@@ -101,6 +110,27 @@ namespace banggame {
     }
 
     void card_tap_animation::render(sdl::renderer &renderer) {
+        card->render(renderer, render_flags::no_skip_animating);
+    }
+
+    card_flash_animation::card_flash_animation(card_view *card, sdl::color color_to)
+        : card(card)
+        , color_from(card->border_color.a
+            ? card->border_color
+            : sdl::color{color_to.r, color_to.g, color_to.b, 0})
+        , color_to(color_to) {}
+
+    void card_flash_animation::end() {
+        card->animating = false;
+        card->border_color = color_from;
+    }
+
+    void card_flash_animation::do_animation(float amt) {
+        card->animating = true;
+        card->border_color = lerp_color(color_to, color_from, amt);
+    }
+
+    void card_flash_animation::render(sdl::renderer &renderer) {
         card->render(renderer, render_flags::no_skip_animating);
     }
 

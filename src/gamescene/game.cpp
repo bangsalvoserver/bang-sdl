@@ -564,6 +564,10 @@ void game_scene::handle_game_update(UPD_TAG(tap_card), const tap_card_update &ar
     }
 }
 
+void game_scene::handle_game_update(UPD_TAG(flash_card), const flash_card_update &args) {
+    add_animation<card_flash_animation>(options.flash_card_msecs, find_card(args.card_id), options.flash_card_color);
+}
+
 void game_scene::handle_game_update(UPD_TAG(last_played_card), const card_id_args &args) {
     m_target.set_last_played_card(find_card(args.card_id));
 }
