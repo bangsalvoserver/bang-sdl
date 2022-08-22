@@ -13,6 +13,22 @@ namespace banggame {
             static_cast<T &>(*this).do_animation_impl(ease_in_out_pow(options.easing_exponent, amt));
         }
     };
+
+    struct player_move_animation : easing_animation<player_move_animation> {
+        struct animation_entry {
+            player_view *player;
+            sdl::point begin;
+            sdl::point end;
+        };
+        std::vector<animation_entry> data;
+
+        player_move_animation() = default;
+
+        void add_move_player(player_view *player, sdl::point end);
+
+        void end();
+        void do_animation_impl(float amt);
+    };
     
     struct card_move_animation : easing_animation<card_move_animation> {
         std::vector<std::pair<card_view*, sdl::point>> data;

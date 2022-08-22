@@ -62,6 +62,7 @@ namespace banggame {
         void set_hp_marker_position(float hp);
         void set_gold(int amount);
 
+        sdl::point get_position() const;
         virtual void set_position(sdl::point pos) = 0;
         virtual void set_username(const std::string &name) = 0;
         virtual void render(sdl::renderer &renderer) = 0;

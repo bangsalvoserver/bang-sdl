@@ -24,6 +24,22 @@ namespace banggame {
         };
     }
 
+    void player_move_animation::add_move_player(player_view *player, sdl::point end) {
+        data.emplace_back(player, player->get_position(), end);
+    }
+
+    void player_move_animation::end() {
+        for (auto &p : data) {
+            p.player->set_position(p.end);
+        }
+    }
+
+    void player_move_animation::do_animation_impl(float amt) {
+        for (auto &p : data) {
+            p.player->set_position(lerp_point(p.begin, p.end, amt));
+        }
+    }
+
     void card_move_animation::add_move_card(card_view *card) {
         if (std::ranges::find(data, card, &decltype(data)::value_type::first) == data.end()) {
             data.emplace_back(card, card->get_pos());

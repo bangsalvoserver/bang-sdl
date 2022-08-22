@@ -63,6 +63,7 @@ namespace banggame {
         .move_hp_msecs = 333,
         .flip_role_msecs = 250,
         .shuffle_deck_msecs = 1333,
+        .move_player_msecs = 1000,
 
         .move_cube_msecs = 133,
         .move_cubes_msecs = 250,
@@ -72,6 +73,7 @@ namespace banggame {
 
         .status_text_y_distance = 270,
         .icon_dead_players_yoff = 10,
+        .pile_dead_players_xoff = 65,
         .pile_dead_players_yoff = 80,
         .pile_dead_players_card_ydiff = 70,
         

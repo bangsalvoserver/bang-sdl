@@ -69,6 +69,7 @@ namespace banggame {
         int move_hp_msecs;
         int flip_role_msecs;
         int shuffle_deck_msecs;
+        int move_player_msecs;
         
         int move_cube_msecs;
         int move_cubes_msecs;
@@ -78,6 +79,7 @@ namespace banggame {
 
         int status_text_y_distance;
         int icon_dead_players_yoff;
+        int pile_dead_players_xoff;
         int pile_dead_players_yoff;
         int pile_dead_players_card_ydiff;
 

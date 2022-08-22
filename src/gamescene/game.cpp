@@ -126,8 +126,7 @@ void game_scene::render(sdl::renderer &renderer) {
     if (!m_dead_players.empty()) {
         sdl::texture_ref icon = media_pak::get().icon_dead_players;
         sdl::rect icon_rect = icon.get_rect();
-        sdl::rect player_rect = m_dead_players.front()->m_bounding_rect;
-        icon_rect.x = player_rect.x + (player_rect.w - icon_rect.w) / 2;
+        icon_rect.x = parent->get_rect().w - options.pile_dead_players_xoff;
         icon_rect.y = options.icon_dead_players_yoff;
         icon.render_colored(renderer, icon_rect, options.icon_dead_players);
     }
@@ -498,10 +497,15 @@ void game_scene::handle_game_update(UPD_TAG(move_cubes), const move_cubes_update
 
 void game_scene::handle_game_update(UPD_TAG(move_scenario_deck), const move_scenario_deck_args &args) {
     auto *old_scenario_player = std::exchange(m_scenario_player, find_player(args.player_id));
-    if (old_scenario_player) {
-        old_scenario_player->scenario_deck.swap_content(m_scenario_player->scenario_deck);
+    if (old_scenario_player && !old_scenario_player->scenario_deck.empty()) {
+        card_move_animation anim;
+        for (card_view *c : old_scenario_player->scenario_deck) {
+            m_scenario_player->scenario_deck.add_card(c);
+            anim.add_move_card(c);
+        }
+        old_scenario_player->scenario_deck.clear();
+        add_animation<card_move_animation>(options.move_card_msecs, std::move(anim));
     }
-    move_player_views();
 }
 
 void game_scene::handle_game_update(UPD_TAG(show_card), const show_card_update &args) {
@@ -574,15 +578,17 @@ void game_scene::handle_game_update(UPD_TAG(last_played_card), const card_id_arg
     m_target.set_last_played_card(find_card(args.card_id));
 }
 
-void game_scene::move_player_views() {
+void game_scene::move_player_views(bool do_animation) {
     if (m_alive_players.size() == 0) return;
+
+    player_move_animation anim;
 
     const int xradius = (parent->width() / 2) - options.player_ellipse_x_distance;
     const int yradius = (parent->height() / 2) - options.player_ellipse_y_distance;
 
     double angle = 0.f;
     for (player_view *p : m_alive_players) {
-        p->set_position(sdl::point{
+        anim.add_move_player(p, sdl::point{
             int(parent->width() / 2 - std::sin(angle) * xradius),
             int(parent->height() / 2 + std::cos(angle) * yradius)
         });
@@ -591,12 +597,18 @@ void game_scene::move_player_views() {
     }
 
     sdl::point dead_roles_pos{
-        parent->get_rect().w - options.card_width - widgets::profile_pic::size - options.card_margin * 2,
-        options.pile_dead_players_yoff
+        parent->get_rect().w - options.pile_dead_players_xoff,
+        options.pile_dead_players_yoff + options.pile_dead_players_card_ydiff / 2
     };
     for (player_view *p : m_dead_players) {
-        p->set_position(dead_roles_pos);
+        anim.add_move_player(p, dead_roles_pos);
         dead_roles_pos.y += p->m_bounding_rect.h;
+    }
+
+    if (do_animation) {
+        add_animation<player_move_animation>(options.move_player_msecs, std::move(anim));
+    } else {
+        anim.end();
     }
 }
 
@@ -645,10 +657,11 @@ void game_scene::handle_game_update(UPD_TAG(player_remove), const player_remove_
         dead_player->set_username(alive_player->m_username_text.get_value());
         dead_player->m_propic.set_texture(alive_player->m_propic.get_texture());
         dead_player->m_player_flags = player_flags::dead;
+        dead_player->set_position(alive_player->get_position());
 
         m_dead_players.push_back(m_players.insert(std::move(dead_player)).get());
 
-        move_player_views();
+        move_player_views(true);
     }
 }
 
