@@ -79,6 +79,7 @@ namespace banggame {
         int status_text_y_distance;
         int icon_dead_players_yoff;
         int pile_dead_players_yoff;
+        int pile_dead_players_card_ydiff;
 
         sdl::color flash_card_color;
         

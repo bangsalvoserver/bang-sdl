@@ -25,6 +25,8 @@ namespace banggame {
 
         wide_pocket hand{options.player_hand_width};
         wide_pocket table{options.player_hand_width};
+        
+        pocket_view scenario_deck;
 
         sdl::rect m_bounding_rect;
         sdl::color border_color{};

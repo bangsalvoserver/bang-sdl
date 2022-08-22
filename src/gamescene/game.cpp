@@ -109,7 +109,6 @@ void game_scene::render(sdl::renderer &renderer) {
     m_shop_discard.render_first(renderer, 1);
     m_shop_deck.render_last(renderer, 2);
     m_shop_selection.render(renderer);
-    m_scenario_deck.render_last(renderer, 1);
     m_scenario_card.render_last(renderer, 2);
     m_cubes.render(renderer);
 
@@ -267,10 +266,6 @@ void game_scene::find_overlay() {
         m_overlay = m_discard_pile.back();
         return;
     }
-    if (!m_scenario_deck.empty() && mouse_in_card(m_scenario_deck.back())) {
-        m_overlay = m_scenario_deck.back();
-        return;
-    }
     if (!m_scenario_card.empty() && mouse_in_card(m_scenario_card.back())) {
         m_overlay = m_scenario_card.back();
         return;
@@ -281,6 +276,10 @@ void game_scene::find_overlay() {
                 m_overlay = c;
                 return;
             }
+        }
+        if (!p->scenario_deck.empty() && mouse_in_card(p->scenario_deck.back())) {
+            m_overlay = p->scenario_deck.back();
+            return;
         }
         if (mouse_in_card(p->m_role)) {
             m_overlay = p->m_role;
@@ -393,7 +392,7 @@ pocket_view &game_scene::get_pocket(pocket_type pocket, int player_id) {
     case pocket_type::shop_selection:    return m_shop_selection;
     case pocket_type::shop_discard:      return m_shop_discard;
     case pocket_type::hidden_deck:       return m_hidden_deck;
-    case pocket_type::scenario_deck:     return m_scenario_deck;
+    case pocket_type::scenario_deck:     return m_scenario_player->scenario_deck;
     case pocket_type::scenario_card:     return m_scenario_card;
     case pocket_type::specials:          return m_specials;
     default: throw std::runtime_error("Invalid pocket");
@@ -498,7 +497,10 @@ void game_scene::handle_game_update(UPD_TAG(move_cubes), const move_cubes_update
 }
 
 void game_scene::handle_game_update(UPD_TAG(move_scenario_deck), const move_scenario_deck_args &args) {
-    m_scenario_player = find_player(args.player_id);
+    auto *old_scenario_player = std::exchange(m_scenario_player, find_player(args.player_id));
+    if (old_scenario_player) {
+        old_scenario_player->scenario_deck.swap_content(m_scenario_player->scenario_deck);
+    }
     move_player_views();
 }
 
@@ -588,20 +590,13 @@ void game_scene::move_player_views() {
         angle += std::numbers::pi * 2.f / m_alive_players.size();
     }
 
-    if (m_scenario_player) {
-        auto player_rect = m_scenario_player->m_bounding_rect;
-        m_scenario_deck.set_pos(sdl::point{
-            player_rect.x + player_rect.w + options.scenario_deck_xoff,
-            player_rect.y + player_rect.h / 2});
-    }
-
     sdl::point dead_roles_pos{
         parent->get_rect().w - options.card_width - widgets::profile_pic::size - options.card_margin * 2,
         options.pile_dead_players_yoff
     };
     for (player_view *p : m_dead_players) {
         p->set_position(dead_roles_pos);
-        dead_roles_pos.y += options.card_yoffset;
+        dead_roles_pos.y += p->m_bounding_rect.h;
     }
 }
 

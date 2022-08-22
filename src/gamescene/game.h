@@ -87,7 +87,6 @@ namespace banggame {
         counting_pocket m_main_deck;
         pocket_view m_discard_pile;
 
-        pocket_view m_scenario_deck;
         pocket_view m_scenario_card;
 
         wide_pocket m_selection{options.selection_width};

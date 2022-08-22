@@ -73,6 +73,7 @@ namespace banggame {
         .status_text_y_distance = 270,
         .icon_dead_players_yoff = 10,
         .pile_dead_players_yoff = 80,
+        .pile_dead_players_card_ydiff = 70,
         
         .flash_card_color = sdl::rgba(0xffff00c0),
 

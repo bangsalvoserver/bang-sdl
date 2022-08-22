@@ -191,6 +191,18 @@ namespace banggame {
             }
         }
 
+        void swap_content(pocket_view &other) {
+            for (card_view *c : other.m_cards) {
+                c->set_pos(get_pos());
+                c->pocket = this;
+            }
+            for (card_view *c : m_cards) {
+                c->set_pos(other.get_pos());
+                c->pocket = &other;
+            }
+            std::swap(m_cards, other.m_cards);
+        }
+
         virtual void clear() {
             for (card_view *card : *this) {
                 if (card->pocket == this) {

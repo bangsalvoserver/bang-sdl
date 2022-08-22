@@ -31,8 +31,10 @@ namespace banggame {
     void alive_player_view::set_position(sdl::point pos) {
         m_bounding_rect.w = table.width + options.card_width * 3 + options.card_margin * 4;
         m_bounding_rect.h = options.player_view_height;
+
         m_bounding_rect.x = pos.x - m_bounding_rect.w / 2;
         m_bounding_rect.y = pos.y - m_bounding_rect.h / 2;
+        
         table.set_pos(sdl::point{
             m_bounding_rect.x + (table.width + options.card_width) / 2 + options.card_margin,
             m_bounding_rect.y + m_bounding_rect.h / 2});
@@ -51,6 +53,8 @@ namespace banggame {
             table.set_pos(table.get_pos() + sdl::point{0, options.card_yoffset});
             hand.set_pos(hand.get_pos() - sdl::point{0, options.card_yoffset});
         }
+
+        scenario_deck.set_pos(m_role->get_pos() + sdl::point{options.character_offset, options.character_offset});
 
         m_propic.set_pos(sdl::point{
             m_role->get_pos().x,
@@ -110,6 +114,8 @@ namespace banggame {
         table.render(renderer);
         hand.render(renderer);
 
+        scenario_deck.render_last(renderer, 1);
+
         int x = m_bounding_rect.x + m_bounding_rect.w - 5;
 
         auto render_icon = [&](sdl::texture_ref texture, sdl::color color = sdl::rgba(0xffffffff)) {
@@ -140,7 +146,7 @@ namespace banggame {
 
     void dead_player_view::set_position(sdl::point pos) {
         m_bounding_rect.w = options.card_width + options.card_margin + widgets::profile_pic::size;
-        m_bounding_rect.h = 0;
+        m_bounding_rect.h = options.pile_dead_players_card_ydiff;
         m_bounding_rect.x = pos.x;
         m_bounding_rect.y = pos.y;
 
