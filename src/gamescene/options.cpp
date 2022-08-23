@@ -53,7 +53,7 @@ namespace banggame {
         .role_yoff = 16,
         .propic_yoff = 94,
         .username_yoff = 43,
-        .dead_propic_yoff = 12,
+        .dead_propic_yoff = 60,
 
         .move_card_msecs = 333,
         .flip_card_msecs = 167,
@@ -73,9 +73,9 @@ namespace banggame {
 
         .status_text_y_distance = 270,
         .icon_dead_players_yoff = 10,
-        .pile_dead_players_xoff = 65,
-        .pile_dead_players_yoff = 80,
-        .pile_dead_players_card_ydiff = 70,
+        .pile_dead_players_xoff = 70,
+        .pile_dead_players_yoff = 85,
+        .pile_dead_players_ydiff = 70,
         
         .flash_card_color = sdl::rgba(0xffff00c0),
 

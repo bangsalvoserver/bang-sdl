@@ -81,7 +81,7 @@ namespace banggame {
         int icon_dead_players_yoff;
         int pile_dead_players_xoff;
         int pile_dead_players_yoff;
-        int pile_dead_players_card_ydiff;
+        int pile_dead_players_ydiff;
 
         sdl::color flash_card_color;
         

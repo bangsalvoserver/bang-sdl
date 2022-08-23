@@ -110,13 +110,13 @@ void game_scene::render(sdl::renderer &renderer) {
     m_shop_deck.render_last(renderer, 2);
     m_shop_selection.render(renderer);
     m_scenario_card.render_last(renderer, 2);
+    m_discard_pile.render_last(renderer, 2);
     m_cubes.render(renderer);
 
     for (player_view *p : m_alive_players) {
         p->render(renderer);
     }
 
-    m_discard_pile.render_last(renderer, 2);
     m_selection.render(renderer);
     m_shop_choice.render(renderer);
 
@@ -126,7 +126,7 @@ void game_scene::render(sdl::renderer &renderer) {
     if (!m_dead_players.empty()) {
         sdl::texture_ref icon = media_pak::get().icon_dead_players;
         sdl::rect icon_rect = icon.get_rect();
-        icon_rect.x = parent->get_rect().w - options.pile_dead_players_xoff;
+        icon_rect.x = parent->get_rect().w - options.pile_dead_players_xoff - icon_rect.w / 2;
         icon_rect.y = options.icon_dead_players_yoff;
         icon.render_colored(renderer, icon_rect, options.icon_dead_players);
     }
@@ -598,11 +598,11 @@ void game_scene::move_player_views(bool do_animation) {
 
     sdl::point dead_roles_pos{
         parent->get_rect().w - options.pile_dead_players_xoff,
-        options.pile_dead_players_yoff + options.pile_dead_players_card_ydiff / 2
+        options.pile_dead_players_yoff
     };
     for (player_view *p : m_dead_players) {
         anim.add_move_player(p, dead_roles_pos);
-        dead_roles_pos.y += p->m_bounding_rect.h;
+        dead_roles_pos.y += options.pile_dead_players_ydiff;
     }
 
     if (do_animation) {
@@ -657,7 +657,10 @@ void game_scene::handle_game_update(UPD_TAG(player_remove), const player_remove_
         dead_player->set_username(alive_player->m_username_text.get_value());
         dead_player->m_propic.set_texture(alive_player->m_propic.get_texture());
         dead_player->m_player_flags = player_flags::dead;
-        dead_player->set_position(alive_player->get_position());
+        dead_player->set_position(alive_player->m_role->get_pos() - sdl::point{
+            (options.card_margin + widgets::profile_pic::size) / 2,
+            0
+        });
 
         m_dead_players.push_back(m_players.insert(std::move(dead_player)).get());
 

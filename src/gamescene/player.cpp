@@ -153,13 +153,13 @@ namespace banggame {
 
     void dead_player_view::set_position(sdl::point pos) {
         m_bounding_rect.w = options.card_width + options.card_margin + widgets::profile_pic::size;
-        m_bounding_rect.h = options.pile_dead_players_card_ydiff;
+        m_bounding_rect.h = m_role->get_rect().h;
         m_bounding_rect.x = pos.x - m_bounding_rect.w / 2;
         m_bounding_rect.y = pos.y - m_bounding_rect.h / 2;
 
         m_role->set_pos(sdl::point{
             m_bounding_rect.x + m_bounding_rect.w - options.card_width / 2,
-            m_bounding_rect.y
+            m_bounding_rect.y + m_bounding_rect.h / 2
         });
 
         m_propic.set_pos(sdl::point{
