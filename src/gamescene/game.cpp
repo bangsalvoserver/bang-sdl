@@ -691,7 +691,6 @@ void game_scene::handle_game_update(UPD_TAG(player_show_role), const player_show
                 add_animation<card_flip_animation>(options.flip_role_msecs, p->m_role, false);
             }
         }
-        move_player_views();
     } else {
         auto card = std::make_unique<role_card>();
         card->id = args.player_id;
