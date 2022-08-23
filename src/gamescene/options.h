@@ -59,7 +59,6 @@ namespace banggame {
         int role_yoff;
         int propic_yoff;
         int username_yoff;
-        int dead_propic_yoff;
 
         int move_card_msecs;
         int flip_card_msecs;

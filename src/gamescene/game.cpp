@@ -578,7 +578,7 @@ void game_scene::handle_game_update(UPD_TAG(last_played_card), const card_id_arg
     m_target.set_last_played_card(find_card(args.card_id));
 }
 
-void game_scene::move_player_views(bool do_animation) {
+void game_scene::move_player_views(bool instant) {
     if (m_alive_players.size() == 0) return;
 
     player_move_animation anim;
@@ -605,15 +605,15 @@ void game_scene::move_player_views(bool do_animation) {
         dead_roles_pos.y += options.pile_dead_players_ydiff;
     }
 
-    if (do_animation) {
-        add_animation<player_move_animation>(options.move_player_msecs, std::move(anim));
-    } else {
+    if (instant) {
         anim.end();
+    } else {
+        add_animation<player_move_animation>(options.move_player_msecs, std::move(anim));
     }
 }
 
 void game_scene::handle_game_update(UPD_TAG(player_add), const player_user_update &args) {
-    auto [p, inserted] = m_players.try_insert(std::make_unique<alive_player_view>(this, args.player_id));
+    auto [p, inserted] = m_players.try_emplace(this, args.player_id);
     if (inserted) {
         auto card = std::make_unique<role_card>();
         card->id = args.player_id;
@@ -649,22 +649,16 @@ void game_scene::handle_game_update(UPD_TAG(player_remove), const player_remove_
 
     auto it = std::ranges::find(m_alive_players, args.player_id, &player_view::id);
     if (it != m_alive_players.end()) {
-        player_view *alive_player = *it;
+        player_view *player = *it;
         m_alive_players.erase(it);
 
-        auto dead_player = std::make_unique<dead_player_view>(this, args.player_id);
-        dead_player->m_role = alive_player->m_role;
-        dead_player->set_username(alive_player->m_username_text.get_value());
-        dead_player->m_propic.set_texture(alive_player->m_propic.get_texture());
-        dead_player->m_player_flags = player_flags::dead;
-        dead_player->set_position(alive_player->m_role->get_pos() - sdl::point{
-            (options.card_margin + widgets::profile_pic::size) / 2,
-            0
-        });
+        player->set_to_dead();
 
-        m_dead_players.push_back(m_players.insert(std::move(dead_player)).get());
+        player->set_position(player->m_role->get_pos() - sdl::point{(options.card_margin + widgets::profile_pic::size) / 2, 0});
 
-        move_player_views(true);
+        m_dead_players.push_back(player);
+
+        move_player_views(args.instant);
     }
 }
 

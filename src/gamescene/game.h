@@ -61,7 +61,7 @@ namespace banggame {
             m_animations.emplace_back(std::chrono::milliseconds{duration}, std::in_place_type<T>, FWD(args) ... );
         }
 
-        void move_player_views(bool do_animation = false);
+        void move_player_views(bool instant = true);
 
         void handle_card_click();
         void find_overlay();
@@ -138,8 +138,7 @@ namespace banggame {
 
         friend class game_ui;
         friend class target_finder;
-        friend class alive_player_view;
-        friend class dead_player_view;
+        friend class player_view;
     };
 
 }

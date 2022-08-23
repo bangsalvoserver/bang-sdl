@@ -10,15 +10,26 @@ namespace banggame {
     class game_scene;
 
     class player_view {
+    private:
+        struct player_state_vtable {
+            void (*set_position)(player_view *self, sdl::point pos);
+            void (*set_username)(player_view *self, const std::string &name);
+            void (*render)(player_view *self, sdl::renderer &renderer);
+        };
+
+        static const player_state_vtable state_alive;
+        static const player_state_vtable state_dead;
+
+        const player_state_vtable *m_state = &state_alive;
+    
     public:
+        player_view(game_scene *game, int id);
+
         game_scene *m_game;
+
         int id;
 
         int user_id;
-        
-        player_view(game_scene *game, int id);
-
-        virtual ~player_view() = default;
 
         int hp = 0;
         int gold = 0;
@@ -62,26 +73,23 @@ namespace banggame {
         void set_hp_marker_position(float hp);
         void set_gold(int amount);
 
+        void set_to_dead() {
+            m_state = &state_dead;
+        }
+
         sdl::point get_position() const;
-        virtual void set_position(sdl::point pos) = 0;
-        virtual void set_username(const std::string &name) = 0;
-        virtual void render(sdl::renderer &renderer) = 0;
-    };
 
-    class alive_player_view : public player_view {
-    public:
-        using player_view::player_view;
-        void set_position(sdl::point pos) override;
-        void set_username(const std::string &name) override;
-        void render(sdl::renderer &renderer) override;
-    };
+        void set_position(sdl::point pos) {
+            m_state->set_position(this, pos);
+        }
 
-    class dead_player_view : public player_view {
-    public:
-        using player_view::player_view;
-        void set_position(sdl::point pos) override;
-        void set_username(const std::string &name) override;
-        void render(sdl::renderer &renderer) override;
+        void set_username(const std::string &name) {
+            m_state->set_username(this, name);
+        }
+
+        void render(sdl::renderer &renderer) {
+            m_state->render(this, renderer);
+        }
     };
 }
 #endif
