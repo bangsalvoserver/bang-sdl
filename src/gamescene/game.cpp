@@ -632,10 +632,10 @@ void game_scene::handle_game_update(UPD_TAG(player_add), const player_user_updat
 
     p.user_id = args.user_id;
     if (user_info *info = parent->get_user_info(args.user_id)) {
-        p.set_username(info->name);
+        p.m_username_text.set_value(info->name);
         p.m_propic.set_texture(info->profile_image);
     } else {
-        p.set_username(_("USERNAME_DISCONNECTED"));
+        p.m_username_text.set_value(_("USERNAME_DISCONNECTED"));
         p.m_propic.set_texture(media_pak::get().icon_disconnected);
     }
 

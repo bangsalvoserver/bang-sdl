@@ -72,10 +72,6 @@ namespace banggame {
         void set_hp_marker_position(float hp);
         void set_gold(int amount);
 
-        void set_username(const std::string &value) {
-            m_username_text.set_value(value);
-        }
-
         void set_to_dead() {
             m_state = &state_dead;
         }
