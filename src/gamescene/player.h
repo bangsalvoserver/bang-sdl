@@ -13,7 +13,6 @@ namespace banggame {
     private:
         struct player_state_vtable {
             void (*set_position)(player_view *self, sdl::point pos);
-            void (*set_username)(player_view *self, const std::string &name);
             void (*render)(player_view *self, sdl::renderer &renderer);
         };
 
@@ -73,18 +72,20 @@ namespace banggame {
         void set_hp_marker_position(float hp);
         void set_gold(int amount);
 
+        void set_username(const std::string &value) {
+            m_username_text.set_value(value);
+        }
+
         void set_to_dead() {
             m_state = &state_dead;
         }
 
-        sdl::point get_position() const;
+        sdl::point get_position() const {
+            return sdl::rect_center(m_bounding_rect);
+        }
 
         void set_position(sdl::point pos) {
             m_state->set_position(this, pos);
-        }
-
-        void set_username(const std::string &name) {
-            m_state->set_username(this, name);
         }
 
         void render(sdl::renderer &renderer) {

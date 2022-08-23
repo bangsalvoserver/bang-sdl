@@ -38,6 +38,10 @@ namespace sdl {
         return move_rect(r, center - point{r.w / 2, r.h / 2});
     }
 
+    constexpr point rect_center(const rect &r) {
+        return {r.x + r.w / 2, r.y + r.h / 2};
+    }
+
     constexpr color rgba(uint32_t color) {
         return {
             static_cast<uint8_t>((color & 0xff000000) >> (8 * 3)),

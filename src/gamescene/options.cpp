@@ -52,7 +52,7 @@ namespace banggame {
         .card_margin = 10,
         .role_yoff = 16,
         .propic_yoff = 94,
-        .username_yoff = 43,
+        .username_yoff = 40,
 
         .move_card_msecs = 333,
         .flip_card_msecs = 167,

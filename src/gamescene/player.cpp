@@ -15,9 +15,7 @@ namespace banggame {
     {}
 
     void player_view::set_hp_marker_position(float hp) {
-        m_backup_characters.set_pos({
-            m_characters.get_pos().x,
-            m_characters.get_pos().y - std::max(0, static_cast<int>(hp * options.one_hp_size))});
+        m_backup_characters.set_pos(m_characters.get_pos() - sdl::point{0, std::max(0, static_cast<int>(hp * options.one_hp_size))});
     }
 
     void player_view::set_gold(int amount) {
@@ -28,39 +26,37 @@ namespace banggame {
         }
     }
 
-    sdl::point player_view::get_position() const {
-        return {
-            m_bounding_rect.x + m_bounding_rect.w / 2,
-            m_bounding_rect.y + m_bounding_rect.h / 2
-        };
-    }
-
     const player_view::player_state_vtable player_view::state_alive {
         .set_position = [](player_view *self, sdl::point pos) {
-            self->m_bounding_rect.w = self->table.width + options.card_width * 3 + options.card_margin * 4;
-            self->m_bounding_rect.h = options.player_view_height;
-
-            self->m_bounding_rect.x = pos.x - self->m_bounding_rect.w / 2;
-            self->m_bounding_rect.y = pos.y - self->m_bounding_rect.h / 2;
+            self->m_bounding_rect = sdl::move_rect_center(sdl::rect{0, 0,
+                options.player_hand_width + options.card_width * 3 + options.card_margin * 4,
+                options.player_view_height
+            }, pos);
             
-            self->table.set_pos(sdl::point{
-                self->m_bounding_rect.x + (self->table.width + options.card_width) / 2 + options.card_margin,
-                self->m_bounding_rect.y + self->m_bounding_rect.h / 2});
-            self->hand.set_pos(self->table.get_pos());
+            sdl::point pockets_pos {
+                self->m_bounding_rect.x + (options.player_hand_width + options.card_width) / 2 + options.card_margin,
+                self->m_bounding_rect.y + self->m_bounding_rect.h / 2
+            };
+            
+            if (self == self->m_game->m_player_self) {
+                self->hand.set_pos(pockets_pos + sdl::point{0, options.card_yoffset});
+                self->table.set_pos(pockets_pos - sdl::point{0, options.card_yoffset});
+            } else {
+                self->table.set_pos(pockets_pos + sdl::point{0, options.card_yoffset});
+                self->hand.set_pos(pockets_pos - sdl::point{0, options.card_yoffset});
+            }
+
             self->m_characters.set_pos(sdl::point{
                 self->m_bounding_rect.x + self->m_bounding_rect.w - options.card_width - options.card_width / 2 - options.card_margin * 2,
-                self->m_bounding_rect.y + self->m_bounding_rect.h - options.card_width - options.card_margin});
-            self->m_role->set_pos(sdl::point(
-                self->m_characters.get_pos().x + options.card_width + options.card_margin,
-                self->m_characters.get_pos().y + options.role_yoff));
+                self->m_bounding_rect.y + self->m_bounding_rect.h - options.card_width - options.card_margin
+            });
+
             self->set_hp_marker_position(static_cast<float>(self->hp));
-            if (self == self->m_game->m_player_self) {
-                self->hand.set_pos(self->hand.get_pos() + sdl::point{0, options.card_yoffset});
-                self->table.set_pos(self->table.get_pos() - sdl::point{0, options.card_yoffset});
-            } else {
-                self->table.set_pos(self->table.get_pos() + sdl::point{0, options.card_yoffset});
-                self->hand.set_pos(self->hand.get_pos() - sdl::point{0, options.card_yoffset});
-            }
+
+            self->m_role->set_pos(sdl::point{
+                self->m_characters.get_pos().x + options.card_width + options.card_margin,
+                self->m_characters.get_pos().y + options.role_yoff
+            });
 
             self->scenario_deck.set_pos(self->m_role->get_pos() + sdl::point{options.character_offset, options.character_offset});
 
@@ -69,15 +65,10 @@ namespace banggame {
                 self->m_bounding_rect.y + options.propic_yoff
             });
 
-            self->set_username(self->m_username_text.get_value());
-        },
-
-        .set_username = [](player_view *self, const std::string &value) {
-            self->m_username_text.set_value(value);
-            sdl::rect username_rect = self->m_username_text.get_rect();
-            username_rect.x = self->m_role->get_pos().x - (username_rect.w) / 2;
-            username_rect.y = self->m_bounding_rect.y + options.username_yoff;
-            self->m_username_text.set_rect(username_rect);
+            self->m_username_text.set_rect(sdl::move_rect_center(
+                self->m_username_text.get_rect(),
+                self->m_propic.get_pos() - sdl::point{0, options.username_yoff}
+            ));
         },
 
         .render = [](player_view *self, sdl::renderer &renderer) {
@@ -155,10 +146,7 @@ namespace banggame {
 
     const player_view::player_state_vtable player_view::state_dead {
         .set_position = [](player_view *self, sdl::point pos) {
-            self->m_bounding_rect.w = options.card_width + options.card_margin + widgets::profile_pic::size;
-            self->m_bounding_rect.h = 0;
-            self->m_bounding_rect.x = pos.x - self->m_bounding_rect.w / 2;
-            self->m_bounding_rect.y = pos.y;
+            self->m_bounding_rect = sdl::move_rect_center(sdl::rect{0,0, options.card_width + options.card_margin + widgets::profile_pic::size, 0}, pos);
 
             self->m_role->set_pos(sdl::point{
                 self->m_bounding_rect.x + self->m_bounding_rect.w - options.card_width / 2,
@@ -170,15 +158,10 @@ namespace banggame {
                 self->m_bounding_rect.y
             });
 
-            self->set_username(self->m_username_text.get_value());
-        },
-
-        .set_username = [](player_view *self, const std::string &value) {
-            self->m_username_text.set_value(value);
-            sdl::rect username_rect = self->m_username_text.get_rect();
-            username_rect.x = self->m_propic.get_pos().x - username_rect.w / 2;
-            username_rect.y = self->m_propic.get_pos().y + options.username_yoff - options.propic_yoff;
-            self->m_username_text.set_rect(username_rect);
+            self->m_username_text.set_rect(sdl::move_rect_center(
+                self->m_username_text.get_rect(),
+                self->m_propic.get_pos() - sdl::point{0, options.username_yoff}
+            ));
         },
 
         .render = [](player_view *self, sdl::renderer &renderer) {
