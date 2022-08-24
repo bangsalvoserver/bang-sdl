@@ -215,33 +215,33 @@ namespace banggame {
         void render_count(sdl::renderer &renderer);
 
         void render(sdl::renderer &renderer) override {
-            pocket_view::render(renderer);
+            point_pocket_view::render(renderer);
             render_count(renderer);
         }
 
         void render_first(sdl::renderer &renderer, int ncards) override {
-            pocket_view::render_first(renderer, ncards);
+            point_pocket_view::render_first(renderer, ncards);
             render_count(renderer);
         }
 
         void render_last(sdl::renderer &renderer, int ncards) override {
-            pocket_view::render_last(renderer, ncards);
+            point_pocket_view::render_last(renderer, ncards);
             render_count(renderer);
         }
 
         void add_card(card_view *card) override {
-            pocket_view::add_card(card);
+            point_pocket_view::add_card(card);
             update_count();
         }
 
         void erase_card(card_view *card) override {
             card->pocket = nullptr;
-            pocket_view::erase_card(card);
+            point_pocket_view::erase_card(card);
             update_count();
         }
 
         void clear() override {
-            pocket_view::clear();
+            point_pocket_view::clear();
             update_count();
         }
     };
