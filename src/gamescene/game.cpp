@@ -585,22 +585,20 @@ void game_scene::move_player_views(bool instant) {
 
     const int xradius = (parent->width() / 2) - options.player_ellipse_x_distance;
     const int yradius = (parent->height() / 2) - options.player_ellipse_y_distance;
+    
+    double angle = 0.f;
 
-    if (m_alive_players.size() == 1) {
-        anim.add_move_player(m_alive_players.front(), sdl::point{
-            parent->width() / 2,
-            parent->height() / 2
+    if (m_alive_players.size() == 1 && m_alive_players.front() != m_player_self) {
+        angle = std::numbers::pi;
+    }
+
+    for (player_view *p : m_alive_players) {
+        anim.add_move_player(p, sdl::point{
+            int(parent->width() / 2 - std::sin(angle) * xradius),
+            int(parent->height() / 2 + std::cos(angle) * yradius)
         });
-    } else {
-        double angle = 0.f;
-        for (player_view *p : m_alive_players) {
-            anim.add_move_player(p, sdl::point{
-                int(parent->width() / 2 - std::sin(angle) * xradius),
-                int(parent->height() / 2 + std::cos(angle) * yradius)
-            });
-            
-            angle += std::numbers::pi * 2.f / m_alive_players.size();
-        }
+        
+        angle += std::numbers::pi * 2.f / m_alive_players.size();
     }
 
     sdl::point dead_roles_pos{
@@ -650,10 +648,6 @@ void game_scene::handle_game_update(UPD_TAG(player_add), const player_user_updat
 }
 
 void game_scene::handle_game_update(UPD_TAG(player_remove), const player_remove_update &args) {
-    if (m_player_self && m_player_self->id == args.player_id) {
-        m_player_self = nullptr;
-    }
-
     auto it = std::ranges::find(m_alive_players, args.player_id, &player_view::id);
     if (it != m_alive_players.end()) {
         player_view *player = *it;
