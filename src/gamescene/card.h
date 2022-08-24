@@ -147,9 +147,6 @@ namespace banggame {
         sdl::point m_pos;
 
     public:
-        sdl::color border_color{};
-
-    public:
         sdl::point get_pos() const { return m_pos; }
         void set_pos(const sdl::point &pos);
 
@@ -171,77 +168,45 @@ namespace banggame {
         const auto &back() const { return m_cards.back(); }
     
     public:
-        virtual sdl::point get_offset(card_view *card) const {
-            return {0, 0};
-        }
+        virtual void render_first(sdl::renderer &renderer, int ncards);
+        virtual void render_last(sdl::renderer &renderer, int ncards);
 
-        virtual bool wide() const {
-            return false;
-        }
+        virtual void add_card(card_view *card);
+        virtual void erase_card(card_view *card);
+        virtual void clear();
 
-        virtual void add_card(card_view *card) {
-            card->pocket = this;
-            m_cards.push_back(card);
-        }
+        virtual sdl::point get_offset(card_view *card) const { return {0, 0}; }
+        virtual bool wide() const { return false; }
+        virtual card_view *find_card_at(sdl::point point);
 
-        virtual void erase_card(card_view *card) {
-            if (auto it = std::ranges::find(*this, card); it != end()) {
-                card->pocket = nullptr;
-                m_cards.erase(it);
-            }
-        }
+        virtual void render(sdl::renderer &renderer);
+    };
 
-        virtual void clear() {
-            for (card_view *card : *this) {
-                if (card->pocket == this) {
-                    card->pocket = nullptr;
-                }
-            }
-            m_cards.clear();
-        }
-
-        void render_border(sdl::renderer &renderer) {
-            if (!empty() && border_color.a) {
-                sdl::rect rect = back()->get_rect();
-                card_textures::get().card_border.render_colored(renderer, sdl::rect{
-                    rect.x - options.default_border_thickness,
-                    rect.y - options.default_border_thickness,
-                    rect.w + options.default_border_thickness * 2,
-                    rect.h + options.default_border_thickness * 2
-                }, border_color);
-            }
-        }
-
-        virtual void render(sdl::renderer &renderer) {
-            render_border(renderer);
-            for (card_view *c : *this) {
-                c->render(renderer);
-            }
-        }
-
-        virtual void render_first(sdl::renderer &renderer, int ncards) {
-            render_border(renderer);
-            for (card_view *c : *this | std::views::take(ncards)) {
-                c->render(renderer);
-            }
-        }
+    class point_pocket_view : public pocket_view {
+    public:
+        sdl::color border_color{};
         
-        virtual void render_last(sdl::renderer &renderer, int ncards) {
-            if (!empty()) {
-                render_border(renderer);
-                for (card_view *c : *this
-                        | std::views::reverse
-                        | std::views::drop(1)
-                        | std::views::take(ncards - 1)
-                        | std::views::reverse) {
-                    c->render(renderer, render_flags::no_draw_border);
-                }
-                back()->render(renderer);
-            }
+        card_view *find_card_at(sdl::point point);
+
+        void render_border(sdl::renderer &renderer);
+        
+        void render(sdl::renderer &renderer) override {
+            render_border(renderer);
+            pocket_view::render(renderer);
+        }
+
+        void render_first(sdl::renderer &renderer, int ncards) override {
+            render_border(renderer);
+            pocket_view::render_first(renderer, ncards);
+        }
+
+        void render_last(sdl::renderer &renderer, int ncards) override {
+            render_border(renderer);
+            pocket_view::render_last(renderer, ncards);
         }
     };
 
-    class counting_pocket : public pocket_view {
+    class counting_pocket : public point_pocket_view {
     private:
         widgets::stattext m_count_text;
         void update_count();

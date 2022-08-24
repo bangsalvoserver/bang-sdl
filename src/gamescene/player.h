@@ -36,13 +36,13 @@ namespace banggame {
         wide_pocket hand{options.card_pocket_width};
         wide_pocket table{options.card_pocket_width};
         
-        pocket_view scenario_deck;
+        point_pocket_view scenario_deck;
 
         sdl::rect m_bounding_rect;
         sdl::color border_color{};
 
         character_pile m_characters;
-        pocket_view m_backup_characters;
+        point_pocket_view m_backup_characters;
         
         role_card *m_role;
 

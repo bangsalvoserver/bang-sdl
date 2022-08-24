@@ -196,11 +196,83 @@ namespace banggame {
         }
     }
 
+    void pocket_view::add_card(card_view *card) {
+        card->pocket = this;
+        m_cards.push_back(card);
+    }
+
+    void pocket_view::erase_card(card_view *card) {
+        if (auto it = std::ranges::find(*this, card); it != end()) {
+            card->pocket = nullptr;
+            m_cards.erase(it);
+        }
+    }
+
+    void pocket_view::clear() {
+        for (card_view *card : *this) {
+            if (card->pocket == this) {
+                card->pocket = nullptr;
+            }
+        }
+        m_cards.clear();
+    }
+
+    card_view *pocket_view::find_card_at(sdl::point point) {
+        auto it = std::ranges::find_if(*this | std::views::reverse, [&](card_view *card) {
+            return sdl::point_in_rect(point, card->get_rect());
+        });
+        return (it == rend()) ? nullptr : *it;
+    }
+
+    void point_pocket_view::render_border(sdl::renderer &renderer) {
+        if (!empty() && border_color.a) {
+            sdl::rect rect = back()->get_rect();
+            card_textures::get().card_border.render_colored(renderer, sdl::rect{
+                rect.x - options.default_border_thickness,
+                rect.y - options.default_border_thickness,
+                rect.w + options.default_border_thickness * 2,
+                rect.h + options.default_border_thickness * 2
+            }, border_color);
+        }
+    }
+
+    void pocket_view::render(sdl::renderer &renderer) {
+        for (card_view *c : *this) {
+            c->render(renderer);
+        }
+    }
+
+    void pocket_view::render_first(sdl::renderer &renderer, int ncards) {
+        for (card_view *c : *this | std::views::take(ncards)) {
+            c->render(renderer);
+        }
+    }
+    
+    void pocket_view::render_last(sdl::renderer &renderer, int ncards) {
+        if (!empty()) {
+            for (card_view *c : *this
+                    | std::views::reverse
+                    | std::views::drop(1)
+                    | std::views::take(ncards - 1)
+                    | std::views::reverse) {
+                c->render(renderer, render_flags::no_draw_border);
+            }
+            back()->render(renderer);
+        }
+    }
+
     void pocket_view::set_pos(const sdl::point &pos) {
         for (card_view *c : *this) {
             c->set_pos(c->get_pos() - m_pos + pos);
         }
         m_pos = pos;
+    }
+
+    card_view *point_pocket_view::find_card_at(sdl::point point) {
+        if (!empty() && sdl::point_in_rect(point, back()->get_rect())) {
+            return back();
+        }
+        return nullptr;
     }
 
     sdl::point wide_pocket::get_offset(card_view *card) const {
