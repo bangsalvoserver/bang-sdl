@@ -10,55 +10,55 @@ namespace banggame {
 
     extern const struct options_t {
         int card_width;
-        int card_xoffset;
-        int card_yoffset;
 
-        int card_suit_offset;
-        float card_suit_scale;
+        int card_suit_offset;       // size of card suit icon
+        float card_suit_scale;      // scale of card suit icon for resized texture
 
-        int player_hand_width;
-        int player_view_height;
+        int card_pocket_width;      // max width or card pocket
+        int card_pocket_xoff;       // horizontal margin between cards in pocket
+        int card_pocket_yoff;       // vertical distance from the center of player view to pocket
 
-        int one_hp_size;
-        int character_offset;
+        int player_view_height;     // height of player view bounding rect
 
-        int gold_yoffset;
+        int one_hp_size;            // size of "bullet" for one hp
+        int character_offset;       // distance between cards in diagonal pockets
 
-        int deck_xoffset;
+        int gold_yoffset;           // vertical distance from center of character card to top of gold text
+
+        int deck_xoffset;           // horizontal distance from center of window to main deck
+        int discard_xoffset;        // horizontal distance between main deck and discard pile
+        
         int shop_xoffset;
 
-        int discard_xoffset;
-        
-        int selection_yoffset;
-        int selection_width;
+        int shop_selection_width;   // max size of shop selection pocket
 
-        int shop_selection_width;
+        int shop_choice_width;      // max size of shop choice pocket (for bottle/pardner)
+        int shop_choice_offset;     // vertical distance from shop selection to shop choice
 
-        int shop_choice_width;
-        int shop_choice_offset;
+        int selection_yoffset;      // vertical distance from center of screen to selection pocket
+        int selection_width;        // max size of selection pocket
 
-        int cube_pile_size;
-        int cube_pile_xoffset;
+        int cube_pile_size;         // size of square of cube pile
+        int cube_pile_xoffset;      // distance from center of window to cube pile
 
-        int cube_xdiff;
-        int cube_ydiff;
-        int cube_yoff;
+        int cube_xdiff;             // horizontal distance from center of card to cube
+        int cube_ydiff;             // vertical distance from center of card to first cube
+        int cube_yoff;              // vertical distance between cubes
 
-        int scenario_deck_xoff;
-
-        int player_ellipse_x_distance;
+        int player_ellipse_x_distance;  // from border of screen
         int player_ellipse_y_distance;
 
-        int card_overlay_msecs;
+        int card_overlay_msecs;     // how long you need to hold the mouse still
 
-        int default_border_thickness;
+        int default_border_thickness;   // card border thickness
 
-        float easing_exponent;
+        float easing_exponent;      // for card animations
 
-        int card_margin;
-        int role_yoff;
-        int propic_yoff;
-        int username_yoff;
+        int card_margin;            // margin between cards
+        int role_yoff;              // vertical distance between character card and role card
+        int propic_yoff;            // vertical distance between role card and profile picture
+        int dead_propic_yoff;       // vertical distance between role card and profile picture for dead players
+        int username_yoff;          // vertical distance between profile picture and center of username
 
         int move_card_msecs;
         int flip_card_msecs;

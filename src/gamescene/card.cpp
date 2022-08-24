@@ -207,7 +207,7 @@ namespace banggame {
         if (size() == 1) {
             return {0, 0};
         }
-        const float xoffset = std::min(float(width) / (size() - 1), float(options.card_width + options.card_xoffset));
+        const float xoffset = std::min(float(width) / (size() - 1), float(options.card_width + options.card_pocket_xoff));
         const int diff = static_cast<int>(std::ranges::distance(begin(), std::ranges::find(*this, card)));
         return sdl::point{(int)(xoffset * (diff - (size() - 1) * .5f)), 0};
     }

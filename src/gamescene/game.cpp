@@ -48,7 +48,7 @@ void game_scene::refresh_layout() {
     m_shop_choice.set_pos(m_shop_selection.get_pos() + sdl::point{0, options.shop_choice_offset});
 
     m_scenario_card.set_pos(sdl::point{
-        win_rect.w / 2 + options.deck_xoffset + options.card_width + options.card_xoffset,
+        win_rect.w / 2 + options.deck_xoffset + options.card_width + options.card_pocket_xoff,
         win_rect.h / 2});
 
     move_player_views();
@@ -586,14 +586,21 @@ void game_scene::move_player_views(bool instant) {
     const int xradius = (parent->width() / 2) - options.player_ellipse_x_distance;
     const int yradius = (parent->height() / 2) - options.player_ellipse_y_distance;
 
-    double angle = 0.f;
-    for (player_view *p : m_alive_players) {
-        anim.add_move_player(p, sdl::point{
-            int(parent->width() / 2 - std::sin(angle) * xradius),
-            int(parent->height() / 2 + std::cos(angle) * yradius)
+    if (m_alive_players.size() == 1) {
+        anim.add_move_player(m_alive_players.front(), sdl::point{
+            parent->width() / 2,
+            parent->height() / 2
         });
-        
-        angle += std::numbers::pi * 2.f / m_alive_players.size();
+    } else {
+        double angle = 0.f;
+        for (player_view *p : m_alive_players) {
+            anim.add_move_player(p, sdl::point{
+                int(parent->width() / 2 - std::sin(angle) * xradius),
+                int(parent->height() / 2 + std::cos(angle) * yradius)
+            });
+            
+            angle += std::numbers::pi * 2.f / m_alive_players.size();
+        }
     }
 
     sdl::point dead_roles_pos{
@@ -635,7 +642,7 @@ void game_scene::handle_game_update(UPD_TAG(player_add), const player_user_updat
         p.m_username_text.set_value(info->name);
         p.m_propic.set_texture(info->profile_image);
     } else {
-        p.m_username_text.set_value(_("USERNAME_DISCONNECTED"));
+        p.m_username_text.set_value("");
         p.m_propic.set_texture(media_pak::get().icon_disconnected);
     }
 

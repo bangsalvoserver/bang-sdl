@@ -29,21 +29,21 @@ namespace banggame {
     const player_view::player_state_vtable player_view::state_alive {
         .set_position = [](player_view *self, sdl::point pos) {
             self->m_bounding_rect = sdl::move_rect_center(sdl::rect{0, 0,
-                options.player_hand_width + options.card_width * 3 + options.card_margin * 4,
+                options.card_pocket_width + options.card_width * 3 + options.card_margin * 4,
                 options.player_view_height
             }, pos);
             
             sdl::point pockets_pos {
-                self->m_bounding_rect.x + (options.player_hand_width + options.card_width) / 2 + options.card_margin,
+                self->m_bounding_rect.x + (options.card_pocket_width + options.card_width) / 2 + options.card_margin,
                 self->m_bounding_rect.y + self->m_bounding_rect.h / 2
             };
             
             if (self == self->m_game->m_player_self) {
-                self->hand.set_pos(pockets_pos + sdl::point{0, options.card_yoffset});
-                self->table.set_pos(pockets_pos - sdl::point{0, options.card_yoffset});
+                self->hand.set_pos(pockets_pos + sdl::point{0, options.card_pocket_yoff});
+                self->table.set_pos(pockets_pos - sdl::point{0, options.card_pocket_yoff});
             } else {
-                self->table.set_pos(pockets_pos + sdl::point{0, options.card_yoffset});
-                self->hand.set_pos(pockets_pos - sdl::point{0, options.card_yoffset});
+                self->table.set_pos(pockets_pos + sdl::point{0, options.card_pocket_yoff});
+                self->hand.set_pos(pockets_pos - sdl::point{0, options.card_pocket_yoff});
             }
 
             self->m_characters.set_pos(sdl::point{
@@ -155,7 +155,7 @@ namespace banggame {
 
             self->m_propic.set_pos(sdl::point{
                 self->m_bounding_rect.x + widgets::profile_pic::size / 2,
-                self->m_bounding_rect.y
+                self->m_bounding_rect.y + options.dead_propic_yoff
             });
 
             self->m_username_text.set_rect(sdl::move_rect_center(

@@ -33,8 +33,8 @@ namespace banggame {
         int hp = 0;
         int gold = 0;
 
-        wide_pocket hand{options.player_hand_width};
-        wide_pocket table{options.player_hand_width};
+        wide_pocket hand{options.card_pocket_width};
+        wide_pocket table{options.card_pocket_width};
         
         pocket_view scenario_deck;
 

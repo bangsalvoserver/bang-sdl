@@ -4,13 +4,14 @@ namespace banggame {
 
     const options_t options = {
         .card_width = 60,
-        .card_xoffset = 10,
-        .card_yoffset = 55,
 
         .card_suit_offset = 15,
         .card_suit_scale = 1.5f,
 
-        .player_hand_width = 180,
+        .card_pocket_width = 180,
+        .card_pocket_xoff = 10,
+        .card_pocket_yoff = 55,
+
         .player_view_height = 220,
 
         .one_hp_size = 18,
@@ -19,17 +20,17 @@ namespace banggame {
         .gold_yoffset = 60,
 
         .deck_xoffset = 200,
-        .shop_xoffset = 10,
-
         .discard_xoffset = 70,
 
-        .selection_yoffset = 10,
-        .selection_width = 300,
+        .shop_xoffset = 10,
 
         .shop_selection_width = 150,
 
         .shop_choice_width = 130,
         .shop_choice_offset = 20,
+
+        .selection_yoffset = 10,
+        .selection_width = 300,
 
         .cube_pile_size = 50,
         .cube_pile_xoffset = 70,
@@ -37,8 +38,6 @@ namespace banggame {
         .cube_xdiff = -20,
         .cube_ydiff = -25,
         .cube_yoff = 12,
-
-        .scenario_deck_xoff = 40,
 
         .player_ellipse_x_distance = 250,
         .player_ellipse_y_distance = 155,
@@ -52,6 +51,7 @@ namespace banggame {
         .card_margin = 10,
         .role_yoff = 16,
         .propic_yoff = 94,
+        .dead_propic_yoff = 15,
         .username_yoff = 40,
 
         .move_card_msecs = 333,
