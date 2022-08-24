@@ -188,12 +188,12 @@ void game_scene::handle_event(const sdl::event &event) {
 }
 
 void game_scene::handle_card_click() {
-    if (card_view *card = (m_shop_choice.empty() ? m_shop_selection : m_shop_choice).find_card_at(m_mouse_pt)) {
-        m_target.on_click_shop_card(card);
-        return;
-    }
     if (card_view *card = m_selection.find_card_at(m_mouse_pt)) {
         m_target.on_click_selection_card(card);
+        return;
+    }
+    if (card_view *card = (m_shop_choice.empty() ? m_shop_selection : m_shop_choice).find_card_at(m_mouse_pt)) {
+        m_target.on_click_shop_card(card);
         return;
     }
     if (m_main_deck.find_card_at(m_mouse_pt)) {
@@ -230,13 +230,13 @@ void game_scene::handle_card_click() {
 }
 
 void game_scene::find_overlay() {
+    if (m_overlay = m_selection.find_card_at(m_mouse_pt)) {
+        return;
+    }
     if (m_overlay = m_shop_choice.find_card_at(m_mouse_pt)) {
         return;
     }
     if (m_overlay = m_shop_selection.find_card_at(m_mouse_pt)) {
-        return;
-    }
-    if (m_overlay = m_selection.find_card_at(m_mouse_pt)) {
         return;
     }
     if (m_overlay = m_discard_pile.find_card_at(m_mouse_pt)) {
@@ -263,7 +263,7 @@ void game_scene::find_overlay() {
             return;
         }
     }
-    for (player_view *p : m_dead_players) {
+    for (player_view *p : m_dead_players | std::views::reverse) {
         if (sdl::point_in_rect(m_mouse_pt, p->m_role->get_rect())) {
             m_overlay = p->m_role;
             return;
