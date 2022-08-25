@@ -189,7 +189,7 @@ namespace sdl {
         }
 
         rect get_rect() const {
-            rect rect;
+            rect rect{};
             if (*this) {
                 SDL_GetClipRect(get(), &rect);
             }
