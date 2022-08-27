@@ -595,31 +595,38 @@ void game_scene::move_player_views(bool instant) {
     }
 }
 
-void game_scene::handle_game_update(UPD_TAG(player_add), const player_user_update &args) {
-    auto [p, inserted] = m_players.try_emplace(this, args.player_id);
-    if (inserted) {
+void game_scene::handle_game_update(UPD_TAG(player_add), const player_add_update &args) {
+    for (int player_id = 1; player_id <= args.num_players; ++player_id) {
+        auto &p = m_players.emplace(this, player_id);
+        
         auto card = std::make_unique<role_card>();
-        card->id = args.player_id;
+        card->id = player_id;
         card->texture_back = card_textures::get().backfaces[enums::indexof(card_deck_type::role)];
         p.m_role = m_role_cards.insert(std::move(card)).get();
 
-        auto it = m_alive_players.insert(m_alive_players.empty()
-            ? m_alive_players.end()
-            : std::next(std::ranges::max_element(m_alive_players, {}, &player_view::id)), &p);
-        
-        if (args.user_id == parent->get_user_own_id()) {
-            m_player_self = &p;
-            std::ranges::rotate(m_alive_players, it);
+        m_alive_players.push_back(&p);
+    }
+}
+
+void game_scene::handle_game_update(UPD_TAG(player_user), const player_user_update &args) {
+    auto it = m_players.find(args.player_id);
+    if (it == m_players.end()) return;
+
+    it->user_id = args.user_id;
+    if (args.user_id == parent->get_user_own_id()) {
+        m_player_self = &*it;
+        auto alive_it = std::ranges::find(m_alive_players, &*it);
+        if (alive_it != m_alive_players.end()) {
+            std::ranges::rotate(m_alive_players, alive_it);
         }
     }
 
-    p.user_id = args.user_id;
     if (user_info *info = parent->get_user_info(args.user_id)) {
-        p.m_username_text.set_value(info->name);
-        p.m_propic.set_texture(info->profile_image);
+        it->m_username_text.set_value(info->name);
+        it->m_propic.set_texture(info->profile_image);
     } else {
-        p.m_username_text.set_value("");
-        p.m_propic.set_texture(media_pak::get().icon_disconnected);
+        it->m_username_text.set_value(_("USERNAME_DISCONNECTED"));
+        it->m_propic.set_texture(media_pak::get().icon_disconnected);
     }
 
     move_player_views();

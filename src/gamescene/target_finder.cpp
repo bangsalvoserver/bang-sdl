@@ -273,6 +273,11 @@ void target_finder::on_click_scenario_card(card_view *card) {
 }
 
 bool target_finder::on_click_player(player_view *player) {
+    if (!m_game->m_player_self) {
+        m_game->parent->add_message<client_message_type::lobby_rejoin>(player->id);
+        return true;
+    }
+
     auto verify_filter = [&](target_player_filter filter) {
         if (auto error = verify_player_target(filter, player))  {
             m_game->parent->add_chat_message(message_type::error, *error);
