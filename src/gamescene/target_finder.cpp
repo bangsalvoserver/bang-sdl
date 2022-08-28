@@ -617,7 +617,7 @@ std::optional<std::string> target_finder::verify_player_target(target_player_fil
     if (bool(filter & target_player_filter::notself) && target_player == m_game->m_player_self)
         return _("ERROR_TARGET_SELF");
 
-    if (bool(filter & target_player_filter::notsheriff) && target_player->m_role->role == player_role::sheriff)
+    if (bool(filter & target_player_filter::notsheriff) && target_player->m_role.role == player_role::sheriff)
         return _("ERROR_TARGET_SHERIFF");
 
     if (bool(filter & (target_player_filter::reachable | target_player_filter::range_1 | target_player_filter::range_2))) {

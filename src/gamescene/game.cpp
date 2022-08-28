@@ -252,8 +252,8 @@ void game_scene::find_overlay() {
         if (m_overlay = p->scenario_deck.find_card_at(m_mouse_pt)) {
             return;
         }
-        if (sdl::point_in_rect(m_mouse_pt, p->m_role->get_rect())) {
-            m_overlay = p->m_role;
+        if (sdl::point_in_rect(m_mouse_pt, p->m_role.get_rect())) {
+            m_overlay = &p->m_role;
             return;
         }
         if (m_overlay = p->table.find_card_at(m_mouse_pt)) {
@@ -264,8 +264,8 @@ void game_scene::find_overlay() {
         }
     }
     for (player_view *p : m_dead_players | std::views::reverse) {
-        if (sdl::point_in_rect(m_mouse_pt, p->m_role->get_rect())) {
-            m_overlay = p->m_role;
+        if (sdl::point_in_rect(m_mouse_pt, p->m_role.get_rect())) {
+            m_overlay = &p->m_role;
             return;
         }
     }
@@ -599,10 +599,7 @@ void game_scene::handle_game_update(UPD_TAG(player_add), const player_add_update
     for (int player_id = 1; player_id <= args.num_players; ++player_id) {
         auto &p = m_players.emplace(this, player_id);
         
-        auto card = std::make_unique<role_card>();
-        card->id = player_id;
-        card->texture_back = card_textures::get().backfaces[enums::indexof(card_deck_type::role)];
-        p.m_role = m_role_cards.insert(std::move(card)).get();
+        p.m_role.texture_back = card_textures::get().backfaces[enums::indexof(card_deck_type::role)];
 
         m_alive_players.push_back(&p);
     }
@@ -640,7 +637,7 @@ void game_scene::handle_game_update(UPD_TAG(player_remove), const player_remove_
 
         player->set_to_dead();
 
-        player->set_position(player->m_role->get_pos() - sdl::point{(options.card_margin + widgets::profile_pic::size) / 2, 0});
+        player->set_position(player->m_role.get_pos() - sdl::point{(options.card_margin + widgets::profile_pic::size) / 2, 0});
 
         m_dead_players.push_back(player);
 
@@ -664,26 +661,19 @@ void game_scene::handle_game_update(UPD_TAG(player_gold), const player_gold_upda
 }
 
 void game_scene::handle_game_update(UPD_TAG(player_show_role), const player_show_role_update &args) {
-    if (auto *p = find_player(args.player_id)) {
-        if (p->m_role->role != args.role) {
-            p->m_role->role = args.role;
-            p->m_role->make_texture_front(parent->get_renderer());
-            if (args.instant) {
-                if (args.role == player_role::sheriff) {
-                    p->set_hp_marker_position(static_cast<float>(++p->hp));
-                }
-                p->m_role->flip_amt = 1.f;
-            } else {
-                add_animation<card_flip_animation>(options.flip_role_msecs, p->m_role, false);
+    player_view *p = find_player(args.player_id);
+
+    if (p->m_role.role != args.role) {
+        p->m_role.role = args.role;
+        p->m_role.make_texture_front(parent->get_renderer());
+        if (args.instant) {
+            if (args.role == player_role::sheriff) {
+                p->set_hp_marker_position(static_cast<float>(++p->hp));
             }
+            p->m_role.flip_amt = 1.f;
+        } else {
+            add_animation<card_flip_animation>(options.flip_role_msecs, &p->m_role, false);
         }
-    } else {
-        auto card = std::make_unique<role_card>();
-        card->id = args.player_id;
-        card->flip_amt = 1.f;
-        card->role = args.role;
-        card->make_texture_front(parent->get_renderer());
-        m_role_cards.insert(std::move(card));
     }
 }
 

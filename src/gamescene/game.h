@@ -96,7 +96,6 @@ namespace banggame {
 
         util::id_map<card_view> m_cards;
         util::id_map<player_view> m_players;
-        util::id_map<role_card> m_role_cards;
 
         std::vector<player_view *> m_alive_players;
         std::vector<player_view *> m_dead_players;

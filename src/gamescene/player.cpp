@@ -53,15 +53,15 @@ namespace banggame {
 
             self->set_hp_marker_position(static_cast<float>(self->hp));
 
-            self->m_role->set_pos(sdl::point{
+            self->m_role.set_pos(sdl::point{
                 self->m_characters.get_pos().x + options.card_width + options.card_margin,
                 self->m_characters.get_pos().y + options.role_yoff
             });
 
-            self->scenario_deck.set_pos(self->m_role->get_pos() + sdl::point{options.character_offset, options.character_offset});
+            self->scenario_deck.set_pos(self->m_role.get_pos() + sdl::point{options.character_offset, options.character_offset});
 
             self->m_propic.set_pos(sdl::point{
-                self->m_role->get_pos().x,
+                self->m_role.get_pos().x,
                 self->m_bounding_rect.y + options.propic_yoff
             });
 
@@ -81,7 +81,7 @@ namespace banggame {
                 self->m_bounding_rect.h - 2
             });
 
-            self->m_role->render(renderer);
+            self->m_role.render(renderer);
             if (!self->m_backup_characters.empty()) {
                 self->m_backup_characters.front()->render(renderer);
                 if (self->hp > 5) {
@@ -136,9 +136,9 @@ namespace banggame {
                 if (self == self->m_game->m_request_origin) {
                     render_icon(media_pak::get().icon_origin, options.request_origin_indicator);
                 }
-            } else if (self->m_role->role == self->m_game->m_winner_role
-                || (self->m_role->role == player_role::deputy && self->m_game->m_winner_role == player_role::sheriff)
-                || (self->m_role->role == player_role::sheriff && self->m_game->m_winner_role == player_role::deputy)) {
+            } else if (self->m_role.role == self->m_game->m_winner_role
+                || (self->m_role.role == player_role::deputy && self->m_game->m_winner_role == player_role::sheriff)
+                || (self->m_role.role == player_role::sheriff && self->m_game->m_winner_role == player_role::deputy)) {
                 render_icon(media_pak::get().icon_winner, options.winner_indicator);
             }
         }
@@ -148,7 +148,7 @@ namespace banggame {
         .set_position = [](player_view *self, sdl::point pos) {
             self->m_bounding_rect = sdl::move_rect_center(sdl::rect{0,0, options.card_width + options.card_margin + widgets::profile_pic::size, 0}, pos);
 
-            self->m_role->set_pos(sdl::point{
+            self->m_role.set_pos(sdl::point{
                 self->m_bounding_rect.x + self->m_bounding_rect.w - options.card_width / 2,
                 self->m_bounding_rect.y
             });
@@ -165,13 +165,13 @@ namespace banggame {
         },
 
         .render = [](player_view *self, sdl::renderer &renderer) {
-            self->m_role->render(renderer);
+            self->m_role.render(renderer);
             self->m_propic.render(renderer);
             self->m_username_text.render(renderer);
 
-            if (self->m_role->role == self->m_game->m_winner_role
-                || (self->m_role->role == player_role::deputy && self->m_game->m_winner_role == player_role::sheriff)
-                || (self->m_role->role == player_role::sheriff && self->m_game->m_winner_role == player_role::deputy)) {
+            if (self->m_role.role == self->m_game->m_winner_role
+                || (self->m_role.role == player_role::deputy && self->m_game->m_winner_role == player_role::sheriff)
+                || (self->m_role.role == player_role::sheriff && self->m_game->m_winner_role == player_role::deputy)) {
                 
                 sdl::texture_ref texture = media_pak::get().icon_winner;
                 sdl::rect rect = texture.get_rect();
