@@ -39,7 +39,7 @@ void bang_connection::on_open() {
     m_accept_timer.expires_after(accept_timeout);
     m_accept_timer.async_wait([this](const std::error_code &ec) {
         if (!ec) {
-            parent.add_chat_message(message_type::error, _("TIMEOUT_EXPIRED"));
+            parent.add_chat_message(message_type::error, _("ACCEPT_TIMEOUT_EXPIRED"));
             disconnect();
         }
     });
@@ -60,6 +60,7 @@ void bang_connection::on_close() {
     if (m_open.exchange(false)) {
         parent.add_chat_message(message_type::server_log, _("ERROR_DISCONNECTED"));
     }
+    m_accept_timer.cancel();
 }
 
 void bang_connection::on_message(const server_message &message) {
