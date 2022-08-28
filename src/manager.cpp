@@ -13,6 +13,7 @@
 #include "scenes/lobby_list.h"
 #include "scenes/lobby.h"
 #include "gamescene/game.h"
+#include "net/git_version.h"
 
 using namespace banggame;
 
@@ -43,7 +44,13 @@ void bang_connection::on_open() {
         }
     });
 
-    parent.add_message<banggame::client_message_type::connect>(parent.m_config.user_name, sdl::surface_to_image_pixels(parent.m_config.profile_image_data));
+    parent.add_message<banggame::client_message_type::connect>(
+        parent.m_config.user_name,
+        sdl::surface_to_image_pixels(parent.m_config.profile_image_data)
+#ifdef NDEBUG
+        , std::string(net::server_commit_hash)
+#endif
+        );
 }
 
 void bang_connection::on_close() {
