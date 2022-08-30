@@ -47,7 +47,7 @@ void bang_connection::on_open() {
     parent.add_message<banggame::client_message_type::connect>(
         parent.m_config.user_name,
         sdl::surface_to_image_pixels(parent.m_config.profile_image_data)
-#ifdef NDEBUG
+#ifdef HAVE_GIT_VERSION
         , std::string(net::server_commit_hash)
 #endif
         );
