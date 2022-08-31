@@ -55,13 +55,6 @@ else()
     target_link_libraries(sdl2_libraries INTERFACE PkgConfig::SDL2 PkgConfig::SDL2_ttf PkgConfig::SDL2_image PkgConfig::SDL2_gfx)
 endif()
 
-find_package(fmt REQUIRED)
-if (TARGET fmt::fmt-header-only)
-    link_libraries(fmt::fmt-header-only)
-else()
-    link_libraries(fmt::fmt)
-endif()
-
 add_subdirectory(resources)
 add_subdirectory(external/banggame)
 add_subdirectory(external/tiny-process-library)
