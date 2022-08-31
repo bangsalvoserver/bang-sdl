@@ -86,7 +86,11 @@ set_target_properties(bangclient bangserver tiny-process-library PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
-if (NOT CMAKE_BUILD_TYPE STREQUAL "Release")
+if(NOT DEFINED BUILD_LAUNCHER)
+    set(BUILD_LAUNCHER ON)
+endif()
+
+if (BUILD_LAUNCHER)
     if (WIN32)
         add_executable(banglauncher WIN32 src/main.c resources/bang.rc)
         if (MINGW)
