@@ -1,5 +1,5 @@
-[submodule "external/banggame"]
-	path = external/banggame
+[submodule "banggameserver"]
+	path = game
 	url = https://github.com/salvoilmiosi/banggameserver
 [submodule "resources/cards"]
 	path = resources/cards

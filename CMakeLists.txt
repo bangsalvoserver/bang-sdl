@@ -55,8 +55,8 @@ else()
     target_link_libraries(sdl2_libraries INTERFACE PkgConfig::SDL2 PkgConfig::SDL2_ttf PkgConfig::SDL2_image PkgConfig::SDL2_gfx)
 endif()
 
+add_subdirectory(game)
 add_subdirectory(resources)
-add_subdirectory(external/banggame)
 add_subdirectory(external/tiny-process-library)
 
 set_target_properties(tiny-process-library PROPERTIES
@@ -86,9 +86,7 @@ set_target_properties(bangclient bangserver tiny-process-library PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
-if(NOT DEFINED BUILD_LAUNCHER)
-    set(BUILD_LAUNCHER ON)
-endif()
+option(BUILD_LAUNCHER "Build Launcher" ON)
 
 if (BUILD_LAUNCHER)
     if (WIN32)

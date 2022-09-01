@@ -47,6 +47,7 @@ jobs:
         -DCMAKE_C_COMPILER=gcc
         -DCMAKE_CXX_COMPILER=g++
         -DBUILD_LAUNCHER=OFF
+        -DBUILD_GAME_RELEASE=ON
         -DOFFICIAL_BANG_SERVER=${{env.OFFICIAL_BANG_SERVER}}
         -G Ninja
       
