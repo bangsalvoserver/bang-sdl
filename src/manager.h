@@ -119,13 +119,11 @@ public:
 private:
     void handle_message(SRV_TAG(client_accepted), const banggame::client_accepted_args &args);
     void handle_message(SRV_TAG(lobby_error), const std::string &message);
-    void handle_message(SRV_TAG(lobby_update), const banggame::lobby_data &args);
-    void handle_message(SRV_TAG(lobby_edited), const banggame::lobby_info &args);
-    void handle_message(SRV_TAG(lobby_entered), const banggame::lobby_entered_args &args);
+    void handle_message(SRV_TAG(lobby_owner), const banggame::user_id_args &args);
+    void handle_message(SRV_TAG(lobby_entered), const banggame::lobby_info &args);
     void handle_message(SRV_TAG(lobby_add_user), const banggame::lobby_add_user_args &args);
-    void handle_message(SRV_TAG(lobby_remove_user), const banggame::lobby_remove_user_args &args);
+    void handle_message(SRV_TAG(lobby_remove_user), const banggame::user_id_args &args);
     void handle_message(SRV_TAG(lobby_chat), const banggame::lobby_chat_args &args);
-    void handle_message(SRV_TAG(game_update), const banggame::game_update &args);
     void handle_message(SRV_TAG(game_started));
 
 private:

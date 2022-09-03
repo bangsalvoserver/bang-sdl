@@ -15,7 +15,8 @@
 
 namespace banggame {
 
-    class game_scene : public scene_base {
+    class game_scene : public scene_base,
+    public message_handler<server_message_type::game_update> {
     public:
         game_scene(client_manager *parent);
         
@@ -24,7 +25,7 @@ namespace banggame {
         void render(sdl::renderer &renderer) override;
         void handle_event(const sdl::event &event) override;
 
-        void handle_game_update(const game_update &update);
+        void handle_message(SRV_TAG(game_update), const game_update &update) override;
 
     private:
         void handle_game_update(UPD_TAG(game_over),        const game_over_update &args);

@@ -271,7 +271,7 @@ void game_scene::find_overlay() {
     }
 }
 
-void game_scene::handle_game_update(const game_update &update) {
+void game_scene::handle_message(SRV_TAG(game_update), const game_update &update) {
 #ifdef DEBUG_PRINT_GAME_UPDATES
     std::cout << "/*** GAME UPDATE ***/ " << json::serialize(update) << '\n';
 #endif

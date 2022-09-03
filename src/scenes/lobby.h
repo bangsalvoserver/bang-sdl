@@ -12,16 +12,21 @@
 
 struct user_info;
 
-class lobby_scene : public scene_base {
+class lobby_scene : public scene_base,
+public message_handler<banggame::server_message_type::lobby_edited>,
+public message_handler<banggame::server_message_type::lobby_owner>,
+public message_handler<banggame::server_message_type::lobby_add_user>,
+public message_handler<banggame::server_message_type::lobby_remove_user> {
 public:
-    lobby_scene(client_manager *parent, const banggame::lobby_entered_args &args);
+    lobby_scene(client_manager *parent, const banggame::lobby_info &args);
 
     void refresh_layout() override;
     void render(sdl::renderer &renderer) override;
 
-    void set_lobby_info(const banggame::lobby_info &info);
-    void add_user(int id, const user_info &args);
-    void remove_user(int id);
+    void handle_message(SRV_TAG(lobby_edited), const banggame::lobby_info &info) override;
+    void handle_message(SRV_TAG(lobby_owner), const banggame::user_id_args &args) override;
+    void handle_message(SRV_TAG(lobby_add_user), const banggame::lobby_add_user_args &args) override;
+    void handle_message(SRV_TAG(lobby_remove_user), const banggame::user_id_args &args) override;
 
     void send_lobby_edited();
 

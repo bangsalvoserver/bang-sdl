@@ -86,14 +86,15 @@ void lobby_list_scene::do_make_lobby() {
     }
 }
 
-void lobby_list_scene::handle_lobby_update(const lobby_data &args) {
-    if (args.num_players == 0) {
-        m_lobby_lines.erase(args.lobby_id);
-    } else {
-        auto [it, inserted] = m_lobby_lines.try_emplace(args.lobby_id, this, args);
-        if (!inserted) {
-            it->second.handle_update(args);
-        }
+void lobby_list_scene::handle_message(SRV_TAG(lobby_update), const lobby_data &args) {
+    auto [it, inserted] = m_lobby_lines.try_emplace(args.lobby_id, this, args);
+    if (!inserted) {
+        it->second.handle_update(args);
     }
+    refresh_layout();
+}
+
+void lobby_list_scene::handle_message(SRV_TAG(lobby_removed), const lobby_id_args &args) {
+    m_lobby_lines.erase(args.lobby_id);
     refresh_layout();
 }

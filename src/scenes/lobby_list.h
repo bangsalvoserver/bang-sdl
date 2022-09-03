@@ -24,7 +24,9 @@ private:
     widgets::stattext m_state_text;
 };
 
-class lobby_list_scene : public scene_base {
+class lobby_list_scene : public scene_base,
+public message_handler<banggame::server_message_type::lobby_update>,
+public message_handler<banggame::server_message_type::lobby_removed> {
 public:
     lobby_list_scene(client_manager *parent);
 
@@ -32,7 +34,8 @@ public:
     void tick(duration_type time_elapsed) override;
     void render(sdl::renderer &renderer) override;
 
-    void handle_lobby_update(const banggame::lobby_data &args);
+    void handle_message(SRV_TAG(lobby_update), const banggame::lobby_data &args) override;
+    void handle_message(SRV_TAG(lobby_removed), const banggame::lobby_id_args &args) override;
 
     void do_join(int lobby_id);
     void do_make_lobby();

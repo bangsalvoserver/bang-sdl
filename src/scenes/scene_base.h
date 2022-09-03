@@ -10,10 +10,20 @@
 
 class client_manager;
 
+template<banggame::server_message_type E>
+struct message_handler {
+    virtual void handle_message(enums::enum_tag_t<E>) = 0;
+};
+
+template<banggame::server_message_type E> requires enums::value_with_type<E>
+struct message_handler<E> {
+    virtual void handle_message(enums::enum_tag_t<E>, const enums::enum_type_t<E> &args) = 0;
+};
+
 class scene_base {
 public:
     scene_base(client_manager *parent) : parent(parent) {}
-    virtual ~scene_base() {}
+    virtual ~scene_base() = default;
     
     virtual void refresh_layout() = 0;
 

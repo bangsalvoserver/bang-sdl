@@ -69,9 +69,9 @@ static constexpr auto make_unofficials(enums::enum_sequence<Es...>) {
      }() | ...);
 }
 
-lobby_scene::lobby_scene(client_manager *parent, const lobby_entered_args &args)
+lobby_scene::lobby_scene(client_manager *parent, const lobby_info &args)
     : scene_base(parent)
-    , m_lobby_name_text(args.info.name, widgets::text_style {
+    , m_lobby_name_text(args.name, widgets::text_style {
         .text_font = &media_pak::font_bkant_bold
     })
     , m_leave_btn(_("BUTTON_EXIT"), [parent]{ parent->add_message<banggame::client_message_type::lobby_leave>(); })
@@ -83,18 +83,12 @@ lobby_scene::lobby_scene(client_manager *parent, const lobby_entered_args &args)
     for (auto E : enums::enum_values_v<banggame::card_expansion_type>) {
         if (!parent->get_config().allow_unofficial_expansions && bool(unofficials & E)) continue;
 
-        auto &checkbox = m_checkboxes.emplace_back(_(E), E, args.info.options.expansions);
-        if (parent->get_lobby_owner_id() == parent->get_user_own_id()) {
-            checkbox.set_ontoggle([this]{ send_lobby_edited(); });
-        } else {
-            checkbox.set_locked(true);
-        }
+        m_checkboxes.emplace_back(_(E), E, args.options.expansions)
+            .set_ontoggle([this]{ send_lobby_edited(); });
     }
-
-    m_start_btn.set_enabled(parent->get_lobby_owner_id() == parent->get_user_own_id());
 }
 
-void lobby_scene::set_lobby_info(const lobby_info &info) {
+void lobby_scene::handle_message(SRV_TAG(lobby_edited), const lobby_info &info) {
     m_lobby_name_text.set_value(info.name);
     
     for (auto &checkbox : m_checkboxes) {
@@ -111,6 +105,14 @@ void lobby_scene::send_lobby_edited() {
         }
     }
     parent->add_message<banggame::client_message_type::lobby_edit>(m_lobby_name_text.get_value(), options);
+}
+
+void lobby_scene::handle_message(SRV_TAG(lobby_owner), const user_id_args &args) {
+    for (auto &checkbox : m_checkboxes) {
+        checkbox.set_locked(parent->get_lobby_owner_id() != parent->get_user_own_id());
+    }
+
+    m_start_btn.set_enabled(parent->get_lobby_owner_id() == parent->get_user_own_id());
 }
 
 void lobby_scene::refresh_layout() {
@@ -153,19 +155,17 @@ void lobby_scene::render(sdl::renderer &renderer) {
     m_chat_btn.render(renderer);
 }
 
-void lobby_scene::add_user(int id, const user_info &args) {
-    m_player_list.emplace_back(this, id, args);
-    refresh_layout();
+void lobby_scene::handle_message(SRV_TAG(lobby_add_user), const lobby_add_user_args &args) {
+    if (const user_info *user = parent->get_user_info(args.user_id)) {
+        m_player_list.emplace_back(this, args.user_id, *user);
+        refresh_layout();
+    }
 }
 
-void lobby_scene::remove_user(int id) {
-    if (id == m_user_id) {
-        parent->switch_scene<lobby_list_scene>();
-    } else {
-        auto it = std::ranges::find(m_player_list, id, &lobby_player_item::user_id);
-        if (it != m_player_list.end()) {
-            m_player_list.erase(it);
-        }
+void lobby_scene::handle_message(SRV_TAG(lobby_remove_user), const user_id_args &args) {
+    auto it = std::ranges::find(m_player_list, args.user_id, &lobby_player_item::user_id);
+    if (it != m_player_list.end()) {
+        m_player_list.erase(it);
     }
 
     refresh_layout();
