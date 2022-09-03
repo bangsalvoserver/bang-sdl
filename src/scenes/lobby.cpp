@@ -109,10 +109,10 @@ void lobby_scene::send_lobby_edited() {
 
 void lobby_scene::handle_message(SRV_TAG(lobby_owner), const user_id_args &args) {
     for (auto &checkbox : m_checkboxes) {
-        checkbox.set_locked(parent->get_lobby_owner_id() != parent->get_user_own_id());
+        checkbox.set_locked(args.user_id != parent->get_user_own_id());
     }
 
-    m_start_btn.set_enabled(parent->get_lobby_owner_id() == parent->get_user_own_id());
+    m_start_btn.set_enabled(args.user_id == parent->get_user_own_id());
 }
 
 void lobby_scene::refresh_layout() {

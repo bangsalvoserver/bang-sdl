@@ -284,13 +284,17 @@ void game_scene::handle_game_update(UPD_TAG(game_over), const game_over_update &
     m_ui.set_status(_("STATUS_GAME_OVER"));
     m_winner_role = args.winner_role;
 
-    handle_message(SRV_TAG(lobby_owner){}, {parent->get_user_own_id()});
+    handle_message(SRV_TAG(lobby_owner){}, {parent->get_lobby_owner_id()});
 }
 
 void game_scene::handle_message(SRV_TAG(lobby_owner), const user_id_args &args) {
     if (m_winner_role != player_role::unknown) {
-        m_ui.enable_golobby(parent->get_user_own_id() == parent->get_lobby_owner_id());
+        m_ui.enable_golobby(parent->get_user_own_id() == args.user_id);
     }
+}
+
+void game_scene::handle_message(SRV_TAG(lobby_error), const std::string &message) {
+    m_target.confirm_play();
 }
 
 std::string game_scene::evaluate_format_string(const game_string &str) {

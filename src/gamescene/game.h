@@ -17,7 +17,8 @@ namespace banggame {
 
     class game_scene : public scene_base,
     public message_handler<server_message_type::game_update>,
-    public message_handler<server_message_type::lobby_owner> {
+    public message_handler<server_message_type::lobby_owner>,
+    public message_handler<server_message_type::lobby_error> {
     public:
         game_scene(client_manager *parent);
         
@@ -28,6 +29,7 @@ namespace banggame {
 
         void handle_message(SRV_TAG(game_update), const game_update &update) override;
         void handle_message(SRV_TAG(lobby_owner), const user_id_args &args) override;
+        void handle_message(SRV_TAG(lobby_error), const std::string &message) override;
 
     private:
         void handle_game_update(UPD_TAG(game_over),        const game_over_update &args);
