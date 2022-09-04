@@ -1,4 +1,3 @@
-add_executable(packer pack.cpp)
 function(pack_resources target_name root_path out_file in_files)
     foreach(file ${in_files})
         if (IS_ABSOLUTE "${file}")
@@ -9,13 +8,13 @@ function(pack_resources target_name root_path out_file in_files)
     endforeach()
     add_custom_command(
         OUTPUT "${out_file}"
-        COMMAND packer
+        COMMAND python "${CMAKE_CURRENT_SOURCE_DIR}/pack.py"
         -q
         -D
         "${CMAKE_CURRENT_SOURCE_DIR}/${root_path}"
         "${out_file}"
         ${abs_files}
-        DEPENDS ${abs_files} packer
+        DEPENDS ${abs_files} "${CMAKE_CURRENT_SOURCE_DIR}/pack.py"
         VERBATIM
     )
     add_custom_target("${target_name}" DEPENDS "${out_file}")
