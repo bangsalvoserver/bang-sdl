@@ -89,7 +89,7 @@ void game_ui::add_special(card_view *card) {
     auto &btn = m_special_btns.emplace_back(std::piecewise_construct,
         std::make_tuple(_(intl::category::cards, card->name), [&target = parent->m_target, card]{
             if (target.is_card_clickable()) {
-                target.on_click_scenario_card(card);
+                target.on_click_card(pocket_type::specials, nullptr, card);
             }
         }), std::make_tuple(card)).first;
 

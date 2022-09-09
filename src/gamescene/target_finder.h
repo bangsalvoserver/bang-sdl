@@ -63,15 +63,9 @@ namespace banggame {
         }
 
         bool is_card_clickable() const;
+        bool send_pick_card(pocket_type pocket, player_view *player = nullptr, card_view *card = nullptr);
 
-        void on_click_discard_pile();
-        void on_click_main_deck();
-        void on_click_selection_card(card_view *card);
-        void on_click_shop_card(card_view *card);
-        void on_click_table_card(player_view *player, card_view *card);
-        void on_click_hand_card(player_view *player, card_view *card);
-        void on_click_character(player_view *player, card_view *card);
-        void on_click_scenario_card(card_view *card);
+        void on_click_card(pocket_type pocket, player_view *player, card_view *card);
         bool on_click_player(player_view *player);
 
         void on_click_confirm();
@@ -102,7 +96,6 @@ namespace banggame {
         const card_view *get_current_card() const;
         const effect_list &get_current_card_effects() const;
 
-        bool send_pick_card(pocket_type pocket, player_view *player = nullptr, card_view *card = nullptr);
         void send_play_card();
 
         const effect_holder &get_effect_holder(int index);

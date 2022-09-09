@@ -41,11 +41,12 @@ bool target_finder::can_respond_with(card_view *card) const {
 
 bool target_finder::can_play_in_turn(player_view *player, card_view *card) const {
     if (bool(m_request_flags & effect_flags::force_play)) {
-        return can_respond_with(card);
+        return can_respond_with(card) || card->pocket == &m_game->m_shop_choice;
     } else {
         return !m_game->m_request_origin && !m_game->m_request_target
             && m_game->m_playing == m_game->m_player_self
-            && (!player || player == m_game->m_player_self);
+            && (!player || player == m_game->m_player_self)
+            && m_game->m_player_self->gold >= card->buy_cost() + ranges_contains(m_modifiers, card_modifier_type::discount, &card_view::modifier);
     }
 }
 
@@ -147,31 +148,18 @@ bool target_finder::send_pick_card(pocket_type pocket, player_view *player, card
     return false;
 }
 
-void target_finder::on_click_discard_pile() {
-    send_pick_card(pocket_type::discard_pile);
-}
-
-void target_finder::on_click_main_deck() {
-    send_pick_card(pocket_type::main_deck);
-}
-
-void target_finder::on_click_selection_card(card_view *card) {
-    send_pick_card(pocket_type::selection, nullptr, card);
-}
-
-void target_finder::on_click_shop_card(card_view *card) {
-    const bool is_forced_card = bool(m_request_flags & effect_flags::force_play);
-    if (!m_playing_card && m_game->m_playing == m_game->m_player_self
-        && (is_forced_card || (!m_game->m_request_origin && !m_game->m_request_target)))
-    {
-        if (!is_forced_card) {
-            int cost = card->buy_cost();
-            if (ranges_contains(m_modifiers, card_modifier_type::discount, &card_view::modifier)) {
-                --cost;
-            }
-            if (m_game->m_player_self->gold < cost) return;
+void target_finder::on_click_card(pocket_type pocket, player_view *player, card_view *card) {
+    if (m_playing_card) {
+        if (pocket == pocket_type::player_character) {
+            add_card_target(player, player->m_characters.front());
+        } else if (pocket == pocket_type::player_table || pocket == pocket_type::player_hand) {
+            add_card_target(player, card);
         }
-        if (card->color == card_color_type::black) {
+    } else if (can_respond_with(card) && !card->inactive) {
+        set_playing_card(card, true);
+        handle_auto_targets();
+    } else if (!send_pick_card(pocket, player, card) && !card->inactive && can_play_in_turn(player, card)) {
+        if ((pocket == pocket_type::player_hand || pocket == pocket_type::shop_selection) && card->color != card_color_type::brown) {
             if (verify_modifier(card)) {
                 if (card->self_equippable()) {
                     set_playing_card(card);
@@ -184,88 +172,6 @@ void target_finder::on_click_shop_card(card_view *card) {
         } else if (card->modifier != card_modifier_type::none) {
             add_modifier(card);
         } else if (verify_modifier(card)) {
-            set_playing_card(card);
-            handle_auto_targets();
-        }
-    }
-}
-
-void target_finder::on_click_table_card(player_view *player, card_view *card) {
-    if (!m_playing_card) {
-        if (can_respond_with(card) && !card->inactive) {
-            set_playing_card(card, true);
-            handle_auto_targets();
-        } else if (!send_pick_card(pocket_type::player_table, player, card)
-                && can_play_in_turn(player, card) && !card->inactive) {
-            if (card->modifier != card_modifier_type::none) {
-                add_modifier(card);
-            } else if (verify_modifier(card)) {
-                set_playing_card(card);
-                handle_auto_targets();
-            }
-        }
-    } else {
-        add_card_target(player, card);
-    }
-}
-
-void target_finder::on_click_character(player_view *player, card_view *card) {
-    if (!m_playing_card) {
-        if (can_respond_with(card)) {
-            set_playing_card(card, true);
-            handle_auto_targets();
-        } else if (!send_pick_card(pocket_type::player_character, player, card)
-                && can_play_in_turn(player, card)) {
-            if (card->modifier != card_modifier_type::none) {
-                add_modifier(card);
-            } else if (!card->effects.empty()) {
-                set_playing_card(card);
-                handle_auto_targets();
-            }
-        }
-    } else {
-        add_card_target(player, player->m_characters.front());
-    }
-}
-
-void target_finder::on_click_hand_card(player_view *player, card_view *card) {
-    if (!m_playing_card) {
-        if (can_respond_with(card)) {
-            set_playing_card(card, true);
-            handle_auto_targets();
-        } else if (!send_pick_card(pocket_type::player_hand, player, card)
-                && can_play_in_turn(player, card)) {
-            if (card->color == card_color_type::brown) {
-                if (card->modifier != card_modifier_type::none) {
-                    add_modifier(card);
-                } else if (verify_modifier(card)) {
-                    set_playing_card(card);
-                    handle_auto_targets();
-                }
-            } else if (m_modifiers.empty()) {
-                if (card->self_equippable()) {
-                    set_playing_card(card);
-                    send_play_card();
-                } else {
-                    set_playing_card(card);
-                    m_equipping = true;
-                }
-            } else if (verify_modifier(card)) {
-                set_playing_card(card);
-                handle_auto_targets();
-            }
-        }
-    } else {
-        add_card_target(player, card);
-    }
-}
-
-void target_finder::on_click_scenario_card(card_view *card) {
-    if (!m_playing_card) {
-        if (can_respond_with(card)) {
-            set_playing_card(card, true);
-            handle_auto_targets();
-        } else if (can_play_in_turn(nullptr, card)) {
             set_playing_card(card);
             handle_auto_targets();
         }

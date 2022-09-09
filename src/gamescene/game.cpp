@@ -189,23 +189,23 @@ void game_scene::handle_event(const sdl::event &event) {
 
 void game_scene::handle_card_click() {
     if (card_view *card = m_selection.find_card_at(m_mouse_pt)) {
-        m_target.on_click_selection_card(card);
+        m_target.send_pick_card(pocket_type::selection, nullptr, card);
         return;
     }
     if (card_view *card = (m_shop_choice.empty() ? m_shop_selection : m_shop_choice).find_card_at(m_mouse_pt)) {
-        m_target.on_click_shop_card(card);
+        m_target.on_click_card(pocket_type::shop_selection, nullptr, card);
         return;
     }
     if (m_main_deck.find_card_at(m_mouse_pt)) {
-        m_target.on_click_main_deck();
+        m_target.send_pick_card(pocket_type::main_deck);
         return;
     }
     if (m_discard_pile.find_card_at(m_mouse_pt)) {
-        m_target.on_click_discard_pile();
+        m_target.send_pick_card(pocket_type::discard_pile);
         return;
     }
-    if (m_scenario_card.find_card_at(m_mouse_pt)) {
-        m_target.on_click_scenario_card(m_scenario_card.back());
+    if (card_view *card = m_scenario_card.find_card_at(m_mouse_pt)) {
+        m_target.on_click_card(pocket_type::scenario_card, nullptr, card);
         return;
     }
     for (player_view *p : m_alive_players) {
@@ -215,15 +215,15 @@ void game_scene::handle_card_click() {
             }
         }
         if (card_view *card = p->m_characters.find_card_at(m_mouse_pt)) {
-            m_target.on_click_character(p, card);
+            m_target.on_click_card(pocket_type::player_character, p, card);
             return;
         }
         if (card_view *card = p->table.find_card_at(m_mouse_pt)) {
-            m_target.on_click_table_card(p, card);
+            m_target.on_click_card(pocket_type::player_table, p, card);
             return;
         }
         if (card_view *card = p->hand.find_card_at(m_mouse_pt)) {
-            m_target.on_click_hand_card(p, card);
+            m_target.on_click_card(pocket_type::player_hand, p, card);
             return;
         }
     }
