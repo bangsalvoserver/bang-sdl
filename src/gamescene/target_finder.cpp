@@ -46,7 +46,7 @@ bool target_finder::can_play_in_turn(player_view *player, card_view *card) const
         return !m_game->m_request_origin && !m_game->m_request_target
             && m_game->m_playing == m_game->m_player_self
             && (!player || player == m_game->m_player_self)
-            && m_game->m_player_self->gold >= card->buy_cost() + ranges_contains(m_modifiers, card_modifier_type::discount, &card_view::modifier);
+            && m_game->m_player_self->gold >= card->buy_cost() - ranges_contains(m_modifiers, card_modifier_type::discount, &card_view::modifier);
     }
 }
 
