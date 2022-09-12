@@ -43,7 +43,7 @@ namespace banggame {
         target_finder(game_scene *parent) : m_game(parent) {}
 
         bool can_respond_with(card_view *card) const;
-        bool can_play_in_turn(player_view *player, card_view *card) const;
+        bool can_play_in_turn(pocket_type pocket, player_view *player, card_view *card) const;
         bool can_confirm() const;
 
         void set_picking_border(pocket_type pocket, player_view *player, card_view *card, sdl::color color);

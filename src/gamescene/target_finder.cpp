@@ -39,14 +39,18 @@ bool target_finder::can_respond_with(card_view *card) const {
     return ranges_contains(m_response_highlights, card);
 }
 
-bool target_finder::can_play_in_turn(player_view *player, card_view *card) const {
+bool target_finder::can_play_in_turn(pocket_type pocket, player_view *player, card_view *card) const {
     if (bool(m_request_flags & effect_flags::force_play)) {
         return can_respond_with(card) || card->pocket == &m_game->m_shop_choice;
     } else {
+        int cost = 0;
+        if (pocket == pocket_type::shop_selection) {
+            cost = card->buy_cost() - ranges_contains(m_modifiers, card_modifier_type::discount, &card_view::modifier);
+        }
         return !m_game->m_request_origin && !m_game->m_request_target
             && m_game->m_playing == m_game->m_player_self
             && (!player || player == m_game->m_player_self)
-            && m_game->m_player_self->gold >= card->buy_cost() - ranges_contains(m_modifiers, card_modifier_type::discount, &card_view::modifier);
+            && m_game->m_player_self->gold >= cost;
     }
 }
 
@@ -158,7 +162,7 @@ void target_finder::on_click_card(pocket_type pocket, player_view *player, card_
     } else if (can_respond_with(card) && !card->inactive) {
         set_playing_card(card, true);
         handle_auto_targets();
-    } else if (!send_pick_card(pocket, player, card) && !card->inactive && can_play_in_turn(player, card)) {
+    } else if (!send_pick_card(pocket, player, card) && !card->inactive && can_play_in_turn(pocket, player, card)) {
         if ((pocket == pocket_type::player_hand || pocket == pocket_type::shop_selection) && card->color != card_color_type::brown) {
             if (verify_modifier(card)) {
                 if (card->self_equippable()) {
