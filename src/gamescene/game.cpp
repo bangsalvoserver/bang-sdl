@@ -189,7 +189,7 @@ void game_scene::handle_event(const sdl::event &event) {
 
 void game_scene::handle_card_click() {
     if (card_view *card = m_selection.find_card_at(m_mouse_pt)) {
-        m_target.send_pick_card(pocket_type::selection, nullptr, card);
+        m_target.on_click_card(pocket_type::selection, nullptr, card);
         return;
     }
     if (card_view *card = (m_shop_choice.empty() ? m_shop_selection : m_shop_choice).find_card_at(m_mouse_pt)) {
@@ -197,11 +197,11 @@ void game_scene::handle_card_click() {
         return;
     }
     if (m_main_deck.find_card_at(m_mouse_pt)) {
-        m_target.send_pick_card(pocket_type::main_deck);
+        m_target.on_click_card(pocket_type::main_deck, nullptr, nullptr);
         return;
     }
     if (m_discard_pile.find_card_at(m_mouse_pt)) {
-        m_target.send_pick_card(pocket_type::discard_pile);
+        m_target.on_click_card(pocket_type::discard_pile, nullptr, nullptr);
         return;
     }
     if (card_view *card = m_scenario_card.find_card_at(m_mouse_pt)) {

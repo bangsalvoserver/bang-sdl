@@ -43,6 +43,7 @@ namespace banggame {
         target_finder(game_scene *parent) : m_game(parent) {}
 
         bool can_respond_with(card_view *card) const;
+        bool can_pick_card(pocket_type pocket, player_view *player, card_view *card) const;
         bool can_play_in_turn(pocket_type pocket, player_view *player, card_view *card) const;
         bool can_confirm() const;
 
@@ -63,7 +64,6 @@ namespace banggame {
         }
 
         bool is_card_clickable() const;
-        bool send_pick_card(pocket_type pocket, player_view *player = nullptr, card_view *card = nullptr);
 
         void on_click_card(pocket_type pocket, player_view *player, card_view *card);
         bool on_click_player(player_view *player);
@@ -81,7 +81,7 @@ namespace banggame {
         
         void set_playing_card(card_view *card, bool is_response = false);
         void add_modifier(card_view *card);
-        bool verify_modifier(card_view *card);
+        bool playable_with_modifiers(card_view *card);
 
         void handle_auto_respond();
         void handle_auto_targets();
@@ -96,6 +96,7 @@ namespace banggame {
         const card_view *get_current_card() const;
         const effect_list &get_current_card_effects() const;
 
+        void send_pick_card(pocket_type pocket, player_view *player, card_view *card);
         void send_play_card();
 
         const effect_holder &get_effect_holder(int index);

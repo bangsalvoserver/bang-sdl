@@ -31,29 +31,6 @@ void target_finder::add_action(auto && ... args) {
     m_game->parent->add_message<banggame::client_message_type::game_action>(enums::enum_tag<T>, FWD(args) ...);
 }
 
-bool target_finder::is_card_clickable() const {
-    return m_game->m_pending_updates.empty() && m_game->m_animations.empty() && !waiting_confirm();
-}
-
-bool target_finder::can_respond_with(card_view *card) const {
-    return ranges_contains(m_response_highlights, card);
-}
-
-bool target_finder::can_play_in_turn(pocket_type pocket, player_view *player, card_view *card) const {
-    if (bool(m_request_flags & effect_flags::force_play)) {
-        return can_respond_with(card) || card->pocket == &m_game->m_shop_choice;
-    } else {
-        int cost = 0;
-        if (pocket == pocket_type::shop_selection) {
-            cost = card->buy_cost() - ranges_contains(m_modifiers, card_modifier_type::discount, &card_view::modifier);
-        }
-        return !m_game->m_request_origin && !m_game->m_request_target
-            && m_game->m_playing == m_game->m_player_self
-            && (!player || player == m_game->m_player_self)
-            && m_game->m_player_self->gold >= cost;
-    }
-}
-
 void target_finder::set_picking_border(pocket_type pocket, player_view *player, card_view *card, sdl::color color) {
     switch (pocket) {
     case pocket_type::player_hand:
@@ -72,7 +49,7 @@ void target_finder::set_picking_border(pocket_type pocket, player_view *player, 
 }
 
 void target_finder::set_response_highlights(const request_status_args &args) {
-    if (m_game->m_player_self) {
+    if (m_game->m_player_self && m_game->m_winner_role == player_role::unknown) {
         add_action<game_action_type::request_confirm>();
     }
     clear_status();
@@ -120,7 +97,7 @@ void target_finder::handle_auto_respond() {
             m_equipping = true;
         } else if (card->modifier != card_modifier_type::none) {
             add_modifier(card);
-        } else if (verify_modifier(card)) {
+        } else if (playable_with_modifiers(card)) {
             set_playing_card(card, true);
             handle_auto_targets();
         }
@@ -142,14 +119,41 @@ void target_finder::on_click_confirm() {
     if (can_confirm()) send_play_card();
 }
 
-bool target_finder::send_pick_card(pocket_type pocket, player_view *player, card_view *card) {
-    if (ranges_contains(m_picking_highlights, std::tuple{pocket, player, card})) {
-        set_picking_border(pocket, player, card, options.target_finder_picked);
-        add_action<game_action_type::pick_card>(pocket, player ? player->id : 0, card ? card->id : 0);
-        m_waiting_confirm = true;
-        return true;
+bool target_finder::is_card_clickable() const {
+    return m_game->m_pending_updates.empty() && m_game->m_animations.empty() && !waiting_confirm();
+}
+
+bool target_finder::can_respond_with(card_view *card) const {
+    return ranges_contains(m_response_highlights, card);
+}
+
+bool target_finder::can_pick_card(pocket_type pocket, player_view *player, card_view *card) const {
+    return ranges_contains(m_picking_highlights, std::tuple{pocket, player, card});
+}
+
+bool target_finder::can_play_in_turn(pocket_type pocket, player_view *player, card_view *card) const {
+    if (bool(m_request_flags & effect_flags::force_play)) {
+        return can_respond_with(card) || card->pocket == &m_game->m_shop_choice;
+    } else if (m_game->m_request_origin || m_game->m_request_target
+        || m_game->m_playing != m_game->m_player_self
+        || (player && player != m_game->m_player_self))
+    {
+        return false;
     }
-    return false;
+    
+    switch (pocket) {
+    case pocket_type::player_hand:
+    case pocket_type::player_character:
+    case pocket_type::scenario_card:
+    case pocket_type::specials:
+        return true;
+    case pocket_type::player_table:
+        return !card->inactive;
+    case pocket_type::shop_selection:
+        return m_game->m_player_self->gold >= card->buy_cost() - ranges_contains(m_modifiers, card_modifier_type::discount, &card_view::modifier);
+    default:
+        return false;
+    }
 }
 
 void target_finder::on_click_card(pocket_type pocket, player_view *player, card_view *card) {
@@ -159,23 +163,24 @@ void target_finder::on_click_card(pocket_type pocket, player_view *player, card_
         } else if (pocket == pocket_type::player_table || pocket == pocket_type::player_hand) {
             add_card_target(player, card);
         }
-    } else if (can_respond_with(card) && !card->inactive) {
+    } else if (can_respond_with(card)) {
         set_playing_card(card, true);
         handle_auto_targets();
-    } else if (!send_pick_card(pocket, player, card) && !card->inactive && can_play_in_turn(pocket, player, card)) {
+    } else if (can_pick_card(pocket, player, card)) {
+        send_pick_card(pocket, player, card);
+    } else if (can_play_in_turn(pocket, player, card)) {
         if ((pocket == pocket_type::player_hand || pocket == pocket_type::shop_selection) && card->color != card_color_type::brown) {
-            if (verify_modifier(card)) {
+            if (playable_with_modifiers(card)) {
+                set_playing_card(card);
                 if (card->self_equippable()) {
-                    set_playing_card(card);
                     send_play_card();
                 } else {
-                    set_playing_card(card);
                     m_equipping = true;
                 }
             }
         } else if (card->modifier != card_modifier_type::none) {
             add_modifier(card);
-        } else if (verify_modifier(card)) {
+        } else if (playable_with_modifiers(card)) {
             set_playing_card(card);
             handle_auto_targets();
         }
@@ -282,7 +287,7 @@ bool target_finder::is_bangcard(card_view *card) {
         || card->has_tag(tag_type::bangcard);
 }
 
-bool target_finder::verify_modifier(card_view *card) {
+bool target_finder::playable_with_modifiers(card_view *card) {
     return std::ranges::all_of(m_modifiers, [&](card_view *c) {
         switch (c->modifier) {
         case card_modifier_type::bangmod:
@@ -741,6 +746,12 @@ void target_finder::send_play_card() {
         add_action<game_action_type::play_card>(std::move(ret));
     }
 
+    m_waiting_confirm = true;
+}
+
+void target_finder::send_pick_card(pocket_type pocket, player_view *player, card_view *card) {
+    set_picking_border(pocket, player, card, options.target_finder_picked);
+    add_action<game_action_type::pick_card>(pocket, player ? player->id : 0, card ? card->id : 0);
     m_waiting_confirm = true;
 }
 
