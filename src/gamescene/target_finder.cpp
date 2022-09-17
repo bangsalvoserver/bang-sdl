@@ -349,7 +349,7 @@ int target_finder::count_selected_cubes(card_view *card) {
     size_t sum = 0;
     if (ranges_contains(m_modifiers, card) || card == m_playing_card) {
         for (const auto &e : card->effects) {
-            if (e.type == effect_type::pay_cube) {
+            if (e.type == effect_type::pay_cube && e.target == target_type::none) {
                 sum += std::clamp<size_t>(e.effect_value, 1, 4);
             }
         }
@@ -681,14 +681,14 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
             }
         }
         break;
-    case target_type::cube:
+    case target_type::select_cubes:
         if (int ncubes = count_selected_cubes(card);
             ncubes < card->cubes.size() && player == m_game->m_player_self) {
             if (index >= m_targets.size()) {
-                m_targets.emplace_back(enums::enum_tag<target_type::cube>);
-                m_targets.back().get<target_type::cube>().reserve(std::max<int>(1, cur_target.effect_value));
+                m_targets.emplace_back(enums::enum_tag<target_type::select_cubes>);
+                m_targets.back().get<target_type::select_cubes>().reserve(std::max<int>(1, cur_target.target_value));
             }
-            auto &vec = m_targets.back().get<target_type::cube>();
+            auto &vec = m_targets.back().get<target_type::select_cubes>();
             auto *cube = (card->cubes.rbegin() + ncubes)->get();
             m_target_borders.add(cube->border_color, options.target_finder_target);
             vec.emplace_back(card, cube);
@@ -731,7 +731,7 @@ void target_finder::send_play_card() {
                 }
                 return play_card_target_id(tag, std::move(ids));
             },
-            [](enums::enum_tag_t<target_type::cube> tag, const std::vector<card_cube_pair> &cs) {
+            [](enums::enum_tag_t<target_type::select_cubes> tag, const std::vector<card_cube_pair> &cs) {
                 std::vector<int> ids;
                 for (const auto &[card, cube] : cs) {
                     ids.push_back(card->id);
