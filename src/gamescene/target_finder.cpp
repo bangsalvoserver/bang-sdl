@@ -350,8 +350,10 @@ int target_finder::count_selected_cubes(card_view *card) {
     for (const auto &t : m_targets) {
         if (auto *val = t.get_if<target_type::select_cubes>()) {
             sum += std::ranges::count(*val, card, &card_cube_pair::first);
-        } else if (auto *ncubes = t.get_if<target_type::self_cubes>(); ranges_contains(m_modifiers, card) || card == m_playing_card) {
-            sum += *ncubes;
+        } else if (auto *ncubes = t.get_if<target_type::self_cubes>()) {
+            if (ranges_contains(m_modifiers, card) || card == m_playing_card) {
+                sum += *ncubes;
+            }
         }
     }
     return static_cast<int>(sum);
