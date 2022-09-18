@@ -32,7 +32,6 @@ LOCALE_VALUE(CONNECTING_TO,                       "In connessione a {} ...")
 LOCALE_VALUE(DIALOG_IMAGE_FILES,                  "File Immagine")
 LOCALE_VALUE(DIALOG_ALL_FILES,                    "Tutti i File")
 
-LOCALE_VALUE(GAME_CONFIRM,                        "Conferma")
 LOCALE_VALUE(BUTTON_TOLOBBY,                      "Torna a Lobby")
 
 LOCALE_VALUE(GAME_USER_CONNECTED,                 "{} entra in partita")
@@ -178,7 +177,6 @@ LOCALE_VALUE(ERROR_CARD_INACTIVE,                 "{} non è attiva in questo tu
 LOCALE_VALUE(ERROR_CANT_EQUIP_CARDS,              "Non si possono equipaggiare carte")
 LOCALE_VALUE(ERROR_DUPLICATED_CARD,               "Carta duplicata: {}")
 LOCALE_VALUE(ERROR_TARGET_PLAYING_CARD,           "Non puoi bersagliare la stessa carta che stai giocando")
-LOCALE_VALUE(ERROR_TARGET_NOT_PLAYING_CARD,       "Puoi solo bersagliare la stessa carta che stai giocando")
 LOCALE_VALUE(ERROR_TARGET_NOT_PLAYER,             "Il target non è un giocatore")
 LOCALE_VALUE(ERROR_TARGET_NOT_DEAD,               "Il target non è morto")
 LOCALE_VALUE(ERROR_TARGET_SHERIFF,                "Non puoi giocare questa carta sullo sceriffo")

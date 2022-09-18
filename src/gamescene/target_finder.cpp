@@ -115,10 +115,6 @@ bool target_finder::can_confirm() const {
     return false;
 }
 
-void target_finder::on_click_confirm() {
-    if (can_confirm()) send_play_card();
-}
-
 bool target_finder::is_card_clickable() const {
     return m_game->m_pending_updates.empty() && m_game->m_animations.empty() && !waiting_confirm();
 }
@@ -157,7 +153,9 @@ bool target_finder::can_play_in_turn(pocket_type pocket, player_view *player, ca
 }
 
 void target_finder::on_click_card(pocket_type pocket, player_view *player, card_view *card) {
-    if (m_playing_card) {
+    if (card && card->has_tag(tag_type::confirm) && can_confirm()) {
+        send_play_card();
+    } else if (m_playing_card) {
         if (pocket == pocket_type::player_character) {
             add_card_target(player, player->m_characters.front());
         } else if (pocket == pocket_type::player_table || pocket == pocket_type::player_hand) {
@@ -552,13 +550,9 @@ std::optional<std::string> target_finder::verify_player_target(target_player_fil
 }
 
 std::optional<std::string> target_finder::verify_card_target(const effect_holder &args, player_view *player, card_view *card) {
-    if (card == m_playing_card || ranges_contains(m_modifiers, card)) {
-        if (!bool(args.card_filter & target_card_filter::self) && !get_current_card()->has_tag(tag_type::can_target_self)) {
-            return _("ERROR_TARGET_PLAYING_CARD");
-        }
-    } else if (bool(args.card_filter & target_card_filter::self)) {
-        return _("ERROR_TARGET_NOT_PLAYING_CARD");
-    }
+    if (!get_current_card()->has_tag(tag_type::can_target_self)
+        && card == m_playing_card || ranges_contains(m_modifiers, card))
+        return _("ERROR_TARGET_PLAYING_CARD");
 
     if (bool(args.card_filter & target_card_filter::cube_slot)) {
         if (card != player->m_characters.front() && card->color != card_color_type::orange)

@@ -15,7 +15,6 @@ game_ui::game_ui(game_scene *parent)
             .text_ptsize = widgets::chat_log_ptsize
         }
     })
-    , m_confirm_btn(_("GAME_CONFIRM"), [parent]{ parent->m_target.on_click_confirm(); })
     , m_leave_btn(_("BUTTON_EXIT"), [parent]{ parent->parent->add_message<banggame::client_message_type::lobby_leave>(); })
     , m_golobby_btn(_("BUTTON_TOLOBBY"), [parent]{ parent->parent->add_message<banggame::client_message_type::lobby_return>(); })
     , m_chat_btn(_("BUTTON_CHAT"), [parent]{ parent->parent->enable_chat(); }) {}
@@ -25,12 +24,10 @@ void game_ui::refresh_layout() {
 
     m_game_log.set_rect(sdl::rect{20, win_rect.h - 450, 190, 400});
 
-    int x = (win_rect.w - std::transform_reduce(m_special_btns.begin(), m_special_btns.end(), 100, std::plus(),
+    int x = (win_rect.w - std::transform_reduce(m_special_btns.begin(), m_special_btns.end(), -10, std::plus(),
         [](const button_card_pair &pair) {
             return pair.first.get_rect().w + 10;
         })) / 2;
-    m_confirm_btn.set_rect(sdl::rect{x, win_rect.h - 40, 100, 25});
-    x += 110;
 
     for (auto &[btn, card] : m_special_btns) {
         sdl::rect rect = btn.get_rect();
@@ -51,11 +48,9 @@ void game_ui::refresh_layout() {
 void game_ui::render(sdl::renderer &renderer) {
     m_game_log.render(renderer);
 
-    m_confirm_btn.set_toggled(parent->m_target.can_confirm());
-    m_confirm_btn.render(renderer);
-
     for (auto &[btn, card] : m_special_btns) {
-        btn.set_toggled(parent->m_target.is_playing_card(card) || parent->m_target.can_respond_with(card));
+        btn.set_toggled(parent->m_target.is_playing_card(card) || parent->m_target.can_respond_with(card)
+            || (card->has_tag(tag_type::confirm) && parent->m_target.can_confirm()));
         btn.render(renderer);
     }
     

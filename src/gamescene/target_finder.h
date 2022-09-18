@@ -70,8 +70,6 @@ namespace banggame {
         void on_click_card(pocket_type pocket, player_view *player, card_view *card);
         bool on_click_player(player_view *player);
 
-        void on_click_confirm();
-
         bool is_playing_card(card_view *card) const {
             return m_playing_card == card;
         }

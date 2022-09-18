@@ -52,8 +52,6 @@ namespace banggame {
 
         widgets::stattext m_status_text;
 
-        widgets::button m_confirm_btn;
-
         using button_card_pair = std::pair<widgets::button, card_view*>;
         std::list<button_card_pair> m_special_btns;
 
