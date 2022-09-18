@@ -24,6 +24,7 @@ namespace banggame {
         (cards,                 std::vector<card_view *>)
         (cards_other_players,   std::vector<player_card_pair>)
         (select_cubes,          std::vector<card_cube_pair>)
+        (self_cubes,            int)
     )
     
     using target_vector = std::vector<target_variant>;

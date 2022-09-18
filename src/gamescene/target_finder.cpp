@@ -347,16 +347,11 @@ const effect_holder &target_finder::get_effect_holder(int index) {
 
 int target_finder::count_selected_cubes(card_view *card) {
     size_t sum = 0;
-    if (ranges_contains(m_modifiers, card) || card == m_playing_card) {
-        for (const auto &e : card->effects) {
-            if (e.type == effect_type::pay_cube && e.target == target_type::none) {
-                sum += std::clamp<size_t>(e.effect_value, 1, 4);
-            }
-        }
-    }
     for (const auto &t : m_targets) {
-        if (auto *val = std::get_if<std::vector<card_cube_pair>>(&t)) {
+        if (auto *val = t.get_if<target_type::select_cubes>()) {
             sum += std::ranges::count(*val, card, &card_cube_pair::first);
+        } else if (auto *ncubes = t.get_if<target_type::self_cubes>(); ranges_contains(m_modifiers, card) || card == m_playing_card) {
+            sum += *ncubes;
         }
     }
     return static_cast<int>(sum);
@@ -462,6 +457,9 @@ void target_finder::handle_auto_targets() {
             return true;
         case target_type::all_players:
             m_targets.emplace_back(enums::enum_tag<target_type::all_players>);
+            return true;
+        case target_type::self_cubes:
+            m_targets.emplace_back(enums::enum_tag<target_type::self_cubes>, data.target_value);
             return true;
         }
         return false;
@@ -758,6 +756,9 @@ void target_finder::send_play_card() {
                     ids.push_back(card->id);
                 }
                 return play_card_target_id(tag, std::move(ids));
+            },
+            [](enums::enum_tag_t<target_type::self_cubes> tag, int ncubes) {
+                return play_card_target_id(tag, ncubes);
             }
         }, target));
     }
