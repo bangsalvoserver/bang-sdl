@@ -21,6 +21,7 @@ namespace banggame {
         (conditional_player,    nullable<player_view>)
         (card,                  card_view*)
         (extra_card,            nullable<card_view>)
+        (cards,                 std::vector<card_view *>)
         (cards_other_players,   std::vector<player_card_pair>)
         (select_cubes,          std::vector<card_cube_pair>)
     )

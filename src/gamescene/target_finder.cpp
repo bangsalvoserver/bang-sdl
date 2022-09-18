@@ -615,6 +615,7 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
     
     switch (cur_target.target) {
     case target_type::card:
+    case target_type::cards:
         if (auto error = verify_card_target(cur_target, player, card)) {
             m_game->parent->add_chat_message(message_type::error, *error);
             os_api::play_bell();
@@ -623,6 +624,7 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
                 return enums::visit(overloaded{
                     [](const auto &) { return false; },
                     [card](card_view *c) { return c == card; },
+                    [card](const std::vector<card_view *> &cs) { return ranges_contains(cs, card); },
                     [card](nullable<card_view> c) { return c == nullable(card); }
                 }, target);
             }))
@@ -634,8 +636,20 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
             } else {
                 m_target_borders.add(card->border_color, options.target_finder_target);
             }
-            m_targets.emplace_back(card);
-            handle_auto_targets();
+            if (cur_target.target == target_type::card) {
+                m_targets.emplace_back(card);
+                handle_auto_targets();
+            } else {
+                if (index >= m_targets.size()) {
+                    m_targets.emplace_back(enums::enum_tag<target_type::cards>);
+                    m_targets.back().get<target_type::cards>().reserve(std::max<int>(1, cur_target.target_value));
+                }
+                auto &vec = m_targets.back().get<target_type::cards>();
+                vec.push_back(card);
+                if (vec.size() == vec.capacity()) {
+                    handle_auto_targets();
+                }
+            }
         }
         break;
     case target_type::extra_card:
@@ -723,6 +737,13 @@ void target_finder::send_play_card() {
             },
             [](enums::enum_tag_t<target_type::extra_card> tag, nullable<card_view> target) {
                 return play_card_target_id(tag, target ? target->id : 0);
+            },
+            [](enums::enum_tag_t<target_type::cards> tag, const std::vector<card_view *> &cs) {
+                std::vector<int> ids;
+                for (card_view *c : cs) {
+                    ids.push_back(c->id);
+                }
+                return play_card_target_id(tag, std::move(ids));
             },
             [](enums::enum_tag_t<target_type::cards_other_players> tag, const std::vector<player_card_pair> &cs) {
                 std::vector<int> ids;
