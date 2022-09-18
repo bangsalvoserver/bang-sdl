@@ -566,6 +566,9 @@ std::optional<std::string> target_finder::verify_card_target(const effect_holder
 
     if (bool(args.card_filter & target_card_filter::bang) && !is_bangcard(card))
         return _("ERROR_TARGET_NOT_BANG");
+
+    if (bool(args.card_filter & target_card_filter::bangcard) && !card->has_tag(tag_type::bangcard))
+        return "ERROR_TARGET_NOT_BANG";
     
     if (bool(args.card_filter & target_card_filter::missed) && !card->has_tag(tag_type::missedcard))
         return _("ERROR_TARGET_NOT_MISSED");
