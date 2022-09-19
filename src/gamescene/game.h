@@ -97,7 +97,7 @@ namespace banggame {
 
         wide_pocket m_selection{options.selection_width};
 
-        pocket_view m_specials;
+        pocket_view m_button_row;
 
         util::id_map<card_view> m_cards;
         util::id_map<player_view> m_players;

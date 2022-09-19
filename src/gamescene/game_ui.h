@@ -33,8 +33,8 @@ namespace banggame {
             m_golobby_btn.set_enabled(value);
         }
 
-        void add_special(card_view *card);
-        void remove_special(card_view *card);
+        void add_button(card_view *card);
+        void remove_button(card_view *card);
 
         void show_message_box(const std::string &message, auto &&on_click_yes, auto &&on_click_no) {
             m_message_box.emplace(message, FWD(on_click_yes), FWD(on_click_no));
@@ -53,7 +53,7 @@ namespace banggame {
         widgets::stattext m_status_text;
 
         using button_card_pair = std::pair<widgets::button, card_view*>;
-        std::list<button_card_pair> m_special_btns;
+        std::list<button_card_pair> m_button_row;
 
         widgets::button m_leave_btn;
         widgets::button m_golobby_btn;

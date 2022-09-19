@@ -22,14 +22,15 @@ game_ui::game_ui(game_scene *parent)
 void game_ui::refresh_layout() {
     const auto win_rect = parent->parent->get_rect();
 
+    // TODO make scrollable and togglable
     m_game_log.set_rect(sdl::rect{20, win_rect.h - 450, 190, 400});
 
-    int x = (win_rect.w - std::transform_reduce(m_special_btns.begin(), m_special_btns.end(), -10, std::plus(),
+    int x = (win_rect.w - std::transform_reduce(m_button_row.begin(), m_button_row.end(), 0, std::plus(),
         [](const button_card_pair &pair) {
-            return pair.first.get_rect().w + 10;
-        })) / 2;
+            return pair.first.get_rect().w;
+        }) - 10 * (m_button_row.size() - 1)) / 2;
 
-    for (auto &[btn, card] : m_special_btns) {
+    for (auto &[btn, card] : m_button_row) {
         sdl::rect rect = btn.get_rect();
         btn.set_rect(sdl::rect{x, win_rect.h - 40, rect.w, 25});
         x += rect.w + 10;
@@ -48,9 +49,9 @@ void game_ui::refresh_layout() {
 void game_ui::render(sdl::renderer &renderer) {
     m_game_log.render(renderer);
 
-    for (auto &[btn, card] : m_special_btns) {
+    for (auto &[btn, card] : m_button_row) {
         btn.set_toggled(parent->m_target.is_playing_card(card) || parent->m_target.can_respond_with(card)
-            || (card->has_tag(tag_type::confirm) && parent->m_target.can_confirm()));
+            || (card->has_tag(tag_type::confirm) && parent->m_target.is_card_clickable() && parent->m_target.can_confirm()));
         btn.render(renderer);
     }
     
@@ -80,11 +81,11 @@ void game_ui::add_game_log(const std::string &message) {
     m_game_log.add_message(message);
 }
 
-void game_ui::add_special(card_view *card) {
-    auto &btn = m_special_btns.emplace_back(std::piecewise_construct,
+void game_ui::add_button(card_view *card) {
+    auto &btn = m_button_row.emplace_back(std::piecewise_construct,
         std::make_tuple(_(intl::category::cards, card->name), [&target = parent->m_target, card]{
             if (target.is_card_clickable()) {
-                target.on_click_card(pocket_type::specials, nullptr, card);
+                target.on_click_card(pocket_type::button_row, nullptr, card);
             }
         }), std::make_tuple(card)).first;
 
@@ -93,10 +94,10 @@ void game_ui::add_special(card_view *card) {
     refresh_layout();
 }
 
-void game_ui::remove_special(card_view *card) {
-    auto it = std::ranges::find(m_special_btns, card, &decltype(m_special_btns)::value_type::second);
-    if (it != m_special_btns.end()) {
-        m_special_btns.erase(it);
+void game_ui::remove_button(card_view *card) {
+    auto it = std::ranges::find(m_button_row, card, &decltype(m_button_row)::value_type::second);
+    if (it != m_button_row.end()) {
+        m_button_row.erase(it);
         refresh_layout();
     }
 }

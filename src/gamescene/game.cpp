@@ -379,7 +379,7 @@ pocket_view &game_scene::get_pocket(pocket_type pocket, int player_id) {
     case pocket_type::hidden_deck:       return m_hidden_deck;
     case pocket_type::scenario_deck:     return m_scenario_player->scenario_deck;
     case pocket_type::scenario_card:     return m_scenario_card;
-    case pocket_type::specials:          return m_specials;
+    case pocket_type::button_row:        return m_button_row;
     default: throw std::runtime_error("Invalid pocket");
     }
 }
@@ -509,8 +509,8 @@ void game_scene::handle_game_update(UPD_TAG(show_card), const show_card_update &
             std::swap(*std::ranges::find(m_main_deck, card), m_main_deck.back());
         } else if (card->pocket == &m_shop_deck) {
             std::swap(*std::ranges::find(m_shop_deck, card), m_shop_deck.back());
-        } else if (card->pocket == &m_specials) {
-            m_ui.add_special(card);
+        } else if (card->pocket == &m_button_row) {
+            m_ui.add_button(card);
         }
         if (bool(args.flags & show_card_flags::instant)) {
             card->flip_amt = 1.f;
@@ -528,8 +528,8 @@ void game_scene::handle_game_update(UPD_TAG(hide_card), const hide_card_update &
     card_view *card = find_card(args.card_id);
 
     if (card && card->known) {
-        if (card->pocket == &m_specials) {
-            m_ui.remove_special(card);
+        if (card->pocket == &m_button_row) {
+            m_ui.remove_button(card);
         }
         card->known = false;
         if (bool(args.flags & show_card_flags::instant)) {

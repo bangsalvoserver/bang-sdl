@@ -141,7 +141,7 @@ bool target_finder::can_play_in_turn(pocket_type pocket, player_view *player, ca
     case pocket_type::player_hand:
     case pocket_type::player_character:
     case pocket_type::scenario_card:
-    case pocket_type::specials:
+    case pocket_type::button_row:
         return true;
     case pocket_type::player_table:
         return !card->inactive;
