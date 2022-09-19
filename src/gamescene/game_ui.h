@@ -14,6 +14,21 @@ namespace banggame {
 
     class game_scene;
 
+    class button_row_pocket : public pocket_view {
+    public:
+        game_scene *parent;
+        std::list<widgets::button> m_buttons;
+
+        button_row_pocket(game_scene *parent) : parent(parent) {}
+
+        void set_pos(const sdl::point &pos) override;
+        void render(sdl::renderer &renderer) override;
+        void add_card(card_view *card) override;
+        void update_card(card_view *card) override;
+        void erase_card(card_view *card) override;
+        void clear() override;
+    };
+
     class game_ui {
     public:
         game_ui(game_scene *parent);
@@ -33,9 +48,6 @@ namespace banggame {
             m_golobby_btn.set_enabled(value);
         }
 
-        void add_button(card_view *card);
-        void remove_button(card_view *card);
-
         void show_message_box(const std::string &message, auto &&on_click_yes, auto &&on_click_no) {
             m_message_box.emplace(message, FWD(on_click_yes), FWD(on_click_no));
             refresh_layout();
@@ -51,9 +63,6 @@ namespace banggame {
         widgets::text_list m_game_log;
 
         widgets::stattext m_status_text;
-
-        using button_card_pair = std::pair<widgets::button, card_view*>;
-        std::list<button_card_pair> m_button_row;
 
         widgets::button m_leave_btn;
         widgets::button m_golobby_btn;

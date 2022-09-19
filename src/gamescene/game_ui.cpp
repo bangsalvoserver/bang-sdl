@@ -25,17 +25,6 @@ void game_ui::refresh_layout() {
     // TODO make scrollable and togglable
     m_game_log.set_rect(sdl::rect{20, win_rect.h - 450, 190, 400});
 
-    int x = (win_rect.w - std::transform_reduce(m_button_row.begin(), m_button_row.end(), 0, std::plus(),
-        [](const button_card_pair &pair) {
-            return pair.first.get_rect().w;
-        }) - 10 * (m_button_row.size() - 1)) / 2;
-
-    for (auto &[btn, card] : m_button_row) {
-        sdl::rect rect = btn.get_rect();
-        btn.set_rect(sdl::rect{x, win_rect.h - 40, rect.w, 25});
-        x += rect.w + 10;
-    }
-
     m_leave_btn.set_rect(sdl::rect{20, 20, 100, 25});
     m_golobby_btn.set_rect(sdl::rect{140, 20, 180, 25});
 
@@ -48,12 +37,6 @@ void game_ui::refresh_layout() {
 
 void game_ui::render(sdl::renderer &renderer) {
     m_game_log.render(renderer);
-
-    for (auto &[btn, card] : m_button_row) {
-        btn.set_toggled(parent->m_target.is_playing_card(card) || parent->m_target.can_respond_with(card)
-            || (card->has_tag(tag_type::confirm) && parent->m_target.is_card_clickable() && parent->m_target.can_confirm()));
-        btn.render(renderer);
-    }
     
     m_leave_btn.render(renderer);
     m_golobby_btn.render(renderer);
@@ -81,23 +64,72 @@ void game_ui::add_game_log(const std::string &message) {
     m_game_log.add_message(message);
 }
 
-void game_ui::add_button(card_view *card) {
-    auto &btn = m_button_row.emplace_back(std::piecewise_construct,
-        std::make_tuple(_(intl::category::cards, card->name), [&target = parent->m_target, card]{
-            if (target.is_card_clickable()) {
-                target.on_click_card(pocket_type::button_row, nullptr, card);
-            }
-        }), std::make_tuple(card)).first;
+void button_row_pocket::set_pos(const sdl::point &pos) {
+    m_pos = pos;
 
-    btn.set_rect(sdl::rect{0, 0, std::max(100, btn.get_text_rect().w + 10), 25});
+    constexpr int button_offset = 10;
 
-    refresh_layout();
+    int tot_width = std::transform_reduce(m_buttons.begin(), m_buttons.end(), -button_offset, std::plus(),
+        [](const widgets::button &btn) {
+            return btn.get_rect().w + button_offset;
+        });
+    int x = pos.x - tot_width / 2;
+
+    for (auto &btn : m_buttons) {
+        sdl::rect rect = btn.get_rect();
+        btn.set_rect(sdl::rect{x, pos.y, rect.w, 25});
+        x += rect.w + button_offset;
+    }
 }
 
-void game_ui::remove_button(card_view *card) {
-    auto it = std::ranges::find(m_button_row, card, &decltype(m_button_row)::value_type::second);
-    if (it != m_button_row.end()) {
-        m_button_row.erase(it);
-        refresh_layout();
+void button_row_pocket::render(sdl::renderer &renderer) {
+    auto it = begin();
+    for (auto &btn : m_buttons) {
+        card_view *card = *it;
+        btn.set_toggled(parent->m_target.is_playing_card(card) || parent->m_target.can_respond_with(card)
+            || (card->has_tag(tag_type::confirm) && parent->m_target.is_card_clickable() && parent->m_target.can_confirm()));
+        btn.render(renderer);
+        ++it;
     }
+}
+
+void button_row_pocket::add_card(card_view *card) {
+    pocket_view::add_card(card);
+
+    m_buttons.emplace_back(std::string{}, [&target = parent->m_target, card]{
+        if (target.is_card_clickable()) {
+            target.on_click_card(pocket_type::button_row, nullptr, card);
+        }
+    }).set_rect({});
+}
+
+void button_row_pocket::update_card(card_view *card) {
+    auto btn_it = m_buttons.begin();
+    for (auto card_it = begin(); card_it != end(); ++card_it, ++btn_it) {
+        if (*card_it == card) {
+            btn_it->set_label(_(intl::category::cards, card->name));
+            btn_it->set_rect(sdl::rect{0, 0, std::max(100, btn_it->get_text_rect().w + 10), 25});
+
+            set_pos(get_pos());
+            break;
+        }
+    }
+}
+
+void button_row_pocket::erase_card(card_view *card) {
+    auto btn_it = m_buttons.begin();
+    for (auto card_it = begin(); card_it != end(); ++card_it, ++btn_it) {
+        if (*card_it == card) {
+            m_buttons.erase(btn_it);
+            m_cards.erase(card_it);
+
+            set_pos(get_pos());
+            break;
+        }
+    }
+}
+
+void button_row_pocket::clear() {
+    pocket_view::clear();
+    m_buttons.clear();
 }

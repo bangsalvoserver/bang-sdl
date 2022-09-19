@@ -41,6 +41,8 @@ namespace widgets {
         
         void render(sdl::renderer &renderer);
 
+        void set_label(const std::string &label);
+
         void set_onclick(button_callback_fun &&onclick) {
             m_onclick = std::move(onclick);
         }

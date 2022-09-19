@@ -142,13 +142,13 @@ namespace banggame {
     };
     
     class pocket_view {
-    private:
+    protected:
         std::vector<card_view *> m_cards;
         sdl::point m_pos;
 
     public:
         sdl::point get_pos() const { return m_pos; }
-        void set_pos(const sdl::point &pos);
+        virtual void set_pos(const sdl::point &pos);
 
         size_t size() const { return m_cards.size(); }
         bool empty() const { return m_cards.empty(); }
@@ -171,6 +171,7 @@ namespace banggame {
         virtual void render_first(sdl::renderer &renderer, int ncards);
         virtual void render_last(sdl::renderer &renderer, int ncards);
 
+        virtual void update_card(card_view *card) {}
         virtual void add_card(card_view *card);
         virtual void erase_card(card_view *card);
         virtual void clear();

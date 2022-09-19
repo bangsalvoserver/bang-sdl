@@ -59,6 +59,8 @@ void game_scene::refresh_layout() {
     });
 
     m_ui.refresh_layout();
+
+    m_button_row.set_pos(sdl::point{win_rect.w / 2, win_rect.h - 40});
 }
 
 void game_scene::tick(duration_type time_elapsed) {
@@ -136,6 +138,7 @@ void game_scene::render(sdl::renderer &renderer) {
     }
 
     m_ui.render(renderer);
+    m_button_row.render(renderer);
 
     if (m_overlay && m_overlay->texture_front) {
         sdl::rect rect = m_overlay->texture_front.get_rect();
@@ -504,14 +507,10 @@ void game_scene::handle_game_update(UPD_TAG(show_card), const show_card_update &
         if (!card->image.empty()) {
             card->make_texture_front(parent->get_renderer());
         }
-
-        if (card->pocket == &m_main_deck) {
-            std::swap(*std::ranges::find(m_main_deck, card), m_main_deck.back());
-        } else if (card->pocket == &m_shop_deck) {
-            std::swap(*std::ranges::find(m_shop_deck, card), m_shop_deck.back());
-        } else if (card->pocket == &m_button_row) {
-            m_ui.add_button(card);
+        if (card->pocket) {
+            card->pocket->update_card(card);
         }
+
         if (bool(args.flags & show_card_flags::instant)) {
             card->flip_amt = 1.f;
         } else {
@@ -528,9 +527,6 @@ void game_scene::handle_game_update(UPD_TAG(hide_card), const hide_card_update &
     card_view *card = find_card(args.card_id);
 
     if (card && card->known) {
-        if (card->pocket == &m_button_row) {
-            m_ui.remove_button(card);
-        }
         card->known = false;
         if (bool(args.flags & show_card_flags::instant)) {
             card->flip_amt = 0.f;

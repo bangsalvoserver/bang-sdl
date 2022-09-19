@@ -7,6 +7,10 @@ button::button(const std::string &label, button_callback_fun &&onclick, const bu
     , m_text(label, style.text)
     , m_onclick(std::move(onclick)) {}
 
+void button::set_label(const std::string &label) {
+    m_text.set_value(label);
+}
+
 void button::render(sdl::renderer &renderer) {
     if (!enabled()) return;
     

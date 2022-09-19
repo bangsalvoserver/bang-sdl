@@ -97,7 +97,7 @@ namespace banggame {
 
         wide_pocket m_selection{options.selection_width};
 
-        pocket_view m_button_row;
+        button_row_pocket m_button_row{this};
 
         util::id_map<card_view> m_cards;
         util::id_map<player_view> m_players;
@@ -144,6 +144,7 @@ namespace banggame {
         friend class game_ui;
         friend class target_finder;
         friend class player_view;
+        friend class button_row_pocket;
     };
 
 }
