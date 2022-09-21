@@ -467,54 +467,57 @@ void target_finder::handle_auto_targets() {
     };
 
     auto &effects = get_current_card_effects();
-    auto &optionals = current_card->optionals;
-    auto repeatable = current_card->get_tag_value(tag_type::repeatable);
-    
-    auto is_auto_confirmable = [&]{
-        if (can_confirm()) {
-            if (current_card->has_tag(tag_type::auto_confirm)) {
-                return std::ranges::any_of(optionals, [&](const effect_holder &holder) {
-                    return holder.target == target_type::player
-                        && possible_player_targets(holder.player_filter).empty();
-                });
-            } else if (current_card->has_tag(tag_type::auto_confirm_red_ringo)) {
-                return current_card->cubes.size() <= 1
-                    || std::transform_reduce(m_game->m_playing->table.begin(), m_game->m_playing->table.end(), 0, std::plus(), [](const card_view *card) {
-                        return 4 - static_cast<int>(card->cubes.size());
-                    }) <= 1;
-            }
-        } else if (repeatable && *repeatable) {
-            return m_targets.size() - effects.size() == optionals.size() * *repeatable;
-        }
-        return false;
-    };
 
     if (effects.empty()) {
         clear_targets();
-    } else if (is_auto_confirmable()) {
+        return;
+    }
+
+    auto &optionals = current_card->optionals;
+    auto repeatable = current_card->get_tag_value(tag_type::repeatable);
+
+    bool auto_confirmable = false;
+    if (can_confirm()) {
+        if (current_card->has_tag(tag_type::auto_confirm)) {
+            auto_confirmable = std::ranges::any_of(optionals, [&](const effect_holder &holder) {
+                return holder.target == target_type::player
+                    && possible_player_targets(holder.player_filter).empty();
+            });
+        } else if (current_card->has_tag(tag_type::auto_confirm_red_ringo)) {
+            auto_confirmable = current_card->cubes.size() <= 1
+                || std::transform_reduce(m_game->m_playing->table.begin(), m_game->m_playing->table.end(), 0, std::plus(), [](const card_view *card) {
+                    return 4 - static_cast<int>(card->cubes.size());
+                }) <= 1;
+        } else if (repeatable && *repeatable) {
+            auto_confirmable = m_targets.size() - effects.size() == optionals.size() * *repeatable;
+        }
+    }
+    
+    if (auto_confirmable) {
         send_play_card();
+        return;
+    }
+
+    auto effect_it = effects.data();
+    auto target_end = effects.data() + effects.size();
+    if (m_targets.size() >= effects.size() && !optionals.empty()) {
+        size_t diff = m_targets.size() - effects.size();
+        effect_it = optionals.data() + (repeatable ? diff % optionals.size() : diff);
+        target_end = optionals.data() + optionals.size();
     } else {
-        auto effect_it = effects.data();
-        auto target_end = effects.data() + effects.size();
-        if (m_targets.size() >= effects.size() && !optionals.empty()) {
-            size_t diff = m_targets.size() - effects.size();
-            effect_it = optionals.data() + (repeatable ? diff % optionals.size() : diff);
-            target_end = optionals.data() + optionals.size();
-        } else {
-            effect_it += m_targets.size();
-        }
-        while (true) {
-            if (effect_it == target_end) {
-                if (optionals.empty() || (target_end == (optionals.data() + optionals.size()) && !repeatable)) {
-                    send_play_card();
-                    break;
-                }
-                effect_it = optionals.data();
-                target_end = optionals.data() + optionals.size();
+        effect_it += m_targets.size();
+    }
+    while (true) {
+        if (effect_it == target_end) {
+            if (optionals.empty() || (target_end == (optionals.data() + optionals.size()) && !repeatable)) {
+                send_play_card();
+                break;
             }
-            if (!do_handle_target(*effect_it)) break;
-            ++effect_it;
+            effect_it = optionals.data();
+            target_end = optionals.data() + optionals.size();
         }
+        if (!do_handle_target(*effect_it)) break;
+        ++effect_it;
     }
 }
 
