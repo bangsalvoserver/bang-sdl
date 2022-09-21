@@ -89,7 +89,7 @@ namespace banggame {
         .icon_dead_players = sdl::rgba(0xdedbd3ff),
 
         .target_finder_origin_card = sdl::rgba(0x7bf7ffd0),
-        .target_finder_highlight_card = sdl::rgba(0xffcc0080),
+        .target_finder_highlight_card = sdl::rgba(0xff0000aa),
         .target_finder_current_card = sdl::rgba(0x306effee),
         .target_finder_target = sdl::rgba(0xff0000aa),
         .target_finder_can_respond = sdl::rgba(0x1ed760aa),
