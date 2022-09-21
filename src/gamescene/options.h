@@ -95,6 +95,7 @@ namespace banggame {
         sdl::color icon_dead_players;
 
         sdl::color target_finder_origin_card;
+        sdl::color target_finder_highlight_card;
         sdl::color target_finder_current_card;
         sdl::color target_finder_target;
         sdl::color target_finder_can_respond;

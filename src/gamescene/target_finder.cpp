@@ -54,6 +54,12 @@ void target_finder::set_response_highlights(const request_status_args &args) {
     }
     clear_status();
 
+    for (int id : args.highlight_ids) {
+        if (card_view *highlight_card = m_game->find_card(id)) {
+            m_response_borders.add(highlight_card->border_color, options.target_finder_highlight_card);
+        }
+    }
+
     if (card_view *origin_card = m_game->find_card(args.origin_card_id)) {
         m_response_borders.add(origin_card->border_color, options.target_finder_origin_card);
     }
