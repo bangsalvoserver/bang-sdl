@@ -276,6 +276,7 @@ LOCALE_VALUE(LOG_POKER_REVEAL,                    "Viene rivelata {1} per {0}")
 LOCALE_VALUE(LOG_POKER_ACE,                       "C'è un Asso, tutte le carte sono scartate")
 LOCALE_VALUE(LOG_REVIVE,                          "{0} ritorna in gioco per {1}")
 LOCALE_VALUE(LOG_SWAP_CARDS,                      "{0} scambia {2} con {3} di {1}")
+LOCALE_VALUE(PLAYER_IMMUNE_TO_CARD,               "{0} è immune a {1} per {2}")
 
 LOCALE_VALUE(lobby_state::waiting,                "In attesa")
 LOCALE_VALUE(lobby_state::playing,                "In gioco")
