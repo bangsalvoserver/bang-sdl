@@ -122,7 +122,7 @@ bool target_finder::can_confirm() const {
 }
 
 bool target_finder::is_card_clickable() const {
-    return m_game->m_pending_updates.empty() && m_game->m_animations.empty() && !waiting_confirm();
+    return m_game->m_winner_role == player_role::unknown && m_game->m_pending_updates.empty() && m_game->m_animations.empty() && !waiting_confirm();
 }
 
 bool target_finder::can_respond_with(card_view *card) const {
