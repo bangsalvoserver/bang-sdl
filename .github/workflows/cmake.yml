@@ -65,7 +65,7 @@ jobs:
       run: |
         mkdir -p bang
         ldd build/libbangclient.dll | grep -i -v /c/windows/ | gawk 'match($0, /=> (.+\.dll)/, a) { print a[1]}' | xargs cp -n -t bang
-        cp -t bang build/libbangclient.dll build/bangserver.exe build/cards.pak build/media.pak
+        cp -t bang build/libbangclient.dll build/bangserver.exe build/media.pak
         zip -r bang.zip bang
     
     - name: Create Release
@@ -80,7 +80,7 @@ jobs:
           draft: false
           prerelease: ${{contains(github.ref, 'alpha')}}
     
-    - name: Upload Release Asset
+    - name: Upload Release Asset bang.zip
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -89,3 +89,13 @@ jobs:
         asset_path: ./bang.zip
         asset_name: bang.zip
         asset_content_type: application/zip
+    
+    - name: Upload Release Asset cards.pak
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: build/cards.pak
+        asset_name: cards.pak
+        asset_content_type: application/x-binary

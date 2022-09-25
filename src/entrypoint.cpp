@@ -17,6 +17,20 @@ constexpr int window_width = 900;
 constexpr int window_height = 700;
 constexpr int max_fps = 300;
 
+#ifdef HAVE_GIT_CLIENT_VERSION
+extern "C" const char *const client_commit_hash;
+
+extern "C" BANGCLIENT_EXPORT const char * STDCALL get_client_commit_hash() {
+    return client_commit_hash;
+}
+
+extern "C" const char *const cards_commit_hash;
+
+extern "C" BANGCLIENT_EXPORT const char *STDCALL get_cards_commit_hash() {
+    return cards_commit_hash;
+}
+#endif
+
 extern "C" BANGCLIENT_EXPORT long STDCALL entrypoint(const char *base_path) {
     sdl::initializer sdl_init(SDL_INIT_VIDEO);
     sdl::ttf_initializer sdl_ttf_init;

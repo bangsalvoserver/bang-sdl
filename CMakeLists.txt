@@ -88,6 +88,31 @@ set_target_properties(bangclient bangserver tiny-process-library PROPERTIES
 
 option(BUILD_LAUNCHER "Build Launcher" ON)
 
+if (BUILD_GAME_RELEASE)
+    set(GIT_CLIENT_VERSION_C "${CMAKE_CURRENT_BINARY_DIR}/git_client_version.c")
+    set(GIT_CARDS_VERSION_C "${CMAKE_CURRENT_BINARY_DIR}/git_cards_version.c")
+
+    set(PRE_CONFIGURE_FILE .cmake/git_client_version.c.in)
+    set(POST_CONFIGURE_FILE "${GIT_CLIENT_VERSION_C}")
+    set(GIT_WORKING_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+    set(GIT_STATE_FILE "${CMAKE_CURRENT_BINARY_DIR}/git-state-hash-client")
+    set(CHECK_GIT_TARGET_NAME check_git_client)
+    include(game/git_watcher.cmake)
+
+    set(PRE_CONFIGURE_FILE .cmake/git_cards_version.c.in)
+    set(POST_CONFIGURE_FILE "${GIT_CARDS_VERSION_C}")
+    set(GIT_WORKING_DIR "${CMAKE_CURRENT_SOURCE_DIR}/resources/cards")
+    set(GIT_STATE_FILE "${CMAKE_CURRENT_BINARY_DIR}/git-state-hash-cards")
+    set(CHECK_GIT_TARGET_NAME check_git_cards)
+    include(game/git_watcher.cmake)
+
+    add_library(git_client_version STATIC "${GIT_CLIENT_VERSION_C}" "${GIT_CARDS_VERSION_C}")
+    add_dependencies(git_client_version check_git_client check_git_cards)
+    target_compile_definitions(git_client_version PUBLIC HAVE_GIT_CLIENT_VERSION)
+
+    target_link_libraries(bangclient PUBLIC git_client_version)
+endif()
+
 if (BUILD_LAUNCHER)
     if (WIN32)
         add_executable(banglauncher WIN32 src/main.c resources/bang.rc)
