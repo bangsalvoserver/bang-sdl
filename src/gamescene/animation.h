@@ -130,8 +130,6 @@ namespace banggame {
         }
     };
 
-    using anim_duration_type = std::chrono::duration<float, duration_type::period>;
-
 
     class animation {
     private:

@@ -63,8 +63,8 @@ namespace banggame {
         void handle_game_update(UPD_TAG(confirm_play));
 
         template<typename T>
-        void add_animation(int duration, auto && ... args) {
-            m_animations.emplace_back(std::chrono::milliseconds{duration}, std::in_place_type<T>, FWD(args) ... );
+        void add_animation(anim_duration_type duration, auto && ... args) {
+            m_animations.emplace_back(duration, std::in_place_type<T>, FWD(args) ... );
         }
 
         void move_player_views(bool instant = true);

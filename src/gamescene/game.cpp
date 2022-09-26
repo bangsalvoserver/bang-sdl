@@ -64,7 +64,7 @@ void game_scene::refresh_layout() {
 }
 
 void game_scene::tick(duration_type time_elapsed) {
-    if (m_mouse_motion_timer >= std::chrono::milliseconds{options.card_overlay_msecs}) {
+    if (m_mouse_motion_timer >= durations.card_overlay) {
         if (!m_overlay) {
             find_overlay();
         }
@@ -130,7 +130,7 @@ void game_scene::render(sdl::renderer &renderer) {
         sdl::rect icon_rect = icon.get_rect();
         icon_rect.x = parent->get_rect().w - options.pile_dead_players_xoff - icon_rect.w / 2;
         icon_rect.y = options.icon_dead_players_yoff;
-        icon.render_colored(renderer, icon_rect, options.icon_dead_players);
+        icon.render_colored(renderer, icon_rect, colors.icon_dead_players);
     }
 
     if (!m_animations.empty()) {
@@ -353,7 +353,7 @@ void game_scene::handle_game_update(UPD_TAG(deck_shuffled), const pocket_type &p
         if (m_game_options.keep_last_card_shuffling) {
             m_discard_pile.add_card(top_discard);
         }
-        add_animation<deck_shuffle_animation>(options.shuffle_deck_msecs, &m_main_deck, m_discard_pile.get_pos());
+        add_animation<deck_shuffle_animation>(durations.shuffle_deck, &m_main_deck, m_discard_pile.get_pos());
         break;
     }
     case pocket_type::shop_deck:
@@ -362,7 +362,7 @@ void game_scene::handle_game_update(UPD_TAG(deck_shuffled), const pocket_type &p
             m_shop_deck.add_card(card);
         }
         m_shop_discard.clear();
-        add_animation<deck_shuffle_animation>(options.shuffle_deck_msecs, &m_shop_deck, m_shop_discard.get_pos());
+        add_animation<deck_shuffle_animation>(durations.shuffle_deck, &m_shop_deck, m_shop_discard.get_pos());
         break;
     }
 }
@@ -447,10 +447,10 @@ void game_scene::handle_game_update(UPD_TAG(move_card), const move_card_update &
         anim.end();
     } else {
         if (bool(args.flags & show_card_flags::pause_before_move)) {
-            add_animation<pause_animation>(options.short_pause_msecs, card);
+            add_animation<pause_animation>(durations.short_pause, card);
         }
         
-        add_animation<card_move_animation>(options.move_card_msecs, std::move(anim));
+        add_animation<card_move_animation>(durations.move_card, std::move(anim));
     }
 }
 
@@ -481,7 +481,7 @@ void game_scene::handle_game_update(UPD_TAG(move_cubes), const move_cubes_update
 
         anim.add_cube(cube.get(), &target_pile);
     }
-    add_animation<cube_move_animation>(args.num_cubes == 1 ? options.move_cube_msecs : options.move_cubes_msecs, std::move(anim));
+    add_animation<cube_move_animation>(args.num_cubes == 1 ? durations.move_cube : durations.move_cubes, std::move(anim));
 }
 
 void game_scene::handle_game_update(UPD_TAG(move_scenario_deck), const move_scenario_deck_args &args) {
@@ -493,7 +493,7 @@ void game_scene::handle_game_update(UPD_TAG(move_scenario_deck), const move_scen
             anim.add_move_card(c);
         }
         old_scenario_player->scenario_deck.clear();
-        add_animation<card_move_animation>(options.move_card_msecs, std::move(anim));
+        add_animation<card_move_animation>(durations.move_card, std::move(anim));
     }
 }
 
@@ -514,10 +514,10 @@ void game_scene::handle_game_update(UPD_TAG(show_card), const show_card_update &
         if (bool(args.flags & show_card_flags::instant)) {
             card->flip_amt = 1.f;
         } else {
-            add_animation<card_flip_animation>(options.flip_card_msecs, card, false);
+            add_animation<card_flip_animation>(durations.flip_card, card, false);
 
             if (bool(args.flags & show_card_flags::short_pause)) {
-                add_animation<pause_animation>(options.short_pause_msecs, card);
+                add_animation<pause_animation>(durations.short_pause, card);
             }
         }
     }
@@ -532,10 +532,10 @@ void game_scene::handle_game_update(UPD_TAG(hide_card), const hide_card_update &
             card->flip_amt = 0.f;
         } else {
             if (bool(args.flags & show_card_flags::short_pause)) {
-                add_animation<pause_animation>(options.short_pause_msecs, card);
+                add_animation<pause_animation>(durations.short_pause, card);
             }
 
-            add_animation<card_flip_animation>(options.flip_card_msecs, card, true);
+            add_animation<card_flip_animation>(durations.flip_card, card, true);
         }
     }
 }
@@ -547,13 +547,13 @@ void game_scene::handle_game_update(UPD_TAG(tap_card), const tap_card_update &ar
         if (args.instant) {
             card->rotation = card->inactive ? 90.f : 0.f;
         } else {
-            add_animation<card_tap_animation>(options.tap_card_msecs, card, args.inactive);
+            add_animation<card_tap_animation>(durations.tap_card, card, args.inactive);
         }
     }
 }
 
 void game_scene::handle_game_update(UPD_TAG(flash_card), const flash_card_update &args) {
-    add_animation<card_flash_animation>(options.flash_card_msecs, find_card(args.card_id), options.flash_card_color);
+    add_animation<card_flash_animation>(durations.flash_card, find_card(args.card_id), colors.flash_card);
 }
 
 void game_scene::handle_game_update(UPD_TAG(last_played_card), const card_id_args &args) {
@@ -595,7 +595,7 @@ void game_scene::move_player_views(bool instant) {
     if (instant) {
         anim.end();
     } else {
-        add_animation<player_move_animation>(options.move_player_msecs, std::move(anim));
+        add_animation<player_move_animation>(durations.move_player, std::move(anim));
     }
 }
 
@@ -656,7 +656,7 @@ void game_scene::handle_game_update(UPD_TAG(player_hp), const player_hp_update &
     if (args.instant) {
         player->set_hp_marker_position(static_cast<float>(args.hp));
     } else if (prev_hp != args.hp) {
-        add_animation<player_hp_animation>(options.move_hp_msecs, player, prev_hp);
+        add_animation<player_hp_animation>(durations.move_hp, player, prev_hp);
     }
 }
 
@@ -676,7 +676,7 @@ void game_scene::handle_game_update(UPD_TAG(player_show_role), const player_show
             }
             p->m_role.flip_amt = 1.f;
         } else {
-            add_animation<card_flip_animation>(options.flip_role_msecs, &p->m_role, false);
+            add_animation<card_flip_animation>(durations.flip_role, &p->m_role, false);
         }
     }
 }
@@ -698,7 +698,7 @@ void game_scene::handle_game_update(UPD_TAG(switch_turn), const switch_turn_upda
     if (new_player != m_playing) {
         m_playing = new_player;
         if (m_playing) {
-            m_turn_border = {m_playing->border_color, options.turn_indicator};
+            m_turn_border = {m_playing->border_color, colors.turn_indicator};
         } else {
             m_turn_border = {};
         }

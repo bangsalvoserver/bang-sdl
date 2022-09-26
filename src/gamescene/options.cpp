@@ -2,7 +2,9 @@
 
 namespace banggame {
 
-    const options_t options = {
+    using namespace std::literals::chrono_literals;
+
+    const options_t options {
         .card_width = 60,
 
         .card_suit_offset = 15,
@@ -42,8 +44,6 @@ namespace banggame {
         .player_ellipse_x_distance = 250,
         .player_ellipse_y_distance = 155,
 
-        .card_overlay_msecs = 1000,
-
         .default_border_thickness = 5,
 
         .easing_exponent = 1.8f,
@@ -54,18 +54,6 @@ namespace banggame {
         .dead_propic_yoff = 15,
         .username_yoff = 40,
 
-        .move_card_msecs = 333,
-        .flip_card_msecs = 167,
-        .short_pause_msecs = 333,
-        .tap_card_msecs = 167,
-        .flash_card_msecs = 167,
-        .move_hp_msecs = 333,
-        .flip_role_msecs = 250,
-        .shuffle_deck_msecs = 1333,
-        .move_player_msecs = 1000,
-
-        .move_cube_msecs = 133,
-        .move_cubes_msecs = 250,
         .move_cubes_offset = 0.2f,
 
         .shuffle_deck_offset = 0.5f,
@@ -74,9 +62,11 @@ namespace banggame {
         .icon_dead_players_yoff = 10,
         .pile_dead_players_xoff = 70,
         .pile_dead_players_yoff = 85,
-        .pile_dead_players_ydiff = 70,
-        
-        .flash_card_color = sdl::rgba(0xffff00c0),
+        .pile_dead_players_ydiff = 70
+    };
+
+    const colors_t colors {
+        .flash_card = sdl::rgba(0xffff00c0),
 
         .status_text_background = sdl::rgba(0xffffff80),
 
@@ -95,6 +85,23 @@ namespace banggame {
         .target_finder_can_respond = sdl::rgba(0x1ed760aa),
         .target_finder_can_pick = sdl::rgba(0xffffffaa),
         .target_finder_picked = sdl::rgba(0xc0ffffaa)
+    };
+
+    const durations_t durations {
+        .card_overlay {1000ms},
+
+        .move_card {333ms},
+        .flip_card {167ms},
+        .short_pause {333ms},
+        .tap_card {167ms},
+        .flash_card {167ms},
+        .move_hp {333ms},
+        .flip_role {250ms},
+        .shuffle_deck {1333ms},
+        .move_player {1000ms},
+
+        .move_cube {133ms},
+        .move_cubes {250ms},
     };
 
 }

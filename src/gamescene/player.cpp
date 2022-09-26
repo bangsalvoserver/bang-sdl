@@ -72,7 +72,7 @@ namespace banggame {
         },
 
         .render = [](player_view *self, sdl::renderer &renderer) {
-            renderer.set_draw_color(self->border_color.a ? self->border_color : sdl::full_alpha(options.player_view_border));
+            renderer.set_draw_color(self->border_color.a ? self->border_color : sdl::full_alpha(colors.player_view_border));
             renderer.draw_rect(self->m_bounding_rect);
             renderer.draw_rect(sdl::rect{
                 self->m_bounding_rect.x + 1,
@@ -126,20 +126,20 @@ namespace banggame {
 
             if (self->m_game->m_winner_role == player_role::unknown) {
                 if (self == self->m_game->m_playing) {
-                    render_icon(media_pak::get().icon_turn, options.turn_indicator);
+                    render_icon(media_pak::get().icon_turn, colors.turn_indicator);
                     x -= 32;
                 }
                 if (self == self->m_game->m_request_target) {
-                    render_icon(media_pak::get().icon_target, options.request_target_indicator);
+                    render_icon(media_pak::get().icon_target, colors.request_target_indicator);
                     x -= 32;
                 }
                 if (self == self->m_game->m_request_origin) {
-                    render_icon(media_pak::get().icon_origin, options.request_origin_indicator);
+                    render_icon(media_pak::get().icon_origin, colors.request_origin_indicator);
                 }
             } else if (self->m_role.role == self->m_game->m_winner_role
                 || (self->m_role.role == player_role::deputy && self->m_game->m_winner_role == player_role::sheriff)
                 || (self->m_role.role == player_role::sheriff && self->m_game->m_winner_role == player_role::deputy)) {
-                render_icon(media_pak::get().icon_winner, options.winner_indicator);
+                render_icon(media_pak::get().icon_winner, colors.winner_indicator);
             }
         }
     };
@@ -177,7 +177,7 @@ namespace banggame {
                 sdl::rect rect = texture.get_rect();
                 rect.x = self->m_propic.get_pos().x - rect.w - widgets::profile_pic::size / 2 - 5;
                 rect.y = self->m_propic.get_pos().y - rect.h / 2;
-                texture.render_colored(renderer, rect, options.winner_indicator);
+                texture.render_colored(renderer, rect, colors.winner_indicator);
             }
         }
     };

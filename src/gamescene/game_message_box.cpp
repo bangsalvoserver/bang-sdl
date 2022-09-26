@@ -40,7 +40,7 @@ namespace banggame {
     }
 
     void game_message_box::render(sdl::renderer &renderer) {
-        renderer.set_draw_color(options.status_text_background);
+        renderer.set_draw_color(colors.status_text_background);
         renderer.fill_rect(m_bg_rect);
 
         m_message.render(renderer, false);

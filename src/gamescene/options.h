@@ -1,12 +1,16 @@
 #ifndef __OPTIONS_H__
 #define __OPTIONS_H__
 
+#include "widgets/defaults.h"
 #include "sdl_wrap.h"
 
 #include <fstream>
 #include <sstream>
+#include <chrono>
 
 namespace banggame {
+    
+    using anim_duration_type = std::chrono::duration<float, duration_type::period>;
 
     extern const struct options_t {
         int card_width;
@@ -48,8 +52,6 @@ namespace banggame {
         int player_ellipse_x_distance;  // from border of screen
         int player_ellipse_y_distance;
 
-        int card_overlay_msecs;     // how long you need to hold the mouse still
-
         int default_border_thickness;   // card border thickness
 
         float easing_exponent;      // for card animations
@@ -60,18 +62,6 @@ namespace banggame {
         int dead_propic_yoff;       // vertical distance between role card and profile picture for dead players
         int username_yoff;          // vertical distance between profile picture and center of username
 
-        int move_card_msecs;
-        int flip_card_msecs;
-        int short_pause_msecs;
-        int tap_card_msecs;
-        int flash_card_msecs;
-        int move_hp_msecs;
-        int flip_role_msecs;
-        int shuffle_deck_msecs;
-        int move_player_msecs;
-        
-        int move_cube_msecs;
-        int move_cubes_msecs;
         float move_cubes_offset;
 
         float shuffle_deck_offset;
@@ -81,8 +71,10 @@ namespace banggame {
         int pile_dead_players_xoff;
         int pile_dead_players_yoff;
         int pile_dead_players_ydiff;
+    } options;
 
-        sdl::color flash_card_color;
+    extern const struct colors_t {
+        sdl::color flash_card;
         
         sdl::color status_text_background;
 
@@ -101,7 +93,24 @@ namespace banggame {
         sdl::color target_finder_can_respond;
         sdl::color target_finder_can_pick;
         sdl::color target_finder_picked;
-    } options;
+    } colors;
+
+    extern const struct durations_t {
+        anim_duration_type card_overlay; // how long you need to hold the mouse still
+
+        anim_duration_type move_card;
+        anim_duration_type flip_card;
+        anim_duration_type short_pause;
+        anim_duration_type tap_card;
+        anim_duration_type flash_card;
+        anim_duration_type move_hp;
+        anim_duration_type flip_role;
+        anim_duration_type shuffle_deck;
+        anim_duration_type move_player;
+        
+        anim_duration_type move_cube;
+        anim_duration_type move_cubes;
+    } durations;
 }
 
 #endif
