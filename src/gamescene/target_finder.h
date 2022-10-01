@@ -4,7 +4,6 @@
 #include "player.h"
 
 #include "game/holders.h"
-#include "utils/nullable.h"
 #include "utils/raii_editor.h"
 
 #include <vector>
@@ -12,22 +11,6 @@
 namespace banggame {
 
     class game_scene;
-
-    using player_card_pair = std::pair<player_view *, card_view *>;
-    using card_cube_pair = std::pair<card_view *, cube_widget *>;
-
-    DEFINE_ENUM_VARIANT(target_variant, target_type,
-        (player,                player_view *)
-        (conditional_player,    nullable<player_view>)
-        (card,                  card_view*)
-        (extra_card,            nullable<card_view>)
-        (cards,                 std::vector<card_view *>)
-        (cards_other_players,   std::vector<player_card_pair>)
-        (select_cubes,          std::vector<card_cube_pair>)
-        (self_cubes,            int)
-    )
-    
-    using target_vector = std::vector<target_variant>;
 
     struct target_status {
         card_view *m_playing_card = nullptr;

@@ -27,9 +27,23 @@ namespace banggame {
         void render(sdl::renderer &renderer) override;
         void handle_event(const sdl::event &event) override;
 
-        void handle_message(SRV_TAG(game_update), const game_update &update) override;
+        void handle_message(SRV_TAG(game_update), const Json::Value &update) override;
         void handle_message(SRV_TAG(lobby_owner), const user_id_args &args) override;
         void handle_message(SRV_TAG(lobby_error), const std::string &message) override;
+
+        card_view *find_card(int id) const {
+            if (auto it = m_cards.find(id); it != m_cards.end()) {
+                return &*it;
+            }
+            return nullptr;
+        }
+
+        player_view *find_player(int id) const {
+            if (auto it = m_players.find(id); it != m_players.end()) {
+                return &*it;
+            }
+            return nullptr;
+        }
 
     private:
         void handle_game_update(UPD_TAG(game_over),        const game_over_update &args);
@@ -124,20 +138,6 @@ namespace banggame {
         game_flags m_game_flags{};
 
         cube_pile_base &find_cube_pile(int card_id);
-
-        card_view *find_card(int id) {
-            if (auto it = m_cards.find(id); it != m_cards.end()) {
-                return &*it;
-            }
-            return nullptr;
-        }
-
-        player_view *find_player(int id) {
-            if (auto it = m_players.find(id); it != m_players.end()) {
-                return &*it;
-            }
-            return nullptr;
-        }
 
         std::string evaluate_format_string(const game_string &str);
 

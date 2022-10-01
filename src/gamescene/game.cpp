@@ -274,11 +274,8 @@ void game_scene::find_overlay() {
     }
 }
 
-void game_scene::handle_message(SRV_TAG(game_update), const game_update &update) {
-#ifdef DEBUG_PRINT_GAME_UPDATES
-    std::cout << "/*** GAME UPDATE ***/ " << json::serialize(update) << '\n';
-#endif
-    m_pending_updates.push_back(update);
+void game_scene::handle_message(SRV_TAG(game_update), const Json::Value &update) {
+    m_pending_updates.push_back(json::deserialize<banggame::game_update>(update, *this));
 }
 
 void game_scene::handle_game_update(UPD_TAG(game_over), const game_over_update &args) {
@@ -396,9 +393,9 @@ void game_scene::handle_game_update(UPD_TAG(add_cards), const add_cards_update &
         c->deck = deck;
         c->texture_back = card_textures::get().backfaces[enums::indexof(deck)];
 
-        card_view *card_ptr = m_cards.insert(std::move(c)).get();
-        pocket.add_card(card_ptr);
-        card_ptr->set_pos(pocket.get_pos() + pocket.get_offset(card_ptr));
+        card_view *card = m_cards.insert(std::move(c)).get();
+        pocket.add_card(card);
+        card->set_pos(pocket.get_pos() + pocket.get_offset(card));
     }
 }
 

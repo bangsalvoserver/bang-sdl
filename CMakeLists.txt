@@ -20,6 +20,7 @@ set(bangclient_srcs
     src/os_api.cpp
     src/gamescene/animations.cpp
     src/gamescene/card.cpp
+    src/gamescene/card_serial.cpp
     src/gamescene/player.cpp
     src/gamescene/game.cpp
     src/gamescene/game_ui.cpp
@@ -79,6 +80,7 @@ generate_export_header(bangclient
 target_include_directories(bangclient PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/exports")
 
 target_link_libraries(bangclient PUBLIC bangcommon sdl2_libraries tiny-process-library)
+target_compile_definitions(bangclient PRIVATE BUILD_BANG_CLIENT)
 
 add_dependencies(bangclient cards_pak media_pak)
 
