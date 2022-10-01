@@ -326,9 +326,8 @@ std::string game_scene::evaluate_format_string(const game_string &str) {
                     return _(intl::category::cards, value.name);
                 }
             },
-            [&](player_format_id value) {
-                player_view *p = find_player(value.player_id);
-                return p ? p->m_username_text.get_value() : _("USERNAME_DISCONNECTED");
+            [&](player_view *player) {
+                return player ? player->m_username_text.get_value() : _("USERNAME_DISCONNECTED");
             }
         }, arg);
     }));
