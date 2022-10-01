@@ -4,7 +4,7 @@
 
 namespace json {
 
-Json::Value serializer<banggame::card_view *, banggame::game_scene>::operator()(banggame::card_view *card) const {
+template<> Json::Value serializer<banggame::card_view *, banggame::game_scene>::operator()(banggame::card_view *card) const {
     if (card) {
         return card->id;
     } else {
@@ -12,7 +12,7 @@ Json::Value serializer<banggame::card_view *, banggame::game_scene>::operator()(
     }
 }
 
-Json::Value serializer<banggame::player_view *, banggame::game_scene>::operator()(banggame::player_view *player) const {
+template<> Json::Value serializer<banggame::player_view *, banggame::game_scene>::operator()(banggame::player_view *player) const {
     if (player) {
         return player->id;
     } else {
@@ -20,7 +20,7 @@ Json::Value serializer<banggame::player_view *, banggame::game_scene>::operator(
     }
 }
 
-Json::Value serializer<banggame::player_card_pair, banggame::game_scene>::operator()(banggame::player_card_pair pair) const {
+template<> Json::Value serializer<banggame::player_card_pair, banggame::game_scene>::operator()(banggame::player_card_pair pair) const {
     if (pair.first) {
         return pair.first->id;
     } else {
@@ -28,7 +28,7 @@ Json::Value serializer<banggame::player_card_pair, banggame::game_scene>::operat
     }
 }
 
-Json::Value serializer<banggame::card_cube_pair, banggame::game_scene>::operator()(banggame::card_cube_pair pair) const {
+template<> Json::Value serializer<banggame::card_cube_pair, banggame::game_scene>::operator()(banggame::card_cube_pair pair) const {
     if (pair.first) {
         return pair.first->id;
     } else {
@@ -36,7 +36,7 @@ Json::Value serializer<banggame::card_cube_pair, banggame::game_scene>::operator
     }
 }
 
-banggame::card_view *deserializer<banggame::card_view *, banggame::game_scene>::operator()(const Json::Value &value) const {
+template<> banggame::card_view *deserializer<banggame::card_view *, banggame::game_scene>::operator()(const Json::Value &value) const {
     if (value.isNull()) {
         return nullptr;
     } else {
@@ -44,7 +44,7 @@ banggame::card_view *deserializer<banggame::card_view *, banggame::game_scene>::
     }
 }
 
-banggame::player_view *deserializer<banggame::player_view *, banggame::game_scene>::operator()(const Json::Value &value) const {
+template<> banggame::player_view *deserializer<banggame::player_view *, banggame::game_scene>::operator()(const Json::Value &value) const {
     if (value.isNull()) {
         return nullptr;
     } else {
