@@ -92,7 +92,7 @@ namespace banggame {
         game_scene *m_game;
 
         std::vector<card_view *> m_response_highlights;
-        std::vector<std::tuple<pocket_type, player_view *, card_view *>> m_picking_highlights;
+        std::vector<picking_args> m_picking_highlights;
         raii_editor_stack<sdl::color> m_response_borders;
 
         effect_flags m_request_flags{};

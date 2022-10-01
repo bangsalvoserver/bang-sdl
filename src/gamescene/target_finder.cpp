@@ -54,26 +54,19 @@ void target_finder::set_response_highlights(const request_status_args &args) {
     }
     clear_status();
 
-    for (int id : args.highlight_ids) {
-        if (card_view *highlight_card = m_game->find_card(id)) {
-            m_response_borders.add(highlight_card->border_color, colors.target_finder_highlight_card);
-        }
+    for (card_view *card : args.highlight_cards) {
+        m_response_borders.add(card->border_color, colors.target_finder_highlight_card);
     }
 
-    if (card_view *origin_card = m_game->find_card(args.origin_card_id)) {
-        m_response_borders.add(origin_card->border_color, colors.target_finder_origin_card);
+    if (args.origin_card) {
+        m_response_borders.add(args.origin_card->border_color, colors.target_finder_origin_card);
     }
 
-    for (const picking_args &args : args.pick_ids) {
-        const auto &[pocket, player, card] = m_picking_highlights.emplace_back(
-            args.pocket,
-            args.player_id ? m_game->find_player(args.player_id) : nullptr,
-            args.card_id ? m_game->find_card(args.card_id) : nullptr);
+    for (const auto &[pocket, player, card] : (m_picking_highlights = args.pick_cards)) {
         set_picking_border(pocket, player, card, colors.target_finder_can_pick);
     }
 
-    for (int id : args.respond_ids) {
-        card_view *card = m_response_highlights.emplace_back(m_game->find_card(id));
+    for (card_view *card : (m_response_highlights = args.respond_cards)) {
         m_response_borders.add(card->border_color, colors.target_finder_can_respond);
     }
 
@@ -130,7 +123,7 @@ bool target_finder::can_respond_with(card_view *card) const {
 }
 
 bool target_finder::can_pick_card(pocket_type pocket, player_view *player, card_view *card) const {
-    return ranges_contains(m_picking_highlights, std::tuple{pocket, player, card});
+    return ranges_contains(m_picking_highlights, picking_args{pocket, player, card});
 }
 
 bool target_finder::can_play_in_turn(pocket_type pocket, player_view *player, card_view *card) const {

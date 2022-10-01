@@ -98,6 +98,8 @@ namespace banggame {
 
     class card_view : public card_data {
     public:
+        int id;
+        
         card_cube_pile cubes{this};
 
         float flip_amt = 0.f;

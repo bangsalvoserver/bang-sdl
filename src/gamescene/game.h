@@ -31,19 +31,8 @@ namespace banggame {
         void handle_message(SRV_TAG(lobby_owner), const user_id_args &args) override;
         void handle_message(SRV_TAG(lobby_error), const std::string &message) override;
 
-        card_view *find_card(int id) const {
-            if (auto it = m_cards.find(id); it != m_cards.end()) {
-                return &*it;
-            }
-            return nullptr;
-        }
-
-        player_view *find_player(int id) const {
-            if (auto it = m_players.find(id); it != m_players.end()) {
-                return &*it;
-            }
-            return nullptr;
-        }
+        card_view *find_card(int id) const;
+        player_view *find_player(int id) const;
 
     private:
         void handle_game_update(UPD_TAG(game_over),        const game_over_update &args);
@@ -55,13 +44,13 @@ namespace banggame {
         void handle_game_update(UPD_TAG(move_card),        const move_card_update &args);
         void handle_game_update(UPD_TAG(add_cubes),        const add_cubes_update &args);
         void handle_game_update(UPD_TAG(move_cubes),       const move_cubes_update &args);
-        void handle_game_update(UPD_TAG(move_scenario_deck), const move_scenario_deck_args &args);
+        void handle_game_update(UPD_TAG(move_scenario_deck), player_view *player);
         void handle_game_update(UPD_TAG(deck_shuffled),    const pocket_type &pocket);
         void handle_game_update(UPD_TAG(show_card),        const show_card_update &args);
         void handle_game_update(UPD_TAG(hide_card),        const hide_card_update &args);
         void handle_game_update(UPD_TAG(tap_card),         const tap_card_update &args);
-        void handle_game_update(UPD_TAG(flash_card),       const flash_card_update &args);
-        void handle_game_update(UPD_TAG(last_played_card), const card_id_args &args);
+        void handle_game_update(UPD_TAG(flash_card),       card_view *card);
+        void handle_game_update(UPD_TAG(last_played_card), card_view *card);
         void handle_game_update(UPD_TAG(player_add),       const player_add_update &args);
         void handle_game_update(UPD_TAG(player_user),      const player_user_update &args);
         void handle_game_update(UPD_TAG(player_remove),    const player_remove_update &args);
@@ -69,7 +58,7 @@ namespace banggame {
         void handle_game_update(UPD_TAG(player_gold),      const player_gold_update &args);
         void handle_game_update(UPD_TAG(player_show_role), const player_show_role_update &args);
         void handle_game_update(UPD_TAG(player_status),    const player_status_update &args);
-        void handle_game_update(UPD_TAG(switch_turn),      const switch_turn_update &args);
+        void handle_game_update(UPD_TAG(switch_turn),      player_view *player);
         void handle_game_update(UPD_TAG(request_status),   const request_status_args &args);
         void handle_game_update(UPD_TAG(game_flags),       const game_flags &args);
         void handle_game_update(UPD_TAG(game_options),     const game_options &args);
@@ -86,14 +75,14 @@ namespace banggame {
         void handle_card_click();
         void find_overlay();
 
-        pocket_view &get_pocket(pocket_type pocket, int player_id = 0);
+        pocket_view &get_pocket(pocket_type pocket, player_view *player = nullptr);
 
         card_textures m_card_textures;
 
         game_ui m_ui;
         target_finder m_target;
 
-        std::deque<game_update> m_pending_updates;
+        std::deque<Json::Value> m_pending_updates;
         std::deque<animation> m_animations;
 
         counting_pocket m_shop_deck;
@@ -137,7 +126,7 @@ namespace banggame {
         player_role m_winner_role = player_role::unknown;
         game_flags m_game_flags{};
 
-        cube_pile_base &find_cube_pile(int card_id);
+        cube_pile_base &get_cube_pile(card_view *card);
 
         std::string evaluate_format_string(const game_string &str);
 
