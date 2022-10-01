@@ -21,8 +21,8 @@ template<> Json::Value serializer<banggame::player_view *, banggame::game_scene>
 }
 
 template<> Json::Value serializer<banggame::player_card_pair, banggame::game_scene>::operator()(banggame::player_card_pair pair) const {
-    if (pair.first) {
-        return pair.first->id;
+    if (pair.second) {
+        return pair.second->id;
     } else {
         return Json::nullValue;
     }
