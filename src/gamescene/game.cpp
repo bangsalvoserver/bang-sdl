@@ -94,10 +94,9 @@ void game_scene::tick(duration_type time_elapsed) {
         while (true) {
             if (m_animations.empty()) {
                 if (!m_pending_updates.empty()) {
-                    auto update = json::deserialize<banggame::game_update>(m_pending_updates.front(), *this);
                     enums::visit_indexed([this](auto && ... args) {
                         handle_game_update(FWD(args) ...);
-                    }, update);
+                    }, json::deserialize<banggame::game_update>(m_pending_updates.front(), *this));
                     m_pending_updates.pop_front();
                 } else {
                     break;
