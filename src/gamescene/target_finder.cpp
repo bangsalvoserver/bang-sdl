@@ -336,20 +336,6 @@ const effect_holder &target_finder::get_effect_holder(int index) {
     return optionals[(index - effects.size()) % optionals.size()];
 }
 
-int target_finder::count_selected_cubes(card_view *card) {
-    size_t sum = 0;
-    for (const auto &t : m_targets) {
-        if (auto *val = t.get_if<target_type::select_cubes>()) {
-            sum += std::ranges::count(*val, card, &card_cube_pair::first);
-        } else if (auto *ncubes = t.get_if<target_type::self_cubes>()) {
-            if (ranges_contains(m_modifiers, card) || card == m_playing_card) {
-                sum += *ncubes;
-            }
-        }
-    }
-    return static_cast<int>(sum);
-}
-
 int target_finder::get_target_index() {
     if (m_targets.empty()) {
         return 0;
@@ -713,8 +699,24 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
 cube_widget *target_finder::add_selected_cube(card_view *card, int ncubes) {
     cube_widget *cube = nullptr;
 
-    int selected = count_selected_cubes(card);
-    for (int i=0; i < std::min(static_cast<int>(card->cubes.size()) - selected, ncubes); ++i) {
+    int selected = 0;
+    for (const auto &t : m_targets) {
+        if (auto *val = t.get_if<target_type::select_cubes>()) {
+            selected += static_cast<int>(std::ranges::count(*val, card, &card_cube_pair::first));
+        } else if (auto *ncubes = t.get_if<target_type::self_cubes>(); card == m_playing_card) {
+            selected += *ncubes;
+        }
+    }
+    for (card_view *mod_card : m_modifiers) {
+        for (const auto &t : mod_card->effects) {
+            if (t.target == target_type::self_cubes && card == mod_card) {
+                selected += t.target_value;
+            }
+        }
+    }
+
+    ncubes = std::min(static_cast<int>(card->cubes.size()) - selected, ncubes);
+    for (int i=0; i < ncubes; ++i) {
         cube = (card->cubes.rbegin() + selected + i)->get();
         m_target_borders.add(cube->border_color, colors.target_finder_target);
     }

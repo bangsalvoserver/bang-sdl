@@ -84,7 +84,6 @@ namespace banggame {
         void send_play_card();
 
         const effect_holder &get_effect_holder(int index);
-        int count_selected_cubes(card_view *card);
         std::vector<player_view *> possible_player_targets(target_player_filter filter);
         int get_target_index();
         
