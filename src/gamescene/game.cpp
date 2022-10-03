@@ -10,9 +10,6 @@ using namespace banggame;
 using namespace enums::flag_operators;
 using namespace sdl::point_math;
 
-template<typename ... Ts> struct overloaded : Ts ... { using Ts::operator() ...; };
-template<typename ... Ts> overloaded(Ts ...) -> overloaded<Ts ...>;
-
 game_scene::game_scene(client_manager *parent)
     : scene_base(parent)
     , m_card_textures(parent->get_base_path(), parent->get_renderer())

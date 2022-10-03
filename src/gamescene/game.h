@@ -9,6 +9,7 @@
 #include "target_finder.h"
 
 #include "utils/id_map.h"
+#include "utils/utils.h"
 
 #include <deque>
 #include <random>
