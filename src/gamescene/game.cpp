@@ -23,14 +23,14 @@ card_view *game_scene::find_card(int id) const {
     if (auto it = m_cards.find(id); it != m_cards.end()) {
         return &*it;
     }
-    throw std::runtime_error("client.find_card: ID not found");
+    throw std::runtime_error(fmt::format("client.find_card: ID {} not found", id));
 }
 
 player_view *game_scene::find_player(int id) const {
     if (auto it = m_players.find(id); it != m_players.end()) {
         return &*it;
     }
-    throw std::runtime_error("client.find_player: ID not found");
+    throw std::runtime_error(fmt::format("client.find_player: ID {} not found", id));
 }
 
 void game_scene::refresh_layout() {
