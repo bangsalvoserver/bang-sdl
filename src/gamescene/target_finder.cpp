@@ -3,6 +3,7 @@
 #include "game.h"
 #include "../manager.h"
 #include "../os_api.h"
+#include "utils/utils.h"
 
 #include <cassert>
 #include <numeric>
@@ -10,12 +11,6 @@
 using namespace banggame;
 using namespace enums::flag_operators;
 using namespace sdl::point_math;
-
-template<std::ranges::input_range R, typename T, typename Proj = std::identity>
-requires std::indirect_binary_predicate<std::ranges::equal_to, std::projected<std::ranges::iterator_t<R>, Proj>, const T *>
-constexpr bool ranges_contains(R &&r, const T &value, Proj proj = {}) {
-    return std::ranges::find(r, value, proj) != std::ranges::end(r);
-}
 
 void target_finder::set_playing_card(card_view *card, bool is_response) {
     m_response = is_response && !bool(m_request_flags & effect_flags::force_play);
