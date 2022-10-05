@@ -695,8 +695,10 @@ cube_widget *target_finder::add_selected_cube(card_view *card, int ncubes) {
     for (const auto &t : m_targets) {
         if (auto *val = t.get_if<target_type::select_cubes>()) {
             selected += static_cast<int>(std::ranges::count(*val, card, &card_cube_pair::card));
-        } else if (auto *ncubes = t.get_if<target_type::self_cubes>(); card == m_playing_card) {
-            selected += *ncubes;
+        } else if (auto *ncubes = t.get_if<target_type::self_cubes>()) {
+            if (card == m_playing_card) {
+                selected += *ncubes;
+            }
         }
     }
     for (card_view *mod_card : m_modifiers) {
