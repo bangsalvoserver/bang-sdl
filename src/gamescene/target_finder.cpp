@@ -4,6 +4,7 @@
 #include "../manager.h"
 #include "../os_api.h"
 #include "utils/utils.h"
+#include "game/effect_list_zip.h"
 
 #include <cassert>
 #include <numeric>
@@ -431,7 +432,7 @@ void target_finder::handle_auto_targets() {
             return true;
         case target_type::self_cubes:
             add_selected_cube(m_playing_card, data.target_value);
-            m_targets.emplace_back(enums::enum_tag<target_type::self_cubes>, data.target_value);
+            m_targets.emplace_back(enums::enum_tag<target_type::self_cubes>);
             return true;
         }
         return false;
@@ -692,12 +693,12 @@ cube_widget *target_finder::add_selected_cube(card_view *card, int ncubes) {
     cube_widget *cube = nullptr;
 
     int selected = 0;
-    for (const auto &t : m_targets) {
-        if (auto *val = t.get_if<target_type::select_cubes>()) {
+    for (const auto &[target, effect] : zip_card_targets(m_targets, get_current_card_effects(), get_current_card()->optionals)) {
+        if (auto *val = target.get_if<target_type::select_cubes>()) {
             selected += static_cast<int>(std::ranges::count(*val, card, &card_cube_pair::card));
-        } else if (auto *ncubes = t.get_if<target_type::self_cubes>()) {
+        } else if (target.is(target_type::self_cubes)) {
             if (card == m_playing_card) {
-                selected += *ncubes;
+                selected += effect.target_value;
             }
         }
     }
