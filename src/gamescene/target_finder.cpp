@@ -494,6 +494,10 @@ void target_finder::handle_auto_targets() {
 }
 
 std::optional<std::string> target_finder::verify_player_target(target_player_filter filter, player_view *target_player) {
+    if (ranges_contains(m_targets, play_card_target(enums::enum_tag<target_type::player>, target_player))) {
+        return _("ERROR_TARGET_NOT_UNIQUE");    
+    }
+
     if (bool(filter & target_player_filter::dead)) {
         if (target_player->hp > 0) return _("ERROR_TARGET_NOT_DEAD");
     } else if (!target_player->has_player_flags(player_flags::targetable) && !target_player->alive()) {
@@ -527,9 +531,19 @@ std::optional<std::string> target_finder::verify_player_target(target_player_fil
 }
 
 std::optional<std::string> target_finder::verify_card_target(const effect_holder &args, player_view *player, card_view *card) {
-    if (!get_current_card()->has_tag(tag_type::can_target_self)
+    if (!bool(args.card_filter & target_card_filter::can_target_self)
         && card == m_playing_card || ranges_contains(m_modifiers, card))
         return _("ERROR_TARGET_PLAYING_CARD");
+
+    if (!bool(args.card_filter & target_card_filter::can_repeat)
+        && std::ranges::any_of(m_targets, [card](const play_card_target &target) {
+            return enums::visit(overloaded{
+                [](const auto &) { return false; },
+                [card](card_view *c) { return c == card; },
+                [card](const std::vector<card_view *> &cs) { return ranges_contains(cs, card); },
+            }, target);
+        }))
+        return _("ERROR_TARGET_NOT_UNIQUE");
 
     if (bool(args.card_filter & target_card_filter::cube_slot)) {
         if (card != player->m_characters.front() && card->color != card_color_type::orange)
@@ -574,10 +588,7 @@ std::optional<std::string> target_finder::verify_card_target(const effect_holder
 std::vector<player_view *> target_finder::possible_player_targets(target_player_filter filter) {
     std::vector<player_view *> ret;
     for (auto &p : m_game->m_players) {
-        if ((get_current_card()->has_tag(tag_type::can_repeat)
-            || !ranges_contains(m_targets, play_card_target(enums::enum_tag<target_type::player>, &p)))
-            && !verify_player_target(filter, &p))
-        {
+        if (!verify_player_target(filter, &p)) {
             ret.push_back(&p);
         }
     }
@@ -596,15 +607,7 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
         if (auto error = verify_card_target(cur_target, player, card)) {
             m_game->parent->add_chat_message(message_type::error, *error);
             os_api::play_bell();
-        } else if (get_current_card()->has_tag(tag_type::can_repeat)
-            || std::ranges::none_of(m_targets, [card](const play_card_target &target) {
-                return enums::visit(overloaded{
-                    [](const auto &) { return false; },
-                    [card](card_view *c) { return c == card; },
-                    [card](const std::vector<card_view *> &cs) { return ranges_contains(cs, card); },
-                }, target);
-            }))
-        {
+        } else {
             if (player != m_game->m_player_self && card->pocket == &player->hand) {
                 for (card_view *hand_card : player->hand) {
                     m_target_borders.add(hand_card->border_color, colors.target_finder_target);
