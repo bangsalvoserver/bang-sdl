@@ -696,12 +696,14 @@ cube_widget *target_finder::add_selected_cube(card_view *card, int ncubes) {
     cube_widget *cube = nullptr;
 
     int selected = 0;
-    for (const auto &[target, effect] : zip_card_targets(m_targets, get_current_card_effects(), get_current_card()->optionals)) {
-        if (auto *val = target.get_if<target_type::select_cubes>()) {
-            selected += static_cast<int>(std::ranges::count(*val, card, &card_cube_pair::card));
-        } else if (target.is(target_type::self_cubes)) {
-            if (card == m_playing_card) {
-                selected += effect.target_value;
+    if (get_current_card()) {
+        for (const auto &[target, effect] : zip_card_targets(m_targets, get_current_card_effects(), get_current_card()->optionals)) {
+            if (auto *val = target.get_if<target_type::select_cubes>()) {
+                selected += static_cast<int>(std::ranges::count(*val, card, &card_cube_pair::card));
+            } else if (target.is(target_type::self_cubes)) {
+                if (card == m_playing_card) {
+                    selected += effect.target_value;
+                }
             }
         }
     }
