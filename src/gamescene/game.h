@@ -80,6 +80,9 @@ namespace banggame {
 
         card_textures m_card_textures;
 
+        util::id_map<card_view> m_cards;
+        util::id_map<player_view> m_players;
+
         game_ui m_ui;
         target_finder m_target;
 
@@ -102,9 +105,6 @@ namespace banggame {
         wide_pocket m_selection{options.selection_width};
 
         button_row_pocket m_button_row{this};
-
-        util::id_map<card_view> m_cards;
-        util::id_map<player_view> m_players;
 
         std::vector<player_view *> m_alive_players;
         std::vector<player_view *> m_dead_players;
