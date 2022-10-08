@@ -16,7 +16,7 @@ namespace banggame {
         card_view *m_playing_card = nullptr;
         std::vector<card_view *> m_modifiers;
 
-        target_vector m_targets;
+        target_list m_targets;
         raii_editor_stack<sdl::color> m_target_borders;
 
         bool m_equipping = false;
