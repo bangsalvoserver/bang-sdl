@@ -73,7 +73,7 @@ namespace banggame {
         std::optional<std::string> verify_card_target(const effect_holder &args, player_view *player, card_view *card);
 
         void add_card_target(player_view *player, card_view *card);
-        cube_widget *add_selected_cube(card_view *card, int ncubes);
+        bool add_selected_cube(card_view *card, int ncubes);
         
         int calc_distance(player_view *from, player_view *to);
 

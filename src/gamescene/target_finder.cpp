@@ -676,13 +676,13 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
         break;
     case target_type::select_cubes:
         if (player == m_game->m_player_self) {
-            if (auto *cube = add_selected_cube(card, 1)) {
+            if (add_selected_cube(card, 1)) {
                 if (index >= m_targets.size()) {
                     m_targets.emplace_back(enums::enum_tag<target_type::select_cubes>);
                     m_targets.back().get<target_type::select_cubes>().reserve(std::max<int>(1, cur_target.target_value));
                 }
                 auto &vec = m_targets.back().get<target_type::select_cubes>();
-                vec.emplace_back(card, cube);
+                vec.emplace_back(card);
                 if (vec.size() == vec.capacity()) {
                     handle_auto_targets();
                 }
@@ -692,14 +692,14 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
     }
 }
 
-cube_widget *target_finder::add_selected_cube(card_view *card, int ncubes) {
-    cube_widget *cube = nullptr;
+bool target_finder::add_selected_cube(card_view *card, int ncubes) {
+    bool ret = false;
 
     int selected = 0;
     if (get_current_card()) {
         for (const auto &[target, effect] : zip_card_targets(m_targets, get_current_card_effects(), get_current_card()->optionals)) {
             if (auto *val = target.get_if<target_type::select_cubes>()) {
-                selected += static_cast<int>(std::ranges::count(*val, card, &card_cube_pair::card));
+                selected += static_cast<int>(std::ranges::count(*val, card));
             } else if (target.is(target_type::self_cubes)) {
                 if (card == m_playing_card) {
                     selected += effect.target_value;
@@ -717,11 +717,12 @@ cube_widget *target_finder::add_selected_cube(card_view *card, int ncubes) {
 
     ncubes = std::min(static_cast<int>(card->cubes.size()) - selected, ncubes);
     for (int i=0; i < ncubes; ++i) {
-        cube = (card->cubes.rbegin() + selected + i)->get();
+        cube_widget *cube = (card->cubes.rbegin() + selected + i)->get();
         m_target_borders.add(cube->border_color, colors.target_finder_target);
+        ret = true;
     }
 
-    return cube;
+    return ret;
 }
 
 void target_finder::send_play_card() {

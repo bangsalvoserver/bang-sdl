@@ -20,10 +20,6 @@ template<> Json::Value serializer<banggame::player_view *, banggame::game_scene>
     }
 }
 
-template<> Json::Value serializer<banggame::card_cube_pair, banggame::game_scene>::operator()(banggame::card_cube_pair pair) const {
-    return serialize(pair.card, context);
-}
-
 template<> banggame::card_view *deserializer<banggame::card_view *, banggame::game_scene>::operator()(const Json::Value &value) const {
     if (value.isInt()) {
         return context.find_card(value.asInt());
