@@ -18,7 +18,9 @@ namespace banggame {
         game_scene *parent;
         std::list<widgets::button> m_buttons;
 
-        button_row_pocket(game_scene *parent) : parent(parent) {}
+        button_row_pocket(game_scene *parent)
+            : pocket_view(pocket_type::button_row)
+            , parent(parent) {}
 
         void set_pos(const sdl::point &pos) override;
         void render(sdl::renderer &renderer) override;

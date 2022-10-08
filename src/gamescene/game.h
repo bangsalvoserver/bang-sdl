@@ -89,20 +89,20 @@ namespace banggame {
         std::deque<Json::Value> m_pending_updates;
         std::deque<animation> m_animations;
 
-        counting_pocket m_shop_deck;
-        point_pocket_view m_shop_discard;
-        point_pocket_view m_hidden_deck;
-        flipped_pocket m_shop_selection{options.shop_selection_width};
-        wide_pocket m_shop_choice{options.shop_choice_width};
+        counting_pocket m_shop_deck{pocket_type::shop_deck};
+        point_pocket_view m_shop_discard{pocket_type::shop_discard};
+        point_pocket_view m_hidden_deck{pocket_type::hidden_deck};
+        flipped_pocket m_shop_selection{options.shop_selection_width, pocket_type::shop_selection};
+        wide_pocket m_shop_choice{options.shop_choice_width, pocket_type::none};
         
         table_cube_pile m_cubes;
 
-        counting_pocket m_main_deck;
-        point_pocket_view m_discard_pile;
+        counting_pocket m_main_deck{pocket_type::main_deck};
+        point_pocket_view m_discard_pile{pocket_type::discard_pile};
 
-        point_pocket_view m_scenario_card;
+        point_pocket_view m_scenario_card{pocket_type::scenario_card};
 
-        wide_pocket m_selection{options.selection_width};
+        wide_pocket m_selection{options.selection_width, pocket_type::selection};
 
         button_row_pocket m_button_row{this};
 

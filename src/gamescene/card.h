@@ -149,6 +149,12 @@ namespace banggame {
         sdl::point m_pos;
 
     public:
+        const pocket_type type;
+        const player_view *owner;
+
+        pocket_view(pocket_type type, player_view *owner = nullptr)
+            : type(type), owner(owner) {}
+
         sdl::point get_pos() const { return m_pos; }
         virtual void set_pos(const sdl::point &pos);
 
@@ -187,6 +193,8 @@ namespace banggame {
 
     class point_pocket_view : public pocket_view {
     public:
+        using pocket_view::pocket_view;
+
         sdl::color border_color{};
         
         card_view *find_card_at(sdl::point point);
@@ -211,6 +219,8 @@ namespace banggame {
 
     class counting_pocket : public point_pocket_view {
     private:
+        using point_pocket_view::point_pocket_view;
+        
         widgets::stattext m_count_text;
         void update_count();
 
@@ -251,7 +261,8 @@ namespace banggame {
 
     struct wide_pocket : pocket_view {
         int width;
-        explicit wide_pocket(int width) : width(width) {}
+        wide_pocket(int width, pocket_type type, player_view *owner = nullptr)
+            : pocket_view(type, owner), width(width) {}
 
         bool wide() const override { return true; }
         sdl::point get_offset(card_view *card) const override;
@@ -263,6 +274,7 @@ namespace banggame {
     };
 
     struct character_pile : pocket_view {
+        using pocket_view::pocket_view;
         sdl::point get_offset(card_view *card) const override;
     };
 

@@ -20,10 +20,6 @@ template<> Json::Value serializer<banggame::player_view *, banggame::game_scene>
     }
 }
 
-template<> Json::Value serializer<banggame::player_card_pair, banggame::game_scene>::operator()(banggame::player_card_pair pair) const {
-    return serialize(pair.card, context);
-}
-
 template<> Json::Value serializer<banggame::card_cube_pair, banggame::game_scene>::operator()(banggame::card_cube_pair pair) const {
     return serialize(pair.card, context);
 }

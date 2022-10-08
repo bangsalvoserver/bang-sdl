@@ -33,16 +33,16 @@ namespace banggame {
         int hp = 0;
         int gold = 0;
 
-        wide_pocket hand{options.card_pocket_width};
-        wide_pocket table{options.card_pocket_width};
+        wide_pocket hand{options.card_pocket_width, pocket_type::player_hand, this};
+        wide_pocket table{options.card_pocket_width, pocket_type::player_table, this};
         
-        point_pocket_view scenario_deck;
+        point_pocket_view scenario_deck{pocket_type::scenario_deck};
 
         sdl::rect m_bounding_rect;
         sdl::color border_color{};
 
-        character_pile m_characters;
-        point_pocket_view m_backup_characters;
+        character_pile m_characters{pocket_type::player_character, this};
+        point_pocket_view m_backup_characters{pocket_type::player_backup, this};
         
         role_card m_role;
 

@@ -659,7 +659,7 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
         }
         if (auto &vec = m_targets.back().get<target_type::cards_other_players>();
             card->color != card_color_type::black && player != m_game->m_player_self
-            && !ranges_contains(vec, player, &player_card_pair::player))
+            && !ranges_contains(vec, player, [](card_view *card) { return card->pocket->owner; }))
         {
             if (player != m_game->m_player_self && card->pocket == &player->hand) {
                 for (card_view *hand_card : player->hand) {
@@ -668,7 +668,7 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
             } else {
                 m_target_borders.add(card->border_color, colors.target_finder_target);
             }
-            vec.emplace_back(player, card);
+            vec.emplace_back(card);
             if (vec.size() == vec.capacity()) {
                 handle_auto_targets();
             }
