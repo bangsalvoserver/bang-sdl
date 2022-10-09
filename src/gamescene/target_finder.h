@@ -62,7 +62,7 @@ namespace banggame {
     private:
         bool is_bangcard(card_view *card);
         
-        void set_playing_card(card_view *card, bool is_response = false);
+        void set_playing_card(card_view *card);
         void add_modifier(card_view *card);
         bool playable_with_modifiers(card_view *card);
 
@@ -73,6 +73,7 @@ namespace banggame {
         std::optional<std::string> verify_card_target(const effect_holder &args, player_view *player, card_view *card);
 
         void add_card_target(player_view *player, card_view *card);
+        int count_selected_cubes(card_view *card);
         bool add_selected_cube(card_view *card, int ncubes);
         
         int calc_distance(player_view *from, player_view *to);

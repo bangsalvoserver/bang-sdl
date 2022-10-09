@@ -13,10 +13,21 @@ using namespace banggame;
 using namespace enums::flag_operators;
 using namespace sdl::point_math;
 
-void target_finder::set_playing_card(card_view *card, bool is_response) {
-    m_response = is_response && !bool(m_request_flags & effect_flags::force_play);
+void target_finder::set_playing_card(card_view *card) {
+    m_response = m_response && !bool(m_request_flags & effect_flags::force_play);
     m_playing_card = card;
-    m_target_borders.add(card->border_color, colors.target_finder_current_card);
+
+    if (m_equipping || !get_current_card_effects().empty()
+        && std::ranges::none_of(get_current_card_effects(), [&](const effect_holder &effect) {
+            return effect.target == target_type::self_cubes && effect.target_value > static_cast<int>(card->cubes.size()) - count_selected_cubes(card);
+        })
+    ) {
+        m_target_borders.add(card->border_color, colors.target_finder_current_card);
+        handle_auto_targets();
+    } else {
+        m_response = false;
+        m_playing_card = nullptr;
+    }
 }
 
 template<game_action_type T>
@@ -85,13 +96,13 @@ void target_finder::handle_auto_respond() {
     if (!m_playing_card && !waiting_confirm() && bool(m_request_flags & effect_flags::auto_respond) && m_response_highlights.size() == 1 && m_picking_highlights.empty()) {
         card_view *card = m_response_highlights.front();
         if (card->color == card_color_type::black) {
-            set_playing_card(card);
             m_equipping = true;
+            set_playing_card(card);
         } else if (card->modifier != card_modifier_type::none) {
             add_modifier(card);
         } else if (playable_with_modifiers(card)) {
-            set_playing_card(card, true);
-            handle_auto_targets();
+            m_response = true;
+            set_playing_card(card);
         }
     }
 }
@@ -154,24 +165,20 @@ void target_finder::on_click_card(pocket_type pocket, player_view *player, card_
             add_card_target(player, card);
         }
     } else if (can_respond_with(card)) {
-        set_playing_card(card, true);
-        handle_auto_targets();
+        m_response = true;
+        set_playing_card(card);
     } else if (can_pick_card(pocket, player, card)) {
         send_pick_card(pocket, player, card);
     } else if (can_play_in_turn(pocket, player, card)) {
         if ((pocket == pocket_type::player_hand || pocket == pocket_type::shop_selection) && card->color != card_color_type::brown) {
             if (playable_with_modifiers(card)) {
-                set_playing_card(card);
                 m_equipping = true;
-                if (card->self_equippable()) {
-                    send_play_card();
-                }
+                set_playing_card(card);
             }
         } else if (card->modifier != card_modifier_type::none) {
             add_modifier(card);
         } else if (playable_with_modifiers(card)) {
             set_playing_card(card);
-            handle_auto_targets();
         }
     }
 }
@@ -403,16 +410,18 @@ int target_finder::calc_distance(player_view *from, player_view *to) {
 }
 
 void target_finder::handle_auto_targets() {
+    if (m_equipping) {
+        if (m_playing_card->self_equippable()) {
+            send_play_card();
+        }
+        return;
+    }
+
     using namespace enums::flag_operators;
 
     auto *current_card = get_current_card();
 
     auto &effects = get_current_card_effects();
-
-    if (effects.empty()) {
-        clear_targets();
-        return;
-    }
 
     auto &optionals = current_card->optionals;
     auto repeatable = current_card->get_tag_value(tag_type::repeatable);
@@ -482,13 +491,9 @@ void target_finder::handle_auto_targets() {
             m_targets.emplace_back(enums::enum_tag<target_type::all_players>);
             break;
         case target_type::self_cubes:
-            if (add_selected_cube(m_playing_card, effect_it->target_value)) {
-                m_targets.emplace_back(enums::enum_tag<target_type::self_cubes>);
-                break;
-            } else {
-                clear_targets();
-                return;
-            }
+            add_selected_cube(m_playing_card, effect_it->target_value);
+            m_targets.emplace_back(enums::enum_tag<target_type::self_cubes>);
+            break;
         default:
             return;
         }
@@ -695,7 +700,7 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
     }
 }
 
-bool target_finder::add_selected_cube(card_view *card, int ncubes) {
+int target_finder::count_selected_cubes(card_view *card) {
     int selected = 0;
     if (get_current_card()) {
         for (const auto &[target, effect] : zip_card_targets(m_targets, get_current_card_effects(), get_current_card()->optionals)) {
@@ -715,16 +720,20 @@ bool target_finder::add_selected_cube(card_view *card, int ncubes) {
             }
         }
     }
+    return selected;
+}
 
-    if (ncubes <= static_cast<int>(card->cubes.size()) - selected) {
-        for (int i=0; i < ncubes; ++i) {
-            cube_widget *cube = (card->cubes.rbegin() + selected + i)->get();
-            m_target_borders.add(cube->border_color, colors.target_finder_target);
-        }
-        return true;
-    } else {
+bool target_finder::add_selected_cube(card_view *card, int ncubes) {
+    int selected = count_selected_cubes(card);
+
+    if (ncubes > static_cast<int>(card->cubes.size()) - selected)
         return false;
+
+    for (int i=0; i < ncubes; ++i) {
+        cube_widget *cube = (card->cubes.rbegin() + selected + i)->get();
+        m_target_borders.add(cube->border_color, colors.target_finder_target);
     }
+    return true;
 }
 
 void target_finder::send_play_card() {
