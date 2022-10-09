@@ -407,37 +407,6 @@ void target_finder::handle_auto_targets() {
 
     auto *current_card = get_current_card();
 
-    auto do_handle_target = [&](const effect_holder &data) {
-        switch (data.target) {
-        case target_type::none:
-            m_targets.emplace_back(enums::enum_tag<target_type::none>);
-            return true;
-        case target_type::conditional_player:
-            if (possible_player_targets(data.player_filter).empty()) {
-                m_targets.emplace_back(enums::enum_tag<target_type::conditional_player>);
-                return true;
-            }
-            break;
-        case target_type::extra_card:
-            if (current_card == m_last_played_card) {
-                m_targets.emplace_back(enums::enum_tag<target_type::extra_card>);
-                return true;
-            }
-            break;
-        case target_type::other_players:
-            m_targets.emplace_back(enums::enum_tag<target_type::other_players>);
-            return true;
-        case target_type::all_players:
-            m_targets.emplace_back(enums::enum_tag<target_type::all_players>);
-            return true;
-        case target_type::self_cubes:
-            add_selected_cube(m_playing_card, data.target_value);
-            m_targets.emplace_back(enums::enum_tag<target_type::self_cubes>);
-            return true;
-        }
-        return false;
-    };
-
     auto &effects = get_current_card_effects();
 
     if (effects.empty()) {
@@ -488,7 +457,41 @@ void target_finder::handle_auto_targets() {
             effect_it = optionals.data();
             target_end = optionals.data() + optionals.size();
         }
-        if (!do_handle_target(*effect_it)) break;
+        switch (effect_it->target) {
+        case target_type::none:
+            m_targets.emplace_back(enums::enum_tag<target_type::none>);
+            break;
+        case target_type::conditional_player:
+            if (possible_player_targets(effect_it->player_filter).empty()) {
+                m_targets.emplace_back(enums::enum_tag<target_type::conditional_player>);
+                break;
+            } else {
+                return;
+            }
+        case target_type::extra_card:
+            if (current_card == m_last_played_card) {
+                m_targets.emplace_back(enums::enum_tag<target_type::extra_card>);
+                break;
+            } else {
+                return;
+            }
+        case target_type::other_players:
+            m_targets.emplace_back(enums::enum_tag<target_type::other_players>);
+            break;
+        case target_type::all_players:
+            m_targets.emplace_back(enums::enum_tag<target_type::all_players>);
+            break;
+        case target_type::self_cubes:
+            if (add_selected_cube(m_playing_card, effect_it->target_value)) {
+                m_targets.emplace_back(enums::enum_tag<target_type::self_cubes>);
+                break;
+            } else {
+                clear_targets();
+                return;
+            }
+        default:
+            return;
+        }
         ++effect_it;
     }
 }
@@ -693,8 +696,6 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
 }
 
 bool target_finder::add_selected_cube(card_view *card, int ncubes) {
-    bool ret = false;
-
     int selected = 0;
     if (get_current_card()) {
         for (const auto &[target, effect] : zip_card_targets(m_targets, get_current_card_effects(), get_current_card()->optionals)) {
@@ -715,14 +716,15 @@ bool target_finder::add_selected_cube(card_view *card, int ncubes) {
         }
     }
 
-    ncubes = std::min(static_cast<int>(card->cubes.size()) - selected, ncubes);
-    for (int i=0; i < ncubes; ++i) {
-        cube_widget *cube = (card->cubes.rbegin() + selected + i)->get();
-        m_target_borders.add(cube->border_color, colors.target_finder_target);
-        ret = true;
+    if (ncubes <= static_cast<int>(card->cubes.size()) - selected) {
+        for (int i=0; i < ncubes; ++i) {
+            cube_widget *cube = (card->cubes.rbegin() + selected + i)->get();
+            m_target_borders.add(cube->border_color, colors.target_finder_target);
+        }
+        return true;
+    } else {
+        return false;
     }
-
-    return ret;
 }
 
 void target_finder::send_play_card() {
