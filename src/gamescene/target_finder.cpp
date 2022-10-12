@@ -53,7 +53,7 @@ void target_finder::set_picking_border(pocket_type pocket, player_view *player, 
 }
 
 void target_finder::set_response_highlights(const request_status_args &args) {
-    if (m_game->m_player_self && m_game->m_winner_role == player_role::unknown) {
+    if (m_game->m_player_self && bool(args.flags & effect_flags::timer)) {
         add_action<game_action_type::request_confirm>();
     }
     clear_status();
