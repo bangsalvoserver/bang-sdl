@@ -611,6 +611,7 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
     
     switch (cur_target.target) {
     case target_type::card:
+    case target_type::extra_card:
     case target_type::cards:
         if (auto error = verify_card_target(cur_target, player, card)) {
             m_game->parent->add_chat_message(message_type::error, *error);
@@ -626,6 +627,9 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
             if (cur_target.target == target_type::card) {
                 m_targets.emplace_back(enums::enum_tag<target_type::card>, card);
                 handle_auto_targets();
+            } else if (cur_target.target == target_type::extra_card) {
+                m_targets.emplace_back(enums::enum_tag<target_type::extra_card>, card);
+                handle_auto_targets();
             } else {
                 if (index >= m_targets.size()) {
                     m_targets.emplace_back(enums::enum_tag<target_type::cards>);
@@ -637,22 +641,6 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
                     handle_auto_targets();
                 }
             }
-        }
-        break;
-    case target_type::extra_card:
-        if (player != m_game->m_player_self) {
-            m_game->parent->add_chat_message(message_type::error, _("ERROR_TARGET_NOT_SELF"));
-            os_api::play_bell();
-        } else if (card->pocket != &player->hand) {
-            m_game->parent->add_chat_message(message_type::error, _("ERROR_TARGET_NOT_HAND_CARD"));
-            os_api::play_bell();
-        } else if (card == m_playing_card) {
-            m_game->parent->add_chat_message(message_type::error, _("ERROR_TARGET_PLAYING_CARD"));
-            os_api::play_bell();
-        } else {
-            m_target_borders.add(card->border_color, colors.target_finder_target);
-            m_targets.emplace_back(enums::enum_tag<target_type::extra_card>, card);
-            handle_auto_targets();
         }
         break;
     case target_type::cards_other_players:
