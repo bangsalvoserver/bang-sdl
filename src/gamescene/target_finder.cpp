@@ -191,8 +191,8 @@ bool target_finder::on_click_player(player_view *player) {
     }
 
     auto verify_filter = [&](target_player_filter filter) {
-        if (auto error = verify_player_target(filter, player))  {
-            m_game->parent->add_chat_message(message_type::error, *error);
+        if (auto error = check_player_filter(filter, player); !error.empty())  {
+            m_game->parent->add_chat_message(message_type::error, error);
             os_api::play_bell();
             return false;
         }
@@ -502,18 +502,18 @@ void target_finder::handle_auto_targets() {
     }
 }
 
-std::optional<std::string> target_finder::verify_player_target(target_player_filter filter, player_view *target_player) {
+std::string target_finder::check_player_filter(target_player_filter filter, player_view *target_player) {
     if (ranges_contains(m_targets, play_card_target(enums::enum_tag<target_type::player>, target_player))) {
         return _("ERROR_TARGET_NOT_UNIQUE");    
-    } else if (std::string error = check_player_filter(m_game->m_player_self, filter, target_player); !error.empty()) {
+    } else if (std::string error = banggame::check_player_filter(m_game->m_player_self, filter, target_player); !error.empty()) {
         return _(error);
     } else {
-        return std::nullopt;
+        return {};
     }
 }
 
-std::optional<std::string> target_finder::verify_card_target(const effect_holder &args, player_view *player, card_view *card) {
-    if (!bool(args.card_filter & target_card_filter::can_repeat)
+std::string target_finder::check_card_filter(target_card_filter filter, card_view *card) {
+    if (!bool(filter & target_card_filter::can_repeat)
         && std::ranges::any_of(m_targets, [card](const play_card_target &target) {
             return enums::visit(overloaded{
                 [](const auto &) { return false; },
@@ -523,17 +523,17 @@ std::optional<std::string> target_finder::verify_card_target(const effect_holder
         }))
     {
         return _("ERROR_TARGET_NOT_UNIQUE");
-    } else if (std::string error = check_card_filter(m_playing_card, m_game->m_player_self, args.card_filter, card); !error.empty()) {
+    } else if (std::string error = banggame::check_card_filter(m_playing_card, m_game->m_player_self, filter, card); !error.empty()) {
         return _(error);
     } else {
-        return std::nullopt;
+        return {};
     }
 }
 
 std::vector<player_view *> target_finder::possible_player_targets(target_player_filter filter) {
     std::vector<player_view *> ret;
     for (auto &p : m_game->m_players) {
-        if (!verify_player_target(filter, &p)) {
+        if (check_player_filter(filter, &p).empty()) {
             ret.push_back(&p);
         }
     }
@@ -550,8 +550,8 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
     case target_type::card:
     case target_type::extra_card:
     case target_type::cards:
-        if (auto error = verify_card_target(cur_target, player, card)) {
-            m_game->parent->add_chat_message(message_type::error, *error);
+        if (auto error = check_card_filter(cur_target.card_filter, card); !error.empty()) {
+            m_game->parent->add_chat_message(message_type::error, error);
             os_api::play_bell();
         } else {
             if (player != m_game->m_player_self && card->pocket == &player->hand) {
@@ -629,7 +629,7 @@ int target_finder::count_selected_cubes(card_view *card) {
     int selected = 0;
     if (get_current_card()) {
         for (const auto &[target, effect] : zip_card_targets(m_targets, get_current_card_effects(), get_current_card()->optionals)) {
-            if (auto *val = target.get_if<target_type::select_cubes>()) {
+            if (const std::vector<card_view *> *val = target.get_if<target_type::select_cubes>()) {
                 selected += static_cast<int>(std::ranges::count(*val, card));
             } else if (target.is(target_type::self_cubes)) {
                 if (card == m_playing_card) {

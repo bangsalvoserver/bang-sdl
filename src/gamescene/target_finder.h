@@ -70,8 +70,8 @@ namespace banggame {
         void handle_auto_respond();
         void handle_auto_targets();
 
-        std::optional<std::string> verify_player_target(target_player_filter filter, player_view *target_player);
-        std::optional<std::string> verify_card_target(const effect_holder &args, player_view *player, card_view *card);
+        std::string check_player_filter(target_player_filter filter, player_view *target_player);
+        std::string check_card_filter(target_card_filter filter, card_view *target_card);
 
         void add_card_target(player_view *player, card_view *card);
         int count_selected_cubes(card_view *card);
