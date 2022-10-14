@@ -191,8 +191,8 @@ bool target_finder::on_click_player(player_view *player) {
     }
 
     auto verify_filter = [&](target_player_filter filter) {
-        if (auto error = check_player_filter(filter, player); !error.empty())  {
-            m_game->parent->add_chat_message(message_type::error, error);
+        if (auto error = check_player_filter(filter, player))  {
+            m_game->parent->add_chat_message(message_type::error, _(error));
             os_api::play_bell();
             return false;
         }
@@ -502,17 +502,15 @@ void target_finder::handle_auto_targets() {
     }
 }
 
-std::string target_finder::check_player_filter(target_player_filter filter, player_view *target_player) {
+const char *target_finder::check_player_filter(target_player_filter filter, player_view *target_player) {
     if (ranges_contains(m_targets, play_card_target(enums::enum_tag<target_type::player>, target_player))) {
-        return _("ERROR_TARGET_NOT_UNIQUE");    
-    } else if (std::string error = banggame::check_player_filter(m_game->m_player_self, filter, target_player); !error.empty()) {
-        return _(error);
+        return "ERROR_TARGET_NOT_UNIQUE";    
     } else {
-        return {};
+        return banggame::check_player_filter(m_game->m_player_self, filter, target_player);
     }
 }
 
-std::string target_finder::check_card_filter(target_card_filter filter, card_view *card) {
+const char *target_finder::check_card_filter(target_card_filter filter, card_view *card) {
     if (!bool(filter & target_card_filter::can_repeat)
         && std::ranges::any_of(m_targets, [card](const play_card_target &target) {
             return enums::visit(overloaded{
@@ -522,18 +520,16 @@ std::string target_finder::check_card_filter(target_card_filter filter, card_vie
             }, target);
         }))
     {
-        return _("ERROR_TARGET_NOT_UNIQUE");
-    } else if (std::string error = banggame::check_card_filter(m_playing_card, m_game->m_player_self, filter, card); !error.empty()) {
-        return _(error);
+        return "ERROR_TARGET_NOT_UNIQUE";
     } else {
-        return {};
+        return banggame::check_card_filter(m_playing_card, m_game->m_player_self, filter, card);
     }
 }
 
 std::vector<player_view *> target_finder::possible_player_targets(target_player_filter filter) {
     std::vector<player_view *> ret;
     for (auto &p : m_game->m_players) {
-        if (check_player_filter(filter, &p).empty()) {
+        if (!check_player_filter(filter, &p)) {
             ret.push_back(&p);
         }
     }
@@ -550,8 +546,8 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
     case target_type::card:
     case target_type::extra_card:
     case target_type::cards:
-        if (auto error = check_card_filter(cur_target.card_filter, card); !error.empty()) {
-            m_game->parent->add_chat_message(message_type::error, error);
+        if (auto error = check_card_filter(cur_target.card_filter, card)) {
+            m_game->parent->add_chat_message(message_type::error, _(error));
             os_api::play_bell();
         } else {
             if (player != m_game->m_player_self && card->pocket == &player->hand) {
