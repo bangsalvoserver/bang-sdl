@@ -5,6 +5,7 @@
 #include "../os_api.h"
 #include "utils/utils.h"
 #include "game/effect_list_zip.h"
+#include "game/filters.h"
 
 #include <cassert>
 #include <numeric>
@@ -272,7 +273,7 @@ void target_finder::add_modifier(card_view *card) {
     }
 }
 
-bool target_finder::is_bangcard(card_view *card) {
+bool target_finder::is_bangcard(card_view *card) const {
     return (m_game->m_player_self->has_player_flags(player_flags::treat_missed_as_bang)
             && card->has_tag(tag_type::missedcard))
         || card->has_tag(tag_type::bangcard);
@@ -350,7 +351,7 @@ int target_finder::get_target_index() {
     }, m_targets.back());
 }
 
-int target_finder::calc_distance(player_view *from, player_view *to) {
+int target_finder::calc_distance(player_view *from, player_view *to) const {
     if (from == to) return 0;
     if (bool(m_game->m_game_flags & game_flags::disable_player_distances)) return to->m_distance_mod;
 
@@ -504,45 +505,14 @@ void target_finder::handle_auto_targets() {
 std::optional<std::string> target_finder::verify_player_target(target_player_filter filter, player_view *target_player) {
     if (ranges_contains(m_targets, play_card_target(enums::enum_tag<target_type::player>, target_player))) {
         return _("ERROR_TARGET_NOT_UNIQUE");    
+    } else if (std::string error = check_player_filter(m_game->m_player_self, filter, target_player); !error.empty()) {
+        return _(error);
+    } else {
+        return std::nullopt;
     }
-
-    if (bool(filter & target_player_filter::dead)) {
-        if (target_player->hp > 0) return _("ERROR_TARGET_NOT_DEAD");
-    } else if (!target_player->has_player_flags(player_flags::targetable) && !target_player->alive()) {
-        return _("ERROR_TARGET_DEAD");
-    }
-
-    if (bool(filter & target_player_filter::self) && target_player != m_game->m_player_self)
-        return _("ERROR_TARGET_NOT_SELF");
-
-    if (bool(filter & target_player_filter::notself) && target_player == m_game->m_player_self)
-        return _("ERROR_TARGET_SELF");
-
-    if (bool(filter & target_player_filter::notsheriff) && target_player->m_role.role == player_role::sheriff)
-        return _("ERROR_TARGET_SHERIFF");
-
-    if (bool(filter & (target_player_filter::reachable | target_player_filter::range_1 | target_player_filter::range_2))) {
-        int distance = m_game->m_player_self->m_range_mod;
-        if (bool(filter & target_player_filter::reachable)) {
-            distance += m_game->m_player_self->m_weapon_range;
-        } else if (bool(filter & target_player_filter::range_1)) {
-            ++distance;
-        } else if (bool(filter & target_player_filter::range_2)) {
-            distance += 2;
-        }
-        if (calc_distance(m_game->m_player_self, target_player) > distance) {
-            return _("ERROR_TARGET_NOT_IN_RANGE");
-        }
-    }
-
-    return std::nullopt;
 }
 
 std::optional<std::string> target_finder::verify_card_target(const effect_holder &args, player_view *player, card_view *card) {
-    if (!bool(args.card_filter & target_card_filter::can_target_self)
-        && card == m_playing_card || ranges_contains(m_modifiers, card))
-        return _("ERROR_TARGET_PLAYING_CARD");
-
     if (!bool(args.card_filter & target_card_filter::can_repeat)
         && std::ranges::any_of(m_targets, [card](const play_card_target &target) {
             return enums::visit(overloaded{
@@ -551,46 +521,13 @@ std::optional<std::string> target_finder::verify_card_target(const effect_holder
                 [card](const std::vector<card_view *> &cs) { return ranges_contains(cs, card); },
             }, target);
         }))
+    {
         return _("ERROR_TARGET_NOT_UNIQUE");
-
-    if (bool(args.card_filter & target_card_filter::cube_slot)) {
-        if (card != player->m_characters.front() && card->color != card_color_type::orange)
-            return _("ERROR_TARGET_NOT_CUBE_SLOT");
-    } else if (card->deck == card_deck_type::character) {
-        return _("ERROR_TARGET_NOT_CARD");
+    } else if (std::string error = check_card_filter(m_playing_card, m_game->m_player_self, args.card_filter, card); !error.empty()) {
+        return _(error);
+    } else {
+        return std::nullopt;
     }
-
-    if (bool(args.card_filter & target_card_filter::beer) && !card->has_tag(tag_type::beer))
-        return _("ERROR_TARGET_NOT_BEER");
-
-    if (bool(args.card_filter & target_card_filter::bang) && !is_bangcard(card))
-        return _("ERROR_TARGET_NOT_BANG");
-
-    if (bool(args.card_filter & target_card_filter::bangcard) && !card->has_tag(tag_type::bangcard))
-        return "ERROR_TARGET_NOT_BANG";
-    
-    if (bool(args.card_filter & target_card_filter::missed) && !card->has_tag(tag_type::missedcard))
-        return _("ERROR_TARGET_NOT_MISSED");
-
-    if (bool(args.card_filter & target_card_filter::bronco) && !card->has_tag(tag_type::bronco))
-        return _("ERROR_TARGET_NOT_BRONCO");
-    
-    if (bool(args.card_filter & target_card_filter::blue) && card->color != card_color_type::blue)
-        return _("ERROR_TARGET_NOT_BLUE_CARD");
-    
-    if (bool(args.card_filter & target_card_filter::clubs) && card->sign.suit != card_suit::clubs)
-        return _("ERROR_TARGET_NOT_CLUBS");
-    
-    if (bool(args.card_filter & target_card_filter::black) != (card->color == card_color_type::black))
-        return _("ERROR_TARGET_BLACK_CARD");
-    
-    if (bool(args.card_filter & target_card_filter::table) && card->pocket != &player->table)
-        return _("ERROR_TARGET_NOT_TABLE_CARD");
-
-    if (bool(args.card_filter & target_card_filter::hand) && card->pocket != &player->hand)
-        return _("ERROR_TARGET_NOT_HAND_CARD");
-
-    return std::nullopt;
 }
 
 std::vector<player_view *> target_finder::possible_player_targets(target_player_filter filter) {

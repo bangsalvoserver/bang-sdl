@@ -22,6 +22,7 @@ set(bangclient_srcs
     src/gamescene/card.cpp
     src/gamescene/card_serial.cpp
     src/gamescene/player.cpp
+    src/gamescene/filters.cpp
     src/gamescene/game.cpp
     src/gamescene/game_ui.cpp
     src/gamescene/game_message_box.cpp

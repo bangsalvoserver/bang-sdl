@@ -35,6 +35,10 @@ namespace banggame {
         card_view *find_card(int id) const;
         player_view *find_player(int id) const;
 
+        const target_finder &get_target_finder() const {
+            return m_target;
+        }
+
     private:
         void handle_game_update(UPD_TAG(game_over),        const game_over_update &args);
         void handle_game_update(UPD_TAG(game_error),       const game_string &args);

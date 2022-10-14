@@ -58,10 +58,11 @@ namespace banggame {
         }
         
         void send_prompt_response(bool response);
+        
+        bool is_bangcard(card_view *card) const;
+        int calc_distance(player_view *from, player_view *to) const;
     
     private:
-        bool is_bangcard(card_view *card);
-        
         void set_playing_card(card_view *card);
         void add_modifier(card_view *card);
         bool playable_with_modifiers(card_view *card);
@@ -75,8 +76,6 @@ namespace banggame {
         void add_card_target(player_view *player, card_view *card);
         int count_selected_cubes(card_view *card);
         bool add_selected_cube(card_view *card, int ncubes);
-        
-        int calc_distance(player_view *from, player_view *to);
 
         const card_view *get_current_card() const;
         const effect_list &get_current_card_effects() const;
