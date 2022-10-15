@@ -56,19 +56,6 @@ lobby_scene::expansion_box::expansion_box(const std::string &label, banggame::ca
     set_value(bool(flag & check));
 }
 
-template<banggame::card_expansion_type ... Es>
-static constexpr auto make_unofficials(enums::enum_sequence<Es...>) {
-    return ([] {
-        constexpr auto E = Es;
-        if constexpr (enums::value_with_data<E>) {
-            if constexpr (std::is_convertible_v<enums::enum_data_t<E>, banggame::unofficial_expansion>) {
-                return E;
-            }
-        }
-        return banggame::card_expansion_type{};
-     }() | ...);
-}
-
 lobby_scene::lobby_scene(client_manager *parent, const lobby_info &args)
     : scene_base(parent)
     , m_lobby_name_text(args.name, widgets::text_style {
@@ -78,10 +65,8 @@ lobby_scene::lobby_scene(client_manager *parent, const lobby_info &args)
     , m_start_btn(_("BUTTON_START"), [parent]{ parent->add_message<banggame::client_message_type::game_start>(); })
     , m_chat_btn(_("BUTTON_CHAT"), [parent]{ parent->enable_chat(); })
 {
-    static constexpr auto unofficials = make_unofficials(enums::make_enum_sequence<banggame::card_expansion_type>());
-
     for (auto E : enums::enum_values_v<banggame::card_expansion_type>) {
-        if (!parent->get_config().allow_unofficial_expansions && bool(unofficials & E)) continue;
+        if (!parent->get_config().allow_unofficial_expansions && bool(banggame::unofficial_expansions & E)) continue;
 
         m_checkboxes.emplace_back(_(E), E, args.options.expansions)
             .set_ontoggle([this]{ send_lobby_edited(); });
