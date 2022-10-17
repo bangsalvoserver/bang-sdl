@@ -59,7 +59,6 @@ namespace banggame {
         int m_distance_mod = 0;
 
         bool has_player_flags(player_flags flags) const {
-            using namespace enums::flag_operators;
             return (m_player_flags & flags) == flags;
         }
 

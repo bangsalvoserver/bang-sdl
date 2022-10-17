@@ -7,7 +7,6 @@
 #include <ranges>
 
 using namespace banggame;
-using namespace enums::flag_operators;
 using namespace sdl::point_math;
 
 game_scene::game_scene(client_manager *parent)

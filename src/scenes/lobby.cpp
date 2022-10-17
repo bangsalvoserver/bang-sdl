@@ -6,7 +6,6 @@
 #include "lobby_list.h"
 
 using namespace banggame;
-using namespace enums::flag_operators;
 
 lobby_scene::lobby_player_item::lobby_player_item(lobby_scene *parent, int id, const user_info &args)
     : parent(parent)
@@ -52,7 +51,6 @@ lobby_scene::expansion_box::expansion_box(const std::string &label, banggame::ca
     })
     , m_flag(flag)
 {
-    using namespace enums::flag_operators;
     set_value(bool(flag & check));
 }
 

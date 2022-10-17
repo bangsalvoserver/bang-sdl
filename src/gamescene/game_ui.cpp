@@ -6,7 +6,6 @@
 #include "../manager.h"
 
 using namespace banggame;
-using namespace enums::flag_operators;
 
 game_ui::game_ui(game_scene *parent)
     : parent(parent)

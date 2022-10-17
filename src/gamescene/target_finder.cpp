@@ -11,7 +11,6 @@
 #include <numeric>
 
 using namespace banggame;
-using namespace enums::flag_operators;
 using namespace sdl::point_math;
 
 void target_finder::set_playing_card(card_view *card) {
@@ -417,8 +416,6 @@ void target_finder::handle_auto_targets() {
         }
         return;
     }
-
-    using namespace enums::flag_operators;
 
     auto *current_card = get_current_card();
 

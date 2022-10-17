@@ -8,7 +8,6 @@
 namespace banggame {
 
     using namespace sdl::point_math;
-    using namespace enums::flag_operators;
 
     template<typename T>
     concept first_is_none = requires {
