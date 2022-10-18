@@ -292,7 +292,6 @@ LOCALE_VALUE(player_role::deputy,                       "Deputy")
 LOCALE_VALUE(player_role::outlaw,                       "Outlaw")
 LOCALE_VALUE(player_role::renegade,                     "Renegade")
 
-LOCALE_VALUE(card_expansion_type::characterchoice,      "Character Choice")
 LOCALE_VALUE(card_expansion_type::thebullet,            "The Bullet")
 LOCALE_VALUE(card_expansion_type::dodgecity,            "Dodge City")
 LOCALE_VALUE(card_expansion_type::valleyofshadows,      "Valley of Shadows")

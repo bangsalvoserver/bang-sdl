@@ -292,7 +292,6 @@ LOCALE_VALUE(player_role::deputy,                       "Vice")
 LOCALE_VALUE(player_role::outlaw,                       "Fuorilegge")
 LOCALE_VALUE(player_role::renegade,                     "Rinnegato")
 
-LOCALE_VALUE(card_expansion_type::characterchoice,      "Scelta dei Personaggi")
 LOCALE_VALUE(card_expansion_type::thebullet,            "La Pallottola")
 LOCALE_VALUE(card_expansion_type::dodgecity,            "Dodge City")
 LOCALE_VALUE(card_expansion_type::valleyofshadows,      "La Valle Delle Ombre")
