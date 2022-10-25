@@ -12,17 +12,15 @@
 
 #include "game/card_enums.h"
 
-struct config {
-    REFLECTABLE(
-        (std::vector<std::string>) recent_servers,
-        (std::string) user_name,
-        (std::string) profile_image,
-        (sdl::surface) profile_image_data,
-        (std::string) lobby_name,
-        (banggame::game_options) options,
-        (bool) allow_unofficial_expansions,
-        (uint16_t) server_port
-    )
+DEFINE_STRUCT(config,
+    (std::vector<std::string>, recent_servers)
+    (std::string, user_name)
+    (std::string, profile_image)
+    (sdl::surface, profile_image_data)
+    (std::string, lobby_name)
+    (banggame::game_options, options)
+    (bool, allow_unofficial_expansions)
+    (uint16_t, server_port),
 
     static inline const std::filesystem::path filename = std::filesystem::path(SDL_GetPrefPath(nullptr, "bang-sdl")) / "config.json";
     
@@ -53,6 +51,6 @@ struct config {
         std::ofstream ofs{filename};
         ofs << json::serialize(*this);
     }
-};
+)
 
 #endif
