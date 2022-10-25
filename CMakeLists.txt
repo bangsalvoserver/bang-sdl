@@ -11,6 +11,7 @@ if (MSVC)
 endif()
 
 set(bangclient_srcs
+    src/config.cpp
     src/image_serial.cpp
     src/intl.cpp
     src/entrypoint.cpp
