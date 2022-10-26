@@ -35,14 +35,8 @@ void target_finder::add_action(auto && ... args) {
     m_game->parent->add_message<banggame::client_message_type::game_action>(json::serialize(banggame::game_action{enums::enum_tag<T>, FWD(args) ...}, *m_game));
 }
 
-void target_finder::set_picking_border(pocket_type pocket, player_view *player, card_view *card, sdl::color color) {
+void target_finder::set_picking_border(pocket_type pocket, sdl::color color) {
     switch (pocket) {
-    case pocket_type::player_hand:
-    case pocket_type::player_table:
-    case pocket_type::player_character:
-    case pocket_type::selection:
-        m_response_borders.add(card->border_color, color);
-        break;
     case pocket_type::main_deck:
         m_response_borders.add(m_game->m_main_deck.border_color, color);
         break;
@@ -50,6 +44,10 @@ void target_finder::set_picking_border(pocket_type pocket, player_view *player, 
         m_response_borders.add(m_game->m_discard_pile.border_color, color);
         break;
     }
+}
+
+void target_finder::set_picking_border(card_view *card, sdl::color color) {
+    m_response_borders.add(card->border_color, color);
 }
 
 void target_finder::set_response_highlights(const request_status_args &args) {
@@ -66,8 +64,12 @@ void target_finder::set_response_highlights(const request_status_args &args) {
         m_response_borders.add(args.origin_card->border_color, colors.target_finder_origin_card);
     }
 
-    for (const auto &[pocket, player, card] : (m_picking_highlights = args.pick_cards)) {
-        set_picking_border(pocket, player, card, colors.target_finder_can_pick);
+    for (pocket_type pocket : (m_picking_pockets = args.pick_pockets)) {
+        set_picking_border(pocket, colors.target_finder_can_pick);
+    }
+
+    for (card_view *card : (m_picking_highlights = args.pick_cards)) {
+        set_picking_border(card, colors.target_finder_can_pick);
     }
 
     for (card_view *card : (m_response_highlights = args.respond_cards)) {
@@ -126,10 +128,6 @@ bool target_finder::can_respond_with(card_view *card) const {
     return ranges_contains(m_response_highlights, card);
 }
 
-bool target_finder::can_pick_card(pocket_type pocket, player_view *player, card_view *card) const {
-    return ranges_contains(m_picking_highlights, picking_args{pocket, player, card});
-}
-
 bool target_finder::can_play_in_turn(pocket_type pocket, player_view *player, card_view *card) const {
     if (bool(m_request_flags & effect_flags::force_play)) {
         return can_respond_with(card) || card->pocket == &m_game->m_shop_choice;
@@ -167,8 +165,10 @@ void target_finder::on_click_card(pocket_type pocket, player_view *player, card_
     } else if (can_respond_with(card)) {
         m_response = true;
         set_playing_card(card);
-    } else if (can_pick_card(pocket, player, card)) {
-        send_pick_card(pocket, player, card);
+    } else if (ranges_contains(m_picking_highlights, card)) {
+        send_pick_card(card);
+    } else if (ranges_contains(m_picking_pockets, pocket)) {
+        send_pick_pocket(pocket);
     } else if (can_play_in_turn(pocket, player, card)) {
         if ((pocket == pocket_type::player_hand || pocket == pocket_type::shop_selection) && card->color != card_color_type::brown) {
             if (playable_with_modifiers(card)) {
@@ -664,9 +664,15 @@ void target_finder::send_play_card() {
     m_waiting_confirm = true;
 }
 
-void target_finder::send_pick_card(pocket_type pocket, player_view *player, card_view *card) {
-    set_picking_border(pocket, player, card, colors.target_finder_picked);
-    add_action<game_action_type::pick_card>(pocket, player, card);
+void target_finder::send_pick_card(card_view *card) {
+    set_picking_border(card, colors.target_finder_picked);
+    add_action<game_action_type::pick_card>(card);
+    m_waiting_confirm = true;
+}
+
+void target_finder::send_pick_pocket(pocket_type pocket) {
+    set_picking_border(pocket, colors.target_finder_picked);
+    add_action<game_action_type::pick_pocket>(pocket);
     m_waiting_confirm = true;
 }
 
