@@ -298,12 +298,16 @@ bool target_finder::playable_with_modifiers(card_view *card) {
             return ranges_contains(m_game->m_shop_choice, card);
         case card_modifier_type::belltower:
             if (card->pocket == &m_game->m_player_self->hand) {
-                return card->color == card_color_type::brown;
+                if (card->color != card_color_type::brown) return false;
             } else if (card->pocket == &m_game->m_player_self->table) {
-                return !card->effects.empty();
+                if (card->effects.empty()) return false;
             } else {
-                return card->color != card_color_type::black;
+                if (card->color == card_color_type::black) return false;
             }
+            return std::ranges::any_of(card->effects,
+                [](target_player_filter filter) {
+                    return bool(filter & (target_player_filter::range_1 | target_player_filter::range_2 | target_player_filter::reachable));
+                }, &effect_holder::player_filter);
         default:
             return false;
         }
