@@ -29,6 +29,7 @@ namespace banggame {
 
         bool can_respond_with(card_view *card) const;
 
+        bool can_pick_card(pocket_type pocket, player_view *player, card_view *card) const;
         bool can_play_in_turn(pocket_type pocket, player_view *player, card_view *card) const;
         bool can_confirm() const;
 
@@ -82,8 +83,7 @@ namespace banggame {
         const card_view *get_current_card() const;
         const effect_list &get_current_card_effects() const;
 
-        void send_pick_card(card_view *card);
-        void send_pick_pocket(pocket_type pocket);
+        void send_pick_card(pocket_type pocket, player_view *player, card_view *card);
         void send_play_card();
 
         const effect_holder &get_effect_holder(int index);
@@ -95,7 +95,6 @@ namespace banggame {
 
         std::vector<card_view *> m_response_highlights;
         std::vector<card_view *> m_picking_highlights;
-        std::vector<pocket_type> m_picking_pockets;
         raii_editor_stack<sdl::color> m_response_borders;
 
         effect_flags m_request_flags{};
