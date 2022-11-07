@@ -267,13 +267,10 @@ void client_manager::handle_message(SRV_TAG(lobby_remove_user), const user_id_ar
 }
 
 void client_manager::handle_message(SRV_TAG(lobby_chat), const lobby_chat_args &args) {
-    user_info *info = get_user_info(args.user_id);
-    if (info) {
-        std::string msg = info->name;
-        msg += ": ";
-        msg += args.message;
-
-        add_chat_message(message_type::chat, msg);
+    if (user_info *info = get_user_info(args.user_id)) {
+        add_chat_message(message_type::chat, fmt::format("{}: {}", info->name, args.message));
+    } else {
+        add_chat_message(message_type::chat, args.message);
     }
 }
 
