@@ -1,7 +1,7 @@
 #include "lobby_list.h"
 
 #include "../manager.h"
-#include "game/net_options.h"
+#include "net/options.h"
 
 using namespace banggame;
 

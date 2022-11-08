@@ -12,8 +12,7 @@
 #include "chat_ui.h"
 #include "image_serial.h"
 
-#include "game/messages.h"
-
+#include "net/messages.h"
 #include "net/wsconnection.h"
 
 #include <process.hpp>

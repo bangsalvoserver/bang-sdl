@@ -1,7 +1,7 @@
 #ifndef __IMAGE_SERIAL_H__
 #define __IMAGE_SERIAL_H__
 
-#include "game/messages.h"
+#include "net/messages.h"
 #include "utils/binary_serial.h"
 #include "utils/json_serial.h"
 #include "sdl_wrap.h"

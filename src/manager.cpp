@@ -4,7 +4,7 @@
 #include <iostream>
 #include <charconv>
 
-#include "game/net_options.h"
+#include "net/options.h"
 
 #include "media_pak.h"
 

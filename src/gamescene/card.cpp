@@ -1,6 +1,6 @@
 #include "card.h"
 
-#include "game/net_options.h"
+#include "net/options.h"
 #include "../media_pak.h"
 
 #include <fmt/format.h>

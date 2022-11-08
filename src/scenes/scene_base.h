@@ -1,7 +1,7 @@
 #ifndef __SCENE_BASE_H__
 #define __SCENE_BASE_H__
 
-#include "game/messages.h"
+#include "net/messages.h"
 
 #include "sdl_wrap.h"
 
