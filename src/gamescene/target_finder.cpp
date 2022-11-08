@@ -661,12 +661,7 @@ bool target_finder::add_selected_cube(card_view *card, int ncubes) {
 }
 
 void target_finder::send_play_card() {
-    if (m_response) {
-        add_action<game_action_type::respond_card>(m_playing_card, m_modifiers, m_targets);
-    } else {
-        add_action<game_action_type::play_card>(m_playing_card, m_modifiers, m_targets);
-    }
-
+    add_action<game_action_type::play_card>(m_playing_card, m_modifiers, m_targets, m_response);
     m_waiting_confirm = true;
 }
 
