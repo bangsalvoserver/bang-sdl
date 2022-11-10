@@ -77,6 +77,10 @@ void lobby_scene::handle_message(SRV_TAG(lobby_edited), const lobby_info &info) 
     for (auto &checkbox : m_checkboxes) {
         checkbox.set_value(bool(info.options.expansions & checkbox.m_flag));
     }
+
+    if (parent->get_lobby_owner_id() == parent->get_user_own_id()) {
+        parent->get_config().options = info.options;
+    }
 }
 
 void lobby_scene::send_lobby_edited() {
