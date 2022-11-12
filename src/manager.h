@@ -115,6 +115,8 @@ public:
 
     const user_info &add_user(int id, std::string name, const sdl::surface &surface);
 
+    void play_sound(std::string_view sound_id);
+
 private:
     void handle_message(SRV_TAG(client_accepted), const banggame::client_accepted_args &args);
     void handle_message(SRV_TAG(lobby_error), const std::string &message);

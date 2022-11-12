@@ -45,3 +45,19 @@ set(media_files
 )
 
 pack_resources(media_pak media "${CMAKE_BINARY_DIR}/media.pak" "${media_files}")
+
+set(sound_files
+    sounds/bang.wav
+    sounds/death.wav
+    sounds/draw.wav
+    sounds/duel.wav
+    sounds/dynamite.wav
+    sounds/gamestart.wav
+    sounds/gatling.wav
+    sounds/generalstore.wav
+    sounds/indians.wav
+    sounds/invalid.wav
+    sounds/shuffle.wav
+)
+
+pack_resources(sounds_pak sounds "${CMAKE_BINARY_DIR}/sounds.pak" "${sound_files}")

@@ -18,6 +18,7 @@ set(bangclient_srcs
     src/manager.cpp
     src/chat_ui.cpp
     src/media_pak.cpp
+    src/sounds_pak.cpp
     src/os_api.cpp
     src/gamescene/animations.cpp
     src/gamescene/card.cpp
@@ -84,7 +85,7 @@ target_include_directories(bangclient PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/export
 target_link_libraries(bangclient PUBLIC bangcommon sdl2_libraries tiny-process-library)
 target_compile_definitions(bangclient PRIVATE BUILD_BANG_CLIENT)
 
-add_dependencies(bangclient cards_pak media_pak)
+add_dependencies(bangclient cards_pak media_pak sounds_pak)
 
 set_target_properties(bangclient bangserver tiny-process-library PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}

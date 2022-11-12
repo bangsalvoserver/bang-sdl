@@ -2,7 +2,6 @@
 
 #include "game.h"
 #include "../manager.h"
-#include "../os_api.h"
 #include "utils/utils.h"
 #include "game/effect_list_zip.h"
 #include "game/filters.h"
@@ -194,7 +193,7 @@ bool target_finder::on_click_player(player_view *player) {
     auto verify_filter = [&](target_player_filter filter) {
         if (auto error = check_player_filter(filter, player))  {
             m_game->parent->add_chat_message(message_type::error, _(error));
-            os_api::play_bell();
+            m_game->parent->play_sound("invalid");
             return false;
         }
         return true;
@@ -551,7 +550,7 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
     case target_type::cards:
         if (auto error = check_card_filter(cur_target.card_filter, card)) {
             m_game->parent->add_chat_message(message_type::error, _(error));
-            os_api::play_bell();
+            m_game->parent->play_sound("invalid");
         } else {
             if (player != m_game->m_player_self && card->pocket == &player->hand) {
                 for (card_view *hand_card : player->hand) {

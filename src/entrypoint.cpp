@@ -4,6 +4,7 @@
 
 #include "manager.h"
 #include "media_pak.h"
+#include "sounds_pak.h"
 
 #include "bangclient_export.h"
 
@@ -32,7 +33,7 @@ extern "C" BANGCLIENT_EXPORT const char *STDCALL get_cards_commit_hash() {
 #endif
 
 extern "C" BANGCLIENT_EXPORT long STDCALL entrypoint(const char *base_path) {
-    sdl::initializer sdl_init(SDL_INIT_VIDEO);
+    sdl::initializer sdl_init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
     sdl::ttf_initializer sdl_ttf_init;
     sdl::img_initializer sdl_img_init(IMG_INIT_PNG | IMG_INIT_JPG);
 
@@ -44,6 +45,7 @@ extern "C" BANGCLIENT_EXPORT long STDCALL entrypoint(const char *base_path) {
     SDL_SetRenderDrawBlendMode(renderer.get(), SDL_BLENDMODE_BLEND);
     
     media_pak resources{base_path, renderer};
+    sounds_pak sounds{base_path};
     SDL_SetWindowIcon(window.get(), media_pak::get().icon_bang.get());
 
     asio::io_context ctx;
