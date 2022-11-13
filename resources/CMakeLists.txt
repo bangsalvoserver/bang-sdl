@@ -47,6 +47,7 @@ set(media_files
 pack_resources(media_pak media "${CMAKE_BINARY_DIR}/media.pak" "${media_files}")
 
 set(sound_files
+    sounds/bandidos.wav
     sounds/bang.wav
     sounds/death.wav
     sounds/draw.wav
@@ -58,6 +59,7 @@ set(sound_files
     sounds/indians.wav
     sounds/invalid.wav
     sounds/shuffle.wav
+    sounds/snake.wav
 )
 
 pack_resources(sounds_pak sounds "${CMAKE_BINARY_DIR}/sounds.pak" "${sound_files}")
