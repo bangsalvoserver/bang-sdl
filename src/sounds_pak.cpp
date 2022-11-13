@@ -3,8 +3,10 @@
 #include <thread>
 
 wav_file::wav_file(resource_view res) {
+    Uint8 *ptr;
     SDL_AudioSpec spec;
-    SDL_LoadWAV_RW(SDL_RWFromConstMem(res.data, static_cast<int>(res.length)), 0, &spec, &buf, &len);
+    SDL_LoadWAV_RW(SDL_RWFromConstMem(res.data, static_cast<int>(res.length)), 0, &spec, &ptr, &len);
+    buf.reset(ptr);
     if (!buf) {
         throw sdl::error(SDL_GetError());
     }
@@ -12,14 +14,9 @@ wav_file::wav_file(resource_view res) {
     device_id = SDL_OpenAudioDevice(nullptr, 0, &spec, nullptr, 0);
 }
 
-wav_file::~wav_file() {
-    SDL_CloseAudioDevice(device_id);
-    SDL_FreeWAV(buf);
-}
-
 void wav_file::play() {
     SDL_ClearQueuedAudio(device_id);
-    SDL_QueueAudio(device_id, buf, len);
+    SDL_QueueAudio(device_id, buf.get(), len);
     SDL_PauseAudioDevice(device_id, 0);
 }
 

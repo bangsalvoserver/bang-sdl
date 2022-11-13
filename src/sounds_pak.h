@@ -6,18 +6,18 @@
 
 #include "utils/unpacker.h"
 
+struct wav_deleter {
+    void operator()(Uint8 *data) {
+        SDL_FreeWAV(data);
+    }
+};
+
 struct wav_file {
-    Uint8 *buf;
+    std::unique_ptr<Uint8[], wav_deleter> buf;
     Uint32 len;
     SDL_AudioDeviceID device_id;
 
     wav_file(resource_view res);
-    ~wav_file();
-
-    wav_file(const wav_file &other) = delete;
-    wav_file(wav_file &&other) = delete;
-    wav_file &operator = (const wav_file &other) = delete;
-    wav_file &operator = (wav_file &&other) = delete;
 
     void play();
 };
