@@ -15,9 +15,12 @@ struct wav_deleter {
 struct wav_file {
     std::unique_ptr<Uint8[], wav_deleter> buf;
     Uint32 len;
-    SDL_AudioDeviceID device_id;
+    Uint32 played = 0;
+    SDL_AudioSpec spec;
+    SDL_AudioDeviceID device_id = 0;
 
     wav_file(resource_view res);
+    ~wav_file();
 
     void play();
 };

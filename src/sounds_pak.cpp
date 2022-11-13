@@ -4,19 +4,35 @@
 
 wav_file::wav_file(resource_view res) {
     Uint8 *ptr;
-    SDL_AudioSpec spec;
     SDL_LoadWAV_RW(SDL_RWFromConstMem(res.data, static_cast<int>(res.length)), 0, &spec, &ptr, &len);
     buf.reset(ptr);
     if (!buf) {
         throw sdl::error(SDL_GetError());
     }
 
+    spec.userdata = this;
+    spec.callback = [](void *userdata, Uint8 *stream, int len) {
+        auto &self = *static_cast<wav_file *>(userdata);
+
+        SDL_memset(stream, 0, len);
+        len = std::min<int>(len, self.len - self.played);
+        if (len > 0) {
+            SDL_MixAudioFormat(stream, self.buf.get() + self.played, self.spec.format, len, SDL_MIX_MAXVOLUME  / 2);
+            self.played += len;
+        }
+    };
+
     device_id = SDL_OpenAudioDevice(nullptr, 0, &spec, nullptr, 0);
 }
 
+wav_file::~wav_file() {
+    if (played < len) {
+        SDL_CloseAudioDevice(device_id);
+    }
+}
+
 void wav_file::play() {
-    SDL_ClearQueuedAudio(device_id);
-    SDL_QueueAudio(device_id, buf.get(), len);
+    played = 0;
     SDL_PauseAudioDevice(device_id, 0);
 }
 
