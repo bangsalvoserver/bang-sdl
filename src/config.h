@@ -12,14 +12,19 @@
 
 #include "game/card_enums.h"
 
+#ifndef OFFICIAL_BANG_SERVER
+    #define OFFICIAL_BANG_SERVER
+#endif
+
 DEFINE_STRUCT(config,
-    (std::vector<std::string>, recent_servers)
+    (std::vector<std::string>, recent_servers, OFFICIAL_BANG_SERVER)
     (std::string, user_name)
     (std::string, profile_image)
     (sdl::surface, profile_image_data)
     (std::string, lobby_name)
     (banggame::game_options, options)
     (bool, allow_unofficial_expansions)
+    (float, sound_volume, .5f)
     (uint16_t, server_port),
     
     void load();

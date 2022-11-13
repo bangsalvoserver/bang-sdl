@@ -255,7 +255,7 @@ const user_info &client_manager::add_user(int id, std::string name, const sdl::s
 }
 
 void client_manager::play_sound(std::string_view sound_id) {
-    sounds_pak::get().play_sound(sound_id);
+    sounds_pak::get().play_sound(sound_id, m_config.sound_volume);
 }
 
 void client_manager::handle_message(SRV_TAG(lobby_add_user), const lobby_add_user_args &args) {

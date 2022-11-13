@@ -18,11 +18,12 @@ struct wav_file {
     Uint32 played = 0;
     SDL_AudioSpec spec;
     SDL_AudioDeviceID device_id = 0;
+    int volume = SDL_MIX_MAXVOLUME;
 
     wav_file(resource_view res);
     ~wav_file();
 
-    void play();
+    void play(float volume = 1.f);
 };
 
 struct sounds_pak {
@@ -30,7 +31,7 @@ public:
     explicit sounds_pak(const std::filesystem::path &base_path);
 
 public:
-    void play_sound(std::string_view name);
+    void play_sound(std::string_view name, float volume = 1.f);
 
     static sounds_pak &get() {
         return *s_instance;

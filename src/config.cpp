@@ -5,9 +5,6 @@ static const std::filesystem::path filename = std::filesystem::path(SDL_GetPrefP
 void config::load() {
     std::ifstream ifs{filename};
     if (ifs.fail()) {
-#ifdef OFFICIAL_BANG_SERVER
-        recent_servers.push_back(OFFICIAL_BANG_SERVER);
-#endif
         return;
     }
     try {
