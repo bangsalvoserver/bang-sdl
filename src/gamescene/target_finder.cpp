@@ -584,7 +584,11 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
             m_targets.back().get<target_type::cards_other_players>().reserve(
                 std::ranges::count_if(m_game->m_players, [&](const player_view &p) {
                     if (!p.alive() || &p == m_game->m_player_self) return false;
-                    if (p.table.empty() && p.hand.empty()) return false;
+                    if (std::ranges::all_of(p.table, [](card_view *card) { return card->color == card_color_type::black; })) {
+                        if (p.hand.empty()) {
+                            return false;
+                        }
+                    }
                     return true;
                 }));
         }
