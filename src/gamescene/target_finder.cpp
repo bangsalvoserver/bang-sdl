@@ -414,6 +414,16 @@ int target_finder::calc_distance(player_view *from, player_view *to) const {
     }
 }
 
+struct targetable_for_cards_other_player {
+    const player_view &origin;
+    bool operator()(const player_view &target) {
+        if (&target == &origin || !target.alive()) return false;
+        return !target.hand.empty() || std::ranges::any_of(target.table, [](card_view *card) {
+            return card->color != card_color_type::black;
+        });
+    }
+};
+
 void target_finder::handle_auto_targets() {
     if (m_equipping) {
         if (m_playing_card->self_equippable()) {
@@ -483,6 +493,13 @@ void target_finder::handle_auto_targets() {
         case target_type::extra_card:
             if (current_card == m_last_played_card) {
                 m_targets.emplace_back(enums::enum_tag<target_type::extra_card>);
+                break;
+            } else {
+                return;
+            }
+        case target_type::cards_other_players:
+            if (std::ranges::none_of(m_game->m_players, targetable_for_cards_other_player{*m_game->m_player_self})) {
+                m_targets.emplace_back(enums::enum_tag<target_type::cards_other_players>);
                 break;
             } else {
                 return;
@@ -582,15 +599,7 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
         if (index >= m_targets.size()) {
             m_targets.emplace_back(enums::enum_tag<target_type::cards_other_players>);
             m_targets.back().get<target_type::cards_other_players>().reserve(
-                std::ranges::count_if(m_game->m_players, [&](const player_view &p) {
-                    if (!p.alive() || &p == m_game->m_player_self) return false;
-                    if (std::ranges::all_of(p.table, [](card_view *card) { return card->color == card_color_type::black; })) {
-                        if (p.hand.empty()) {
-                            return false;
-                        }
-                    }
-                    return true;
-                }));
+                std::ranges::count_if(m_game->m_players, targetable_for_cards_other_player{*m_game->m_player_self}));
         }
         if (auto &vec = m_targets.back().get<target_type::cards_other_players>();
             card->color != card_color_type::black && player != m_game->m_player_self
