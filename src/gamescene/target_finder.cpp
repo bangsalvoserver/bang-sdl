@@ -504,11 +504,8 @@ void target_finder::handle_auto_targets() {
             } else {
                 return;
             }
-        case target_type::other_players:
-            m_targets.emplace_back(enums::enum_tag<target_type::other_players>);
-            break;
-        case target_type::all_players:
-            m_targets.emplace_back(enums::enum_tag<target_type::all_players>);
+        case target_type::players:
+            m_targets.emplace_back(enums::enum_tag<target_type::players>);
             break;
         case target_type::self_cubes:
             add_selected_cube(m_playing_card, effect_it->target_value);
