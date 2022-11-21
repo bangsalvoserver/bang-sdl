@@ -256,13 +256,19 @@ namespace sdl {
     class texture : public std::unique_ptr<SDL_Texture, texture_deleter> {
         using base = std::unique_ptr<SDL_Texture, texture_deleter>;
 
+        void check() {
+            if (!*this) throw error(fmt::format("Could not create texture: {}", SDL_GetError()));
+        }
+
     public:
         texture() = default;
+
+        texture(SDL_Texture *value) : base(value) { check(); }
         
         texture(renderer &renderer, const surface &surf) {
             if (surf) {
                 reset(SDL_CreateTextureFromSurface(renderer.get(), surf.get()));
-                if (!*this) throw error(fmt::format("Could not create texture: {}", SDL_GetError()));
+                check();
             }
         }
 

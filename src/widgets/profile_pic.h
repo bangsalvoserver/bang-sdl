@@ -47,6 +47,7 @@ namespace widgets {
 
     private:
         sdl::texture_ref m_texture;
+        sdl::texture m_border_texture;
 
         sdl::rect m_rect;
 
