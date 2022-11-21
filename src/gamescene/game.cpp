@@ -693,10 +693,6 @@ void game_scene::handle_game_update(UPD_TAG(game_flags), const game_flags &args)
     m_game_flags = args;
 }
 
-void game_scene::handle_game_update(UPD_TAG(game_options), const game_options &args) {
-    m_game_options = args;
-}
-
 void game_scene::handle_game_update(UPD_TAG(play_sound), const std::string &sound_id) {
     parent->play_sound(sound_id);
 }

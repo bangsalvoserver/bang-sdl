@@ -66,7 +66,6 @@ namespace banggame {
         void handle_game_update(UPD_TAG(switch_turn),      player_view *player);
         void handle_game_update(UPD_TAG(request_status),   const request_status_args &args);
         void handle_game_update(UPD_TAG(game_flags),       const game_flags &args);
-        void handle_game_update(UPD_TAG(game_options),     const game_options &args);
         void handle_game_update(UPD_TAG(play_sound),       const std::string &sound_id);
         void handle_game_update(UPD_TAG(status_clear));
         void handle_game_update(UPD_TAG(confirm_play));
@@ -118,8 +117,6 @@ namespace banggame {
         duration_type m_mouse_motion_timer{0};
         bool m_middle_click = false;
         card_view *m_overlay = nullptr;
-
-        game_options m_game_options;
         
         player_view *m_player_self = nullptr;
         player_view *m_playing = nullptr;
