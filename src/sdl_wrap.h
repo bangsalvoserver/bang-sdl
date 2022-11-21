@@ -377,8 +377,8 @@ namespace sdl {
     }
 
     inline bool point_in_rect(const point &pt, const rect &rect) {
-        return pt.x >= rect.x && pt.x <= (rect.x + rect.w)
-            && pt.y >= rect.y && pt.y <= (rect.y + rect.h);
+        return pt.x >= rect.x && pt.x < (rect.x + rect.w)
+            && pt.y >= rect.y && pt.y < (rect.y + rect.h);
     };
 
     inline void scale_rect_width(rect &rect, int new_width) {

@@ -26,7 +26,7 @@ inline sdl::color &pixel_color(void *pixels, int x, int y, int pitch) {
 }
 
 static sdl::texture generate_border_texture(sdl::renderer &renderer, sdl::texture_ref source) {
-    static constexpr size_t resolution = 1;
+    static constexpr size_t resolution = 3;
     static constexpr size_t circle_size = 5;
 
     static constexpr auto points = []{
@@ -92,7 +92,7 @@ static sdl::texture generate_border_texture(sdl::renderer &renderer, sdl::textur
                     }
                 }
             }
-            value = std::clamp<float>(value * 8, 0, 0xff);
+            value = std::clamp<float>(value * 6, 0, 0xff);
             pixel_color(ret_pixels, x, y, pitch) = {0xff, 0xff, 0xff, static_cast<uint8_t>(value)};
         }
     }
