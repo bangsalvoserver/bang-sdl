@@ -346,22 +346,14 @@ void game_scene::handle_game_update(UPD_TAG(game_prompt), const game_string &arg
 
 void game_scene::handle_game_update(UPD_TAG(deck_shuffled), const pocket_type &pocket) {
     switch (pocket) {
-    case pocket_type::main_deck: {
-        card_view *top_discard = m_discard_pile.back();
-        if (m_game_options.keep_last_card_shuffling) {
-            m_discard_pile.erase_card(top_discard);
-        }
+    case pocket_type::main_deck:
         for (card_view *card : m_discard_pile) {
             card->known = false;
             m_main_deck.add_card(card);
         }
         m_discard_pile.clear();
-        if (m_game_options.keep_last_card_shuffling) {
-            m_discard_pile.add_card(top_discard);
-        }
         add_animation<deck_shuffle_animation>(durations.shuffle_deck, &m_main_deck, m_discard_pile.get_pos());
         break;
-    }
     case pocket_type::shop_deck:
         for (card_view *card : m_shop_discard) {
             card->known = false;
