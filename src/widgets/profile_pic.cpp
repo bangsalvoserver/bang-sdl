@@ -1,6 +1,8 @@
 #include "profile_pic.h"
 #include "../media_pak.h"
 
+#include <array>
+
 namespace widgets {
 
 sdl::surface profile_pic::scale_profile_image(sdl::surface &&image) {
@@ -21,7 +23,7 @@ void profile_pic::set_texture(std::nullptr_t) {
     set_texture(media_pak::get().icon_default_user);
 }
 
-inline sdl::color &pixel_color(void *pixels, int x, int y, int pitch) {
+inline sdl::color &pixel_color(void *pixels, size_t x, size_t y, int pitch) {
     return *(reinterpret_cast<sdl::color *>(static_cast<std::byte *>(pixels) + y * pitch) + x);
 }
 
@@ -45,14 +47,16 @@ static sdl::texture generate_border_texture(sdl::renderer &renderer, sdl::textur
 
     static constexpr auto circle = []{
         constexpr float radius = circle_size * .5f;
+        constexpr float coefficient = 6.f / (points.size() * circle_size * circle_size);
+
         std::array<std::array<float, circle_size>, circle_size> ret{};
         for (size_t y=0; y<circle_size; ++y) {
             for (size_t x=0; x<circle_size; ++x) {
                 for (auto [xx, yy] : points) {
                     float dx = radius - (x + xx);
                     float dy = radius - (y + yy);
-                    float d = std::sqrt(dx*dx + dy*dy);
-                    ret[y][x] += float(d <= radius) / (points.size() * circle_size * circle_size);
+                    float d2 = dx*dx + dy*dy;
+                    ret[y][x] += float(d2 <= radius*radius) * coefficient;
                 }
             }
         }
@@ -92,8 +96,8 @@ static sdl::texture generate_border_texture(sdl::renderer &renderer, sdl::textur
                     }
                 }
             }
-            value = std::clamp<float>(value * 6, 0, 0xff);
-            pixel_color(ret_pixels, x, y, pitch) = {0xff, 0xff, 0xff, static_cast<uint8_t>(value)};
+            pixel_color(ret_pixels, x, y, pitch) = {0xff, 0xff, 0xff,
+                static_cast<uint8_t>(std::clamp<float>(value, 0, 0xff))};
         }
     }
 
