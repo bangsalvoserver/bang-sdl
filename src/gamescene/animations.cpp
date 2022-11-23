@@ -10,17 +10,17 @@ namespace banggame {
 
     constexpr sdl::point lerp_point(sdl::point begin, sdl::point end, float amt) {
         return {
-            static_cast<int>(std::lerp(static_cast<float>(begin.x), static_cast<float>(end.x), amt)),
-            static_cast<int>(std::lerp(static_cast<float>(begin.y), static_cast<float>(end.y), amt))
+            int(std::lerp(float(begin.x), float(end.x), amt)),
+            int(std::lerp(float(begin.y), float(end.y), amt))
         };
     }
 
     constexpr sdl::color lerp_color(sdl::color begin, sdl::color end, float amt) {
         return {
-            static_cast<uint8_t>(std::lerp(static_cast<float>(begin.r), static_cast<float>(end.r), amt)),
-            static_cast<uint8_t>(std::lerp(static_cast<float>(begin.g), static_cast<float>(end.g), amt)),
-            static_cast<uint8_t>(std::lerp(static_cast<float>(begin.b), static_cast<float>(end.b), amt)),
-            static_cast<uint8_t>(std::lerp(static_cast<float>(begin.a), static_cast<float>(end.a), amt))
+            static_cast<uint8_t>(std::lerp(float(begin.r), float(end.r), amt)),
+            static_cast<uint8_t>(std::lerp(float(begin.g), float(end.g), amt)),
+            static_cast<uint8_t>(std::lerp(float(begin.b), float(end.b), amt)),
+            static_cast<uint8_t>(std::lerp(float(begin.a), float(end.a), amt))
         };
     }
 
@@ -151,7 +151,7 @@ namespace banggame {
     }
 
     void player_hp_animation::do_animation_impl(float amt) {
-        player->set_hp_marker_position(std::lerp(static_cast<float>(hp_from), static_cast<float>(hp_to), amt));
+        player->set_hp_marker_position(std::lerp(float(hp_from), float(hp_to), amt));
     }
 
     void cube_move_animation::render(sdl::renderer &renderer) {

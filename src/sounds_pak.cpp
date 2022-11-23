@@ -4,7 +4,7 @@
 
 wav_file::wav_file(resource_view res) {
     Uint8 *ptr;
-    SDL_LoadWAV_RW(SDL_RWFromConstMem(res.data, static_cast<int>(res.length)), 0, &spec, &ptr, &len);
+    SDL_LoadWAV_RW(SDL_RWFromConstMem(res.data, int(res.length)), 0, &spec, &ptr, &len);
     buf.reset(ptr);
     if (!buf) {
         throw sdl::error(SDL_GetError());
@@ -33,7 +33,7 @@ wav_file::~wav_file() {
 
 void wav_file::play(float vol) {
     played = 0;
-    volume = static_cast<int>(SDL_MIX_MAXVOLUME * std::clamp(vol, 0.f, 1.f));
+    volume = int(SDL_MIX_MAXVOLUME * std::clamp(vol, 0.f, 1.f));
     SDL_PauseAudioDevice(device_id, 0);
 }
 

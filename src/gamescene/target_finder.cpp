@@ -18,7 +18,7 @@ void target_finder::set_playing_card(card_view *card) {
 
     if (m_equipping || !get_current_card_effects().empty()
         && std::ranges::none_of(get_current_card_effects(), [&](const effect_holder &effect) {
-            return effect.target == target_type::self_cubes && effect.target_value > static_cast<int>(card->cubes.size()) - count_selected_cubes(card);
+            return effect.target == target_type::self_cubes && effect.target_value > int(card->cubes.size()) - count_selected_cubes(card);
         })
     ) {
         m_target_borders.add(card->border_color, colors.target_finder_current_card);
@@ -345,12 +345,12 @@ int target_finder::get_target_index() {
     if (m_targets.empty()) {
         return 0;
     }
-    return static_cast<int>(m_targets.size()) - enums::visit(overloaded{
+    return int(m_targets.size()) - enums::visit(overloaded{
         [](const auto &) {
             return 0;
         },
         []<typename T>(const std::vector<T> &value) {
-            return static_cast<int>(value.size() != value.capacity());
+            return int(value.size() != value.capacity());
         }
     }, m_targets.back());
 }
@@ -449,7 +449,7 @@ void target_finder::handle_auto_targets() {
         } else if (current_card->has_tag(tag_type::auto_confirm_red_ringo)) {
             auto_confirmable = current_card->cubes.size() <= 1
                 || std::transform_reduce(m_game->m_playing->table.begin(), m_game->m_playing->table.end(), 0, std::plus(), [](const card_view *card) {
-                    return 4 - static_cast<int>(card->cubes.size());
+                    return 4 - int(card->cubes.size());
                 }) <= 1;
         } else if (repeatable && *repeatable) {
             auto_confirmable = m_targets.size() - effects.size() == optionals.size() * *repeatable;
@@ -638,7 +638,7 @@ int target_finder::count_selected_cubes(card_view *card) {
     if (get_current_card()) {
         for (const auto &[target, effect] : zip_card_targets(m_targets, get_current_card_effects(), get_current_card()->optionals)) {
             if (const std::vector<card_view *> *val = target.get_if<target_type::select_cubes>()) {
-                selected += static_cast<int>(std::ranges::count(*val, card));
+                selected += int(std::ranges::count(*val, card));
             } else if (target.is(target_type::self_cubes)) {
                 if (card == m_playing_card) {
                     selected += effect.target_value;
@@ -659,7 +659,7 @@ int target_finder::count_selected_cubes(card_view *card) {
 bool target_finder::add_selected_cube(card_view *card, int ncubes) {
     int selected = count_selected_cubes(card);
 
-    if (ncubes > static_cast<int>(card->cubes.size()) - selected)
+    if (ncubes > int(card->cubes.size()) - selected)
         return false;
 
     for (int i=0; i < ncubes; ++i) {

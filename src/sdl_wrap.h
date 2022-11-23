@@ -184,7 +184,7 @@ namespace sdl {
         }
 
         explicit surface(resource_view res)
-            : base(IMG_Load_RW(SDL_RWFromConstMem(res.data, static_cast<int>(res.length)), 0)) {
+            : base(IMG_Load_RW(SDL_RWFromConstMem(res.data, int(res.length)), 0)) {
             if (!*this) throw error(fmt::format("Could not load image: {}", IMG_GetError()));
         }
 
@@ -273,7 +273,7 @@ namespace sdl {
         }
 
         texture(renderer &renderer, resource_view res)
-            : base(IMG_LoadTexture_RW(renderer.get(), SDL_RWFromConstMem(res.data, static_cast<int>(res.length)), 0)) {
+            : base(IMG_LoadTexture_RW(renderer.get(), SDL_RWFromConstMem(res.data, int(res.length)), 0)) {
             if (!*this) throw error(fmt::format("Could not create texture: {}", IMG_GetError()));
         }
 
@@ -358,7 +358,7 @@ namespace sdl {
 
     public:
         font(resource_view res, int ptsize)
-            : base(TTF_OpenFontRW(SDL_RWFromConstMem(res.data, static_cast<int>(res.length)), 0, ptsize)) {
+            : base(TTF_OpenFontRW(SDL_RWFromConstMem(res.data, int(res.length)), 0, ptsize)) {
             if (!*this) throw error(fmt::format("Could not create font: {}", TTF_GetError()));
         }
     };

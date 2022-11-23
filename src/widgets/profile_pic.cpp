@@ -87,8 +87,8 @@ static sdl::texture generate_border_texture(sdl::renderer &renderer, sdl::textur
             for (size_t cy = 0; cy < circle_size; ++cy) {
                 for (size_t cx = 0; cx < circle_size; ++cx) {
                     sdl::point pt{
-                        static_cast<int>(x + cx - circle_size / 2),
-                        static_cast<int>(y + cy - circle_size / 2)
+                        int(x + cx - circle_size / 2),
+                        int(y + cy - circle_size / 2)
                     };
 
                     if (sdl::point_in_rect(pt, target_rect)) {

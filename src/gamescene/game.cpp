@@ -636,7 +636,7 @@ void game_scene::handle_game_update(UPD_TAG(player_hp), const player_hp_update &
     int prev_hp = args.player->hp;
     args.player->hp = args.hp;
     if (args.instant) {
-        args.player->set_hp_marker_position(static_cast<float>(args.hp));
+        args.player->set_hp_marker_position(float(args.hp));
     } else if (prev_hp != args.hp) {
         add_animation<player_hp_animation>(durations.move_hp, args.player, prev_hp);
     }
@@ -652,7 +652,7 @@ void game_scene::handle_game_update(UPD_TAG(player_show_role), const player_show
         args.player->m_role.make_texture_front(parent->get_renderer());
         if (args.instant) {
             if (args.role == player_role::sheriff) {
-                args.player->set_hp_marker_position(static_cast<float>(++args.player->hp));
+                args.player->set_hp_marker_position(float(++args.player->hp));
             }
             args.player->m_role.flip_amt = 1.f;
         } else {

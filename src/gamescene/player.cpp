@@ -15,7 +15,7 @@ namespace banggame {
     {}
 
     void player_view::set_hp_marker_position(float hp) {
-        m_backup_characters.set_pos(m_characters.get_pos() - sdl::point{0, std::max(0, static_cast<int>(hp * options.one_hp_size))});
+        m_backup_characters.set_pos(m_characters.get_pos() - sdl::point{0, std::max(0, int(hp * options.one_hp_size))});
     }
 
     void player_view::set_gold(int amount) {
@@ -51,7 +51,7 @@ namespace banggame {
                 self->m_bounding_rect.y + self->m_bounding_rect.h - options.card_width - options.card_margin
             });
 
-            self->set_hp_marker_position(static_cast<float>(self->hp));
+            self->set_hp_marker_position(float(self->hp));
 
             self->m_role.set_pos(sdl::point{
                 self->m_characters.get_pos().x + options.card_width + options.card_margin,
