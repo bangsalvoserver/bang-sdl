@@ -48,9 +48,6 @@ void target_finder::set_picking_border(card_view *card, sdl::color color) {
 }
 
 void target_finder::set_response_highlights(const request_status_args &args) {
-    if (m_game->m_player_self && bool(args.flags & effect_flags::timer)) {
-        add_action<game_action_type::request_confirm>();
-    }
     clear_status();
 
     for (card_view *card : args.highlight_cards) {
@@ -696,4 +693,8 @@ void target_finder::confirm_play() {
     m_game->m_ui.close_message_box();
     clear_targets();
     m_waiting_confirm = false;
+}
+
+void target_finder::confirm_request() {
+    add_action<game_action_type::request_confirm>();
 }
