@@ -598,20 +598,21 @@ void game_scene::handle_game_update(UPD_TAG(player_add), const player_add_update
 
 void game_scene::handle_game_update(UPD_TAG(player_user), const player_user_update &args) {
     args.player->user_id = args.user_id;
-    if (args.user_id == parent->get_user_own_id()) {
-        m_player_self = args.player;
-        auto alive_it = std::ranges::find(m_alive_players, args.player);
-        if (alive_it != m_alive_players.end()) {
-            std::ranges::rotate(m_alive_players, alive_it);
-        }
-    }
-
     if (user_info *info = parent->get_user_info(args.user_id)) {
         args.player->m_username_text.set_value(info->name);
         args.player->m_propic.set_texture(info->profile_image);
     } else {
         args.player->m_username_text.set_value(_("USERNAME_DISCONNECTED"));
         args.player->m_propic.set_texture(media_pak::get().icon_disconnected);
+    }
+
+    if (args.user_id == parent->get_user_own_id()) {
+        args.player->m_propic.set_border_color(widgets::propic_border_color);
+        m_player_self = args.player;
+        auto alive_it = std::ranges::find(m_alive_players, args.player);
+        if (alive_it != m_alive_players.end()) {
+            std::ranges::rotate(m_alive_players, alive_it);
+        }
     }
 
     move_player_views();
