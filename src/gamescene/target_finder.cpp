@@ -691,8 +691,8 @@ void target_finder::send_prompt_response(bool response) {
 
 void target_finder::confirm_play() {
     m_game->m_ui.close_message_box();
-    clear_targets();
     m_waiting_confirm = false;
+    clear_targets();
 }
 
 void target_finder::confirm_request() {

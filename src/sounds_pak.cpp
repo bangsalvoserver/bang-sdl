@@ -27,6 +27,7 @@ wav_file::wav_file(resource_view res) {
 
 wav_file::~wav_file() {
     if (played < len) {
+        SDL_PauseAudioDevice(device_id, 1);
         SDL_CloseAudioDevice(device_id);
     }
 }
