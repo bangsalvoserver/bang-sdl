@@ -46,6 +46,7 @@ set(media_files
 
 pack_resources(media_pak media "${CMAKE_BINARY_DIR}/media.pak" "${media_files}")
 
+if (NOT MSVC)
 set(sound_files
     sounds/bandidos.wav
     sounds/bang.wav
@@ -61,5 +62,6 @@ set(sound_files
     sounds/shuffle.wav
     sounds/snake.wav
 )
+endif()
 
 pack_resources(sounds_pak sounds "${CMAKE_BINARY_DIR}/sounds.pak" "${sound_files}")

@@ -25,12 +25,14 @@ sounds_pak::~sounds_pak() {
 }
 
 void sounds_pak::play_sound(std::string_view name, float volume) {
-    auto it = wav_cache.find(name);
-    if (it == wav_cache.end()) {
-        it = wav_cache.emplace_hint(it, name, sounds_resources[name]);
-    }
+    if (sounds_resources.contains(name)) {
+        auto it = wav_cache.find(name);
+        if (it == wav_cache.end()) {
+            it = wav_cache.emplace_hint(it, name, sounds_resources[name]);
+        }
 
-    Mix_Chunk *chunk = it->second.get();
-    Mix_VolumeChunk(chunk, int(volume * MIX_MAX_VOLUME));
-    Mix_PlayChannel(-1, chunk, 0);
+        Mix_Chunk *chunk = it->second.get();
+        Mix_VolumeChunk(chunk, int(volume * MIX_MAX_VOLUME));
+        Mix_PlayChannel(-1, chunk, 0);
+    }
 }
