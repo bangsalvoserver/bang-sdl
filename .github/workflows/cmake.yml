@@ -34,6 +34,7 @@ jobs:
           mingw-w64-x86_64-SDL2_gfx
           mingw-w64-x86_64-SDL2_image
           mingw-w64-x86_64-SDL2_ttf
+          mingw-w64-x86_64-SDL2_mixer
           mingw-w64-x86_64-python-pip
 
     - name: Install pyyaml
