@@ -172,6 +172,7 @@ void game_scene::handle_event(const sdl::event &event) {
         case SDL_BUTTON_RIGHT:
             if (!m_target.waiting_confirm()) {
                 m_target.clear_targets();
+                m_target.handle_auto_respond();
             }
             break;
         case SDL_BUTTON_MIDDLE:
@@ -339,8 +340,8 @@ void game_scene::handle_game_update(UPD_TAG(game_log), const game_string &args) 
 
 void game_scene::handle_game_update(UPD_TAG(game_prompt), const game_string &args) {
     m_ui.show_message_box(evaluate_format_string(args),
-        [&]{ m_target.send_prompt_response(true); },
-        [&]{ m_target.send_prompt_response(false); }
+        [&]{ m_target.send_prompt_response(true); m_ui.close_message_box(); },
+        [&]{ m_target.send_prompt_response(false); m_ui.close_message_box(); }
     );
 }
 

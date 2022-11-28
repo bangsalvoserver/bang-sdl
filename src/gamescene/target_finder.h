@@ -40,6 +40,7 @@ namespace banggame {
         void clear_status();
         void clear_targets();
         void confirm_request();
+        void handle_auto_respond();
 
         void set_last_played_card(card_view *card) {
             m_last_played_card = card;
@@ -69,9 +70,8 @@ namespace banggame {
     private:
         void set_playing_card(card_view *card);
         void add_modifier(card_view *card);
-        bool playable_with_modifiers(card_view *card);
+        bool playable_with_modifiers(card_view *card) const;
 
-        void handle_auto_respond();
         void handle_auto_targets();
 
         const char *check_player_filter(target_player_filter filter, player_view *target_player);

@@ -13,7 +13,6 @@ using namespace banggame;
 using namespace sdl::point_math;
 
 void target_finder::set_playing_card(card_view *card) {
-    m_response = m_response && !bool(m_request_flags & effect_flags::force_play);
     m_playing_card = card;
 
     if (m_equipping || !get_current_card_effects().empty()
@@ -81,13 +80,13 @@ void target_finder::clear_status() {
 void target_finder::clear_targets() {
     m_game->m_shop_choice.clear();
     static_cast<target_status &>(*this) = {};
-    handle_auto_respond();
 }
 
 void target_finder::handle_auto_respond() {
     if (!m_playing_card && !waiting_confirm() && bool(m_request_flags & effect_flags::auto_respond) && m_response_highlights.size() == 1 && m_picking_highlights.empty()) {
         card_view *card = m_response_highlights.front();
         if (card->color == card_color_type::black) {
+            m_response = true;
             m_equipping = true;
             set_playing_card(card);
         } else if (card->modifier != card_modifier_type::none) {
@@ -115,7 +114,11 @@ bool target_finder::is_card_clickable() const {
 }
 
 bool target_finder::can_respond_with(card_view *card) const {
-    return ranges_contains(m_response_highlights, card);
+    if (std::ranges::any_of(m_response_highlights, [](card_view *card){ return card->modifier != card_modifier_type::none; })) {
+        return !m_modifiers.empty() && playable_with_modifiers(card);
+    } else {
+        return ranges_contains(m_response_highlights, card);
+    }
 }
 
 bool target_finder::can_pick_card(pocket_type pocket, player_view *player, card_view *card) const {
@@ -129,9 +132,7 @@ bool target_finder::can_pick_card(pocket_type pocket, player_view *player, card_
 }
 
 bool target_finder::can_play_in_turn(pocket_type pocket, player_view *player, card_view *card) const {
-    if (bool(m_request_flags & effect_flags::force_play)) {
-        return can_respond_with(card) || card->pocket == &m_game->m_shop_choice;
-    } else if (m_game->m_request_origin || m_game->m_request_target
+    if (m_game->m_request_origin || m_game->m_request_target
         || m_game->m_playing != m_game->m_player_self
         || (player && player != m_game->m_player_self))
     {
@@ -276,7 +277,7 @@ bool target_finder::is_bangcard(card_view *card) const {
         || card->has_tag(tag_type::bangcard);
 }
 
-bool target_finder::playable_with_modifiers(card_view *card) {
+bool target_finder::playable_with_modifiers(card_view *card) const {
     return std::ranges::all_of(m_modifiers, [&](card_view *c) {
         switch (c->modifier) {
         case card_modifier_type::bangmod:
@@ -687,10 +688,14 @@ void target_finder::send_pick_card(pocket_type pocket, player_view *player, card
 
 void target_finder::send_prompt_response(bool response) {
     add_action<game_action_type::prompt_respond>(response);
+    if (!response) {
+        m_waiting_confirm = false;
+        clear_targets();
+        handle_auto_respond();
+    }
 }
 
 void target_finder::confirm_play() {
-    m_game->m_ui.close_message_box();
     m_waiting_confirm = false;
     clear_targets();
 }
