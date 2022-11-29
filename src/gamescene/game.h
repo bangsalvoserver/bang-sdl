@@ -1,7 +1,8 @@
 #ifndef __SCENE_GAME_H__
 #define __SCENE_GAME_H__
 
-#include "../scenes/scene_base.h"
+#include "scenes/scene_base.h"
+#include "sounds_pak.h"
 
 #include "animation.h"
 #include "game_ui.h"
@@ -27,6 +28,8 @@ namespace banggame {
         void tick(duration_type time_elapsed) override;
         void render(sdl::renderer &renderer) override;
         void handle_event(const sdl::event &event) override;
+
+        void play_sound(std::string_view sound_id);
 
         void handle_message(SRV_TAG(game_update), const Json::Value &update) override;
         void handle_message(SRV_TAG(lobby_owner), const user_id_args &args) override;
@@ -83,6 +86,7 @@ namespace banggame {
 
         pocket_view &get_pocket(pocket_type pocket, player_view *player = nullptr);
 
+        sounds_pak m_sounds;
         card_textures m_card_textures;
 
         util::id_map<card_view> m_cards;

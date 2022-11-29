@@ -15,8 +15,6 @@
 #include "gamescene/game.h"
 #include "net/git_version.h"
 
-#include "sounds_pak.h"
-
 using namespace banggame;
 
 client_manager::client_manager(sdl::window &window, sdl::renderer &renderer, asio::io_context &ctx, const std::filesystem::path &base_path)
@@ -252,10 +250,6 @@ void client_manager::handle_message(SRV_TAG(lobby_owner), const user_id_args &ar
 
 const user_info &client_manager::add_user(int id, std::string name, const sdl::surface &surface) {
     return m_users[id] = {std::move(name), sdl::texture(get_renderer(), surface)};
-}
-
-void client_manager::play_sound(std::string_view sound_id) {
-    sounds_pak::get().play_sound(sound_id, m_config.sound_volume);
 }
 
 void client_manager::handle_message(SRV_TAG(lobby_add_user), const lobby_add_user_args &args) {

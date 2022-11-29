@@ -11,6 +11,7 @@ using namespace sdl::point_math;
 
 game_scene::game_scene(client_manager *parent)
     : scene_base(parent)
+    , m_sounds(parent->get_base_path())
     , m_card_textures(parent->get_base_path(), parent->get_renderer())
     , m_ui(this)
     , m_target(this)
@@ -283,6 +284,10 @@ void game_scene::find_overlay() {
             return;
         }
     }
+}
+
+void game_scene::play_sound(std::string_view sound_id) {
+    m_sounds.play_sound(sound_id, parent->get_config().sound_volume);
 }
 
 void game_scene::handle_message(SRV_TAG(game_update), const Json::Value &update) {
@@ -696,7 +701,7 @@ void game_scene::handle_game_update(UPD_TAG(game_flags), const game_flags &args)
 }
 
 void game_scene::handle_game_update(UPD_TAG(play_sound), const std::string &sound_id) {
-    parent->play_sound(sound_id);
+    play_sound(sound_id);
 }
 
 void game_scene::handle_game_update(UPD_TAG(timer_start)) {

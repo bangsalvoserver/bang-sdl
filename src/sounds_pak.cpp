@@ -1,6 +1,5 @@
 #include "sounds_pak.h"
 
-
 namespace sdl {
     wav_file::wav_file(resource_view res)
         : base(Mix_LoadWAV_RW(SDL_RWFromConstMem(res.data, int(res.length)), 0)) {
@@ -17,7 +16,6 @@ sounds_pak::sounds_pak(const std::filesystem::path &base_path)
     if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 2048) < 0) {
         throw sdl::error(fmt::format("Error: could not initialize mixer: {}", Mix_GetError()));
     }
-    s_instance = this;
 }
 
 sounds_pak::~sounds_pak() {

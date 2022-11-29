@@ -30,13 +30,7 @@ public:
 public:
     void play_sound(std::string_view name, float volume = 1.f);
 
-    static sounds_pak &get() {
-        return *s_instance;
-    }
-
 private:
-    static inline sounds_pak *s_instance = nullptr;
-
     std::ifstream sounds_pak_data;
     const unpacker<std::ifstream> sounds_resources;
 
