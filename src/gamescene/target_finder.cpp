@@ -85,11 +85,7 @@ void target_finder::clear_targets() {
 void target_finder::handle_auto_respond() {
     if (!m_playing_card && !waiting_confirm() && bool(m_request_flags & effect_flags::auto_respond) && m_response_highlights.size() == 1 && m_picking_highlights.empty()) {
         card_view *card = m_response_highlights.front();
-        if (card->color == card_color_type::black) {
-            m_response = true;
-            m_equipping = true;
-            set_playing_card(card);
-        } else if (card->modifier != card_modifier_type::none) {
+        if (card->modifier != card_modifier_type::none) {
             add_modifier(card);
         } else if (playable_with_modifiers(card)) {
             m_response = true;

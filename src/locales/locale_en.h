@@ -157,6 +157,8 @@ LOCALE_VALUE(STATUS_NEWIDENTITY,                  "{0} ... Choose which characte
 LOCALE_VALUE(STATUS_NEWIDENTITY_OTHER,            "{1} ... {0} must choose which character to switch to")
 LOCALE_VALUE(STATUS_FORCE_PLAY_CARD,              "You must play {0}")
 LOCALE_VALUE(STATUS_FORCE_PLAY_CARD_OTHER,        "{0} must play {1}")
+LOCALE_VALUE(STATUS_FORCE_EQUIP_CARD,             "You must equip {0}")
+LOCALE_VALUE(STATUS_FORCE_EQUIP_CARD_OTHER,       "{0} must equip {1}")
 LOCALE_VALUE(STATUS_MULTI_VULTURE_SAM,            "{0} ... you must steal a card from {1}")
 LOCALE_VALUE(STATUS_MULTI_VULTURE_SAM_OTHER,      "{0} ... {1} must steal a card from {2}")
 LOCALE_VALUE(STATUS_RANCH,                        "{0} ... You may discard any number of cards from the hand to draw the same amount")

@@ -336,6 +336,7 @@ std::string game_scene::evaluate_format_string(const game_string &str) {
 
 void game_scene::handle_game_update(UPD_TAG(game_error), const game_string &args) {
     m_target.confirm_play();
+    m_target.handle_auto_respond();
     parent->add_chat_message(message_type::error, evaluate_format_string(args));
 }
 

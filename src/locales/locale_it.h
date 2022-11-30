@@ -157,6 +157,8 @@ LOCALE_VALUE(STATUS_NEWIDENTITY,                  "{0} ... Scegli con quale pers
 LOCALE_VALUE(STATUS_NEWIDENTITY_OTHER,            "{1} ... {0} deve scegliere con quale personaggio cambiare")
 LOCALE_VALUE(STATUS_FORCE_PLAY_CARD,              "Devi giocare {0}")
 LOCALE_VALUE(STATUS_FORCE_PLAY_CARD_OTHER,        "{0} deve giocare {1}")
+LOCALE_VALUE(STATUS_FORCE_EQUIP_CARD,             "Devi equipaggiare {0}")
+LOCALE_VALUE(STATUS_FORCE_EQUIP_CARD_OTHER,       "{0} deve equipaggiare {1}")
 LOCALE_VALUE(STATUS_MULTI_VULTURE_SAM,            "{0} ... devi rubare una carta da {1}")
 LOCALE_VALUE(STATUS_MULTI_VULTURE_SAM_OTHER,      "{0} ... {1} deve rubare una carta da {2}")
 LOCALE_VALUE(STATUS_RANCH,                        "{0} ... Puoi scartare un qualsiasi numero di carte dalla mano per pescarne altrettante")
