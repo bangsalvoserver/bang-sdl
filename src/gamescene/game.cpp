@@ -418,10 +418,6 @@ void game_scene::handle_game_update(UPD_TAG(remove_cards), const remove_cards_up
 void game_scene::handle_game_update(UPD_TAG(move_card), const move_card_update &args) {
     pocket_view *old_pile = args.card->pocket;
     pocket_view *new_pile = &get_pocket(args.pocket, args.player);
-    
-    if (old_pile == new_pile) {
-        return;
-    }
 
     card_move_animation anim;
 
