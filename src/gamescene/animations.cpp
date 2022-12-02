@@ -183,15 +183,21 @@ namespace banggame {
     }
 
     void pause_animation::render(sdl::renderer &renderer) {
-        card->render(renderer, render_flags::no_skip_animating);
+        if (card) {
+            card->render(renderer, render_flags::no_skip_animating);
+        }
     }
 
     void pause_animation::do_animation(float) {
-        card->animating = true;
+        if (card) {
+            card->animating = true;
+        }
     }
 
     void pause_animation::end() {
-        card->animating = false;
+        if (card) {
+            card->animating = false;
+        }
     }
 
 }

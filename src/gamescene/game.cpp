@@ -441,10 +441,6 @@ void game_scene::handle_game_update(UPD_TAG(move_card), const move_card_update &
     if (bool(args.flags & show_card_flags::instant)) {
         anim.end();
     } else {
-        if (bool(args.flags & show_card_flags::pause_before_move)) {
-            add_animation<pause_animation>(durations.short_pause, args.card);
-        }
-        
         add_animation<card_move_animation>(durations.move_card, std::move(anim));
     }
 }
@@ -508,10 +504,6 @@ void game_scene::handle_game_update(UPD_TAG(show_card), const show_card_update &
             args.card->flip_amt = 1.f;
         } else {
             add_animation<card_flip_animation>(durations.flip_card, args.card, false);
-
-            if (bool(args.flags & show_card_flags::short_pause)) {
-                add_animation<pause_animation>(durations.short_pause, args.card);
-            }
         }
     }
 }
@@ -522,10 +514,6 @@ void game_scene::handle_game_update(UPD_TAG(hide_card), const hide_card_update &
         if (bool(args.flags & show_card_flags::instant)) {
             args.card->flip_amt = 0.f;
         } else {
-            if (bool(args.flags & show_card_flags::short_pause)) {
-                add_animation<pause_animation>(durations.short_pause, args.card);
-            }
-
             add_animation<card_flip_animation>(durations.flip_card, args.card, true);
         }
     }
@@ -544,6 +532,10 @@ void game_scene::handle_game_update(UPD_TAG(tap_card), const tap_card_update &ar
 
 void game_scene::handle_game_update(UPD_TAG(flash_card), card_view *card) {
     add_animation<card_flash_animation>(durations.flash_card, card, colors.flash_card);
+}
+
+void game_scene::handle_game_update(UPD_TAG(short_pause), card_view *card) {
+    add_animation<pause_animation>(durations.short_pause, card);
 }
 
 void game_scene::handle_game_update(UPD_TAG(last_played_card), card_view *card) {

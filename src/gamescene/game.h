@@ -58,6 +58,7 @@ namespace banggame {
         void handle_game_update(UPD_TAG(hide_card),        const hide_card_update &args);
         void handle_game_update(UPD_TAG(tap_card),         const tap_card_update &args);
         void handle_game_update(UPD_TAG(flash_card),       card_view *card);
+        void handle_game_update(UPD_TAG(short_pause),      card_view *card);
         void handle_game_update(UPD_TAG(last_played_card), card_view *card);
         void handle_game_update(UPD_TAG(player_add),       const player_add_update &args);
         void handle_game_update(UPD_TAG(player_user),      const player_user_update &args);
