@@ -438,7 +438,7 @@ void game_scene::handle_game_update(UPD_TAG(move_card), const move_card_update &
         anim.add_move_card(args.card);
     }
     
-    if (bool(args.flags & show_card_flags::instant)) {
+    if (args.instant) {
         anim.end();
     } else {
         add_animation<card_move_animation>(durations.move_card, std::move(anim));
@@ -500,7 +500,7 @@ void game_scene::handle_game_update(UPD_TAG(show_card), const show_card_update &
             args.card->pocket->update_card(args.card);
         }
 
-        if (bool(args.flags & show_card_flags::instant)) {
+        if (args.instant) {
             args.card->flip_amt = 1.f;
         } else {
             add_animation<card_flip_animation>(durations.flip_card, args.card, false);
@@ -511,7 +511,7 @@ void game_scene::handle_game_update(UPD_TAG(show_card), const show_card_update &
 void game_scene::handle_game_update(UPD_TAG(hide_card), const hide_card_update &args) {
     if (args.card->known) {
         args.card->known = false;
-        if (bool(args.flags & show_card_flags::instant)) {
+        if (args.instant) {
             args.card->flip_amt = 0.f;
         } else {
             add_animation<card_flip_animation>(durations.flip_card, args.card, true);
