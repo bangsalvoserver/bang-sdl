@@ -695,7 +695,3 @@ void target_finder::confirm_play() {
     m_waiting_confirm = false;
     clear_targets();
 }
-
-void target_finder::confirm_request() {
-    add_action<game_action_type::request_confirm>();
-}

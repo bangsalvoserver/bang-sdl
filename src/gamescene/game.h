@@ -70,7 +70,6 @@ namespace banggame {
         void handle_game_update(UPD_TAG(request_status),   const request_status_args &args);
         void handle_game_update(UPD_TAG(game_flags),       const game_flags &args);
         void handle_game_update(UPD_TAG(play_sound),       const std::string &sound_id);
-        void handle_game_update(UPD_TAG(timer_start));
         void handle_game_update(UPD_TAG(status_clear));
         void handle_game_update(UPD_TAG(confirm_play));
 

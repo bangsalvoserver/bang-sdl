@@ -39,7 +39,6 @@ namespace banggame {
         void set_response_highlights(const request_status_args &args);
         void clear_status();
         void clear_targets();
-        void confirm_request();
         void handle_auto_respond();
 
         void set_last_played_card(card_view *card) {

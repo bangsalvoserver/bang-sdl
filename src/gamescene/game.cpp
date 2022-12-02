@@ -701,10 +701,6 @@ void game_scene::handle_game_update(UPD_TAG(play_sound), const std::string &soun
     play_sound(sound_id);
 }
 
-void game_scene::handle_game_update(UPD_TAG(timer_start)) {
-    m_target.confirm_request();
-}
-
 void game_scene::handle_game_update(UPD_TAG(status_clear)) {
     m_request_origin = nullptr;
     m_request_target = nullptr;
