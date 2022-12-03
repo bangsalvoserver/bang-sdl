@@ -219,43 +219,42 @@ bool target_finder::on_click_player(player_view *player) {
     return false;
 }
 
+constexpr auto modifier_bitset(std::same_as<card_modifier_type> auto ... values) {
+    return ((uint16_t(1) << enums::to_underlying(values)) | ... | 0);
+}
+
+inline auto allowed_modifiers_after(card_modifier_type value) {
+    switch (value) {
+    case card_modifier_type::bangmod:
+    case card_modifier_type::bandolier:
+        return modifier_bitset(card_modifier_type::bangmod, card_modifier_type::bandolier);
+    case card_modifier_type::discount:
+        return modifier_bitset(card_modifier_type::shopchoice);
+    case card_modifier_type::shopchoice:
+    case card_modifier_type::leevankliff:
+        return 0;
+    default:
+        return ~modifier_bitset();
+    }
+}
+
 void target_finder::add_modifier(card_view *card) {
-    if (!ranges_contains(m_modifiers, card) && [&]{
-        switch (card->modifier) {
-        case card_modifier_type::bangmod:
-        case card_modifier_type::bandolier:
-            return std::ranges::all_of(m_modifiers, [](const card_view *c) {
-                return c->modifier == card_modifier_type::bangmod
-                    || c->modifier == card_modifier_type::bandolier
-                    || c->modifier == card_modifier_type::belltower;
-            });
-        case card_modifier_type::leevankliff:
-            return m_modifiers.empty() && m_last_played_card;
-        case card_modifier_type::discount:
-        case card_modifier_type::shopchoice:
-            if (std::ranges::all_of(m_modifiers, [](const card_view *c) {
-                return c->modifier == card_modifier_type::discount
-                    || c->modifier == card_modifier_type::shopchoice
-                    || c->modifier == card_modifier_type::belltower;
-            })) {
-                if (card->modifier == card_modifier_type::shopchoice) {
-                    for (card_view *c : m_game->m_hidden_deck) {
-                        if (c->get_tag_value(tag_type::shopchoice) == card->get_tag_value(tag_type::shopchoice)) {
-                            m_game->m_shop_choice.add_card(c);
-                        }
-                    }
-                    for (card_view *c : m_game->m_shop_choice) {
-                        c->set_pos(m_game->m_shop_choice.get_pos() + m_game->m_shop_choice.get_offset(c));
-                    }
+    auto allowed_modifiers = std::transform_reduce(
+        m_modifiers.begin(), m_modifiers.end(), ~modifier_bitset(), std::bit_and(),
+        [](card_view *mod) { return allowed_modifiers_after(mod->modifier); }
+    );
+    if (!ranges_contains(m_modifiers, card) && (allowed_modifiers & modifier_bitset(card->modifier))) {
+        if (card->modifier == card_modifier_type::shopchoice) {
+            for (card_view *c : m_game->m_hidden_deck) {
+                if (c->get_tag_value(tag_type::shopchoice) == card->get_tag_value(tag_type::shopchoice)) {
+                    m_game->m_shop_choice.add_card(c);
                 }
-                return true;
             }
-            break;
-        case card_modifier_type::belltower:
-            return m_modifiers.empty() || m_modifiers.front()->modifier != card_modifier_type::leevankliff;
+            for (card_view *c : m_game->m_shop_choice) {
+                c->set_pos(m_game->m_shop_choice.get_pos() + m_game->m_shop_choice.get_offset(c));
+            }
         }
-        return false;
-    }()) {
+
         for (const auto &e : card->effects) {
             if (e.target == target_type::self_cubes) {
                 add_selected_cube(card, e.target_value);
@@ -310,7 +309,7 @@ bool target_finder::playable_with_modifiers(card_view *card) const {
 const card_view *target_finder::get_current_card() const {
     assert(!m_equipping);
 
-    if (m_last_played_card && !m_modifiers.empty() && m_modifiers.front()->modifier == card_modifier_type::leevankliff) {
+    if (m_last_played_card && !m_modifiers.empty() && ranges_contains(m_modifiers, card_modifier_type::leevankliff, &card_view::modifier)) {
         return m_last_played_card;
     } else {
         return m_playing_card;
