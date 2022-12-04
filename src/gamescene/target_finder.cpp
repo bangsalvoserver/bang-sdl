@@ -219,31 +219,12 @@ bool target_finder::on_click_player(player_view *player) {
     return false;
 }
 
-constexpr auto modifier_bitset(std::same_as<card_modifier_type> auto ... values) {
-    return ((uint16_t(1) << enums::to_underlying(values)) | ... | 0);
-}
-
-inline auto allowed_modifiers_after(card_modifier_type value) {
-    switch (value) {
-    case card_modifier_type::bangmod:
-    case card_modifier_type::bandolier:
-        return modifier_bitset(card_modifier_type::bangmod, card_modifier_type::bandolier);
-    case card_modifier_type::discount:
-        return modifier_bitset(card_modifier_type::shopchoice);
-    case card_modifier_type::shopchoice:
-    case card_modifier_type::leevankliff:
-        return 0;
-    default:
-        return ~modifier_bitset();
-    }
-}
-
 void target_finder::add_modifier(card_view *card) {
     auto allowed_modifiers = std::transform_reduce(
-        m_modifiers.begin(), m_modifiers.end(), ~modifier_bitset(), std::bit_and(),
+        m_modifiers.begin(), m_modifiers.end(), modifier_bitset(card->modifier), std::bit_and(),
         [](card_view *mod) { return allowed_modifiers_after(mod->modifier); }
     );
-    if (!ranges_contains(m_modifiers, card) && (allowed_modifiers & modifier_bitset(card->modifier))) {
+    if (allowed_modifiers && !ranges_contains(m_modifiers, card)) {
         if (card->modifier == card_modifier_type::shopchoice) {
             for (card_view *c : m_game->m_hidden_deck) {
                 if (c->get_tag_value(tag_type::shopchoice) == card->get_tag_value(tag_type::shopchoice)) {
@@ -253,6 +234,8 @@ void target_finder::add_modifier(card_view *card) {
             for (card_view *c : m_game->m_shop_choice) {
                 c->set_pos(m_game->m_shop_choice.get_pos() + m_game->m_shop_choice.get_offset(c));
             }
+        } else if (card->modifier == card_modifier_type::leevankliff && !m_last_played_card) {
+            return;
         }
 
         for (const auto &e : card->effects) {
@@ -274,42 +257,14 @@ bool target_finder::is_bangcard(card_view *card) const {
 
 bool target_finder::playable_with_modifiers(card_view *card) const {
     return std::ranges::all_of(m_modifiers, [&](card_view *c) {
-        switch (c->modifier) {
-        case card_modifier_type::bangmod:
-        case card_modifier_type::bandolier:
-            if (card->pocket == &m_game->m_playing->hand) {
-                return is_bangcard(card);
-            } else {
-                return card->has_tag(tag_type::play_as_bang);
-            }
-        case card_modifier_type::leevankliff:
-            return is_bangcard(card) && m_last_played_card;
-        case card_modifier_type::discount:
-            return card->expansion == card_expansion_type::goldrush;
-        case card_modifier_type::shopchoice:
-            return ranges_contains(m_game->m_shop_choice, card);
-        case card_modifier_type::belltower:
-            if (card->pocket == &m_game->m_player_self->hand) {
-                if (card->color != card_color_type::brown) return false;
-            } else if (card->pocket == &m_game->m_player_self->table) {
-                if (card->effects.empty()) return false;
-            } else {
-                if (card->color == card_color_type::black) return false;
-            }
-            return std::ranges::any_of(card->effects,
-                [](target_player_filter filter) {
-                    return bool(filter & (target_player_filter::range_1 | target_player_filter::range_2 | target_player_filter::reachable));
-                }, &effect_holder::player_filter);
-        default:
-            return false;
-        }
+        return allowed_card_with_modifier(c->modifier, m_game->m_player_self, card);
     });
 }
 
 const card_view *target_finder::get_current_card() const {
     assert(!m_equipping);
 
-    if (m_last_played_card && !m_modifiers.empty() && ranges_contains(m_modifiers, card_modifier_type::leevankliff, &card_view::modifier)) {
+    if (m_last_played_card && ranges_contains(m_modifiers, card_modifier_type::leevankliff, &card_view::modifier)) {
         return m_last_played_card;
     } else {
         return m_playing_card;
@@ -350,10 +305,13 @@ int target_finder::get_target_index() {
 
 int target_finder::calc_distance(player_view *from, player_view *to) const {
     if (from == to) return 0;
-    if (bool(m_game->m_game_flags & game_flags::disable_player_distances)) return to->m_distance_mod;
 
     if (ranges_contains(m_modifiers, card_modifier_type::belltower, &card_view::modifier)) {
         return 1;
+    }
+
+    if (bool(m_game->m_game_flags & game_flags::disable_player_distances)) {
+        return 1 + to->m_distance_mod;
     }
 
     struct player_view_iterator {

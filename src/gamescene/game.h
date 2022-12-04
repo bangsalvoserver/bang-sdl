@@ -102,7 +102,7 @@ namespace banggame {
         point_pocket_view m_shop_discard{pocket_type::shop_discard};
         point_pocket_view m_hidden_deck{pocket_type::hidden_deck};
         flipped_pocket m_shop_selection{options.shop_selection_width, pocket_type::shop_selection};
-        wide_pocket m_shop_choice{options.shop_choice_width, pocket_type::none};
+        wide_pocket m_shop_choice{options.shop_choice_width, pocket_type::hidden_deck};
         
         table_cube_pile m_cubes;
 
