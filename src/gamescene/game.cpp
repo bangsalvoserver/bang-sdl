@@ -396,12 +396,13 @@ void game_scene::handle_game_update(UPD_TAG(add_cards), const add_cards_update &
     auto &pocket = get_pocket(args.pocket, args.player);
 
     for (auto [id, deck] : args.card_ids) {
-        auto c = std::make_unique<card_view>();
-        c->id = id;
-        c->deck = deck;
-        c->texture_back = card_textures::get().backfaces[enums::indexof(deck)];
-
-        card_view *card = m_cards.insert(std::move(c)).get();
+        card_view *card = m_cards.insert([&]{
+            auto c = std::make_unique<card_view>();
+            c->id = id;
+            c->deck = deck;
+            c->texture_back = card_textures::get().backfaces[enums::indexof(deck)];
+            return c;
+        }()).get();
         pocket.add_card(card);
         card->set_pos(pocket.get_pos() + pocket.get_offset(card));
     }
@@ -417,32 +418,30 @@ void game_scene::handle_game_update(UPD_TAG(remove_cards), const remove_cards_up
 }
 
 void game_scene::handle_game_update(UPD_TAG(move_card), const move_card_update &args) {
-    pocket_view *old_pile = args.card->pocket;
-    pocket_view *new_pile = &get_pocket(args.pocket, args.player);
+    add_animation<card_move_animation>(args.get_duration(), [&]{
+        pocket_view *old_pile = args.card->pocket;
+        pocket_view *new_pile = &get_pocket(args.pocket, args.player);
 
-    card_move_animation anim;
+        card_move_animation anim;
 
-    old_pile->erase_card(args.card);
-    if (old_pile->wide()) {
-        for (card_view *anim_card : *old_pile) {
-            anim.add_move_card(anim_card);
+        old_pile->erase_card(args.card);
+        if (old_pile->wide()) {
+            for (card_view *anim_card : *old_pile) {
+                anim.add_move_card(anim_card);
+            }
         }
-    }
 
-    new_pile->add_card(args.card);
-    if (new_pile->wide()) {
-        for (card_view *anim_card : *new_pile) {
-            anim.add_move_card(anim_card);
+        new_pile->add_card(args.card);
+        if (new_pile->wide()) {
+            for (card_view *anim_card : *new_pile) {
+                anim.add_move_card(anim_card);
+            }
+        } else {
+            anim.add_move_card(args.card);
         }
-    } else {
-        anim.add_move_card(args.card);
-    }
-    
-    if (args.instant) {
-        anim.end();
-    } else {
-        add_animation<card_move_animation>(args.get_duration(), std::move(anim));
-    }
+
+        return anim;
+    }());
 }
 
 cube_pile_base &game_scene::get_cube_pile(card_view *card) {
@@ -462,29 +461,33 @@ void game_scene::handle_game_update(UPD_TAG(add_cubes), const add_cubes_update &
 }
 
 void game_scene::handle_game_update(UPD_TAG(move_cubes), const move_cubes_update &args) {
-    auto &origin_pile = get_cube_pile(args.origin_card);
-    auto &target_pile = get_cube_pile(args.target_card);
+    add_animation<cube_move_animation>(args.get_duration(), [&]{
+        auto &origin_pile = get_cube_pile(args.origin_card);
+        auto &target_pile = get_cube_pile(args.target_card);
 
-    cube_move_animation anim;
-    for (int i=0; i<args.num_cubes; ++i) {
-        auto &cube = target_pile.emplace_back(std::move(origin_pile.back()));
-        origin_pile.pop_back();
+        cube_move_animation anim;
+        for (int i=0; i<args.num_cubes; ++i) {
+            auto &cube = target_pile.emplace_back(std::move(origin_pile.back()));
+            origin_pile.pop_back();
 
-        anim.add_cube(cube.get(), &target_pile);
-    }
-    add_animation<cube_move_animation>(args.get_duration(), std::move(anim));
+            anim.add_cube(cube.get(), &target_pile);
+        }
+        return anim;
+    }());
 }
 
 void game_scene::handle_game_update(UPD_TAG(move_scenario_deck), const move_scenario_deck_update &args) {
     auto *old_scenario_player = std::exchange(m_scenario_player, args.player);
     if (old_scenario_player && !old_scenario_player->scenario_deck.empty()) {
-        card_move_animation anim;
-        for (card_view *c : old_scenario_player->scenario_deck) {
-            m_scenario_player->scenario_deck.add_card(c);
-            anim.add_move_card(c);
-        }
-        old_scenario_player->scenario_deck.clear();
-        add_animation<card_move_animation>(args.get_duration(), std::move(anim));
+        add_animation<card_move_animation>(args.get_duration(), [&]{
+            card_move_animation anim;
+            for (card_view *c : old_scenario_player->scenario_deck) {
+                m_scenario_player->scenario_deck.add_card(c);
+                anim.add_move_card(c);
+            }
+            old_scenario_player->scenario_deck.clear();
+            return anim;
+        }());
     }
 }
 
@@ -500,33 +503,21 @@ void game_scene::handle_game_update(UPD_TAG(show_card), const show_card_update &
             args.card->pocket->update_card(args.card);
         }
 
-        if (args.instant) {
-            args.card->flip_amt = 1.f;
-        } else {
-            add_animation<card_flip_animation>(args.get_duration(), args.card, false);
-        }
+        add_animation<card_flip_animation>(args.get_duration(), args.card, false);
     }
 }
 
 void game_scene::handle_game_update(UPD_TAG(hide_card), const hide_card_update &args) {
     if (args.card->known) {
         args.card->known = false;
-        if (args.instant) {
-            args.card->flip_amt = 0.f;
-        } else {
-            add_animation<card_flip_animation>(args.get_duration(), args.card, true);
-        }
+        add_animation<card_flip_animation>(args.get_duration(), args.card, true);
     }
 }
 
 void game_scene::handle_game_update(UPD_TAG(tap_card), const tap_card_update &args) {
     if (args.card->inactive != args.inactive) {
         args.card->inactive = args.inactive;
-        if (args.instant) {
-            args.card->rotation = args.card->inactive ? 90.f : 0.f;
-        } else {
-            add_animation<card_tap_animation>(args.get_duration(), args.card, args.inactive);
-        }
+        add_animation<card_tap_animation>(args.get_duration(), args.card, args.inactive);
     }
 }
 
@@ -545,40 +536,38 @@ void game_scene::handle_game_update(UPD_TAG(last_played_card), card_view *card) 
 void game_scene::move_player_views(anim_duration_type duration) {
     if (m_alive_players.size() == 0) return;
 
-    player_move_animation anim;
+    add_animation<player_move_animation>(duration, [&]{
+        player_move_animation anim;
 
-    const int xradius = (parent->width() / 2) - options.player_ellipse_x_distance;
-    const int yradius = (parent->height() / 2) - options.player_ellipse_y_distance;
-    
-    double angle = 0.f;
-
-    if (m_alive_players.size() == 1 && m_alive_players.front() != m_player_self) {
-        angle = std::numbers::pi;
-    }
-
-    for (player_view *p : m_alive_players) {
-        anim.add_move_player(p, sdl::point{
-            int(parent->width() / 2 - std::sin(angle) * xradius),
-            int(parent->height() / 2 + std::cos(angle) * yradius)
-        });
+        const int xradius = (parent->width() / 2) - options.player_ellipse_x_distance;
+        const int yradius = (parent->height() / 2) - options.player_ellipse_y_distance;
         
-        angle += std::numbers::pi * 2.f / m_alive_players.size();
-    }
+        double angle = 0.f;
 
-    sdl::point dead_roles_pos{
-        parent->get_rect().w - options.pile_dead_players_xoff,
-        options.pile_dead_players_yoff
-    };
-    for (player_view *p : m_dead_players) {
-        anim.add_move_player(p, dead_roles_pos);
-        dead_roles_pos.y += options.pile_dead_players_ydiff;
-    }
+        if (m_alive_players.size() == 1 && m_alive_players.front() != m_player_self) {
+            angle = std::numbers::pi;
+        }
 
-    if (duration >= anim_duration_type{0}) {
-        add_animation<player_move_animation>(duration, std::move(anim));
-    } else {
-        anim.end();
-    }
+        for (player_view *p : m_alive_players) {
+            anim.add_move_player(p, sdl::point{
+                int(parent->width() / 2 - std::sin(angle) * xradius),
+                int(parent->height() / 2 + std::cos(angle) * yradius)
+            });
+            
+            angle += std::numbers::pi * 2.f / m_alive_players.size();
+        }
+
+        sdl::point dead_roles_pos{
+            parent->get_rect().w - options.pile_dead_players_xoff,
+            options.pile_dead_players_yoff
+        };
+        for (player_view *p : m_dead_players) {
+            anim.add_move_player(p, dead_roles_pos);
+            dead_roles_pos.y += options.pile_dead_players_ydiff;
+        }
+
+        return anim;
+    }());
 }
 
 void game_scene::handle_game_update(UPD_TAG(player_add), const player_add_update &args) {
@@ -631,11 +620,7 @@ void game_scene::handle_game_update(UPD_TAG(player_remove), const player_remove_
 void game_scene::handle_game_update(UPD_TAG(player_hp), const player_hp_update &args) {
     int prev_hp = args.player->hp;
     args.player->hp = args.hp;
-    if (args.instant) {
-        args.player->set_hp_marker_position(float(args.hp));
-    } else if (prev_hp != args.hp) {
-        add_animation<player_hp_animation>(args.get_duration(), args.player, prev_hp);
-    }
+    add_animation<player_hp_animation>(args.get_duration(), args.player, prev_hp);
 }
 
 void game_scene::handle_game_update(UPD_TAG(player_gold), const player_gold_update &args) {
@@ -646,14 +631,7 @@ void game_scene::handle_game_update(UPD_TAG(player_show_role), const player_show
     if (args.player->m_role.role != args.role) {
         args.player->m_role.role = args.role;
         args.player->m_role.make_texture_front(parent->get_renderer());
-        if (args.instant) {
-            if (args.role == player_role::sheriff) {
-                args.player->set_hp_marker_position(float(++args.player->hp));
-            }
-            args.player->m_role.flip_amt = 1.f;
-        } else {
-            add_animation<card_flip_animation>(args.get_duration(), &args.player->m_role, false);
-        }
+        add_animation<card_flip_animation>(args.get_duration(), &args.player->m_role, false);
     }
 }
 
