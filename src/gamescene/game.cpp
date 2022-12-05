@@ -171,7 +171,7 @@ void game_scene::handle_event(const sdl::event &event) {
             }
             break;
         case SDL_BUTTON_RIGHT:
-            if (!m_target.waiting_confirm()) {
+            if (!m_target.waiting_confirm() && !m_ui.is_message_box_open()) {
                 m_target.clear_targets();
                 m_target.handle_auto_respond();
             }

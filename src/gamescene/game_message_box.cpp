@@ -23,20 +23,13 @@ namespace banggame {
         message_rect.y = (win_rect.h - message_rect.h) / 2 - 25;
         m_message.set_rect(message_rect);
 
-        m_bg_rect = sdl::rect{
-            std::min(message_rect.x - 10, win_rect.w / 2 - 85),
-            message_rect.y - 10,
-            std::max(message_rect.w + 20, 170),
-            message_rect.h + 55
-        };
-
         constexpr int button_offset = 10;
 
         int tot_width = std::transform_reduce(m_buttons.begin(), m_buttons.end(), -button_offset, std::plus(),
             [](const widgets::button &btn) {
                 return btn.get_rect().w + button_offset;
             });
-        int x = m_bg_rect.x + (m_bg_rect.w - tot_width) / 2;
+        int x = (win_rect.w - tot_width) / 2;
         int y = message_rect.y + message_rect.h + 10;
 
         for (auto &btn : m_buttons) {
@@ -44,6 +37,12 @@ namespace banggame {
             btn.set_rect(sdl::rect{x, y, rect.w, 25});
             x += rect.w + button_offset;
         }
+
+        int bg_width = std::max({tot_width + 20, message_rect.w + 20, 170});
+        m_bg_rect = sdl::rect{
+            (win_rect.w - bg_width) / 2, message_rect.y - 10,
+            bg_width, message_rect.h + 55
+        };
     }
 
     void game_message_box::render(sdl::renderer &renderer) {
