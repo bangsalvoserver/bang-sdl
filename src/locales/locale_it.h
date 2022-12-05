@@ -225,6 +225,7 @@ LOCALE_VALUE(ERROR_TARGET_NOT_UNIQUE,             "I bersagli devono essere unic
 LOCALE_VALUE(LOG_GAME_START,                      "La partita è iniziata")
 LOCALE_VALUE(LOG_GAME_OVER,                       "La partita è terminata")
 LOCALE_VALUE(LOG_DECK_RESHUFFLED,                 "Il mazzo viene rimescolato")
+LOCALE_VALUE(LOG_SHOP_RESHUFFLED,                 "Il mazzo dello shop viene rimescolato")
 LOCALE_VALUE(LOG_TURN_START,                      "È il turno di {0}")
 LOCALE_VALUE(LOG_SOLD_BEER,                       "{0} vende {1}")
 LOCALE_VALUE(LOG_DISCARDED_CARD,                  "{0} scarta {2} a {1}")
