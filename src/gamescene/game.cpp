@@ -345,10 +345,10 @@ void game_scene::handle_game_update(UPD_TAG(game_log), const game_string &args) 
 }
 
 void game_scene::handle_game_update(UPD_TAG(game_prompt), const game_string &args) {
-    m_ui.show_message_box(evaluate_format_string(args),
-        [&]{ m_target.send_prompt_response(true); m_ui.close_message_box(); },
-        [&]{ m_target.send_prompt_response(false); m_ui.close_message_box(); }
-    );
+    m_ui.show_message_box(evaluate_format_string(args), {
+        {_("BUTTON_YES"), [&]{ m_target.send_prompt_response(true); }},
+        {_("BUTTON_NO"),  [&]{ m_target.send_prompt_response(false); }}
+    });
 }
 
 void game_scene::handle_game_update(UPD_TAG(deck_shuffled), const deck_shuffled_update &args) {

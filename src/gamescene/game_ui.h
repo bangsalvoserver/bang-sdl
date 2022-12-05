@@ -49,13 +49,17 @@ namespace banggame {
             m_golobby_btn.set_enabled(value);
         }
 
-        void show_message_box(const std::string &message, auto &&on_click_yes, auto &&on_click_no) {
-            m_message_box.emplace(message, FWD(on_click_yes), FWD(on_click_no));
+        void show_message_box(const std::string &message, button_init_list &&buttons) {
+            m_message_box.emplace(this, message, std::move(buttons));
             refresh_layout();
         }
 
         void close_message_box() {
             m_message_box.reset();
+        }
+
+        bool is_message_box_open() const {
+            return m_message_box.has_value();
         }
 
     private:

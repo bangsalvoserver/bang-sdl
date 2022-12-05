@@ -6,6 +6,9 @@ LOCALE_VALUE(BANG_TITLE,                          "Bang!")
 
 LOCALE_VALUE(BUTTON_YES,                          "Yes")
 LOCALE_VALUE(BUTTON_NO,                           "No")
+LOCALE_VALUE(BUTTON_PLAY,                         "Play")
+LOCALE_VALUE(BUTTON_PICK,                         "Discard")
+LOCALE_VALUE(BUTTON_UNDO,                         "Undo")
 LOCALE_VALUE(BUTTON_CONNECT,                      "Connect")
 LOCALE_VALUE(BUTTON_CANCEL,                       "Cancel")
 LOCALE_VALUE(BUTTON_CREATE_SERVER,                "Create Server")
@@ -47,6 +50,7 @@ LOCALE_VALUE(PROMPT_REPLACE,                      "Do you want to play {0} to re
 LOCALE_VALUE(PROMPT_EQUIP_ON_SELF,                "Do you want to play {0} on yourself?")
 LOCALE_VALUE(PROMPT_NO_REDRAW,                    "Do you want to play {} without redrawing the card?")
 LOCALE_VALUE(PROMPT_BANG_STRENGTH,                "You have to respond with {} Missed! Continue?")
+LOCALE_VALUE(PROMPT_PLAY_OR_PICK,                 "Play or discard this card?")
 
 LOCALE_VALUE(STATUS_GAME_OVER,                    "Game Over")
 LOCALE_VALUE(STATUS_YOUR_TURN,                    "Your turn ... Choose how to draw")

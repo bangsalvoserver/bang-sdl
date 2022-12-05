@@ -106,7 +106,11 @@ bool target_finder::can_confirm() const {
 }
 
 bool target_finder::is_card_clickable() const {
-    return m_game->m_winner_role == player_role::unknown && m_game->m_pending_updates.empty() && m_game->m_animations.empty() && !waiting_confirm();
+    return m_game->m_winner_role == player_role::unknown
+        && m_game->m_pending_updates.empty()
+        && m_game->m_animations.empty()
+        && !m_game->m_ui.is_message_box_open()
+        && !waiting_confirm();
 }
 
 bool target_finder::can_respond_with(card_view *card) const {
@@ -160,8 +164,16 @@ void target_finder::on_click_card(pocket_type pocket, player_view *player, card_
             add_card_target(player, card);
         }
     } else if (can_respond_with(card)) {
-        m_response = true;
-        set_playing_card(card);
+        if (can_pick_card(pocket, player, card)) {
+            m_game->m_ui.show_message_box(_("PROMPT_PLAY_OR_PICK"), {
+                {_("BUTTON_PLAY"), [=]{ m_response = true; set_playing_card(card); }},
+                {_("BUTTON_PICK"), [=]{ send_pick_card(pocket, player, card); }},
+                {_("BUTTON_UNDO"), []{}}
+            });
+        } else {
+            m_response = true;
+            set_playing_card(card);
+        }
     } else if (can_pick_card(pocket, player, card)) {
         send_pick_card(pocket, player, card);
     } else if (can_play_in_turn(pocket, player, card)) {

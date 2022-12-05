@@ -6,6 +6,9 @@ LOCALE_VALUE(BANG_TITLE,                          "Bang!")
 
 LOCALE_VALUE(BUTTON_YES,                          "Sì")
 LOCALE_VALUE(BUTTON_NO,                           "No")
+LOCALE_VALUE(BUTTON_PLAY,                         "Gioca")
+LOCALE_VALUE(BUTTON_PICK,                         "Scarta")
+LOCALE_VALUE(BUTTON_UNDO,                         "Annulla")
 LOCALE_VALUE(BUTTON_CONNECT,                      "Connetti")
 LOCALE_VALUE(BUTTON_CANCEL,                       "Annulla")
 LOCALE_VALUE(BUTTON_CREATE_SERVER,                "Crea Server")
@@ -47,6 +50,7 @@ LOCALE_VALUE(PROMPT_REPLACE,                      "Vuoi giocare {0} per rimpiazz
 LOCALE_VALUE(PROMPT_EQUIP_ON_SELF,                "Vuoi giocare {0} su te stesso?")
 LOCALE_VALUE(PROMPT_NO_REDRAW,                    "Vuoi giocare {} senza ripescare la carta?")
 LOCALE_VALUE(PROMPT_BANG_STRENGTH,                "Devi rispondere con {} Mancato! Continuare?")
+LOCALE_VALUE(PROMPT_PLAY_OR_PICK,                 "Giocare la carta o scartarla?")
 
 LOCALE_VALUE(STATUS_GAME_OVER,                    "Partita Finita")
 LOCALE_VALUE(STATUS_YOUR_TURN,                    "Tocca a te ... Scegli come pescare")
