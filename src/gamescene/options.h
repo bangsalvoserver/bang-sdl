@@ -71,6 +71,8 @@ namespace banggame {
         int pile_dead_players_xoff;
         int pile_dead_players_yoff;
         int pile_dead_players_ydiff;
+
+        anim_duration_type card_overlay_duration; // how long you need to hold the mouse still
     } options;
 
     extern const struct colors_t {
@@ -94,23 +96,6 @@ namespace banggame {
         sdl::color target_finder_can_pick;
         sdl::color target_finder_picked;
     } colors;
-
-    extern const struct durations_t {
-        anim_duration_type card_overlay; // how long you need to hold the mouse still
-
-        anim_duration_type move_card;
-        anim_duration_type flip_card;
-        anim_duration_type short_pause;
-        anim_duration_type tap_card;
-        anim_duration_type flash_card;
-        anim_duration_type move_hp;
-        anim_duration_type flip_role;
-        anim_duration_type shuffle_deck;
-        anim_duration_type move_player;
-        
-        anim_duration_type move_cube;
-        anim_duration_type move_cubes;
-    } durations;
 }
 
 #endif

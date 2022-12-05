@@ -62,7 +62,9 @@ namespace banggame {
         .icon_dead_players_yoff = 10,
         .pile_dead_players_xoff = 70,
         .pile_dead_players_yoff = 85,
-        .pile_dead_players_ydiff = 70
+        .pile_dead_players_ydiff = 70,
+
+        .card_overlay_duration {1000ms}
     };
 
     const colors_t colors {
@@ -85,23 +87,6 @@ namespace banggame {
         .target_finder_can_respond = sdl::rgba(0x1ed760aa),
         .target_finder_can_pick = sdl::rgba(0xffffffaa),
         .target_finder_picked = sdl::rgba(0xc0ffffaa)
-    };
-
-    const durations_t durations {
-        .card_overlay {1000ms},
-
-        .move_card {333ms},
-        .flip_card {167ms},
-        .short_pause {333ms},
-        .tap_card {167ms},
-        .flash_card {167ms},
-        .move_hp {333ms},
-        .flip_role {250ms},
-        .shuffle_deck {1333ms},
-        .move_player {1000ms},
-
-        .move_cube {133ms},
-        .move_cubes {250ms},
     };
 
 }

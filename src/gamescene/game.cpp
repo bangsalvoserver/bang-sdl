@@ -75,7 +75,7 @@ void game_scene::refresh_layout() {
 }
 
 void game_scene::tick(duration_type time_elapsed) {
-    if (m_mouse_motion_timer >= durations.card_overlay) {
+    if (m_mouse_motion_timer >= options.card_overlay_duration) {
         if (!m_overlay) {
             find_overlay();
         }
@@ -542,7 +542,7 @@ void game_scene::handle_game_update(UPD_TAG(last_played_card), card_view *card) 
     m_target.set_last_played_card(card);
 }
 
-void game_scene::move_player_views(bool instant) {
+void game_scene::move_player_views(anim_duration_type duration) {
     if (m_alive_players.size() == 0) return;
 
     player_move_animation anim;
@@ -574,10 +574,10 @@ void game_scene::move_player_views(bool instant) {
         dead_roles_pos.y += options.pile_dead_players_ydiff;
     }
 
-    if (instant) {
-        anim.end();
+    if (duration >= anim_duration_type{0}) {
+        add_animation<player_move_animation>(duration, std::move(anim));
     } else {
-        add_animation<player_move_animation>(durations.move_player, std::move(anim));
+        anim.end();
     }
 }
 
@@ -624,7 +624,7 @@ void game_scene::handle_game_update(UPD_TAG(player_remove), const player_remove_
 
         m_dead_players.push_back(args.player);
 
-        move_player_views(args.instant);
+        move_player_views(args.get_duration());
     }
 }
 

@@ -79,7 +79,7 @@ namespace banggame {
             m_animations.emplace_back(duration, std::in_place_type<T>, FWD(args) ... );
         }
 
-        void move_player_views(bool instant = true);
+        void move_player_views(anim_duration_type duration = {});
 
         void handle_card_click();
         void find_overlay();
