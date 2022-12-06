@@ -12,6 +12,13 @@ namespace banggame {
 
     class game_scene;
 
+    enum class play_mode {
+        none,
+        play,
+        respond,
+        equip
+    };
+
     struct target_status {
         card_view *m_playing_card = nullptr;
         std::vector<card_view *> m_modifiers;
@@ -19,8 +26,7 @@ namespace banggame {
         target_list m_targets;
         raii_editor_stack<sdl::color> m_target_borders;
 
-        bool m_equipping = false;
-        bool m_response = false;
+        play_mode m_mode = play_mode::none;
     };
 
     class target_finder : private target_status {
@@ -67,8 +73,7 @@ namespace banggame {
         int calc_distance(player_view *from, player_view *to) const;
     
     private:
-        void set_playing_card(card_view *card);
-        void add_modifier(card_view *card);
+        void set_playing_card(card_view *card, play_mode mode);
         bool playable_with_modifiers(card_view *card) const;
 
         void handle_auto_targets();
