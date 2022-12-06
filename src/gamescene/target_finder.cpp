@@ -167,9 +167,9 @@ void target_finder::on_click_card(pocket_type pocket, player_view *player, card_
         if (can_pick_card(pocket, player, card)) {
             m_target_borders.add(card->border_color, colors.target_finder_current_card);
             m_game->m_ui.show_message_box(_("PROMPT_PLAY_OR_PICK"), {
-                {_("BUTTON_PLAY"), [=]{ m_response = true; set_playing_card(card); }},
-                {_("BUTTON_PICK"), [=]{ send_pick_card(pocket, player, card); }},
-                {_("BUTTON_UNDO"), [&]{ clear_targets(); }}
+                {_("BUTTON_PLAY"), [=, this]{ m_response = true; set_playing_card(card); }},
+                {_("BUTTON_PICK"), [=, this]{ send_pick_card(pocket, player, card); }},
+                {_("BUTTON_UNDO"), [this]{ clear_targets(); }}
             });
         } else {
             m_response = true;
