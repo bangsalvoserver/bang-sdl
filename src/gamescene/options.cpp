@@ -56,7 +56,7 @@ namespace banggame {
 
         .move_cubes_offset = 0.2f,
 
-        .shuffle_deck_offset = 0.5f,
+        .shuffle_deck_offset = 0.6f,
 
         .status_text_y_distance = 270,
         .icon_dead_players_yoff = 10,
