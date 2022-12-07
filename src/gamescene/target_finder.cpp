@@ -324,19 +324,20 @@ int target_finder::calc_distance(player_view *from, player_view *to) const {
         using pointer = player_view *;
         using reference = player_view &;
 
-        util::id_map<banggame::player_view> *list;
-        util::id_map<banggame::player_view>::iterator m_it;
+        std::vector<banggame::player_view *> *list;
+        std::vector<banggame::player_view *>::iterator m_it;
 
         player_view_iterator() = default;
         
         player_view_iterator(game_scene *game, player_view *p)
-            : list(&game->m_players), m_it(list->find(p->id)) {}
+            : list(&game->m_alive_players)
+            , m_it(std::ranges::find(*list, p)) {}
         
         player_view_iterator &operator ++() {
             do {
                 ++m_it;
                 if (m_it == list->end()) m_it = list->begin();
-            } while (!m_it->alive());
+            } while (!(*m_it)->alive());
             return *this;
         }
 
@@ -346,7 +347,7 @@ int target_finder::calc_distance(player_view *from, player_view *to) const {
             do {
                 if (m_it == list->begin()) m_it = list->end();
                 --m_it;
-            } while (!m_it->alive());
+            } while (!(*m_it)->alive());
             return *this;
         }
 

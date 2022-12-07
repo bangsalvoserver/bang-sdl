@@ -580,6 +580,16 @@ void game_scene::handle_game_update(UPD_TAG(player_add), const player_add_update
     }
 }
 
+void game_scene::handle_game_update(UPD_TAG(player_order), const player_order_update &args) {
+    m_alive_players = args.players;
+    if (m_player_self) {
+        if (auto it = std::ranges::find(m_alive_players, m_player_self); it != m_alive_players.end()) {
+            std::ranges::rotate(m_alive_players, it);
+        }
+    }
+    move_player_views(args.get_duration());
+}
+
 void game_scene::handle_game_update(UPD_TAG(player_user), const player_user_update &args) {
     args.player->user_id = args.user_id;
     if (user_info *info = parent->get_user_info(args.user_id)) {
