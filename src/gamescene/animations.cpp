@@ -110,7 +110,11 @@ namespace banggame {
     }
 
     void deck_shuffle_animation::render(sdl::renderer &renderer) {
-        for (card_view *card : *cards) {
+        auto first_card = std::ranges::find_if(*cards, [](card_view *card) { return card->flip_amt <= 0.5f; });
+        for (card_view *card : std::ranges::subrange(first_card, cards->end()) | std::views::reverse) {
+            card->render(renderer, render_flags::no_skip_animating);
+        }
+        for (card_view *card : std::ranges::subrange(cards->begin(), first_card)) {
             card->render(renderer, render_flags::no_skip_animating);
         }
     }
