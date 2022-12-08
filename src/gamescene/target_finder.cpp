@@ -320,9 +320,9 @@ int target_finder::calc_distance(player_view *from, player_view *to) const {
     struct player_view_iterator {
         using iterator_category = std::bidirectional_iterator_tag;
         using difference_type = int;
-        using value_type = player_view;
-        using pointer = player_view *;
-        using reference = player_view &;
+        using value_type = player_view *;
+        using pointer = value_type *;
+        using reference = value_type &;
 
         std::vector<banggame::player_view *> *list;
         std::vector<banggame::player_view *>::iterator m_it;
@@ -370,12 +370,10 @@ int target_finder::calc_distance(player_view *from, player_view *to) const {
 }
 
 struct targetable_for_cards_other_player {
-    const player_view &origin;
-    bool operator()(const player_view &target) {
-        if (&target == &origin || !target.alive()) return false;
-        return !target.hand.empty() || std::ranges::any_of(target.table, [](card_view *card) {
-            return card->color != card_color_type::black;
-        });
+    player_view *origin;
+    bool operator()(player_view *target) {
+        return target != origin && target->alive()
+            && (!target->hand.empty() || std::ranges::any_of(target->table, std::not_fn(&card_view::is_black)));
     }
 };
 
@@ -453,7 +451,7 @@ void target_finder::handle_auto_targets() {
                 return;
             }
         case target_type::cards_other_players:
-            if (std::ranges::none_of(m_game->m_players, targetable_for_cards_other_player{*m_game->m_player_self})) {
+            if (std::ranges::none_of(m_game->m_alive_players, targetable_for_cards_other_player{m_game->m_player_self})) {
                 m_targets.emplace_back(enums::enum_tag<target_type::cards_other_players>);
                 break;
             } else {
@@ -499,9 +497,9 @@ const char *target_finder::check_card_filter(target_card_filter filter, card_vie
 
 std::vector<player_view *> target_finder::possible_player_targets(target_player_filter filter) {
     std::vector<player_view *> ret;
-    for (auto &p : m_game->m_players) {
-        if (!check_player_filter(filter, &p)) {
-            ret.push_back(&p);
+    for (player_view *p : m_game->m_alive_players) {
+        if (!check_player_filter(filter, p)) {
+            ret.push_back(p);
         }
     }
     return ret;
@@ -551,7 +549,7 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
         if (index >= m_targets.size()) {
             m_targets.emplace_back(enums::enum_tag<target_type::cards_other_players>);
             m_targets.back().get<target_type::cards_other_players>().reserve(
-                std::ranges::count_if(m_game->m_players, targetable_for_cards_other_player{*m_game->m_player_self}));
+                std::ranges::count_if(m_game->m_alive_players, targetable_for_cards_other_player{m_game->m_player_self}));
         }
         if (auto &vec = m_targets.back().get<target_type::cards_other_players>();
             card->color != card_color_type::black && player != m_game->m_player_self
