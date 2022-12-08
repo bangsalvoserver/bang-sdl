@@ -98,6 +98,12 @@ namespace banggame {
 
         template<typename T>
         void add_animation(anim_duration_type duration, auto && ... args) {
+            if constexpr (requires (T anim) { anim.end(); }) {
+                if (duration <= anim_duration_type{0}) {
+                    T{FWD(args) ... }.end();
+                    return;
+                }
+            }
             m_animations.emplace_back(duration, std::in_place_type<T>, FWD(args) ... );
         }
 
