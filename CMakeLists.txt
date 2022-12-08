@@ -39,6 +39,7 @@ set(bangclient_srcs
     src/widgets/textbox.cpp
     src/widgets/text_list.cpp
     src/widgets/profile_pic.cpp
+    game/src/game/durations.cpp
 )
 
 add_library(sdl2_libraries INTERFACE)
