@@ -114,6 +114,8 @@ namespace banggame {
 
         sdl::color border_color{};
 
+        card_view(int id): id(id) {}
+
         void set_pos(const sdl::point &pos);
         const sdl::point &get_pos() const {
             return m_pos;
@@ -138,6 +140,8 @@ namespace banggame {
     };
 
     struct role_card : card_view {
+        role_card() : card_view{0} {}
+
         player_role role = player_role::unknown;
 
         void make_texture_front(sdl::renderer &renderer);

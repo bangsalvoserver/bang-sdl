@@ -382,13 +382,10 @@ void game_scene::handle_game_update(UPD_TAG(add_cards), const add_cards_update &
     auto &pocket = get_pocket(args.pocket, args.player);
 
     for (auto [id, deck] : args.card_ids) {
-        card_view *card = m_context.cards.insert([&]{
-            auto c = std::make_unique<card_view>();
-            c->id = id;
-            c->deck = deck;
-            c->texture_back = card_textures::get().backfaces[enums::indexof(deck)];
-            return c;
-        }()).get();
+        card_view *card = &m_context.cards.emplace(id);
+        card->deck = deck;
+        card->texture_back = card_textures::get().backfaces[enums::indexof(deck)];
+        
         pocket.add_card(card);
         card->set_pos(pocket.get_pos() + pocket.get_offset(card));
     }
