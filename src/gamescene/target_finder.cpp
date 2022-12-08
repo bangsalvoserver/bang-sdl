@@ -62,7 +62,7 @@ void target_finder::set_playing_card(card_view *card, play_mode mode) {
 
 template<game_action_type T>
 void target_finder::add_action(auto && ... args) {
-    m_game->parent->add_message<banggame::client_message_type::game_action>(json::serialize(banggame::game_action{enums::enum_tag<T>, FWD(args) ...}, *m_game));
+    m_game->parent->add_message<banggame::client_message_type::game_action>(json::serialize(banggame::game_action{enums::enum_tag<T>, FWD(args) ...}, m_game->context()));
 }
 
 void target_finder::set_picking_border(card_view *card, sdl::color color) {
@@ -331,7 +331,10 @@ int target_finder::calc_distance(player_view *from, player_view *to) const {
         
         player_view_iterator(game_scene *game, player_view *p)
             : list(&game->m_alive_players)
-            , m_it(std::ranges::find(*list, p)) {}
+            , m_it(std::ranges::find(*list, p))
+        {
+            assert(m_it != list->end());
+        }
         
         player_view_iterator &operator ++() {
             do {

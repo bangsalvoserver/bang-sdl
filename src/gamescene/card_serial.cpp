@@ -4,7 +4,7 @@
 
 namespace json {
 
-template<> Json::Value serializer<banggame::card_view *, banggame::game_scene>::operator()(banggame::card_view *card) const {
+template<> Json::Value serializer<banggame::card_view *, banggame::game_context_view>::operator()(banggame::card_view *card) const {
     if (card) {
         return card->id;
     } else {
@@ -12,7 +12,7 @@ template<> Json::Value serializer<banggame::card_view *, banggame::game_scene>::
     }
 }
 
-template<> Json::Value serializer<banggame::player_view *, banggame::game_scene>::operator()(banggame::player_view *player) const {
+template<> Json::Value serializer<banggame::player_view *, banggame::game_context_view>::operator()(banggame::player_view *player) const {
     if (player) {
         return player->id;
     } else {
@@ -20,7 +20,7 @@ template<> Json::Value serializer<banggame::player_view *, banggame::game_scene>
     }
 }
 
-template<> banggame::card_view *deserializer<banggame::card_view *, banggame::game_scene>::operator()(const Json::Value &value) const {
+template<> banggame::card_view *deserializer<banggame::card_view *, banggame::game_context_view>::operator()(const Json::Value &value) const {
     if (value.isInt()) {
         return context.find_card(value.asInt());
     } else {
@@ -28,7 +28,7 @@ template<> banggame::card_view *deserializer<banggame::card_view *, banggame::ga
     }
 }
 
-template<> banggame::player_view *deserializer<banggame::player_view *, banggame::game_scene>::operator()(const Json::Value &value) const {
+template<> banggame::player_view *deserializer<banggame::player_view *, banggame::game_context_view>::operator()(const Json::Value &value) const {
     if (value.isInt()) {
         return context.find_player(value.asInt());
     } else {

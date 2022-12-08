@@ -19,20 +19,6 @@ game_scene::game_scene(client_manager *parent)
     m_ui.enable_golobby(false);
 }
 
-card_view *game_scene::find_card(int id) const {
-    if (auto it = m_cards.find(id); it != m_cards.end()) {
-        return &*it;
-    }
-    throw std::runtime_error(fmt::format("client.find_card: ID {} not found", id));
-}
-
-player_view *game_scene::find_player(int id) const {
-    if (auto it = m_players.find(id); it != m_players.end()) {
-        return &*it;
-    }
-    throw std::runtime_error(fmt::format("client.find_player: ID {} not found", id));
-}
-
 void game_scene::refresh_layout() {
     const auto win_rect = parent->get_rect();
 
@@ -93,7 +79,7 @@ void game_scene::tick(duration_type time_elapsed) {
                 if (!m_pending_updates.empty()) {
                     enums::visit_indexed([this](auto && ... args) {
                         handle_game_update(FWD(args) ...);
-                    }, json::deserialize<banggame::game_update>(m_pending_updates.front(), *this));
+                    }, json::deserialize<banggame::game_update>(m_pending_updates.front(), context()));
                     m_pending_updates.pop_front();
                 } else {
                     break;
@@ -396,7 +382,7 @@ void game_scene::handle_game_update(UPD_TAG(add_cards), const add_cards_update &
     auto &pocket = get_pocket(args.pocket, args.player);
 
     for (auto [id, deck] : args.card_ids) {
-        card_view *card = m_cards.insert([&]{
+        card_view *card = m_context.cards.insert([&]{
             auto c = std::make_unique<card_view>();
             c->id = id;
             c->deck = deck;
@@ -413,7 +399,7 @@ void game_scene::handle_game_update(UPD_TAG(remove_cards), const remove_cards_up
         if (c->pocket) {
             c->pocket->erase_card(c);
         }
-        m_cards.erase(c->id);
+        m_context.cards.erase(c->id);
     }
 }
 
@@ -572,11 +558,11 @@ void game_scene::move_player_views(anim_duration_type duration) {
 
 void game_scene::handle_game_update(UPD_TAG(player_add), const player_add_update &args) {
     for (int player_id = 1; player_id <= args.num_players; ++player_id) {
-        auto &p = m_players.emplace(this, player_id);
+        player_view *p = &m_context.players.emplace(this, player_id);
         
-        p.m_role.texture_back = card_textures::get().backfaces[enums::indexof(card_deck_type::role)];
+        p->m_role.texture_back = card_textures::get().backfaces[enums::indexof(card_deck_type::role)];
 
-        m_alive_players.push_back(&p);
+        m_alive_players.push_back(p);
     }
 }
 
@@ -613,7 +599,7 @@ void game_scene::handle_game_update(UPD_TAG(player_user), const player_user_upda
 }
 
 void game_scene::handle_game_update(UPD_TAG(player_remove), const player_remove_update &args) {
-    auto it = std::ranges::find(m_alive_players, args.player->id, &player_view::id);
+    auto it = std::ranges::find(m_alive_players, args.player);
     if (it != m_alive_players.end()) {
         m_alive_players.erase(it);
 

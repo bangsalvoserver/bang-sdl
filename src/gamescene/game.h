@@ -17,6 +17,26 @@
 
 namespace banggame {
 
+    class game_context_view {
+    public:
+        util::id_map<card_view> cards;
+        util::id_map<player_view> players;
+
+        card_view *find_card(int id) const {
+            if (auto it = cards.find(id); it != cards.end()) {
+                return &*it;
+            }
+            throw std::runtime_error(fmt::format("client.find_card: ID {} not found", id));
+        }
+
+        player_view *find_player(int id) const {
+            if (auto it = players.find(id); it != players.end()) {
+                return &*it;
+            }
+            throw std::runtime_error(fmt::format("client.find_player: ID {} not found", id));
+        }
+    };
+
     class game_scene : public scene_base,
     public message_handler<server_message_type::game_update>,
     public message_handler<server_message_type::lobby_owner>,
@@ -35,8 +55,9 @@ namespace banggame {
         void handle_message(SRV_TAG(lobby_owner), const user_id_args &args) override;
         void handle_message(SRV_TAG(lobby_error), const std::string &message) override;
 
-        card_view *find_card(int id) const;
-        player_view *find_player(int id) const;
+        const game_context_view &context() const {
+            return m_context;
+        }
 
         const target_finder &get_target_finder() const {
             return m_target;
@@ -90,8 +111,7 @@ namespace banggame {
         sounds_pak m_sounds;
         card_textures m_card_textures;
 
-        util::id_map<card_view> m_cards;
-        util::id_map<player_view> m_players;
+        game_context_view m_context;
 
         game_ui m_ui;
         target_finder m_target;
