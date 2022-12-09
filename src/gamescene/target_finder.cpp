@@ -203,7 +203,7 @@ void target_finder::on_click_card(pocket_type pocket, player_view *player, card_
     } else if (can_pick_card(pocket, player, card)) {
         send_pick_card(pocket, player, card);
     } else if (can_play_in_turn(pocket, player, card)) {
-        if ((pocket == pocket_type::player_hand || pocket == pocket_type::shop_selection) && card->color != card_color_type::brown) {
+        if ((pocket == pocket_type::player_hand || pocket == pocket_type::shop_selection) && !card->is_brown()) {
             set_playing_card(card, play_mode::equip);
         } else {
             set_playing_card(card, play_mode::play);
@@ -555,7 +555,7 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
                 std::ranges::count_if(m_game->m_alive_players, targetable_for_cards_other_player{m_game->m_player_self}));
         }
         if (auto &vec = m_targets.back().get<target_type::cards_other_players>();
-            card->color != card_color_type::black && player != m_game->m_player_self
+            !card->is_black() && player != m_game->m_player_self
             && !ranges_contains(vec, player, [](card_view *card) { return card->pocket->owner; }))
         {
             if (player != m_game->m_player_self && card->pocket == &player->hand) {
