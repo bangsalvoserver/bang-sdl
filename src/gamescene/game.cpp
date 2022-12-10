@@ -653,7 +653,9 @@ void game_scene::handle_game_update(UPD_TAG(request_status), const request_statu
     m_request_target = args.target;
     m_target.set_response_highlights(args);
 
-    m_ui.set_status(evaluate_format_string(args.status_text));
+    if (args.status_text) {
+        m_ui.set_status(evaluate_format_string(args.status_text));
+    }
 }
 
 void game_scene::handle_game_update(UPD_TAG(game_flags), const game_flags &args) {
