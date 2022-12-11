@@ -25,7 +25,9 @@ DEFINE_STRUCT(config,
     (banggame::game_options, options)
     (bool, allow_unofficial_expansions)
     (float, sound_volume, .5f)
-    (uint16_t, server_port),
+    (uint16_t, server_port)
+    (bool, server_enable_cheats)
+    (bool, server_verbose),
     
     void load();
     void save();

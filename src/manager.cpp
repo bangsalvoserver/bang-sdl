@@ -167,7 +167,11 @@ void client_manager::start_listenserver() {
         m_config.server_port = default_server_port;
     }
     m_listenserver = std::make_unique<TinyProcessLib::Process>(
-        fmt::format("{0} {1}", server_path.string(), m_config.server_port), "",
+        fmt::format("{} {} {} {}",
+            server_path.string(),
+            m_config.server_enable_cheats ? "--cheats" : "",
+            m_config.server_verbose ? "--verbose" : "",
+            m_config.server_port), "",
         [&](const char *bytes, size_t n) {
             std::string_view str{bytes, n};
             while (true) {
