@@ -61,8 +61,4 @@ namespace banggame::filter_impl {
     bool card_has_tag(card_view *target, tag_type type) {
         return target->has_tag(type);
     }
-
-    bool allowed_with_leevankliff(player_view *origin, card_view *target) {
-        return target->has_tag(tag_type::bangcard);
-    }
 }
