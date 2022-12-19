@@ -132,7 +132,7 @@ bool target_finder::can_confirm() const {
 }
 
 bool target_finder::is_card_clickable() const {
-    return m_game->m_winner_role == player_role::unknown
+    return !bool(m_game->m_game_flags & game_flags::game_over)
         && m_game->m_pending_updates.empty()
         && m_game->m_animations.empty()
         && !m_game->m_ui.is_message_box_open()

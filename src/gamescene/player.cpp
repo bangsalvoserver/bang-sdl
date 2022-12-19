@@ -124,7 +124,7 @@ namespace banggame {
                 texture.render_colored(renderer, rect, color);
             };
 
-            if (self->m_game->m_winner_role == player_role::unknown) {
+            if (!bool(self->m_game->m_game_flags & game_flags::game_over)) {
                 if (self == self->m_game->m_playing) {
                     render_icon(media_pak::get().icon_turn, colors.turn_indicator);
                     x -= 32;
@@ -136,9 +136,7 @@ namespace banggame {
                 if (self == self->m_game->m_request_origin) {
                     render_icon(media_pak::get().icon_origin, colors.request_origin_indicator);
                 }
-            } else if (self->m_role.role == self->m_game->m_winner_role
-                || (self->m_role.role == player_role::deputy && self->m_game->m_winner_role == player_role::sheriff)
-                || (self->m_role.role == player_role::sheriff && self->m_game->m_winner_role == player_role::deputy)) {
+            } else if (bool(self->has_player_flags(player_flags::winner))) {
                 render_icon(media_pak::get().icon_winner, colors.winner_indicator);
             }
         }
@@ -169,10 +167,7 @@ namespace banggame {
             self->m_propic.render(renderer);
             self->m_username_text.render(renderer);
 
-            if (self->m_role.role == self->m_game->m_winner_role
-                || (self->m_role.role == player_role::deputy && self->m_game->m_winner_role == player_role::sheriff)
-                || (self->m_role.role == player_role::sheriff && self->m_game->m_winner_role == player_role::deputy)) {
-                
+            if (self->has_player_flags(player_flags::winner)) {
                 sdl::texture_ref texture = media_pak::get().icon_winner;
                 sdl::rect rect = texture.get_rect();
                 rect.x = self->m_propic.get_pos().x - rect.w - widgets::profile_pic::size / 2 - 5;

@@ -64,7 +64,6 @@ namespace banggame {
         }
 
     private:
-        void handle_game_update(UPD_TAG(game_over),        const game_over_update &args);
         void handle_game_update(UPD_TAG(game_error),       const game_string &args);
         void handle_game_update(UPD_TAG(game_log),         const game_string &args);
         void handle_game_update(UPD_TAG(game_prompt),      const game_string &args);
@@ -158,7 +157,6 @@ namespace banggame {
 
         raii_editor<sdl::color> m_turn_border;
 
-        player_role m_winner_role = player_role::unknown;
         game_flags m_game_flags{};
 
         cube_pile_base &get_cube_pile(card_view *card);

@@ -280,17 +280,8 @@ void game_scene::handle_message(SRV_TAG(game_update), const Json::Value &update)
     m_pending_updates.push_back(update);
 }
 
-void game_scene::handle_game_update(UPD_TAG(game_over), const game_over_update &args) {
-    m_target.clear_status();
-
-    m_ui.set_status(_("STATUS_GAME_OVER"));
-    m_winner_role = args.winner_role;
-
-    handle_message(SRV_TAG(lobby_owner){}, {parent->get_lobby_owner_id()});
-}
-
 void game_scene::handle_message(SRV_TAG(lobby_owner), const user_id_args &args) {
-    if (m_winner_role != player_role::unknown) {
+    if (bool(m_game_flags & game_flags::game_over)) {
         m_ui.enable_golobby(parent->get_user_own_id() == args.user_id);
     }
 }
@@ -660,6 +651,12 @@ void game_scene::handle_game_update(UPD_TAG(request_status), const request_statu
 
 void game_scene::handle_game_update(UPD_TAG(game_flags), const game_flags &args) {
     m_game_flags = args;
+
+    if (bool(m_game_flags & game_flags::game_over)) {
+        m_target.clear_status();
+        m_ui.set_status(_("STATUS_GAME_OVER"));
+        handle_message(SRV_TAG(lobby_owner){}, {parent->get_lobby_owner_id()});
+    }
 }
 
 void game_scene::handle_game_update(UPD_TAG(play_sound), const std::string &sound_id) {
