@@ -586,21 +586,6 @@ void game_scene::handle_game_update(UPD_TAG(player_user), const player_user_upda
     move_player_views();
 }
 
-void game_scene::handle_game_update(UPD_TAG(player_remove), const player_remove_update &args) {
-    auto it = std::ranges::find(m_alive_players, args.player);
-    if (it != m_alive_players.end()) {
-        m_alive_players.erase(it);
-
-        args.player->set_to_dead();
-
-        args.player->set_position(args.player->m_role.get_pos() - sdl::point{(options.card_margin + widgets::profile_pic::size) / 2, 0});
-
-        m_dead_players.push_back(args.player);
-
-        move_player_views(args.get_duration());
-    }
-}
-
 void game_scene::handle_game_update(UPD_TAG(player_hp), const player_hp_update &args) {
     int prev_hp = args.player->hp;
     args.player->hp = args.hp;
@@ -624,6 +609,19 @@ void game_scene::handle_game_update(UPD_TAG(player_status), const player_status_
     args.player->m_range_mod = args.range_mod;
     args.player->m_weapon_range = args.weapon_range;
     args.player->m_distance_mod = args.distance_mod;
+
+    if (bool(args.flags & player_flags::removed)) {
+        auto it = std::ranges::find(m_alive_players, args.player);
+        if (it != m_alive_players.end()) {
+            m_alive_players.erase(it);
+
+            args.player->set_to_dead();
+
+            args.player->set_position(args.player->m_role.get_pos() - sdl::point{(options.card_margin + widgets::profile_pic::size) / 2, 0});
+
+            m_dead_players.push_back(args.player);
+        }
+    }
 }
 
 void game_scene::handle_game_update(UPD_TAG(switch_turn), player_view *player) {
