@@ -204,6 +204,7 @@ LOCALE_VALUE(ERROR_TARGET_NOT_SELF,               "You can only play this card o
 LOCALE_VALUE(ERROR_TARGET_SELF,                   "You can't play this card on yourself")
 LOCALE_VALUE(ERROR_TARGET_NOT_IN_RANGE,           "Target out of range")
 LOCALE_VALUE(ERROR_TARGETS_NOT_UNIQUE,            "Targets are not unique")
+LOCALE_VALUE(ERROR_TARGETS_NOT_ADJACENT,          "Targets not adjacent")
 LOCALE_VALUE(ERROR_TARGET_NOT_CARD,               "This card is not targetable")
 LOCALE_VALUE(ERROR_TARGET_BLACK_CARD,             "You can't target black cards")
 LOCALE_VALUE(ERROR_TARGET_NOT_TABLE_CARD,         "You can only play this card on table cards")

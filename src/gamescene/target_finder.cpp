@@ -235,19 +235,51 @@ bool target_finder::on_click_player(player_view *player) {
             send_play_card();
             return true;
         }
-    } else if (const auto &args = get_effect_holder(get_target_index()); !verify_filter(args.player_filter)) {
-        return true;
-    } else if (args.target == target_type::player || args.target == target_type::conditional_player) {
-        if (ranges_contains(possible_player_targets(args.player_filter), player)) {
-            m_target_borders.add(player->border_color, colors.target_finder_target);
-            if (args.target == target_type::player) {
-                m_targets.emplace_back(enums::enum_tag<target_type::player>, player);
-            } else {
-                m_targets.emplace_back(enums::enum_tag<target_type::conditional_player>, player);
+    } else {
+        int index = get_target_index();
+        auto cur_target = get_effect_holder(index);
+
+        switch (cur_target.target) {
+        case target_type::player:
+        case target_type::conditional_player:
+            if (verify_filter(cur_target.player_filter)
+                && ranges_contains(possible_player_targets(cur_target.player_filter), player))
+            {
+                if (cur_target.target == target_type::player) {
+                    m_targets.emplace_back(enums::enum_tag<target_type::player>, player);
+                } else {
+                    m_targets.emplace_back(enums::enum_tag<target_type::conditional_player>, player);
+                }
+                m_target_borders.add(player->border_color, colors.target_finder_target);
+                handle_auto_targets();
             }
-            handle_auto_targets();
+            return true;
+        case target_type::fanning_targets:
+            if (index >= m_targets.size()) {
+                if (verify_filter(target_player_filter::reachable | target_player_filter::notself)) {
+                    m_target_borders.add(player->border_color, colors.target_finder_target);
+                    m_targets.emplace_back(enums::enum_tag<target_type::fanning_targets>);
+                    auto &vec = m_targets.back().get<target_type::fanning_targets>();
+                    vec.reserve(2);
+                    vec.push_back(player);
+                }
+            } else {
+                auto &vec = m_targets.back().get<target_type::fanning_targets>();
+                if (player == m_game->m_player_self || player == vec.front() || calc_distance(vec.front(), player) > 1) {
+                    m_game->parent->add_chat_message(message_type::error, _("ERROR_TARGETS_NOT_ADJACENT"));
+                    m_game->play_sound("invalid");
+                } else {
+                    m_target_borders.add(player->border_color, colors.target_finder_target);
+                    vec.push_back(player);
+                    handle_auto_targets();
+                }
+            }
+            return true;
+        default:
+            if (!verify_filter(cur_target.player_filter)) {
+                return true;
+            }
         }
-        return true;
     }
     return false;
 }

@@ -204,6 +204,7 @@ LOCALE_VALUE(ERROR_TARGET_NOT_SELF,               "Puoi giocare questa carta sol
 LOCALE_VALUE(ERROR_TARGET_SELF,                   "Non puoi giocare questa carta su tè stesso")
 LOCALE_VALUE(ERROR_TARGET_NOT_IN_RANGE,           "Target fuori raggio")
 LOCALE_VALUE(ERROR_TARGETS_NOT_UNIQUE,            "I target non sono unici")
+LOCALE_VALUE(ERROR_TARGETS_NOT_ADJACENT,          "I target non sono adiacenti")
 LOCALE_VALUE(ERROR_TARGET_NOT_CARD,               "Questa carta non è bersagliabile")
 LOCALE_VALUE(ERROR_TARGET_BLACK_CARD,             "Non puoi bersagliare le carte nere")
 LOCALE_VALUE(ERROR_TARGET_NOT_TABLE_CARD,         "Puoi giocare questa carta solo sulle carte sul tavolo")
