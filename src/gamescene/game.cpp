@@ -555,12 +555,21 @@ void game_scene::handle_game_update(UPD_TAG(player_add), const player_add_update
 }
 
 void game_scene::handle_game_update(UPD_TAG(player_order), const player_order_update &args) {
+    player_view *first_player = m_alive_players.front();
     m_alive_players = args.players;
-    if (m_player_self) {
-        if (auto it = std::ranges::find(m_alive_players, m_player_self); it != m_alive_players.end()) {
+
+    auto rotate_to = [&](player_view *p) {
+        if (!p) return false;
+        auto it = std::ranges::find(m_alive_players, p);
+        if (it != m_alive_players.end()) {
             std::ranges::rotate(m_alive_players, it);
+            return true;
         }
-    }
+        return false;
+    };
+
+    rotate_to(m_player_self) || rotate_to(first_player);
+
     move_player_views(args.get_duration());
 }
 
