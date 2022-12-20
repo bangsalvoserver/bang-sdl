@@ -329,24 +329,14 @@ void game_scene::handle_game_update(UPD_TAG(game_prompt), const game_string &arg
 }
 
 void game_scene::handle_game_update(UPD_TAG(deck_shuffled), const deck_shuffled_update &args) {
-    switch (args.pocket) {
-    case pocket_type::main_deck:
-        for (card_view *card : m_discard_pile) {
-            card->known = false;
-            m_main_deck.add_card(card);
-        }
-        m_discard_pile.clear();
-        add_animation<deck_shuffle_animation>(args.get_duration(), &m_main_deck, m_discard_pile.get_pos());
-        break;
-    case pocket_type::shop_deck:
-        for (card_view *card : m_shop_discard) {
-            card->known = false;
-            m_shop_deck.add_card(card);
-        }
-        m_shop_discard.clear();
-        add_animation<deck_shuffle_animation>(args.get_duration(), &m_shop_deck, m_shop_discard.get_pos());
-        break;
+    auto &from_pocket = get_pocket(args.pocket == pocket_type::main_deck ? pocket_type::discard_pile : pocket_type::shop_discard);
+    auto &to_pocket = get_pocket(args.pocket);
+    for (card_view *card : from_pocket) {
+        card->known = false;
+        to_pocket.add_card(card);
     }
+    from_pocket.clear();
+    add_animation<deck_shuffle_animation>(args.get_duration(), &to_pocket, from_pocket.get_pos());
 }
 
 pocket_view &game_scene::get_pocket(pocket_type pocket, player_view *player) {
