@@ -498,8 +498,6 @@ void game_scene::handle_game_update(UPD_TAG(last_played_card), card_view *card) 
 }
 
 void game_scene::move_player_views(anim_duration_type duration) {
-    if (m_alive_players.size() == 0) return;
-
     add_animation<player_move_animation>(duration, [&]{
         player_move_animation anim;
 
@@ -545,7 +543,7 @@ void game_scene::handle_game_update(UPD_TAG(player_add), const player_add_update
 }
 
 void game_scene::handle_game_update(UPD_TAG(player_order), const player_order_update &args) {
-    player_view *first_player = m_alive_players.front();
+    player_view *first_player = m_alive_players.empty() ? nullptr : m_alive_players.front();
     m_alive_players = args.players;
 
     auto rotate_to = [&](player_view *p) {
