@@ -8,6 +8,8 @@ if (MSVC)
     add_compile_options(/bigobj)
     add_compile_definitions(_WIN32_WINNT=0x0601)
     add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
+elseif(MINGW)
+    add_compile_options(-fno-ms-extensions)
 endif()
 
 set(bangclient_srcs

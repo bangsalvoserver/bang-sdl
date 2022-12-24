@@ -18,7 +18,7 @@ void target_finder::set_playing_card(card_view *card, play_mode mode) {
             m_modifiers.begin(), m_modifiers.end(), modifier_bitset(card->modifier), std::bit_and(),
             [](card_view *mod) { return allowed_modifiers_after(mod->modifier); }
         );
-        if (allowed_modifiers && !ranges_contains(m_modifiers, card)) {
+        if (allowed_modifiers && !ranges::contains(m_modifiers, card)) {
             if (card->modifier == card_modifier_type::shopchoice) {
                 for (card_view *c : m_game->m_hidden_deck) {
                     if (c->get_tag_value(tag_type::shopchoice) == card->get_tag_value(tag_type::shopchoice)) {
@@ -143,7 +143,7 @@ bool target_finder::can_respond_with(card_view *card) const {
     if (std::ranges::any_of(m_response_highlights, [](card_view *card){ return card->modifier != card_modifier_type::none; })) {
         return !m_modifiers.empty() && playable_with_modifiers(card);
     } else {
-        return ranges_contains(m_response_highlights, card);
+        return ranges::contains(m_response_highlights, card);
     }
 }
 
@@ -151,9 +151,9 @@ bool target_finder::can_pick_card(pocket_type pocket, player_view *player, card_
     switch (pocket) {
     case pocket_type::main_deck:
     case pocket_type::discard_pile:
-        return ranges_contains(m_picking_highlights, pocket, [](card_view *c) { return c->pocket->type; });
+        return ranges::contains(m_picking_highlights, pocket, [](card_view *c) { return c->pocket->type; });
     default:
-        return ranges_contains(m_picking_highlights, card);
+        return ranges::contains(m_picking_highlights, card);
     }
 }
 
@@ -174,7 +174,7 @@ bool target_finder::can_play_in_turn(pocket_type pocket, player_view *player, ca
     case pocket_type::player_table:
         return !card->inactive;
     case pocket_type::shop_selection:
-        return m_game->m_player_self->gold >= card->buy_cost() - ranges_contains(m_modifiers, card_modifier_type::discount, &card_view::modifier);
+        return m_game->m_player_self->gold >= card->buy_cost() - ranges::contains(m_modifiers, card_modifier_type::discount, &card_view::modifier);
     default:
         return false;
     }
@@ -243,7 +243,7 @@ bool target_finder::on_click_player(player_view *player) {
         case target_type::player:
         case target_type::conditional_player:
             if (verify_filter(cur_target.player_filter)
-                && ranges_contains(possible_player_targets(cur_target.player_filter), player))
+                && ranges::contains(possible_player_targets(cur_target.player_filter), player))
             {
                 if (cur_target.target == target_type::player) {
                     m_targets.emplace_back(enums::enum_tag<target_type::player>, player);
@@ -299,7 +299,7 @@ bool target_finder::playable_with_modifiers(card_view *card) const {
 const card_view *target_finder::get_current_card() const {
     assert(m_mode != play_mode::equip);
 
-    if (m_last_played_card && ranges_contains(m_modifiers, card_modifier_type::leevankliff, &card_view::modifier)) {
+    if (m_last_played_card && ranges::contains(m_modifiers, card_modifier_type::leevankliff, &card_view::modifier)) {
         return m_last_played_card;
     } else {
         return m_playing_card;
@@ -341,7 +341,7 @@ int target_finder::get_target_index() {
 int target_finder::calc_distance(player_view *from, player_view *to) const {
     if (from == to) return 0;
 
-    if (ranges_contains(m_modifiers, card_modifier_type::belltower, &card_view::modifier)) {
+    if (ranges::contains(m_modifiers, card_modifier_type::belltower, &card_view::modifier)) {
         return 1;
     }
 
@@ -436,9 +436,9 @@ void target_finder::handle_auto_targets() {
             });
         } else if (current_card->has_tag(tag_type::auto_confirm_red_ringo)) {
             auto_confirmable = current_card->cubes.size() <= 1
-                || std::transform_reduce(m_game->m_playing->table.begin(), m_game->m_playing->table.end(), 0, std::plus(), [](const card_view *card) {
+                || ranges::accumulate(m_game->m_playing->table | ranges::views::transform([](const card_view *card) {
                     return 4 - int(card->cubes.size());
-                }) <= 1;
+                }), 0) <= 1;
         } else if (repeatable && *repeatable) {
             auto_confirmable = m_targets.size() - effects.size() == optionals.size() * *repeatable;
         }
@@ -520,7 +520,7 @@ template<typename T> struct contains_element {
 
     template<std::ranges::range R> requires std::equality_comparable_with<std::ranges::range_value_t<R>, T>
     bool operator()(R &&range) const {
-        return ranges_contains(range, value);
+        return ranges::contains(range, value);
     }
 
     bool operator()(const play_card_target &variant) const {
@@ -604,7 +604,7 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
         }
         if (auto &vec = m_targets.back().get<target_type::cards_other_players>();
             !card->is_black() && player != m_game->m_player_self
-            && !ranges_contains(vec, player, [](card_view *card) { return card->pocket->owner; }))
+            && !ranges::contains(vec, player, [](card_view *card) { return card->pocket->owner; }))
         {
             if (player != m_game->m_player_self && card->pocket == &player->hand) {
                 for (card_view *hand_card : player->hand) {

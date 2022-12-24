@@ -25,10 +25,10 @@ namespace banggame {
 
         constexpr int button_offset = 10;
 
-        int tot_width = std::transform_reduce(m_buttons.begin(), m_buttons.end(), -button_offset, std::plus(),
-            [](const widgets::button &btn) {
+        int tot_width = -button_offset + ranges::accumulate(m_buttons
+            | ranges::views::transform([](const widgets::button &btn) {
                 return btn.get_rect().w + button_offset;
-            });
+            }), 0);
         int x = (win_rect.w - tot_width) / 2;
         int y = message_rect.y + message_rect.h + 10;
 

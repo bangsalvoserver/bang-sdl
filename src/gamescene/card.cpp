@@ -250,10 +250,9 @@ namespace banggame {
     void pocket_view::render_last(sdl::renderer &renderer, int ncards) {
         if (!empty()) {
             for (card_view *c : *this
-                    | std::views::reverse
-                    | std::views::drop(1)
-                    | std::views::take(ncards - 1)
-                    | std::views::reverse) {
+                | ranges::views::take_last(ncards)
+                | ranges::views::drop_last(1)
+            ) {
                 c->render(renderer, render_flags::no_draw_border);
             }
             back()->render(renderer);
