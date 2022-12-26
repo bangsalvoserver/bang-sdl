@@ -40,7 +40,7 @@ lobby_list_scene::lobby_list_scene(client_manager *parent)
     })
 {
     m_lobby_name_box.set_value(parent->get_config().lobby_name);
-    m_lobby_name_box.set_onenter([this]{ do_make_lobby(); });
+    m_lobby_name_box.set_onenter([this](const std::string &value){ do_make_lobby(); });
     parent->add_message<banggame::client_message_type::lobby_list>();
 }
 

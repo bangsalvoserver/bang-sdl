@@ -159,12 +159,15 @@ void textbox::on_gain_focus() {
 
 void textbox::on_lose_focus() {
     SDL_StopTextInput();
+    if (on_losefocus) {
+        on_losefocus(get_value());
+    }
 }
 
 bool textbox::handle_event(const sdl::event &event) {
     switch (event.type) {
     case SDL_MOUSEBUTTONDOWN:
-        if (event.button.button == SDL_BUTTON_LEFT && sdl::point_in_rect(sdl::point{event.button.x, event.button.y}, m_border_rect)) {
+        if (!m_locked && event.button.button == SDL_BUTTON_LEFT && sdl::point_in_rect(sdl::point{event.button.x, event.button.y}, m_border_rect)) {
             set_focus(this);
             if (m_value.empty()) {
                 m_cursor_pos = 0;
@@ -324,7 +327,7 @@ bool textbox::handle_event(const sdl::event &event) {
             }
             case SDLK_RETURN:
                 if (on_enter) {
-                    on_enter();
+                    on_enter(get_value());
                     return true;
                 }
             }

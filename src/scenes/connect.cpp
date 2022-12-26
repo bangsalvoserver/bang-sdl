@@ -34,8 +34,8 @@ connect_scene::connect_scene(client_manager *parent)
     , m_create_server_btn(_("BUTTON_CREATE_SERVER"), [this]{ do_create_server(); })
 {
     m_username_box.set_value(parent->get_config().user_name);
-    m_address_box.set_onenter([this]{
-        do_connect(m_address_box.get_value());
+    m_address_box.set_onenter([this](const std::string &value){
+        do_connect(value);
     });
     for (const auto &obj : parent->get_config().recent_servers) {
         m_recents.emplace_back(this, obj);

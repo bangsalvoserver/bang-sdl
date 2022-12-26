@@ -3,8 +3,6 @@
 #include "../manager.h"
 #include "../media_pak.h"
 
-#include "lobby_list.h"
-
 using namespace banggame;
 
 lobby_scene::lobby_player_item::lobby_player_item(lobby_scene *parent, int id, const user_info &args)
@@ -43,15 +41,22 @@ void lobby_scene::lobby_player_item::render(sdl::renderer &renderer) {
     }
 }
 
-lobby_scene::expansion_box::expansion_box(const std::string &label, banggame::card_expansion_type flag, banggame::card_expansion_type check)
-    : widgets::checkbox(label, widgets::button_style{
-        .text = {
-            .text_font = &media_pak::font_perdido
-        }
-    })
-    , m_flag(flag)
-{
-    set_value(bool(flag & check));
+using box_vector = std::vector<std::unique_ptr<option_input_box_base>>;
+
+template<size_t I>
+static void add_box(box_vector &vector, lobby_scene *parent, banggame::game_options &options) {
+    auto field_data = reflector::get_field_data<I>(options);
+    auto &field = field_data.get();
+    using box_type = option_input_box<std::remove_reference_t<decltype(field)>>;
+    if constexpr (requires (std::string label) { box_type{parent, label, field}; }) {
+        vector.emplace_back(std::make_unique<box_type>(parent,
+            _(fmt::format("game_options::{}", field_data.name())), field));
+    }
+}
+
+template<size_t ... Is>
+static void add_boxes(box_vector &vector, lobby_scene *parent, banggame::game_options &options, std::index_sequence<Is...>) {
+    (add_box<Is>(vector, parent, options), ...);
 }
 
 lobby_scene::lobby_scene(client_manager *parent, const lobby_info &args)
@@ -62,41 +67,33 @@ lobby_scene::lobby_scene(client_manager *parent, const lobby_info &args)
     , m_leave_btn(_("BUTTON_EXIT"), [parent]{ parent->add_message<banggame::client_message_type::lobby_leave>(); })
     , m_start_btn(_("BUTTON_START"), [parent]{ parent->add_message<banggame::client_message_type::game_start>(); })
     , m_chat_btn(_("BUTTON_CHAT"), [parent]{ parent->enable_chat(); })
+    , m_lobby_options(args.options)
 {
-    for (auto E : enums::enum_values_v<banggame::card_expansion_type>) {
-        if (!parent->get_config().allow_unofficial_expansions && bool(banggame::unofficial_expansions & E)) continue;
-
-        m_checkboxes.emplace_back(_(E), E, args.options.expansions)
-            .set_ontoggle([this]{ send_lobby_edited(); });
-    }
+    add_boxes(m_option_boxes, this, m_lobby_options, std::make_index_sequence<reflector::num_fields<banggame::game_options>>());
 }
 
 void lobby_scene::handle_message(SRV_TAG(lobby_edited), const lobby_info &info) {
     m_lobby_name_text.set_value(info.name);
-    
-    for (auto &checkbox : m_checkboxes) {
-        checkbox.set_value(bool(info.options.expansions & checkbox.m_flag));
-    }
+
+    m_lobby_options = info.options;
 
     if (parent->get_lobby_owner_id() == parent->get_user_own_id()) {
-        parent->get_config().options = info.options;
+        parent->get_config().options = m_lobby_options;
+    }
+
+    for (auto &box : m_option_boxes) {
+        box->update_value();
     }
 }
 
 void lobby_scene::send_lobby_edited() {
-    auto &options = parent->get_config().options;
-    options.expansions = {};
-    for (const auto &box : m_checkboxes) {
-        if (box.get_value()) {
-            options.expansions |= box.m_flag;
-        }
-    }
-    parent->add_message<banggame::client_message_type::lobby_edit>(m_lobby_name_text.get_value(), options);
+    parent->add_message<banggame::client_message_type::lobby_edit>(m_lobby_name_text.get_value(), m_lobby_options);
+    parent->get_config().options = m_lobby_options;
 }
 
 void lobby_scene::handle_message(SRV_TAG(lobby_owner), const user_id_args &args) {
-    for (auto &checkbox : m_checkboxes) {
-        checkbox.set_locked(args.user_id != parent->get_user_own_id());
+    for (auto &box : m_option_boxes) {
+        box->set_locked(args.user_id != parent->get_user_own_id());
     }
 
     m_start_btn.set_enabled(args.user_id == parent->get_user_own_id());
@@ -104,11 +101,13 @@ void lobby_scene::handle_message(SRV_TAG(lobby_owner), const user_id_args &args)
 
 void lobby_scene::refresh_layout() {
     const auto win_rect = parent->get_rect();
-    
-    sdl::rect checkbox_rect{130, 60, 0, 25};
-    for (auto &box : m_checkboxes) {
-        box.set_rect(checkbox_rect);
-        checkbox_rect.y += 50;
+
+    sdl::point pt{130, 60};
+    for (auto &box : m_option_boxes) {
+        box->set_pos(pt);
+        
+        auto rect = box->get_rect();
+        pt.y = rect.y + rect.h + 10;
     }
 
     m_lobby_name_text.set_point(sdl::point{win_rect.w / 2 + 5, 20});
@@ -132,9 +131,9 @@ void lobby_scene::render(sdl::renderer &renderer) {
     }
 
     m_start_btn.render(renderer);
-    
-    for (auto &box : m_checkboxes) {
-        box.render(renderer);
+
+    for (auto &box : m_option_boxes) {
+        box->render(renderer);
     }
 
     m_leave_btn.render(renderer);

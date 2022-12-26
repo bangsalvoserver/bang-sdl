@@ -5,6 +5,8 @@
 
 namespace widgets {
     
+    using toggle_callback_fun = std::function<void(bool)>;
+
     class checkbox : public event_handler {
     private:
         button_style m_style;
@@ -14,7 +16,7 @@ namespace widgets {
         sdl::rect m_checkbox_rect;
         
         bool m_locked = false;
-        button_callback_fun m_ontoggle;
+        toggle_callback_fun m_ontoggle;
         
         enum button_state {
             state_up,
@@ -30,7 +32,7 @@ namespace widgets {
     public:
         checkbox(const std::string &label, const button_style &style = {});
 
-        void render(sdl::renderer &renderer);
+        void render(sdl::renderer &renderer, bool render_background = true);
 
         void set_rect(const sdl::rect &rect);
 
@@ -50,7 +52,7 @@ namespace widgets {
             m_locked = value;
         }
 
-        void set_ontoggle(button_callback_fun &&fun) {
+        void set_ontoggle(toggle_callback_fun &&fun) {
             m_ontoggle = std::move(fun);
         }
     };

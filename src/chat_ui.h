@@ -37,7 +37,7 @@ public:
     void render(sdl::renderer &renderer);
 
     void add_message(message_type, const std::string &message);
-    void send_chat_message();
+    void send_chat_message(const std::string &value);
 
     void enable();
     void disable();

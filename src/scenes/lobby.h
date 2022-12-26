@@ -3,10 +3,8 @@
 
 #include "scene_base.h"
 
-#include "../widgets/checkbox.h"
 #include "../widgets/profile_pic.h"
-
-#include "game/card_enums.h"
+#include "option_box.h"
 
 #include <list>
 
@@ -51,11 +49,6 @@ private:
         widgets::profile_pic m_propic;
     };
 
-    struct expansion_box : widgets::checkbox {
-        expansion_box(const std::string &label, banggame::card_expansion_type flag, banggame::card_expansion_type check);
-        banggame::card_expansion_type m_flag;
-    };
-
     std::vector<lobby_player_item> m_player_list;
 
     widgets::stattext m_lobby_name_text;
@@ -65,7 +58,9 @@ private:
 
     widgets::button m_chat_btn;
 
-    std::list<expansion_box> m_checkboxes;
+    banggame::game_options m_lobby_options;
+
+    std::vector<std::unique_ptr<option_input_box_base>> m_option_boxes;
 
     int m_owner_id = 0;
     int m_user_id = 0;

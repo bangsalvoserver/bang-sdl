@@ -36,6 +36,7 @@ set(bangclient_srcs
     src/scenes/loading.cpp
     src/scenes/lobby_list.cpp
     src/scenes/lobby.cpp
+    src/scenes/option_box.cpp
     src/widgets/button.cpp
     src/widgets/checkbox.cpp
     src/widgets/textbox.cpp

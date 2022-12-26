@@ -15,6 +15,8 @@ namespace widgets {
         std::chrono::milliseconds cycle_duration{850};
     };
 
+    using text_callback_fun = std::function<void(const std::string &)>;
+
     class textbox : public event_handler {
     private:
         textbox_style m_style;
@@ -26,7 +28,8 @@ namespace widgets {
 
         std::string m_value;
 
-        button_callback_fun on_enter;
+        text_callback_fun on_enter;
+        text_callback_fun on_losefocus;
 
         duration_type m_timer{0};
         int m_cursor_pos = 0;
@@ -34,6 +37,7 @@ namespace widgets {
         int m_hscroll = 0;
 
         bool m_mouse_down = false;
+        bool m_locked = false;
 
         void redraw() {
             m_tex = make_text_surface(m_value, m_font, 0, m_style.text.text_color);
@@ -76,8 +80,16 @@ namespace widgets {
             redraw();
         }
 
-        void set_onenter(button_callback_fun &&fun) {
+        void set_locked(bool locked) {
+            m_locked = locked;
+        }
+
+        void set_onenter(text_callback_fun &&fun) {
             on_enter = std::move(fun);
+        }
+
+        void set_onlosefocus(text_callback_fun &&fun) {
+            on_losefocus = std::move(fun);
         }
     };
 

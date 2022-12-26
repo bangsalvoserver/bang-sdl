@@ -5,7 +5,7 @@
 chat_ui::chat_ui(client_manager *parent)
     : parent(parent)
 {
-    m_chat_box.set_onenter([this]{ send_chat_message(); });
+    m_chat_box.set_onenter([this](const std::string &value){ send_chat_message(value); });
 
     m_chat_box.disable();
 }
@@ -83,9 +83,9 @@ void chat_ui::add_message(message_type type, const std::string &message) {
     m_pending_messages.emplace_back(type, message);
 }
 
-void chat_ui::send_chat_message() {
-    if (!m_chat_box.get_value().empty()) {
-        parent->add_message<banggame::client_message_type::lobby_chat>(m_chat_box.get_value());
+void chat_ui::send_chat_message(const std::string &value) {
+    if (!value.empty()) {
+        parent->add_message<banggame::client_message_type::lobby_chat>(value);
         m_chat_box.clear();
     }
 }

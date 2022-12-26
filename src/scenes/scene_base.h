@@ -33,6 +33,10 @@ public:
     
     virtual void handle_event(const sdl::event &event) {}
 
+    client_manager *manager() const {
+        return parent;
+    }
+
 protected:
     client_manager *parent;
 };
