@@ -90,9 +90,8 @@ public:
             if (auto parsed = parse_string<T>(value)) {
                 m_value = *parsed;
                 save_value();
-            } else {
-                update_value();
             }
+            update_value();
         };
         m_textbox.set_onenter(do_save_value);
         m_textbox.set_onlosefocus(do_save_value);
