@@ -60,9 +60,9 @@ namespace widgets {
             return m_value;
         }
 
-        void render(sdl::renderer &renderer, bool render_background = true) {
+        void render(sdl::renderer &renderer) {
             if (m_tex) {
-                if (render_background) {
+                if (m_style.bg_color.a) {
                     renderer.set_draw_color(m_style.bg_color);
                     renderer.fill_rect(sdl::rect{
                         m_rect.x - m_style.bg_border_x, m_rect.y - m_style.bg_border_y,

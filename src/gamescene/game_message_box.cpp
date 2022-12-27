@@ -6,7 +6,9 @@
 
 namespace banggame {
     game_message_box::game_message_box(game_ui *parent, const std::string &message, button_init_list &&buttons) 
-        : m_message(message)
+        : m_message(message, widgets::text_style{
+            .bg_color = sdl::rgba(0)
+        })
     {
         for (auto &[label, fun] : buttons) {
             auto &btn = m_buttons.emplace_back(label, [parent, fun=std::move(fun)]{
@@ -49,7 +51,7 @@ namespace banggame {
         renderer.set_draw_color(colors.status_text_background);
         renderer.fill_rect(m_bg_rect);
 
-        m_message.render(renderer, false);
+        m_message.render(renderer);
         for (auto &button : m_buttons) {
             button.render(renderer);
         }

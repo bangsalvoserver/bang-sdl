@@ -14,7 +14,8 @@ void option_input_box_base::save_value() {
 expansion_box::expansion_box(const std::string &label, banggame::card_expansion_type flag)
     : widgets::checkbox(label, widgets::button_style{
         .text = {
-            .text_font = &media_pak::font_perdido
+            .text_font = &media_pak::font_perdido,
+            .bg_color = sdl::rgba(0)
         }
     })
     , m_flag(flag)
@@ -24,7 +25,8 @@ option_input_box<banggame::card_expansion_type>::option_input_box(lobby_scene *p
     : option_input_box_base(parent)
     , m_value(value)
     , m_label(label, widgets::text_style {
-        .text_font = &media_pak::font_perdido
+        .text_font = &media_pak::font_perdido,
+        .bg_color = sdl::rgba(0)
     })
 {
     for (auto E : enums::enum_values_v<banggame::card_expansion_type>) {
@@ -64,9 +66,9 @@ void option_input_box<banggame::card_expansion_type>::render(sdl::renderer &rend
     renderer.set_draw_color(sdl::rgba(0xffffff40));
     renderer.fill_rect(sdl::rect{m_rect.x - 5, m_rect.y - 5, m_rect.w + 10, m_rect.h + 10});
 
-    m_label.render(renderer, false);
+    m_label.render(renderer);
     for (auto &checkbox : m_checkboxes) {
-        checkbox.render(renderer, false);
+        checkbox.render(renderer);
     }
 }
 

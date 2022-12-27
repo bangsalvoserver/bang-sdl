@@ -12,6 +12,9 @@ namespace banggame {
         , m_username_text(widgets::text_style{
             .text_font = &media_pak::font_bkant_bold
         })
+        , m_gold_text(widgets::text_style{
+            .bg_color = sdl::rgba(0)
+        })
     {}
 
     void player_view::set_hp_marker_position(float hp) {
@@ -103,7 +106,7 @@ namespace banggame {
                 gold_text_rect.x = gold_rect.x + (gold_rect.w - gold_text_rect.w) / 2;
                 gold_text_rect.y = gold_rect.y + (gold_rect.h - gold_text_rect.h) / 2;
                 self->m_gold_text.set_rect(gold_text_rect);
-                self->m_gold_text.render(renderer, false);
+                self->m_gold_text.render(renderer);
             }
 
             self->m_username_text.render(renderer);

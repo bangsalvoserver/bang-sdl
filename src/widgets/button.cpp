@@ -35,7 +35,7 @@ void button::render(sdl::renderer &renderer) {
     }
 
     m_text.set_point(pos);
-    m_text.render(renderer, false);
+    m_text.render(renderer);
 }
 
 bool button::handle_event(const sdl::event &event) {

@@ -8,7 +8,7 @@ checkbox::checkbox(const std::string &label, const button_style &style)
     : m_style(style)
     , m_text(label, style.text) {}
 
-void checkbox::render(sdl::renderer &renderer, bool render_background) {
+void checkbox::render(sdl::renderer &renderer) {
     renderer.set_draw_color([&]{
         switch (m_state) {
         case state_hover:   return m_style.hover_color;
@@ -26,7 +26,7 @@ void checkbox::render(sdl::renderer &renderer, bool render_background) {
         media_pak::get().icon_checkbox.render(renderer, m_checkbox_rect);
     }
 
-    m_text.render(renderer, render_background);
+    m_text.render(renderer);
 }
 
 void checkbox::set_rect(const sdl::rect &rect) {

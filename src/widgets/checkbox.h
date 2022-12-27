@@ -32,7 +32,7 @@ namespace widgets {
     public:
         checkbox(const std::string &label, const button_style &style = {});
 
-        void render(sdl::renderer &renderer, bool render_background = true);
+        void render(sdl::renderer &renderer);
 
         void set_rect(const sdl::rect &rect);
 

@@ -7,7 +7,7 @@
 namespace widgets {
 
     struct button_style {
-        text_style text;
+        text_style text { .bg_color = sdl::rgba(0) };
         sdl::color up_color = default_button_up_color;
         sdl::color hover_color = default_button_hover_color;
         sdl::color down_color = default_button_down_color;
