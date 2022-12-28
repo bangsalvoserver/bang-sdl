@@ -141,6 +141,16 @@ void lobby_scene::render(sdl::renderer &renderer) {
     m_chat_btn.render(renderer);
 }
 
+void lobby_scene::handle_event(const sdl::event &event) {
+    switch (event.type) {
+    case SDL_KEYDOWN:
+        if (event.key.keysym.sym == SDLK_RETURN) {
+            parent->enable_chat();
+        }
+        break;
+    }
+}
+
 void lobby_scene::handle_message(SRV_TAG(lobby_add_user), const lobby_add_user_args &args) {
     if (const user_info *user = parent->get_user_info(args.user_id)) {
         m_player_list.emplace_back(this, args.user_id, *user);

@@ -20,6 +20,7 @@ public:
 
     void refresh_layout() override;
     void render(sdl::renderer &renderer) override;
+    void handle_event(const sdl::event &event) override;
 
     void handle_message(SRV_TAG(lobby_edited), const banggame::lobby_info &info) override;
     void handle_message(SRV_TAG(lobby_owner), const banggame::user_id_args &args) override;
