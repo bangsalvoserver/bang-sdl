@@ -120,7 +120,7 @@ namespace banggame {
             return card_base_surf;
         };
 
-        sdl::surface surface_front = card_textures::get().apply_card_mask(do_make_texture(1.f));;
+        sdl::surface surface_front = card_textures::get().apply_card_mask(do_make_texture(1.f));
         texture_front = sdl::texture(renderer, surface_front);
 
         sdl::surface scaled = card_textures::get().apply_card_mask(do_make_texture(options.card_suit_scale));
