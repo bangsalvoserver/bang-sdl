@@ -436,9 +436,11 @@ void target_finder::handle_auto_targets() {
             });
         } else if (current_card->has_tag(tag_type::auto_confirm_red_ringo)) {
             auto_confirmable = current_card->cubes.size() <= 1
-                || ranges::accumulate(m_game->m_playing->table | ranges::views::transform([](const card_view *card) {
-                    return 4 - int(card->cubes.size());
-                }), 0) <= 1;
+                || ranges::accumulate(m_game->m_player_self->table
+                    | ranges::views::filter(&card_view::is_orange)
+                    | ranges::views::transform([](const card_view *card) {
+                        return 4 - int(card->cubes.size());
+                    }), 0) <= 1;
         } else if (repeatable && *repeatable) {
             auto_confirmable = m_targets.size() - effects.size() == optionals.size() * *repeatable;
         }
