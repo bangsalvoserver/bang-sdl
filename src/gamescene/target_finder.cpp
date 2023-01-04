@@ -242,9 +242,7 @@ bool target_finder::on_click_player(player_view *player) {
         switch (cur_target.target) {
         case target_type::player:
         case target_type::conditional_player:
-            if (verify_filter(cur_target.player_filter)
-                && ranges::contains(possible_player_targets(cur_target.player_filter), player))
-            {
+            if (verify_filter(cur_target.player_filter)) {
                 if (cur_target.target == target_type::player) {
                     m_targets.emplace_back(enums::enum_tag<target_type::player>, player);
                 } else {
@@ -432,7 +430,9 @@ void target_finder::handle_auto_targets() {
         if (current_card->has_tag(tag_type::auto_confirm)) {
             auto_confirmable = std::ranges::any_of(optionals, [&](const effect_holder &holder) {
                 return holder.target == target_type::player
-                    && possible_player_targets(holder.player_filter).empty();
+                    && std::ranges::none_of(m_game->m_alive_players, [&](player_view *p) {
+                        return !check_player_filter(holder.player_filter, p);
+                    });
             });
         } else if (current_card->has_tag(tag_type::auto_confirm_red_ringo)) {
             auto_confirmable = current_card->cubes.size() <= 1
@@ -472,7 +472,9 @@ void target_finder::handle_auto_targets() {
             m_targets.emplace_back(enums::enum_tag<target_type::none>);
             break;
         case target_type::conditional_player:
-            if (possible_player_targets(effect_it->player_filter).empty()) {
+            if (std::ranges::none_of(m_game->m_alive_players, [&](player_view *p) {
+                return !check_player_filter(effect_it->player_filter, p);
+            })) {
                 m_targets.emplace_back(enums::enum_tag<target_type::conditional_player>);
                 break;
             } else {
@@ -546,16 +548,6 @@ const char *target_finder::check_card_filter(target_card_filter filter, card_vie
     } else {
         return banggame::check_card_filter(m_playing_card, m_game->m_player_self, filter, card);
     }
-}
-
-std::vector<player_view *> target_finder::possible_player_targets(target_player_filter filter) {
-    std::vector<player_view *> ret;
-    for (player_view *p : m_game->m_alive_players) {
-        if (!check_player_filter(filter, p)) {
-            ret.push_back(p);
-        }
-    }
-    return ret;
 }
 
 void target_finder::add_card_target(player_view *player, card_view *card) {

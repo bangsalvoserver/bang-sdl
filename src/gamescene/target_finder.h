@@ -92,7 +92,6 @@ namespace banggame {
         void send_play_card();
 
         const effect_holder &get_effect_holder(int index);
-        std::vector<player_view *> possible_player_targets(target_player_filter filter);
         int get_target_index();
         
     private:
