@@ -529,8 +529,8 @@ template<typename T> struct contains_element {
     }
 
     template<enums::is_enum_variant U>
-    bool operator()(U &&variant) const {
-        return enums::visit(*this, std::forward<U>(variant));
+    bool operator()(const U &variant) const {
+        return enums::visit(*this, variant);
     }
 };
 
