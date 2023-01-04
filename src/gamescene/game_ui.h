@@ -22,6 +22,8 @@ namespace banggame {
             : pocket_view(pocket_type::button_row)
             , parent(parent) {}
 
+        std::list<widgets::button>::iterator find_button(card_view *card);
+
         void set_pos(const sdl::point &pos) override;
         void render(sdl::renderer &renderer) override;
         void add_card(card_view *card) override;

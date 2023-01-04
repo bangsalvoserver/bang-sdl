@@ -102,30 +102,32 @@ void button_row_pocket::add_card(card_view *card) {
     }).set_rect({});
 }
 
-void button_row_pocket::update_card(card_view *card) {
+std::list<widgets::button>::iterator button_row_pocket::find_button(card_view *card) {
     auto btn_it = m_buttons.begin();
-    for (auto card_it = begin(); card_it != end(); ++card_it, ++btn_it) {
-        if (*card_it == card) {
-            btn_it->set_label(_(intl::category::cards, card->name));
-            btn_it->set_rect(sdl::rect{0, 0, std::max(100, btn_it->get_text_rect().w + 10), 25});
+    auto card_it = m_cards.begin();
+    while (card_it != m_cards.end() && *card_it != card) {
+        ++btn_it;
+        ++card_it;
+    }
+    return btn_it;
+}
 
-            set_pos(get_pos());
-            break;
-        }
+void button_row_pocket::update_card(card_view *card) {
+    if (auto btn_it = find_button(card); btn_it != m_buttons.end()) {
+        btn_it->set_label(_(intl::category::cards, card->name));
+        btn_it->set_rect(sdl::rect{0, 0, std::max(100, btn_it->get_text_rect().w + 10), 25});
+
+        set_pos(get_pos());
     }
 }
 
 void button_row_pocket::erase_card(card_view *card) {
-    auto btn_it = m_buttons.begin();
-    for (auto card_it = begin(); card_it != end(); ++card_it, ++btn_it) {
-        if (*card_it == card) {
-            m_buttons.erase(btn_it);
-            m_cards.erase(card_it);
-
-            set_pos(get_pos());
-            break;
-        }
+    if (auto btn_it = find_button(card); btn_it != m_buttons.end()) {
+        m_buttons.erase(btn_it);
+        set_pos(get_pos());
     }
+
+    pocket_view::erase_card(card);
 }
 
 void button_row_pocket::clear() {
