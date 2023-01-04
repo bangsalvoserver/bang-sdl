@@ -509,7 +509,8 @@ void target_finder::handle_auto_targets() {
 template<typename T> struct contains_element {
     const T &value;
 
-    bool operator()(const auto &other) const {
+    template<typename U>
+    bool operator()(const U &other) const {
         return false;
     }
     
@@ -518,20 +519,21 @@ template<typename T> struct contains_element {
         return value == other;
     }
 
-    template<std::ranges::range R> requires std::equality_comparable_with<std::ranges::range_value_t<R>, T>
+    template<std::ranges::range R> requires std::invocable<contains_element<T>, std::ranges::range_value_t<R>>
     bool operator()(R &&range) const {
-        return ranges::contains(range, value);
+        return std::ranges::any_of(std::forward<R>(range), *this);
     }
 
-    bool operator()(const play_card_target &variant) const {
-        return enums::visit(*this, variant);
+    template<enums::is_enum_variant U>
+    bool operator()(U &&variant) const {
+        return enums::visit(*this, std::forward<U>(variant));
     }
 };
 
 template<typename T> contains_element(const T &) -> contains_element<T>;
 
 const char *target_finder::check_player_filter(target_player_filter filter, player_view *target_player) {
-    if (std::ranges::any_of(m_targets, contains_element{target_player})) {
+    if (contains_element{target_player}(m_targets)) {
         return "ERROR_TARGET_NOT_UNIQUE";    
     } else {
         return banggame::check_player_filter(m_game->m_player_self, filter, target_player);
@@ -539,7 +541,7 @@ const char *target_finder::check_player_filter(target_player_filter filter, play
 }
 
 const char *target_finder::check_card_filter(target_card_filter filter, card_view *card) {
-    if (!bool(filter & target_card_filter::can_repeat) && std::ranges::any_of(m_targets, contains_element{card})) {
+    if (!bool(filter & target_card_filter::can_repeat) && contains_element{card}(m_targets)) {
         return "ERROR_TARGET_NOT_UNIQUE";
     } else {
         return banggame::check_card_filter(m_playing_card, m_game->m_player_self, filter, card);
