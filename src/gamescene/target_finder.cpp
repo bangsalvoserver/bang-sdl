@@ -283,7 +283,8 @@ bool target_finder::on_click_player(player_view *player) {
 }
 
 bool target_finder::is_bangcard(card_view *card) const {
-    return (m_game->m_player_self->has_player_flags(player_flags::treat_missed_as_bang)
+    return bool(m_game->m_game_flags & game_flags::treat_any_as_bang)
+        || (m_game->m_player_self->has_player_flags(player_flags::treat_missed_as_bang)
             && card->has_tag(tag_type::missedcard))
         || card->has_tag(tag_type::bangcard);
 }
