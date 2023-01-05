@@ -310,16 +310,18 @@ std::string game_scene::evaluate_format_string(const game_string &str) {
         return std::visit(overloaded{
             [](int value) { return std::to_string(value); },
             [](const std::string &value) { return _(value); },
-            [&](card_format_id value) {
+            [&](const card_format_id &value) {
                 if (value.sign) {
                     return intl::format("{} ({}{})", _(intl::category::cards, value.name), enums::get_data(value.sign.rank),
                         reinterpret_cast<const char *>(enums::get_data(value.sign.suit)));
-                } else {
+                } else if (!value.name.empty()) {
                     return _(intl::category::cards, value.name);
+                } else {
+                    return _("UNKNOWN_CARD");
                 }
             },
             [&](player_view *player) {
-                return player ? player->m_username_text.get_value() : _("USERNAME_DISCONNECTED");
+                return player ? player->m_username_text.get_value() : _("UNKNOWN_PLAYER");
             }
         }, arg);
     }));
