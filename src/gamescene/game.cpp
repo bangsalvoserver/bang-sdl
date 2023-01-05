@@ -44,9 +44,12 @@ void game_scene::refresh_layout() {
     
     m_shop_choice.set_pos(m_shop_selection.get_pos() + sdl::point{0, options.shop_choice_offset});
 
-    m_scenario_card.set_pos(sdl::point{
+    sdl::point scenario_card_pos{
         win_rect.w / 2 + options.deck_xoffset + options.card_width + options.card_pocket_xoff,
-        win_rect.h / 2});
+        win_rect.h / 2};
+
+    m_scenario_card.set_pos(scenario_card_pos);
+    m_wws_scenario_card.set_pos(scenario_card_pos + sdl::point{options.character_offset, options.character_offset});
 
     move_player_views();
 
@@ -109,6 +112,7 @@ void game_scene::render(sdl::renderer &renderer) {
     m_shop_deck.render_last(renderer, 2);
     m_shop_selection.render(renderer);
     m_scenario_card.render_last(renderer, 2);
+    m_wws_scenario_card.render_last(renderer, 2);
     m_discard_pile.render_last(renderer, 2);
     m_cubes.render(renderer);
 
@@ -205,6 +209,10 @@ void game_scene::handle_card_click() {
         m_target.on_click_card(pocket_type::discard_pile, nullptr, nullptr);
         return;
     }
+    if (card_view *card = m_wws_scenario_card.find_card_at(m_mouse_pt)) {
+        m_target.on_click_card(pocket_type::wws_scenario_card, nullptr, card);
+        return;
+    }
     if (card_view *card = m_scenario_card.find_card_at(m_mouse_pt)) {
         m_target.on_click_card(pocket_type::scenario_card, nullptr, card);
         return;
@@ -243,11 +251,17 @@ void game_scene::find_overlay() {
     if (m_overlay = m_discard_pile.find_card_at(m_mouse_pt)) {
         return;
     }
+    if (m_overlay = m_wws_scenario_card.find_card_at(m_mouse_pt)) {
+        return;
+    }
     if (m_overlay = m_scenario_card.find_card_at(m_mouse_pt)) {
         return;
     }
     for (player_view *p : m_alive_players) {
         if (m_overlay = p->m_characters.find_card_at(m_mouse_pt)) {
+            return;
+        }
+        if (m_overlay = p->wws_scenario_deck.find_card_at(m_mouse_pt)) {
             return;
         }
         if (m_overlay = p->scenario_deck.find_card_at(m_mouse_pt)) {
@@ -354,6 +368,8 @@ pocket_view &game_scene::get_pocket(pocket_type pocket, player_view *player) {
     case pocket_type::hidden_deck:       return m_hidden_deck;
     case pocket_type::scenario_deck:     return m_scenario_player->scenario_deck;
     case pocket_type::scenario_card:     return m_scenario_card;
+    case pocket_type::wws_scenario_deck: return m_wws_scenario_player->wws_scenario_deck;
+    case pocket_type::wws_scenario_card: return m_wws_scenario_card;
     case pocket_type::button_row:        return m_button_row;
     default: throw std::runtime_error("Invalid pocket");
     }
@@ -441,18 +457,27 @@ void game_scene::handle_game_update(UPD_TAG(move_cubes), const move_cubes_update
 }
 
 void game_scene::handle_game_update(UPD_TAG(move_scenario_deck), const move_scenario_deck_update &args) {
-    auto *old_scenario_player = std::exchange(m_scenario_player, args.player);
-    if (old_scenario_player && !old_scenario_player->scenario_deck.empty()) {
-        add_animation<card_move_animation>(args.get_duration(), [&]{
-            card_move_animation anim;
-            for (card_view *c : old_scenario_player->scenario_deck) {
-                m_scenario_player->scenario_deck.add_card(c);
-                anim.add_move_card(c);
-            }
-            old_scenario_player->scenario_deck.clear();
-            return anim;
-        }());
+    player_view *&scenario_player = args.pocket == pocket_type::scenario_deck ? m_scenario_player : m_wws_scenario_player;
+    if (!scenario_player) {
+        scenario_player = args.player;
+        return;
     }
+
+    auto &old_pile = get_pocket(args.pocket);
+    scenario_player = args.player;
+    if (old_pile.empty()) return;
+
+    auto &new_pile = get_pocket(args.pocket);
+    
+    add_animation<card_move_animation>(args.get_duration(), [&]{
+        card_move_animation anim;
+        for (card_view *c : old_pile) {
+            new_pile.add_card(c);
+            anim.add_move_card(c);
+        }
+        old_pile.clear();
+        return anim;
+    }());
 }
 
 void game_scene::handle_game_update(UPD_TAG(show_card), const show_card_update &args) {

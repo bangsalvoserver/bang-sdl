@@ -135,6 +135,7 @@ namespace banggame {
         point_pocket_view m_discard_pile{pocket_type::discard_pile};
 
         point_pocket_view m_scenario_card{pocket_type::scenario_card};
+        point_pocket_view m_wws_scenario_card{pocket_type::wws_scenario_card};
 
         wide_pocket m_selection{options.selection_width, pocket_type::selection};
 
@@ -153,6 +154,7 @@ namespace banggame {
         player_view *m_request_origin = nullptr;
         player_view *m_request_target = nullptr;
         player_view *m_scenario_player = nullptr;
+        player_view *m_wws_scenario_player = nullptr;
 
         raii_editor<sdl::color> m_turn_border;
 
