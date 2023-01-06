@@ -62,6 +62,7 @@ namespace banggame {
             });
 
             self->scenario_deck.set_pos(self->m_role.get_pos() + sdl::point{options.character_offset, options.character_offset});
+            self->wws_scenario_deck.set_pos(self->m_role.get_pos() + sdl::point{options.character_offset * 2, options.character_offset * 2});
 
             self->m_propic.set_pos(sdl::point{
                 self->m_role.get_pos().x,
@@ -85,6 +86,9 @@ namespace banggame {
             });
 
             self->m_role.render(renderer);
+            self->scenario_deck.render_last(renderer, 1);
+            self->wws_scenario_deck.render_last(renderer, 1);
+
             if (!self->m_backup_characters.empty()) {
                 self->m_backup_characters.front()->render(renderer);
                 if (self->hp > 5) {
@@ -115,8 +119,6 @@ namespace banggame {
 
             self->table.render(renderer);
             self->hand.render(renderer);
-
-            self->scenario_deck.render_last(renderer, 1);
 
             int x = self->m_bounding_rect.x + self->m_bounding_rect.w - 5;
 

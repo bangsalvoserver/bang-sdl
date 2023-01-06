@@ -40,6 +40,8 @@ LOCALE_VALUE(BUTTON_TOLOBBY,                      "Torna a Lobby")
 LOCALE_VALUE(GAME_USER_CONNECTED,                 "{} entra in partita")
 LOCALE_VALUE(GAME_USER_DISCONNECTED,              "{} esce dalla partita")
 LOCALE_VALUE(USERNAME_DISCONNECTED,               "(Disconnesso)")
+LOCALE_VALUE(UNKNOWN_PLAYER,                      "(giocatore sconosciuto)")
+LOCALE_VALUE(UNKNOWN_CARD,                        "(carta sconosciuta)")
 
 LOCALE_VALUE(PROMPT_CARD_NO_EFFECT,               "Giocare {} non avrebbe effetto. Continuare?")
 LOCALE_VALUE(PROMPT_PASS_DISCARD,                 "Devi scartare 1 carta. Continuare?")
