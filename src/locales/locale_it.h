@@ -227,6 +227,7 @@ LOCALE_VALUE(ERROR_DISCARD_PILE_EMPTY,            "La pila degli scarti è vuota
 LOCALE_VALUE(ERROR_MAX_USAGES,                    "Non puoi giocare {0} più di {1} volte per turno")
 LOCALE_VALUE(ERROR_MANDATORY_CARD,                "Sei obblicato a giocare {}")
 LOCALE_VALUE(ERROR_TARGET_NOT_UNIQUE,             "I bersagli devono essere unici")
+LOCALE_VALUE(ERROR_CANNOT_REPEAT_CARD,            "Non puoi giocare {} due volte di fila")
 
 LOCALE_VALUE(LOG_GAME_START,                      "La partita è iniziata")
 LOCALE_VALUE(LOG_GAME_OVER,                       "La partita è terminata")

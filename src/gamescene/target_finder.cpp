@@ -28,7 +28,7 @@ void target_finder::set_playing_card(card_view *card, play_mode mode) {
                 for (card_view *c : m_game->m_shop_choice) {
                     c->set_pos(m_game->m_shop_choice.get_pos() + m_game->m_shop_choice.get_offset(c));
                 }
-            } else if (card->modifier == card_modifier_type::leevankliff && !m_last_played_card && !m_last_played_card->is_brown()) {
+            } else if (card->modifier == card_modifier_type::leevankliff && (!m_last_played_card || !m_last_played_card->is_brown())) {
                 return;
             }
 

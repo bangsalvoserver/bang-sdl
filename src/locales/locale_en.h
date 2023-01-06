@@ -227,6 +227,7 @@ LOCALE_VALUE(ERROR_DISCARD_PILE_EMPTY,            "The discard pile is empty")
 LOCALE_VALUE(ERROR_MAX_USAGES,                    "You can't play {0} more than {1} times per turn")
 LOCALE_VALUE(ERROR_MANDATORY_CARD,                "Playing {} is mandatory")
 LOCALE_VALUE(ERROR_TARGET_NOT_UNIQUE,             "Targets must be unique")
+LOCALE_VALUE(ERROR_CANNOT_REPEAT_CARD,            "You can't play {} twice in a row")
 
 LOCALE_VALUE(LOG_GAME_START,                      "Game started")
 LOCALE_VALUE(LOG_GAME_OVER,                       "Game over")
