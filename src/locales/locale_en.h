@@ -40,6 +40,8 @@ LOCALE_VALUE(BUTTON_TOLOBBY,                      "Return To Lobby")
 LOCALE_VALUE(GAME_USER_CONNECTED,                 "{} joined")
 LOCALE_VALUE(GAME_USER_DISCONNECTED,              "{} left")
 LOCALE_VALUE(USERNAME_DISCONNECTED,               "(Disconnected)")
+LOCALE_VALUE(UNKNOWN_PLAYER,                      "(unknown player)")
+LOCALE_VALUE(UNKNOWN_CARD,                        "(unknown card)")
 
 LOCALE_VALUE(PROMPT_CARD_NO_EFFECT,               "Playing {} would have no effect. Continue?")
 LOCALE_VALUE(PROMPT_PASS_DISCARD,                 "You must discard 1 card. Continue?")
