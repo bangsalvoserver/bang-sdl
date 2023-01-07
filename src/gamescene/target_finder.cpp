@@ -28,8 +28,6 @@ void target_finder::set_playing_card(card_view *card, play_mode mode) {
                 for (card_view *c : m_game->m_shop_choice) {
                     c->set_pos(m_game->m_shop_choice.get_pos() + m_game->m_shop_choice.get_offset(c));
                 }
-            } else if (card->modifier == card_modifier_type::leevankliff && (!m_last_played_card || !m_last_played_card->is_brown())) {
-                return;
             }
 
             for (const auto &e : card->effects) {
@@ -292,16 +290,14 @@ bool target_finder::is_bangcard(card_view *card) const {
 
 bool target_finder::playable_with_modifiers(card_view *card) const {
     return std::ranges::all_of(m_modifiers, [&](card_view *c) {
-        return allowed_card_with_modifier(c->modifier, m_game->m_player_self, card);
+        return allowed_card_with_modifier(m_game->m_player_self, c, card);
     });
 }
 
 const card_view *target_finder::get_current_card() const {
     assert(m_mode != play_mode::equip);
 
-    if (m_last_played_card && m_last_played_card->is_brown()
-        && ranges::contains(m_modifiers, card_modifier_type::leevankliff, &card_view::modifier))
-    {
+    if (ranges::contains(m_modifiers, card_modifier_type::leevankliff, &card_view::modifier)) {
         return m_last_played_card;
     } else {
         return m_playing_card;
@@ -487,7 +483,7 @@ void target_finder::handle_auto_targets() {
                 return;
             }
         case target_type::extra_card:
-            if (current_card == m_last_played_card && m_last_played_card->is_brown()) {
+            if (current_card == m_last_played_card) {
                 m_targets.emplace_back(enums::enum_tag<target_type::extra_card>);
                 break;
             } else {

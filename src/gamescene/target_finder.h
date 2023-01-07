@@ -47,6 +47,10 @@ namespace banggame {
         void clear_targets();
         void handle_auto_respond();
 
+        card_view *get_last_played_card() const {
+            return m_last_played_card;
+        }
+
         void set_last_played_card(card_view *card) {
             m_last_played_card = card;
         }
