@@ -100,6 +100,8 @@ LOCALE_VALUE(STATUS_DEATH_OTHER,                  "{0} must play beer to escape 
 LOCALE_VALUE(STATUS_DEATH_OTHER_PLURAL,           "{0} must play {1} beers to escape death")
 LOCALE_VALUE(STATUS_DISCARD_ALL,                  "You are dead! Discard all your cards")
 LOCALE_VALUE(STATUS_DISCARD_ALL_OTHER,            "{0} is dead and must discard all their cards")
+LOCALE_VALUE(STATUS_DISCARD_HAND,                 "{} ... you must discard your whole hand")
+LOCALE_VALUE(STATUS_DISCARD_HAND_OTHER,           "{0} ... {1} must discard their whole hand")
 LOCALE_VALUE(STATUS_SHERIFF_KILLED_DEPUTY,        "You killed your deputy! Discard all your cards")
 LOCALE_VALUE(STATUS_SHERIFF_KILLED_DEPUTY_OTHER,  "{0} killed their deputy and must discard all their cards")
 LOCALE_VALUE(STATUS_BANDIDOS,                     "{0} ... Discard two cards or Take damage")

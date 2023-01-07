@@ -100,6 +100,8 @@ LOCALE_VALUE(STATUS_DEATH_OTHER,                  "{0} deve giocare 1 birra per 
 LOCALE_VALUE(STATUS_DEATH_OTHER_PLURAL,           "{0} deve giocare {1} birre per salvarsi")
 LOCALE_VALUE(STATUS_DISCARD_ALL,                  "Sei morto! Scarta tutte le tue carte")
 LOCALE_VALUE(STATUS_DISCARD_ALL_OTHER,            "{0} è morto e deve scartare tutte le sue carte")
+LOCALE_VALUE(STATUS_DISCARD_HAND,                 "{} ... devi scartare tutta la tua mano")
+LOCALE_VALUE(STATUS_DISCARD_HAND_OTHER,           "{0} ... {1} deve scartare tutta la sua mano")
 LOCALE_VALUE(STATUS_SHERIFF_KILLED_DEPUTY,        "Hai ucciso il tuo vice! Scarta tutte le tue carte")
 LOCALE_VALUE(STATUS_SHERIFF_KILLED_DEPUTY_OTHER,  "{0} ha ucciso il suo vice e deve scartare tutte le sue carte")
 LOCALE_VALUE(STATUS_BANDIDOS,                     "{0} ... Scarta due carte o Prendi danno")
