@@ -13,13 +13,13 @@ using namespace banggame;
 using namespace sdl::point_math;
 
 void target_finder::set_playing_card(card_view *card, play_mode mode) {
-    if (card->modifier != card_modifier_type::none && mode != play_mode::equip) {
+    if (card->modifier_type() != card_modifier_type::none && mode != play_mode::equip) {
         auto allowed_modifiers = std::transform_reduce(
-            m_modifiers.begin(), m_modifiers.end(), modifier_bitset(card->modifier), std::bit_and(),
-            [](card_view *mod) { return allowed_modifiers_after(mod->modifier); }
+            m_modifiers.begin(), m_modifiers.end(), modifier_bitset(card->modifier_type()), std::bit_and(),
+            [](card_view *mod) { return allowed_modifiers_after(mod->modifier_type()); }
         );
         if (allowed_modifiers && !ranges::contains(m_modifiers, card)) {
-            if (card->modifier == card_modifier_type::shopchoice) {
+            if (card->modifier_type() == card_modifier_type::shopchoice) {
                 for (card_view *c : m_game->m_hidden_deck) {
                     if (c->get_tag_value(tag_type::shopchoice) == card->get_tag_value(tag_type::shopchoice)) {
                         m_game->m_shop_choice.add_card(c);
@@ -138,7 +138,7 @@ bool target_finder::is_card_clickable() const {
 }
 
 bool target_finder::can_respond_with(card_view *card) const {
-    if (std::ranges::any_of(m_response_highlights, [](card_view *card){ return card->modifier != card_modifier_type::none; })) {
+    if (std::ranges::any_of(m_response_highlights, [](card_view *card){ return card->modifier_type() != card_modifier_type::none; })) {
         return !m_modifiers.empty() && playable_with_modifiers(card);
     } else {
         return ranges::contains(m_response_highlights, card);
@@ -173,7 +173,7 @@ bool target_finder::can_play_in_turn(pocket_type pocket, player_view *player, ca
     case pocket_type::player_table:
         return !card->inactive;
     case pocket_type::shop_selection:
-        return m_game->m_player_self->gold >= card->buy_cost() - ranges::contains(m_modifiers, card_modifier_type::discount, &card_view::modifier);
+        return m_game->m_player_self->gold >= card->buy_cost() - ranges::contains(m_modifiers, card_modifier_type::discount, &card_view::modifier_type);
     default:
         return false;
     }
@@ -297,7 +297,7 @@ bool target_finder::playable_with_modifiers(card_view *card) const {
 const card_view *target_finder::get_current_card() const {
     assert(m_mode != play_mode::equip);
 
-    if (ranges::contains(m_modifiers, card_modifier_type::leevankliff, &card_view::modifier)) {
+    if (ranges::contains(m_modifiers, card_modifier_type::leevankliff, &card_view::modifier_type)) {
         return m_last_played_card;
     } else {
         return m_playing_card;
@@ -339,7 +339,7 @@ int target_finder::get_target_index() {
 int target_finder::calc_distance(player_view *from, player_view *to) const {
     if (from == to) return 0;
 
-    if (ranges::contains(m_modifiers, card_modifier_type::belltower, &card_view::modifier)) {
+    if (ranges::contains(m_modifiers, card_modifier_type::belltower, &card_view::modifier_type)) {
         return 1;
     }
 
