@@ -15,6 +15,7 @@ namespace banggame {
     enum class play_mode {
         none,
         play,
+        repeat,
         respond,
         equip
     };

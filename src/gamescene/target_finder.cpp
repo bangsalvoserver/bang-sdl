@@ -41,10 +41,11 @@ void target_finder::set_playing_card(card_view *card, play_mode mode) {
         }
     } else if (playable_with_modifiers(card)) {
         if (mode != play_mode::equip) {
-            auto &effects = mode == play_mode::respond ? card->responses : card->effects;
+            card_view *playing_card = mode == play_mode::repeat ? m_last_played_card : card;
+            auto &effects = mode == play_mode::respond ? playing_card->responses : playing_card->effects;
             if (effects.empty() || std::ranges::any_of(effects, [&](const effect_holder &effect) {
                 return effect.target == target_type::self_cubes
-                    && effect.target_value > int(card->cubes.size()) - count_selected_cubes(card);
+                    && effect.target_value > int(playing_card->cubes.size()) - count_selected_cubes(playing_card);
             })) {
                 return;
             }
@@ -202,7 +203,9 @@ void target_finder::on_click_card(pocket_type pocket, player_view *player, card_
     } else if (can_pick_card(pocket, player, card)) {
         send_pick_card(pocket, player, card);
     } else if (can_play_in_turn(pocket, player, card)) {
-        if ((pocket == pocket_type::player_hand || pocket == pocket_type::shop_selection) && !card->is_brown()) {
+        if (ranges::contains(m_modifiers, card_modifier_type::leevankliff, &card_view::modifier_type)) {
+            set_playing_card(card, play_mode::repeat);
+        } else if ((pocket == pocket_type::player_hand || pocket == pocket_type::shop_selection) && !card->is_brown()) {
             set_playing_card(card, play_mode::equip);
         } else {
             set_playing_card(card, play_mode::play);
@@ -297,7 +300,7 @@ bool target_finder::playable_with_modifiers(card_view *card) const {
 const card_view *target_finder::get_current_card() const {
     assert(m_mode != play_mode::equip);
 
-    if (ranges::contains(m_modifiers, card_modifier_type::leevankliff, &card_view::modifier_type)) {
+    if (m_mode == play_mode::repeat) {
         return m_last_played_card;
     } else {
         return m_playing_card;
