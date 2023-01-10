@@ -141,7 +141,7 @@ void game_scene::render(sdl::renderer &renderer) {
     m_ui.render(renderer);
     m_button_row.render(renderer);
 
-    if (m_overlay && m_overlay->texture_front) {
+    if (m_overlay && m_overlay->known) {
         sdl::rect rect = m_overlay->texture_front.get_rect();
         sdl::rect card_rect = m_overlay->get_rect();
         rect.x = std::clamp(card_rect.x + (card_rect.w - rect.w) / 2, 0, parent->width() - rect.w);
@@ -621,13 +621,16 @@ void game_scene::handle_game_update(UPD_TAG(player_gold), const player_gold_upda
 }
 
 void game_scene::handle_game_update(UPD_TAG(player_show_role), const player_show_role_update &args) {
-    if (args.player->m_role.role != args.role) {
-        args.player->m_role.role = args.role;
+    role_card &card = args.player->m_role;
+    if (card.role != args.role) {
+        card.role = args.role;
         if (args.role == player_role::unknown) {
-            add_animation<card_flip_animation>(args.get_duration(), &args.player->m_role, true);
+            card.known = false;
+            add_animation<card_flip_animation>(args.get_duration(), &card, true);
         } else {
-            args.player->m_role.make_texture_front(parent->get_renderer());
-            add_animation<card_flip_animation>(args.get_duration(), &args.player->m_role, false);
+            card.known = true;
+            card.make_texture_front(parent->get_renderer());
+            add_animation<card_flip_animation>(args.get_duration(), &card, false);
         }
     }
 }
