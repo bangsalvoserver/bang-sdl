@@ -51,6 +51,8 @@ LOCALE_VALUE(PROMPT_REPLACE,                      "Do you want to play {0} to re
 LOCALE_VALUE(PROMPT_TARGET_SELF,                  "Do you want to play {} on yourself?")
 LOCALE_VALUE(PROMPT_NO_REDRAW,                    "Do you want to play {} without redrawing the card?")
 LOCALE_VALUE(PROMPT_BANG_STRENGTH,                "You have to respond with {} Missed! Continue?")
+LOCALE_VALUE(PROMPT_NO_BANGS_PLAYED,              "You haven't played any Bang, playing {} would have no effect. Continue?")
+LOCALE_VALUE(PROMPT_NO_RANGED_TARGET,             "{1} has no range limit, playing {0} would have no effect. Continue?")
 LOCALE_VALUE(PROMPT_PLAY_OR_PICK,                 "Play or discard this card?")
 
 LOCALE_VALUE(STATUS_GAME_OVER,                    "Game Over")

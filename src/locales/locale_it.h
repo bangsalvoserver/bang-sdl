@@ -51,6 +51,8 @@ LOCALE_VALUE(PROMPT_REPLACE,                      "Vuoi giocare {0} per rimpiazz
 LOCALE_VALUE(PROMPT_TARGET_SELF,                  "Vuoi giocare {} su te stesso?")
 LOCALE_VALUE(PROMPT_NO_REDRAW,                    "Vuoi giocare {} senza ripescare la carta?")
 LOCALE_VALUE(PROMPT_BANG_STRENGTH,                "Devi rispondere con {} Mancato! Continuare?")
+LOCALE_VALUE(PROMPT_NO_BANGS_PLAYED,              "Non hai giocato nessun Bang, giocare {} non avrebbe effetto. Continuare?")
+LOCALE_VALUE(PROMPT_NO_RANGED_TARGET,             "{1} non ha limite di distanza, giocare {0} non avrebbe effetto. Continuare?")
 LOCALE_VALUE(PROMPT_PLAY_OR_PICK,                 "Giocare la carta o scartarla?")
 
 LOCALE_VALUE(STATUS_GAME_OVER,                    "Partita Finita")
