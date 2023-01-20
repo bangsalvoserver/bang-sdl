@@ -118,9 +118,10 @@ std::optional<std::filesystem::path> open_file_dialog(
     std::array<char, 1024> file_buf;
 
     FILE *f = popen(zenity_command.str().c_str(), "r");
-    fgets(file_buf.data(), file_buf.size(), f);
-    if (fclose(f) == 0) {
-        return std::filesystem::path(std::string_view(file_buf.data(), strlen(file_buf.data()) - 1));
+    if (fgets(file_buf.data(), file_buf.size(), f)) {
+        if (fclose(f) == 0) {
+            return std::filesystem::path(std::string_view(file_buf.data(), strlen(file_buf.data()) - 1));
+        }
     }
     return std::nullopt;
 }
