@@ -52,13 +52,9 @@ namespace banggame {
             return m_last_played_card;
         }
 
-        void set_last_played_card(card_view *card) {
-            m_last_played_card = card;
-        }
-
         void set_forced_card(card_view *card);
 
-        void confirm_play();
+        void confirm_play(bool valid);
         bool waiting_confirm() const {
             return m_waiting_confirm;
         }

@@ -301,7 +301,7 @@ void game_scene::handle_message(SRV_TAG(lobby_owner), const user_id_args &args) 
 }
 
 void game_scene::handle_message(SRV_TAG(lobby_error), const std::string &message) {
-    m_target.confirm_play();
+    m_target.confirm_play(false);
 }
 
 std::string game_scene::evaluate_format_string(const game_string &str) {
@@ -328,7 +328,7 @@ std::string game_scene::evaluate_format_string(const game_string &str) {
 }
 
 void game_scene::handle_game_update(UPD_TAG(game_error), const game_string &args) {
-    m_target.confirm_play();
+    m_target.confirm_play(false);
     m_target.handle_auto_respond();
     parent->add_chat_message(message_type::error, evaluate_format_string(args));
 }
@@ -520,10 +520,6 @@ void game_scene::handle_game_update(UPD_TAG(short_pause), const short_pause_upda
     add_animation<pause_animation>(args.get_duration(), args.card);
 }
 
-void game_scene::handle_game_update(UPD_TAG(last_played_card), card_view *card) {
-    m_target.set_last_played_card(card);
-}
-
 void game_scene::move_player_views(anim_duration_type duration) {
     add_animation<player_move_animation>(duration, [&]{
         player_move_animation anim;
@@ -701,5 +697,5 @@ void game_scene::handle_game_update(UPD_TAG(status_clear)) {
 }
 
 void game_scene::handle_game_update(UPD_TAG(confirm_play)) {
-    m_target.confirm_play();
+    m_target.confirm_play(true);
 }

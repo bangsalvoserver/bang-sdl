@@ -700,7 +700,10 @@ void target_finder::send_prompt_response(bool response) {
     }
 }
 
-void target_finder::confirm_play() {
+void target_finder::confirm_play(bool valid) {
+    if (valid && m_playing_card) {
+        m_last_played_card = m_playing_card;
+    }
     m_waiting_confirm = false;
     clear_targets();
 }
