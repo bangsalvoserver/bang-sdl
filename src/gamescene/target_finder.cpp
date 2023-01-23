@@ -13,7 +13,7 @@ using namespace banggame;
 using namespace sdl::point_math;
 
 void target_finder::set_playing_card(card_view *card, play_mode mode) {
-    if (card->modifier_type() != card_modifier_type::none && mode != play_mode::equip) {
+    if (card->is_modifier() && mode != play_mode::equip) {
         auto allowed_modifiers = std::transform_reduce(
             m_modifiers.begin(), m_modifiers.end(), modifier_bitset(card->modifier_type()), std::bit_and(),
             [](card_view *mod) { return allowed_modifiers_after(mod->modifier_type()); }
@@ -139,7 +139,7 @@ bool target_finder::is_card_clickable() const {
 }
 
 bool target_finder::can_respond_with(card_view *card) const {
-    if (std::ranges::any_of(m_response_highlights, [](card_view *card){ return card->modifier_type() != card_modifier_type::none; })) {
+    if (std::ranges::any_of(m_response_highlights, &card_view::is_modifier)) {
         return !m_modifiers.empty() && playable_with_modifiers(card);
     } else {
         return ranges::contains(m_response_highlights, card);
