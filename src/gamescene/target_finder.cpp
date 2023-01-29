@@ -673,7 +673,21 @@ bool target_finder::add_selected_cube(card_view *card, int ncubes) {
 }
 
 void target_finder::send_play_card() {
-    add_action<game_action_type::play_card>(m_playing_card, m_modifiers, m_targets, m_mode == play_mode::respond);
+    add_action<game_action_type::play_card>(m_playing_card,
+        m_modifiers
+            | ranges::views::transform([&](card_view *mod_card) {
+                return modifier_pair{mod_card, (m_mode == play_mode::respond ? mod_card->responses : mod_card->effects)
+                    | ranges::views::transform([](const effect_holder &effect) -> play_card_target {
+                        switch (effect.target) {
+                        case target_type::none:         return enums::enum_tag<target_type::none>;
+                        case target_type::self_cubes:   return enums::enum_tag<target_type::self_cubes>;
+                        default: throw std::runtime_error("Invalid modifier card");
+                        }
+                    })
+                    | ranges::to<std::vector>};
+            })
+            | ranges::to<std::vector>,
+        m_targets, m_mode == play_mode::respond);
     m_waiting_confirm = true;
 }
 
