@@ -49,6 +49,7 @@ LOCALE_VALUE(PROMPT_PASS_DISCARD_PLURAL,          "Devi scartare {} carte. Conti
 LOCALE_VALUE(PROMPT_MOVE_BOMB_TO_SELF,            "Stai lasciando {} su te stesso. Continuare?")
 LOCALE_VALUE(PROMPT_REPLACE,                      "Vuoi giocare {0} per rimpiazzare {1}?")
 LOCALE_VALUE(PROMPT_TARGET_SELF,                  "Vuoi giocare {} su te stesso?")
+LOCALE_VALUE(PROMPT_TARGET_GHOST,                 "{1} è un fantasma, giocare {0} non avrebbe effetto. Continuare?")
 LOCALE_VALUE(PROMPT_NO_REDRAW,                    "Vuoi giocare {} senza ripescare la carta?")
 LOCALE_VALUE(PROMPT_BANG_STRENGTH,                "Devi rispondere con {} Mancato! Continuare?")
 LOCALE_VALUE(PROMPT_NO_BANGS_PLAYED,              "Non hai giocato nessun Bang, giocare {} non avrebbe effetto. Continuare?")

@@ -49,6 +49,7 @@ LOCALE_VALUE(PROMPT_PASS_DISCARD_PLURAL,          "You must discard {} cards. Co
 LOCALE_VALUE(PROMPT_MOVE_BOMB_TO_SELF,            "You're keeping {} on yourself. Continue?")
 LOCALE_VALUE(PROMPT_REPLACE,                      "Do you want to play {0} to replace {1}?")
 LOCALE_VALUE(PROMPT_TARGET_SELF,                  "Do you want to play {} on yourself?")
+LOCALE_VALUE(PROMPT_TARGET_GHOST,                 "{1} is a ghost, playing {0} would have no effect. Continue?")
 LOCALE_VALUE(PROMPT_NO_REDRAW,                    "Do you want to play {} without redrawing the card?")
 LOCALE_VALUE(PROMPT_BANG_STRENGTH,                "You have to respond with {} Missed! Continue?")
 LOCALE_VALUE(PROMPT_NO_BANGS_PLAYED,              "You haven't played any Bang, playing {} would have no effect. Continue?")
