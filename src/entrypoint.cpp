@@ -32,7 +32,9 @@ extern "C" BANGCLIENT_EXPORT const char *STDCALL get_cards_commit_hash() {
 #endif
 
 extern "C" BANGCLIENT_EXPORT long STDCALL entrypoint(const char *base_path) {
+#ifdef NDEBUG
     try {
+#endif
         sdl::initializer sdl_init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
         sdl::ttf_initializer sdl_ttf_init;
         sdl::img_initializer sdl_img_init(IMG_INIT_PNG | IMG_INIT_JPG);
@@ -92,6 +94,7 @@ extern "C" BANGCLIENT_EXPORT long STDCALL entrypoint(const char *base_path) {
             std::this_thread::sleep_until(next_frame);
         }
 
+#ifdef NDEBUG
     } catch (const std::exception &error) {
         std::cerr << "Uncaught exception: " << error.what() << '\n';
         return 1;
@@ -99,6 +102,7 @@ extern "C" BANGCLIENT_EXPORT long STDCALL entrypoint(const char *base_path) {
         std::cerr << "Uncaught exception\n";
         return 1;
     }
+#endif
     
     return 0;
 }
