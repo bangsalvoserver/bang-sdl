@@ -24,10 +24,8 @@ namespace banggame {
         card_view *m_playing_card = nullptr;
         target_list m_targets;
         std::vector<modifier_pair> m_modifiers;
-        bool m_response = false;
-        target_mode m_mode = target_mode::start;
-
         raii_editor_stack<sdl::color> m_target_borders;
+        target_mode m_mode = target_mode::start;
     };
 
     class target_finder : private target_status {
@@ -97,6 +95,7 @@ namespace banggame {
         std::vector<card_view *> m_response_highlights;
         std::vector<card_view *> m_picking_highlights;
         raii_editor_stack<sdl::color> m_response_borders;
+        bool m_response = false;
 
         effect_flags m_request_flags{};
 

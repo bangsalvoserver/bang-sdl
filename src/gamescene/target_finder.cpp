@@ -101,6 +101,7 @@ void target_finder::set_response_highlights(const request_status_args &args) {
 }
 
 void target_finder::clear_status() {
+    m_response = false;
     m_request_flags = {};
     m_response_highlights.clear();
     m_picking_highlights.clear();
@@ -656,7 +657,7 @@ int target_finder::count_selected_cubes(card_view *target_card) {
     auto do_count = [&](card_view *card, const target_list &targets) {
         for (const auto &[target, effect] : zip_card_targets(targets, m_response ? card->responses : card->effects, card->optionals)) {
             if (const std::vector<card_view *> *val = target.get_if<target_type::select_cubes>()) {
-                selected += int(std::ranges::count(*val, card));
+                selected += int(std::ranges::count(*val, target_card));
             } else if (target.is(target_type::self_cubes)) {
                 if (card == target_card) {
                     selected += effect.target_value;
