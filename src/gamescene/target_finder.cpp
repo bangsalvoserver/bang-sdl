@@ -62,7 +62,7 @@ const target_list &target_status::get_current_target_list() const {
     }
 }
 
-bool target_finder::set_playing_card(card_view *card) {
+void target_finder::set_playing_card(card_view *card) {
     if (card->is_modifier()) {
         auto allowed_modifiers = std::transform_reduce(
             m_modifiers.begin(), m_modifiers.end(), modifier_bitset(card->modifier_type()), std::bit_and(),
@@ -79,13 +79,15 @@ bool target_finder::set_playing_card(card_view *card) {
                     c->set_pos(m_game->m_shop_choice.get_pos() + m_game->m_shop_choice.get_offset(c));
                 }
             }
+            if (card->modifier_type() != card_modifier_type::leevankliff
+                || m_last_played_card && allowed_card_with_modifier(m_game->m_player_self, card, m_last_played_card))
+            {
+                m_modifiers.emplace_back(card);
+                m_mode = target_mode::modifier;
 
-            m_modifiers.emplace_back(card);
-            m_mode = target_mode::modifier;
-
-            m_target_borders.add(card->border_color, colors.target_finder_current_card);
-            handle_auto_targets();
-            return true;
+                m_target_borders.add(card->border_color, colors.target_finder_current_card);
+                handle_auto_targets();
+            }
         }
     } else if (playable_with_modifiers(card)) {
         auto &effects = get_card_effect_list(card, m_response);
@@ -98,10 +100,8 @@ bool target_finder::set_playing_card(card_view *card) {
 
             m_target_borders.add(card->border_color, colors.target_finder_current_card);
             handle_auto_targets();
-            return true;
         }
     }
-    return false;
 }
 
 template<game_action_type T>
@@ -689,11 +689,8 @@ bool target_finder::add_selected_cube(card_view *card, int ncubes) {
 void target_finder::send_play_card() {
     if (m_mode == target_mode::modifier) {
         m_mode = target_mode::start;
-        if (contains_modifier(m_modifiers, card_modifier_type::leevankliff)) {
-            if (!get_last_played_card() || !set_playing_card(get_last_played_card())) {
-                m_game->parent->add_chat_message(message_type::error, _("ERROR_INVALID_MODIFIER_CARD"));
-                clear_targets();
-            }
+        if (m_modifiers.back().card->modifier_type() == card_modifier_type::leevankliff) {
+            set_playing_card(m_last_played_card);
         }
     } else {
         m_mode = target_mode::finish;

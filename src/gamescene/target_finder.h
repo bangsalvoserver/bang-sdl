@@ -74,7 +74,7 @@ namespace banggame {
         void send_prompt_response(bool response);
     
     private:
-        bool set_playing_card(card_view *card);
+        void set_playing_card(card_view *card);
         bool playable_with_modifiers(card_view *card) const;
 
         const char *check_player_filter(target_player_filter filter, player_view *target_player);
