@@ -161,7 +161,7 @@ void game_scene::handle_event(const sdl::event &event) {
             }
             break;
         case SDL_BUTTON_RIGHT:
-            if (!m_target.waiting_confirm() && !m_ui.is_message_box_open()) {
+            if (!m_target.finished() && !m_ui.is_message_box_open()) {
                 m_target.clear_targets();
                 m_target.handle_auto_respond();
             }
@@ -301,7 +301,7 @@ void game_scene::handle_message(SRV_TAG(lobby_owner), const user_id_args &args) 
 }
 
 void game_scene::handle_message(SRV_TAG(lobby_error), const std::string &message) {
-    m_target.confirm_play(false);
+    m_target.clear_targets();
 }
 
 std::string game_scene::evaluate_format_string(const game_string &str) {
@@ -328,7 +328,7 @@ std::string game_scene::evaluate_format_string(const game_string &str) {
 }
 
 void game_scene::handle_game_update(UPD_TAG(game_error), const game_string &args) {
-    m_target.confirm_play(false);
+    m_target.clear_targets();
     m_target.handle_auto_respond();
     parent->add_chat_message(message_type::error, evaluate_format_string(args));
 }
@@ -667,7 +667,7 @@ void game_scene::handle_game_update(UPD_TAG(switch_turn), player_view *player) {
 void game_scene::handle_game_update(UPD_TAG(request_status), const request_status_args &args) {
     m_request_origin = args.origin;
     m_request_target = args.target;
-    m_target.set_response_highlights(args);
+    m_target.set_response_cards(args);
 
     if (args.status_text) {
         m_ui.set_status(evaluate_format_string(args.status_text));
@@ -697,5 +697,6 @@ void game_scene::handle_game_update(UPD_TAG(status_clear)) {
 }
 
 void game_scene::handle_game_update(UPD_TAG(confirm_play)) {
-    m_target.confirm_play(true);
+    m_target.update_last_played_card();
+    m_target.clear_targets();
 }

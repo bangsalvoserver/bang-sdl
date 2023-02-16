@@ -12,8 +12,58 @@
 using namespace banggame;
 using namespace sdl::point_math;
 
-bool target_finder::set_playing_card(card_view *card, target_mode mode) {
-    if (mode == target_mode::target && card->is_modifier()) {
+static int get_target_index(const target_list &targets) {
+    if (targets.empty()) {
+        return 0;
+    }
+    return int(targets.size()) - enums::visit(overloaded{
+        [](const auto &) {
+            return 0;
+        },
+        []<typename T>(const std::vector<T> &value) {
+            return int(value.size() != value.capacity());
+        }
+    }, targets.back());
+}
+
+static const effect_list &get_card_effect_list(card_view *card, bool is_response) {
+    return is_response ? card->responses : card->effects;
+}
+
+static const effect_holder &get_effect_holder(const effect_list &effects, const effect_list &optionals, int index) {
+    if (index < effects.size()) {
+        return effects[index];
+    }
+
+    return optionals[(index - effects.size()) % optionals.size()];
+}
+
+card_view *target_status::get_current_card() const {
+    switch (m_mode) {
+    case target_mode::target: return m_playing_card;
+    case target_mode::modifier: return m_modifiers.back().card;
+    default: throw std::runtime_error("Invalid target mode");
+    }
+}
+
+target_list &target_status::get_current_target_list() {
+    switch (m_mode) {
+    case target_mode::target: return m_targets;
+    case target_mode::modifier: return m_modifiers.back().targets;
+    default: throw std::runtime_error("Invalid target mode");
+    }
+}
+
+const target_list &target_status::get_current_target_list() const {
+    switch (m_mode) {
+    case target_mode::target: return m_targets;
+    case target_mode::modifier: return m_modifiers.back().targets;
+    default: throw std::runtime_error("Invalid target mode");
+    }
+}
+
+bool target_finder::set_playing_card(card_view *card) {
+    if (card->is_modifier()) {
         auto allowed_modifiers = std::transform_reduce(
             m_modifiers.begin(), m_modifiers.end(), modifier_bitset(card->modifier_type()), std::bit_and(),
             [](const modifier_pair &pair) { return allowed_modifiers_after(pair.card->modifier_type()); }
@@ -38,22 +88,18 @@ bool target_finder::set_playing_card(card_view *card, target_mode mode) {
             return true;
         }
     } else if (playable_with_modifiers(card)) {
-        if (mode != target_mode::equip) {
-            auto &effects = m_response ? card->responses : card->effects;
-            if (effects.empty() || std::ranges::any_of(effects, [&](const effect_holder &effect) {
-                return effect.target == target_type::self_cubes
-                    && effect.target_value > int(card->cubes.size()) - count_selected_cubes(card);
-            })) {
-                return false;
-            }
+        auto &effects = get_card_effect_list(card, m_response);
+        if (!effects.empty() && std::ranges::none_of(effects, [&](const effect_holder &effect) {
+            return effect.target == target_type::self_cubes
+                && effect.target_value > int(card->cubes.size()) - count_selected_cubes(card);
+        })) {
+            m_playing_card = card;
+            m_mode = target_mode::target;
+
+            m_target_borders.add(card->border_color, colors.target_finder_current_card);
+            handle_auto_targets();
+            return true;
         }
-
-        m_playing_card = card;
-        m_mode = mode;
-
-        m_target_borders.add(card->border_color, colors.target_finder_current_card);
-        handle_auto_targets();
-        return true;
     }
     return false;
 }
@@ -76,7 +122,7 @@ void target_finder::set_picking_border(card_view *card, sdl::color color) {
     }
 }
 
-void target_finder::set_response_highlights(const request_status_args &args) {
+void target_finder::set_response_cards(const request_status_args &args) {
     clear_status();
 
     for (card_view *card : args.highlight_cards) {
@@ -87,11 +133,11 @@ void target_finder::set_response_highlights(const request_status_args &args) {
         m_response_borders.add(args.origin_card->border_color, colors.target_finder_origin_card);
     }
 
-    for (card_view *card : (m_picking_highlights = args.pick_cards)) {
+    for (card_view *card : (m_picking_cards = args.pick_cards)) {
         set_picking_border(card, colors.target_finder_can_pick);
     }
 
-    for (card_view *card : (m_response_highlights = args.respond_cards)) {
+    for (card_view *card : (m_response_cards = args.respond_cards)) {
         m_response_borders.add(card->border_color, colors.target_finder_can_respond);
     }
 
@@ -100,13 +146,15 @@ void target_finder::set_response_highlights(const request_status_args &args) {
     handle_auto_respond();
 }
 
+void target_finder::update_last_played_card() {
+    if (m_playing_card) {
+        m_last_played_card = m_playing_card;
+    }
+}
+
 void target_finder::clear_status() {
-    m_response = false;
-    m_request_flags = {};
-    m_response_highlights.clear();
-    m_picking_highlights.clear();
     clear_targets();
-    m_response_borders.clear();
+    static_cast<request_status &>(*this) = {};
 }
 
 void target_finder::clear_targets() {
@@ -115,16 +163,17 @@ void target_finder::clear_targets() {
 }
 
 void target_finder::handle_auto_respond() {
-    if (m_mode == target_mode::start && bool(m_request_flags & effect_flags::auto_respond) && m_response_highlights.size() == 1 && m_picking_highlights.empty()) {
-        set_playing_card(m_response_highlights.front());
+    if (m_mode == target_mode::start && bool(m_request_flags & effect_flags::auto_respond) && m_response_cards.size() == 1 && m_picking_cards.empty()) {
+        set_playing_card(m_response_cards.front());
     }
 }
 
-bool target_finder::can_confirm() {
+bool target_finder::can_confirm() const {
     if (m_mode == target_mode::target || m_mode == target_mode::modifier) {
-        const size_t neffects = get_current_card_effects().size();
-        const size_t noptionals = get_current_card()->optionals.size();
-        auto &targets = get_current_target_list();
+        card_view *current_card = get_current_card();
+        const size_t neffects = get_card_effect_list(current_card, m_response).size();
+        const size_t noptionals = current_card->optionals.size();
+        const auto &targets = get_current_target_list();
         return noptionals != 0
             && targets.size() >= neffects
             && ((targets.size() - neffects) % noptionals == 0);
@@ -137,14 +186,14 @@ bool target_finder::is_card_clickable() const {
         && m_game->m_pending_updates.empty()
         && m_game->m_animations.empty()
         && !m_game->m_ui.is_message_box_open()
-        && !waiting_confirm();
+        && !finished();
 }
 
 bool target_finder::can_respond_with(card_view *card) const {
-    if (std::ranges::any_of(m_response_highlights, &card_view::is_modifier)) {
+    if (std::ranges::any_of(m_response_cards, &card_view::is_modifier)) {
         return !m_modifiers.empty() && playable_with_modifiers(card);
     } else {
-        return ranges::contains(m_response_highlights, card);
+        return ranges::contains(m_response_cards, card);
     }
 }
 
@@ -152,17 +201,14 @@ bool target_finder::can_pick_card(pocket_type pocket, player_view *player, card_
     switch (pocket) {
     case pocket_type::main_deck:
     case pocket_type::discard_pile:
-        return ranges::contains(m_picking_highlights, pocket, [](card_view *c) { return c->pocket->type; });
+        return ranges::contains(m_picking_cards, pocket, [](card_view *c) { return c->pocket->type; });
     default:
-        return ranges::contains(m_picking_highlights, card);
+        return ranges::contains(m_picking_cards, card);
     }
 }
 
 bool target_finder::can_play_in_turn(pocket_type pocket, player_view *player, card_view *card) const {
-    if (m_game->m_request_origin || m_game->m_request_target
-        || m_game->m_playing != m_game->m_player_self
-        || (player && player != m_game->m_player_self))
-    {
+    if (m_game->m_playing != m_game->m_player_self || (player && player != m_game->m_player_self)) {
         return false;
     }
     
@@ -177,7 +223,7 @@ bool target_finder::can_play_in_turn(pocket_type pocket, player_view *player, ca
         return !card->inactive;
     case pocket_type::shop_selection:
         return m_game->m_player_self->gold >= card->buy_cost()
-            - std::ranges::any_of(m_modifiers, [](const modifier_pair &pair) { return pair.card->modifier_type() == card_modifier_type::discount; });
+            - contains_modifier(m_modifiers, card_modifier_type::discount);
     default:
         return false;
     }
@@ -192,22 +238,30 @@ void target_finder::on_click_card(pocket_type pocket, player_view *player, card_
         } else if (pocket == pocket_type::player_table || pocket == pocket_type::player_hand) {
             add_card_target(player, card);
         }
-    } else if (can_respond_with(card)) {
-        if (can_pick_card(pocket, player, card)) {
+    } else if (m_response) {
+        bool can_respond = can_respond_with(card);
+        bool can_pick = can_pick_card(pocket, player, card);
+        if (can_respond && can_pick) {
             m_target_borders.add(card->border_color, colors.target_finder_current_card);
             m_game->m_ui.show_message_box(_("PROMPT_PLAY_OR_PICK"), {
                 {_("BUTTON_PLAY"), [=, this]{ set_playing_card(card); }},
                 {_("BUTTON_PICK"), [=, this]{ send_pick_card(pocket, player, card); }},
                 {_("BUTTON_UNDO"), [this]{ clear_targets(); }}
             });
-        } else {
+        } else if (can_respond) {
             set_playing_card(card);
+        } else if (can_pick) {
+            send_pick_card(pocket, player, card);
         }
-    } else if (can_pick_card(pocket, player, card)) {
-        send_pick_card(pocket, player, card);
     } else if (can_play_in_turn(pocket, player, card)) {
         if ((pocket == pocket_type::player_hand || pocket == pocket_type::shop_selection) && !card->is_brown()) {
-            set_playing_card(card, target_mode::equip);
+            m_playing_card = card;
+            m_mode = target_mode::equip;
+
+            m_target_borders.add(card->border_color, colors.target_finder_current_card);
+            if (card->self_equippable()) {
+                send_play_card();
+            }
         } else {
             set_playing_card(card);
         }
@@ -229,18 +283,18 @@ bool target_finder::on_click_player(player_view *player) {
         return true;
     };
 
-    auto &targets = get_current_target_list();
-
     if (m_mode == target_mode::equip) {
         if (verify_filter(m_playing_card->equip_target)) {
             m_target_borders.add(player->border_color, colors.target_finder_target);
-            targets.emplace_back(enums::enum_tag<target_type::player>, player);
+            m_targets.emplace_back(enums::enum_tag<target_type::player>, player);
             send_play_card();
             return true;
         }
     } else if (m_mode == target_mode::target || m_mode == target_mode::modifier) {
-        int index = get_target_index();
-        auto cur_target = get_effect_holder(index);
+        card_view *current_card = get_current_card();
+        auto &targets = get_current_target_list();
+        int index = get_target_index(targets);
+        auto cur_target = get_effect_holder(get_card_effect_list(current_card, m_response), current_card->optionals, index);
 
         switch (cur_target.target) {
         case target_type::player:
@@ -298,58 +352,10 @@ bool target_finder::playable_with_modifiers(card_view *card) const {
     });
 }
 
-card_view *target_finder::get_current_card() const {
-    switch (m_mode) {
-    case target_mode::target: return m_playing_card;
-    case target_mode::modifier: return m_modifiers.back().card;
-    default: throw std::runtime_error("Invalid target mode");
-    }
-}
-
-const effect_list &target_finder::get_current_card_effects() const {
-    if (m_response) {
-        return get_current_card()->responses;
-    } else {
-        return get_current_card()->effects;
-    }
-}
-
-target_list &target_finder::get_current_target_list() {
-    switch (m_mode) {
-    case target_mode::modifier: return m_modifiers.back().targets;
-    default: return m_targets;
-    }
-}
-
-const effect_holder &target_finder::get_effect_holder(int index) {
-    auto &effects = get_current_card_effects();
-    if (index < effects.size()) {
-        return effects[index];
-    }
-
-    auto &optionals = get_current_card()->optionals;
-    return optionals[(index - effects.size()) % optionals.size()];
-}
-
-int target_finder::get_target_index() {
-    auto &targets = get_current_target_list();
-    if (targets.empty()) {
-        return 0;
-    }
-    return int(targets.size()) - enums::visit(overloaded{
-        [](const auto &) {
-            return 0;
-        },
-        []<typename T>(const std::vector<T> &value) {
-            return int(value.size() != value.capacity());
-        }
-    }, targets.back());
-}
-
 int target_finder::calc_distance(player_view *from, player_view *to) const {
     if (from == to) return 0;
 
-    if (std::ranges::any_of(m_modifiers, [](const modifier_pair &pair) { return pair.card->modifier_type() == card_modifier_type::belltower; })) {
+    if (contains_modifier(m_modifiers, card_modifier_type::belltower)) {
         return 1;
     }
 
@@ -421,16 +427,8 @@ struct targetable_for_cards_other_player {
 };
 
 void target_finder::handle_auto_targets() {
-    if (m_mode == target_mode::equip) {
-        if (m_playing_card->self_equippable()) {
-            send_play_card();
-        }
-        return;
-    }
-
     auto *current_card = get_current_card();
-
-    auto &effects = get_current_card_effects();
+    auto &effects = get_card_effect_list(current_card, m_response);
     auto &targets = get_current_target_list();
 
     auto &optionals = current_card->optionals;
@@ -511,7 +509,7 @@ void target_finder::handle_auto_targets() {
             targets.emplace_back(enums::enum_tag<target_type::players>);
             break;
         case target_type::self_cubes:
-            add_selected_cube(get_current_card(), effect_it->target_value);
+            add_selected_cube(current_card, effect_it->target_value);
             targets.emplace_back(enums::enum_tag<target_type::self_cubes>);
             break;
         default:
@@ -573,9 +571,10 @@ const char *target_finder::check_card_filter(target_card_filter filter, card_vie
 void target_finder::add_card_target(player_view *player, card_view *card) {
     if (m_mode == target_mode::equip) return;
 
-    int index = get_target_index();
-    auto cur_target = get_effect_holder(index);
+    card_view *current_card = get_current_card();
     auto &targets = get_current_target_list();
+    int index = get_target_index(targets);
+    auto cur_target = get_effect_holder(get_card_effect_list(current_card, m_response), current_card->optionals, index);
     
     switch (cur_target.target) {
     case target_type::card:
@@ -655,7 +654,7 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
 int target_finder::count_selected_cubes(card_view *target_card) {
     int selected = 0;
     auto do_count = [&](card_view *card, const target_list &targets) {
-        for (const auto &[target, effect] : zip_card_targets(targets, m_response ? card->responses : card->effects, card->optionals)) {
+        for (const auto &[target, effect] : zip_card_targets(targets, get_card_effect_list(card, m_response), card->optionals)) {
             if (const std::vector<card_view *> *val = target.get_if<target_type::select_cubes>()) {
                 selected += int(std::ranges::count(*val, target_card));
             } else if (target.is(target_type::self_cubes)) {
@@ -690,7 +689,7 @@ bool target_finder::add_selected_cube(card_view *card, int ncubes) {
 void target_finder::send_play_card() {
     if (m_mode == target_mode::modifier) {
         m_mode = target_mode::start;
-        if (std::ranges::any_of(m_modifiers, [](const modifier_pair &pair) { return pair.card->modifier_type() == card_modifier_type::leevankliff; })) {
+        if (contains_modifier(m_modifiers, card_modifier_type::leevankliff)) {
             if (!get_last_played_card() || !set_playing_card(get_last_played_card())) {
                 m_game->parent->add_chat_message(message_type::error, _("ERROR_INVALID_MODIFIER_CARD"));
                 clear_targets();
@@ -722,11 +721,4 @@ void target_finder::send_prompt_response(bool response) {
         clear_targets();
         handle_auto_respond();
     }
-}
-
-void target_finder::confirm_play(bool valid) {
-    if (valid && m_playing_card) {
-        m_last_played_card = m_playing_card;
-    }
-    clear_targets();
 }
