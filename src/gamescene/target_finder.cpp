@@ -58,6 +58,10 @@ const target_list &target_status::get_current_target_list() const {
     }
 }
 
+bool target_status::has_modifier(card_modifier_type type) const {
+    return ranges::contains(m_modifiers, type, [](const modifier_pair &pair) { return pair.card->modifier_type(); });
+}
+
 void target_finder::set_playing_card(card_view *card) {
     if (card->is_modifier()) {
         auto allowed_modifiers = std::transform_reduce(
@@ -218,8 +222,7 @@ bool target_finder::can_play_in_turn(pocket_type pocket, player_view *player, ca
     case pocket_type::player_table:
         return !card->inactive;
     case pocket_type::shop_selection:
-        return m_game->m_player_self->gold >= card->buy_cost()
-            - contains_modifier(m_modifiers, card_modifier_type::discount);
+        return m_game->m_player_self->gold >= card->buy_cost() - has_modifier(card_modifier_type::discount);
     default:
         return false;
     }
@@ -351,7 +354,7 @@ bool target_finder::playable_with_modifiers(card_view *card) const {
 int target_finder::calc_distance(player_view *from, player_view *to) const {
     if (from == to) return 0;
 
-    if (contains_modifier(m_modifiers, card_modifier_type::belltower)) {
+    if (has_modifier(card_modifier_type::belltower)) {
         return 1;
     }
 
