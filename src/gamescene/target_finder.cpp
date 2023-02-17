@@ -284,8 +284,8 @@ bool target_finder::on_click_player(player_view *player) {
             m_target_borders.add(player->border_color, colors.target_finder_target);
             m_targets.emplace_back(enums::enum_tag<target_type::player>, player);
             send_play_card();
-            return true;
         }
+        return true;
     } else if (m_mode == target_mode::target || m_mode == target_mode::modifier) {
         card_view *current_card = get_current_card();
         auto &targets = get_current_target_list();
