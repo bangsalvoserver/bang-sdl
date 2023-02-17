@@ -26,10 +26,6 @@ static int get_target_index(const target_list &targets) {
     }, targets.back());
 }
 
-static const effect_list &get_card_effect_list(card_view *card, bool is_response) {
-    return is_response ? card->responses : card->effects;
-}
-
 static const effect_holder &get_effect_holder(const effect_list &effects, const effect_list &optionals, int index) {
     if (index < effects.size()) {
         return effects[index];
@@ -90,7 +86,7 @@ void target_finder::set_playing_card(card_view *card) {
             }
         }
     } else if (playable_with_modifiers(card)) {
-        auto &effects = get_card_effect_list(card, m_response);
+        auto &effects = card->get_effect_list(m_response);
         if (!effects.empty() && std::ranges::none_of(effects, [&](const effect_holder &effect) {
             return effect.target == target_type::self_cubes
                 && effect.target_value > int(card->cubes.size()) - count_selected_cubes(card);
@@ -171,7 +167,7 @@ void target_finder::handle_auto_respond() {
 bool target_finder::can_confirm() const {
     if (m_mode == target_mode::target || m_mode == target_mode::modifier) {
         card_view *current_card = get_current_card();
-        const size_t neffects = get_card_effect_list(current_card, m_response).size();
+        const size_t neffects = current_card->get_effect_list(m_response).size();
         const size_t noptionals = current_card->optionals.size();
         const auto &targets = get_current_target_list();
         return noptionals != 0
@@ -294,7 +290,7 @@ bool target_finder::on_click_player(player_view *player) {
         card_view *current_card = get_current_card();
         auto &targets = get_current_target_list();
         int index = get_target_index(targets);
-        auto cur_target = get_effect_holder(get_card_effect_list(current_card, m_response), current_card->optionals, index);
+        auto cur_target = get_effect_holder(current_card->get_effect_list(m_response), current_card->optionals, index);
 
         switch (cur_target.target) {
         case target_type::player:
@@ -428,7 +424,7 @@ struct targetable_for_cards_other_player {
 
 void target_finder::handle_auto_targets() {
     auto *current_card = get_current_card();
-    auto &effects = get_card_effect_list(current_card, m_response);
+    auto &effects = current_card->get_effect_list(m_response);
     auto &targets = get_current_target_list();
 
     auto &optionals = current_card->optionals;
@@ -574,7 +570,7 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
     card_view *current_card = get_current_card();
     auto &targets = get_current_target_list();
     int index = get_target_index(targets);
-    auto cur_target = get_effect_holder(get_card_effect_list(current_card, m_response), current_card->optionals, index);
+    auto cur_target = get_effect_holder(current_card->get_effect_list(m_response), current_card->optionals, index);
     
     switch (cur_target.target) {
     case target_type::card:
@@ -654,7 +650,7 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
 int target_finder::count_selected_cubes(card_view *target_card) {
     int selected = 0;
     auto do_count = [&](card_view *card, const target_list &targets) {
-        for (const auto &[target, effect] : zip_card_targets(targets, get_card_effect_list(card, m_response), card->optionals)) {
+        for (const auto &[target, effect] : zip_card_targets(targets, card, m_response)) {
             if (const std::vector<card_view *> *val = target.get_if<target_type::select_cubes>()) {
                 selected += int(std::ranges::count(*val, target_card));
             } else if (target.is(target_type::self_cubes)) {
