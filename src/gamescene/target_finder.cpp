@@ -190,10 +190,10 @@ bool target_finder::is_card_clickable() const {
 }
 
 bool target_finder::can_respond_with(card_view *card) const {
-    if (std::ranges::any_of(m_response_cards, &card_view::is_modifier)) {
-        return !m_modifiers.empty() && playable_with_modifiers(card);
-    } else {
+    if (m_modifiers.empty()) {
         return ranges::contains(m_response_cards, card);
+    } else {
+        return playable_with_modifiers(card);
     }
 }
 
