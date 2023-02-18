@@ -491,7 +491,7 @@ void target_finder::handle_auto_targets() {
                 return;
             }
         case target_type::extra_card:
-            if (current_card == m_last_played_card) {
+            if (has_modifier(card_modifier_type::leevankliff)) {
                 targets.emplace_back(enums::enum_tag<target_type::extra_card>);
                 break;
             } else {
@@ -688,7 +688,7 @@ bool target_finder::add_selected_cube(card_view *card, int ncubes) {
 void target_finder::send_play_card() {
     if (m_mode == target_mode::modifier) {
         m_mode = target_mode::start;
-        if (m_modifiers.back().card->modifier_type() == card_modifier_type::leevankliff) {
+        if (has_modifier(card_modifier_type::leevankliff)) {
             set_playing_card(m_last_played_card);
         }
     } else {
