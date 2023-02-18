@@ -674,6 +674,10 @@ void game_scene::handle_game_update(UPD_TAG(request_status), const request_statu
     }
 }
 
+void game_scene::handle_game_update(UPD_TAG(status_ready), const status_ready_args &args) {
+    m_target.set_play_cards(args);
+}
+
 void game_scene::handle_game_update(UPD_TAG(game_flags), const game_flags &args) {
     m_game_flags = args;
 
@@ -698,5 +702,4 @@ void game_scene::handle_game_update(UPD_TAG(status_clear)) {
 
 void game_scene::handle_game_update(UPD_TAG(confirm_play)) {
     m_target.update_last_played_card();
-    m_target.clear_targets();
 }

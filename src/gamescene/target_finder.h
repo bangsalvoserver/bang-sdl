@@ -62,6 +62,7 @@ namespace banggame {
     public:
         void set_picking_border(card_view *card, sdl::color color);
         void set_response_cards(const request_status_args &args);
+        void set_play_cards(const status_ready_args &args);
         
         void handle_auto_respond();
 
