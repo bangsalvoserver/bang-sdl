@@ -290,7 +290,7 @@ void game_scene::play_sound(std::string_view sound_id) {
     m_sounds.play_sound(sound_id, parent->get_config().sound_volume);
 }
 
-void game_scene::handle_message(SRV_TAG(game_update), const Json::Value &update) {
+void game_scene::handle_message(SRV_TAG(game_update), const json::json &update) {
     m_pending_updates.push_back(update);
 }
 

@@ -51,7 +51,7 @@ namespace banggame {
 
         void play_sound(std::string_view sound_id);
 
-        void handle_message(SRV_TAG(game_update), const Json::Value &update) override;
+        void handle_message(SRV_TAG(game_update), const json::json &update) override;
         void handle_message(SRV_TAG(lobby_owner), const user_id_args &args) override;
         void handle_message(SRV_TAG(lobby_error), const std::string &message) override;
 
@@ -119,7 +119,7 @@ namespace banggame {
         game_ui m_ui;
         target_finder m_target;
 
-        std::deque<Json::Value> m_pending_updates;
+        std::deque<json::json> m_pending_updates;
         std::deque<animation> m_animations;
 
         counting_pocket m_shop_deck{pocket_type::shop_deck};

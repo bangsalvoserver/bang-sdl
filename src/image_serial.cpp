@@ -96,25 +96,20 @@ sdl::surface deserializer<sdl::surface>::operator()(byte_ptr &pos, byte_ptr end)
 
 namespace json {
 
-Json::Value serializer<sdl::color>::operator()(const sdl::color &value) const {
-    Json::Value ret = Json::arrayValue;
-    ret.append(value.r);
-    ret.append(value.g);
-    ret.append(value.g);
-    ret.append(value.a);
-    return ret;
+json serializer<sdl::color>::operator()(const sdl::color &value) const {
+    return json::array({value.r, value.g, value.b, value.a});
 }
 
-sdl::color deserializer<sdl::color>::operator()(const Json::Value &value) const {
-    if (value.isArray()) {
+sdl::color deserializer<sdl::color>::operator()(const json &value) const {
+    if (value.is_array() && value.size() >= 3) {
         return {
-            uint8_t(value[0].asInt()),
-            uint8_t(value[1].asInt()),
-            uint8_t(value[2].asInt()),
-            uint8_t(value.size() == 4 ? value[3].asInt() : 0xff)
+            value[0].get<uint8_t>(),
+            value[1].get<uint8_t>(),
+            value[2].get<uint8_t>(),
+            value.size() == 4 ? value[3].get<uint8_t>() : uint8_t(0xff)
         };
-    } else if (value.isString()) {
-        std::string str = value.asString();
+    } else if (value.is_string()) {
+        auto str = value.get<std::string>();
         uint32_t ret;
         auto [ptr, ec] = std::from_chars(str.data(), str.data() + str.size(), ret, 16);
         if (ec == std::errc{} && ptr == str.data() + str.size()) {
@@ -126,18 +121,18 @@ sdl::color deserializer<sdl::color>::operator()(const Json::Value &value) const 
         } else {
             return {};
         }
-    } else if (value.isInt()) {
-        return sdl::rgba(value.asInt());
+    } else if (value.is_number_integer()) {
+        return sdl::rgba(value.get<uint32_t>());
     } else {
         return {};
     }
 }
 
-sdl::surface deserializer<sdl::surface>::operator()(const Json::Value &value) const {
-    if (value.isString()) {
-        return binary::deserialize<sdl::surface>(json::deserialize<std::vector<std::byte>>(value));
-    } else if (!value.isNull()) {
-        return sdl::image_pixels_to_surface(json::deserialize<sdl::image_pixels>(value));
+sdl::surface deserializer<sdl::surface>::operator()(const json &value) const {
+    if (value.is_string()) {
+        return binary::deserialize<sdl::surface>(deserialize<std::vector<std::byte>>(value));
+    } else if (!value.is_null()) {
+        return sdl::image_pixels_to_surface(deserialize<sdl::image_pixels>(value));
     } else {
         return {};
     }

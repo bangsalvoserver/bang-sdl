@@ -8,21 +8,18 @@ void config::load() {
         return;
     }
     try {
-        Json::Value value;
+        json::json value;
         ifs >> value;
         *this = json::deserialize<config>(value);
         if (!profile_image.empty() && !profile_image_data) {
             profile_image_data = widgets::profile_pic::scale_profile_image(sdl::surface(resource(profile_image)));
         }
-    } catch (const Json::RuntimeError &) {
+    } catch (const std::exception &) {
         // ignore
-    } catch (const std::runtime_error &) {
-        profile_image.clear();
-        profile_image_data.reset();
     }
 }
 
 void config::save()  {
     std::ofstream ofs{filename};
-    ofs << json::serialize(*this);
+    ofs << std::setw(2) << json::serialize(*this);
 }

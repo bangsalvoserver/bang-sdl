@@ -26,21 +26,21 @@ namespace binary {
 namespace json {
     
     template<> struct serializer<sdl::color> {
-        Json::Value operator()(const sdl::color &value) const;
+        json operator()(const sdl::color &value) const;
     };
 
     template<> struct deserializer<sdl::color> {
-        sdl::color operator()(const Json::Value &value) const;
+        sdl::color operator()(const json &value) const;
     };
 
     template<> struct serializer<sdl::surface> {
-        Json::Value operator()(const sdl::surface &image) const {
-            return json::serialize(sdl::surface_to_image_pixels(image));
+        json operator()(const sdl::surface &image) const {
+            return serialize(sdl::surface_to_image_pixels(image));
         }
     };
 
     template<> struct deserializer<sdl::surface> {
-        sdl::surface operator()(const Json::Value &value) const;
+        sdl::surface operator()(const json &value) const;
     };
 }
 
