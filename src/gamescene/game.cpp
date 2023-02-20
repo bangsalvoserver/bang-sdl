@@ -652,8 +652,6 @@ void game_scene::handle_game_update(UPD_TAG(player_status), const player_status_
 }
 
 void game_scene::handle_game_update(UPD_TAG(switch_turn), player_view *player) {
-    m_target.clear_status();
-
     if (player != m_playing) {
         m_playing = player;
         if (m_playing) {

@@ -123,8 +123,6 @@ void target_finder::set_picking_border(card_view *card, sdl::color color) {
 }
 
 void target_finder::set_response_cards(const request_status_args &args) {
-    clear_status();
-
     for (card_view *card : args.highlight_cards) {
         m_response_borders.add(card->border_color, colors.target_finder_highlight_card);
     }
