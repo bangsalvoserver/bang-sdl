@@ -85,8 +85,11 @@ void button_row_pocket::render(sdl::renderer &renderer) {
     auto it = begin();
     for (auto &btn : m_buttons) {
         card_view *card = *it;
-        btn.set_toggled(parent->m_target.is_playing_card(card) || parent->m_target.can_respond_with(card)
-            || (card->has_tag(tag_type::confirm) && parent->m_target.is_card_clickable() && parent->m_target.can_confirm()));
+        if (card->has_tag(tag_type::confirm) && parent->m_target.can_confirm()) {
+            btn.set_toggled_color(colors.target_finder_can_confirm);
+        } else {
+            btn.set_toggled_color(card->border_color);
+        }
         btn.render(renderer);
         ++it;
     }

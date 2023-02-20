@@ -16,7 +16,6 @@ namespace widgets {
     constexpr sdl::color default_button_up_color = sdl::rgb(0xeeeeee);
     constexpr sdl::color default_button_hover_color = sdl::rgb(0xddddff);
     constexpr sdl::color default_button_down_color = sdl::rgb(0xccccff);
-    constexpr sdl::color default_button_toggled_color = sdl::rgb(0xbbbbff);
     constexpr sdl::color default_button_border_color = sdl::rgb(0x0);
 
     constexpr sdl::color default_textbox_background_color = sdl::rgb(0xffffff);

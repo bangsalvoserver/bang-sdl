@@ -60,6 +60,25 @@ namespace sdl {
         };
     }
 
+    constexpr sdl::color lerp_color(sdl::color begin, sdl::color end, float amt) {
+        return {
+            static_cast<uint8_t>(std::lerp(float(begin.r), float(end.r), amt)),
+            static_cast<uint8_t>(std::lerp(float(begin.g), float(end.g), amt)),
+            static_cast<uint8_t>(std::lerp(float(begin.b), float(end.b), amt)),
+            static_cast<uint8_t>(std::lerp(float(begin.a), float(end.a), amt))
+        };
+    }
+
+    constexpr sdl::color lerp_color_alpha(sdl::color begin, sdl::color end) {
+        float amt = end.a / 255.f;
+        return {
+            static_cast<uint8_t>(std::lerp(float(begin.r), float(end.r), amt)),
+            static_cast<uint8_t>(std::lerp(float(begin.g), float(end.g), amt)),
+            static_cast<uint8_t>(std::lerp(float(begin.b), float(end.b), amt)),
+            begin.a
+        };
+    }
+
     constexpr color full_alpha(color col) {
         return {col.r, col.g, col.b, 0xff};
     };

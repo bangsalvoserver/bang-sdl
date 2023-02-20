@@ -15,15 +15,6 @@ namespace banggame {
         };
     }
 
-    constexpr sdl::color lerp_color(sdl::color begin, sdl::color end, float amt) {
-        return {
-            static_cast<uint8_t>(std::lerp(float(begin.r), float(end.r), amt)),
-            static_cast<uint8_t>(std::lerp(float(begin.g), float(end.g), amt)),
-            static_cast<uint8_t>(std::lerp(float(begin.b), float(end.b), amt)),
-            static_cast<uint8_t>(std::lerp(float(begin.a), float(end.a), amt))
-        };
-    }
-
     void player_move_animation::add_move_player(player_view *player, sdl::point end) {
         data.emplace_back(player, player->get_position(), end);
     }
@@ -147,7 +138,7 @@ namespace banggame {
 
     void card_flash_animation::do_animation(float amt) {
         card->animating = true;
-        card->border_color = lerp_color(color_to, color_from, amt);
+        card->border_color = sdl::lerp_color(color_to, color_from, amt);
     }
 
     void card_flash_animation::render(sdl::renderer &renderer) {

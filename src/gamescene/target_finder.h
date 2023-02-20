@@ -34,9 +34,9 @@ namespace banggame {
     };
 
     struct request_status {
-        std::vector<card_view *> m_response_cards;
-        std::vector<card_view *> m_picking_cards;
-        raii_editor_stack<sdl::color> m_response_borders;
+        std::vector<card_view *> m_play_cards;
+        std::vector<card_view *> m_pick_cards;
+        raii_editor_stack<sdl::color> m_request_borders;
         effect_flags m_request_flags{};
         bool m_response = false;
     };
@@ -54,13 +54,8 @@ namespace banggame {
         bool is_playing_card(card_view *card) const { return m_playing_card == card; }
         bool finished() const { return m_mode == target_mode::finish; }
         card_view *get_last_played_card() const { return m_last_played_card; }
-
-        bool can_respond_with(card_view *card) const;
-        bool can_pick_card(pocket_type pocket, player_view *player, card_view *card) const;
-        bool can_play_in_turn(pocket_type pocket, player_view *player, card_view *card) const;
     
     public:
-        void set_picking_border(card_view *card, sdl::color color);
         void set_response_cards(const request_status_args &args);
         void set_play_cards(const status_ready_args &args);
         
@@ -75,8 +70,15 @@ namespace banggame {
         void send_prompt_response(bool response);
     
     private:
-        void set_playing_card(card_view *card);
+        void add_pick_border(card_view *card, sdl::color color);
+
+        void select_playing_card(card_view *card);
+
         bool playable_with_modifiers(card_view *card) const;
+        bool can_play_card(card_view *card) const;
+        bool can_pick_card(pocket_type pocket, player_view *player, card_view *card) const;
+
+        bool can_play_in_turn(pocket_type pocket, player_view *player, card_view *card) const;
 
         const char *check_player_filter(target_player_filter filter, player_view *target_player);
         const char *check_card_filter(target_card_filter filter, card_view *target_card);

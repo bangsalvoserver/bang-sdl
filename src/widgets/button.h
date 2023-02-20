@@ -11,8 +11,8 @@ namespace widgets {
         sdl::color up_color = default_button_up_color;
         sdl::color hover_color = default_button_hover_color;
         sdl::color down_color = default_button_down_color;
-        sdl::color toggled_color = default_button_toggled_color;
         sdl::color border_color = default_button_border_color;
+        sdl::color toggled_color{};
     };
 
     class button : public event_handler {
@@ -30,8 +30,6 @@ namespace widgets {
             state_hover,
             state_down
         } m_state = state_up;
-
-        bool toggled = false;
     
     protected:
         bool handle_event(const sdl::event &event) override;
@@ -63,8 +61,8 @@ namespace widgets {
             return m_text.get_rect();
         }
 
-        void set_toggled(bool down) {
-            toggled = down;
+        void set_toggled_color(sdl::color color) {
+            m_style.toggled_color = color;
         }
     };
 

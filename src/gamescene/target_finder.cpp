@@ -62,7 +62,7 @@ bool target_status::has_modifier(card_modifier_type type) const {
     return ranges::contains(m_modifiers, type, [](const modifier_pair &pair) { return pair.card->modifier_type(); });
 }
 
-void target_finder::set_playing_card(card_view *card) {
+void target_finder::select_playing_card(card_view *card) {
     if (card->is_modifier()) {
         auto allowed_modifiers = std::transform_reduce(
             m_modifiers.begin(), m_modifiers.end(), modifier_bitset(card->modifier_type()), std::bit_and(),
@@ -109,34 +109,34 @@ void target_finder::add_action(auto && ... args) {
     m_game->parent->add_message<banggame::client_message_type::game_action>(json::serialize(banggame::game_action{enums::enum_tag<T>, FWD(args) ...}, m_game->context()));
 }
 
-void target_finder::set_picking_border(card_view *card, sdl::color color) {
+void target_finder::add_pick_border(card_view *card, sdl::color color) {
     switch (card->pocket->type) {
     case pocket_type::main_deck:
-        m_response_borders.add(m_game->m_main_deck.border_color, color);
+        m_request_borders.add(m_game->m_main_deck.border_color, color);
         break;
     case pocket_type::discard_pile:
-        m_response_borders.add(m_game->m_discard_pile.border_color, color);
+        m_request_borders.add(m_game->m_discard_pile.border_color, color);
         break;
     default:
-        m_response_borders.add(card->border_color, color);
+        m_request_borders.add(card->border_color, color);
     }
 }
 
 void target_finder::set_response_cards(const request_status_args &args) {
     for (card_view *card : args.highlight_cards) {
-        m_response_borders.add(card->border_color, colors.target_finder_highlight_card);
+        m_request_borders.add(card->border_color, colors.target_finder_highlight_card);
     }
 
     if (args.origin_card) {
-        m_response_borders.add(args.origin_card->border_color, colors.target_finder_origin_card);
+        m_request_borders.add(args.origin_card->border_color, colors.target_finder_origin_card);
     }
 
-    for (card_view *card : (m_picking_cards = args.pick_cards)) {
-        set_picking_border(card, colors.target_finder_can_pick);
+    for (card_view *card : (m_pick_cards = args.pick_cards)) {
+        add_pick_border(card, colors.target_finder_can_pick);
     }
 
-    for (card_view *card : (m_response_cards = args.respond_cards)) {
-        m_response_borders.add(card->border_color, colors.target_finder_can_respond);
+    for (card_view *card : (m_play_cards = args.respond_cards)) {
+        m_request_borders.add(card->border_color, colors.target_finder_can_respond);
     }
 
     m_request_flags = args.flags;
@@ -145,8 +145,8 @@ void target_finder::set_response_cards(const request_status_args &args) {
 }
 
 void target_finder::set_play_cards(const status_ready_args &args) {
-    for (card_view *card : args.play_cards) {
-        m_response_borders.add(card->border_color, colors.target_finder_can_respond);
+    for (card_view *card : (m_play_cards = args.play_cards)) {
+        m_request_borders.add(card->border_color, colors.target_finder_can_respond);
     }
 
     m_last_played_card = args.last_played_card;
@@ -163,8 +163,8 @@ void target_finder::clear_targets() {
 }
 
 void target_finder::handle_auto_respond() {
-    if (m_mode == target_mode::start && bool(m_request_flags & effect_flags::auto_respond) && m_response_cards.size() == 1 && m_picking_cards.empty()) {
-        set_playing_card(m_response_cards.front());
+    if (m_mode == target_mode::start && bool(m_request_flags & effect_flags::auto_respond) && m_play_cards.size() == 1 && m_pick_cards.empty()) {
+        select_playing_card(m_play_cards.front());
     }
 }
 
@@ -189,9 +189,9 @@ bool target_finder::is_card_clickable() const {
         && !finished();
 }
 
-bool target_finder::can_respond_with(card_view *card) const {
+bool target_finder::can_play_card(card_view *card) const {
     if (m_modifiers.empty()) {
-        return ranges::contains(m_response_cards, card);
+        return ranges::contains(m_play_cards, card);
     } else {
         return playable_with_modifiers(card);
     }
@@ -201,9 +201,9 @@ bool target_finder::can_pick_card(pocket_type pocket, player_view *player, card_
     switch (pocket) {
     case pocket_type::main_deck:
     case pocket_type::discard_pile:
-        return ranges::contains(m_picking_cards, pocket, [](card_view *c) { return c->pocket->type; });
+        return ranges::contains(m_pick_cards, pocket, [](card_view *c) { return c->pocket->type; });
     default:
-        return ranges::contains(m_picking_cards, card);
+        return ranges::contains(m_pick_cards, card);
     }
 }
 
@@ -238,17 +238,17 @@ void target_finder::on_click_card(pocket_type pocket, player_view *player, card_
             add_card_target(player, card);
         }
     } else if (m_response) {
-        bool can_respond = can_respond_with(card);
+        bool can_respond = can_play_card(card);
         bool can_pick = can_pick_card(pocket, player, card);
         if (can_respond && can_pick) {
             m_target_borders.add(card->border_color, colors.target_finder_current_card);
             m_game->m_ui.show_message_box(_("PROMPT_PLAY_OR_PICK"), {
-                {_("BUTTON_PLAY"), [=, this]{ set_playing_card(card); }},
+                {_("BUTTON_PLAY"), [=, this]{ select_playing_card(card); }},
                 {_("BUTTON_PICK"), [=, this]{ send_pick_card(pocket, player, card); }},
                 {_("BUTTON_UNDO"), [this]{ clear_targets(); }}
             });
         } else if (can_respond) {
-            set_playing_card(card);
+            select_playing_card(card);
         } else if (can_pick) {
             send_pick_card(pocket, player, card);
         }
@@ -262,7 +262,7 @@ void target_finder::on_click_card(pocket_type pocket, player_view *player, card_
                 send_play_card();
             }
         } else {
-            set_playing_card(card);
+            select_playing_card(card);
         }
     }
 }
@@ -689,7 +689,7 @@ void target_finder::send_play_card() {
     if (m_mode == target_mode::modifier) {
         m_mode = target_mode::start;
         if (has_modifier(card_modifier_type::leevankliff)) {
-            set_playing_card(m_last_played_card);
+            select_playing_card(m_last_played_card);
         }
     } else {
         m_mode = target_mode::finish;
@@ -705,7 +705,7 @@ void target_finder::send_pick_card(pocket_type pocket, player_view *player, card
         card = m_game->m_discard_pile.back(); break;
     }
     if (card) {
-        set_picking_border(card, colors.target_finder_picked);
+        add_pick_border(card, colors.target_finder_picked);
         add_action<game_action_type::pick_card>(card);
         m_mode = target_mode::finish;
     }
