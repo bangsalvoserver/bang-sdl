@@ -150,13 +150,8 @@ void target_finder::set_play_cards(const status_ready_args &args) {
     for (card_view *card : args.play_cards) {
         m_response_borders.add(card->border_color, colors.target_finder_can_respond);
     }
-}
 
-void target_finder::update_last_played_card() {
-    if (m_playing_card) {
-        m_last_played_card = m_playing_card;
-    }
-    clear_status();
+    m_last_played_card = args.last_played_card;
 }
 
 void target_finder::clear_status() {

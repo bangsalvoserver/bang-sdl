@@ -66,7 +66,6 @@ namespace banggame {
         
         void handle_auto_respond();
 
-        void update_last_played_card();
         void clear_status();
         void clear_targets();
 

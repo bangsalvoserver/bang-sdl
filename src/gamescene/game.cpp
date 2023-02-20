@@ -699,7 +699,3 @@ void game_scene::handle_game_update(UPD_TAG(status_clear)) {
     m_ui.clear_status();
     m_target.clear_status();
 }
-
-void game_scene::handle_game_update(UPD_TAG(confirm_play)) {
-    m_target.update_last_played_card();
-}
