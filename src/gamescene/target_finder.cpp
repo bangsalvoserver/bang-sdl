@@ -295,9 +295,7 @@ bool target_finder::on_click_player(player_view *player) {
         int index = get_target_index(targets);
         auto cur_target = get_effect_holder(current_card->get_effect_list(m_response), current_card->optionals, index);
 
-        switch (cur_target.target) {
-        case target_type::player:
-        case target_type::conditional_player:
+        if (cur_target.target == target_type::player || cur_target.target == target_type::conditional_player) {
             if (verify_filter(cur_target.player_filter)) {
                 if (cur_target.target == target_type::player) {
                     targets.emplace_back(enums::enum_tag<target_type::player>, player);
@@ -308,31 +306,8 @@ bool target_finder::on_click_player(player_view *player) {
                 handle_auto_targets();
             }
             return true;
-        case target_type::fanning_targets:
-            if (index >= targets.size()) {
-                if (verify_filter(target_player_filter::reachable | target_player_filter::notself)) {
-                    m_target_borders.add(player->border_color, colors.target_finder_target);
-                    targets.emplace_back(enums::enum_tag<target_type::fanning_targets>);
-                    auto &vec = targets.back().get<target_type::fanning_targets>();
-                    vec.reserve(2);
-                    vec.push_back(player);
-                }
-            } else {
-                auto &vec = targets.back().get<target_type::fanning_targets>();
-                if (player == m_game->m_player_self || player == vec.front() || calc_distance(vec.front(), player) > 1) {
-                    m_game->parent->add_chat_message(message_type::error, _("ERROR_TARGETS_NOT_ADJACENT"));
-                    m_game->play_sound("invalid");
-                } else {
-                    m_target_borders.add(player->border_color, colors.target_finder_target);
-                    vec.push_back(player);
-                    handle_auto_targets();
-                }
-            }
+        } else if (!verify_filter(cur_target.player_filter)) {
             return true;
-        default:
-            if (!verify_filter(cur_target.player_filter)) {
-                return true;
-            }
         }
     }
     return false;
