@@ -181,6 +181,10 @@ bool target_finder::can_confirm() const {
     return false;
 }
 
+bool target_finder::is_card_selected() const {
+    return m_playing_card || !m_modifiers.empty();
+}
+
 bool target_finder::is_card_clickable() const {
     return !bool(m_game->m_game_flags & game_flags::game_over)
         && m_game->m_pending_updates.empty()
