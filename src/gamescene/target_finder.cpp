@@ -1,10 +1,13 @@
 #include "target_finder.h"
 
 #include "game.h"
+#include "modifiers.h"
+
 #include "../manager.h"
-#include "utils/utils.h"
+
 #include "game/effect_list_zip.h"
-#include "game/filters.h"
+
+#include "utils/utils.h"
 
 #include <cassert>
 #include <numeric>
