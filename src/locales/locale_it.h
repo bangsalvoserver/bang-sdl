@@ -53,7 +53,6 @@ LOCALE_VALUE(PROMPT_TARGET_GHOST,                 "{1} è un fantasma, giocare {
 LOCALE_VALUE(PROMPT_NO_REDRAW,                    "Vuoi giocare {} senza ripescare la carta?")
 LOCALE_VALUE(PROMPT_BANG_STRENGTH,                "Devi rispondere con {} Mancato! Continuare?")
 LOCALE_VALUE(PROMPT_NO_BANGS_PLAYED,              "Non hai giocato nessun Bang, giocare {} non avrebbe effetto. Continuare?")
-LOCALE_VALUE(PROMPT_NO_RANGED_TARGET,             "{1} non ha limite di distanza, giocare {0} non avrebbe effetto. Continuare?")
 LOCALE_VALUE(PROMPT_PLAY_OR_PICK,                 "Giocare la carta o scartarla?")
 
 LOCALE_VALUE(STATUS_GAME_OVER,                    "Partita Finita")
@@ -233,6 +232,8 @@ LOCALE_VALUE(ERROR_MAX_USAGES,                    "Non puoi giocare {0} più di 
 LOCALE_VALUE(ERROR_MANDATORY_CARD,                "Sei obblicato a giocare {}")
 LOCALE_VALUE(ERROR_TARGET_NOT_UNIQUE,             "I bersagli devono essere unici")
 LOCALE_VALUE(ERROR_CANNOT_REPEAT_CARD,            "Non puoi giocare {} due volte di fila")
+LOCALE_VALUE(ERROR_CANNOT_PLAY_WHILE_EQUIPPING,   "Non puoi giocare {} mentre equipaggi una carta")
+LOCALE_VALUE(ERROR_NO_RANGED_TARGET,              "Non puoi giocare {0} perché {1} non ha limite di distanza")
 
 LOCALE_VALUE(LOG_GAME_START,                      "La partita è iniziata")
 LOCALE_VALUE(LOG_GAME_OVER,                       "La partita è terminata")

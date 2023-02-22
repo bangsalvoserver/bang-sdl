@@ -261,12 +261,14 @@ void target_finder::on_click_card(pocket_type pocket, player_view *player, card_
         }
     } else if (can_play_in_turn(pocket, player, card)) {
         if ((pocket == pocket_type::player_hand || pocket == pocket_type::shop_selection) && !card->is_brown()) {
-            m_playing_card = card;
-            m_mode = target_mode::equip;
+            if (playable_with_modifiers(card)) {
+                m_playing_card = card;
+                m_mode = target_mode::equip;
 
-            m_target_borders.add(card->border_color, colors.target_finder_current_card);
-            if (card->self_equippable()) {
-                send_play_card();
+                m_target_borders.add(card->border_color, colors.target_finder_current_card);
+                if (card->self_equippable()) {
+                    send_play_card();
+                }
             }
         } else {
             select_playing_card(card);

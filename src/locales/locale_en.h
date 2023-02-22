@@ -53,7 +53,6 @@ LOCALE_VALUE(PROMPT_TARGET_GHOST,                 "{1} is a ghost, playing {0} w
 LOCALE_VALUE(PROMPT_NO_REDRAW,                    "Do you want to play {} without redrawing the card?")
 LOCALE_VALUE(PROMPT_BANG_STRENGTH,                "You have to respond with {} Missed! Continue?")
 LOCALE_VALUE(PROMPT_NO_BANGS_PLAYED,              "You haven't played any Bang, playing {} would have no effect. Continue?")
-LOCALE_VALUE(PROMPT_NO_RANGED_TARGET,             "{1} has no range limit, playing {0} would have no effect. Continue?")
 LOCALE_VALUE(PROMPT_PLAY_OR_PICK,                 "Play or discard this card?")
 
 LOCALE_VALUE(STATUS_GAME_OVER,                    "Game Over")
@@ -233,6 +232,8 @@ LOCALE_VALUE(ERROR_MAX_USAGES,                    "You can't play {0} more than 
 LOCALE_VALUE(ERROR_MANDATORY_CARD,                "Playing {} is mandatory")
 LOCALE_VALUE(ERROR_TARGET_NOT_UNIQUE,             "Targets must be unique")
 LOCALE_VALUE(ERROR_CANNOT_REPEAT_CARD,            "You can't play {} twice in a row")
+LOCALE_VALUE(ERROR_CANNOT_PLAY_WHILE_EQUIPPING,   "You can't {} while equipping a card")
+LOCALE_VALUE(ERROR_NO_RANGED_TARGET,              "You can't play {0} because {1} has no range limit")
 
 LOCALE_VALUE(LOG_GAME_START,                      "Game started")
 LOCALE_VALUE(LOG_GAME_OVER,                       "Game over")
