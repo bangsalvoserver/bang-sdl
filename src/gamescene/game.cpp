@@ -197,7 +197,11 @@ void game_scene::handle_card_click() {
         m_target.on_click_card(pocket_type::selection, nullptr, card);
         return;
     }
-    if (card_view *card = (m_shop_choice.empty() ? m_shop_selection : m_shop_choice).find_card_at(m_mouse_pt)) {
+    if (card_view *card = m_shop_choice.find_card_at(m_mouse_pt)) {
+        m_target.on_click_card(pocket_type::shop_selection, nullptr, card);
+        return;
+    }
+    if (card_view *card = m_shop_selection.find_card_at(m_mouse_pt)) {
         m_target.on_click_card(pocket_type::shop_selection, nullptr, card);
         return;
     }

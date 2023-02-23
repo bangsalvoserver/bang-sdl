@@ -130,8 +130,12 @@ void target_finder::set_response_cards(const request_status_args &args) {
         m_request_borders.add(card->border_color, colors.target_finder_highlight_card);
     }
 
-    if (args.origin_card) {
-        m_request_borders.add(args.origin_card->border_color, colors.target_finder_origin_card);
+    if (card_view *c = args.origin_card) {
+        if (!c->pocket || c->pocket->type == pocket_type::shop_discard || c->pocket->type == pocket_type::hidden_deck) {
+            m_game->m_shop_choice.add_card(c);
+            c->set_pos(m_game->m_shop_discard.get_pos());
+        }
+        m_request_borders.add(c->border_color, colors.target_finder_origin_card);
     }
 
     for (card_view *card : (m_pick_cards = args.pick_cards)) {
