@@ -54,7 +54,6 @@ namespace banggame {
 
         bool is_playing_card(card_view *card) const { return m_playing_card == card; }
         bool finished() const { return m_mode == target_mode::finish; }
-        card_view *get_last_played_card() const { return m_last_played_card; }
     
     public:
         void set_response_cards(const request_status_args &args);
@@ -75,12 +74,9 @@ namespace banggame {
 
         void select_playing_card(card_view *card);
 
-        bool playable_with_modifiers(card_view *card) const;
         bool can_play_card(card_view *card) const;
         bool can_pick_card(pocket_type pocket, player_view *player, card_view *card) const;
-
-        bool can_play_in_turn(pocket_type pocket, player_view *player, card_view *card) const;
-
+        
         const char *check_player_filter(target_player_filter filter, player_view *target_player);
         const char *check_card_filter(target_card_filter filter, card_view *target_card);
 

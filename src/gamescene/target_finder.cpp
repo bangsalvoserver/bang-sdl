@@ -1,10 +1,9 @@
 #include "target_finder.h"
 
 #include "game.h"
-#include "modifiers.h"
-
 #include "../manager.h"
 
+#include "game/filters.h"
 #include "game/effect_list_zip.h"
 
 #include "utils/utils.h"
@@ -67,44 +66,26 @@ bool target_status::has_modifier(card_modifier_type type) const {
 
 void target_finder::select_playing_card(card_view *card) {
     if (card->is_modifier()) {
-        auto allowed_modifiers = std::transform_reduce(
-            m_modifiers.begin(), m_modifiers.end(), modifier_bitset(card->modifier_type()), std::bit_and(),
-            [](const modifier_pair &pair) { return allowed_modifiers_after(pair.card->modifier_type()); }
-        );
-        if (allowed_modifiers && !std::ranges::any_of(m_modifiers, [card](const modifier_pair &pair) { return pair.card == card; })) {
-            if (card->modifier_type() == card_modifier_type::shopchoice) {
-                for (card_view *c : m_game->m_hidden_deck) {
-                    if (c->get_tag_value(tag_type::shopchoice) == card->get_tag_value(tag_type::shopchoice)) {
-                        m_game->m_shop_choice.add_card(c);
-                    }
-                }
-                for (card_view *c : m_game->m_shop_choice) {
-                    c->set_pos(m_game->m_shop_choice.get_pos() + m_game->m_shop_choice.get_offset(c));
+        if (card->modifier_type() == card_modifier_type::shopchoice) {
+            for (card_view *c : m_game->m_hidden_deck) {
+                if (c->get_tag_value(tag_type::shopchoice) == card->get_tag_value(tag_type::shopchoice)) {
+                    m_game->m_shop_choice.add_card(c);
                 }
             }
-            if (card->modifier_type() != card_modifier_type::leevankliff
-                || m_last_played_card && allowed_card_with_modifier(m_game->m_player_self, card, m_last_played_card))
-            {
-                m_modifiers.emplace_back(card);
-                m_mode = target_mode::modifier;
-
-                m_target_borders.add(card->border_color, colors.target_finder_current_card);
-                handle_auto_targets();
+            for (card_view *c : m_game->m_shop_choice) {
+                c->set_pos(m_game->m_shop_choice.get_pos() + m_game->m_shop_choice.get_offset(c));
             }
         }
-    } else if (playable_with_modifiers(card)) {
-        auto &effects = card->get_effect_list(m_response);
-        if (!effects.empty() && std::ranges::none_of(effects, [&](const effect_holder &effect) {
-            return effect.target == target_type::self_cubes
-                && effect.target_value > int(card->cubes.size()) - count_selected_cubes(card);
-        })) {
-            m_playing_card = card;
-            m_mode = target_mode::target;
 
-            m_target_borders.add(card->border_color, colors.target_finder_current_card);
-            handle_auto_targets();
-        }
+        m_modifiers.emplace_back(card);
+        m_mode = target_mode::modifier;
+    } else {
+        m_playing_card = card;
+        m_mode = target_mode::target;
     }
+
+    m_target_borders.add(card->border_color, colors.target_finder_current_card);
+    handle_auto_targets();
 }
 
 template<game_action_type T>
@@ -200,11 +181,55 @@ bool target_finder::is_card_clickable() const {
         && !finished();
 }
 
-bool target_finder::can_play_card(card_view *card) const {
+bool target_finder::can_play_card(card_view *target_card) const {
     if (m_modifiers.empty()) {
-        return ranges::contains(m_play_cards, card);
+        return ranges::contains(m_play_cards, target_card);
     } else {
-        return playable_with_modifiers(card);
+        // maybe add modifier tree info from status_ready ?
+        
+        return std::ranges::all_of(m_modifiers, [&](card_view *mod_card) {
+            if (target_card == mod_card) {
+                return false;
+            } else if (target_card->is_modifier()) {
+                switch (mod_card->modifier_type()) {
+                case card_modifier_type::bangmod:
+                case card_modifier_type::doublebarrel:
+                case card_modifier_type::bandolier:
+                    return target_card->modifier_type() == card_modifier_type::bangmod
+                        || target_card->modifier_type() == card_modifier_type::doublebarrel
+                        || target_card->modifier_type() == card_modifier_type::bandolier;
+                case card_modifier_type::discount:
+                    return target_card->deck == card_deck_type::goldrush && target_card->pocket->type != pocket_type::player_table;
+                case card_modifier_type::shopchoice:
+                case card_modifier_type::leevankliff:
+                    return false;
+                default:
+                    return true;
+                }
+            } else {
+                switch (mod_card->modifier_type()) {
+                case card_modifier_type::bangmod:
+                case card_modifier_type::doublebarrel:
+                case card_modifier_type::bandolier:
+                    if (target_card->pocket->type == pocket_type::player_hand) {
+                        return target_card->has_tag(tag_type::bangcard);
+                    } else {
+                        return target_card->has_tag(tag_type::play_as_bang);
+                    }
+                case card_modifier_type::leevankliff:
+                    return m_last_played_card == target_card && target_card->is_brown();
+                case card_modifier_type::discount:
+                    return target_card->deck == card_deck_type::goldrush && target_card->pocket->type != pocket_type::player_table;
+                case card_modifier_type::shopchoice:
+                    return mod_card->get_tag_value(tag_type::shopchoice) == target_card->get_tag_value(tag_type::shopchoice);
+                case card_modifier_type::belltower:
+                    return (target_card->pocket->type != pocket_type::player_hand && target_card->pocket->type != pocket_type::shop_selection)
+                        || target_card->is_brown();
+                default:
+                    return true;
+                }
+            }
+        }, &modifier_pair::card);
     }
 }
 
@@ -215,27 +240,6 @@ bool target_finder::can_pick_card(pocket_type pocket, player_view *player, card_
         return ranges::contains(m_pick_cards, pocket, [](card_view *c) { return c->pocket->type; });
     default:
         return ranges::contains(m_pick_cards, card);
-    }
-}
-
-bool target_finder::can_play_in_turn(pocket_type pocket, player_view *player, card_view *card) const {
-    if (m_game->m_playing != m_game->m_player_self || (player && player != m_game->m_player_self)) {
-        return false;
-    }
-    
-    switch (pocket) {
-    case pocket_type::player_hand:
-    case pocket_type::player_character:
-    case pocket_type::scenario_card:
-    case pocket_type::wws_scenario_card:
-    case pocket_type::button_row:
-        return true;
-    case pocket_type::player_table:
-        return !card->inactive;
-    case pocket_type::shop_selection:
-        return m_game->m_player_self->gold >= card->buy_cost() - has_modifier(card_modifier_type::discount);
-    default:
-        return false;
     }
 }
 
@@ -263,16 +267,14 @@ void target_finder::on_click_card(pocket_type pocket, player_view *player, card_
         } else if (can_pick) {
             send_pick_card(pocket, player, card);
         }
-    } else if (can_play_in_turn(pocket, player, card)) {
+    } else if (m_game->m_playing == m_game->m_player_self && (!player || player == m_game->m_player_self) && can_play_card(card)) {
         if ((pocket == pocket_type::player_hand || pocket == pocket_type::shop_selection) && !card->is_brown()) {
-            if (playable_with_modifiers(card)) {
-                m_playing_card = card;
-                m_mode = target_mode::equip;
+            m_playing_card = card;
+            m_mode = target_mode::equip;
 
-                m_target_borders.add(card->border_color, colors.target_finder_current_card);
-                if (card->self_equippable()) {
-                    send_play_card();
-                }
+            m_target_borders.add(card->border_color, colors.target_finder_current_card);
+            if (card->self_equippable()) {
+                send_play_card();
             }
         } else {
             select_playing_card(card);
@@ -331,12 +333,6 @@ bool target_finder::is_bangcard(card_view *card) const {
         || (m_game->m_player_self->has_player_flags(player_flags::treat_missed_as_bang)
             && card->has_tag(tag_type::missedcard))
         || card->has_tag(tag_type::bangcard);
-}
-
-bool target_finder::playable_with_modifiers(card_view *card) const {
-    return std::ranges::all_of(m_modifiers, [&](const modifier_pair &pair) {
-        return allowed_card_with_modifier(m_game->m_player_self, pair.card, card);
-    });
 }
 
 int target_finder::calc_distance(player_view *from, player_view *to) const {

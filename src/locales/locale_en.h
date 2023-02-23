@@ -232,7 +232,7 @@ LOCALE_VALUE(ERROR_MAX_USAGES,                    "You can't play {0} more than 
 LOCALE_VALUE(ERROR_MANDATORY_CARD,                "Playing {} is mandatory")
 LOCALE_VALUE(ERROR_TARGET_NOT_UNIQUE,             "Targets must be unique")
 LOCALE_VALUE(ERROR_CANNOT_REPEAT_CARD,            "You can't play {} twice in a row")
-LOCALE_VALUE(ERROR_CANNOT_PLAY_WHILE_EQUIPPING,   "You can't {} while equipping a card")
+LOCALE_VALUE(ERROR_CANNOT_PLAY_WHILE_EQUIPPING,   "You can't play {} while equipping a card")
 LOCALE_VALUE(ERROR_NO_RANGED_TARGET,              "You can't play {0} because {1} has no range limit")
 
 LOCALE_VALUE(LOG_GAME_START,                      "Game started")
