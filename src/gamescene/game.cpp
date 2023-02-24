@@ -299,7 +299,7 @@ void game_scene::handle_message(SRV_TAG(game_update), const json::json &update) 
 }
 
 void game_scene::handle_message(SRV_TAG(lobby_owner), const user_id_args &args) {
-    if (bool(m_game_flags & game_flags::game_over)) {
+    if (has_game_flags(game_flags::game_over)) {
         m_ui.enable_golobby(parent->get_user_own_id() == args.user_id);
     }
 }
@@ -683,7 +683,7 @@ void game_scene::handle_game_update(UPD_TAG(status_ready), const status_ready_ar
 void game_scene::handle_game_update(UPD_TAG(game_flags), const game_flags &args) {
     m_game_flags = args;
 
-    if (bool(m_game_flags & game_flags::game_over)) {
+    if (has_game_flags(game_flags::game_over)) {
         m_target.clear_status();
         m_ui.set_status(_("STATUS_GAME_OVER"));
         handle_message(SRV_TAG(lobby_owner){}, {parent->get_lobby_owner_id()});

@@ -174,7 +174,7 @@ bool target_finder::is_card_selected() const {
 }
 
 bool target_finder::is_card_clickable() const {
-    return !bool(m_game->m_game_flags & game_flags::game_over)
+    return !m_game->has_game_flags(game_flags::game_over)
         && m_game->m_pending_updates.empty()
         && m_game->m_animations.empty()
         && !m_game->m_ui.is_message_box_open()
@@ -328,13 +328,6 @@ bool target_finder::on_click_player(player_view *player) {
     return false;
 }
 
-bool target_finder::is_bangcard(card_view *card) const {
-    return bool(m_game->m_game_flags & game_flags::treat_any_as_bang)
-        || (m_game->m_player_self->has_player_flags(player_flags::treat_missed_as_bang)
-            && card->has_tag(tag_type::missedcard))
-        || card->has_tag(tag_type::bangcard);
-}
-
 int target_finder::calc_distance(player_view *from, player_view *to) const {
     if (from == to) return 0;
 
@@ -342,7 +335,7 @@ int target_finder::calc_distance(player_view *from, player_view *to) const {
         return 1;
     }
 
-    if (bool(m_game->m_game_flags & game_flags::disable_player_distances)) {
+    if (m_game->has_game_flags(game_flags::disable_player_distances)) {
         return 1 + to->m_distance_mod;
     }
 

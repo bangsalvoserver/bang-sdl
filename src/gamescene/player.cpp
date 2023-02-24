@@ -129,7 +129,7 @@ namespace banggame {
                 texture.render_colored(renderer, rect, color);
             };
 
-            if (!bool(self->m_game->m_game_flags & game_flags::game_over)) {
+            if (!self->m_game->has_game_flags(game_flags::game_over)) {
                 if (self == self->m_game->m_playing) {
                     render_icon(media_pak::get().icon_turn, colors.turn_indicator);
                     x -= 32;

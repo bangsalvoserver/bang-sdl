@@ -63,6 +63,10 @@ namespace banggame {
             return m_target;
         }
 
+        bool has_game_flags(game_flags flags) const {
+            return bool(m_game_flags & flags);
+        }
+
     private:
         void handle_game_update(UPD_TAG(game_error),       const game_string &args);
         void handle_game_update(UPD_TAG(game_log),         const game_string &args);

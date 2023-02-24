@@ -36,6 +36,7 @@ namespace banggame {
     struct request_status {
         std::vector<card_view *> m_play_cards;
         std::vector<card_view *> m_pick_cards;
+        card_view *m_last_played_card = nullptr;
         raii_editor_stack<sdl::color> m_request_borders;
         effect_flags m_request_flags{};
         bool m_response = false;
@@ -49,7 +50,6 @@ namespace banggame {
         bool is_card_selected() const;
         bool can_confirm() const;
         
-        bool is_bangcard(card_view *card) const;
         int calc_distance(player_view *from, player_view *to) const;
 
         bool is_playing_card(card_view *card) const { return m_playing_card == card; }
@@ -91,8 +91,6 @@ namespace banggame {
         
     private:
         game_scene *m_game;
-
-        card_view *m_last_played_card = nullptr;
 
         template<game_action_type T, typename ... Ts>
         void add_action(Ts && ... args);
