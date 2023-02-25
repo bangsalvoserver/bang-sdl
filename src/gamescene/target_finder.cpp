@@ -5,6 +5,7 @@
 
 #include "game/filters.h"
 #include "game/effect_list_zip.h"
+#include "cards/effect_enums.h"
 
 #include "utils/utils.h"
 
@@ -60,13 +61,13 @@ const target_list &target_status::get_current_target_list() const {
     }
 }
 
-bool target_status::has_modifier(card_modifier_type type) const {
-    return ranges::contains(m_modifiers, type, [](const modifier_pair &pair) { return pair.card->modifier_type(); });
+bool target_status::has_modifier(modifier_type type) const {
+    return ranges::contains(m_modifiers, type, [](const modifier_pair &pair) { return pair.card->modifier.type; });
 }
 
 void target_finder::select_playing_card(card_view *card) {
     if (card->is_modifier()) {
-        if (card->modifier_type() == card_modifier_type::shopchoice) {
+        if (card->modifier.type == modifier_type::shopchoice) {
             for (card_view *c : m_game->m_hidden_deck) {
                 if (c->get_tag_value(tag_type::shopchoice) == card->get_tag_value(tag_type::shopchoice)) {
                     m_game->m_shop_choice.add_card(c);
@@ -191,38 +192,38 @@ bool target_finder::can_play_card(card_view *target_card) const {
             if (target_card == mod_card) {
                 return false;
             } else if (target_card->is_modifier()) {
-                switch (mod_card->modifier_type()) {
-                case card_modifier_type::bangmod:
-                case card_modifier_type::doublebarrel:
-                case card_modifier_type::bandolier:
-                    return target_card->modifier_type() == card_modifier_type::bangmod
-                        || target_card->modifier_type() == card_modifier_type::doublebarrel
-                        || target_card->modifier_type() == card_modifier_type::bandolier;
-                case card_modifier_type::discount:
+                switch (mod_card->modifier.type) {
+                case modifier_type::bangmod:
+                case modifier_type::doublebarrel:
+                case modifier_type::bandolier:
+                    return target_card->modifier.type == modifier_type::bangmod
+                        || target_card->modifier.type == modifier_type::doublebarrel
+                        || target_card->modifier.type == modifier_type::bandolier;
+                case modifier_type::discount:
                     return target_card->deck == card_deck_type::goldrush && target_card->pocket->type != pocket_type::player_table;
-                case card_modifier_type::shopchoice:
-                case card_modifier_type::leevankliff:
+                case modifier_type::shopchoice:
+                case modifier_type::leevankliff:
                     return false;
                 default:
                     return true;
                 }
             } else {
-                switch (mod_card->modifier_type()) {
-                case card_modifier_type::bangmod:
-                case card_modifier_type::doublebarrel:
-                case card_modifier_type::bandolier:
+                switch (mod_card->modifier.type) {
+                case modifier_type::bangmod:
+                case modifier_type::doublebarrel:
+                case modifier_type::bandolier:
                     if (target_card->pocket->type == pocket_type::player_hand) {
                         return target_card->has_tag(tag_type::bangcard);
                     } else {
                         return target_card->has_tag(tag_type::play_as_bang);
                     }
-                case card_modifier_type::leevankliff:
+                case modifier_type::leevankliff:
                     return m_last_played_card == target_card && target_card->is_brown();
-                case card_modifier_type::discount:
+                case modifier_type::discount:
                     return target_card->deck == card_deck_type::goldrush && target_card->pocket->type != pocket_type::player_table;
-                case card_modifier_type::shopchoice:
+                case modifier_type::shopchoice:
                     return mod_card->get_tag_value(tag_type::shopchoice) == target_card->get_tag_value(tag_type::shopchoice);
-                case card_modifier_type::belltower:
+                case modifier_type::belltower:
                     return (target_card->pocket->type != pocket_type::player_hand && target_card->pocket->type != pocket_type::shop_selection)
                         || target_card->is_brown();
                 default:
@@ -331,7 +332,7 @@ bool target_finder::on_click_player(player_view *player) {
 int target_finder::calc_distance(player_view *from, player_view *to) const {
     if (from == to) return 0;
 
-    if (has_modifier(card_modifier_type::belltower)) {
+    if (has_modifier(modifier_type::belltower)) {
         return 1;
     }
 
@@ -468,7 +469,7 @@ void target_finder::handle_auto_targets() {
                 return;
             }
         case target_type::extra_card:
-            if (has_modifier(card_modifier_type::leevankliff)) {
+            if (has_modifier(modifier_type::leevankliff)) {
                 targets.emplace_back(enums::enum_tag<target_type::extra_card>);
                 break;
             } else {
@@ -665,7 +666,7 @@ bool target_finder::add_selected_cube(card_view *card, int ncubes) {
 void target_finder::send_play_card() {
     if (m_mode == target_mode::modifier) {
         m_mode = target_mode::start;
-        if (has_modifier(card_modifier_type::leevankliff)) {
+        if (has_modifier(modifier_type::leevankliff)) {
             select_playing_card(m_last_played_card);
         }
     } else {

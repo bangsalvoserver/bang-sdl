@@ -11,7 +11,7 @@ void option_input_box_base::save_value() {
     parent->send_lobby_edited();
 }
 
-expansion_box::expansion_box(const std::string &label, banggame::card_expansion_type flag)
+expansion_box::expansion_box(const std::string &label, banggame::expansion_type flag)
     : widgets::checkbox(label, widgets::button_style{
         .text = {
             .text_font = &media_pak::font_perdido,
@@ -21,7 +21,7 @@ expansion_box::expansion_box(const std::string &label, banggame::card_expansion_
     , m_flag(flag)
 {}
 
-option_input_box<banggame::card_expansion_type>::option_input_box(lobby_scene *parent, const std::string &label, banggame::card_expansion_type &value)
+option_input_box<banggame::expansion_type>::option_input_box(lobby_scene *parent, const std::string &label, banggame::expansion_type &value)
     : option_input_box_base(parent)
     , m_value(value)
     , m_label(label, widgets::text_style {
@@ -29,7 +29,7 @@ option_input_box<banggame::card_expansion_type>::option_input_box(lobby_scene *p
         .bg_color = sdl::rgba(0)
     })
 {
-    for (auto E : enums::enum_values_v<banggame::card_expansion_type>) {
+    for (auto E : enums::enum_values_v<banggame::expansion_type>) {
         if (!parent->manager()->get_config().allow_unofficial_expansions && bool(banggame::unofficial_expansions & E)) continue;
 
         m_checkboxes.emplace_back(_(E), E).set_ontoggle([=, this](bool value){
@@ -45,11 +45,11 @@ option_input_box<banggame::card_expansion_type>::option_input_box(lobby_scene *p
     update_value();
 }
 
-sdl::rect option_input_box<banggame::card_expansion_type>::get_rect() const {
+sdl::rect option_input_box<banggame::expansion_type>::get_rect() const {
     return m_rect;
 }
 
-void option_input_box<banggame::card_expansion_type>::set_pos(sdl::point pt) {
+void option_input_box<banggame::expansion_type>::set_pos(sdl::point pt) {
     m_rect = sdl::rect{pt.x, pt.y, 250, 25};
 
     m_label.set_rect(sdl::move_rect(m_label.get_rect(), pt));
@@ -62,7 +62,7 @@ void option_input_box<banggame::card_expansion_type>::set_pos(sdl::point pt) {
     }
 }
 
-void option_input_box<banggame::card_expansion_type>::render(sdl::renderer &renderer) {
+void option_input_box<banggame::expansion_type>::render(sdl::renderer &renderer) {
     renderer.set_draw_color(sdl::rgba(0xffffff40));
     renderer.fill_rect(sdl::rect{m_rect.x - 5, m_rect.y - 5, m_rect.w + 10, m_rect.h + 10});
 
@@ -72,13 +72,13 @@ void option_input_box<banggame::card_expansion_type>::render(sdl::renderer &rend
     }
 }
 
-void option_input_box<banggame::card_expansion_type>::update_value() {
+void option_input_box<banggame::expansion_type>::update_value() {
     for (auto &checkbox : m_checkboxes) {
         checkbox.set_value(bool(m_value & checkbox.m_flag));
     }
 }
 
-void option_input_box<banggame::card_expansion_type>::set_locked(bool locked) {
+void option_input_box<banggame::expansion_type>::set_locked(bool locked) {
     for (auto &checkbox : m_checkboxes) {
         checkbox.set_locked(locked);
     }

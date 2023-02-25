@@ -30,7 +30,7 @@ namespace banggame {
         card_view *get_current_card() const;
         target_list &get_current_target_list();
         const target_list &get_current_target_list() const;
-        bool has_modifier(card_modifier_type type) const;
+        bool has_modifier(modifier_type type) const;
     };
 
     struct request_status {

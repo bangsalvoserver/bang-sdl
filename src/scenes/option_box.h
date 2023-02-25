@@ -29,14 +29,14 @@ protected:
 template<typename T> struct option_input_box;
 
 struct expansion_box : widgets::checkbox {
-    expansion_box(const std::string &label, banggame::card_expansion_type flag);
-    banggame::card_expansion_type m_flag;
+    expansion_box(const std::string &label, banggame::expansion_type flag);
+    banggame::expansion_type m_flag;
 };
 
 template<>
-class option_input_box<banggame::card_expansion_type> : public option_input_box_base {
+class option_input_box<banggame::expansion_type> : public option_input_box_base {
 public:
-    option_input_box(lobby_scene *parent, const std::string &label, banggame::card_expansion_type &value);
+    option_input_box(lobby_scene *parent, const std::string &label, banggame::expansion_type &value);
 
     virtual sdl::rect get_rect() const override;
     virtual void set_pos(sdl::point point) override;
@@ -45,7 +45,7 @@ public:
     virtual void set_locked(bool locked) override;
     
 private:
-    banggame::card_expansion_type &m_value;
+    banggame::expansion_type &m_value;
 
     widgets::stattext m_label;
     std::list<expansion_box> m_checkboxes;
