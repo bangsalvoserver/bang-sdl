@@ -228,8 +228,7 @@ bool target_finder::can_play_card(card_view *target_card) const {
                     return mod_card->get_tag_value(tag_type::shopchoice) == target_card->get_tag_value(tag_type::shopchoice);
                 case modifier_type::belltower:
                 case modifier_type::skip_player:
-                    return (target_card->pocket->type != pocket_type::player_hand && target_card->pocket->type != pocket_type::shop_selection)
-                        || target_card->is_brown();
+                    return !is_equip_card(target_card);
                 default:
                     return true;
                 }
@@ -273,7 +272,7 @@ void target_finder::on_click_card(pocket_type pocket, player_view *player, card_
             send_pick_card(pocket, player, card);
         }
     } else if (m_game->m_playing == m_game->m_player_self && (!player || player == m_game->m_player_self) && can_play_card(card)) {
-        if ((pocket == pocket_type::player_hand || pocket == pocket_type::shop_selection) && !card->is_brown()) {
+        if (is_equip_card(card)) {
             m_playing_card = card;
             m_mode = target_mode::equip;
 
@@ -690,7 +689,7 @@ void target_finder::send_play_card() {
         m_mode = target_mode::start;
         if (has_modifier(modifier_type::leevankliff)) {
             select_playing_card(m_last_played_card);
-        } else if (has_modifier(modifier_type::moneybag) && !m_game->m_discard_pile.empty()) {
+        } else if (has_modifier(modifier_type::moneybag)) {
             select_playing_card(m_game->m_discard_pile.back());
         }
     } else {
