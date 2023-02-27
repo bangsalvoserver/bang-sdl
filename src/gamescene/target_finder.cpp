@@ -227,6 +227,7 @@ bool target_finder::can_play_card(card_view *target_card) const {
                 case modifier_type::shopchoice:
                     return mod_card->get_tag_value(tag_type::shopchoice) == target_card->get_tag_value(tag_type::shopchoice);
                 case modifier_type::belltower:
+                case modifier_type::skip_player:
                     return (target_card->pocket->type != pocket_type::player_hand && target_card->pocket->type != pocket_type::shop_selection)
                         || target_card->is_brown();
                 default:
@@ -400,11 +401,26 @@ int target_finder::calc_distance(player_view *from, player_view *to) const {
 
 struct targetable_for_cards_other_player {
     player_view *origin;
+    player_view *skipped_player;
+
     bool operator()(player_view *target) {
-        return target != origin && target->alive()
+        return target != origin && target != skipped_player && target->alive()
             && (!target->hand.empty() || std::ranges::any_of(target->table, std::not_fn(&card_view::is_black)));
     }
 };
+
+static player_view *find_skipped_player(const target_status &status, bool is_response) {
+    if (auto it = std::ranges::find(status.m_modifiers, modifier_type::skip_player,
+        [](const modifier_pair &pair) { return pair.card->modifier.type; });
+        it != status.m_modifiers.end()) {
+        for (const auto &[target, effect] : zip_card_targets(it->targets, it->card, is_response)) {
+            if (effect.type == effect_type::ctx_add) {
+                return target.get<target_type::player>();
+            }
+        }
+    }
+    return nullptr;
+}
 
 void target_finder::handle_auto_targets() {
     auto *current_card = get_current_card();
@@ -479,7 +495,9 @@ void target_finder::handle_auto_targets() {
                 return;
             }
         case target_type::cards_other_players:
-            if (std::ranges::none_of(m_game->m_alive_players, targetable_for_cards_other_player{m_game->m_player_self})) {
+            if (std::ranges::none_of(m_game->m_alive_players,
+                targetable_for_cards_other_player{m_game->m_player_self, find_skipped_player(*this, m_response)}))
+            {
                 targets.emplace_back(enums::enum_tag<target_type::cards_other_players>);
                 break;
             } else {
@@ -594,7 +612,8 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
         if (index >= targets.size()) {
             targets.emplace_back(enums::enum_tag<target_type::cards_other_players>);
             targets.back().get<target_type::cards_other_players>().reserve(
-                std::ranges::count_if(m_game->m_alive_players, targetable_for_cards_other_player{m_game->m_player_self}));
+                std::ranges::count_if(m_game->m_alive_players,
+                targetable_for_cards_other_player{m_game->m_player_self, find_skipped_player(*this, m_response)}));
         }
         if (auto &vec = targets.back().get<target_type::cards_other_players>();
             !card->is_black() && player != m_game->m_player_self
