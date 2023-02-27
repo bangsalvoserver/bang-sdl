@@ -203,6 +203,7 @@ bool target_finder::can_play_card(card_view *target_card) const {
                     return target_card->deck == card_deck_type::goldrush && target_card->pocket->type != pocket_type::player_table;
                 case modifier_type::shopchoice:
                 case modifier_type::leevankliff:
+                case modifier_type::moneybag:
                     return false;
                 default:
                     return true;
@@ -219,6 +220,8 @@ bool target_finder::can_play_card(card_view *target_card) const {
                     }
                 case modifier_type::leevankliff:
                     return m_last_played_card == target_card && target_card->is_brown();
+                case modifier_type::moneybag:
+                    return !m_game->m_discard_pile.empty() && m_game->m_discard_pile.back() == target_card && target_card->is_brown();
                 case modifier_type::discount:
                     return target_card->deck == card_deck_type::goldrush && target_card->pocket->type != pocket_type::player_table;
                 case modifier_type::shopchoice:
@@ -469,7 +472,7 @@ void target_finder::handle_auto_targets() {
                 return;
             }
         case target_type::extra_card:
-            if (has_modifier(modifier_type::leevankliff)) {
+            if (has_modifier(modifier_type::leevankliff) || has_modifier(modifier_type::moneybag)) {
                 targets.emplace_back(enums::enum_tag<target_type::extra_card>);
                 break;
             } else {
@@ -668,6 +671,8 @@ void target_finder::send_play_card() {
         m_mode = target_mode::start;
         if (has_modifier(modifier_type::leevankliff)) {
             select_playing_card(m_last_played_card);
+        } else if (has_modifier(modifier_type::moneybag) && !m_game->m_discard_pile.empty()) {
+            select_playing_card(m_game->m_discard_pile.back());
         }
     } else {
         m_mode = target_mode::finish;
