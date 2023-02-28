@@ -33,6 +33,18 @@ namespace banggame::filter_impl {
         return origin->m_weapon_range;
     }
 
+    int count_player_hand_cards(player_view *origin) {
+        return int(origin->hand.size());
+    }
+
+    int count_player_cubes(player_view *origin) {
+        return ranges::accumulate(
+            ranges::views::concat(origin->table, origin->m_characters)
+            | ranges::views::transform([](card_view *card) { return card->cubes.size(); }),
+            0
+        );
+    }
+
     int get_distance(player_view *origin, player_view *target) {
         return origin->m_game->get_target_finder().calc_distance(origin, target);
     }
