@@ -1,4 +1,4 @@
-#include "game/card_serial.h"
+#include "cards/card_serial.h"
 
 #include "game.h"
 

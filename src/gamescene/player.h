@@ -3,6 +3,8 @@
 
 #include "card.h"
 
+#include "cards/game_enums.h"
+
 #include "../widgets/stattext.h"
 #include "../widgets/profile_pic.h"
 

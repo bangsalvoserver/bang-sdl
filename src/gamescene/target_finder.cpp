@@ -3,9 +3,10 @@
 #include "game.h"
 #include "../manager.h"
 
-#include "game/filters.h"
-#include "game/effect_list_zip.h"
+#include "cards/effect_list_zip.h"
 #include "cards/effect_enums.h"
+#include "cards/game_enums.h"
+#include "cards/filters.h"
 
 #include "utils/utils.h"
 

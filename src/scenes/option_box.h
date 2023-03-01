@@ -4,7 +4,7 @@
 #include "../widgets/checkbox.h"
 #include "../widgets/textbox.h"
 
-#include "game/card_enums.h"
+#include "cards/card_enums.h"
 #include "utils/parse_string.h"
 
 #include <list>

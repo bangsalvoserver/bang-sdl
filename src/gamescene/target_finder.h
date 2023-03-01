@@ -3,7 +3,7 @@
 
 #include "player.h"
 
-#include "game/holders.h"
+#include "cards/holders.h"
 #include "utils/raii_editor.h"
 
 #include <vector>
