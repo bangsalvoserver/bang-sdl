@@ -34,6 +34,8 @@ namespace banggame {
         .selection_yoffset = 10,
         .selection_width = 300,
 
+        .train_width = 300,
+
         .cube_pile_size = 50,
         .cube_pile_xoffset = 70,
 

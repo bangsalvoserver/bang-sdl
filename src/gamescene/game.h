@@ -77,6 +77,7 @@ namespace banggame {
         void handle_game_update(UPD_TAG(add_cubes),        const add_cubes_update &args);
         void handle_game_update(UPD_TAG(move_cubes),       const move_cubes_update &args);
         void handle_game_update(UPD_TAG(move_scenario_deck), const move_scenario_deck_update &args);
+        void handle_game_update(UPD_TAG(move_train),       const move_train_update &args);
         void handle_game_update(UPD_TAG(deck_shuffled),    const deck_shuffled_update &args);
         void handle_game_update(UPD_TAG(show_card),        const show_card_update &args);
         void handle_game_update(UPD_TAG(hide_card),        const hide_card_update &args);
@@ -140,9 +141,15 @@ namespace banggame {
         point_pocket_view m_scenario_card{pocket_type::scenario_card};
         point_pocket_view m_wws_scenario_card{pocket_type::wws_scenario_card};
 
+        wide_pocket m_stations{options.train_width, pocket_type::stations};
+        flipped_pocket m_train{options.train_width, pocket_type::train};
+        point_pocket_view m_train_deck{pocket_type::train_deck};
+
         wide_pocket m_selection{options.selection_width, pocket_type::selection};
 
         button_row_pocket m_button_row{this};
+
+        int m_train_position = 0;
 
         std::vector<player_view *> m_alive_players;
         std::vector<player_view *> m_dead_players;

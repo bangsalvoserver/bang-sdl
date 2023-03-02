@@ -379,6 +379,9 @@ pocket_view &game_scene::get_pocket(pocket_type pocket, player_view *player) {
     case pocket_type::wws_scenario_deck: return m_wws_scenario_player->wws_scenario_deck;
     case pocket_type::wws_scenario_card: return m_wws_scenario_card;
     case pocket_type::button_row:        return m_button_row;
+    case pocket_type::stations:          return m_stations;
+    case pocket_type::train:             return m_train;
+    case pocket_type::train_deck:        return m_train_deck;
     default: throw std::runtime_error("Invalid pocket");
     }
 }
@@ -486,6 +489,10 @@ void game_scene::handle_game_update(UPD_TAG(move_scenario_deck), const move_scen
         old_pile.clear();
         return anim;
     }());
+}
+
+void game_scene::handle_game_update(UPD_TAG(move_train), const move_train_update &args) {
+    // TODO
 }
 
 void game_scene::handle_game_update(UPD_TAG(show_card), const show_card_update &args) {

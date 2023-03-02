@@ -42,6 +42,8 @@ namespace banggame {
         int selection_yoffset;      // vertical distance from center of screen to selection pocket
         int selection_width;        // max size of selection pocket
 
+        int train_width;            // max size of train
+
         int cube_pile_size;         // size of square of cube pile
         int cube_pile_xoffset;      // distance from center of window to cube pile
 
