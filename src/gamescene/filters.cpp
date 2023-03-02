@@ -3,7 +3,7 @@
 #include "player.h"
 #include "game.h"
 
-namespace banggame::filter_impl {
+namespace banggame::filters::detail {
 
     bool check_player_flags(player_view *origin, player_flags flags) {
         return origin->has_player_flags(flags);

@@ -30,6 +30,7 @@ set(bangclient_srcs
     src/gamescene/game.cpp
     src/gamescene/game_ui.cpp
     src/gamescene/game_message_box.cpp
+    src/gamescene/modifiers.cpp
     src/gamescene/target_finder.cpp
     src/gamescene/options.cpp
     src/scenes/connect.cpp
