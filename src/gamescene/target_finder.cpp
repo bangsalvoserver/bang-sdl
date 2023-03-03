@@ -64,9 +64,9 @@ const target_list &target_status::get_current_target_list() const {
 
 void target_finder::select_playing_card(card_view *card) {
     if (card->is_modifier()) {
-        if (card->has_tag(tag_type::shopchoice)) {
+        if (card->has_tag(tag_type::card_choice)) {
             for (card_view *c : m_game->m_hidden_deck) {
-                if (c->get_tag_value(tag_type::shopchoice) == card->get_tag_value(tag_type::shopchoice)) {
+                if (c->get_tag_value(tag_type::card_choice) == card->get_tag_value(tag_type::card_choice)) {
                     m_game->m_shop_choice.add_card(c);
                 }
             }

@@ -22,7 +22,7 @@ namespace banggame {
                     || target_card->modifier.type == modifier_type::bandolier;
             case modifier_type::discount:
                 return target_card->deck == card_deck_type::goldrush && target_card->pocket->type != pocket_type::player_table;
-            case modifier_type::shopchoice:
+            case modifier_type::card_choice:
             case modifier_type::leevankliff:
             case modifier_type::moneybag:
                 return false;
@@ -41,8 +41,8 @@ namespace banggame {
                 }
             case modifier_type::discount:
                 return target_card->deck == card_deck_type::goldrush && target_card->pocket->type != pocket_type::player_table;
-            case modifier_type::shopchoice:
-                return mod_card->get_tag_value(tag_type::shopchoice) == target_card->get_tag_value(tag_type::shopchoice);
+            case modifier_type::card_choice:
+                return mod_card->get_tag_value(tag_type::card_choice) == target_card->get_tag_value(tag_type::card_choice);
             case modifier_type::belltower:
             case modifier_type::skip_player:
                 return !filters::is_equip_card(target_card);
@@ -57,8 +57,8 @@ namespace banggame {
         case modifier_type::belltower:
             m_context.ignore_distances = true;
             break;
-        case modifier_type::shopchoice:
-            m_context.shopchoice = mod_card;
+        case modifier_type::card_choice:
+            m_context.card_choice = mod_card;
             break;
         case modifier_type::discount:
             m_context.discount = 1;
