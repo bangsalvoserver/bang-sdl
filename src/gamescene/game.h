@@ -141,6 +141,7 @@ namespace banggame {
         point_pocket_view m_scenario_card{pocket_type::scenario_card};
         point_pocket_view m_wws_scenario_card{pocket_type::wws_scenario_card};
 
+        point_pocket_view m_stations_deck{pocket_type::stations_deck};
         wide_pocket m_stations{options.train_width, pocket_type::stations};
         flipped_pocket m_train{options.train_width, pocket_type::train};
         point_pocket_view m_train_deck{pocket_type::train_deck};
