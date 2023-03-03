@@ -263,17 +263,19 @@ namespace banggame {
         }
     };
 
+    DEFINE_ENUM_FLAGS(wide_pocket_flags,
+        (left)
+        (flipped)
+    )
+
     struct wide_pocket : pocket_view {
         int width;
-        wide_pocket(int width, pocket_type type, player_view *owner = nullptr)
-            : pocket_view(type, owner), width(width) {}
+        wide_pocket_flags flags;
+
+        wide_pocket(int width, pocket_type type, player_view *owner = nullptr, wide_pocket_flags flags = {})
+            : pocket_view(type, owner), width(width), flags(flags) {}
 
         bool wide() const override { return true; }
-        sdl::point get_offset(card_view *card) const override;
-    };
-
-    struct flipped_pocket : wide_pocket {
-        using wide_pocket::wide_pocket;
         sdl::point get_offset(card_view *card) const override;
     };
 

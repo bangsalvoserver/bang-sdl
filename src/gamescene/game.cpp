@@ -46,6 +46,14 @@ void game_scene::refresh_layout() {
     
     m_shop_choice.set_pos(m_shop_selection.get_pos() + sdl::point{0, options.shop_choice_offset});
 
+    m_stations.set_pos(sdl::point{
+        win_rect.w / 2 - 200,
+        win_rect.h / 2
+    });
+
+    m_train_deck.set_pos(m_stations.get_pos() - sdl::point{options.card_width + 20, 0});
+    m_train.set_pos(m_stations.get_pos() + sdl::point{(options.card_width + 10) * m_train_position, 60});
+
     sdl::point scenario_card_pos{
         win_rect.w / 2 + options.deck_xoffset + options.card_width + options.card_pocket_xoff,
         win_rect.h / 2};
@@ -113,6 +121,9 @@ void game_scene::render(sdl::renderer &renderer) {
     m_shop_discard.render_first(renderer, 1);
     m_shop_deck.render_last(renderer, 2);
     m_shop_selection.render(renderer);
+    m_stations.render(renderer);
+    m_train_deck.render_last(renderer, 2);
+    m_train.render(renderer);
     m_scenario_card.render_last(renderer, 2);
     m_wws_scenario_card.render_last(renderer, 2);
     m_discard_pile.render_last(renderer, 2);
@@ -207,6 +218,14 @@ void game_scene::handle_card_click() {
         m_target.on_click_card(pocket_type::shop_selection, nullptr, card);
         return;
     }
+    if (card_view *card = m_train.find_card_at(m_mouse_pt)) {
+        m_target.on_click_card(pocket_type::train, nullptr, card);
+        return;
+    }
+    if (card_view *card = m_stations.find_card_at(m_mouse_pt)) {
+        m_target.on_click_card(pocket_type::stations, nullptr, card);
+        return;
+    }
     if (m_main_deck.find_card_at(m_mouse_pt)) {
         m_target.on_click_card(pocket_type::main_deck, nullptr, nullptr);
         return;
@@ -252,6 +271,12 @@ void game_scene::find_overlay() {
         return;
     }
     if (m_overlay = m_shop_selection.find_card_at(m_mouse_pt)) {
+        return;
+    }
+    if (m_overlay = m_train.find_card_at(m_mouse_pt)) {
+        return;
+    }
+    if (m_overlay = m_stations.find_card_at(m_mouse_pt)) {
         return;
     }
     if (m_overlay = m_discard_pile.find_card_at(m_mouse_pt)) {
@@ -379,7 +404,6 @@ pocket_view &game_scene::get_pocket(pocket_type pocket, player_view *player) {
     case pocket_type::wws_scenario_deck: return m_wws_scenario_player->wws_scenario_deck;
     case pocket_type::wws_scenario_card: return m_wws_scenario_card;
     case pocket_type::button_row:        return m_button_row;
-    case pocket_type::stations_deck:     return m_stations_deck;
     case pocket_type::stations:          return m_stations;
     case pocket_type::train:             return m_train;
     case pocket_type::train_deck:        return m_train_deck;
@@ -493,7 +517,9 @@ void game_scene::handle_game_update(UPD_TAG(move_scenario_deck), const move_scen
 }
 
 void game_scene::handle_game_update(UPD_TAG(move_train), const move_train_update &args) {
-    // TODO
+    m_train_position = args.position;
+    refresh_layout();
+    // TODO train move animation
 }
 
 void game_scene::handle_game_update(UPD_TAG(show_card), const show_card_update &args) {

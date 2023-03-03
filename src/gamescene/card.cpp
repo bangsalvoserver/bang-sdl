@@ -279,12 +279,14 @@ namespace banggame {
         }
         const float xoffset = std::min(float(width) / (size() - 1), float(options.card_width + options.card_pocket_xoff));
         const int diff = int(std::ranges::distance(begin(), std::ranges::find(*this, card)));
-        return sdl::point{(int)(xoffset * (diff - (size() - 1) * .5f)), 0};
-    }
-
-    sdl::point flipped_pocket::get_offset(card_view *card) const {
-        auto pt = wide_pocket::get_offset(card);
-        return {- pt.x, pt.y};
+        sdl::point ret{(int)(xoffset * diff), 0};
+        if (!bool(flags & wide_pocket_flags::left)) {
+            ret.x -= (int)(xoffset * (size() - 1) * .5f);
+        }
+        if (bool(flags & wide_pocket_flags::flipped)) {
+            ret.x = -ret.x;
+        }
+        return ret;
     }
 
     sdl::point character_pile::get_offset(card_view *card) const {
