@@ -87,9 +87,7 @@ namespace banggame {
     }
 
     void target_finder::add_modifier_context(card_view *mod_card, card_view *target) {
-        switch (mod_card->modifier.type) {
-        // nothing yet
-        }
+        
     }
 
 }
