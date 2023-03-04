@@ -74,6 +74,7 @@ namespace banggame {
         void add_pick_border(card_view *card, sdl::color color);
 
         void select_playing_card(card_view *card);
+        void select_equip_card(card_view *card);
 
         bool can_play_card(card_view *card) const;
         

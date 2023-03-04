@@ -88,6 +88,16 @@ void target_finder::select_playing_card(card_view *card) {
     handle_auto_targets();
 }
 
+void target_finder::select_equip_card(card_view *card) {
+    m_playing_card = card;
+    m_mode = target_mode::equip;
+
+    m_target_borders.add(card->border_color, colors.target_finder_current_card);
+    if (card->self_equippable()) {
+        send_play_card();
+    }
+}
+
 template<game_action_type T>
 void target_finder::add_action(auto && ... args) {
     m_game->parent->add_message<banggame::client_message_type::game_action>(json::serialize(banggame::game_action{enums::enum_tag<T>, FWD(args) ...}, m_game->context()));
@@ -228,13 +238,7 @@ void target_finder::on_click_card(pocket_type pocket, player_view *player, card_
         }
     } else if (m_game->m_playing == m_game->m_player_self && (!player || player == m_game->m_player_self) && can_play_card(card)) {
         if (filters::is_equip_card(card)) {
-            m_playing_card = card;
-            m_mode = target_mode::equip;
-
-            m_target_borders.add(card->border_color, colors.target_finder_current_card);
-            if (card->self_equippable()) {
-                send_play_card();
-            }
+            select_equip_card(card);
         } else {
             select_playing_card(card);
         }
@@ -637,6 +641,10 @@ void target_finder::send_play_card() {
         m_mode = target_mode::start;
         if (m_context.repeat_card) {
             select_playing_card(m_context.repeat_card);
+        } else if (m_context.traincost && m_context.traincost->pocket->type == pocket_type::stations) {
+            size_t station_index = std::distance(m_game->m_stations.begin(), std::ranges::find(m_game->m_stations, m_context.traincost));
+            size_t train_index = m_game->m_train_position - station_index + m_context.train_advance;
+            select_equip_card(*(m_game->m_train.begin() + train_index));
         }
     } else {
         m_mode = target_mode::finish;

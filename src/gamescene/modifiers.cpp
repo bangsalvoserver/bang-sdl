@@ -69,6 +69,12 @@ namespace banggame {
         case modifier_type::moneybag:
             m_context.repeat_card = m_game->m_discard_pile.back();
             break;
+        case modifier_type::traincost:
+            m_context.traincost = mod_card;
+            break;
+        case modifier_type::locomotive:
+            m_context.train_advance = 1;
+            break;
         }
     }
 
