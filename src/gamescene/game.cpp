@@ -44,7 +44,7 @@ void game_scene::refresh_layout() {
         win_rect.w / 2 + options.shop_xoffset - options.shop_selection_width / 2,
         win_rect.h / 2});
     
-    m_shop_choice.set_pos(m_shop_selection.get_pos() + sdl::point{0, options.shop_choice_offset});
+    m_card_choice.set_pos(m_shop_selection.get_pos() + sdl::point{0, options.card_choice_offset});
 
     m_stations.set_pos(sdl::point{
         win_rect.w / 2 - 200,
@@ -134,7 +134,7 @@ void game_scene::render(sdl::renderer &renderer) {
     }
 
     m_selection.render(renderer);
-    m_shop_choice.render(renderer);
+    m_card_choice.render(renderer);
 
     for (player_view *p : m_dead_players) {
         p->render(renderer);
@@ -210,7 +210,7 @@ void game_scene::handle_card_click() {
         m_target.on_click_card(pocket_type::selection, nullptr, card);
         return;
     }
-    if (card_view *card = m_shop_choice.find_card_at(m_mouse_pt)) {
+    if (card_view *card = m_card_choice.find_card_at(m_mouse_pt)) {
         m_target.on_click_card(pocket_type::shop_selection, nullptr, card);
         return;
     }
@@ -267,7 +267,7 @@ void game_scene::find_overlay() {
     if (m_overlay = m_selection.find_card_at(m_mouse_pt)) {
         return;
     }
-    if (m_overlay = m_shop_choice.find_card_at(m_mouse_pt)) {
+    if (m_overlay = m_card_choice.find_card_at(m_mouse_pt)) {
         return;
     }
     if (m_overlay = m_shop_selection.find_card_at(m_mouse_pt)) {

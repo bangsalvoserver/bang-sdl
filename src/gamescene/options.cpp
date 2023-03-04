@@ -28,8 +28,7 @@ namespace banggame {
 
         .shop_selection_width = 150,
 
-        .shop_choice_width = 130,
-        .shop_choice_offset = 20,
+        .card_choice_offset = 20,
 
         .selection_yoffset = 10,
         .selection_width = 300,

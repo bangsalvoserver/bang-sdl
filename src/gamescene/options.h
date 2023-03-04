@@ -36,8 +36,7 @@ namespace banggame {
 
         int shop_selection_width;   // max size of shop selection pocket
 
-        int shop_choice_width;      // max size of shop choice pocket (for bottle/pardner)
-        int shop_choice_offset;     // vertical distance from shop selection to shop choice
+        int card_choice_offset;     // vertical distance from shop selection to card choice
 
         int selection_yoffset;      // vertical distance from center of screen to selection pocket
         int selection_width;        // max size of selection pocket

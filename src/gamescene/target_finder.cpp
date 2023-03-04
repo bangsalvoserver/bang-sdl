@@ -67,11 +67,14 @@ void target_finder::select_playing_card(card_view *card) {
         if (card->has_tag(tag_type::card_choice)) {
             for (card_view *c : m_game->m_hidden_deck) {
                 if (c->get_tag_value(tag_type::card_choice) == card->get_tag_value(tag_type::card_choice)) {
-                    m_game->m_shop_choice.add_card(c);
+                    m_game->m_card_choice.add_card(c);
                 }
             }
-            for (card_view *c : m_game->m_shop_choice) {
-                c->set_pos(m_game->m_shop_choice.get_pos() + m_game->m_shop_choice.get_offset(c));
+            if (!m_game->m_card_choice.empty()) {
+                m_game->m_card_choice.width = (options.card_width + 5) * (int(m_game->m_card_choice.size()) - 1);
+                for (card_view *c : m_game->m_card_choice) {
+                    c->set_pos(m_game->m_card_choice.get_pos() + m_game->m_card_choice.get_offset(c));
+                }
             }
         }
 
@@ -122,10 +125,6 @@ void target_finder::set_response_cards(const request_status_args &args) {
     }
 
     if (card_view *c = args.origin_card) {
-        if (!c->pocket || c->pocket->type == pocket_type::shop_discard || c->pocket->type == pocket_type::hidden_deck) {
-            m_game->m_shop_choice.add_card(c);
-            c->set_pos(m_game->m_shop_discard.get_pos());
-        }
         m_request_borders.add(c->border_color, colors.target_finder_origin_card);
     }
 
@@ -156,7 +155,7 @@ void target_finder::clear_status() {
 }
 
 void target_finder::clear_targets() {
-    m_game->m_shop_choice.clear();
+    m_game->m_card_choice.clear();
     static_cast<target_status &>(*this) = {};
 }
 

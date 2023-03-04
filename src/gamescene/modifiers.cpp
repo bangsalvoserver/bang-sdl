@@ -42,7 +42,8 @@ namespace banggame {
             case modifier_type::discount:
                 return target_card->deck == card_deck_type::goldrush && target_card->pocket->type != pocket_type::player_table;
             case modifier_type::card_choice:
-                return mod_card->get_tag_value(tag_type::card_choice) == target_card->get_tag_value(tag_type::card_choice);
+                return mod_card->get_tag_value(tag_type::card_choice) == target_card->get_tag_value(tag_type::card_choice)
+                    && !target_card->get_effect_list(m_response).empty();
             case modifier_type::belltower:
             case modifier_type::skip_player:
                 return !filters::is_equip_card(target_card);
