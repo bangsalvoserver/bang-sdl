@@ -517,9 +517,7 @@ void game_scene::handle_game_update(UPD_TAG(move_scenario_deck), const move_scen
 }
 
 void game_scene::handle_game_update(UPD_TAG(move_train), const move_train_update &args) {
-    m_train_position = args.position;
-    refresh_layout();
-    // TODO train move animation
+    add_animation<train_move_animation>(args.get_duration(), &m_train, &m_stations, m_train_position = args.position);
 }
 
 void game_scene::handle_game_update(UPD_TAG(show_card), const show_card_update &args) {
