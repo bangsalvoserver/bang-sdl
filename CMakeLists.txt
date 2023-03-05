@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.6.0)
+cmake_minimum_required(VERSION 3.13.0)
 project(bangcardgame VERSION 0.1.0)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -11,40 +11,6 @@ if (MSVC)
 elseif(MINGW)
     add_compile_options(-fno-ms-extensions)
 endif()
-
-set(bangclient_srcs
-    src/config.cpp
-    src/image_serial.cpp
-    src/intl.cpp
-    src/entrypoint.cpp
-    src/manager.cpp
-    src/chat_ui.cpp
-    src/media_pak.cpp
-    src/sounds_pak.cpp
-    src/os_api.cpp
-    src/gamescene/animations.cpp
-    src/gamescene/card.cpp
-    src/gamescene/card_serial.cpp
-    src/gamescene/player.cpp
-    src/gamescene/filters.cpp
-    src/gamescene/game.cpp
-    src/gamescene/game_ui.cpp
-    src/gamescene/game_message_box.cpp
-    src/gamescene/modifiers.cpp
-    src/gamescene/target_finder.cpp
-    src/gamescene/options.cpp
-    src/scenes/connect.cpp
-    src/scenes/loading.cpp
-    src/scenes/lobby_list.cpp
-    src/scenes/lobby.cpp
-    src/scenes/option_box.cpp
-    src/widgets/button.cpp
-    src/widgets/checkbox.cpp
-    src/widgets/textbox.cpp
-    src/widgets/text_list.cpp
-    src/widgets/profile_pic.cpp
-    game/src/game/durations.cpp
-)
 
 add_library(sdl2_libraries INTERFACE)
 if (MSVC)
@@ -73,7 +39,11 @@ add_subdirectory(external/tiny-process-library)
 set_target_properties(tiny-process-library PROPERTIES
     POSITION_INDEPENDENT_CODE ON)
 
-add_library(bangclient SHARED ${bangclient_srcs})
+get_target_property(public_server_sources bangserver INTERFACE_SOURCES)
+
+add_library(bangclient SHARED ${public_server_sources})
+add_subdirectory(src)
+
 target_include_directories(bangclient PRIVATE src)
 
 target_compile_definitions(bangclient PRIVATE SDL_MAIN_HANDLED)
