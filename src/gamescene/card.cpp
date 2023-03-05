@@ -91,7 +91,7 @@ namespace banggame {
 
     void card_view::make_texture_front(sdl::renderer &renderer) {
         auto do_make_texture = [&](float scale) {
-            auto card_base_surf = card_textures::get().get_card_resource(fmt::format("{}/{}", enums::to_string(deck), image));
+            auto card_base_surf = card_textures::get().get_card_resource(ranges::contains(image, '/') ? image : fmt::format("{}/{}", enums::to_string(deck), image));
 
             if (sign) {
                 sdl::rect card_rect = card_base_surf.get_rect();
