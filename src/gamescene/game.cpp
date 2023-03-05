@@ -44,7 +44,9 @@ void game_scene::refresh_layout() {
         win_rect.w / 2 + options.shop_xoffset - options.shop_selection_width / 2,
         win_rect.h / 2});
     
-    m_card_choice.set_pos(m_shop_selection.get_pos() + sdl::point{0, options.card_choice_offset});
+    if (card_view *anchor = m_card_choice.get_anchor()) {
+        m_card_choice.set_pos(anchor->get_pos());
+    }
 
     m_stations.set_pos(sdl::point{
         win_rect.w / 2 - 200,
@@ -52,7 +54,7 @@ void game_scene::refresh_layout() {
     });
 
     m_train_deck.set_pos(m_stations.get_pos() - sdl::point{options.card_width + 20, 0});
-    m_train.set_pos(m_stations.get_pos() + sdl::point{(options.card_width + 10) * m_train_position, 60});
+    m_train.set_pos(m_stations.get_pos() + sdl::point{(options.card_width + options.train_offset) * m_train_position, 60});
 
     sdl::point scenario_card_pos{
         win_rect.w / 2 + options.deck_xoffset + options.card_width + options.card_pocket_xoff,
@@ -211,7 +213,7 @@ void game_scene::handle_card_click() {
         return;
     }
     if (card_view *card = m_card_choice.find_card_at(m_mouse_pt)) {
-        m_target.on_click_card(pocket_type::shop_selection, nullptr, card);
+        m_target.on_click_card(pocket_type::hidden_deck, nullptr, card);
         return;
     }
     if (card_view *card = m_shop_selection.find_card_at(m_mouse_pt)) {
@@ -426,6 +428,9 @@ void game_scene::handle_game_update(UPD_TAG(add_cards), const add_cards_update &
 
 void game_scene::handle_game_update(UPD_TAG(remove_cards), const remove_cards_update &args) {
     for (auto *c : args.cards) {
+        if (c == m_overlay) {
+            m_overlay = nullptr;
+        }
         if (c->pocket) {
             c->pocket->erase_card(c);
         }

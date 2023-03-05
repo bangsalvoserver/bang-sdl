@@ -36,12 +36,13 @@ namespace banggame {
 
         int shop_selection_width;   // max size of shop selection pocket
 
-        int card_choice_offset;     // vertical distance from shop selection to card choice
+        int card_choice_xoffset;    // horizontal offset between card choices
+        int card_choice_yoffset;    // vertical distance from anchor to card choices
 
         int selection_yoffset;      // vertical distance from center of screen to selection pocket
         int selection_width;        // max size of selection pocket
 
-        int train_width;            // max size of train
+        int train_offset;           // horizontal offset between cards in train
 
         int cube_pile_size;         // size of square of cube pile
         int cube_pile_xoffset;      // distance from center of window to cube pile

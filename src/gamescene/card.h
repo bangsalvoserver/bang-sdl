@@ -17,7 +17,7 @@
 
 namespace banggame {
 
-    struct card_textures {
+    class card_textures {
     private:
         card_textures(const std::filesystem::path &base_path, sdl::renderer &renderer);
 
@@ -57,7 +57,8 @@ namespace banggame {
     class pocket_view;
     class card_view;
 
-    struct cube_widget {
+    class cube_widget {
+    public:
         sdl::point pos;
 
         bool animating = false;
@@ -66,7 +67,8 @@ namespace banggame {
         void render(sdl::renderer &renderer, render_flags flags = {});
     };
 
-    struct cube_pile_base : std::vector<std::unique_ptr<cube_widget>> {
+    class cube_pile_base : public std::vector<std::unique_ptr<cube_widget>> {
+    public:
         virtual void set_pos(sdl::point pos);
 
         virtual sdl::point get_pos() const = 0;
@@ -79,7 +81,8 @@ namespace banggame {
         }
     };
 
-    struct card_cube_pile : cube_pile_base {
+    class card_cube_pile : public cube_pile_base {
+    public:
         card_view *owner;
 
         card_cube_pile(card_view *owner) : owner(owner) {}
@@ -88,7 +91,8 @@ namespace banggame {
         sdl::point get_offset(cube_widget *cube) const override;
     };
 
-    struct table_cube_pile : cube_pile_base {
+    class table_cube_pile : public cube_pile_base {
+    public:
         sdl::point m_pos;
 
         void set_pos(sdl::point pos) override;
@@ -139,7 +143,8 @@ namespace banggame {
         sdl::rect m_rect;
     };
 
-    struct role_card : card_view {
+    class role_card : public card_view {
+    public:
         role_card() : card_view{0} {}
 
         player_role role = player_role::unknown;
@@ -147,18 +152,12 @@ namespace banggame {
         void make_texture_front(sdl::renderer &renderer);
     };
     
-    class pocket_view {
+    class pocket_view_base {
     protected:
         std::vector<card_view *> m_cards;
         sdl::point m_pos;
 
     public:
-        const pocket_type type;
-        const player_view *owner;
-
-        pocket_view(pocket_type type, player_view *owner = nullptr)
-            : type(type), owner(owner) {}
-
         sdl::point get_pos() const { return m_pos; }
         virtual void set_pos(const sdl::point &pos);
 
@@ -193,6 +192,19 @@ namespace banggame {
         virtual card_view *find_card_at(sdl::point point);
 
         virtual void render(sdl::renderer &renderer);
+    };
+
+    class pocket_view : public pocket_view_base {
+    public:
+        const pocket_type type;
+        const player_view *owner;
+
+        explicit pocket_view(pocket_type type, player_view *owner = nullptr)
+            : type(type), owner(owner) {}
+
+        virtual void add_card(card_view *card) override;
+        virtual void erase_card(card_view *card) override;
+        virtual void clear() override;
     };
 
     class point_pocket_view : public pocket_view {
@@ -263,23 +275,48 @@ namespace banggame {
         }
     };
 
-    DEFINE_ENUM_FLAGS(wide_pocket_flags,
-        (left)
-        (flipped)
-    )
+    class card_choice_pocket : public pocket_view_base {
+    private:
+        card_view *anchor = nullptr;
 
-    struct wide_pocket : pocket_view {
+    public:
+        card_choice_pocket() = default;
+
+        sdl::point get_offset(card_view *card) const override;
+
+        card_view *get_anchor() const { return anchor; }
+        void set_anchor(card_view *card, const pocket_view &hidden_deck);
+
+        void clear() override;
+    };
+
+    class wide_pocket : public pocket_view {
+    public:
         int width;
-        wide_pocket_flags flags;
 
-        wide_pocket(int width, pocket_type type, player_view *owner = nullptr, wide_pocket_flags flags = {})
-            : pocket_view(type, owner), width(width), flags(flags) {}
+        wide_pocket(int width, pocket_type type, player_view *owner = nullptr)
+            : pocket_view(type, owner), width(width) {}
 
         bool wide() const override { return true; }
         sdl::point get_offset(card_view *card) const override;
     };
 
-    struct character_pile : pocket_view {
+    class flipped_pocket : public wide_pocket {
+    public:
+        using wide_pocket::wide_pocket;
+        sdl::point get_offset(card_view *card) const override;
+    };
+
+    class train_pocket : public pocket_view {
+    public:
+        using pocket_view::pocket_view;
+        
+        bool wide() const override { return true; }
+        sdl::point get_offset(card_view *card) const override;
+    };
+
+    class character_pile : public pocket_view {
+    public:
         using pocket_view::pocket_view;
         sdl::point get_offset(card_view *card) const override;
     };

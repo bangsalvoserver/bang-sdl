@@ -65,17 +65,7 @@ const target_list &target_status::get_current_target_list() const {
 void target_finder::select_playing_card(card_view *card) {
     if (card->is_modifier()) {
         if (card->has_tag(tag_type::card_choice)) {
-            for (card_view *c : m_game->m_hidden_deck) {
-                if (c->get_tag_value(tag_type::card_choice) == card->get_tag_value(tag_type::card_choice)) {
-                    m_game->m_card_choice.add_card(c);
-                }
-            }
-            if (!m_game->m_card_choice.empty()) {
-                m_game->m_card_choice.width = (options.card_width + 5) * (int(m_game->m_card_choice.size()) - 1);
-                for (card_view *c : m_game->m_card_choice) {
-                    c->set_pos(m_game->m_card_choice.get_pos() + m_game->m_card_choice.get_offset(c));
-                }
-            }
+            m_game->m_card_choice.set_anchor(card, m_game->m_hidden_deck);
         }
 
         add_modifier_context(card);

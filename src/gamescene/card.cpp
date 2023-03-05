@@ -1,5 +1,7 @@
 #include "card.h"
 
+#include "cards/filter_enums.h"
+
 #include "net/options.h"
 #include "../media_pak.h"
 
@@ -195,28 +197,21 @@ namespace banggame {
         }
     }
 
-    void pocket_view::add_card(card_view *card) {
-        card->pocket = this;
+    void pocket_view_base::add_card(card_view *card) {
         m_cards.push_back(card);
     }
 
-    void pocket_view::erase_card(card_view *card) {
+    void pocket_view_base::erase_card(card_view *card) {
         if (auto it = std::ranges::find(*this, card); it != end()) {
-            card->pocket = nullptr;
             m_cards.erase(it);
         }
     }
 
-    void pocket_view::clear() {
-        for (card_view *card : *this) {
-            if (card->pocket == this) {
-                card->pocket = nullptr;
-            }
-        }
+    void pocket_view_base::clear() {
         m_cards.clear();
     }
 
-    card_view *pocket_view::find_card_at(sdl::point point) {
+    card_view *pocket_view_base::find_card_at(sdl::point point) {
         auto it = std::ranges::find_if(*this | std::views::reverse, [&](card_view *card) {
             return sdl::point_in_rect(point, card->get_rect());
         });
@@ -235,19 +230,19 @@ namespace banggame {
         }
     }
 
-    void pocket_view::render(sdl::renderer &renderer) {
+    void pocket_view_base::render(sdl::renderer &renderer) {
         for (card_view *c : *this) {
             c->render(renderer);
         }
     }
 
-    void pocket_view::render_first(sdl::renderer &renderer, int ncards) {
+    void pocket_view_base::render_first(sdl::renderer &renderer, int ncards) {
         for (card_view *c : *this | std::views::take(ncards)) {
             c->render(renderer);
         }
     }
     
-    void pocket_view::render_last(sdl::renderer &renderer, int ncards) {
+    void pocket_view_base::render_last(sdl::renderer &renderer, int ncards) {
         if (!empty()) {
             for (card_view *c : *this
                 | ranges::views::take_last(ncards)
@@ -259,7 +254,7 @@ namespace banggame {
         }
     }
 
-    void pocket_view::set_pos(const sdl::point &pos) {
+    void pocket_view_base::set_pos(const sdl::point &pos) {
         for (card_view *c : *this) {
             c->set_pos(c->get_pos() - m_pos + pos);
         }
@@ -273,20 +268,75 @@ namespace banggame {
         return nullptr;
     }
 
+    void pocket_view::add_card(card_view *card) {
+        card->pocket = this;
+        pocket_view_base::add_card(card);
+    }
+
+    void pocket_view::erase_card(card_view *card) {
+        card->pocket = nullptr;
+        pocket_view_base::erase_card(card);
+    }
+
+    void pocket_view::clear() {
+        for (card_view *card : *this) {
+            if (card->pocket == this) {
+                card->pocket = nullptr;
+            }
+        }
+        pocket_view_base::clear();
+    }
+
+    sdl::point card_choice_pocket::get_offset(card_view *card) const {
+        if (size() == 1) {
+            return {0, 0};
+        }
+        const float xoffset = float(options.card_width + options.card_choice_xoffset);
+        const int diff = int(std::ranges::distance(begin(), std::ranges::find(*this, card)));
+        return sdl::point{(int)(xoffset * (diff - (size() - 1) * .5f)), options.card_choice_yoffset};
+    }
+
+    void card_choice_pocket::set_anchor(card_view *card, const pocket_view &hidden_deck) {
+        anchor = card;
+        set_pos(card->get_pos());
+        for (card_view *c : hidden_deck) {
+            if (c->get_tag_value(tag_type::card_choice) == card->get_tag_value(tag_type::card_choice)) {
+                add_card(c);
+            }
+        }
+        if (!empty()) {
+            for (card_view *c : *this) {
+                c->set_pos(get_pos() + get_offset(c));
+            }
+        }
+    }
+
+    void card_choice_pocket::clear() {
+        pocket_view_base::clear();
+        anchor = nullptr;
+    }
+
     sdl::point wide_pocket::get_offset(card_view *card) const {
         if (size() == 1) {
             return {0, 0};
         }
         const float xoffset = std::min(float(width) / (size() - 1), float(options.card_width + options.card_pocket_xoff));
         const int diff = int(std::ranges::distance(begin(), std::ranges::find(*this, card)));
-        sdl::point ret{(int)(xoffset * diff), 0};
-        if (!bool(flags & wide_pocket_flags::left)) {
-            ret.x -= (int)(xoffset * (size() - 1) * .5f);
+        return sdl::point{(int)(xoffset * (diff - (size() - 1) * .5f)), 0};
+    }
+
+    sdl::point flipped_pocket::get_offset(card_view *card) const {
+        auto pt = wide_pocket::get_offset(card);
+        return {- pt.x, pt.y};
+    }
+
+    sdl::point train_pocket::get_offset(card_view *card) const {
+        const int diff = (options.card_width + options.train_offset) * int(std::ranges::distance(begin(), std::ranges::find(*this, card)));
+        if (type == pocket_type::train) {
+            return {-diff, 0};
+        } else {
+            return {diff, 0};
         }
-        if (bool(flags & wide_pocket_flags::flipped)) {
-            ret.x = -ret.x;
-        }
-        return ret;
     }
 
     sdl::point character_pile::get_offset(card_view *card) const {

@@ -130,8 +130,8 @@ namespace banggame {
         counting_pocket m_shop_deck{pocket_type::shop_deck};
         point_pocket_view m_shop_discard{pocket_type::shop_discard};
         point_pocket_view m_hidden_deck{pocket_type::hidden_deck};
-        wide_pocket m_shop_selection{options.shop_selection_width, pocket_type::shop_selection, nullptr, wide_pocket_flags::flipped};
-        wide_pocket m_card_choice{0, pocket_type::hidden_deck};
+        flipped_pocket m_shop_selection{options.shop_selection_width, pocket_type::shop_selection};
+        card_choice_pocket m_card_choice;
         
         table_cube_pile m_cubes;
 
@@ -141,9 +141,9 @@ namespace banggame {
         point_pocket_view m_scenario_card{pocket_type::scenario_card};
         point_pocket_view m_wws_scenario_card{pocket_type::wws_scenario_card};
 
-        wide_pocket m_stations{options.train_width, pocket_type::stations, nullptr, wide_pocket_flags::left};
-        wide_pocket m_train{options.train_width, pocket_type::train, nullptr, wide_pocket_flags::flipped | wide_pocket_flags::left};
-        point_pocket_view m_train_deck{pocket_type::train_deck};
+        train_pocket m_stations{pocket_type::stations};
+        train_pocket m_train{pocket_type::train};
+        counting_pocket m_train_deck{pocket_type::train_deck};
 
         wide_pocket m_selection{options.selection_width, pocket_type::selection};
 
