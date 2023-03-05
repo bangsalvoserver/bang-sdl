@@ -26,6 +26,8 @@ namespace banggame {
             case modifier_type::leevankliff:
             case modifier_type::moneybag:
                 return false;
+            case modifier_type::locomotive:
+                return target_card->pocket->type == pocket_type::stations;
             default:
                 return true;
             }
@@ -47,6 +49,9 @@ namespace banggame {
             case modifier_type::belltower:
             case modifier_type::skip_player:
                 return !filters::is_equip_card(target_card);
+            case modifier_type::traincost:
+            case modifier_type::locomotive:
+                return target_card->pocket->type == pocket_type::train;
             default:
                 return true;
             }
