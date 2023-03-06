@@ -106,11 +106,16 @@ void button_row_pocket::render(sdl::renderer &renderer) {
 void button_row_pocket::add_card(card_view *card) {
     pocket_view::add_card(card);
 
-    m_buttons.emplace_back(std::string{}, [&target = parent->m_target, card]{
+    auto &button = m_buttons.emplace_back(std::string{}, [&target = parent->m_target, card]{
         if (target.is_card_clickable()) {
             target.on_click_card(pocket_type::button_row, nullptr, card);
         }
-    }).set_rect({});
+    });
+    if (card->known) {
+        update_button(card, button);
+    } else {
+        button.set_rect({});
+    }
 }
 
 std::list<widgets::button>::iterator button_row_pocket::find_button(card_view *card) {
@@ -123,12 +128,16 @@ std::list<widgets::button>::iterator button_row_pocket::find_button(card_view *c
     return btn_it;
 }
 
+void button_row_pocket::update_button(card_view *card, widgets::button &button) {
+    button.set_label(_(intl::category::cards, card->name));
+    button.set_rect(sdl::rect{0, 0, std::max(100, button.get_text_rect().w + 10), 25});
+
+    set_pos(get_pos());
+}
+
 void button_row_pocket::update_card(card_view *card) {
     if (auto btn_it = find_button(card); btn_it != m_buttons.end()) {
-        btn_it->set_label(_(intl::category::cards, card->name));
-        btn_it->set_rect(sdl::rect{0, 0, std::max(100, btn_it->get_text_rect().w + 10), 25});
-
-        set_pos(get_pos());
+        update_button(card, *btn_it);
     }
 }
 
