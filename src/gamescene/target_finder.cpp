@@ -205,10 +205,15 @@ void target_finder::on_click_card(pocket_type pocket, player_view *player, card_
     if (card && card->has_tag(tag_type::confirm) && can_confirm()) {
         send_play_card();
     } else if (m_mode == target_mode::target || m_mode == target_mode::modifier) {
-        if (pocket == pocket_type::player_character) {
+        switch (pocket) {
+        case pocket_type::player_character:
             add_card_target(player, player->m_characters.front());
-        } else if (pocket == pocket_type::player_table || pocket == pocket_type::player_hand) {
+            break;
+        case pocket_type::player_table:
+        case pocket_type::player_hand:
+        case pocket_type::selection:
             add_card_target(player, card);
+            break;
         }
     } else if (m_response) {
         bool can_respond = can_play_card(card);
