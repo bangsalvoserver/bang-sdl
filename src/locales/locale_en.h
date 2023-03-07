@@ -334,6 +334,10 @@ LOCALE_VALUE(LOG_POKER_ACE,                       "There is an ace, all cards ar
 LOCALE_VALUE(LOG_REVIVE,                          "{0} revives for {1}")
 LOCALE_VALUE(LOG_SWAP_CARDS,                      "{0} swaps {2} with {1}'s {3}")
 LOCALE_VALUE(LOG_PLAYER_IMMUNE_TO_CARD,           "{0} is immune to {1} for {2}")
+LOCALE_VALUE(LOG_DEFLECTED_BANG_TO,               "{1} uses {0} to deflect {2} to {3}")
+LOCALE_VALUE(LOG_TRAIN_ADVANCE,                   "The train advances")
+LOCALE_VALUE(LOG_PAID_FOR_STATION,                "{1} pays the price for station {0}")
+LOCALE_VALUE(LOG_END_OF_LINE,                     "End of the line! The effect of the locomotive is activated")
 
 LOCALE_VALUE(lobby_state::waiting,                "Waiting")
 LOCALE_VALUE(lobby_state::playing,                "Playing")

@@ -334,6 +334,10 @@ LOCALE_VALUE(LOG_POKER_ACE,                       "C'è un Asso, tutte le carte 
 LOCALE_VALUE(LOG_REVIVE,                          "{0} ritorna in gioco per {1}")
 LOCALE_VALUE(LOG_SWAP_CARDS,                      "{0} scambia {2} con {3} di {1}")
 LOCALE_VALUE(LOG_PLAYER_IMMUNE_TO_CARD,           "{0} è immune a {1} per {2}")
+LOCALE_VALUE(LOG_DEFLECTED_BANG_TO,               "{1} usa {0} per deviare {2} contro {3}")
+LOCALE_VALUE(LOG_TRAIN_ADVANCE,                   "Il treno avanza")
+LOCALE_VALUE(LOG_PAID_FOR_STATION,                "{1} paga il prezzo per la stazione {0}")
+LOCALE_VALUE(LOG_END_OF_LINE,                     "Capolinea! Si attiva l'effetto della locomotiva")
 
 LOCALE_VALUE(lobby_state::waiting,                "In attesa")
 LOCALE_VALUE(lobby_state::playing,                "In gioco")
