@@ -65,18 +65,26 @@ namespace banggame {
             break;
         case modifier_type::card_choice:
             m_context.card_choice = mod_card;
+            m_game->m_card_choice.set_anchor(mod_card, m_game->m_hidden_deck);
             break;
         case modifier_type::discount:
             m_context.discount = 1;
             break;
         case modifier_type::leevankliff:
             m_context.repeat_card = m_last_played_card;
+            select_playing_card(m_context.repeat_card);
             break;
         case modifier_type::moneybag:
             m_context.repeat_card = m_game->m_discard_pile.back();
+            select_playing_card(m_context.repeat_card);
             break;
         case modifier_type::traincost:
             m_context.traincost = mod_card;
+            if (mod_card->pocket->type == pocket_type::stations) {
+                size_t station_index = std::distance(m_game->m_stations.begin(), std::ranges::find(m_game->m_stations, m_context.traincost));
+                size_t train_index = m_game->m_train_position - station_index + m_context.train_advance;
+                select_equip_card(*(m_game->m_train.begin() + train_index));
+            }
             break;
         case modifier_type::locomotive:
             m_context.train_advance = 1;

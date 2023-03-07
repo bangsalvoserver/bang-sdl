@@ -64,12 +64,6 @@ const target_list &target_status::get_current_target_list() const {
 
 void target_finder::select_playing_card(card_view *card) {
     if (card->is_modifier()) {
-        if (card->has_tag(tag_type::card_choice)) {
-            m_game->m_card_choice.set_anchor(card, m_game->m_hidden_deck);
-        }
-
-        add_modifier_context(card);
-
         m_modifiers.emplace_back(card);
         m_mode = target_mode::modifier;
     } else {
@@ -633,13 +627,7 @@ bool target_finder::add_selected_cube(card_view *card, int ncubes) {
 void target_finder::send_play_card() {
     if (m_mode == target_mode::modifier) {
         m_mode = target_mode::start;
-        if (m_context.repeat_card) {
-            select_playing_card(m_context.repeat_card);
-        } else if (m_context.traincost && m_context.traincost->pocket->type == pocket_type::stations) {
-            size_t station_index = std::distance(m_game->m_stations.begin(), std::ranges::find(m_game->m_stations, m_context.traincost));
-            size_t train_index = m_game->m_train_position - station_index + m_context.train_advance;
-            select_equip_card(*(m_game->m_train.begin() + train_index));
-        }
+        add_modifier_context(m_modifiers.back().card);
     } else {
         m_mode = target_mode::finish;
         add_action<game_action_type::play_card>(m_playing_card, m_modifiers, m_targets, m_response);
