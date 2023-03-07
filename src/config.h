@@ -10,7 +10,7 @@
 
 #include "utils/resource.h"
 
-#include "game/card_enums.h"
+#include "cards/card_enums.h"
 
 #ifndef OFFICIAL_BANG_SERVER
     #define OFFICIAL_BANG_SERVER

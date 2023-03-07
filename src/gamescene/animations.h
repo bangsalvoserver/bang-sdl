@@ -123,6 +123,23 @@ namespace banggame {
         void render(sdl::renderer &renderer);
     };
 
+    struct train_move_animation : easing_animation<train_move_animation> {
+        pocket_view *train;
+        pocket_view *stations;
+        sdl::point start_pos;
+        int end_pos;
+
+        train_move_animation(pocket_view *train, pocket_view *stations, int end_pos)
+            : train(train), stations(stations)
+            , start_pos(train->get_pos())
+            , end_pos(end_pos) {}
+
+        sdl::point end_point() const;
+
+        void end();
+        void do_animation_impl(float amt);
+    };
+
     struct pause_animation {
         card_view *card;
 

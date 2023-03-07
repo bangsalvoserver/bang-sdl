@@ -23,6 +23,7 @@ namespace banggame {
             , parent(parent) {}
 
         std::list<widgets::button>::iterator find_button(card_view *card);
+        void update_button(card_view *card, widgets::button &button);
 
         void set_pos(const sdl::point &pos) override;
         void render(sdl::renderer &renderer) override;

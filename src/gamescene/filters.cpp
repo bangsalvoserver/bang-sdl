@@ -1,9 +1,9 @@
-#include "game/filters.h"
+#include "cards/filters.h"
 
 #include "player.h"
 #include "game.h"
 
-namespace banggame::filter_impl {
+namespace banggame::filters::detail {
 
     bool check_player_flags(player_view *origin, player_flags flags) {
         return origin->has_player_flags(flags);
@@ -31,6 +31,22 @@ namespace banggame::filter_impl {
 
     int get_player_weapon_range(player_view *origin) {
         return origin->m_weapon_range;
+    }
+
+    int count_player_hand_cards(player_view *origin) {
+        return int(origin->hand.size());
+    }
+
+    int count_player_table_cards(player_view *origin) {
+        return int(std::ranges::count_if(origin->table, std::not_fn(&card_view::is_black)));
+    }
+
+    int count_player_cubes(player_view *origin) {
+        return ranges::accumulate(
+            ranges::views::concat(origin->table, origin->m_characters)
+            | ranges::views::transform([](card_view *card) { return card->cubes.size(); }),
+            0
+        );
     }
 
     int get_distance(player_view *origin, player_view *target) {

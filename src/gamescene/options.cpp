@@ -28,11 +28,13 @@ namespace banggame {
 
         .shop_selection_width = 150,
 
-        .shop_choice_width = 130,
-        .shop_choice_offset = 20,
+        .card_choice_xoffset = 5,
+        .card_choice_yoffset = 20,
 
         .selection_yoffset = 10,
         .selection_width = 300,
+
+        .train_offset = 5,
 
         .cube_pile_size = 50,
         .cube_pile_xoffset = 70,

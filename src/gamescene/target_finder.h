@@ -3,7 +3,8 @@
 
 #include "player.h"
 
-#include "game/holders.h"
+#include "cards/holders.h"
+#include "cards/effect_context.h"
 #include "utils/raii_editor.h"
 
 #include <vector>
@@ -24,13 +25,13 @@ namespace banggame {
         card_view *m_playing_card = nullptr;
         target_list m_targets;
         modifier_list m_modifiers;
+        effect_context m_context;
         raii_editor_stack<sdl::color> m_target_borders;
         target_mode m_mode = target_mode::start;
 
         card_view *get_current_card() const;
         target_list &get_current_target_list();
         const target_list &get_current_target_list() const;
-        bool has_modifier(modifier_type type) const;
     };
 
     struct request_status {
@@ -73,8 +74,16 @@ namespace banggame {
         void add_pick_border(card_view *card, sdl::color color);
 
         void select_playing_card(card_view *card);
+        void select_equip_card(card_view *card);
 
         bool can_play_card(card_view *card) const;
+        
+        bool card_playable_with_modifier(card_view *mod_card, card_view *target_card) const;
+
+        void add_modifier_context(card_view *mod_card);
+        void add_modifier_context(card_view *mod_card, player_view *target);
+        void add_modifier_context(card_view *mod_card, card_view *target);
+
         bool can_pick_card(pocket_type pocket, player_view *player, card_view *card) const;
         
         const char *check_player_filter(target_player_filter filter, player_view *target_player);
