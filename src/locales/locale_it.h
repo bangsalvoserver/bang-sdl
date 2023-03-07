@@ -183,8 +183,8 @@ LOCALE_VALUE(STATUS_MOST_WANTED,                  "{0} ... Puoi rispondere con F
 LOCALE_VALUE(STATUS_MOST_WANTED_OTHER,            "{1} contro {0}")
 LOCALE_VALUE(STATUS_TRAIN_ROBBERY,                "{0} ... scegli una carta")
 LOCALE_VALUE(STATUS_TRAIN_ROBBERY_OTHER,          "{1} ... {0} deve scegliere una carta")
-LOCALE_VALUE(STATUS_TRAIN_ROBBERY_CHOOSE,         "{0} ... scegli se scartare la carta o ricevere un Bang")
-LOCALE_VALUE(STATUS_TRAIN_ROBBERY_CHOOSE_OTHER,   "{1} ... {0} deve scegliere se scartare la carta o ricevere un Bang")
+LOCALE_VALUE(STATUS_TRAIN_ROBBERY_CHOOSE,         "{0} ... scegli se scartare {1} o ricevere un Bang")
+LOCALE_VALUE(STATUS_TRAIN_ROBBERY_CHOOSE_OTHER,   "{1} ... {0} deve scegliere se scartare {2} o ricevere un Bang")
 
 LOCALE_VALUE(ERROR_INVALID_LOBBY,                 "ID lobby non valido")
 LOCALE_VALUE(ERROR_PLAYER_IN_LOBBY,               "Giocatore già in una lobby")
