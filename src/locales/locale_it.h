@@ -174,7 +174,7 @@ LOCALE_VALUE(STATUS_CATTLE_TRUCK_OTHER,           "{1} ... {0} deve scegliere un
 LOCALE_VALUE(STATUS_DISCARD_TABLE,                "{0} ... Scarta una carta in gioco")
 LOCALE_VALUE(STATUS_DISCARD_TABLE_OTHER,          "{1} ... {0} deve scartare una carta in gioco")
 LOCALE_VALUE(STATUS_LOUNGE_CAR,                   "{0} ... dai uno dei vagoni pescati a un altro giocatore")
-LOCALE_VALUE(STATUS_LOUNGE_CAR_OTHER,             "{1} ... {1} deve dare uno dei vagoni pescati a un altro giocatore")
+LOCALE_VALUE(STATUS_LOUNGE_CAR_OTHER,             "{1} ... {0} deve dare uno dei vagoni pescati a un altro giocatore")
 LOCALE_VALUE(STATUS_MAIL_CAR,                     "{0} ... dai una delle carte pescate a un altro giocatore")
 LOCALE_VALUE(STATUS_MAIL_CAR_OTHER,               "{1} ... {0} deve dare una delle carte pescate a un altro giocatore")
 LOCALE_VALUE(STATUS_MAP,                          "{0} ... Scarta una delle carte o Conferma")

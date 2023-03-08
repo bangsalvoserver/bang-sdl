@@ -174,7 +174,7 @@ LOCALE_VALUE(STATUS_CATTLE_TRUCK_OTHER,           "{1} ... {0} must choose a car
 LOCALE_VALUE(STATUS_DISCARD_TABLE,                "{0} ... Discard a card in play")
 LOCALE_VALUE(STATUS_DISCARD_TABLE_OTHER,          "{1} ... {0} must discard a card in play")
 LOCALE_VALUE(STATUS_LOUNGE_CAR,                   "{0} ... Give one of the railcars drawn to another player")
-LOCALE_VALUE(STATUS_LOUNGE_CAR_OTHER,             "{1} ... {1} must give one of the railcars drawn to another player")
+LOCALE_VALUE(STATUS_LOUNGE_CAR_OTHER,             "{1} ... {0} must give one of the railcars drawn to another player")
 LOCALE_VALUE(STATUS_MAIL_CAR,                     "{0} ... Give one of the cards drawn to another player")
 LOCALE_VALUE(STATUS_MAIL_CAR_OTHER,               "{1} ... {0} must give one of the cards drawn to another player")
 LOCALE_VALUE(STATUS_MAP,                          "{0} ... Discard one of the cards or Confirm")
