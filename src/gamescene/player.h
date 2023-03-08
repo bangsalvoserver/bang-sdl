@@ -3,7 +3,7 @@
 
 #include "card.h"
 
-#include "cards/game_enums.h"
+#include "cards/filters.h"
 
 #include "../widgets/stattext.h"
 #include "../widgets/profile_pic.h"
@@ -66,9 +66,7 @@ namespace banggame {
         }
 
         bool alive() const {
-            return !has_player_flags(player_flags::dead)
-                || has_player_flags(player_flags::ghost)
-                || has_player_flags(player_flags::temp_ghost);
+            return filters::is_player_alive(this);
         }
 
         void set_hp_marker_position(float hp);

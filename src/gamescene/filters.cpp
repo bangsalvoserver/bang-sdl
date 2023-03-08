@@ -5,20 +5,16 @@
 
 namespace banggame::filters::detail {
 
-    bool check_player_flags(player_view *origin, player_flags flags) {
+    bool check_player_flags(const player_view *origin, player_flags flags) {
         return origin->has_player_flags(flags);
     }
 
-    bool check_game_flags(player_view *origin, game_flags flags) {
+    bool check_game_flags(const player_view *origin, game_flags flags) {
         return origin->m_game->has_game_flags(flags);
     }
     
     int get_player_hp(player_view *origin) {
         return origin->hp;
-    }
-
-    bool is_player_alive(player_view *origin) {
-        return origin->alive();
     }
 
     player_role get_player_role(player_view *origin) {
