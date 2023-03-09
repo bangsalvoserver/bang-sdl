@@ -422,6 +422,8 @@ void game_scene::handle_game_update(UPD_TAG(add_cards), const add_cards_update &
         card->texture_back = card_textures::get().backfaces[enums::indexof(deck)];
         
         pocket.add_card(card);
+    }
+    for (card_view *card : pocket) {
         card->set_pos(pocket.get_pos() + pocket.get_offset(card));
     }
 }
