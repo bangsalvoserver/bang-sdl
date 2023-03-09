@@ -23,8 +23,6 @@ namespace banggame {
             case modifier_type::discount:
                 return target_card->deck == card_deck_type::goldrush && target_card->pocket->type != pocket_type::player_table;
             case modifier_type::card_choice:
-            case modifier_type::leevankliff:
-            case modifier_type::moneybag:
                 return false;
             case modifier_type::locomotive:
                 return target_card->pocket->type == pocket_type::stations;
@@ -51,7 +49,11 @@ namespace banggame {
                 return !filters::is_equip_card(target_card);
             case modifier_type::traincost:
             case modifier_type::locomotive:
-                return target_card->pocket->type == pocket_type::train;
+                if (target_card->pocket->type == pocket_type::train && target_card->deck != card_deck_type::locomotive) {
+                    return std::distance(m_game->m_train.begin(), std::ranges::find(m_game->m_train, target_card))
+                        <= m_game->m_train_position + m_context.train_advance;
+                }
+                return false;
             default:
                 return true;
             }
