@@ -178,7 +178,7 @@ namespace banggame {
     }
 
     sdl::point train_move_animation::end_point() const {
-        return stations->get_pos() + sdl::point{(options.card_width + options.train_offset) * end_pos, 60};
+        return stations->get_pos() + options.train_offset + options.train_card_offset * end_pos;
     }
 
     void train_move_animation::end() {

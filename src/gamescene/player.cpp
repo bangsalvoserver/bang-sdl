@@ -56,13 +56,13 @@ namespace banggame {
 
             self->set_hp_marker_position(float(self->hp));
 
-            self->m_role.set_pos(sdl::point{
-                self->m_characters.get_pos().x + options.card_width + options.card_margin,
-                self->m_characters.get_pos().y + options.role_yoff
+            self->m_role.set_pos(self->m_characters.get_pos() + sdl::point{
+                options.card_width + options.card_margin,
+                options.role_yoff
             });
 
-            self->scenario_deck.set_pos(self->m_role.get_pos() + sdl::point{options.character_offset, options.character_offset});
-            self->wws_scenario_deck.set_pos(self->m_role.get_pos() + sdl::point{options.character_offset * 2, options.character_offset * 2});
+            self->scenario_deck.set_pos(self->m_role.get_pos() + options.card_diag_offset);
+            self->wws_scenario_deck.set_pos(self->m_role.get_pos() + options.card_diag_offset * 2);
 
             self->m_propic.set_pos(sdl::point{
                 self->m_role.get_pos().x,

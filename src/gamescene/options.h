@@ -25,27 +25,34 @@ namespace banggame {
         int player_view_height;     // height of player view bounding rect
 
         int one_hp_size;            // size of "bullet" for one hp
-        int character_offset;       // distance between cards in diagonal pockets
+        sdl::point card_diag_offset; // distance between cards in diagonal pockets
 
         int gold_yoffset;           // vertical distance from center of character card to top of gold text
 
-        int deck_xoffset;           // horizontal distance from center of window to main deck
-        int discard_xoffset;        // horizontal distance between main deck and discard pile
+        sdl::point deck_offset;     // distance from center of window to main deck
+        sdl::point discard_offset;  // distance from main deck and discard pile
+
+        sdl::point scenario_offset; // distance from main deck to scenario card pile 
         
-        int shop_xoffset;
+        sdl::point shop_deck_offset; // distance from center of window to shop deck
+        sdl::point shop_selection_offset; // distance from shop deck to shop selection center
 
         int shop_selection_width;   // max size of shop selection pocket
+
+        sdl::point train_deck_offset; // distance from center of window to train deck
+        sdl::point stations_offset; // distance from train deck to stations
+
+        sdl::point train_offset;
+        sdl::point train_card_offset; // horizontal padding between cards in train
 
         int card_choice_xoffset;    // horizontal offset between card choices
         int card_choice_yoffset;    // vertical distance from anchor to card choices
 
-        int selection_yoffset;      // vertical distance from center of screen to selection pocket
+        sdl::point selection_offset; // distance from center of screen to selection pocket
         int selection_width;        // max size of selection pocket
 
-        int train_offset;           // horizontal offset between cards in train
-
         int cube_pile_size;         // size of square of cube pile
-        int cube_pile_xoffset;      // distance from center of window to cube pile
+        sdl::point cube_pile_offset;      // distance from center of window to cube pile
 
         int cube_xdiff;             // horizontal distance from center of card to cube
         int cube_ydiff;             // vertical distance from center of card to first cube
@@ -53,6 +60,8 @@ namespace banggame {
 
         int player_ellipse_x_distance;  // from border of screen
         int player_ellipse_y_distance;
+
+        int button_row_yoffset;
 
         int default_border_thickness;   // card border thickness
 

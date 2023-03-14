@@ -23,56 +23,34 @@ game_scene::game_scene(client_manager *parent)
 
 void game_scene::refresh_layout() {
     const auto win_rect = parent->get_rect();
+    const sdl::point win_center { win_rect.w / 2, win_rect.h / 2 };
 
-    m_main_deck.set_pos(sdl::point{
-        win_rect.w / 2 + options.deck_xoffset,
-        win_rect.h / 2});
+    m_button_row.set_pos(sdl::point{win_rect.w / 2, win_rect.h - options.button_row_yoffset});
+    m_ui.refresh_layout();
 
-    m_discard_pile.set_pos(m_main_deck.get_pos() - sdl::point{options.discard_xoffset, 0});
-    
-    m_selection.set_pos(sdl::point{
-        win_rect.w / 2,
-        win_rect.h / 2 + options.selection_yoffset});
+    m_main_deck.set_pos(win_center + options.deck_offset);
+    m_discard_pile.set_pos(m_main_deck.get_pos() + options.discard_offset);
 
-    m_shop_deck.set_pos(sdl::point{
-        win_rect.w / 2 + options.shop_xoffset - options.shop_selection_width - options.card_width,
-        win_rect.h / 2});
+    m_scenario_card.set_pos(m_main_deck.get_pos() + options.scenario_offset);
+    m_wws_scenario_card.set_pos(m_scenario_card.get_pos() + options.card_diag_offset);
 
+    m_cubes.set_pos(win_center + options.cube_pile_offset);
+
+    m_shop_deck.set_pos(win_center + options.shop_deck_offset);
     m_shop_discard.set_pos(m_shop_deck.get_pos());
+    m_shop_selection.set_pos(m_shop_deck.get_pos() + options.shop_selection_offset);
 
-    m_shop_selection.set_pos(sdl::point{
-        win_rect.w / 2 + options.shop_xoffset - options.shop_selection_width / 2,
-        win_rect.h / 2});
+    m_train_deck.set_pos(win_center + options.train_deck_offset);
+    m_stations.set_pos(m_train_deck.get_pos() + options.stations_offset);
+    m_train.set_pos(m_stations.get_pos() + options.train_offset + options.train_card_offset * m_train_position);
+    
+    m_selection.set_pos(win_center + options.selection_offset);
+
+    move_player_views();
     
     if (card_view *anchor = m_card_choice.get_anchor()) {
         m_card_choice.set_pos(anchor->get_pos());
     }
-
-    m_stations.set_pos(sdl::point{
-        win_rect.w / 2 - 200,
-        win_rect.h / 2
-    });
-
-    m_train_deck.set_pos(m_stations.get_pos() - sdl::point{options.card_width + 20, 0});
-    m_train.set_pos(m_stations.get_pos() + sdl::point{(options.card_width + options.train_offset) * m_train_position, 60});
-
-    sdl::point scenario_card_pos{
-        win_rect.w / 2 + options.deck_xoffset + options.card_width + options.card_pocket_xoff,
-        win_rect.h / 2};
-
-    m_scenario_card.set_pos(scenario_card_pos);
-    m_wws_scenario_card.set_pos(scenario_card_pos + sdl::point{options.character_offset, options.character_offset});
-
-    move_player_views();
-
-    m_cubes.set_pos(sdl::point{
-        win_rect.w / 2 + options.cube_pile_xoffset,
-        win_rect.h / 2
-    });
-
-    m_ui.refresh_layout();
-
-    m_button_row.set_pos(sdl::point{win_rect.w / 2, win_rect.h - 40});
 }
 
 void game_scene::tick(duration_type time_elapsed) {
@@ -123,12 +101,12 @@ void game_scene::render(sdl::renderer &renderer) {
     m_shop_discard.render_first(renderer, 1);
     m_shop_deck.render_last(renderer, 2);
     m_shop_selection.render(renderer);
-    m_stations.render(renderer);
-    m_train_deck.render_last(renderer, 2);
-    m_train.render(renderer);
     m_scenario_card.render_last(renderer, 2);
     m_wws_scenario_card.render_last(renderer, 2);
     m_discard_pile.render_last(renderer, 2);
+    m_stations.render(renderer);
+    m_train_deck.render_last(renderer, 2);
+    m_train.render(renderer);
     m_cubes.render(renderer);
 
     for (player_view *p : m_alive_players) {

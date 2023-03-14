@@ -17,27 +17,34 @@ namespace banggame {
         .player_view_height = 220,
 
         .one_hp_size = 18,
-        .character_offset = 20,
+        .card_diag_offset { 20, 20 },
 
         .gold_yoffset = 60,
 
-        .deck_xoffset = 200,
-        .discard_xoffset = 70,
+        .deck_offset { 200, 30 },
+        .discard_offset { -70, 0 },
 
-        .shop_xoffset = 10,
+        .scenario_offset { 70, 0 },
+
+        .shop_deck_offset { -210, 50 },
+        .shop_selection_offset { 140, 0 },
 
         .shop_selection_width = 150,
+
+        .train_deck_offset { -210, -120 },
+        .stations_offset { 65, 0},
+
+        .train_offset { 0, 60 },
+        .train_card_offset { 65, 0 },
 
         .card_choice_xoffset = 5,
         .card_choice_yoffset = 20,
 
-        .selection_yoffset = 10,
+        .selection_offset { 0, 0 },
         .selection_width = 300,
 
-        .train_offset = 5,
-
         .cube_pile_size = 50,
-        .cube_pile_xoffset = 70,
+        .cube_pile_offset { 65, 25},
 
         .cube_xdiff = -20,
         .cube_ydiff = -25,
@@ -45,6 +52,8 @@ namespace banggame {
 
         .player_ellipse_x_distance = 250,
         .player_ellipse_y_distance = 155,
+
+        .button_row_yoffset = 40,
 
         .default_border_thickness = 5,
 

@@ -331,17 +331,17 @@ namespace banggame {
     }
 
     sdl::point train_pocket::get_offset(card_view *card) const {
-        const int diff = (options.card_width + options.train_offset) * int(std::ranges::distance(begin(), std::ranges::find(*this, card)));
+        const sdl::point diff = options.train_card_offset * int(std::ranges::distance(begin(), std::ranges::find(*this, card)));
         if (type == pocket_type::train) {
-            return {-diff, 0};
+            return -diff;
         } else {
-            return {diff, 0};
+            return diff;
         }
     }
 
     sdl::point character_pile::get_offset(card_view *card) const {
         int diff = int(std::ranges::distance(begin(), std::ranges::find(*this, card)));
-        return sdl::point{options.character_offset * diff, options.character_offset * diff};
+        return options.card_diag_offset * diff;
     }
 
     void counting_pocket::update_count() {

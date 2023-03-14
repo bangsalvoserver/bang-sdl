@@ -28,6 +28,14 @@ namespace sdl {
         constexpr point operator - (const point &lhs, const point &rhs) {
             return {lhs.x - rhs.x, lhs.y - rhs.y};
         }
+
+        constexpr point operator - (const point &pt) {
+            return {-pt.x, -pt.y};
+        }
+
+        constexpr point operator * (const point &pt, int scalar) {
+            return {pt.x * scalar, pt.y * scalar};
+        }
     }
 
     constexpr rect move_rect(const rect &r, const point &top_left) {
