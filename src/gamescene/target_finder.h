@@ -35,9 +35,8 @@ namespace banggame {
     };
 
     struct request_status {
-        std::vector<card_view *> m_play_cards;
+        card_modifier_tree m_play_cards;
         std::vector<card_view *> m_pick_cards;
-        card_view *m_last_played_card = nullptr;
         raii_editor_stack<sdl::color> m_request_borders;
         effect_flags m_request_flags{};
         bool m_response = false;
@@ -76,13 +75,10 @@ namespace banggame {
         void select_playing_card(card_view *card);
         void select_equip_card(card_view *card);
 
+        const card_modifier_tree &get_current_tree() const;
         bool can_play_card(card_view *card) const;
-        
-        bool card_playable_with_modifier(card_view *mod_card, card_view *target_card) const;
 
-        void add_modifier_context(card_view *mod_card);
-        void add_modifier_context(card_view *mod_card, player_view *target);
-        void add_modifier_context(card_view *mod_card, card_view *target);
+        void add_modifier_context(card_view *mod_card, player_view *target_player, card_view *target_card);
 
         bool can_pick_card(pocket_type pocket, player_view *player, card_view *card) const;
         

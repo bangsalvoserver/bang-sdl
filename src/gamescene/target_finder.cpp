@@ -116,7 +116,7 @@ void target_finder::set_response_cards(const request_status_args &args) {
         add_pick_border(card, colors.target_finder_can_pick);
     }
 
-    for (card_view *card : (m_play_cards = args.respond_cards)) {
+    for (const auto &[card, branches] : (m_play_cards = args.respond_cards)) {
         m_request_borders.add(card->border_color, colors.target_finder_can_respond);
     }
 
@@ -126,11 +126,9 @@ void target_finder::set_response_cards(const request_status_args &args) {
 }
 
 void target_finder::set_play_cards(const status_ready_args &args) {
-    for (card_view *card : (m_play_cards = args.play_cards)) {
+    for (const auto &[card, branches] : (m_play_cards = args.play_cards)) {
         m_request_borders.add(card->border_color, colors.target_finder_can_respond);
     }
-
-    m_last_played_card = args.last_played_card;
 }
 
 void target_finder::clear_status() {
@@ -145,7 +143,7 @@ void target_finder::clear_targets() {
 
 void target_finder::handle_auto_respond() {
     if (m_mode == target_mode::start && bool(m_request_flags & effect_flags::auto_respond) && m_play_cards.size() == 1 && m_pick_cards.empty()) {
-        select_playing_card(m_play_cards.front());
+        select_playing_card(m_play_cards.front().card);
     }
 }
 
@@ -174,15 +172,20 @@ bool target_finder::is_card_clickable() const {
         && !finished();
 }
 
-bool target_finder::can_play_card(card_view *target_card) const {
-    if (m_modifiers.empty()) {
-        return ranges::contains(m_play_cards, target_card);
-    } else {
-        return filters::get_card_cost(target_card, m_response, m_context) <= m_game->m_playing->gold
-            && std::ranges::all_of(m_modifiers, [&](card_view *mod_card) {
-                return card_playable_with_modifier(mod_card, target_card);
-            }, &modifier_pair::card);
+const card_modifier_tree &target_finder::get_current_tree() const {
+    const card_modifier_tree *tree = &m_play_cards;
+    for (const auto &[mod_card, targets] : m_modifiers) {
+        if (auto it = std::ranges::find(*tree, mod_card, &card_modifier_node::card); it != tree->end()) {
+            tree = &it->branches;
+        } else {
+            throw std::runtime_error("Cannot find modifier card");
+        }
     }
+    return *tree;
+}
+
+bool target_finder::can_play_card(card_view *target_card) const {
+    return ranges::contains(get_current_tree(), target_card, &card_modifier_node::card);
 }
 
 bool target_finder::can_pick_card(pocket_type pocket, player_view *player, card_view *card) const {
@@ -266,7 +269,7 @@ bool target_finder::on_click_player(player_view *player) {
                 if (cur_target.target == target_type::player) {
                     targets.emplace_back(enums::enum_tag<target_type::player>, player);
                     if (m_mode == target_mode::modifier && cur_target.type == effect_type::ctx_add) {
-                        add_modifier_context(current_card, player);
+                        add_modifier_context(current_card, player, nullptr);
                     }
                 } else {
                     targets.emplace_back(enums::enum_tag<target_type::conditional_player>, player);
@@ -528,7 +531,7 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
             if (cur_target.target == target_type::card) {
                 targets.emplace_back(enums::enum_tag<target_type::card>, card);
                 if (m_mode == target_mode::modifier && cur_target.type == effect_type::ctx_add) {
-                    add_modifier_context(current_card, card);
+                    add_modifier_context(current_card, nullptr, card);
                 }
                 handle_auto_targets();
             } else if (cur_target.target == target_type::extra_card) {
@@ -624,10 +627,35 @@ bool target_finder::add_selected_cube(card_view *card, int ncubes) {
     return true;
 }
 
+void target_finder::add_modifier_context(card_view *mod_card, player_view *target_player, card_view *target_card) {
+    switch (mod_card->modifier.type) {
+    case modifier_type::belltower:
+        m_context.ignore_distances = true;
+        break;
+    case modifier_type::card_choice:
+        m_game->m_card_choice.set_anchor(mod_card, get_current_tree());
+        break;
+    case modifier_type::leevankliff:
+    case modifier_type::moneybag:
+        select_playing_card(m_context.repeat_card = get_current_tree().front().card);
+        break;
+    case modifier_type::traincost:
+        if (mod_card->pocket->type == pocket_type::stations) {
+            select_equip_card(get_current_tree().front().card);
+        }
+        break;
+    case modifier_type::skip_player:
+        if (target_player) {
+            m_context.skipped_player = target_player;
+        }
+        break;
+    }
+}
+
 void target_finder::send_play_card() {
     if (m_mode == target_mode::modifier) {
         m_mode = target_mode::start;
-        add_modifier_context(m_modifiers.back().card);
+        add_modifier_context(m_modifiers.back().card, nullptr, nullptr);
     } else {
         m_mode = target_mode::finish;
         add_action<game_action_type::play_card>(m_playing_card, m_modifiers, m_targets, m_response);

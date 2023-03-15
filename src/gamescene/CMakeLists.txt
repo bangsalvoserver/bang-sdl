@@ -7,7 +7,6 @@ target_sources(bangclient PRIVATE
     game.cpp
     game_ui.cpp
     game_message_box.cpp
-    modifiers.cpp
     target_finder.cpp
     options.cpp
 )

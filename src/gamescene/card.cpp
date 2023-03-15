@@ -1,7 +1,5 @@
 #include "card.h"
 
-#include "cards/filter_enums.h"
-
 #include "net/options.h"
 #include "../media_pak.h"
 
@@ -288,26 +286,19 @@ namespace banggame {
     }
 
     sdl::point card_choice_pocket::get_offset(card_view *card) const {
-        if (size() == 1) {
-            return {0, 0};
-        }
         const float xoffset = float(options.card_width + options.card_choice_xoffset);
         const int diff = int(std::ranges::distance(begin(), std::ranges::find(*this, card)));
         return sdl::point{(int)(xoffset * (diff - (size() - 1) * .5f)), options.card_choice_yoffset};
     }
 
-    void card_choice_pocket::set_anchor(card_view *card, const pocket_view &hidden_deck) {
+    void card_choice_pocket::set_anchor(card_view *card, const card_modifier_tree &tree) {
         anchor = card;
         set_pos(card->get_pos());
-        for (card_view *c : hidden_deck) {
-            if (c->get_tag_value(tag_type::card_choice) == card->get_tag_value(tag_type::card_choice)) {
-                add_card(c);
-            }
+        for (const auto &[c, branches] : tree) {
+            add_card(c);
         }
-        if (!empty()) {
-            for (card_view *c : *this) {
-                c->set_pos(get_pos() + get_offset(c));
-            }
+        for (card_view *c : *this) {
+            c->set_pos(get_pos() + get_offset(c));
         }
     }
 

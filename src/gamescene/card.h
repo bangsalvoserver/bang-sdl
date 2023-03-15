@@ -285,7 +285,7 @@ namespace banggame {
         sdl::point get_offset(card_view *card) const override;
 
         card_view *get_anchor() const { return anchor; }
-        void set_anchor(card_view *card, const pocket_view &hidden_deck);
+        void set_anchor(card_view *card, const card_modifier_tree &tree);
 
         void clear() override;
     };
