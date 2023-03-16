@@ -120,6 +120,9 @@ void target_finder::set_response_cards(const request_status_args &args) {
         m_request_borders.add(card->border_color, colors.target_finder_can_respond);
     }
 
+    m_request_origin_card = args.origin_card;
+    m_request_origin = args.origin;
+    m_request_target = args.target;
     m_request_flags = args.flags;
     m_response = true;
     handle_auto_respond();

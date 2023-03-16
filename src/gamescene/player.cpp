@@ -134,11 +134,11 @@ namespace banggame {
                     render_icon(media_pak::get().icon_turn, colors.turn_indicator);
                     x -= 32;
                 }
-                if (self == self->m_game->m_request_target) {
+                if (self == self->m_game->get_target_finder().get_request_target()) {
                     render_icon(media_pak::get().icon_target, colors.request_target_indicator);
                     x -= 32;
                 }
-                if (self == self->m_game->m_request_origin) {
+                if (self == self->m_game->get_target_finder().get_request_origin()) {
                     render_icon(media_pak::get().icon_origin, colors.request_origin_indicator);
                 }
             } else if (bool(self->has_player_flags(player_flags::winner))) {

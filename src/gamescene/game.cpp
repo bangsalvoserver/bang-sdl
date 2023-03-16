@@ -686,8 +686,6 @@ void game_scene::handle_game_update(UPD_TAG(switch_turn), player_view *player) {
 }
 
 void game_scene::handle_game_update(UPD_TAG(request_status), const request_status_args &args) {
-    m_request_origin = args.origin;
-    m_request_target = args.target;
     m_target.set_response_cards(args);
 
     if (args.status_text) {
@@ -714,9 +712,6 @@ void game_scene::handle_game_update(UPD_TAG(play_sound), const std::string &soun
 }
 
 void game_scene::handle_game_update(UPD_TAG(status_clear)) {
-    m_request_origin = nullptr;
-    m_request_target = nullptr;
-
     m_ui.clear_status();
     m_target.clear_status();
 }

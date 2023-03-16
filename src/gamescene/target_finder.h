@@ -38,6 +38,9 @@ namespace banggame {
         card_modifier_tree m_play_cards;
         std::vector<card_view *> m_pick_cards;
         raii_editor_stack<sdl::color> m_request_borders;
+        card_view *m_request_origin_card = nullptr;
+        player_view *m_request_origin = nullptr;
+        player_view *m_request_target = nullptr;
         effect_flags m_request_flags{};
         bool m_response = false;
     };
@@ -54,6 +57,10 @@ namespace banggame {
 
         bool is_playing_card(card_view *card) const { return m_playing_card == card; }
         bool finished() const { return m_mode == target_mode::finish; }
+
+        card_view *get_request_origin_card() const { return m_request_origin_card; }
+        player_view *get_request_origin() const { return m_request_origin; }
+        player_view *get_request_target() const { return m_request_target; }
     
     public:
         void set_response_cards(const request_status_args &args);

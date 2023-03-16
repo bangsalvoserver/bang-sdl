@@ -161,8 +161,6 @@ namespace banggame {
         
         player_view *m_player_self = nullptr;
         player_view *m_playing = nullptr;
-        player_view *m_request_origin = nullptr;
-        player_view *m_request_target = nullptr;
         player_view *m_scenario_player = nullptr;
         player_view *m_wws_scenario_player = nullptr;
 
