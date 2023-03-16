@@ -291,10 +291,6 @@ bool target_finder::on_click_player(player_view *player) {
 int target_finder::calc_distance(player_view *from, player_view *to) const {
     if (from == to) return 0;
 
-    if (m_context.ignore_distances) {
-        return 1;
-    }
-
     if (m_game->has_game_flags(game_flags::disable_player_distances)) {
         return 1 + to->m_distance_mod;
     }
@@ -496,7 +492,7 @@ const char *target_finder::check_player_filter(target_player_filter filter, play
     if (contains_element{target_player}(all_targets(*this))) {
         return "ERROR_TARGET_NOT_UNIQUE";
     } else {
-        return filters::check_player_filter(m_game->m_player_self, filter, target_player);
+        return filters::check_player_filter(m_game->m_player_self, filter, target_player, m_context);
     }
 }
 
@@ -504,7 +500,7 @@ const char *target_finder::check_card_filter(target_card_filter filter, card_vie
     if (!bool(filter & target_card_filter::can_repeat) && contains_element{card}(all_targets(*this))) {
         return "ERROR_TARGET_NOT_UNIQUE";
     } else {
-        return filters::check_card_filter(m_playing_card, m_game->m_player_self, filter, card);
+        return filters::check_card_filter(m_playing_card, m_game->m_player_self, filter, card, m_context);
     }
 }
 
