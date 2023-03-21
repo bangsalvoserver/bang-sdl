@@ -155,6 +155,8 @@ LOCALE_VALUE(STATUS_DAMAGING_AS_BANG_PLURAL,      "{0} prende {2} danni per {1} 
 LOCALE_VALUE(STATUS_DAMAGING_AS_GATLING,          "{0} prende un danno per {1} come Gatling!")
 LOCALE_VALUE(STATUS_CAN_PLAY_TUMBLEWEED,          "{0} estrae {3} per {2} ... Puoi giocare {1}")
 LOCALE_VALUE(STATUS_CAN_PLAY_TUMBLEWEED_OTHER,    "{0} estrae {3} per {2} ... {4} può giocare {1}")
+LOCALE_VALUE(STATUS_CAN_PLAY_TUMBLEWEED_FOR,      "{0} estrae per {2} ... Puoi giocare {1}")
+LOCALE_VALUE(STATUS_CAN_PLAY_TUMBLEWEED_FOR_OTHER,"{0} estrae per {2} ... {3} può giocare {1}")
 LOCALE_VALUE(STATUS_SWITCH_CARDS,                 "{0} per scambiare {1} con {2} ... Puoi rispondere con Fuga")
 LOCALE_VALUE(STATUS_SWITCH_CARDS_OTHER,           "{1} contro {0} per scambiare {2} con {3}")
 LOCALE_VALUE(STATUS_LASTWILL,                     "Puoi giocare {0} per dare fino a tre carte a un giocatore")
