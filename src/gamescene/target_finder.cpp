@@ -313,6 +313,9 @@ int target_finder::calc_distance(player_view *from, player_view *to) const {
         {
             assert(m_it != list->end());
         }
+
+        reference operator *() const { return *m_it; }
+        pointer operator ->() { return &*m_it; }
         
         player_view_iterator &operator ++() {
             do {
@@ -337,15 +340,18 @@ int target_finder::calc_distance(player_view *from, player_view *to) const {
         bool operator == (const player_view_iterator &) const = default;
     };
 
+    player_view_iterator from_it{m_game, from};
+    player_view_iterator to_it{m_game, to};
+
     if (to->alive()) {
         return std::min(
-            std::distance(player_view_iterator(m_game, from), player_view_iterator(m_game, to)),
-            std::distance(player_view_iterator(m_game, to), player_view_iterator(m_game, from))
+            std::distance(from_it, to_it),
+            std::distance(std::reverse_iterator(from_it), std::reverse_iterator(to_it))
         ) + to->m_distance_mod;
     } else {
         return std::min(
-            std::distance(player_view_iterator(m_game, from), std::prev(player_view_iterator(m_game, to))),
-            std::distance(std::next(player_view_iterator(m_game, to)), player_view_iterator(m_game, from))
+            std::distance(from_it, std::prev(to_it)),
+            std::distance(std::reverse_iterator(from_it), std::reverse_iterator(std::next(to_it)))
         ) + 1 + to->m_distance_mod;
     }
 }
