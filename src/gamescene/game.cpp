@@ -156,7 +156,7 @@ void game_scene::handle_event(const sdl::event &event) {
         case SDL_BUTTON_RIGHT:
             if (!m_target.finished() && !m_ui.is_message_box_open()) {
                 m_target.clear_targets();
-                m_target.handle_auto_respond();
+                m_target.handle_auto_select();
             }
             break;
         case SDL_BUTTON_MIDDLE:
@@ -340,7 +340,7 @@ std::string game_scene::evaluate_format_string(const game_string &str) {
 
 void game_scene::handle_game_update(UPD_TAG(game_error), const game_string &args) {
     m_target.clear_targets();
-    m_target.handle_auto_respond();
+    m_target.handle_auto_select();
     parent->add_chat_message(message_type::error, evaluate_format_string(args));
 }
 

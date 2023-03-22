@@ -41,7 +41,7 @@ namespace banggame {
         card_view *m_request_origin_card = nullptr;
         player_view *m_request_origin = nullptr;
         player_view *m_request_target = nullptr;
-        effect_flags m_request_flags{};
+        bool m_auto_select = false;
         bool m_response = false;
     };
 
@@ -66,7 +66,7 @@ namespace banggame {
         void set_response_cards(const request_status_args &args);
         void set_play_cards(const status_ready_args &args);
         
-        void handle_auto_respond();
+        void handle_auto_select();
 
         void clear_status();
         void clear_targets();

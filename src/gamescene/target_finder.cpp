@@ -123,9 +123,9 @@ void target_finder::set_response_cards(const request_status_args &args) {
     m_request_origin_card = args.origin_card;
     m_request_origin = args.origin;
     m_request_target = args.target;
-    m_request_flags = args.flags;
+    m_auto_select = args.auto_select;
     m_response = true;
-    handle_auto_respond();
+    handle_auto_select();
 }
 
 void target_finder::set_play_cards(const status_ready_args &args) {
@@ -144,8 +144,8 @@ void target_finder::clear_targets() {
     static_cast<target_status &>(*this) = {};
 }
 
-void target_finder::handle_auto_respond() {
-    if (m_mode == target_mode::start && bool(m_request_flags & effect_flags::auto_respond) && m_play_cards.size() == 1 && m_pick_cards.empty()) {
+void target_finder::handle_auto_select() {
+    if (m_auto_select && m_mode == target_mode::start && m_play_cards.size() == 1 && m_pick_cards.empty()) {
         select_playing_card(m_play_cards.front().card);
     }
 }
@@ -685,6 +685,6 @@ void target_finder::send_prompt_response(bool response) {
     add_action<game_action_type::prompt_respond>(response);
     if (!response) {
         clear_targets();
-        handle_auto_respond();
+        handle_auto_select();
     }
 }
