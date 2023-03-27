@@ -373,6 +373,7 @@ LOCALE_VALUE(game_options::scenario_deck_size,          "Scenario Cards")
 LOCALE_VALUE(game_options::num_bots,                    "Number of Bots")
 LOCALE_VALUE(game_options::damage_timer,                "Damage Timer")
 LOCALE_VALUE(game_options::escape_timer,                "Escape Timer")
+LOCALE_VALUE(game_options::bot_play_timer,              "Bot Play Timer")
 LOCALE_VALUE(game_options::tumbleweed_timer,            "Tumbleweed Timer")
 
 LOCALE_VALUE(expansion_type::thebullet,                 "The Bullet")

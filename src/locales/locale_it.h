@@ -374,6 +374,7 @@ LOCALE_VALUE(game_options::scenario_deck_size,          "Carte Scenario")
 LOCALE_VALUE(game_options::num_bots,                    "Numero di Bot")
 LOCALE_VALUE(game_options::damage_timer,                "Timer di Danno")
 LOCALE_VALUE(game_options::escape_timer,                "Timer di Fuga")
+LOCALE_VALUE(game_options::bot_play_timer,              "Timer di Giocata Bot")
 LOCALE_VALUE(game_options::tumbleweed_timer,            "Timer di Cespuglio")
 
 LOCALE_VALUE(expansion_type::thebullet,                 "La Pallottola")
