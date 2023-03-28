@@ -318,7 +318,7 @@ void game_scene::handle_message(SRV_TAG(lobby_error), const std::string &message
 std::string game_scene::evaluate_format_string(const game_string &str) {
     return intl::format(_(str.format_str),
         str.format_args | std::views::transform([&](const game_format_arg &arg) {
-        return std::visit(overloaded{
+        return enums::visit(overloaded{
             [](int value) { return std::to_string(value); },
             [](const std::string &value) { return _(value); },
             [&](const card_format_id &value) {
