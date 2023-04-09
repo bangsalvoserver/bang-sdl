@@ -141,7 +141,10 @@ void client_manager::render(sdl::renderer &renderer) {
 }
 
 void client_manager::handle_event(const sdl::event &event) {
-    if (!widgets::event_handler::handle_events(event)) {
+    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_RETURN && bool(event.key.keysym.mod & KMOD_ALT)) {
+        Uint32 fullscreen = SDL_WINDOW_FULLSCREEN_DESKTOP;
+        SDL_SetWindowFullscreen(m_window.get(), SDL_GetWindowFlags(m_window.get()) & fullscreen ? 0 : fullscreen);
+    } else if (!widgets::event_handler::handle_events(event)) {
         m_scene->handle_event(event);
     }
 }
