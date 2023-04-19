@@ -66,9 +66,11 @@ void target_finder::select_playing_card(card_view *card) {
     if (card->is_modifier()) {
         m_modifiers.emplace_back(card);
         m_mode = target_mode::modifier;
+        m_request_borders.clear();
     } else {
         m_playing_card = card;
         m_mode = target_mode::target;
+        set_request_borders();
     }
 
     add_target_border(card->border_color, colors.target_finder_current_card);
@@ -78,6 +80,7 @@ void target_finder::select_playing_card(card_view *card) {
 void target_finder::select_equip_card(card_view *card) {
     m_playing_card = card;
     m_mode = target_mode::equip;
+    set_request_borders();
 
     add_target_border(card->border_color, colors.target_finder_current_card);
     if (card->self_equippable()) {
@@ -92,6 +95,10 @@ void target_finder::add_action(auto && ... args) {
 
 void target_finder::add_target_border(sdl::color &color_ref, sdl::color value) {
     m_target_borders.add(m_game->m_color_tracker, color_ref, value);
+}
+
+void target_finder::add_highlight_border(sdl::color &color_ref, sdl::color value) {
+    m_highlights.add(m_game->m_color_tracker, color_ref, value);
 }
 
 void target_finder::add_request_border(sdl::color &color_ref, sdl::color value) {
@@ -111,21 +118,28 @@ void target_finder::add_pick_border(card_view *card, sdl::color color) {
     }
 }
 
+void target_finder::set_request_borders() {
+    m_request_borders.clear();
+
+    if (!m_playing_card) {
+        if (m_modifiers.empty()) {
+            for (card_view *card : m_pick_cards) {
+                add_pick_border(card, colors.target_finder_can_pick);
+            }
+        }
+        for (const auto &[card, branches] : get_current_tree()) {
+            add_request_border(card->border_color, colors.target_finder_can_play);
+        }
+    }
+}
+
 void target_finder::set_response_cards(const request_status_args &args) {
     for (card_view *card : args.highlight_cards) {
-        add_request_border(card->border_color, colors.target_finder_highlight_card);
+        add_highlight_border(card->border_color, colors.target_finder_highlight_card);
     }
 
-    if (card_view *c = args.origin_card) {
-        add_request_border(c->border_color, colors.target_finder_origin_card);
-    }
-
-    for (card_view *card : (m_pick_cards = args.pick_cards)) {
-        add_pick_border(card, colors.target_finder_can_pick);
-    }
-
-    for (const auto &[card, branches] : (m_play_cards = args.respond_cards)) {
-        add_request_border(card->border_color, colors.target_finder_can_respond);
+    if (card_view *card = args.origin_card) {
+        add_highlight_border(card->border_color, colors.target_finder_origin_card);
     }
 
     m_request_origin_card = args.origin_card;
@@ -133,13 +147,17 @@ void target_finder::set_response_cards(const request_status_args &args) {
     m_request_target = args.target;
     m_auto_select = args.auto_select;
     m_response = true;
+
+    m_pick_cards = args.pick_cards;
+    m_play_cards = args.respond_cards;
+
+    set_request_borders();
     handle_auto_select();
 }
 
 void target_finder::set_play_cards(const status_ready_args &args) {
-    for (const auto &[card, branches] : (m_play_cards = args.play_cards)) {
-        add_request_border(card->border_color, colors.target_finder_can_respond);
-    }
+    m_play_cards = args.play_cards;
+    set_request_borders();
 }
 
 void target_finder::clear_status() {
@@ -150,6 +168,7 @@ void target_finder::clear_status() {
 void target_finder::clear_targets() {
     m_game->m_card_choice.clear();
     static_cast<target_status &>(*this) = {};
+    set_request_borders();
 }
 
 void target_finder::handle_auto_select() {
@@ -669,6 +688,7 @@ void target_finder::send_play_card() {
     if (m_mode == target_mode::modifier) {
         m_mode = target_mode::start;
         add_modifier_context(m_modifiers.back().card, nullptr, nullptr);
+        set_request_borders();
     } else {
         m_mode = target_mode::finish;
         add_action<game_action_type::play_card>(m_playing_card, m_modifiers, m_targets, m_response);

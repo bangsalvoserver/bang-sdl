@@ -38,6 +38,7 @@ namespace banggame {
     struct request_status {
         card_modifier_tree m_play_cards;
         std::vector<card_view *> m_pick_cards;
+        sdl::color_iterator_list m_highlights;
         sdl::color_iterator_list m_request_borders;
         card_view *m_request_origin_card = nullptr;
         player_view *m_request_origin = nullptr;
@@ -79,9 +80,11 @@ namespace banggame {
     
     private:
         void add_target_border(sdl::color &color_ref, sdl::color value);
+        void add_highlight_border(sdl::color &color_ref, sdl::color value);
         void add_request_border(sdl::color &color_ref, sdl::color value);
 
         void add_pick_border(card_view *card, sdl::color color);
+        void set_request_borders();
 
         void select_playing_card(card_view *card);
         void select_equip_card(card_view *card);

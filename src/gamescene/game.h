@@ -122,6 +122,9 @@ namespace banggame {
         game_context_view m_context;
 
         game_ui m_ui;
+
+        sdl::color_tracker m_color_tracker;
+
         target_finder m_target;
 
         std::deque<json::json> m_pending_updates;
@@ -163,8 +166,6 @@ namespace banggame {
         player_view *m_playing = nullptr;
         player_view *m_scenario_player = nullptr;
         player_view *m_wws_scenario_player = nullptr;
-
-        sdl::color_tracker m_color_tracker;
 
         sdl::color_iterator_list m_turn_border;
 
