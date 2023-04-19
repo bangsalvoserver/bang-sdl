@@ -677,10 +677,9 @@ void game_scene::handle_game_update(UPD_TAG(player_status), const player_status_
 void game_scene::handle_game_update(UPD_TAG(switch_turn), player_view *player) {
     if (player != m_playing) {
         m_playing = player;
+        m_turn_border.clear();
         if (m_playing) {
-            m_turn_border = {m_playing->border_color, colors.turn_indicator};
-        } else {
-            m_turn_border = {};
+            m_turn_border.add(m_color_tracker, m_playing->border_color, colors.turn_indicator);
         }
     }
 }

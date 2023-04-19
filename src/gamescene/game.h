@@ -164,7 +164,9 @@ namespace banggame {
         player_view *m_scenario_player = nullptr;
         player_view *m_wws_scenario_player = nullptr;
 
-        raii_editor<sdl::color> m_turn_border;
+        sdl::color_tracker m_color_tracker;
+
+        sdl::color_iterator_list m_turn_border;
 
         game_flags m_game_flags{};
 

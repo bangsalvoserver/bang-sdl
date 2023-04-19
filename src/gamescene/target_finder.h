@@ -5,7 +5,8 @@
 
 #include "cards/holders.h"
 #include "cards/effect_context.h"
-#include "utils/raii_editor.h"
+
+#include "widgets/color_tracker.h"
 
 #include <vector>
 
@@ -26,7 +27,7 @@ namespace banggame {
         target_list m_targets;
         modifier_list m_modifiers;
         effect_context m_context;
-        raii_editor_stack<sdl::color> m_target_borders;
+        sdl::color_iterator_list m_target_borders;
         target_mode m_mode = target_mode::start;
 
         card_view *get_current_card() const;
@@ -37,7 +38,7 @@ namespace banggame {
     struct request_status {
         card_modifier_tree m_play_cards;
         std::vector<card_view *> m_pick_cards;
-        raii_editor_stack<sdl::color> m_request_borders;
+        sdl::color_iterator_list m_request_borders;
         card_view *m_request_origin_card = nullptr;
         player_view *m_request_origin = nullptr;
         player_view *m_request_target = nullptr;
@@ -77,6 +78,9 @@ namespace banggame {
         void send_prompt_response(bool response);
     
     private:
+        void add_target_border(sdl::color &color_ref, sdl::color value);
+        void add_request_border(sdl::color &color_ref, sdl::color value);
+
         void add_pick_border(card_view *card, sdl::color color);
 
         void select_playing_card(card_view *card);
