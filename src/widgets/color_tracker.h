@@ -7,15 +7,24 @@
 
 namespace sdl {
 
-    using color_key = std::pair<size_t, color *>;
+    struct color_key {
+        color *color_ptr;
+        size_t counter;
 
-    struct color_key_ordering {
-        bool operator ()(const color_key &lhs, const color_key &rhs) const {
-            return lhs.first < rhs.first;
+        bool operator == (const color_key &other) const = default;
+
+        auto operator <=> (const color_key &other) const {
+            return color_ptr == other.color_ptr ?
+                counter <=> other.counter :
+                color_ptr <=> other.color_ptr;
+        }
+
+        auto operator <=> (color *other) const {
+            return color_ptr <=> other;
         }
     };
 
-    using order_color_multimap = std::multimap<color_key, color, color_key_ordering>;
+    using order_color_multimap = std::multimap<color_key, color, std::greater<>>;
     using order_color_iterator = typename order_color_multimap::iterator;
 
     class color_tracker {
@@ -27,14 +36,17 @@ namespace sdl {
         color_tracker() = default;
         ~color_tracker() {
             for (auto &[key, _] : m_colors) {
-                *key.second = {};
+                *key.color_ptr = {};
             }
         }
 
         color_tracker(const color_tracker &other) = delete;
         color_tracker(color_tracker &&other) noexcept
             : m_colors(std::move(other.m_colors))
-            , m_counter(other.m_counter) {}
+            , m_counter(other.m_counter)
+        {
+            other.m_colors.clear();
+        }
 
         color_tracker &operator = (const color_tracker &other) = delete;
         color_tracker &operator = (color_tracker &&other) noexcept {
@@ -46,22 +58,22 @@ namespace sdl {
     public:
         order_color_iterator add(color *color_ptr, color value) {
             *color_ptr = value;
-            auto it = m_colors.emplace(std::make_pair(m_counter, color_ptr), value);
+            auto it = m_colors.emplace(color_key{color_ptr, m_counter}, value);
             ++m_counter;
             return it;
         }
 
         void remove(order_color_iterator it) {
-            auto key = it->first;
+            sdl::color *color_ptr = it->first.color_ptr;
             m_colors.erase(it);
-            auto [lower, upper] = m_colors.equal_range(key);
+            auto lower = m_colors.lower_bound(color_ptr);
             if (m_colors.empty()) {
                 m_counter = 0;
             }
-            if (lower != upper) {
-                *key.second = std::prev(upper)->second;
+            if (lower != m_colors.end() && lower->first.color_ptr == color_ptr) {
+                *color_ptr = lower->second;
             } else {
-                *key.second = {};
+                *color_ptr = {};
             }
         }
     };
@@ -76,7 +88,10 @@ namespace sdl {
 
         color_iterator_list(const color_iterator_list &other) = delete;
         color_iterator_list(color_iterator_list &&other) noexcept
-            : m_iterators(std::move(other.m_iterators)) {}
+            : m_iterators(std::move(other.m_iterators))
+        {
+            other.m_iterators.clear();
+        }
         
         color_iterator_list &operator = (const color_iterator_list &other) = delete;
         color_iterator_list &operator = (color_iterator_list &&other) noexcept {
