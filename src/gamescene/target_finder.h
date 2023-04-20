@@ -28,6 +28,7 @@ namespace banggame {
         modifier_list m_modifiers;
         effect_context m_context;
         sdl::color_iterator_list m_target_borders;
+        sdl::color_iterator_list m_targetable_borders;
         target_mode m_mode = target_mode::start;
 
         card_view *get_current_card() const;
@@ -80,6 +81,7 @@ namespace banggame {
     
     private:
         void add_target_border(sdl::color &color_ref, sdl::color value);
+        void add_targetable_border(sdl::color &color_ref, sdl::color value);
         void add_highlight_border(sdl::color &color_ref, sdl::color value);
         void add_request_border(sdl::color &color_ref, sdl::color value);
 

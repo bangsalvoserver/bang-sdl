@@ -95,6 +95,8 @@ namespace banggame {
         .target_finder_highlight_card = sdl::rgba(0xff0000aa),
         .target_finder_current_card = sdl::rgba(0x306effee),
         .target_finder_target = sdl::rgba(0xff0000aa),
+        .target_finder_targetable_card = sdl::rgba(0xffff0060),
+        .target_finder_targetable_player = sdl::rgba(0x806000ff),
         .target_finder_can_confirm = sdl::rgba(0x0000ff80),
         .target_finder_can_play = sdl::rgba(0x1ed760aa),
         .target_finder_can_pick = sdl::rgba(0xffffffaa),

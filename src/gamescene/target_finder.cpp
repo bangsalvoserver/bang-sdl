@@ -66,14 +66,13 @@ void target_finder::select_playing_card(card_view *card) {
     if (card->is_modifier()) {
         m_modifiers.emplace_back(card);
         m_mode = target_mode::modifier;
-        m_request_borders.clear();
     } else {
         m_playing_card = card;
         m_mode = target_mode::target;
-        set_request_borders();
     }
 
     add_target_border(card->border_color, colors.target_finder_current_card);
+    set_request_borders();
     handle_auto_targets();
 }
 
@@ -85,6 +84,12 @@ void target_finder::select_equip_card(card_view *card) {
     add_target_border(card->border_color, colors.target_finder_current_card);
     if (card->self_equippable()) {
         send_play_card();
+    } else {
+        for (player_view *p : m_game->m_alive_players) {
+            if (!check_player_filter(m_playing_card->equip_target, p)) {
+                add_targetable_border(p->border_color, colors.target_finder_targetable_player);
+            }
+        }
     }
 }
 
@@ -95,6 +100,10 @@ void target_finder::add_action(auto && ... args) {
 
 void target_finder::add_target_border(sdl::color &color_ref, sdl::color value) {
     m_target_borders.add(m_game->m_color_tracker, color_ref, value);
+}
+
+void target_finder::add_targetable_border(sdl::color &color_ref, sdl::color value) {
+    m_targetable_borders.add(m_game->m_color_tracker, color_ref, value);
 }
 
 void target_finder::add_highlight_border(sdl::color &color_ref, sdl::color value) {
@@ -387,7 +396,7 @@ struct targetable_for_cards_other_player {
     player_view *origin;
     player_view *skipped_player;
 
-    bool operator()(player_view *target) {
+    bool operator()(player_view *target) const {
         return target != origin && target != skipped_player && target->alive()
             && (!target->hand.empty() || std::ranges::any_of(target->table, std::not_fn(&card_view::is_black)));
     }
@@ -427,6 +436,8 @@ void target_finder::handle_auto_targets() {
         return;
     }
 
+    m_targetable_borders.clear();
+
     auto effect_it = effects.data();
     auto target_end = effects.data() + effects.size();
     if (targets.size() >= effects.size() && !optionals.empty()) {
@@ -455,34 +466,68 @@ void target_finder::handle_auto_targets() {
             })) {
                 targets.emplace_back(enums::enum_tag<target_type::conditional_player>);
                 break;
-            } else {
-                return;
             }
+            [[fallthrough]];
+        case target_type::player:
+            for (player_view *p : m_game->m_alive_players) {
+                if (!check_player_filter(effect_it->player_filter, p)) {
+                    add_targetable_border(p->border_color, colors.target_finder_targetable_player);
+                }
+            }
+            return;
         case target_type::extra_card:
             if (m_context.repeat_card) {
                 targets.emplace_back(enums::enum_tag<target_type::extra_card>);
                 break;
-            } else {
-                return;
             }
-        case target_type::cards_other_players:
-            if (std::ranges::none_of(m_game->m_alive_players,
-                targetable_for_cards_other_player{m_game->m_player_self, m_context.skipped_player}))
+            [[fallthrough]];
+        case target_type::card:
+        case target_type::cards:
+            for (card_view *c : m_game->m_alive_players
+                | ranges::views::filter([&](player_view *p) {
+                    return !check_player_filter(effect_it->player_filter, p);
+                })
+                | ranges::views::for_each([&](player_view *p) {
+                    return ranges::views::concat(p->hand, p->table)
+                        | ranges::views::filter([&](card_view *c) {
+                            return !check_card_filter(effect_it->card_filter, c);
+                        });
+                }))
             {
+                add_targetable_border(c->border_color, colors.target_finder_targetable_card);
+            }
+            return;
+        case target_type::cards_other_players:
+            if (auto targetable = m_game->m_alive_players
+                | ranges::views::filter(targetable_for_cards_other_player{m_game->m_player_self, m_context.skipped_player}))
+            {
+                for (card_view *c : targetable | ranges::views::for_each([&](player_view *p) {
+                    return ranges::views::concat(p->hand, p->table);
+                })) {
+                    add_targetable_border(c->border_color, colors.target_finder_targetable_card);
+                }
+                return;
+            } else {
                 targets.emplace_back(enums::enum_tag<target_type::cards_other_players>);
                 break;
-            } else {
-                return;
             }
         case target_type::players:
             targets.emplace_back(enums::enum_tag<target_type::players>);
             break;
+        case target_type::select_cubes:
+            for (card_view *c : ranges::views::concat(
+                m_game->m_player_self->table,
+                m_game->m_player_self->m_characters | ranges::views::take(1)
+            )) {
+                if (!c->cubes.empty() && int(c->cubes.size()) - count_selected_cubes(c) > 0) {
+                    add_targetable_border(c->border_color, colors.target_finder_targetable_card);
+                }
+            }
+            return;
         case target_type::self_cubes:
             add_selected_cube(current_card, effect_it->target_value);
             targets.emplace_back(enums::enum_tag<target_type::self_cubes>);
             break;
-        default:
-            return;
         }
         ++effect_it;
     }
@@ -688,7 +733,6 @@ void target_finder::send_play_card() {
     if (m_mode == target_mode::modifier) {
         m_mode = target_mode::start;
         add_modifier_context(m_modifiers.back().card, nullptr, nullptr);
-        set_request_borders();
     } else {
         m_mode = target_mode::finish;
         add_action<game_action_type::play_card>(m_playing_card, m_modifiers, m_targets, m_response);

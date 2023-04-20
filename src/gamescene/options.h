@@ -103,6 +103,8 @@ namespace banggame {
         sdl::color target_finder_highlight_card;
         sdl::color target_finder_current_card;
         sdl::color target_finder_target;
+        sdl::color target_finder_targetable_card;
+        sdl::color target_finder_targetable_player;
         sdl::color target_finder_can_confirm;
         sdl::color target_finder_can_play;
         sdl::color target_finder_can_pick;
