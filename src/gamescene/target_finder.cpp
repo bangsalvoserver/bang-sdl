@@ -502,7 +502,10 @@ void target_finder::handle_auto_targets() {
                 | ranges::views::filter(targetable_for_cards_other_player{m_game->m_player_self, m_context.skipped_player}))
             {
                 for (card_view *c : targetable | ranges::views::for_each([&](player_view *p) {
-                    return ranges::views::concat(p->hand, p->table);
+                    return ranges::views::concat(
+                        p->table | ranges::views::remove_if(&card_view::is_black),
+                        p->hand
+                    );
                 })) {
                     add_targetable_border(c->border_color, colors.target_finder_targetable_card);
                 }
