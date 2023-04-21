@@ -99,19 +99,19 @@ void target_finder::add_action(auto && ... args) {
 }
 
 void target_finder::add_target_border(sdl::color &color_ref, sdl::color value) {
-    m_target_borders.add(m_game->m_color_tracker, color_ref, value);
+    m_target_borders.emplace_back(m_game->m_color_tracker, color_ref, value);
 }
 
 void target_finder::add_targetable_border(sdl::color &color_ref, sdl::color value) {
-    m_targetable_borders.add(m_game->m_color_tracker, color_ref, value);
+    m_targetable_borders.emplace_back(m_game->m_color_tracker, color_ref, value);
 }
 
 void target_finder::add_highlight_border(sdl::color &color_ref, sdl::color value) {
-    m_highlights.add(m_game->m_color_tracker, color_ref, value);
+    m_highlights.emplace_back(m_game->m_color_tracker, color_ref, value);
 }
 
 void target_finder::add_request_border(sdl::color &color_ref, sdl::color value) {
-    m_request_borders.add(m_game->m_color_tracker, color_ref, value);
+    m_request_borders.emplace_back(m_game->m_color_tracker, color_ref, value);
 }
 
 void target_finder::add_pick_border(card_view *card, sdl::color color) {

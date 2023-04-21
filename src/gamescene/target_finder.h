@@ -27,8 +27,8 @@ namespace banggame {
         target_list m_targets;
         modifier_list m_modifiers;
         effect_context m_context;
-        sdl::color_iterator_list m_target_borders;
-        sdl::color_iterator_list m_targetable_borders;
+        std::vector<sdl::color_tracker_lifetime> m_target_borders;
+        std::vector<sdl::color_tracker_lifetime> m_targetable_borders;
         target_mode m_mode = target_mode::start;
 
         card_view *get_current_card() const;
@@ -39,8 +39,8 @@ namespace banggame {
     struct request_status {
         card_modifier_tree m_play_cards;
         std::vector<card_view *> m_pick_cards;
-        sdl::color_iterator_list m_highlights;
-        sdl::color_iterator_list m_request_borders;
+        std::vector<sdl::color_tracker_lifetime> m_highlights;
+        std::vector<sdl::color_tracker_lifetime> m_request_borders;
         card_view *m_request_origin_card = nullptr;
         player_view *m_request_origin = nullptr;
         player_view *m_request_target = nullptr;

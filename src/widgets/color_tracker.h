@@ -50,8 +50,10 @@ namespace sdl {
 
         color_tracker &operator = (const color_tracker &other) = delete;
         color_tracker &operator = (color_tracker &&other) noexcept {
-            std::swap(m_colors, other.m_colors);
-            m_counter = other.m_counter;
+            if (this != &other) {
+                std::swap(m_colors, other.m_colors);
+                m_counter = other.m_counter;
+            }
             return *this;
         }
     
@@ -78,36 +80,35 @@ namespace sdl {
         }
     };
 
-    class color_iterator_list {
+    class color_tracker_lifetime {
     private:
-        std::vector<std::pair<color_tracker *, order_color_iterator>> m_iterators;
+        color_tracker *m_tracker;
+        order_color_iterator m_iterator;
     
     public:
-        color_iterator_list() = default;
-        ~color_iterator_list() { clear(); }
+        color_tracker_lifetime(color_tracker &tracker, color &color_ref, color value)
+            : m_tracker(&tracker)
+            , m_iterator(tracker.add(&color_ref, value)) {}
 
-        color_iterator_list(const color_iterator_list &other) = delete;
-        color_iterator_list(color_iterator_list &&other) noexcept
-            : m_iterators(std::move(other.m_iterators))
-        {
-            other.m_iterators.clear();
+        ~color_tracker_lifetime() {
+            if (m_tracker) {
+                m_tracker->remove(m_iterator);
+                m_tracker = nullptr;
+            }
         }
         
-        color_iterator_list &operator = (const color_iterator_list &other) = delete;
-        color_iterator_list &operator = (color_iterator_list &&other) noexcept {
-            std::swap(m_iterators, other.m_iterators);
-            return *this;
-        }
-
-        void add(color_tracker &tracker, color &color_ref, color value) {
-            m_iterators.emplace_back(&tracker, tracker.add(&color_ref, value));
-        }
-
-        void clear() {
-            for (auto &[tracker, it] : m_iterators) {
-                tracker->remove(it);
+        color_tracker_lifetime(const color_tracker_lifetime &other) = delete;
+        color_tracker_lifetime(color_tracker_lifetime &&other) noexcept
+            : m_tracker(std::exchange(other.m_tracker, nullptr))
+            , m_iterator(std::move(other.m_iterator)) {}
+        
+        color_tracker_lifetime &operator = (const color_tracker_lifetime &other) = delete;
+        color_tracker_lifetime &operator = (color_tracker_lifetime &&other) noexcept {
+            if (this != &other) {
+                std::swap(m_tracker, other.m_tracker);
+                std::swap(m_iterator, other.m_iterator);
             }
-            m_iterators.clear();
+            return *this;
         }
     };
 
