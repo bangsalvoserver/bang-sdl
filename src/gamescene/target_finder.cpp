@@ -522,8 +522,12 @@ void target_finder::handle_auto_targets() {
                 m_game->m_player_self->table,
                 m_game->m_player_self->m_characters | ranges::views::take(1)
             )) {
-                if (!c->cubes.empty() && int(c->cubes.size()) - count_selected_cubes(c) > 0) {
-                    add_targetable_border(c->border_color, colors.target_finder_targetable_card);
+                if (!c->cubes.empty()) {
+                    for (auto &cube : c->cubes
+                        | std::views::take(int(c->cubes.size()) - count_selected_cubes(c)))
+                    {
+                        add_targetable_border(cube->border_color, colors.target_finder_targetable_cube);
+                    }
                 }
             }
             return;
