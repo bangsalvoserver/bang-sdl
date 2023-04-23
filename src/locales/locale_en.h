@@ -171,6 +171,8 @@ LOCALE_VALUE(STATUS_MULTI_VULTURE_SAM,            "{0} ... you must steal a card
 LOCALE_VALUE(STATUS_MULTI_VULTURE_SAM_OTHER,      "{0} ... {1} must steal a card from {2}")
 LOCALE_VALUE(STATUS_RANCH,                        "{0} ... You may discard any number of cards from the hand to draw the same amount")
 LOCALE_VALUE(STATUS_RANCH_OTHER,                  "{0} ... {1} may discard any number of cards from the hand to draw the same amount")
+LOCALE_VALUE(STATUS_SGT_BLAZE_LOCOMOTIVE,         "{0} ... You can ignore the effect of the locomotive against a player")
+LOCALE_VALUE(STATUS_SGT_BLAZE_LOCOMOTIVE_OTHER,   "{0} ... {1} can ignore the effect of the locomotive against a player")
 LOCALE_VALUE(STATUS_CATTLE_TRUCK,                 "{0} ... Choose a card to draw")
 LOCALE_VALUE(STATUS_CATTLE_TRUCK_OTHER,           "{1} ... {0} must choose a card to draw")
 LOCALE_VALUE(STATUS_DISCARD_TABLE,                "{0} ... Discard a card in play")

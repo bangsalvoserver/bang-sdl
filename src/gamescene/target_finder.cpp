@@ -728,7 +728,7 @@ void target_finder::add_modifier_context(card_view *mod_card, player_view *targe
             select_equip_card(get_current_tree().front().card);
         }
         break;
-    case modifier_type::skip_player:
+    case modifier_type::sgt_blaze:
         if (target_player) {
             m_context.skipped_player = target_player;
         }

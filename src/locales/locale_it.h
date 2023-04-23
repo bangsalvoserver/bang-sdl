@@ -171,6 +171,8 @@ LOCALE_VALUE(STATUS_MULTI_VULTURE_SAM,            "{0} ... devi rubare una carta
 LOCALE_VALUE(STATUS_MULTI_VULTURE_SAM_OTHER,      "{0} ... {1} deve rubare una carta da {2}")
 LOCALE_VALUE(STATUS_RANCH,                        "{0} ... Puoi scartare un qualsiasi numero di carte dalla mano per pescarne altrettante")
 LOCALE_VALUE(STATUS_RANCH_OTHER,                  "{0} ... {1} può scartare un qualsiasi numero di carte dalla mano per pescarne altrettante")
+LOCALE_VALUE(STATUS_SGT_BLAZE_LOCOMOTIVE,         "{0} ... Puoi ignorare l'effetto della locomotiva contro un giocatore")
+LOCALE_VALUE(STATUS_SGT_BLAZE_LOCOMOTIVE_OTHER,   "{0} ... {1} può ignorare l'effetto della locomotiva contro un giocatore")
 LOCALE_VALUE(STATUS_CATTLE_TRUCK,                 "{0} ... Scegli una carta da pescare")
 LOCALE_VALUE(STATUS_CATTLE_TRUCK_OTHER,           "{1} ... {0} deve scegliere una carta da pescare")
 LOCALE_VALUE(STATUS_DISCARD_TABLE,                "{0} ... Scarta una carta in gioco")
