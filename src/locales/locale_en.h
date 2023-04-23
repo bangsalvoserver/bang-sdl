@@ -266,6 +266,7 @@ LOCALE_VALUE(ERROR_CANNOT_REPEAT_CARD,            "You can't play {} twice in a 
 LOCALE_VALUE(ERROR_CANNOT_PLAY_WHILE_EQUIPPING,   "You can't play {} while equipping a card")
 LOCALE_VALUE(ERROR_NO_RANGED_TARGET,              "You can't play {0} because {1} has no range limit")
 LOCALE_VALUE(ERROR_CANNOT_SKIP_PLAYER,            "You can't skip the effect against {0}")
+LOCALE_VALUE(ERROR_CANNOT_TARGET_PLAYER,          "You can't play {2} against {1} for {0}")
 LOCALE_VALUE(ERROR_TRAIN_NOT_IN_ANY_STATION,      "This railcar is not paired to any station")
 LOCALE_VALUE(ERROR_TRAIN_NOT_IN_THIS_STATION,     "This railcar is not paired to this station")
 

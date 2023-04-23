@@ -267,6 +267,7 @@ LOCALE_VALUE(ERROR_CANNOT_REPEAT_CARD,            "Non puoi giocare {} due volte
 LOCALE_VALUE(ERROR_CANNOT_PLAY_WHILE_EQUIPPING,   "Non puoi giocare {} mentre equipaggi una carta")
 LOCALE_VALUE(ERROR_NO_RANGED_TARGET,              "Non puoi giocare {0} perché {1} non ha limite di distanza")
 LOCALE_VALUE(ERROR_CANNOT_SKIP_PLAYER,            "Non puoi ignorare l'effetto contro {0}")
+LOCALE_VALUE(ERROR_CANNOT_TARGET_PLAYER,          "Non puoi giocare {2} contro {1} per {0}")
 LOCALE_VALUE(ERROR_TRAIN_NOT_IN_ANY_STATION,      "Il vagone non è accoppiato a una stazione")
 LOCALE_VALUE(ERROR_TRAIN_NOT_IN_THIS_STATION,     "Il vagone non è accoppiato a questa stazione")
 
