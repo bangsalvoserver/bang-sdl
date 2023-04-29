@@ -761,8 +761,9 @@ void target_finder::send_pick_card(pocket_type pocket, player_view *player, card
 }
 
 void target_finder::send_prompt_response(bool response) {
-    add_action<game_action_type::prompt_respond>(response);
-    if (!response) {
+    if (response) {
+        add_action<game_action_type::play_card>(m_playing_card, m_modifiers, m_targets, m_response, true);
+    } else {
         clear_targets();
         handle_auto_select();
     }
