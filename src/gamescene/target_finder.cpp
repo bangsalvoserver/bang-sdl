@@ -755,14 +755,19 @@ void target_finder::send_pick_card(pocket_type pocket, player_view *player, card
     }
     if (card) {
         add_pick_border(card, colors.target_finder_picked);
-        add_action<game_action_type::pick_card>(card);
+        add_action<game_action_type::pick_card>(card, m_game->manager()->get_config().bypass_prompt);
         m_mode = target_mode::finish;
+        m_picked_card = card;
     }
 }
 
 void target_finder::send_prompt_response(bool response) {
     if (response) {
-        add_action<game_action_type::play_card>(m_playing_card, m_modifiers, m_targets, true);
+        if (m_picked_card) {
+            add_action<game_action_type::pick_card>(m_picked_card, true);
+        } else {
+            add_action<game_action_type::play_card>(m_playing_card, m_modifiers, m_targets, true);
+        }
     } else {
         clear_targets();
         handle_auto_select();

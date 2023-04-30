@@ -101,7 +101,7 @@ namespace banggame {
         .target_finder_can_confirm = sdl::rgba(0x0000ff80),
         .target_finder_can_play = sdl::rgba(0x1ed760aa),
         .target_finder_can_pick = sdl::rgba(0xffffffaa),
-        .target_finder_picked = sdl::rgba(0xc0ffffaa)
+        .target_finder_picked = sdl::rgba(0x40c0ffaa)
     };
 
 }

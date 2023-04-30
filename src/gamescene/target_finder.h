@@ -24,6 +24,7 @@ namespace banggame {
 
     struct target_status {
         card_view *m_playing_card = nullptr;
+        card_view *m_picked_card = nullptr;
         target_list m_targets;
         modifier_list m_modifiers;
         effect_context m_context;
