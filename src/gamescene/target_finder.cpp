@@ -742,7 +742,7 @@ void target_finder::send_play_card() {
         add_modifier_context(m_modifiers.back().card, nullptr, nullptr);
     } else {
         m_mode = target_mode::finish;
-        add_action<game_action_type::play_card>(m_playing_card, m_modifiers, m_targets, m_response);
+        add_action<game_action_type::play_card>(m_playing_card, m_modifiers, m_targets);
     }
 }
 
@@ -762,7 +762,7 @@ void target_finder::send_pick_card(pocket_type pocket, player_view *player, card
 
 void target_finder::send_prompt_response(bool response) {
     if (response) {
-        add_action<game_action_type::play_card>(m_playing_card, m_modifiers, m_targets, m_response, true);
+        add_action<game_action_type::play_card>(m_playing_card, m_modifiers, m_targets, true);
     } else {
         clear_targets();
         handle_auto_select();
