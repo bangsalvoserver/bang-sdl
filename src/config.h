@@ -24,6 +24,7 @@ DEFINE_STRUCT(config,
     (std::string, lobby_name)
     (banggame::game_options, options)
     (bool, allow_unofficial_expansions)
+    (bool, bypass_prompt)
     (float, sound_volume, .5f)
     (uint16_t, server_port)
     (bool, server_enable_cheats)

@@ -742,7 +742,7 @@ void target_finder::send_play_card() {
         add_modifier_context(m_modifiers.back().card, nullptr, nullptr);
     } else {
         m_mode = target_mode::finish;
-        add_action<game_action_type::play_card>(m_playing_card, m_modifiers, m_targets);
+        add_action<game_action_type::play_card>(m_playing_card, m_modifiers, m_targets, m_game->manager()->get_config().bypass_prompt);
     }
 }
 
