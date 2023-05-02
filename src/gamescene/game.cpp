@@ -315,13 +315,12 @@ void game_scene::handle_message(SRV_TAG(lobby_error), const std::string &message
     m_target.clear_targets();
 }
 
-std::string game_scene::evaluate_format_string(const game_string &str) {
+std::string banggame::evaluate_format_string(const game_string &str) {
     return intl::format(_(str.format_str),
-        str.format_args | std::views::transform([&](const game_format_arg &arg) {
+        str.format_args | std::views::transform([](const game_format_arg &arg) {
         return enums::visit(overloaded{
             [](int value) { return std::to_string(value); },
-            [](const std::string &value) { return _(value); },
-            [&](const card_format_id &value) {
+            [](const card_format &value) {
                 if (value.sign) {
                     return intl::format("{} ({}{})", _(intl::category::cards, value.name), enums::get_data(value.sign.rank),
                         reinterpret_cast<const char *>(enums::get_data(value.sign.suit)));
@@ -331,7 +330,7 @@ std::string game_scene::evaluate_format_string(const game_string &str) {
                     return _("UNKNOWN_CARD");
                 }
             },
-            [&](player_view *player) {
+            [](player_view *player) {
                 return player ? player->m_username_text.get_value() : _("UNKNOWN_PLAYER");
             }
         }, arg);

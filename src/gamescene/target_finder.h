@@ -99,8 +99,8 @@ namespace banggame {
 
         bool can_pick_card(pocket_type pocket, player_view *player, card_view *card) const;
         
-        const char *check_player_filter(target_player_filter filter, player_view *target_player);
-        const char *check_card_filter(target_card_filter filter, card_view *target_card);
+        game_string check_player_filter(target_player_filter filter, player_view *target_player);
+        game_string check_card_filter(target_card_filter filter, card_view *target_card);
 
         int count_selected_cubes(card_view *card);
         bool add_selected_cube(card_view *card, int ncubes);

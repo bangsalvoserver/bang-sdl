@@ -173,13 +173,13 @@ namespace banggame {
 
         cube_pile_base &get_cube_pile(card_view *card);
 
-        std::string evaluate_format_string(const game_string &str);
-
         friend class game_ui;
         friend class target_finder;
         friend class player_view;
         friend class button_row_pocket;
     };
+
+    std::string evaluate_format_string(const game_string &str);
 
 }
 

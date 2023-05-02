@@ -282,8 +282,8 @@ bool target_finder::on_click_player(player_view *player) {
     }
 
     auto verify_filter = [&](target_player_filter filter) {
-        if (auto error = check_player_filter(filter, player))  {
-            m_game->parent->add_chat_message(message_type::error, _(error));
+        if (game_string error = check_player_filter(filter, player))  {
+            m_game->parent->add_chat_message(message_type::error, evaluate_format_string(error));
             m_game->play_sound("invalid");
             return false;
         }
@@ -573,7 +573,7 @@ inline auto all_targets(const target_status &value) {
     );
 }
 
-const char *target_finder::check_player_filter(target_player_filter filter, player_view *target_player) {
+game_string target_finder::check_player_filter(target_player_filter filter, player_view *target_player) {
     if (contains_element{target_player}(all_targets(*this))) {
         return "ERROR_TARGET_NOT_UNIQUE";
     } else {
@@ -581,7 +581,7 @@ const char *target_finder::check_player_filter(target_player_filter filter, play
     }
 }
 
-const char *target_finder::check_card_filter(target_card_filter filter, card_view *card) {
+game_string target_finder::check_card_filter(target_card_filter filter, card_view *card) {
     if (!bool(filter & target_card_filter::can_repeat) && contains_element{card}(all_targets(*this))) {
         return "ERROR_TARGET_NOT_UNIQUE";
     } else {
@@ -601,8 +601,8 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
     case target_type::card:
     case target_type::extra_card:
     case target_type::cards:
-        if (auto error = check_card_filter(cur_target.card_filter, card)) {
-            m_game->parent->add_chat_message(message_type::error, _(error));
+        if (game_string error = check_card_filter(cur_target.card_filter, card)) {
+            m_game->parent->add_chat_message(message_type::error, evaluate_format_string(error));
             m_game->play_sound("invalid");
         } else {
             if (player != m_game->m_player_self && card->pocket == &player->hand) {
