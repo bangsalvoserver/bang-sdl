@@ -53,6 +53,7 @@ LOCALE_VALUE(PROMPT_TARGET_GHOST,                 "{1} is a ghost, playing {0} w
 LOCALE_VALUE(PROMPT_NO_REDRAW,                    "Do you want to play {} without redrawing the card?")
 LOCALE_VALUE(PROMPT_BANG_STRENGTH,                "You have to respond with {} Missed! Continue?")
 LOCALE_VALUE(PROMPT_NO_BANGS_PLAYED,              "You haven't played any Bang, playing {} would have no effect. Continue?")
+LOCALE_VALUE(PROMPT_TARGET_SELF_GHOST_CARD,       "You're discarding your own ghost card. Continue?")
 LOCALE_VALUE(PROMPT_PLAY_OR_PICK,                 "Play or discard this card?")
 
 LOCALE_VALUE(STATUS_GAME_OVER,                    "Game Over")
