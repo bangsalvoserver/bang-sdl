@@ -86,7 +86,7 @@ void target_finder::select_equip_card(card_view *card) {
         send_play_card();
     } else {
         for (player_view *p : m_game->m_alive_players) {
-            if (!check_player_filter(m_playing_card->equip_target, p)) {
+            if (is_valid_target(m_playing_card->equip_target, p)) {
                 add_targetable_border(p->border_color, colors.target_finder_targetable_player);
             }
         }
@@ -281,17 +281,8 @@ bool target_finder::on_click_player(player_view *player) {
         return true;
     }
 
-    auto verify_filter = [&](target_player_filter filter) {
-        if (game_string error = check_player_filter(filter, player))  {
-            m_game->parent->add_chat_message(message_type::error, evaluate_format_string(error));
-            m_game->play_sound("invalid");
-            return false;
-        }
-        return true;
-    };
-
     if (m_mode == target_mode::equip) {
-        if (verify_filter(m_playing_card->equip_target)) {
+        if (is_valid_target(m_playing_card->equip_target, player)) {
             add_target_border(player->border_color, colors.target_finder_target);
             m_targets.emplace_back(enums::enum_tag<target_type::player>, player);
             send_play_card();
@@ -304,7 +295,7 @@ bool target_finder::on_click_player(player_view *player) {
         auto cur_target = get_effect_holder(current_card->get_effect_list(m_response), current_card->optionals, index);
 
         if (cur_target.target == target_type::player || cur_target.target == target_type::conditional_player) {
-            if (verify_filter(cur_target.player_filter)) {
+            if (is_valid_target(cur_target.player_filter, player)) {
                 if (cur_target.target == target_type::player) {
                     targets.emplace_back(enums::enum_tag<target_type::player>, player);
                     if (m_mode == target_mode::modifier && cur_target.type == effect_type::ctx_add) {
@@ -316,8 +307,6 @@ bool target_finder::on_click_player(player_view *player) {
                 add_target_border(player->border_color, colors.target_finder_target);
                 handle_auto_targets();
             }
-            return true;
-        } else if (!verify_filter(cur_target.player_filter)) {
             return true;
         }
     }
@@ -415,9 +404,7 @@ void target_finder::handle_auto_targets() {
         if (current_card->has_tag(tag_type::auto_confirm)) {
             auto_confirmable = std::ranges::any_of(optionals, [&](const effect_holder &holder) {
                 return holder.target == target_type::player
-                    && std::ranges::none_of(m_game->m_alive_players, [&](player_view *p) {
-                        return !check_player_filter(holder.player_filter, p);
-                    });
+                    && std::ranges::none_of(m_game->m_alive_players, make_target_check(holder.player_filter));
             });
         } else if (current_card->has_tag(tag_type::auto_confirm_red_ringo)) {
             auto_confirmable = current_card->cubes.size() <= 1
@@ -461,16 +448,14 @@ void target_finder::handle_auto_targets() {
             targets.emplace_back(enums::enum_tag<target_type::none>);
             break;
         case target_type::conditional_player:
-            if (std::ranges::none_of(m_game->m_alive_players, [&](player_view *p) {
-                return !check_player_filter(effect_it->player_filter, p);
-            })) {
+            if (std::ranges::none_of(m_game->m_alive_players, make_target_check(effect_it->player_filter))) {
                 targets.emplace_back(enums::enum_tag<target_type::conditional_player>);
                 break;
             }
             [[fallthrough]];
         case target_type::player:
             for (player_view *p : m_game->m_alive_players) {
-                if (!check_player_filter(effect_it->player_filter, p)) {
+                if (is_valid_target(effect_it->player_filter, p)) {
                     add_targetable_border(p->border_color, colors.target_finder_targetable_player);
                 }
             }
@@ -484,14 +469,10 @@ void target_finder::handle_auto_targets() {
         case target_type::card:
         case target_type::cards:
             for (card_view *c : m_game->m_alive_players
-                | ranges::views::filter([&](player_view *p) {
-                    return !check_player_filter(effect_it->player_filter, p);
-                })
+                | ranges::views::filter(make_target_check(effect_it->player_filter))
                 | ranges::views::for_each([&](player_view *p) {
                     return ranges::views::concat(p->hand, p->table)
-                        | ranges::views::filter([&](card_view *c) {
-                            return !check_card_filter(effect_it->card_filter, c);
-                        });
+                        | ranges::views::filter(make_target_check(effect_it->card_filter));
                 }))
             {
                 add_targetable_border(c->border_color, colors.target_finder_targetable_card);
@@ -573,20 +554,22 @@ inline auto all_targets(const target_status &value) {
     );
 }
 
-game_string target_finder::check_player_filter(target_player_filter filter, player_view *target_player) {
-    if (contains_element{target_player}(all_targets(*this))) {
-        return "ERROR_TARGET_NOT_UNIQUE";
-    } else {
-        return filters::check_player_filter(m_game->m_player_self, filter, target_player, m_context);
-    }
+target_finder::player_target_check target_finder::make_target_check(target_player_filter filter) const {
+    return player_target_check{*this, m_game->m_player_self, filter};
 }
 
-game_string target_finder::check_card_filter(target_card_filter filter, card_view *card) {
-    if (!bool(filter & target_card_filter::can_repeat) && contains_element{card}(all_targets(*this))) {
-        return "ERROR_TARGET_NOT_UNIQUE";
-    } else {
-        return filters::check_card_filter(m_playing_card, m_game->m_player_self, filter, card, m_context);
-    }
+target_finder::card_target_check target_finder::make_target_check(target_card_filter filter) const {
+    return card_target_check{*this, m_game->m_player_self, filter};
+}
+
+bool target_finder::player_target_check::operator ()(player_view *target_player) const {
+    return !contains_element{target_player}(all_targets(status))
+        && !filters::check_player_filter(origin, filter, target_player, status.m_context);
+}
+
+bool target_finder::card_target_check::operator ()(card_view *target_card) const {
+    return ((bool(filter & target_card_filter::can_repeat) || !contains_element{target_card}(all_targets(status))))
+        && !filters::check_card_filter(status.m_playing_card, origin, filter, target_card, status.m_context);
 }
 
 void target_finder::add_card_target(player_view *player, card_view *card) {
@@ -601,10 +584,7 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
     case target_type::card:
     case target_type::extra_card:
     case target_type::cards:
-        if (game_string error = check_card_filter(cur_target.card_filter, card)) {
-            m_game->parent->add_chat_message(message_type::error, evaluate_format_string(error));
-            m_game->play_sound("invalid");
-        } else {
+        if (is_valid_target(cur_target.player_filter, player) && is_valid_target(cur_target.card_filter, card)) {
             if (player != m_game->m_player_self && card->pocket == &player->hand) {
                 for (card_view *hand_card : player->hand) {
                     add_target_border(hand_card->border_color, colors.target_finder_target);

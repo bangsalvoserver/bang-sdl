@@ -341,6 +341,7 @@ void game_scene::handle_game_update(UPD_TAG(game_error), const game_string &args
     m_target.clear_targets();
     m_target.handle_auto_select();
     parent->add_chat_message(message_type::error, evaluate_format_string(args));
+    play_sound("invalid");
 }
 
 void game_scene::handle_game_update(UPD_TAG(game_log), const game_string &args) {

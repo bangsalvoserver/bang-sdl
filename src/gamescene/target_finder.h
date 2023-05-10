@@ -98,9 +98,33 @@ namespace banggame {
         void add_modifier_context(card_view *mod_card, player_view *target_player, card_view *target_card);
 
         bool can_pick_card(pocket_type pocket, player_view *player, card_view *card) const;
-        
-        game_string check_player_filter(target_player_filter filter, player_view *target_player);
-        game_string check_card_filter(target_card_filter filter, card_view *target_card);
+
+        struct player_target_check {
+            const target_status &status;
+            player_view *origin;
+            target_player_filter filter;
+            
+            bool operator()(player_view *target_player) const;
+        };
+
+        struct card_target_check {
+            const target_status &status;
+            player_view *origin;
+            target_card_filter filter;
+
+            bool operator()(card_view *target_card) const;
+        };
+
+        player_target_check make_target_check(target_player_filter filter) const;
+        card_target_check make_target_check(target_card_filter filter) const;
+
+        bool is_valid_target(target_player_filter filter, player_view *target_player) const {
+            return make_target_check(filter)(target_player);
+        }
+
+        bool is_valid_target(target_card_filter filter, card_view *target_card) const {
+            return make_target_check(filter)(target_card);
+        }
 
         int count_selected_cubes(card_view *card);
         bool add_selected_cube(card_view *card, int ncubes);
