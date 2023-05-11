@@ -111,8 +111,7 @@ namespace banggame {
 
         void move_player_views(anim_duration_type duration = {});
 
-        void handle_card_click();
-        void find_overlay();
+        std::tuple<pocket_type, player_view *, card_view *> find_card_at(sdl::point pt) const;
 
         pocket_view &get_pocket(pocket_type pocket, player_view *player = nullptr);
 

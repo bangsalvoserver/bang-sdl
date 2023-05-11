@@ -56,7 +56,7 @@ void game_scene::refresh_layout() {
 void game_scene::tick(duration_type time_elapsed) {
     if (m_mouse_motion_timer >= options.card_overlay_duration) {
         if (!m_overlay) {
-            find_overlay();
+            m_overlay = std::get<card_view *>(find_card_at(m_mouse_pt));
         }
     } else {
         if (!m_middle_click) {
@@ -150,7 +150,14 @@ void game_scene::handle_event(const sdl::event &event) {
         switch (event.button.button) {
         case SDL_BUTTON_LEFT:
             if (m_target.is_card_clickable()) {
-                handle_card_click();
+                if (std::ranges::none_of(m_alive_players, [&](player_view *p) {
+                    return sdl::point_in_rect(m_mouse_pt, p->m_bounding_rect)
+                        && m_target.on_click_player(p);
+                })) {
+                    if (auto [pocket, player, card] = find_card_at(m_mouse_pt); pocket != pocket_type::none) {
+                        m_target.on_click_card(pocket, player, card);
+                    }
+                }
             }
             break;
         case SDL_BUTTON_RIGHT:
@@ -161,7 +168,7 @@ void game_scene::handle_event(const sdl::event &event) {
             break;
         case SDL_BUTTON_MIDDLE:
             m_middle_click = true;
-            find_overlay();
+            m_overlay = std::get<card_view *>(find_card_at(m_mouse_pt));
             break;
         }
         break;
@@ -185,116 +192,60 @@ void game_scene::handle_event(const sdl::event &event) {
     }
 }
 
-void game_scene::handle_card_click() {
-    if (card_view *card = m_selection.find_card_at(m_mouse_pt)) {
-        m_target.on_click_card(pocket_type::selection, nullptr, card);
-        return;
-    }
-    if (card_view *card = m_card_choice.find_card_at(m_mouse_pt)) {
-        m_target.on_click_card(pocket_type::hidden_deck, nullptr, card);
-        return;
-    }
-    if (card_view *card = m_shop_selection.find_card_at(m_mouse_pt)) {
-        m_target.on_click_card(pocket_type::shop_selection, nullptr, card);
-        return;
-    }
-    if (card_view *card = m_train.find_card_at(m_mouse_pt)) {
-        m_target.on_click_card(pocket_type::train, nullptr, card);
-        return;
-    }
-    if (card_view *card = m_stations.find_card_at(m_mouse_pt)) {
-        m_target.on_click_card(pocket_type::stations, nullptr, card);
-        return;
-    }
-    if (m_main_deck.find_card_at(m_mouse_pt)) {
-        m_target.on_click_card(pocket_type::main_deck, nullptr, nullptr);
-        return;
-    }
-    if (m_discard_pile.find_card_at(m_mouse_pt)) {
-        m_target.on_click_card(pocket_type::discard_pile, nullptr, nullptr);
-        return;
-    }
-    if (card_view *card = m_wws_scenario_card.find_card_at(m_mouse_pt)) {
-        m_target.on_click_card(pocket_type::wws_scenario_card, nullptr, card);
-        return;
-    }
-    if (card_view *card = m_scenario_card.find_card_at(m_mouse_pt)) {
-        m_target.on_click_card(pocket_type::scenario_card, nullptr, card);
-        return;
-    }
-    for (player_view *p : m_alive_players) {
-        if (sdl::point_in_rect(m_mouse_pt, p->m_bounding_rect)) {
-            if (m_target.on_click_player(p)) {
-                return;
-            }
-        }
-        if (card_view *card = p->m_characters.find_card_at(m_mouse_pt)) {
-            m_target.on_click_card(pocket_type::player_character, p, card);
-            return;
-        }
-        if (card_view *card = p->table.find_card_at(m_mouse_pt)) {
-            m_target.on_click_card(pocket_type::player_table, p, card);
-            return;
-        }
-        if (card_view *card = p->hand.find_card_at(m_mouse_pt)) {
-            m_target.on_click_card(pocket_type::player_hand, p, card);
-            return;
-        }
-    }
-}
-
-void game_scene::find_overlay() {
-    if (m_overlay = m_selection.find_card_at(m_mouse_pt)) {
-        return;
-    }
-    if (m_overlay = m_card_choice.find_card_at(m_mouse_pt)) {
-        return;
-    }
-    if (m_overlay = m_shop_selection.find_card_at(m_mouse_pt)) {
-        return;
-    }
-    if (m_overlay = m_train.find_card_at(m_mouse_pt)) {
-        return;
-    }
-    if (m_overlay = m_stations.find_card_at(m_mouse_pt)) {
-        return;
-    }
-    if (m_overlay = m_discard_pile.find_card_at(m_mouse_pt)) {
-        return;
-    }
-    if (m_overlay = m_wws_scenario_card.find_card_at(m_mouse_pt)) {
-        return;
-    }
-    if (m_overlay = m_scenario_card.find_card_at(m_mouse_pt)) {
-        return;
-    }
-    for (player_view *p : m_alive_players) {
-        if (m_overlay = p->m_characters.find_card_at(m_mouse_pt)) {
-            return;
-        }
-        if (m_overlay = p->wws_scenario_deck.find_card_at(m_mouse_pt)) {
-            return;
-        }
-        if (m_overlay = p->scenario_deck.find_card_at(m_mouse_pt)) {
-            return;
-        }
-        if (sdl::point_in_rect(m_mouse_pt, p->m_role.get_rect())) {
-            m_overlay = &p->m_role;
-            return;
-        }
-        if (m_overlay = p->table.find_card_at(m_mouse_pt)) {
-            return;
-        }
-        if (m_overlay = p->hand.find_card_at(m_mouse_pt)) {
-            return;
-        }
-    }
+std::tuple<pocket_type, player_view *, card_view *> game_scene::find_card_at(sdl::point pt) const {
     for (player_view *p : m_dead_players | std::views::reverse) {
-        if (sdl::point_in_rect(m_mouse_pt, p->m_role.get_rect())) {
-            m_overlay = &p->m_role;
-            return;
+        if (sdl::point_in_rect(pt, p->m_role.get_rect())) {
+            return {pocket_type::none, p, &p->m_role};
         }
     }
+    if (card_view *card = m_card_choice.find_card_at(pt)) {
+        return {pocket_type::hidden_deck, nullptr, card};
+    }
+    if (card_view *card = m_selection.find_card_at(pt)) {
+        return {pocket_type::selection, nullptr, card};
+    }
+    for (player_view *p : m_alive_players | std::views::reverse) {
+        if (card_view *card = p->hand.find_card_at(pt)) {
+            return {pocket_type::player_hand, p, card};
+        }
+        if (card_view *card = p->table.find_card_at(pt)) {
+            return {pocket_type::player_table, p, card};
+        }
+        if (card_view *card = p->m_characters.find_card_at(pt)) {
+            return {pocket_type::player_character, p, card};
+        }
+        if (card_view *card = p->wws_scenario_deck.find_card_at(pt)) {
+            return {pocket_type::none, p, card};
+        }
+        if (card_view *card = p->scenario_deck.find_card_at(pt)) {
+            return {pocket_type::none, p, card};
+        }
+        if (sdl::point_in_rect(pt, p->m_role.get_rect())) {
+            return {pocket_type::none, p, &p->m_role};
+        }
+    }
+    if (card_view *card = m_train.find_card_at(pt)) {
+        return {pocket_type::train, nullptr, card};
+    }
+    if (card_view *card = m_stations.find_card_at(pt)) {
+        return {pocket_type::stations, nullptr, card};
+    }
+    if (card_view *card = m_discard_pile.find_card_at(pt)) {
+        return {pocket_type::discard_pile, nullptr, card};
+    }
+    if (card_view *card = m_wws_scenario_card.find_card_at(pt)) {
+        return {pocket_type::wws_scenario_card, nullptr, card};
+    }
+    if (card_view *card = m_scenario_card.find_card_at(pt)) {
+        return {pocket_type::scenario_card, nullptr, card};
+    }
+    if (card_view *card = m_shop_selection.find_card_at(pt)) {
+        return {pocket_type::shop_selection, nullptr, card};
+    }
+    if (card_view *card = m_main_deck.find_card_at(pt)) {
+        return {pocket_type::main_deck, nullptr, nullptr};
+    }
+    return {pocket_type::none, nullptr, nullptr};
 }
 
 void game_scene::play_sound(std::string_view sound_id) {

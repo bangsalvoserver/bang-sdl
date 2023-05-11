@@ -209,7 +209,7 @@ namespace banggame {
         m_cards.clear();
     }
 
-    card_view *pocket_view_base::find_card_at(sdl::point point) {
+    card_view *pocket_view_base::find_card_at(sdl::point point) const {
         auto it = std::ranges::find_if(*this | std::views::reverse, [&](card_view *card) {
             return sdl::point_in_rect(point, card->get_rect());
         });
@@ -259,7 +259,7 @@ namespace banggame {
         m_pos = pos;
     }
 
-    card_view *point_pocket_view::find_card_at(sdl::point point) {
+    card_view *point_pocket_view::find_card_at(sdl::point point) const {
         if (!empty() && sdl::point_in_rect(point, back()->get_rect())) {
             return back();
         }

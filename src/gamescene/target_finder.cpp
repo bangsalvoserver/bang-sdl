@@ -584,8 +584,8 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
     case target_type::card:
     case target_type::extra_card:
     case target_type::cards:
-        if (is_valid_target(cur_target.player_filter, player) && is_valid_target(cur_target.card_filter, card)) {
-            if (player != m_game->m_player_self && card->pocket == &player->hand) {
+        if ((!player || is_valid_target(cur_target.player_filter, player)) && is_valid_target(cur_target.card_filter, card)) {
+            if (player && player != m_game->m_player_self && card->pocket == &player->hand) {
                 for (card_view *hand_card : player->hand) {
                     add_target_border(hand_card->border_color, colors.target_finder_target);
                 }

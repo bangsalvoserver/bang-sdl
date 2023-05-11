@@ -189,7 +189,7 @@ namespace banggame {
 
         virtual sdl::point get_offset(card_view *card) const { return {0, 0}; }
         virtual bool wide() const { return false; }
-        virtual card_view *find_card_at(sdl::point point);
+        virtual card_view *find_card_at(sdl::point point) const;
 
         virtual void render(sdl::renderer &renderer);
     };
@@ -213,7 +213,7 @@ namespace banggame {
 
         sdl::color border_color{};
         
-        card_view *find_card_at(sdl::point point);
+        card_view *find_card_at(sdl::point point) const;
 
         void render_border(sdl::renderer &renderer);
         
