@@ -125,10 +125,8 @@ namespace banggame {
             return m_pos;
         }
 
-        const sdl::rect &get_rect() const {
-            return m_rect;
-        }
-
+        sdl::rect get_rect() const;
+        sdl::texture_ref get_texture() const;
         void render(sdl::renderer &renderer, render_flags flags = {});
 
         sdl::texture texture_front;
@@ -139,8 +137,8 @@ namespace banggame {
         void make_texture_front(sdl::renderer &renderer);
 
     private:
+        sdl::rect get_base_rect(sdl::texture_ref tex) const;
         sdl::point m_pos;
-        sdl::rect m_rect;
     };
 
     class role_card : public card_view {

@@ -154,44 +154,59 @@ namespace banggame {
         m_pos = new_pos;
     }
 
+    sdl::rect card_view::get_base_rect(sdl::texture_ref tex) const {
+        sdl::rect rect = tex.get_rect();
+        sdl::scale_rect_width(rect, options.card_width);
+        return sdl::move_rect_center(rect, m_pos);
+    }
+
+    sdl::rect card_view::get_rect() const {
+        if (sdl::texture_ref tex = get_texture()) {
+            sdl::rect rect = get_base_rect(tex);
+            if (inactive) {
+                return sdl::move_rect_center(sdl::rect{0, 0, rect.h, rect.w}, sdl::rect_center(rect));
+            } else {
+                return rect;
+            }
+        }
+        return sdl::rect{};
+    }
+
+    sdl::texture_ref card_view::get_texture() const {
+        if (flip_amt > 0.5f && texture_front_scaled) {
+            return texture_front_scaled;
+        } else if (texture_back) {
+            return texture_back;
+        } else {
+            return nullptr;
+        }
+    }
+
     void card_view::render(sdl::renderer &renderer, render_flags flags) {
-        auto do_render = [&](sdl::texture_ref tex) {
-            m_rect = tex.get_rect();
-            sdl::scale_rect_width(m_rect, options.card_width);
+        sdl::texture_ref tex = get_texture();
+        if (!tex || animating && !bool(flags & render_flags::no_skip_animating)) return;
 
-            m_rect.x = m_pos.x - m_rect.w / 2;
-            m_rect.y = m_pos.y - m_rect.h / 2;
+        sdl::rect rect = get_base_rect(tex);
+        float wscale = std::abs(1.f - 2.f * flip_amt);
+        rect.x += int(rect.w * (1.f - wscale) * 0.5f);
+        rect.w = int(rect.w * wscale);
 
-            sdl::rect rect = m_rect;
-            float wscale = std::abs(1.f - 2.f * flip_amt);
-            rect.x += int(rect.w * (1.f - wscale) * 0.5f);
-            rect.w = int(rect.w * wscale);
+        if (!bool(flags & render_flags::no_draw_border) && border_color.a) {
+            card_textures::get().card_border.render_ex(renderer, sdl::rect{
+                rect.x - options.default_border_thickness,
+                rect.y - options.default_border_thickness,
+                rect.w + options.default_border_thickness * 2,
+                rect.h + options.default_border_thickness * 2
+            }, sdl::render_ex_options{
+                .color_modifier = border_color,
+                .angle = rotation
+            });
+        }
 
-            if (!bool(flags & render_flags::no_draw_border) && border_color.a) {
-                card_textures::get().card_border.render_ex(renderer, sdl::rect{
-                    rect.x - options.default_border_thickness,
-                    rect.y - options.default_border_thickness,
-                    rect.w + options.default_border_thickness * 2,
-                    rect.h + options.default_border_thickness * 2
-                }, sdl::render_ex_options{
-                    .color_modifier = border_color,
-                    .angle = rotation
-                });
-            }
+        tex.render_ex(renderer, rect, sdl::render_ex_options{ .angle = rotation });
 
-            tex.render_ex(renderer, rect, sdl::render_ex_options{ .angle = rotation });
-
-            for (auto &cube : cubes) {
-                cube->render(renderer);
-            }
-        };
-
-        if (bool(flags & render_flags::no_skip_animating) || !animating) {
-            if (flip_amt > 0.5f && texture_front_scaled) {
-                do_render(texture_front_scaled);
-            } else if (texture_back) {
-                do_render(texture_back);
-            }
+        for (auto &cube : cubes) {
+            cube->render(renderer);
         }
     }
 
