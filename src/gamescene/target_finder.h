@@ -54,7 +54,6 @@ namespace banggame {
         target_finder(game_scene *parent) : m_game(parent) {}
 
         bool is_card_clickable() const;
-        bool is_card_selected() const;
         bool can_confirm() const;
         
         int calc_distance(player_view *from, player_view *to) const;

@@ -88,12 +88,8 @@ void button_row_pocket::render(sdl::renderer &renderer) {
     for (auto &btn : m_buttons) {
         card_view *card = *it;
 
-        if (card->has_tag(tag_type::confirm) && parent->m_target.is_card_selected()) {
-            if (parent->m_target.can_confirm()) {
-                btn.set_toggled_color(colors.target_finder_can_confirm);
-            } else {
-                btn.set_toggled_color({});
-            }
+        if (card->has_tag(tag_type::confirm) && parent->m_target.can_confirm()) {
+            btn.set_toggled_color(colors.target_finder_can_confirm);
         } else {
             btn.set_toggled_color(card->border_color);
         }
@@ -110,6 +106,8 @@ void button_row_pocket::add_card(card_view *card) {
         if (target.is_card_clickable()) {
             target.on_click_card(pocket_type::button_row, nullptr, card);
         }
+    }, widgets::button_style {
+        .down_color = sdl::rgb(0x306eff)
     });
     if (card->known) {
         update_button(card, button);
