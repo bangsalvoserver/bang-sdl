@@ -14,14 +14,17 @@ void button::set_label(const std::string &label) {
 void button::render(sdl::renderer &renderer) {
     if (!enabled()) return;
 
-    renderer.set_draw_color(sdl::lerp_color_alpha([&]{
-        switch (m_state) {
-        case state_hover:   return m_style.hover_color;
-        case state_down:    return m_style.down_color;
-        case state_up:
-        default:            return m_style.up_color;
+    renderer.set_draw_color([&]{
+        if (m_state == state_down) {
+            return m_style.down_color;
+        } else if (m_style.toggled_color.a) {
+            return m_style.toggled_color;
+        } else if (m_state == state_hover) {
+            return m_style.hover_color;
+        } else {
+            return m_style.up_color;
         }
-    }(), m_style.toggled_color));
+    }());
     renderer.fill_rect(m_border_rect);
 
     renderer.set_draw_color(m_style.border_color);

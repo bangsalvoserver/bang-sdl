@@ -9,6 +9,28 @@ namespace banggame {
 
     using namespace sdl::point_math;
 
+    sdl::color cube_widget::get_border_color_for(game_style style) {
+        switch (style) {
+        case game_style::targetable: return colors.target_finder_targetable_cube;
+        case game_style::selected_target: return colors.target_finder_target;
+        default: return {};
+        }
+    }
+
+    sdl::color card_view::get_border_color_for(game_style style) {
+        switch (style) {
+        case game_style::current_card: return colors.target_finder_current_card;
+        case game_style::selected_target: return colors.target_finder_target;
+        case game_style::playable: return colors.target_finder_can_play;
+        case game_style::highlight: return colors.target_finder_highlight_card;
+        case game_style::origin_card: return colors.target_finder_origin_card;
+        case game_style::targetable: return colors.target_finder_targetable_card;
+        case game_style::pickable: return colors.target_finder_can_pick;
+        case game_style::picked: return colors.target_finder_picked;
+        default: return {};
+        }
+    }
+
     template<typename T>
     concept first_is_none = requires {
         requires enums::reflected_enum<T>;
@@ -229,18 +251,6 @@ namespace banggame {
             return sdl::point_in_rect(point, card->get_rect());
         });
         return (it == rend()) ? nullptr : *it;
-    }
-
-    void point_pocket_view::render_border(sdl::renderer &renderer) {
-        if (!empty() && border_color.a) {
-            sdl::rect rect = back()->get_rect();
-            card_textures::get().card_border.render_colored(renderer, sdl::rect{
-                rect.x - options.default_border_thickness,
-                rect.y - options.default_border_thickness,
-                rect.w + options.default_border_thickness * 2,
-                rect.h + options.default_border_thickness * 2
-            }, border_color);
-        }
     }
 
     void pocket_view_base::render(sdl::renderer &renderer) {

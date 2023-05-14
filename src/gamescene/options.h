@@ -106,10 +106,13 @@ namespace banggame {
         sdl::color target_finder_targetable_card;
         sdl::color target_finder_targetable_cube;
         sdl::color target_finder_targetable_player;
-        sdl::color target_finder_can_confirm;
         sdl::color target_finder_can_play;
         sdl::color target_finder_can_pick;
         sdl::color target_finder_picked;
+
+        sdl::color game_ui_button_confirm;
+        sdl::color game_ui_button_down;
+        sdl::color game_ui_button_playable;
     } colors;
 }
 

@@ -98,10 +98,13 @@ namespace banggame {
         .target_finder_targetable_card = sdl::rgba(0xffff0060),
         .target_finder_targetable_cube = sdl::rgba(0xffa000ff),
         .target_finder_targetable_player = sdl::rgba(0x806c00ff),
-        .target_finder_can_confirm = sdl::rgba(0x0000ff80),
         .target_finder_can_play = sdl::rgba(0x1ed760aa),
         .target_finder_can_pick = sdl::rgba(0xffffffaa),
-        .target_finder_picked = sdl::rgba(0x40c0ffaa)
+        .target_finder_picked = sdl::rgba(0x40c0ffaa),
+
+        .game_ui_button_confirm = sdl::rgb(0x00A552),
+        .game_ui_button_down = sdl::rgb(0x5185FF),
+        .game_ui_button_playable = sdl::rgb(0x4FD67E)
     };
 
 }

@@ -6,8 +6,6 @@
 #include "cards/holders.h"
 #include "cards/effect_context.h"
 
-#include "widgets/color_tracker.h"
-
 #include <vector>
 
 namespace banggame {
@@ -28,8 +26,8 @@ namespace banggame {
         target_list m_targets;
         modifier_list m_modifiers;
         effect_context m_context;
-        std::vector<sdl::color_tracker_lifetime> m_target_borders;
-        std::vector<sdl::color_tracker_lifetime> m_targetable_borders;
+        std::vector<game_style_tracker> m_target_borders;
+        std::vector<game_style_tracker> m_targetable_borders;
         target_mode m_mode = target_mode::start;
 
         card_view *get_current_card() const;
@@ -40,8 +38,8 @@ namespace banggame {
     struct request_status {
         card_modifier_tree m_play_cards;
         std::vector<card_view *> m_pick_cards;
-        std::vector<sdl::color_tracker_lifetime> m_highlights;
-        std::vector<sdl::color_tracker_lifetime> m_request_borders;
+        std::vector<game_style_tracker> m_highlights;
+        std::vector<game_style_tracker> m_request_borders;
         card_view *m_request_origin_card = nullptr;
         player_view *m_request_origin = nullptr;
         player_view *m_request_target = nullptr;
@@ -80,12 +78,6 @@ namespace banggame {
         void send_prompt_response(bool response);
     
     private:
-        void add_target_border(sdl::color &color_ref, sdl::color value);
-        void add_targetable_border(sdl::color &color_ref, sdl::color value);
-        void add_highlight_border(sdl::color &color_ref, sdl::color value);
-        void add_request_border(sdl::color &color_ref, sdl::color value);
-
-        void add_pick_border(card_view *card, sdl::color color);
         void set_request_borders();
 
         void select_playing_card(card_view *card);

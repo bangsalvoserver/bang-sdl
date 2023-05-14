@@ -17,6 +17,15 @@ namespace banggame {
         })
     {}
 
+    sdl::color player_view::get_border_color_for(game_style style) {
+        switch (style) {
+        case game_style::current_turn: return colors.turn_indicator;
+        case game_style::selected_target: return colors.target_finder_target;
+        case game_style::targetable: return colors.target_finder_targetable_player;
+        default: return {};
+        }
+    }
+
     void player_view::set_hp_marker_position(float hp) {
         m_backup_characters.set_pos(m_characters.get_pos() - sdl::point{0, std::max(0, int(hp * options.one_hp_size))});
     }

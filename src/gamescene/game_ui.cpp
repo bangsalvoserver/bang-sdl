@@ -83,15 +83,25 @@ void button_row_pocket::set_pos(const sdl::point &pos) {
     }
 }
 
+sdl::color button_row_pocket::get_toggled_color_for_style(game_style style) {
+    switch (style) {
+    case game_style::current_card: return colors.game_ui_button_down;
+    case game_style::playable: return colors.game_ui_button_playable;
+    default: return {};
+    }
+}
+
 void button_row_pocket::render(sdl::renderer &renderer) {
     auto it = begin();
     for (auto &btn : m_buttons) {
         card_view *card = *it;
 
         if (card->has_tag(tag_type::confirm) && parent->m_target.can_confirm()) {
-            btn.set_toggled_color(colors.target_finder_can_confirm);
+            btn.set_toggled_color(colors.game_ui_button_confirm);
+        } else if (auto style = card->get_style()) {
+            btn.set_toggled_color(get_toggled_color_for_style(*style));
         } else {
-            btn.set_toggled_color(card->border_color);
+            btn.set_toggled_color({});
         }
 
         btn.render(renderer);
@@ -107,7 +117,7 @@ void button_row_pocket::add_card(card_view *card) {
             target.on_click_card(pocket_type::button_row, nullptr, card);
         }
     }, widgets::button_style {
-        .down_color = sdl::rgb(0x306eff)
+        .down_color = colors.game_ui_button_down
     });
     if (card->known) {
         update_button(card, button);

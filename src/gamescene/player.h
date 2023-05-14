@@ -11,7 +11,7 @@
 namespace banggame {
     class game_scene;
 
-    class player_view {
+    class player_view : public game_style_set {
     private:
         struct player_state_vtable {
             void (*set_position)(player_view *self, sdl::point pos);
@@ -42,7 +42,6 @@ namespace banggame {
         point_pocket_view wws_scenario_deck{pocket_type::wws_scenario_deck};
 
         sdl::rect m_bounding_rect;
-        sdl::color border_color{};
 
         character_pile m_characters{pocket_type::player_character, this};
         point_pocket_view m_backup_characters{pocket_type::player_backup, this};
@@ -60,6 +59,8 @@ namespace banggame {
         int m_range_mod = 0;
         int m_weapon_range = 1;
         int m_distance_mod = 0;
+
+        sdl::color get_border_color_for(game_style style) override;
 
         bool has_player_flags(player_flags flags) const {
             return (m_player_flags & flags) == flags;

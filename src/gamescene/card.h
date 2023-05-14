@@ -8,6 +8,7 @@
 #include "utils/unpacker.h"
 
 #include "options.h"
+#include "game_styles.h"
 
 #include "../widgets/stattext.h"
 
@@ -57,12 +58,13 @@ namespace banggame {
     class pocket_view;
     class card_view;
 
-    class cube_widget {
+    class cube_widget : public game_style_set {
     public:
         sdl::point pos;
 
         bool animating = false;
-        sdl::color border_color{};
+
+        sdl::color get_border_color_for(game_style style) override;
 
         void render(sdl::renderer &renderer, render_flags flags = {});
     };
@@ -100,7 +102,7 @@ namespace banggame {
         sdl::point get_offset(cube_widget *cube) const override;
     };
 
-    class card_view : public card_data {
+    class card_view : public card_data, public game_style_set {
     public:
         int id;
         
@@ -116,14 +118,14 @@ namespace banggame {
 
         bool inactive = false;
 
-        sdl::color border_color{};
-
         card_view(int id): id(id) {}
 
         void set_pos(const sdl::point &pos);
         const sdl::point &get_pos() const {
             return m_pos;
         }
+
+        sdl::color get_border_color_for(game_style style) override;
 
         sdl::rect get_rect() const;
         sdl::texture_ref get_texture() const;
@@ -208,27 +210,8 @@ namespace banggame {
     class point_pocket_view : public pocket_view {
     public:
         using pocket_view::pocket_view;
-
-        sdl::color border_color{};
         
         card_view *find_card_at(sdl::point point) const;
-
-        void render_border(sdl::renderer &renderer);
-        
-        void render(sdl::renderer &renderer) override {
-            render_border(renderer);
-            pocket_view::render(renderer);
-        }
-
-        void render_first(sdl::renderer &renderer, int ncards) override {
-            render_border(renderer);
-            pocket_view::render_first(renderer, ncards);
-        }
-
-        void render_last(sdl::renderer &renderer, int ncards) override {
-            render_border(renderer);
-            pocket_view::render_last(renderer, ncards);
-        }
     };
 
     class counting_pocket : public point_pocket_view {

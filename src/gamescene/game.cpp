@@ -629,7 +629,7 @@ void game_scene::handle_game_update(UPD_TAG(switch_turn), player_view *player) {
     if (player != m_playing) {
         m_playing = player;
         if (m_playing) {
-            m_turn_border.emplace(m_color_tracker, m_playing->border_color, colors.turn_indicator);
+            m_turn_border.emplace(m_playing, game_style::current_turn);
         } else {
             m_turn_border.reset();
         }
