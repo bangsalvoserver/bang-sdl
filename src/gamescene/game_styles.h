@@ -14,8 +14,7 @@ namespace banggame {
         highlight,
         origin_card,
         pickable,
-        picked,
-        flash
+        picked
     };
 
     using game_style_set = widgets::style_set<game_style>;
@@ -39,7 +38,6 @@ namespace banggame {
         case game_style::targetable: return colors.target_finder_targetable_card;
         case game_style::pickable: return colors.target_finder_can_pick;
         case game_style::picked: return colors.target_finder_picked;
-        case game_style::flash: return colors.flash_card;
         default: return {};
         }
     }

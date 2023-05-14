@@ -108,6 +108,7 @@ namespace banggame {
 
         float flip_amt = 0.f;
         float rotation = 0.f;
+        float flash_amt = 0.f;
 
         bool animating = false;
         

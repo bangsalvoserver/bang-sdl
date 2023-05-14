@@ -80,7 +80,6 @@ namespace banggame {
 
     struct card_flash_animation {
         card_view *card;
-        std::unique_ptr<game_style_tracker> tracker;
         
         card_flash_animation(card_view *card);
 

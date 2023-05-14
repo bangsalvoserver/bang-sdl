@@ -192,14 +192,19 @@ namespace banggame {
         rect.w = int(rect.w * wscale);
 
         if (!bool(flags & render_flags::no_draw_border)) {
+            sdl::color border_color{};
             if (auto style = get_style()) {
+                border_color = card_border_color(*style);
+            }
+            border_color = sdl::lerp_color(border_color, colors.flash_card, flash_amt);
+            if (border_color.a) {
                 card_textures::get().card_border.render_ex(renderer, sdl::rect{
                     rect.x - options.default_border_thickness,
                     rect.y - options.default_border_thickness,
                     rect.w + options.default_border_thickness * 2,
                     rect.h + options.default_border_thickness * 2
                 }, sdl::render_ex_options{
-                    .color_modifier = card_border_color(*style),
+                    .color_modifier = border_color,
                     .angle = rotation
                 });
             }

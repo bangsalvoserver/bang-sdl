@@ -125,15 +125,16 @@ namespace banggame {
     }
 
     card_flash_animation::card_flash_animation(card_view *card)
-        : card(card)
-        , tracker(std::make_unique<game_style_tracker>(card, game_style::flash)) {}
+        : card(card) {}
 
     void card_flash_animation::end() {
         card->animating = false;
+        card->flash_amt = 0.f;
     }
 
     void card_flash_animation::do_animation(float amt) {
         card->animating = true;
+        card->flash_amt = std::pow(1.f - amt, 0.5f);
     }
 
     void card_flash_animation::render(sdl::renderer &renderer) {
