@@ -22,8 +22,6 @@ namespace banggame {
             : pocket_view(pocket_type::button_row)
             , parent(parent) {}
 
-        sdl::color get_toggled_color_for_style(game_style style);
-
         std::list<widgets::button>::iterator find_button(card_view *card);
         void update_button(card_view *card, widgets::button &button);
 

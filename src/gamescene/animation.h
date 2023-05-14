@@ -13,7 +13,6 @@ namespace banggame {
         void (*do_animation)(void *self, float amt);
         void (*end)(void *self);
         void (*render)(void *self, sdl::renderer &renderer);
-        void (*copy)(const void *self, void *p);
         void (*move)(void *self, void *p) noexcept;
         void (*destruct)(void *self) noexcept;
     };
@@ -58,10 +57,6 @@ namespace banggame {
             }
         },
 
-        .copy = [](const void *self, void *p) {
-            new (p) T(*static_cast<const T *>(self));
-        },
-
         .move = [](void *self, void *p) noexcept {
             static_assert(std::is_nothrow_move_constructible_v<T>);
             new (p) T(std::move(*static_cast<T *>(self)));
@@ -87,24 +82,14 @@ namespace banggame {
             new (&m_data) T(FWD(args) ... );
         }
 
-        animation_object(const animation_object &other)
-            : vtable(other.vtable)
-        {
-            vtable->copy(&other.m_data, &m_data);
-        }
-
+        animation_object(const animation_object &other) = delete;
         animation_object(animation_object &&other) noexcept
             : vtable(other.vtable)
         {
             vtable->move(&other.m_data, &m_data);
         }
 
-        animation_object &operator = (const animation_object &other) {
-            animation_object copy(other);
-            std::swap(*this, copy);
-            return *this;
-        }
-
+        animation_object &operator = (const animation_object &other) = delete;
         animation_object &operator = (animation_object &&other) noexcept {
             assert(this != &other);
             vtable->destruct(&m_data);

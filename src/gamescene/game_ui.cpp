@@ -83,14 +83,6 @@ void button_row_pocket::set_pos(const sdl::point &pos) {
     }
 }
 
-sdl::color button_row_pocket::get_toggled_color_for_style(game_style style) {
-    switch (style) {
-    case game_style::current_card: return colors.game_ui_button_down;
-    case game_style::playable: return colors.game_ui_button_playable;
-    default: return {};
-    }
-}
-
 void button_row_pocket::render(sdl::renderer &renderer) {
     auto it = begin();
     for (auto &btn : m_buttons) {
@@ -99,7 +91,7 @@ void button_row_pocket::render(sdl::renderer &renderer) {
         if (card->has_tag(tag_type::confirm) && parent->m_target.can_confirm()) {
             btn.set_toggled_color(colors.game_ui_button_confirm);
         } else if (auto style = card->get_style()) {
-            btn.set_toggled_color(get_toggled_color_for_style(*style));
+            btn.set_toggled_color(button_toggle_color(*style));
         } else {
             btn.set_toggled_color({});
         }

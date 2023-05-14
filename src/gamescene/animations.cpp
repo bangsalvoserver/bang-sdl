@@ -124,21 +124,16 @@ namespace banggame {
         card->render(renderer, render_flags::no_skip_animating);
     }
 
-    card_flash_animation::card_flash_animation(card_view *card, sdl::color color_to)
+    card_flash_animation::card_flash_animation(card_view *card)
         : card(card)
-        , color_from(card->border_color.a
-            ? card->border_color
-            : sdl::color{color_to.r, color_to.g, color_to.b, 0})
-        , color_to(color_to) {}
+        , tracker(std::make_unique<game_style_tracker>(card, game_style::flash)) {}
 
     void card_flash_animation::end() {
         card->animating = false;
-        card->border_color = color_from;
     }
 
     void card_flash_animation::do_animation(float amt) {
         card->animating = true;
-        card->border_color = sdl::lerp_color(color_to, color_from, amt);
     }
 
     void card_flash_animation::render(sdl::renderer &renderer) {

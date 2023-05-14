@@ -64,8 +64,6 @@ namespace banggame {
 
         bool animating = false;
 
-        sdl::color get_border_color_for(game_style style) override;
-
         void render(sdl::renderer &renderer, render_flags flags = {});
     };
 
@@ -124,8 +122,6 @@ namespace banggame {
         const sdl::point &get_pos() const {
             return m_pos;
         }
-
-        sdl::color get_border_color_for(game_style style) override;
 
         sdl::rect get_rect() const;
         sdl::texture_ref get_texture() const;

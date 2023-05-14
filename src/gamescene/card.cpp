@@ -9,28 +9,6 @@ namespace banggame {
 
     using namespace sdl::point_math;
 
-    sdl::color cube_widget::get_border_color_for(game_style style) {
-        switch (style) {
-        case game_style::targetable: return colors.target_finder_targetable_cube;
-        case game_style::selected_target: return colors.target_finder_target;
-        default: return {};
-        }
-    }
-
-    sdl::color card_view::get_border_color_for(game_style style) {
-        switch (style) {
-        case game_style::current_card: return colors.target_finder_current_card;
-        case game_style::selected_target: return colors.target_finder_target;
-        case game_style::playable: return colors.target_finder_can_play;
-        case game_style::highlight: return colors.target_finder_highlight_card;
-        case game_style::origin_card: return colors.target_finder_origin_card;
-        case game_style::targetable: return colors.target_finder_targetable_card;
-        case game_style::pickable: return colors.target_finder_can_pick;
-        case game_style::picked: return colors.target_finder_picked;
-        default: return {};
-        }
-    }
-
     template<typename T>
     concept first_is_none = requires {
         requires enums::reflected_enum<T>;
@@ -164,8 +142,8 @@ namespace banggame {
         };
 
         if (bool(flags & render_flags::no_skip_animating) || !animating) {
-            if (border_color.a) {
-                do_render(media_pak::get().sprite_cube_border, border_color);
+            if (auto style = get_style()) {
+                do_render(media_pak::get().sprite_cube_border, cube_border_color(*style));
             }
             do_render(media_pak::get().sprite_cube);
         }
@@ -213,16 +191,18 @@ namespace banggame {
         rect.x += int(rect.w * (1.f - wscale) * 0.5f);
         rect.w = int(rect.w * wscale);
 
-        if (!bool(flags & render_flags::no_draw_border) && border_color.a) {
-            card_textures::get().card_border.render_ex(renderer, sdl::rect{
-                rect.x - options.default_border_thickness,
-                rect.y - options.default_border_thickness,
-                rect.w + options.default_border_thickness * 2,
-                rect.h + options.default_border_thickness * 2
-            }, sdl::render_ex_options{
-                .color_modifier = border_color,
-                .angle = rotation
-            });
+        if (!bool(flags & render_flags::no_draw_border)) {
+            if (auto style = get_style()) {
+                card_textures::get().card_border.render_ex(renderer, sdl::rect{
+                    rect.x - options.default_border_thickness,
+                    rect.y - options.default_border_thickness,
+                    rect.w + options.default_border_thickness * 2,
+                    rect.h + options.default_border_thickness * 2
+                }, sdl::render_ex_options{
+                    .color_modifier = card_border_color(*style),
+                    .angle = rotation
+                });
+            }
         }
 
         tex.render_ex(renderer, rect, sdl::render_ex_options{ .angle = rotation });

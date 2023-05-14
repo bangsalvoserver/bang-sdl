@@ -487,7 +487,7 @@ void game_scene::handle_game_update(UPD_TAG(tap_card), const tap_card_update &ar
 }
 
 void game_scene::handle_game_update(UPD_TAG(flash_card), const flash_card_update &args) {
-    add_animation<card_flash_animation>(args.get_duration(), args.card, colors.flash_card);
+    add_animation<card_flash_animation>(args.get_duration(), args.card);
 }
 
 void game_scene::handle_game_update(UPD_TAG(short_pause), const short_pause_update &args) {

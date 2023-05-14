@@ -60,8 +60,6 @@ namespace banggame {
         int m_weapon_range = 1;
         int m_distance_mod = 0;
 
-        sdl::color get_border_color_for(game_style style) override;
-
         bool has_player_flags(player_flags flags) const {
             return (m_player_flags & flags) == flags;
         }

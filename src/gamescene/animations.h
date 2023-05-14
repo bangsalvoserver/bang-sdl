@@ -80,10 +80,9 @@ namespace banggame {
 
     struct card_flash_animation {
         card_view *card;
-        sdl::color color_from;
-        sdl::color color_to;
-
-        card_flash_animation(card_view *card, sdl::color color_to);
+        std::unique_ptr<game_style_tracker> tracker;
+        
+        card_flash_animation(card_view *card);
 
         void end();
         void do_animation(float x);

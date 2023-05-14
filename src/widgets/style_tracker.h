@@ -1,59 +1,34 @@
 #ifndef __STYLE_TRACKER_H__
 #define __STYLE_TRACKER_H__
 
-#include <set>
-#include <vector>
+#include <list>
 #include <optional>
 
 namespace widgets {
 
     template<typename T>
-    using style_pair = std::pair<T, size_t>;
-
-    template<typename T>
-    struct style_pair_ordering {
-        bool operator ()(const style_pair<T> &lhs, const style_pair<T> &rhs) const {
-            return lhs.second > rhs.second;
-        }
-    };
-
-    template<typename T>
-    using style_pair_set = std::set<style_pair<T>, style_pair_ordering<T>>;
-
-    template<typename T>
-    using style_set_iterator = typename style_pair_set<T>::iterator;
+    using style_iterator = typename std::list<T>::const_iterator; 
 
     template<typename T>
     class style_set {
     private:
-        style_pair_set<T> m_styles;
-        size_t m_counter = 0;
-    
-    protected:
-        virtual void update_style() = 0;
+        std::list<T> m_styles;
 
     public:
         std::optional<T> get_style() const {
             if (!m_styles.empty()) {
-                return m_styles.begin()->first;
+                return m_styles.back();
             } else {
                 return std::nullopt;
             }
         }
 
-        style_set_iterator<T> add_style(const T &value) {
-            auto it = m_styles.emplace(value, m_counter);
-            ++m_counter;
-            update_style();
-            return it.first;
+        style_iterator<T> add_style(const T &value) {
+            return m_styles.insert(m_styles.end(), value);
         }
 
-        void remove_style(style_set_iterator<T> it) {
+        void remove_style(style_iterator<T> it) {
             m_styles.erase(it);
-            if (m_styles.empty()) {
-                m_counter = 0;
-            }
-            update_style();
         }
     };
 
@@ -61,7 +36,7 @@ namespace widgets {
     class style_tracker {
     private:
         style_set<T> *m_set;
-        style_set_iterator<T> m_it;
+        style_iterator<T> m_it;
 
     public:
         style_tracker(style_set<T> *set, const T &value)
