@@ -596,7 +596,7 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
                 targetable_for_cards_other_player{m_game->m_player_self, m_context.skipped_player}));
         }
         if (auto &vec = targets.back().get<target_type::cards_other_players>();
-            !card->is_black() && player != m_game->m_player_self
+            !card->is_black() && player != m_game->m_player_self && player != m_context.skipped_player
             && !ranges::contains(vec, player, [](card_view *card) { return card->pocket->owner; }))
         {
             if (player != m_game->m_player_self && card->pocket == &player->hand) {
