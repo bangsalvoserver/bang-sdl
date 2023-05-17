@@ -134,7 +134,7 @@ namespace banggame {
 
     void card_flash_animation::do_animation(float amt) {
         card->animating = true;
-        card->flash_amt = std::pow(1.f - amt, 0.5f);
+        card->flash_amt = std::pow(1.f - amt, options.flash_exponent);
     }
 
     void card_flash_animation::render(sdl::renderer &renderer) {

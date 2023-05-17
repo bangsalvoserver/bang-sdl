@@ -66,6 +66,7 @@ namespace banggame {
         int default_border_thickness;   // card border thickness
 
         float easing_exponent;      // for card animations
+        float flash_exponent;
 
         int card_margin;            // margin between cards
         int role_yoff;              // vertical distance between character card and role card

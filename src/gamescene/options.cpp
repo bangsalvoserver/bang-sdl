@@ -58,6 +58,7 @@ namespace banggame {
         .default_border_thickness = 5,
 
         .easing_exponent = 1.8f,
+        .flash_exponent = 0.2f,
 
         .card_margin = 10,
         .role_yoff = 16,
