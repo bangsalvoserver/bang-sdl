@@ -439,13 +439,15 @@ void target_finder::handle_auto_targets() {
             [[fallthrough]];
         case target_type::card:
         case target_type::cards:
-            for (card_view *c : m_game->m_alive_players
-                | ranges::views::filter(make_target_check(effect_it->player_filter))
-                | ranges::views::for_each([&](player_view *p) {
-                    return ranges::views::concat(p->hand, p->table)
-                        | ranges::views::filter(make_target_check(effect_it->card_filter));
-                }))
-            {
+            for (card_view *c : ranges::views::concat(
+                m_game->m_alive_players
+                    | ranges::views::filter(make_target_check(effect_it->player_filter))
+                    | ranges::views::for_each([&](player_view *p) {
+                        return ranges::views::concat(p->hand, p->table)
+                            | ranges::views::filter(make_target_check(effect_it->card_filter));
+                    }),
+                m_game->m_selection
+            )) {
                 m_targetable_borders.emplace_back(c, game_style::targetable);
             }
             return;
