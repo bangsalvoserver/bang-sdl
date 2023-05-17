@@ -521,7 +521,10 @@ template<typename T> contains_element(const T &) -> contains_element<T>;
 inline auto all_targets(const target_status &value) {
     return ranges::views::concat(
         ranges::views::all(value.m_targets),
-        ranges::views::for_each(value.m_modifiers, &modifier_pair::targets)
+        ranges::views::for_each(value.m_modifiers, &modifier_pair::targets),
+        ranges::views::transform(value.m_modifiers, [](const modifier_pair &pair) {
+            return play_card_target{enums::enum_tag<target_type::card>, pair.card};
+        })
     );
 }
 
