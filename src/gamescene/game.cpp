@@ -13,11 +13,13 @@ using namespace sdl::point_math;
 
 game_scene::game_scene(client_manager *parent)
     : scene_base(parent)
-    , m_sounds(parent->get_base_path())
     , m_card_textures(parent->get_base_path(), parent->get_renderer())
     , m_ui(this)
     , m_target(this)
 {
+    if (parent->get_config().sound_volume > 0) {
+        m_sounds.emplace(parent->get_base_path());
+    }
     m_ui.enable_golobby(false);
 }
 
@@ -249,7 +251,9 @@ std::tuple<pocket_type, player_view *, card_view *> game_scene::find_card_at(sdl
 }
 
 void game_scene::play_sound(std::string_view sound_id) {
-    m_sounds.play_sound(sound_id, parent->get_config().sound_volume);
+    if (m_sounds) {
+        m_sounds->play_sound(sound_id, parent->get_config().sound_volume);
+    }
 }
 
 void game_scene::handle_message(SRV_TAG(game_update), const json::json &update) {

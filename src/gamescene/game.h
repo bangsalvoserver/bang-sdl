@@ -115,7 +115,7 @@ namespace banggame {
 
         pocket_view &get_pocket(pocket_type pocket, player_view *player = nullptr);
 
-        sounds_pak m_sounds;
+        std::optional<sounds_pak> m_sounds;
         card_textures m_card_textures;
 
         game_context_view m_context;
