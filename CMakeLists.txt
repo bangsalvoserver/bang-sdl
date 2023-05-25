@@ -39,9 +39,7 @@ add_subdirectory(external/tiny-process-library)
 set_target_properties(tiny-process-library PROPERTIES
     POSITION_INDEPENDENT_CODE ON)
 
-get_target_property(public_server_sources bangserver INTERFACE_SOURCES)
-
-add_library(bangclient SHARED ${public_server_sources})
+add_library(bangclient SHARED)
 add_subdirectory(src)
 
 target_include_directories(bangclient PRIVATE src)

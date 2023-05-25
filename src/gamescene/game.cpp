@@ -318,7 +318,7 @@ void game_scene::handle_game_update(UPD_TAG(deck_shuffled), const deck_shuffled_
         to_pocket.add_card(card);
     }
     from_pocket.clear();
-    add_animation<deck_shuffle_animation>(args.get_duration(), &to_pocket, from_pocket.get_pos());
+    add_animation<deck_shuffle_animation>(args.duration, &to_pocket, from_pocket.get_pos());
 }
 
 pocket_view &game_scene::get_pocket(pocket_type pocket, player_view *player) {
@@ -374,7 +374,7 @@ void game_scene::handle_game_update(UPD_TAG(remove_cards), const remove_cards_up
 }
 
 void game_scene::handle_game_update(UPD_TAG(move_card), const move_card_update &args) {
-    add_animation<card_move_animation>(args.get_duration(), [&]{
+    add_animation<card_move_animation>(args.duration, [&]{
         pocket_view *old_pile = args.card->pocket;
         pocket_view *new_pile = &get_pocket(args.pocket, args.player);
 
@@ -417,7 +417,7 @@ void game_scene::handle_game_update(UPD_TAG(add_cubes), const add_cubes_update &
 }
 
 void game_scene::handle_game_update(UPD_TAG(move_cubes), const move_cubes_update &args) {
-    add_animation<cube_move_animation>(args.get_duration(), [&]{
+    add_animation<cube_move_animation>(args.duration, [&]{
         auto &origin_pile = get_cube_pile(args.origin_card);
         auto &target_pile = get_cube_pile(args.target_card);
 
@@ -445,7 +445,7 @@ void game_scene::handle_game_update(UPD_TAG(move_scenario_deck), const move_scen
 
     auto &new_pile = get_pocket(args.pocket);
     
-    add_animation<card_move_animation>(args.get_duration(), [&]{
+    add_animation<card_move_animation>(args.duration, [&]{
         card_move_animation anim;
         for (card_view *c : old_pile) {
             new_pile.add_card(c);
@@ -457,7 +457,7 @@ void game_scene::handle_game_update(UPD_TAG(move_scenario_deck), const move_scen
 }
 
 void game_scene::handle_game_update(UPD_TAG(move_train), const move_train_update &args) {
-    add_animation<train_move_animation>(args.get_duration(), &m_train, &m_stations, m_train_position = args.position);
+    add_animation<train_move_animation>(args.duration, &m_train, &m_stations, m_train_position = args.position);
 }
 
 void game_scene::handle_game_update(UPD_TAG(show_card), const show_card_update &args) {
@@ -472,30 +472,30 @@ void game_scene::handle_game_update(UPD_TAG(show_card), const show_card_update &
             args.card->pocket->update_card(args.card);
         }
 
-        add_animation<card_flip_animation>(args.get_duration(), args.card, false);
+        add_animation<card_flip_animation>(args.duration, args.card, false);
     }
 }
 
 void game_scene::handle_game_update(UPD_TAG(hide_card), const hide_card_update &args) {
     if (args.card->known) {
         args.card->known = false;
-        add_animation<card_flip_animation>(args.get_duration(), args.card, true);
+        add_animation<card_flip_animation>(args.duration, args.card, true);
     }
 }
 
 void game_scene::handle_game_update(UPD_TAG(tap_card), const tap_card_update &args) {
     if (args.card->inactive != args.inactive) {
         args.card->inactive = args.inactive;
-        add_animation<card_tap_animation>(args.get_duration(), args.card, args.inactive);
+        add_animation<card_tap_animation>(args.duration, args.card, args.inactive);
     }
 }
 
 void game_scene::handle_game_update(UPD_TAG(flash_card), const flash_card_update &args) {
-    add_animation<card_flash_animation>(args.get_duration(), args.card);
+    add_animation<card_flash_animation>(args.duration, args.card);
 }
 
 void game_scene::handle_game_update(UPD_TAG(short_pause), const short_pause_update &args) {
-    add_animation<pause_animation>(args.get_duration(), args.card);
+    add_animation<pause_animation>(args.duration, args.card);
 }
 
 void game_scene::move_player_views(anim_duration_type duration) {
@@ -559,7 +559,7 @@ void game_scene::handle_game_update(UPD_TAG(player_order), const player_order_up
 
     rotate_to(m_player_self) || rotate_to(first_player);
 
-    move_player_views(args.get_duration());
+    move_player_views(args.duration);
 }
 
 void game_scene::handle_game_update(UPD_TAG(player_user), const player_user_update &args) {
@@ -587,7 +587,7 @@ void game_scene::handle_game_update(UPD_TAG(player_user), const player_user_upda
 void game_scene::handle_game_update(UPD_TAG(player_hp), const player_hp_update &args) {
     int prev_hp = args.player->hp;
     args.player->hp = args.hp;
-    add_animation<player_hp_animation>(args.get_duration(), args.player, prev_hp);
+    add_animation<player_hp_animation>(args.duration, args.player, prev_hp);
 }
 
 void game_scene::handle_game_update(UPD_TAG(player_gold), const player_gold_update &args) {
@@ -600,11 +600,11 @@ void game_scene::handle_game_update(UPD_TAG(player_show_role), const player_show
         card.role = args.role;
         if (args.role == player_role::unknown) {
             card.known = false;
-            add_animation<card_flip_animation>(args.get_duration(), &card, true);
+            add_animation<card_flip_animation>(args.duration, &card, true);
         } else {
             card.known = true;
             card.make_texture_front(parent->get_renderer());
-            add_animation<card_flip_animation>(args.get_duration(), &card, false);
+            add_animation<card_flip_animation>(args.duration, &card, false);
         }
     }
 }
