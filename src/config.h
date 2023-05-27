@@ -28,7 +28,8 @@ DEFINE_STRUCT(config,
     (float, sound_volume, .5f)
     (uint16_t, server_port)
     (bool, server_enable_cheats)
-    (bool, server_verbose),
+    (bool, server_verbose)
+    (int, user_id),
     
     void load();
     void save();

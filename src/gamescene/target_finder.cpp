@@ -175,7 +175,8 @@ bool target_finder::can_confirm() const {
 }
 
 bool target_finder::is_card_clickable() const {
-    return !m_game->has_game_flags(game_flags::game_over)
+    return m_game->m_player_self
+        && !m_game->has_game_flags(game_flags::game_over)
         && m_game->m_pending_updates.empty()
         && m_game->m_animations.empty()
         && !m_game->m_ui.is_message_box_open()
@@ -247,11 +248,6 @@ void target_finder::on_click_card(pocket_type pocket, player_view *player, card_
 }
 
 bool target_finder::on_click_player(player_view *player) {
-    if (!m_game->m_player_self) {
-        m_game->parent->add_message<client_message_type::lobby_rejoin>(player->id);
-        return true;
-    }
-
     if (m_mode == target_mode::equip) {
         if (is_valid_target(m_playing_card->equip_target, player)) {
             m_target_borders.emplace_back(player, game_style::selected_target);

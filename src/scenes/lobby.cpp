@@ -16,7 +16,7 @@ lobby_scene::lobby_player_item::lobby_player_item(lobby_scene *parent, int id, c
     client_manager *mgr = parent->parent;
     if (id == mgr->get_user_own_id()) {
         m_propic.set_onclick([mgr]{
-            if (auto tex = mgr->browse_propic()) {
+            if (mgr->browse_propic()) {
                 mgr->send_user_edit();
             }
         });

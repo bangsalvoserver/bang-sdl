@@ -49,7 +49,8 @@ void bang_connection::on_open() {
         banggame::user_info {
             parent.m_config.user_name,
             sdl::surface_to_image_pixels(parent.m_config.profile_image_data)
-        }
+        },
+        parent.get_user_own_id()
 #ifdef HAVE_GIT_VERSION
         , std::string(net::server_commit_hash)
 #endif
@@ -242,7 +243,7 @@ void client_manager::handle_message(SRV_TAG(client_accepted), const client_accep
     }
     m_con.m_accept_timer.cancel();
     m_users.clear();
-    m_user_own_id = args.user_id;
+    m_config.user_id = args.user_id;
     switch_scene<lobby_list_scene>();
 }
 
@@ -266,7 +267,7 @@ void client_manager::handle_message(SRV_TAG(lobby_add_user), const user_info_id_
 }
 
 void client_manager::handle_message(SRV_TAG(lobby_remove_user), const user_id_args &args) {
-    if (args.user_id == m_user_own_id) {
+    if (args.user_id == get_user_own_id()) {
         m_users.clear();
         switch_scene<lobby_list_scene>();
     } else if (auto it = m_users.find(args.user_id); it != m_users.end()) {

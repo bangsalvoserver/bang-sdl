@@ -89,7 +89,7 @@ public:
     int width() const { return get_rect().w; }
     int height() const { return get_rect().h; }
 
-    int get_user_own_id() const { return m_user_own_id; }
+    int get_user_own_id() const { return m_config.user_id; }
     int get_lobby_owner_id() const { return m_lobby_owner_id; }
 
     void start_listenserver();
@@ -133,7 +133,6 @@ private:
 
     chat_ui m_chat{this};
 
-    int m_user_own_id = 0;
     int m_lobby_owner_id = 0;
 
 private:

@@ -534,13 +534,42 @@ void game_scene::move_player_views(anim_duration_type duration) {
 }
 
 void game_scene::handle_game_update(UPD_TAG(player_add), const player_add_update &args) {
-    for (int player_id = 1; player_id <= args.num_players; ++player_id) {
-        player_view *p = &m_context.players.emplace(this, player_id);
+    for (auto [player_id, user_id] : args.players) {
+        player_view *p = &m_context.players.emplace(this, player_id, user_id);
+        m_alive_players.push_back(p);
         
         p->m_role.texture_back = card_textures::get().backfaces[enums::indexof(card_deck_type::role)];
+        
+        if (const banggame::user_info *info = parent->get_user_info(user_id)) {
+            p->m_username_text.set_value(info->name);
+            if (!info->profile_image.pixels.empty()) {
+                p->m_propic.set_texture(sdl::texture(parent->get_renderer(), sdl::image_pixels_to_surface(info->profile_image)));
+            }
 
-        m_alive_players.push_back(p);
+            if (user_id == parent->get_user_own_id()) {
+                m_player_self = p;
+            }
+        } else {
+            p->set_disconnected(true);
+        }
     }
+
+    if (m_player_self) {
+        m_player_self->m_propic.set_border_color(widgets::propic_border_color);
+        m_player_self->m_propic.set_onclick([&]{
+            if (parent->browse_propic()) {
+                parent->send_user_edit();
+            }
+        });
+        m_player_self->m_propic.set_on_rightclick([&]{
+            parent->reset_propic();
+            parent->send_user_edit();
+        });
+
+        std::ranges::rotate(m_alive_players, std::ranges::find(m_alive_players, m_player_self));
+    }
+    
+    move_player_views();
 }
 
 void game_scene::handle_game_update(UPD_TAG(player_order), const player_order_update &args) {
@@ -565,7 +594,7 @@ void game_scene::handle_game_update(UPD_TAG(player_order), const player_order_up
 void game_scene::handle_message(SRV_TAG(lobby_add_user), const user_info_id_args &args) {
     auto it = std::ranges::find(m_context.players, args.user_id, &player_view::user_id);
     if (it != m_context.players.end()) {
-        it->set_user_id(it->user_id);
+        it->set_disconnected(false);
         it->set_position(it->get_position());
     }
 }
@@ -573,24 +602,9 @@ void game_scene::handle_message(SRV_TAG(lobby_add_user), const user_info_id_args
 void game_scene::handle_message(SRV_TAG(lobby_remove_user), const user_id_args &args) {
     auto it = std::ranges::find(m_context.players, args.user_id, &player_view::user_id);
     if (it != m_context.players.end()) {
-        it->set_user_id(0);
+        it->set_disconnected(true);
         it->set_position(it->get_position());
     }
-}
-
-void game_scene::handle_game_update(UPD_TAG(player_user), const player_user_update &args) {
-    args.player->set_user_id(args.user_id);
-
-    if (args.user_id == parent->get_user_own_id()) {
-        args.player->m_propic.set_border_color(widgets::propic_border_color);
-        m_player_self = args.player;
-        auto alive_it = std::ranges::find(m_alive_players, args.player);
-        if (alive_it != m_alive_players.end()) {
-            std::ranges::rotate(m_alive_players, alive_it);
-        }
-    }
-
-    move_player_views();
 }
 
 void game_scene::handle_game_update(UPD_TAG(player_hp), const player_hp_update &args) {

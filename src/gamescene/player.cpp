@@ -7,9 +7,10 @@
 namespace banggame {
     using namespace sdl::point_math;
 
-    player_view::player_view(game_scene *game, int id)
+    player_view::player_view(game_scene *game, int id, int user_id)
         : m_game(game)
         , id(id)
+        , user_id(user_id)
         , m_username_text(widgets::text_style{
             .text_font = &media_pak::font_bkant_bold
         })
@@ -18,30 +19,13 @@ namespace banggame {
         })
     {}
 
-    void player_view::set_user_id(int value) {
-        user_id = value;
-        client_manager *mgr = m_game->parent;
-        if (const banggame::user_info *info = mgr->get_user_info(user_id)) {
-            m_username_text.set_value(info->name);
-            m_propic.set_texture(sdl::texture(mgr->get_renderer(), sdl::image_pixels_to_surface(info->profile_image)));
-        } else {
-            m_username_text.set_value(_("USERNAME_DISCONNECTED"));
+    void player_view::set_disconnected(bool disconnected) {
+        m_disconnected = disconnected;
+
+        if (disconnected) {
             m_propic.set_texture(media_pak::get().icon_disconnected);
-        }
-        
-        if (user_id > 0 && user_id == mgr->get_user_own_id()) {
-            m_propic.set_onclick([mgr]{
-                if (auto tex = mgr->browse_propic()) {
-                    mgr->send_user_edit();
-                }
-            });
-            m_propic.set_on_rightclick([mgr]{
-                mgr->reset_propic();
-                mgr->send_user_edit();
-            });
         } else {
-            m_propic.set_onclick(nullptr);
-            m_propic.set_on_rightclick(nullptr);
+            m_propic.set_texture(m_propic.get_owned_texture());
         }
     }
 
