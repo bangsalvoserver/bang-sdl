@@ -69,6 +69,8 @@ static sdl::texture generate_border_texture(sdl::renderer &renderer, sdl::textur
     {
         sdl::texture target = SDL_CreateTexture(renderer.get(), SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_TARGET, target_rect.w, target_rect.h);
         SDL_SetRenderTarget(renderer.get(), target.get());
+        renderer.set_draw_color(sdl::rgba(0x0));
+        renderer.render_clear();
         source.render(renderer, sdl::move_rect_center(source.get_rect(), sdl::rect_center(target_rect)));
         SDL_RenderReadPixels(renderer.get(), &target_rect, SDL_PIXELFORMAT_RGBA32, source_pixels.get(), target_rect.w * 4);
         SDL_SetRenderTarget(renderer.get(), nullptr);
