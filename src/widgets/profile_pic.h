@@ -15,11 +15,19 @@ namespace widgets {
             set_texture(nullptr);
         }
 
+        profile_pic(sdl::texture &&tex) {
+            set_texture(std::move(tex));
+        }
+
         profile_pic(sdl::texture_ref tex) {
             set_texture(tex);
         }
 
         void set_texture(std::nullptr_t);
+        void set_texture(sdl::texture &&tex) {
+            set_texture(m_owned_texture = std::move(tex));
+        }
+
         void set_texture(sdl::texture_ref tex);
         sdl::texture_ref get_texture() const {
             return m_texture;
@@ -46,6 +54,7 @@ namespace widgets {
         bool handle_event(const sdl::event &event) override;
 
     private:
+        sdl::texture m_owned_texture;
         sdl::texture_ref m_texture;
         sdl::texture m_border_texture;
 

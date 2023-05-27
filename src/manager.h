@@ -17,11 +17,6 @@
 
 #include <process.hpp>
 
-struct user_info {
-    std::string name;
-    sdl::texture profile_image;
-};
-
 class client_manager;
 
 struct bang_connection : net::wsconnection<bang_connection, banggame::server_message, banggame::client_message> {
@@ -100,7 +95,7 @@ public:
     void start_listenserver();
     void stop_listenserver();
 
-    user_info *get_user_info(int id) {
+    banggame::user_info *get_user_info(int id) {
         auto it = m_users.find(id);
         if (it != m_users.end()) {
             return &it->second;
@@ -111,16 +106,18 @@ public:
 
     void enable_chat();
 
-    void add_chat_message(message_type type, const std::string &message);
+    sdl::texture browse_propic();
+    void reset_propic();
+    void send_user_edit();
 
-    const user_info &add_user(int id, std::string name, const sdl::surface &surface);
+    void add_chat_message(message_type type, const std::string &message);
 
 private:
     void handle_message(SRV_TAG(client_accepted), const banggame::client_accepted_args &args);
     void handle_message(SRV_TAG(lobby_error), const std::string &message);
     void handle_message(SRV_TAG(lobby_owner), const banggame::user_id_args &args);
     void handle_message(SRV_TAG(lobby_entered), const banggame::lobby_info &args);
-    void handle_message(SRV_TAG(lobby_add_user), const banggame::lobby_add_user_args &args);
+    void handle_message(SRV_TAG(lobby_add_user), const banggame::user_info_id_args &args);
     void handle_message(SRV_TAG(lobby_remove_user), const banggame::user_id_args &args);
     void handle_message(SRV_TAG(lobby_chat), const banggame::lobby_chat_args &args);
     void handle_message(SRV_TAG(game_started));
@@ -146,7 +143,7 @@ private:
     std::unique_ptr<TinyProcessLib::Process> m_listenserver;
     std::thread m_listenserver_thread;
 
-    std::map<int, user_info> m_users;
+    std::map<int, banggame::user_info> m_users;
     friend struct bang_connection;
 };
 

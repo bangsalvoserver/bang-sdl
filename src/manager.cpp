@@ -7,6 +7,7 @@
 #include "net/options.h"
 
 #include "media_pak.h"
+#include "os_api.h"
 
 #include "scenes/connect.h"
 #include "scenes/loading.h"
@@ -45,8 +46,10 @@ void bang_connection::on_open() {
     });
 
     parent.add_message<banggame::client_message_type::connect>(
-        parent.m_config.user_name,
-        sdl::surface_to_image_pixels(parent.m_config.profile_image_data)
+        banggame::user_info {
+            parent.m_config.user_name,
+            sdl::surface_to_image_pixels(parent.m_config.profile_image_data)
+        }
 #ifdef HAVE_GIT_VERSION
         , std::string(net::server_commit_hash)
 #endif
@@ -255,13 +258,11 @@ void client_manager::handle_message(SRV_TAG(lobby_owner), const user_id_args &ar
     m_lobby_owner_id = args.user_id;
 }
 
-const user_info &client_manager::add_user(int id, std::string name, const sdl::surface &surface) {
-    return m_users[id] = {std::move(name), sdl::texture(get_renderer(), surface)};
-}
-
-void client_manager::handle_message(SRV_TAG(lobby_add_user), const lobby_add_user_args &args) {
-    add_user(args.user_id, args.name, sdl::image_pixels_to_surface(args.profile_image));
-    add_chat_message(message_type::server_log, _("GAME_USER_CONNECTED", args.name));
+void client_manager::handle_message(SRV_TAG(lobby_add_user), const user_info_id_args &args) {
+    auto [it, inserted] = m_users.insert_or_assign(args.user_id, args.user);
+    if (inserted) {
+        add_chat_message(message_type::server_log, _("GAME_USER_CONNECTED", args.user.name));
+    }
 }
 
 void client_manager::handle_message(SRV_TAG(lobby_remove_user), const user_id_args &args) {
@@ -274,7 +275,7 @@ void client_manager::handle_message(SRV_TAG(lobby_remove_user), const user_id_ar
 }
 
 void client_manager::handle_message(SRV_TAG(lobby_chat), const lobby_chat_args &args) {
-    if (user_info *info = get_user_info(args.user_id)) {
+    if (banggame::user_info *info = get_user_info(args.user_id)) {
         add_chat_message(message_type::chat, fmt::format("{}: {}", info->name, args.message));
     } else {
         add_chat_message(message_type::chat, args.message);
@@ -283,4 +284,37 @@ void client_manager::handle_message(SRV_TAG(lobby_chat), const lobby_chat_args &
 
 void client_manager::handle_message(SRV_TAG(game_started)) {
     switch_scene<banggame::game_scene>();
+}
+
+sdl::texture client_manager::browse_propic() {
+    if (auto value = os_api::open_file_dialog(
+            _("BANG_TITLE"),
+            m_config.profile_image,
+            {
+                {{"*.jpg","*.jpeg","*.png"}, _("DIALOG_IMAGE_FILES")},
+                {{"*.*"}, _("DIALOG_ALL_FILES")}
+            },
+            &get_window()
+        )) {
+        try {
+            m_config.profile_image = value->string();
+            m_config.profile_image_data = widgets::profile_pic::scale_profile_image(sdl::surface(resource(*value)));
+            return sdl::texture(get_renderer(), m_config.profile_image_data);
+        } catch (const std::runtime_error &e) {
+            add_chat_message(message_type::error, e.what());
+        }
+    }
+    return {};
+}
+
+void client_manager::reset_propic() {
+    m_config.profile_image.clear();
+    m_config.profile_image_data.reset();
+}
+
+void client_manager::send_user_edit() {
+    add_message<banggame::client_message_type::user_edit>(
+        m_config.user_name,
+        sdl::surface_to_image_pixels(m_config.profile_image_data)
+    );
 }

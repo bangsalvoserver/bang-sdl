@@ -40,7 +40,9 @@ namespace banggame {
     class game_scene : public scene_base,
     public message_handler<server_message_type::game_update>,
     public message_handler<server_message_type::lobby_owner>,
-    public message_handler<server_message_type::lobby_error> {
+    public message_handler<server_message_type::lobby_error>,
+    public message_handler<server_message_type::lobby_add_user>,
+    public message_handler<server_message_type::lobby_remove_user> {
     public:
         game_scene(client_manager *parent);
         
@@ -54,6 +56,8 @@ namespace banggame {
         void handle_message(SRV_TAG(game_update), const json::json &update) override;
         void handle_message(SRV_TAG(lobby_owner), const user_id_args &args) override;
         void handle_message(SRV_TAG(lobby_error), const std::string &message) override;
+        void handle_message(SRV_TAG(lobby_add_user), const user_info_id_args &args) override;
+        void handle_message(SRV_TAG(lobby_remove_user), const user_id_args &args) override;
 
         const game_context_view &context() const {
             return m_context;

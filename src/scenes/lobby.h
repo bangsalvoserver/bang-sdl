@@ -8,8 +8,6 @@
 
 #include <list>
 
-struct user_info;
-
 class lobby_scene : public scene_base,
 public message_handler<banggame::server_message_type::lobby_edited>,
 public message_handler<banggame::server_message_type::lobby_owner>,
@@ -24,7 +22,7 @@ public:
 
     void handle_message(SRV_TAG(lobby_edited), const banggame::lobby_info &info) override;
     void handle_message(SRV_TAG(lobby_owner), const banggame::user_id_args &args) override;
-    void handle_message(SRV_TAG(lobby_add_user), const banggame::lobby_add_user_args &args) override;
+    void handle_message(SRV_TAG(lobby_add_user), const banggame::user_info_id_args &args) override;
     void handle_message(SRV_TAG(lobby_remove_user), const banggame::user_id_args &args) override;
 
     void send_lobby_edited();
@@ -32,7 +30,7 @@ public:
 private:
     class lobby_player_item {
     public:
-        lobby_player_item(lobby_scene *parent, int id, const user_info &args);
+        lobby_player_item(lobby_scene *parent, int id, const banggame::user_info &args);
 
         int user_id() const {
             return m_user_id;

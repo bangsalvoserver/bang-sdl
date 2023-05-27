@@ -34,9 +34,6 @@ public:
 
     void do_delete_address(recent_server_line *addr);
 
-    void do_browse_propic();
-    void reset_propic();
-
     void do_create_server();
 
 private:

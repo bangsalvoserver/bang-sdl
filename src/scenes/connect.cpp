@@ -2,7 +2,6 @@
 
 #include "../manager.h"
 #include "../media_pak.h"
-#include "../os_api.h"
 
 recent_server_line::recent_server_line(connect_scene *parent, const std::string &address)
     : parent(parent)
@@ -41,9 +40,18 @@ connect_scene::connect_scene(client_manager *parent)
         m_recents.emplace_back(this, obj);
     }
 
-    m_propic.set_onclick([this]{ do_browse_propic(); });
-    m_propic.set_on_rightclick([this]{ reset_propic(); });
-    m_propic.set_texture(parent->add_user(0, m_username_label.get_value(), parent->get_config().profile_image_data).profile_image);
+    m_propic.set_onclick([this]{
+        if (auto tex = this->parent->browse_propic()) {
+            m_propic.set_texture(std::move(tex));
+            refresh_layout();
+        }
+    });
+    m_propic.set_on_rightclick([this]{
+        m_propic.set_texture(nullptr);
+        this->parent->reset_propic();
+        refresh_layout();
+    });
+    m_propic.set_texture(sdl::texture(parent->get_renderer(), parent->get_config().profile_image_data));
 }
 
 void connect_scene::refresh_layout() {
@@ -118,35 +126,6 @@ void connect_scene::do_delete_address(recent_server_line *addr) {
     servers.erase(servers.begin() + std::distance(m_recents.begin(), it));
     m_recents.erase(it);
 
-    refresh_layout();
-}
-
-void connect_scene::do_browse_propic() {
-    auto &cfg = parent->get_config();
-    if (auto value = os_api::open_file_dialog(
-            _("BANG_TITLE"),
-            cfg.profile_image,
-            {
-                {{"*.jpg","*.jpeg","*.png"}, _("DIALOG_IMAGE_FILES")},
-                {{"*.*"}, _("DIALOG_ALL_FILES")}
-            },
-            &parent->get_window()
-        )) {
-        try {
-            cfg.profile_image_data = widgets::profile_pic::scale_profile_image(sdl::surface(resource(*value)));
-            m_propic.set_texture(parent->add_user(0, m_username_label.get_value(), cfg.profile_image_data).profile_image);
-            cfg.profile_image = value->string();
-            refresh_layout();
-        } catch (const std::runtime_error &e) {
-            parent->add_chat_message(message_type::error, e.what());
-        }
-    }
-}
-
-void connect_scene::reset_propic() {
-    m_propic.set_texture(nullptr);
-    parent->get_config().profile_image.clear();
-    parent->get_config().profile_image_data.reset();
     refresh_layout();
 }
 

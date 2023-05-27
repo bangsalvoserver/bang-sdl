@@ -5,13 +5,27 @@
 
 using namespace banggame;
 
-lobby_scene::lobby_player_item::lobby_player_item(lobby_scene *parent, int id, const user_info &args)
+lobby_scene::lobby_player_item::lobby_player_item(lobby_scene *parent, int id, const banggame::user_info &args)
     : parent(parent)
     , m_user_id(id)
     , m_name_text(args.name, widgets::text_style{
         .text_font = &media_pak::font_bkant_bold
     })
-    , m_propic(args.profile_image) {}
+    , m_propic(sdl::texture(parent->parent->get_renderer(), sdl::image_pixels_to_surface(args.profile_image)))
+{
+    client_manager *mgr = parent->parent;
+    if (id == mgr->get_user_own_id()) {
+        m_propic.set_onclick([mgr]{
+            if (auto tex = mgr->browse_propic()) {
+                mgr->send_user_edit();
+            }
+        });
+        m_propic.set_on_rightclick([mgr]{
+            mgr->reset_propic();
+            mgr->send_user_edit();
+        });
+    }
+}
 
 void lobby_scene::lobby_player_item::set_pos(int x, int y) {
     m_propic.set_pos(sdl::point{
@@ -151,9 +165,13 @@ void lobby_scene::handle_event(const sdl::event &event) {
     }
 }
 
-void lobby_scene::handle_message(SRV_TAG(lobby_add_user), const lobby_add_user_args &args) {
-    if (const user_info *user = parent->get_user_info(args.user_id)) {
-        m_player_list.emplace_back(this, args.user_id, *user);
+void lobby_scene::handle_message(SRV_TAG(lobby_add_user), const user_info_id_args &args) {
+    if (const banggame::user_info *user = parent->get_user_info(args.user_id)) {
+        if (auto it = std::ranges::find(m_player_list, args.user_id, &lobby_player_item::user_id); it != m_player_list.end()) {
+            *it = lobby_player_item(this, args.user_id, *user);
+        } else {
+            m_player_list.emplace_back(this, args.user_id, *user);
+        }
         refresh_layout();
     }
 }

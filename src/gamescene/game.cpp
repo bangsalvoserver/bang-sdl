@@ -562,15 +562,22 @@ void game_scene::handle_game_update(UPD_TAG(player_order), const player_order_up
     move_player_views(args.duration);
 }
 
-void game_scene::handle_game_update(UPD_TAG(player_user), const player_user_update &args) {
-    args.player->user_id = args.user_id;
-    if (user_info *info = parent->get_user_info(args.user_id)) {
-        args.player->m_username_text.set_value(info->name);
-        args.player->m_propic.set_texture(info->profile_image);
-    } else {
-        args.player->m_username_text.set_value(_("USERNAME_DISCONNECTED"));
-        args.player->m_propic.set_texture(media_pak::get().icon_disconnected);
+void game_scene::handle_message(SRV_TAG(lobby_add_user), const user_info_id_args &args) {
+    auto it = std::ranges::find(m_context.players, args.user_id, &player_view::user_id);
+    if (it != m_context.players.end()) {
+        it->set_user_id(it->user_id);
     }
+}
+
+void game_scene::handle_message(SRV_TAG(lobby_remove_user), const user_id_args &args) {
+    auto it = std::ranges::find(m_context.players, args.user_id, &player_view::user_id);
+    if (it != m_context.players.end()) {
+        it->set_user_id(0);
+    }
+}
+
+void game_scene::handle_game_update(UPD_TAG(player_user), const player_user_update &args) {
+    args.player->set_user_id(args.user_id);
 
     if (args.user_id == parent->get_user_own_id()) {
         args.player->m_propic.set_border_color(widgets::propic_border_color);

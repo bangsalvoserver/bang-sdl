@@ -2,6 +2,7 @@
 
 #include "../media_pak.h"
 #include "game.h"
+#include "manager.h"
 
 namespace banggame {
     using namespace sdl::point_math;
@@ -16,6 +17,33 @@ namespace banggame {
             .bg_color = sdl::rgba(0)
         })
     {}
+
+    void player_view::set_user_id(int value) {
+        user_id = value;
+        client_manager *mgr = m_game->parent;
+        if (const banggame::user_info *info = mgr->get_user_info(user_id)) {
+            m_username_text.set_value(info->name);
+            m_propic.set_texture(sdl::texture(mgr->get_renderer(), sdl::image_pixels_to_surface(info->profile_image)));
+        } else {
+            m_username_text.set_value(_("USERNAME_DISCONNECTED"));
+            m_propic.set_texture(media_pak::get().icon_disconnected);
+        }
+        
+        if (user_id > 0 && user_id == mgr->get_user_own_id()) {
+            m_propic.set_onclick([mgr]{
+                if (auto tex = mgr->browse_propic()) {
+                    mgr->send_user_edit();
+                }
+            });
+            m_propic.set_on_rightclick([mgr]{
+                mgr->reset_propic();
+                mgr->send_user_edit();
+            });
+        } else {
+            m_propic.set_onclick(nullptr);
+            m_propic.set_on_rightclick(nullptr);
+        }
+    }
 
     void player_view::set_hp_marker_position(float hp) {
         m_backup_characters.set_pos(m_characters.get_pos() - sdl::point{0, std::max(0, int(hp * options.one_hp_size))});

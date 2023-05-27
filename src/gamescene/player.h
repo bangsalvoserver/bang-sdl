@@ -60,6 +60,8 @@ namespace banggame {
         int m_weapon_range = 1;
         int m_distance_mod = 0;
 
+        void set_user_id(int value);
+
         bool has_player_flags(player_flags flags) const {
             return (m_player_flags & flags) == flags;
         }
