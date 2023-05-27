@@ -566,6 +566,7 @@ void game_scene::handle_message(SRV_TAG(lobby_add_user), const user_info_id_args
     auto it = std::ranges::find(m_context.players, args.user_id, &player_view::user_id);
     if (it != m_context.players.end()) {
         it->set_user_id(it->user_id);
+        it->set_position(it->get_position());
     }
 }
 
@@ -573,6 +574,7 @@ void game_scene::handle_message(SRV_TAG(lobby_remove_user), const user_id_args &
     auto it = std::ranges::find(m_context.players, args.user_id, &player_view::user_id);
     if (it != m_context.players.end()) {
         it->set_user_id(0);
+        it->set_position(it->get_position());
     }
 }
 
