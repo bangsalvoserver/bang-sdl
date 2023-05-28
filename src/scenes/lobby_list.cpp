@@ -6,8 +6,8 @@
 using namespace banggame;
 
 lobby_line::lobby_line(lobby_list_scene *parent, const lobby_data &args)
-    : parent(parent)
-    , m_join_btn(_("BUTTON_JOIN"), [parent, lobby_id = args.lobby_id]{ parent->do_join(lobby_id); })
+    : parent(parent), lobby_id{args.lobby_id}
+    , m_join_btn(_("BUTTON_JOIN"), [this]{ this->parent->do_join(lobby_id); })
 {
     handle_update(args);
 }
@@ -50,7 +50,7 @@ void lobby_list_scene::refresh_layout() {
     m_disconnect_btn.set_rect(sdl::rect{20, 20, 100, 25});
 
     sdl::rect rect{100, 100, win_rect.w - 200, 25};
-    for (auto &[id, line] : m_lobby_lines) {
+    for (auto &line : m_lobby_lines) {
         line.set_rect(rect);
         rect.y += 40;
     }
@@ -64,7 +64,7 @@ void lobby_list_scene::tick(duration_type time_elapsed) {
 }
 
 void lobby_list_scene::render(sdl::renderer &renderer) {
-    for (auto &[id, line] : m_lobby_lines) {
+    for (auto &line : m_lobby_lines) {
         line.render(renderer);
     }
 
@@ -87,14 +87,19 @@ void lobby_list_scene::do_make_lobby() {
 }
 
 void lobby_list_scene::handle_message(SRV_TAG(lobby_update), const lobby_data &args) {
-    auto [it, inserted] = m_lobby_lines.try_emplace(args.lobby_id, this, args);
-    if (!inserted) {
-        it->second.handle_update(args);
+    auto it = std::ranges::find(m_lobby_lines, args.lobby_id, &lobby_line::lobby_id);
+    if (it == m_lobby_lines.end()) {
+        m_lobby_lines.emplace_back(this, args);
+    } else {
+        it->handle_update(args);
     }
     refresh_layout();
 }
 
 void lobby_list_scene::handle_message(SRV_TAG(lobby_removed), const lobby_id_args &args) {
-    m_lobby_lines.erase(args.lobby_id);
+    auto it = std::ranges::find(m_lobby_lines, args.lobby_id, &lobby_line::lobby_id);
+    if (it != m_lobby_lines.end()) {
+        m_lobby_lines.erase(it);
+    }
     refresh_layout();
 }

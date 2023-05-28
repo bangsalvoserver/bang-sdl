@@ -73,7 +73,7 @@ static void add_boxes(box_vector &vector, lobby_scene *parent, banggame::game_op
     (add_box<Is>(vector, parent, options), ...);
 }
 
-lobby_scene::lobby_scene(client_manager *parent, const lobby_info &args)
+lobby_scene::lobby_scene(client_manager *parent, const lobby_entered_args &args)
     : scene_base(parent)
     , m_lobby_name_text(args.name, widgets::text_style {
         .text_font = &media_pak::font_bkant_bold

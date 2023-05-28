@@ -3,7 +3,7 @@
 
 #include "scene_base.h"
 
-#include <map>
+#include <list>
 
 class lobby_line {
 public:
@@ -13,6 +13,8 @@ public:
 
     void set_rect(const sdl::rect &rect);
     void render(sdl::renderer &renderer);
+
+    int lobby_id;
 
 private:
     class lobby_list_scene *parent;
@@ -41,7 +43,7 @@ public:
     void do_make_lobby();
 
 private:
-    std::map<int, lobby_line> m_lobby_lines;
+    std::list<lobby_line> m_lobby_lines;
 
     widgets::textbox m_lobby_name_box;
     widgets::button m_make_lobby_btn;

@@ -14,7 +14,7 @@ public message_handler<banggame::server_message_type::lobby_owner>,
 public message_handler<banggame::server_message_type::lobby_add_user>,
 public message_handler<banggame::server_message_type::lobby_remove_user> {
 public:
-    lobby_scene(client_manager *parent, const banggame::lobby_info &args);
+    lobby_scene(client_manager *parent, const banggame::lobby_entered_args &args);
 
     void refresh_layout() override;
     void render(sdl::renderer &renderer) override;

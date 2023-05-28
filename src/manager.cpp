@@ -251,7 +251,7 @@ void client_manager::handle_message(SRV_TAG(lobby_error), const std::string &mes
     add_chat_message(message_type::error, _(message));
 }
 
-void client_manager::handle_message(SRV_TAG(lobby_entered), const lobby_info &args) {
+void client_manager::handle_message(SRV_TAG(lobby_entered), const lobby_entered_args &args) {
     switch_scene<lobby_scene>(args);
 }
 
