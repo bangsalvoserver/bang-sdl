@@ -10,6 +10,7 @@
 
 namespace banggame {
     class game_scene;
+    struct user_info;
 
     class player_view : public game_style_set {
     private:
@@ -30,7 +31,6 @@ namespace banggame {
 
         int id;
         int user_id;
-        bool m_disconnected = false;
 
         int hp = 0;
         int gold = 0;
@@ -60,7 +60,7 @@ namespace banggame {
         int m_weapon_range = 1;
         int m_distance_mod = 0;
 
-        void set_disconnected(bool connected);
+        void set_user_info(const user_info *info);
 
         bool has_player_flags(player_flags flags) const {
             return (m_player_flags & flags) == flags;

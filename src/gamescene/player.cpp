@@ -19,13 +19,17 @@ namespace banggame {
         })
     {}
 
-    void player_view::set_disconnected(bool disconnected) {
-        m_disconnected = disconnected;
-
-        if (disconnected) {
-            m_propic.set_texture(media_pak::get().icon_disconnected);
+    void player_view::set_user_info(const user_info *info) {
+        if (info) {
+            m_username_text.set_value(info->name);
+            if (info->profile_image.pixels.empty()) {
+                m_propic.set_texture(nullptr);
+            } else {
+                m_propic.set_texture(sdl::texture(m_game->parent->get_renderer(), sdl::image_pixels_to_surface(info->profile_image)));
+            }
         } else {
-            m_propic.set_texture(m_propic.get_owned_texture());
+            m_username_text.set_value(_("USERNAME_DISCONNECTED"));
+            m_propic.set_texture(media_pak::get().icon_disconnected);
         }
     }
 

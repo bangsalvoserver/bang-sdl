@@ -539,23 +539,17 @@ void game_scene::handle_game_update(UPD_TAG(player_add), const player_add_update
         m_alive_players.push_back(p);
         
         p->m_role.texture_back = card_textures::get().backfaces[enums::indexof(card_deck_type::role)];
-        
-        if (const banggame::user_info *info = parent->get_user_info(user_id)) {
-            p->m_username_text.set_value(info->name);
-            if (!info->profile_image.pixels.empty()) {
-                p->m_propic.set_texture(sdl::texture(parent->get_renderer(), sdl::image_pixels_to_surface(info->profile_image)));
-            }
-
-            if (user_id == parent->get_user_own_id()) {
-                m_player_self = p;
-            }
-        } else {
-            p->set_disconnected(true);
+        if (user_id == parent->get_user_own_id()) {
+            m_player_self = p;
         }
+
+        p->set_user_info(parent->get_user_info(user_id));
     }
 
     if (m_player_self) {
         m_player_self->m_propic.set_border_color(widgets::propic_border_color);
+
+#ifdef EDIT_GAME_PROPIC_ON_CLICK
         m_player_self->m_propic.set_onclick([&]{
             if (parent->browse_propic()) {
                 parent->send_user_edit();
@@ -565,6 +559,7 @@ void game_scene::handle_game_update(UPD_TAG(player_add), const player_add_update
             parent->reset_propic();
             parent->send_user_edit();
         });
+#endif
 
         std::ranges::rotate(m_alive_players, std::ranges::find(m_alive_players, m_player_self));
     }
@@ -594,7 +589,7 @@ void game_scene::handle_game_update(UPD_TAG(player_order), const player_order_up
 void game_scene::handle_message(SRV_TAG(lobby_add_user), const user_info_id_args &args) {
     auto it = std::ranges::find(m_context.players, args.user_id, &player_view::user_id);
     if (it != m_context.players.end()) {
-        it->set_disconnected(false);
+        it->set_user_info(parent->get_user_info(args.user_id));
         it->set_position(it->get_position());
     }
 }
@@ -602,7 +597,7 @@ void game_scene::handle_message(SRV_TAG(lobby_add_user), const user_info_id_args
 void game_scene::handle_message(SRV_TAG(lobby_remove_user), const user_id_args &args) {
     auto it = std::ranges::find(m_context.players, args.user_id, &player_view::user_id);
     if (it != m_context.players.end()) {
-        it->set_disconnected(true);
+        it->set_user_info(nullptr);
         it->set_position(it->get_position());
     }
 }
