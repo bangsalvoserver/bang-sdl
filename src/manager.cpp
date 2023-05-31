@@ -272,6 +272,7 @@ void client_manager::handle_message(SRV_TAG(lobby_remove_user), const user_id_ar
         switch_scene<lobby_list_scene>();
     } else if (auto it = m_users.find(args.user_id); it != m_users.end()) {
         add_chat_message(message_type::server_log, _("GAME_USER_DISCONNECTED", it->second.name));
+        m_users.erase(it);
     }
 }
 
