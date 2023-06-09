@@ -6,12 +6,11 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL2_rotozoom.h>
 
-#include <fmt/core.h>
-
 #include <stdexcept>
 #include <memory>
 
 #include "utils/resource.h"
+#include "utils/format.h"
 
 namespace sdl {
 
