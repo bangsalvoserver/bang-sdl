@@ -261,7 +261,7 @@ void client_manager::handle_message(SRV_TAG(lobby_owner), const user_id_args &ar
 
 void client_manager::handle_message(SRV_TAG(lobby_add_user), const user_info_id_args &args) {
     auto [it, inserted] = m_users.insert_or_assign(args.user_id, args.user);
-    if (inserted) {
+    if (inserted && !args.is_read) {
         add_chat_message(message_type::server_log, _("GAME_USER_CONNECTED", args.user.name));
     }
 }
@@ -277,10 +277,12 @@ void client_manager::handle_message(SRV_TAG(lobby_remove_user), const user_id_ar
 }
 
 void client_manager::handle_message(SRV_TAG(lobby_chat), const lobby_chat_args &args) {
-    if (banggame::user_info *info = get_user_info(args.user_id)) {
-        add_chat_message(message_type::chat, fmt::format("{}: {}", info->name, args.message));
-    } else {
-        add_chat_message(message_type::chat, args.message);
+    if (!args.is_read) {
+        if (banggame::user_info *info = get_user_info(args.user_id)) {
+            add_chat_message(message_type::chat, fmt::format("{}: {}", info->name, args.message));
+        } else {
+            add_chat_message(message_type::chat, args.message);
+        }
     }
 }
 
