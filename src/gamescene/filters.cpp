@@ -17,12 +17,12 @@ namespace banggame::filters::detail {
         return origin->m_role.role;
     }
 
-    int get_player_range_mod(player_view *origin) {
-        return origin->m_range_mod;
+    int get_player_range_mod(const player_view *origin) {
+        return origin->m_game->get_target_finder().get_request_status().m_distances.range_mod;
     }
 
-    int get_player_weapon_range(player_view *origin) {
-        return origin->m_weapon_range;
+    int get_player_weapon_range(const player_view *origin) {
+        return origin->m_game->get_target_finder().get_request_status().m_distances.weapon_range;
     }
 
     int count_player_hand_cards(player_view *origin) {
@@ -71,10 +71,10 @@ namespace banggame::filters::detail {
     }
 
     card_view *get_request_origin_card(player_view *origin) {
-        return origin->m_game->get_target_finder().get_request_origin_card();
+        return origin->m_game->get_target_finder().get_request_status().m_request_origin_card;
     }
 
     player_view *get_request_origin(player_view *origin) {
-        return origin->m_game->get_target_finder().get_request_origin();
+        return origin->m_game->get_target_finder().get_request_status().m_request_origin;
     }
 }
