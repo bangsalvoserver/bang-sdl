@@ -60,9 +60,7 @@ namespace banggame {
         bool is_playing_card(card_view *card) const { return m_playing_card == card; }
         bool finished() const { return m_mode == target_mode::finish; }
 
-        card_view *get_request_origin_card() const { return m_request_origin_card; }
-        player_view *get_request_origin() const { return m_request_origin; }
-        player_view *get_request_target() const { return m_request_target; }
+        const request_status &get_request_status() const { return static_cast<const request_status &>(*this); }
     
     public:
         void set_response_cards(const request_status_args &args);
