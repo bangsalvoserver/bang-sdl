@@ -134,6 +134,7 @@ void target_finder::set_response_cards(const request_status_args &args) {
 
     m_pick_cards = args.pick_cards;
     m_play_cards = args.respond_cards;
+    m_distances = args.distances;
 
     set_request_borders();
     handle_auto_select();
@@ -141,6 +142,7 @@ void target_finder::set_response_cards(const request_status_args &args) {
 
 void target_finder::set_play_cards(const status_ready_args &args) {
     m_play_cards = args.play_cards;
+    m_distances = args.distances;
     set_request_borders();
 }
 
@@ -281,71 +283,13 @@ bool target_finder::on_click_player(player_view *player) {
 }
 
 int target_finder::calc_distance(player_view *from, player_view *to) const {
-    if (from == to) return 0;
-
-    if (m_game->has_game_flags(game_flags::disable_player_distances)) {
-        return 1 + to->m_distance_mod;
+    if (from != to) {
+        auto it = std::ranges::find(m_distances.distances, to, &player_distance_item::player);
+        if (it != m_distances.distances.end()) {
+            return it->distance;
+        }
     }
-
-    struct player_view_iterator {
-        using iterator_category = std::bidirectional_iterator_tag;
-        using difference_type = int;
-        using value_type = player_view *;
-        using pointer = value_type *;
-        using reference = value_type &;
-
-        std::vector<banggame::player_view *> *list;
-        std::vector<banggame::player_view *>::iterator m_it;
-
-        player_view_iterator() = default;
-        
-        player_view_iterator(game_scene *game, player_view *p)
-            : list(&game->m_alive_players)
-            , m_it(std::ranges::find(*list, p))
-        {
-            assert(m_it != list->end());
-        }
-
-        reference operator *() const { return *m_it; }
-        pointer operator ->() { return &*m_it; }
-        
-        player_view_iterator &operator ++() {
-            do {
-                ++m_it;
-                if (m_it == list->end()) m_it = list->begin();
-            } while (!(*m_it)->alive());
-            return *this;
-        }
-
-        player_view_iterator operator ++(int) { auto copy = *this; ++*this; return copy; }
-
-        player_view_iterator &operator --() {
-            do {
-                if (m_it == list->begin()) m_it = list->end();
-                --m_it;
-            } while (!(*m_it)->alive());
-            return *this;
-        }
-
-        player_view_iterator operator --(int) { auto copy = *this; --*this; return copy; }
-
-        bool operator == (const player_view_iterator &) const = default;
-    };
-
-    player_view_iterator from_it{m_game, from};
-    player_view_iterator to_it{m_game, to};
-
-    if (to->alive()) {
-        return std::min(
-            std::distance(from_it, to_it),
-            std::distance(std::reverse_iterator(from_it), std::reverse_iterator(to_it))
-        ) + to->m_distance_mod;
-    } else {
-        return std::min(
-            std::distance(from_it, std::prev(to_it)),
-            std::distance(std::reverse_iterator(from_it), std::reverse_iterator(std::next(to_it)))
-        ) + 1 + to->m_distance_mod;
-    }
+    return 0;
 }
 
 struct targetable_for_cards_other_player {

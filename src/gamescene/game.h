@@ -93,7 +93,7 @@ namespace banggame {
         void handle_game_update(UPD_TAG(player_hp),        const player_hp_update &args);
         void handle_game_update(UPD_TAG(player_gold),      const player_gold_update &args);
         void handle_game_update(UPD_TAG(player_show_role), const player_show_role_update &args);
-        void handle_game_update(UPD_TAG(player_status),    const player_status_update &args);
+        void handle_game_update(UPD_TAG(player_flags),     const player_flags_update &args);
         void handle_game_update(UPD_TAG(switch_turn),      player_view *player);
         void handle_game_update(UPD_TAG(request_status),   const request_status_args &args);
         void handle_game_update(UPD_TAG(status_ready),     const status_ready_args &args);

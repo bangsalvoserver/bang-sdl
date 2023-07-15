@@ -627,11 +627,8 @@ void game_scene::handle_game_update(UPD_TAG(player_show_role), const player_show
     }
 }
 
-void game_scene::handle_game_update(UPD_TAG(player_status), const player_status_update &args) {
+void game_scene::handle_game_update(UPD_TAG(player_flags), const player_flags_update &args) {
     args.player->m_player_flags = args.flags;
-    args.player->m_range_mod = args.range_mod;
-    args.player->m_weapon_range = args.weapon_range;
-    args.player->m_distance_mod = args.distance_mod;
 
     if (bool(args.flags & player_flags::removed)) {
         auto it = std::ranges::find(m_alive_players, args.player);
