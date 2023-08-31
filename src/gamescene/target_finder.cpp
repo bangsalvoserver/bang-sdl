@@ -616,6 +616,7 @@ void target_finder::add_modifier_context(card_view *mod_card, player_view *targe
         m_game->m_card_choice.set_anchor(mod_card, get_current_tree());
         break;
     case modifier_type::leevankliff:
+    case modifier_type::spike_spiezel:
     case modifier_type::moneybag:
         select_playing_card(m_context.repeat_card = get_current_tree().front().card);
         break;
