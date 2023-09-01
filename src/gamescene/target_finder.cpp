@@ -111,8 +111,8 @@ void target_finder::set_request_borders() {
                 m_request_borders.emplace_back(card, game_style::pickable);
             }
         }
-        for (const auto &[card, branches] : get_current_tree()) {
-            m_request_borders.emplace_back(card, game_style::playable);
+        for (const card_modifier_node &node : get_current_tree()) {
+            m_request_borders.emplace_back(node.card, game_style::playable);
         }
     }
 }

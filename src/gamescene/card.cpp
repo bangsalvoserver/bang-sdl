@@ -303,8 +303,8 @@ namespace banggame {
     void card_choice_pocket::set_anchor(card_view *card, const card_modifier_tree &tree) {
         anchor = card;
         set_pos(card->get_pos());
-        for (const auto &[c, branches] : tree) {
-            add_card(c);
+        for (const card_modifier_node &node : tree) {
+            add_card(node.card);
         }
         for (card_view *c : *this) {
             c->set_pos(get_pos() + get_offset(c));

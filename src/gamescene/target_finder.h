@@ -4,7 +4,6 @@
 #include "player.h"
 
 #include "cards/holders.h"
-#include "cards/effect_context.h"
 
 #include <vector>
 
