@@ -24,7 +24,8 @@ namespace banggame {
         .deck_offset { 200, 30 },
         .discard_offset { -70, 0 },
 
-        .scenario_offset { 70, 0 },
+        .scenario_deck_offset { 70, 0 },
+        .scenario_card_offset { 0, 30 },
 
         .shop_deck_offset { -210, 50 },
         .shop_selection_offset { 140, 0 },

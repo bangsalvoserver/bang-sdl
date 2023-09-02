@@ -37,9 +37,6 @@ namespace banggame {
 
         wide_pocket hand{options.card_pocket_width, pocket_type::player_hand, this};
         wide_pocket table{options.card_pocket_width, pocket_type::player_table, this};
-        
-        point_pocket_view scenario_deck{pocket_type::scenario_deck};
-        point_pocket_view wws_scenario_deck{pocket_type::wws_scenario_deck};
 
         sdl::rect m_bounding_rect;
 

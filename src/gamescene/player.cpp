@@ -77,9 +77,6 @@ namespace banggame {
                 options.role_yoff
             });
 
-            self->scenario_deck.set_pos(self->m_role.get_pos() + options.card_diag_offset);
-            self->wws_scenario_deck.set_pos(self->m_role.get_pos() + options.card_diag_offset * 2);
-
             self->m_propic.set_pos(sdl::point{
                 self->m_role.get_pos().x,
                 self->m_bounding_rect.y + options.propic_yoff
@@ -106,8 +103,6 @@ namespace banggame {
             });
 
             self->m_role.render(renderer);
-            self->scenario_deck.render_last(renderer, 1);
-            self->wws_scenario_deck.render_last(renderer, 1);
 
             if (!self->m_backup_characters.empty()) {
                 self->m_backup_characters.front()->render(renderer);

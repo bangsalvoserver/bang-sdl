@@ -80,7 +80,6 @@ namespace banggame {
         void handle_game_update(UPD_TAG(move_card),        const move_card_update &args);
         void handle_game_update(UPD_TAG(add_cubes),        const add_cubes_update &args);
         void handle_game_update(UPD_TAG(move_cubes),       const move_cubes_update &args);
-        void handle_game_update(UPD_TAG(move_scenario_deck), const move_scenario_deck_update &args);
         void handle_game_update(UPD_TAG(move_train),       const move_train_update &args);
         void handle_game_update(UPD_TAG(deck_shuffled),    const deck_shuffled_update &args);
         void handle_game_update(UPD_TAG(show_card),        const show_card_update &args);
@@ -141,7 +140,10 @@ namespace banggame {
         counting_pocket m_main_deck{pocket_type::main_deck};
         point_pocket_view m_discard_pile{pocket_type::discard_pile};
 
+        point_pocket_view m_scenario_deck{pocket_type::scenario_deck};
         point_pocket_view m_scenario_card{pocket_type::scenario_card};
+
+        point_pocket_view m_wws_scenario_deck{pocket_type::wws_scenario_deck};
         point_pocket_view m_wws_scenario_card{pocket_type::wws_scenario_card};
 
         train_pocket m_stations{pocket_type::stations};
@@ -164,8 +166,6 @@ namespace banggame {
         
         player_view *m_player_self = nullptr;
         player_view *m_playing = nullptr;
-        player_view *m_scenario_player = nullptr;
-        player_view *m_wws_scenario_player = nullptr;
 
         std::optional<game_style_tracker> m_turn_border;
 

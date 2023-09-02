@@ -33,8 +33,11 @@ void game_scene::refresh_layout() {
     m_main_deck.set_pos(win_center + options.deck_offset);
     m_discard_pile.set_pos(m_main_deck.get_pos() + options.discard_offset);
 
-    m_scenario_card.set_pos(m_main_deck.get_pos() + options.scenario_offset);
-    m_wws_scenario_card.set_pos(m_scenario_card.get_pos() + options.card_diag_offset);
+    m_scenario_deck.set_pos(m_main_deck.get_pos() + options.scenario_deck_offset);
+    m_scenario_card.set_pos(m_scenario_deck.get_pos() + options.scenario_card_offset);
+
+    m_wws_scenario_deck.set_pos(m_scenario_deck.get_pos() + options.card_diag_offset);
+    m_wws_scenario_card.set_pos(m_wws_scenario_deck.get_pos() + options.scenario_card_offset);
 
     m_cubes.set_pos(win_center + options.cube_pile_offset);
 
@@ -103,7 +106,9 @@ void game_scene::render(sdl::renderer &renderer) {
     m_shop_discard.render_first(renderer, 1);
     m_shop_deck.render_last(renderer, 2);
     m_shop_selection.render(renderer);
+    m_scenario_deck.render_last(renderer, 1);
     m_scenario_card.render_last(renderer, 2);
+    m_wws_scenario_deck.render_last(renderer, 1);
     m_wws_scenario_card.render_last(renderer, 2);
     m_discard_pile.render_last(renderer, 2);
     m_stations.render(renderer);
@@ -216,12 +221,6 @@ std::tuple<pocket_type, player_view *, card_view *> game_scene::find_card_at(sdl
         if (card_view *card = p->m_characters.find_card_at(pt)) {
             return {pocket_type::player_character, p, card};
         }
-        if (card_view *card = p->wws_scenario_deck.find_card_at(pt)) {
-            return {pocket_type::none, p, card};
-        }
-        if (card_view *card = p->scenario_deck.find_card_at(pt)) {
-            return {pocket_type::none, p, card};
-        }
         if (sdl::point_in_rect(pt, p->m_role.get_rect())) {
             return {pocket_type::none, p, &p->m_role};
         }
@@ -238,8 +237,14 @@ std::tuple<pocket_type, player_view *, card_view *> game_scene::find_card_at(sdl
     if (card_view *card = m_wws_scenario_card.find_card_at(pt)) {
         return {pocket_type::wws_scenario_card, nullptr, card};
     }
+    if (card_view *card = m_wws_scenario_deck.find_card_at(pt)) {
+        return {pocket_type::wws_scenario_deck, nullptr, card};
+    }
     if (card_view *card = m_scenario_card.find_card_at(pt)) {
         return {pocket_type::scenario_card, nullptr, card};
+    }
+    if (card_view *card = m_scenario_deck.find_card_at(pt)) {
+        return {pocket_type::scenario_deck, nullptr, card};
     }
     if (card_view *card = m_shop_selection.find_card_at(pt)) {
         return {pocket_type::shop_selection, nullptr, card};
@@ -334,9 +339,9 @@ pocket_view &game_scene::get_pocket(pocket_type pocket, player_view *player) {
     case pocket_type::shop_selection:    return m_shop_selection;
     case pocket_type::shop_discard:      return m_shop_discard;
     case pocket_type::hidden_deck:       return m_hidden_deck;
-    case pocket_type::scenario_deck:     return m_scenario_player->scenario_deck;
+    case pocket_type::scenario_deck:     return m_scenario_deck;
     case pocket_type::scenario_card:     return m_scenario_card;
-    case pocket_type::wws_scenario_deck: return m_wws_scenario_player->wws_scenario_deck;
+    case pocket_type::wws_scenario_deck: return m_wws_scenario_deck;
     case pocket_type::wws_scenario_card: return m_wws_scenario_card;
     case pocket_type::button_row:        return m_button_row;
     case pocket_type::stations:          return m_stations;
@@ -428,30 +433,6 @@ void game_scene::handle_game_update(UPD_TAG(move_cubes), const move_cubes_update
 
             anim.add_cube(cube.get(), &target_pile);
         }
-        return anim;
-    }());
-}
-
-void game_scene::handle_game_update(UPD_TAG(move_scenario_deck), const move_scenario_deck_update &args) {
-    player_view *&scenario_player = args.pocket == pocket_type::scenario_deck ? m_scenario_player : m_wws_scenario_player;
-    if (!scenario_player) {
-        scenario_player = args.player;
-        return;
-    }
-
-    auto &old_pile = get_pocket(args.pocket);
-    scenario_player = args.player;
-    if (old_pile.empty()) return;
-
-    auto &new_pile = get_pocket(args.pocket);
-    
-    add_animation<card_move_animation>(args.duration, [&]{
-        card_move_animation anim;
-        for (card_view *c : old_pile) {
-            new_pile.add_card(c);
-            anim.add_move_card(c);
-        }
-        old_pile.clear();
         return anim;
     }());
 }

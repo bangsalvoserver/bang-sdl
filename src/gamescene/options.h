@@ -32,7 +32,8 @@ namespace banggame {
         sdl::point deck_offset;     // distance from center of window to main deck
         sdl::point discard_offset;  // distance from main deck and discard pile
 
-        sdl::point scenario_offset; // distance from main deck to scenario card pile 
+        sdl::point scenario_deck_offset; // distance from main deck to scenario deck pile
+        sdl::point scenario_card_offset; // distance from main scenario deck to card
         
         sdl::point shop_deck_offset; // distance from center of window to shop deck
         sdl::point shop_selection_offset; // distance from shop deck to shop selection center
