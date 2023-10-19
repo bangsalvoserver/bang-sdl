@@ -234,6 +234,10 @@ void client_manager::stop_listenserver() {
     m_listenserver.reset();
 }
 
+void client_manager::handle_message(SRV_TAG(ping)) {
+    add_message<banggame::client_message_type::pong>();
+}
+
 void client_manager::handle_message(SRV_TAG(client_accepted), const client_accepted_args &args) {
     if (!m_listenserver) {
         auto it = std::ranges::find(m_config.recent_servers, m_con.address_string());

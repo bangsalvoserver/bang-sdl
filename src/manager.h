@@ -113,6 +113,7 @@ public:
     void add_chat_message(message_type type, const std::string &message);
 
 private:
+    void handle_message(SRV_TAG(ping));
     void handle_message(SRV_TAG(client_accepted), const banggame::client_accepted_args &args);
     void handle_message(SRV_TAG(lobby_error), const std::string &message);
     void handle_message(SRV_TAG(lobby_owner), const banggame::user_id_args &args);
