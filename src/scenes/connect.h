@@ -36,6 +36,8 @@ public:
 
     void do_create_server();
 
+    void do_reset_server_list();
+
 private:
     widgets::stattext m_username_label;
     widgets::textbox m_username_box;
@@ -45,6 +47,7 @@ private:
     widgets::textbox m_address_box;
     widgets::button m_connect_btn;
     widgets::button m_create_server_btn;
+    widgets::button m_reset_servers_btn;
 
     std::list<recent_server_line> m_recents;
 };

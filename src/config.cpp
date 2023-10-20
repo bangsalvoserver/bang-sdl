@@ -2,6 +2,14 @@
 
 static const std::filesystem::path filename = std::filesystem::path(SDL_GetPrefPath(nullptr, "bang-sdl")) / "config.json";
 
+std::vector<std::string> config::default_server_list() {
+#ifdef OFFICIAL_BANG_SERVER
+    return { OFFICIAL_BANG_SERVER };
+#else
+    return {};
+#endif
+}
+
 void config::load() {
     std::ifstream ifs{filename};
     if (ifs.fail()) {

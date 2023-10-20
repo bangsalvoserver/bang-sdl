@@ -12,12 +12,8 @@
 
 #include "cards/card_enums.h"
 
-#ifndef OFFICIAL_BANG_SERVER
-    #define OFFICIAL_BANG_SERVER
-#endif
-
 DEFINE_STRUCT(config,
-    (std::vector<std::string>, recent_servers, OFFICIAL_BANG_SERVER)
+    (std::vector<std::string>, recent_servers, default_server_list())
     (std::string, user_name)
     (std::string, profile_image)
     (sdl::surface, profile_image_data)
@@ -30,6 +26,8 @@ DEFINE_STRUCT(config,
     (bool, server_enable_cheats)
     (bool, server_verbose)
     (int, user_id),
+
+    static std::vector<std::string> default_server_list();
     
     void load();
     void save();

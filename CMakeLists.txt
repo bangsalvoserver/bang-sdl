@@ -95,7 +95,7 @@ endif()
 
 if (BUILD_LAUNCHER)
     if (WIN32)
-        add_executable(banglauncher WIN32 src/main.c resources/bang.rc)
+        add_executable(banglauncher WIN32 src/main.c)
         if (MINGW)
             target_link_options(banglauncher PRIVATE -mconsole)
         elseif(MSVC)
