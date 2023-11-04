@@ -37,6 +37,7 @@ namespace banggame {
     struct request_status {
         card_modifier_tree m_play_cards;
         player_distances m_distances;
+        target_list m_request_target_set;
         std::vector<card_view *> m_pick_cards;
         std::vector<game_style_tracker> m_highlights;
         std::vector<game_style_tracker> m_request_borders;

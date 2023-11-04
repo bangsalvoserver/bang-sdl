@@ -77,4 +77,8 @@ namespace banggame::filters::detail {
     player_view *get_request_origin(player_view *origin) {
         return origin->m_game->get_target_finder().get_request_status().m_request_origin;
     }
+
+    target_list get_request_target_set(player_view *origin) {
+        return origin->m_game->get_target_finder().get_request_status().m_request_target_set;
+    }
 }

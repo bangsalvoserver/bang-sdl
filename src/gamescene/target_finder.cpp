@@ -135,6 +135,7 @@ void target_finder::set_response_cards(const request_status_args &args) {
     m_pick_cards = args.pick_cards;
     m_play_cards = args.respond_cards;
     m_distances = args.distances;
+    m_request_target_set = args.target_set;
 
     set_request_borders();
     handle_auto_select();
