@@ -2,7 +2,8 @@
 
 #include "net/options.h"
 #include "../media_pak.h"
-#include "utils/format.h"
+
+#include <fmt/format.h>
 
 namespace banggame {
 

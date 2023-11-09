@@ -179,8 +179,6 @@ namespace banggame {
         friend class button_row_pocket;
     };
 
-    std::string evaluate_format_string(const game_string &str);
-
 }
 
 #endif

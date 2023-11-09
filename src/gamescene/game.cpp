@@ -275,41 +275,88 @@ void game_scene::handle_message(SRV_TAG(lobby_error), const std::string &message
     m_target.clear_targets();
 }
 
-std::string banggame::evaluate_format_string(const game_string &str) {
-    return intl::format(_(str.format_str),
-        str.format_args | std::views::transform([](const game_format_arg &arg) {
-        return enums::visit(overloaded{
-            [](int value) { return std::to_string(value); },
-            [](const card_format &value) {
+template<> class fmt::formatter<game_format_arg> {
+private:
+    std::string_view format_singular = "{}";
+    std::string_view format_plural = "{}";
+
+public:
+    template<typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) {
+        if (ctx.begin() == ctx.end()) {
+            return ctx.end();
+        }
+
+        auto end = ctx.begin();
+        int curly_count = 1;
+        while (curly_count != 0) {
+            ++end;
+            if (*end == '{') ++curly_count;
+            else if (*end == '}') --curly_count;
+        }
+        std::string_view format_template{ctx.begin(), end};
+        size_t semicolon_pos = format_template.find(';');
+        if (semicolon_pos == std::string_view::npos) {
+            throw fmt::format_error(fmt::format("Invalid format template {}", format_template));
+        }
+        format_singular = format_template.substr(0, semicolon_pos);
+        format_plural = format_template.substr(semicolon_pos + 1);
+        return end;
+    }
+
+    template<typename FormatContext>
+    auto format(const game_format_arg &arg, FormatContext &ctx) {
+        return ::enums::visit(overloaded{
+            [&](int value) {
+                std::string_view format_str = value == 1 ? format_singular : format_plural;
+                return fmt::vformat_to(ctx.out(), format_str, fmt::make_format_args(value));
+            },
+            [&](const card_format &value) {
                 if (value.sign) {
-                    return intl::format("{} ({}{})", _(intl::category::cards, value.name), enums::get_data(value.sign.rank),
-                        reinterpret_cast<const char *>(enums::get_data(value.sign.suit)));
+                    return fmt::format_to(ctx.out(), "{} ({}{})",
+                        _(intl::category::cards, value.name),
+                        ::enums::get_data(value.sign.rank),
+                        reinterpret_cast<const char *>(::enums::get_data(value.sign.suit)));
                 } else if (!value.name.empty()) {
-                    return _(intl::category::cards, value.name);
+                    return fmt::format_to(ctx.out(), "{}", _(intl::category::cards, value.name));
                 } else {
-                    return _("UNKNOWN_CARD");
+                    return fmt::format_to(ctx.out(), "{}", _("UNKNOWN_CARD"));
                 }
             },
-            [](player_view *player) {
-                return player ? player->m_username_text.get_value() : _("UNKNOWN_PLAYER");
+            [&](player_view *player) {
+                return fmt::format_to(ctx.out(), "{}", player ? player->m_username_text.get_value() : _("UNKNOWN_PLAYER"));
             }
         }, arg);
-    }));
+    }
+};
+
+std::string format_game_string(const banggame::game_string &str) {
+    fmt::dynamic_format_arg_store<fmt::format_context> store;
+    for (const auto &arg: str.format_args) {
+        store.push_back(arg);
+    }
+
+    std::string format_str = _(str.format_str);
+    try {
+        return fmt::vformat(format_str, store);
+    } catch (const fmt::format_error &) {
+        return format_str;
+    }
 }
 
 void game_scene::handle_game_update(UPD_TAG(game_error), const game_string &args) {
     m_target.clear_targets();
     m_target.handle_auto_select();
-    parent->add_chat_message(message_type::error, evaluate_format_string(args));
+    parent->add_chat_message(message_type::error, format_game_string(args));
     play_sound("invalid");
 }
 
 void game_scene::handle_game_update(UPD_TAG(game_log), const game_string &args) {
-    m_ui.add_game_log(evaluate_format_string(args));
+    m_ui.add_game_log(format_game_string(args));
 }
 
 void game_scene::handle_game_update(UPD_TAG(game_prompt), const game_string &args) {
-    m_ui.show_message_box(evaluate_format_string(args), {
+    m_ui.show_message_box(format_game_string(args), {
         {_("BUTTON_YES"), [&]{ m_target.send_prompt_response(true); }},
         {_("BUTTON_NO"),  [&]{ m_target.send_prompt_response(false); }}
     });
@@ -640,7 +687,7 @@ void game_scene::handle_game_update(UPD_TAG(request_status), const request_statu
     m_target.set_response_cards(args);
 
     if (args.status_text) {
-        m_ui.set_status(evaluate_format_string(args.status_text));
+        m_ui.set_status(format_game_string(args.status_text));
     }
 }
 

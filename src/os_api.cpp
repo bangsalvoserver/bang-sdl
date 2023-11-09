@@ -22,8 +22,7 @@ static std::string string_join(const std::initializer_list<std::string> &strs, s
 #include <memory>
 #include <cwchar>
 #include <array>
-
-#include "utils/format.h"
+#include <fmt/format.h>
 
 namespace os_api {
 

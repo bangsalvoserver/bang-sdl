@@ -116,7 +116,7 @@ public:
     }
 
     virtual void update_value() override {
-        m_textbox.set_value(to_string(m_value));
+        m_textbox.set_value(fmt::format("{}", m_value));
     }
 
     virtual void set_locked(bool locked) override {
