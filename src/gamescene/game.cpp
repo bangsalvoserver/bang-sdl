@@ -335,6 +335,7 @@ public:
 
 std::string format_game_string(const banggame::game_string &str) {
     fmt::dynamic_format_arg_store<fmt::format_context> store;
+    store.reserve(str.format_args.size(), 0);
     for (const auto &arg: str.format_args) {
         store.push_back(arg);
     }
