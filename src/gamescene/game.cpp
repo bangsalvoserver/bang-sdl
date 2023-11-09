@@ -288,19 +288,22 @@ public:
         }
 
         auto end = ctx.begin();
+        auto semicolon_pos = ctx.end();
         int curly_count = 1;
         while (curly_count != 0) {
-            ++end;
-            if (*end == '{') ++curly_count;
+            if (end == ctx.end()) throw fmt::format_error("Unmatched '{' in format string");
+            else if (*end == '{') ++curly_count;
             else if (*end == '}') --curly_count;
+            else if (*end == ';' && semicolon_pos == ctx.end()) semicolon_pos = end;
+            ++end;
         }
-        std::string_view format_template{ctx.begin(), end};
-        size_t semicolon_pos = format_template.find(';');
-        if (semicolon_pos == std::string_view::npos) {
-            throw fmt::format_error(fmt::format("Invalid format template {}", format_template));
+        --end;
+        if (semicolon_pos == ctx.end()) {
+            format_singular = format_plural = std::string_view{ctx.begin(), end};
+        } else {
+            format_singular = std::string_view{ctx.begin(), semicolon_pos};
+            format_plural = std::string_view{semicolon_pos + 1, end};
         }
-        format_singular = format_template.substr(0, semicolon_pos);
-        format_plural = format_template.substr(semicolon_pos + 1);
         return end;
     }
 
