@@ -106,9 +106,9 @@ void game_scene::render(sdl::renderer &renderer) {
     m_shop_discard.render_first(renderer, 1);
     m_shop_deck.render_last(renderer, 2);
     m_shop_selection.render(renderer);
-    m_scenario_deck.render_last(renderer, 1);
+    m_scenario_deck.render_last(renderer, 2);
     m_scenario_card.render_last(renderer, 2);
-    m_wws_scenario_deck.render_last(renderer, 1);
+    m_wws_scenario_deck.render_last(renderer, 2);
     m_wws_scenario_card.render_last(renderer, 2);
     m_discard_pile.render_last(renderer, 2);
     m_stations.render(renderer);
