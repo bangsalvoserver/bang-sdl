@@ -11,35 +11,15 @@
 #include "intl.h"
 #include "chat_ui.h"
 #include "image_serial.h"
+#include "wsconnection.h"
 
 #include "net/messages.h"
-#include "net/wsconnection.h"
 
 #include <process.hpp>
 
-class client_manager;
+static constexpr std::chrono::seconds accept_timeout{5};
 
-struct bang_connection : net::wsconnection<bang_connection, banggame::server_message, banggame::client_message> {
-    using base = net::wsconnection<bang_connection, banggame::server_message, banggame::client_message>;
-    using client_handle = typename base::client_handle;
-
-    client_manager &parent;
-    std::atomic<bool> m_open = false;
-    std::atomic<bool> m_closed = false;
-
-    asio::basic_waitable_timer<std::chrono::system_clock> m_accept_timer;
-    static constexpr std::chrono::seconds accept_timeout{5};
-
-    bang_connection(client_manager &parent, asio::io_context &ctx)
-        : base(ctx), parent(parent), m_accept_timer(ctx) {}
-
-    void on_open();
-    void on_close();
-
-    void on_message(const banggame::server_message &msg);
-};
-
-class client_manager {
+class client_manager : private net::wsconnection {
 public:
     client_manager(sdl::window &window, sdl::renderer &renderer, asio::io_context &ctx, const std::filesystem::path &base_path);
     ~client_manager();
@@ -53,7 +33,7 @@ public:
 
     template<banggame::client_message_type E>
     void add_message(auto && ... args) {
-        m_con.push_message(enums::enum_tag<E>, FWD(args) ...);
+        push_message(json::serialize(banggame::client_message{enums::enum_tag<E>, FWD(args) ...}).dump());
     }
 
     void connect(const std::string &host);
@@ -112,6 +92,11 @@ public:
 
     void add_chat_message(message_type type, const std::string &message);
 
+protected:
+    void on_open() override;
+    void on_close() override;
+    void on_message(const std::string &msg) override;
+
 private:
     void handle_message(SRV_TAG(ping));
     void handle_message(SRV_TAG(client_accepted), const banggame::client_accepted_args &args);
@@ -138,7 +123,11 @@ private:
 
 private:
     asio::io_context &m_ctx;
-    bang_connection m_con;
+
+    std::atomic<bool> m_connection_open = false;
+    std::atomic<bool> m_connection_closed = false;
+
+    asio::basic_waitable_timer<std::chrono::system_clock> m_accept_timer;
 
     std::unique_ptr<TinyProcessLib::Process> m_listenserver;
     std::thread m_listenserver_thread;

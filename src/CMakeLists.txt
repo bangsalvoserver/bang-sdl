@@ -12,4 +12,5 @@ target_sources(bangclient PRIVATE
     media_pak.cpp
     sounds_pak.cpp
     os_api.cpp
+    wsconnection.cpp
 )

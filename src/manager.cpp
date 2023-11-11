@@ -19,11 +19,12 @@
 using namespace banggame;
 
 client_manager::client_manager(sdl::window &window, sdl::renderer &renderer, asio::io_context &ctx, const std::filesystem::path &base_path)
-    : m_window(window)
+    : net::wsconnection(ctx)
+    , m_window(window)
     , m_renderer(renderer)
     , m_base_path(base_path)
     , m_ctx(ctx)
-    , m_con(*this, ctx)
+    , m_accept_timer(ctx)
 {
     m_config.load();
     switch_scene<connect_scene>();
@@ -34,51 +35,56 @@ client_manager::~client_manager() {
     m_config.save();
 }
 
-void bang_connection::on_open() {
-    m_open = true;
+void client_manager::on_open() {
+    m_connection_open = true;
 
     m_accept_timer.expires_after(accept_timeout);
     m_accept_timer.async_wait([this](const std::error_code &ec) {
         if (!ec) {
-            parent.add_chat_message(message_type::error, _("ACCEPT_TIMEOUT_EXPIRED"));
+            add_chat_message(message_type::error, _("ACCEPT_TIMEOUT_EXPIRED"));
             disconnect();
         }
     });
 
-    parent.add_message<banggame::client_message_type::connect>(
+    add_message<banggame::client_message_type::connect>(
         banggame::user_info {
-            parent.m_config.user_name,
-            sdl::surface_to_image_pixels(parent.m_config.profile_image_data)
+            m_config.user_name,
+            sdl::surface_to_image_pixels(m_config.profile_image_data)
         },
-        parent.get_user_own_id()
+        get_user_own_id()
 #ifdef HAVE_GIT_VERSION
         , std::string(net::server_commit_hash)
 #endif
         );
 }
 
-void bang_connection::on_close() {
-    if (!m_closed.exchange(true)) {
-        parent.switch_scene<connect_scene>();
+void client_manager::on_close() {
+    if (!m_connection_closed.exchange(true)) {
+        switch_scene<connect_scene>();
     }
-    if (m_open.exchange(false)) {
-        parent.add_chat_message(message_type::server_log, _("ERROR_DISCONNECTED"));
+    if (m_connection_open.exchange(false)) {
+        add_chat_message(message_type::server_log, _("ERROR_DISCONNECTED"));
     }
     m_accept_timer.cancel();
 }
 
-void bang_connection::on_message(const server_message &message) {
+void client_manager::on_message(const std::string &message) {
     try {
-        enums::visit_indexed([&]<server_message_type E>(enums::enum_tag_t<E> tag, auto && ... args) {
-            if constexpr (requires { parent.handle_message(tag, args...); }) {
-                parent.handle_message(tag, args...);
-            }
-            if (auto handler = dynamic_cast<message_handler<E> *>(parent.m_scene.get())) {
-                handler->handle_message(tag, args...);
-            } 
-        }, message);
-    } catch (const std::exception &error) {
-        parent.add_chat_message(message_type::error, fmt::format("Error: {}", error.what()));
+        auto server_msg = json::deserialize<server_message>(json::json::parse(message));
+        try {
+            enums::visit_indexed([&]<server_message_type E>(enums::enum_tag_t<E> tag, auto && ... args) {
+                if constexpr (requires { handle_message(tag, args...); }) {
+                    handle_message(tag, args...);
+                }
+                if (auto handler = dynamic_cast<message_handler<E> *>(m_scene.get())) {
+                    handler->handle_message(tag, args...);
+                } 
+            }, server_msg);
+        } catch (const std::exception &error) {
+            add_chat_message(message_type::error, fmt::format("Error: {}", error.what()));
+        }
+    } catch (const std::exception &) {
+        disconnect();
     }
 }
 
@@ -86,12 +92,12 @@ void client_manager::connect(const std::string &host) {
     if (host.empty()) {
         add_chat_message(message_type::error, _("ERROR_NO_ADDRESS"));
     } else {
-        m_con.m_closed = false;
+        m_connection_closed = false;
 
         if (host.find(":") == std::string::npos) {
-            m_con.connect(fmt::format("{}:{}", host, default_server_port));
+            net::wsconnection::connect(fmt::format("{}:{}", host, default_server_port));
         } else {
-            m_con.connect(host);
+            net::wsconnection::connect(host);
         }
 
         switch_scene<loading_scene>(_("CONNECTING_TO", host));
@@ -100,7 +106,7 @@ void client_manager::connect(const std::string &host) {
 
 void client_manager::disconnect() {
     stop_listenserver();
-    m_con.disconnect();
+    net::wsconnection::disconnect();
 }
 
 void client_manager::refresh_layout() {
@@ -163,7 +169,7 @@ void client_manager::add_chat_message(message_type type, const std::string &mess
 
 void client_manager::start_listenserver() {
     switch_scene<loading_scene>(_("CREATING_SERVER"));
-    m_con.m_closed = false;
+    m_connection_closed = false;
 
     std::filesystem::path server_path = m_base_path / "bangserver";
 #ifdef _WIN32
@@ -189,7 +195,7 @@ void client_manager::start_listenserver() {
                 }
                 if (line.starts_with("Server listening")) {
                     asio::post(m_ctx, [&]{
-                        m_con.connect(fmt::format("localhost:{}", m_config.server_port));
+                        net::wsconnection::connect(fmt::format("localhost:{}", m_config.server_port));
                     });
                 }
                 if (newline_pos == std::string_view::npos) break;
@@ -215,7 +221,7 @@ void client_manager::start_listenserver() {
         m_listenserver->get_exit_status();
         asio::post(m_ctx, [&]{
             m_listenserver.reset();
-            m_con.on_close();
+            on_close();
         });
     });
 }
@@ -240,12 +246,12 @@ void client_manager::handle_message(SRV_TAG(ping)) {
 
 void client_manager::handle_message(SRV_TAG(client_accepted), const client_accepted_args &args) {
     if (!m_listenserver) {
-        auto it = std::ranges::find(m_config.recent_servers, m_con.address_string());
+        auto it = std::ranges::find(m_config.recent_servers, address_string());
         if (it == m_config.recent_servers.end()) {
-            m_config.recent_servers.push_back(m_con.address_string());
+            m_config.recent_servers.push_back(address_string());
         }
     }
-    m_con.m_accept_timer.cancel();
+    m_accept_timer.cancel();
     m_users.clear();
     m_config.user_id = args.user_id;
     switch_scene<lobby_list_scene>();
