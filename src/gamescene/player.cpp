@@ -22,7 +22,7 @@ namespace banggame {
     void player_view::set_user_info(const user_info *info) {
         if (info) {
             m_username_text.set_value(info->name);
-            if (info->profile_image.pixels.empty()) {
+            if (info->profile_image.pixels.bytes.empty()) {
                 m_propic.set_texture(nullptr);
             } else {
                 m_propic.set_texture(sdl::texture(m_game->parent->get_renderer(), sdl::image_pixels_to_surface(info->profile_image)));

@@ -36,11 +36,8 @@ jobs:
           mingw-w64-x86_64-SDL2_image
           mingw-w64-x86_64-SDL2_ttf
           mingw-w64-x86_64-SDL2_mixer
-          mingw-w64-x86_64-python-pip
-
-    - name: Install pyyaml
-      shell: msys2 {0}
-      run: pip install pyyaml
+          mingw-w64-x86_64-python-yaml
+          mingw-w64-x86_64-python-pillow
 
     - name: Configure CMake
       shell: msys2 {0}

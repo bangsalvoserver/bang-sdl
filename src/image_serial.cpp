@@ -10,7 +10,7 @@ static image_pixels do_surface_to_image_pixels(const surface &image) {
     ret.width = image.get()->w;
     ret.height = image.get()->h;
     const std::byte *pixels_ptr = static_cast<const std::byte *>(image.get()->pixels);
-    ret.pixels.assign(pixels_ptr, pixels_ptr + image.get()->h * image.get()->pitch);
+    ret.pixels.bytes.assign(pixels_ptr, pixels_ptr + image.get()->h * image.get()->pitch);
     SDL_UnlockSurface(image.get());
     return ret;
 }
@@ -31,7 +31,7 @@ surface image_pixels_to_surface(const image_pixels &image) {
     }
     surface ret(image.width, image.height);
     SDL_LockSurface(ret.get());
-    std::memcpy(ret.get()->pixels, image.pixels.data(), ret.get()->h * ret.get()->pitch);
+    std::memcpy(ret.get()->pixels, image.pixels.bytes.data(), ret.get()->h * ret.get()->pitch);
     SDL_UnlockSurface(ret.get());
     return ret;
 }
@@ -130,7 +130,7 @@ sdl::color deserializer<sdl::color>::operator()(const json &value) const {
 
 sdl::surface deserializer<sdl::surface>::operator()(const json &value) const {
     if (value.is_string()) {
-        return binary::deserialize<sdl::surface>(deserialize<std::vector<std::byte>>(value));
+        return binary::deserialize<sdl::surface>(base64::base64_decode(value.get<std::string>()));
     } else if (!value.is_null()) {
         return sdl::image_pixels_to_surface(deserialize<sdl::image_pixels>(value));
     } else {
