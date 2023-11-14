@@ -135,6 +135,7 @@ void target_finder::set_response_cards(const request_status_args &args) {
     m_pick_cards = args.pick_cards;
     m_play_cards = args.respond_cards;
     m_distances = args.distances;
+    m_request_timer = args.timer;
     m_request_target_set = args.target_set;
 
     set_request_borders();
@@ -640,7 +641,7 @@ void target_finder::send_play_card() {
         add_modifier_context(m_modifiers.back().card, nullptr, nullptr);
     } else {
         m_mode = target_mode::finish;
-        add_action<game_action_type::play_card>(m_playing_card, m_modifiers, m_targets, m_game->manager()->get_config().bypass_prompt);
+        add_action<game_action_type::play_card>(m_playing_card, m_modifiers, m_targets, m_game->manager()->get_config().bypass_prompt, get_timer_id());
     }
 }
 
@@ -651,7 +652,7 @@ void target_finder::send_pick_card(pocket_type pocket, player_view *player, card
     }
     if (card) {
         m_target_borders.emplace_back(card, game_style::picked);
-        add_action<game_action_type::pick_card>(card, m_game->manager()->get_config().bypass_prompt);
+        add_action<game_action_type::pick_card>(card, m_game->manager()->get_config().bypass_prompt, get_timer_id());
         m_mode = target_mode::finish;
         m_picked_card = card;
     }
@@ -660,9 +661,9 @@ void target_finder::send_pick_card(pocket_type pocket, player_view *player, card
 void target_finder::send_prompt_response(bool response) {
     if (response) {
         if (m_picked_card) {
-            add_action<game_action_type::pick_card>(m_picked_card, true);
+            add_action<game_action_type::pick_card>(m_picked_card, true, get_timer_id());
         } else {
-            add_action<game_action_type::play_card>(m_playing_card, m_modifiers, m_targets, true);
+            add_action<game_action_type::play_card>(m_playing_card, m_modifiers, m_targets, true, get_timer_id());
         }
     } else {
         clear_targets();

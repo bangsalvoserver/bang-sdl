@@ -37,6 +37,7 @@ namespace banggame {
     struct request_status {
         card_modifier_tree m_play_cards;
         player_distances m_distances;
+        std::optional<timer_status_args> m_request_timer;
         target_list m_request_target_set;
         std::vector<card_view *> m_pick_cards;
         std::vector<game_style_tracker> m_highlights;
@@ -46,6 +47,11 @@ namespace banggame {
         player_view *m_request_target = nullptr;
         bool m_auto_select = false;
         bool m_response = false;
+
+        std::optional<timer_id_t> get_timer_id() const {
+            if (m_request_timer) return m_request_timer->timer_id;
+            return std::nullopt;
+        }
     };
 
     class target_finder : private target_status, private request_status {
