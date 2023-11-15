@@ -99,6 +99,7 @@ namespace banggame {
         void handle_game_update(UPD_TAG(game_flags),       const game_flags &args);
         void handle_game_update(UPD_TAG(play_sound),       const std::string &sound_id);
         void handle_game_update(UPD_TAG(status_clear));
+        void handle_game_update(UPD_TAG(clear_logs));
 
         template<typename T>
         void add_animation(anim_duration_type duration, auto && ... args) {

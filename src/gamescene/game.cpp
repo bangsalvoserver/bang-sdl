@@ -567,15 +567,17 @@ void game_scene::move_player_views(anim_duration_type duration) {
 
 void game_scene::handle_game_update(UPD_TAG(player_add), const player_add_update &args) {
     for (auto [player_id, user_id] : args.players) {
-        player_view *p = &m_context.players.emplace(this, player_id, user_id);
-        m_alive_players.push_back(p);
+        auto [p, inserted] = m_context.players.try_emplace(this, player_id, user_id);
+        if (inserted) {
+            m_alive_players.push_back(&p);
+        }
         
-        p->m_role.texture_back = card_textures::get().backfaces[enums::indexof(card_deck_type::role)];
+        p.m_role.texture_back = card_textures::get().backfaces[enums::indexof(card_deck_type::role)];
         if (user_id == parent->get_user_own_id()) {
-            m_player_self = p;
+            m_player_self = &p;
         }
 
-        p->set_user_info(parent->get_user_info(user_id));
+        p.set_user_info(parent->get_user_info(user_id));
     }
 
     if (m_player_self) {
@@ -716,4 +718,8 @@ void game_scene::handle_game_update(UPD_TAG(play_sound), const std::string &soun
 void game_scene::handle_game_update(UPD_TAG(status_clear)) {
     m_ui.clear_status();
     m_target.clear_status();
+}
+
+void game_scene::handle_game_update(UPD_TAG(clear_logs)) {
+    m_ui.clear_game_logs();
 }

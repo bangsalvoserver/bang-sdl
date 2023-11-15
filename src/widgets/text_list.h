@@ -30,6 +30,8 @@ namespace widgets {
         void render(sdl::renderer &renderer);
 
         void add_message(const std::string &message);
+
+        void clear();
     };
 
 }

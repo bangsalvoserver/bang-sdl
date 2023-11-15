@@ -34,4 +34,8 @@ namespace widgets {
         set_rect(m_rect);
     }
 
+    void text_list::clear() {
+        m_messages.clear();
+    }
+
 }

@@ -65,6 +65,10 @@ void game_ui::add_game_log(const std::string &message) {
     m_game_log.add_message(message);
 }
 
+void game_ui::clear_game_logs() {
+    m_game_log.clear();
+}
+
 void button_row_pocket::set_pos(const sdl::point &pos) {
     m_pos = pos;
 

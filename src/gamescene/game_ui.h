@@ -41,6 +41,7 @@ namespace banggame {
         void render(sdl::renderer &renderer);
 
         void add_game_log(const std::string &message);
+        void clear_game_logs();
 
         void set_status(const std::string &message) {
             m_status_text.set_value(message);
