@@ -285,6 +285,7 @@ LOCALE_VALUE(LOG_PLAYED_CARD_DESTROY_HAND,        "{1} plays {0} to discard a ca
 LOCALE_VALUE(LOG_PLAYED_CARD_DESTROY_OWN,         "{1} plays {0} to discard {2}")
 LOCALE_VALUE(LOG_PLAYED_CARD_AS_BANG_ON,          "{1} plays {0} as Bang! on {2}")
 LOCALE_VALUE(LOG_PLAYED_CARD_AS_GATLING,          "{1} plays {0} as Gatling")
+LOCALE_VALUE(LOG_PLAYED_CARD_AS_MISSED,           "{1} plays {0} as Missed!")
 LOCALE_VALUE(LOG_PLAYED_TABLE_CARD,               "{1} plays {0} from the table")
 LOCALE_VALUE(LOG_EQUIPPED_CARD,                   "{1} equips {0}")
 LOCALE_VALUE(LOG_EQUIPPED_CARD_TO,                "{1} equips {0} on {2}")

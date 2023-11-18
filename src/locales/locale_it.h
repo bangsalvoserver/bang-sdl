@@ -286,6 +286,7 @@ LOCALE_VALUE(LOG_PLAYED_CARD_DESTROY_HAND,        "{1} gioca {0} per scartare un
 LOCALE_VALUE(LOG_PLAYED_CARD_DESTROY_OWN,         "{1} gioca {0} per scartare la sua {2}")
 LOCALE_VALUE(LOG_PLAYED_CARD_AS_BANG_ON,          "{1} gioca {0} come Bang! su {2}")
 LOCALE_VALUE(LOG_PLAYED_CARD_AS_GATLING,          "{1} gioca {0} come Gatling")
+LOCALE_VALUE(LOG_PLAYED_CARD_AS_MISSED,           "{1} gioca {0} come Mancato!")
 LOCALE_VALUE(LOG_PLAYED_TABLE_CARD,               "{1} gioca {0} da terra")
 LOCALE_VALUE(LOG_EQUIPPED_CARD,                   "{1} equipaggia {0}")
 LOCALE_VALUE(LOG_EQUIPPED_CARD_TO,                "{1} equipaggia {0} a {2}")
