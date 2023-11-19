@@ -111,17 +111,6 @@ namespace banggame {
             bool operator()(card_view *target_card) const;
         };
 
-        player_target_check make_target_check(target_player_filter filter) const;
-        card_target_check make_target_check(target_card_filter filter) const;
-
-        bool is_valid_target(target_player_filter filter, player_view *target_player) const {
-            return make_target_check(filter)(target_player);
-        }
-
-        bool is_valid_target(target_card_filter filter, card_view *target_card) const {
-            return make_target_check(filter)(target_card);
-        }
-
         int count_selected_cubes(card_view *card);
         bool add_selected_cube(card_view *card, int ncubes);
 
@@ -130,6 +119,18 @@ namespace banggame {
 
         void send_pick_card(pocket_type pocket, player_view *player, card_view *card);
         void send_play_card();
+
+        player_target_check make_target_check(target_player_filter filter) const;
+        card_target_check make_target_check(target_card_filter filter) const;
+
+    public:
+        bool is_valid_target(target_player_filter filter, player_view *target_player) const {
+            return make_target_check(filter)(target_player);
+        }
+
+        bool is_valid_target(target_card_filter filter, card_view *target_card) const {
+            return make_target_check(filter)(target_card);
+        }
         
     private:
         game_scene *m_game;

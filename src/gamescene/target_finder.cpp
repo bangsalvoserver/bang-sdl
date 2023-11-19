@@ -251,6 +251,16 @@ void target_finder::on_click_card(pocket_type pocket, player_view *player, card_
     }
 }
 
+struct targetable_for_adjacent_players {
+    player_view *target1;
+
+    bool operator()(player_view *target2) const {
+        const target_finder &finder = target2->m_game->get_target_finder();
+        return finder.is_valid_target(target_player_filter::notself, target2)
+            && finder.calc_distance(target1, target2) == 1;
+    }
+};
+
 bool target_finder::on_click_player(player_view *player) {
     if (m_mode == target_mode::equip) {
         if (is_valid_target(m_playing_card->equip_target, player)) {
@@ -279,19 +289,70 @@ bool target_finder::on_click_player(player_view *player) {
                 handle_auto_targets();
             }
             return true;
+        } else if (cur_target.target == target_type::adjacent_players) {
+            if (index >= targets.size()) {
+                targets.emplace_back(enums::enum_tag<target_type::adjacent_players>);
+                targets.back().get<target_type::adjacent_players>().reserve(2);
+            }
+            auto &vec = targets.back().get<target_type::adjacent_players>();
+            if (vec.empty()) {
+                if (is_valid_target(target_player_filter::notself | target_player_filter::reachable, player)) {
+                    m_targetable_borders.clear();
+                    for (player_view *p : m_game->m_alive_players | std::views::filter(targetable_for_adjacent_players(player))) {
+                        m_targetable_borders.emplace_back(p, game_style::targetable);
+                    }
+
+                    m_target_borders.emplace_back(player, game_style::selected_target);
+                    vec.emplace_back(player);
+                }
+            } else if (targetable_for_adjacent_players(vec[0])(player)) {
+                m_target_borders.emplace_back(player, game_style::selected_target);
+                vec.emplace_back(player);
+                handle_auto_targets();
+            }
+            return true;
         }
     }
     return false;
 }
 
 int target_finder::calc_distance(player_view *from, player_view *to) const {
-    if (from != to) {
-        auto it = std::ranges::find(m_distances.distances, to, &player_distance_item::player);
-        if (it != m_distances.distances.end()) {
-            return it->distance;
+    if (from == to || !from->alive()) return 0;
+
+    if (m_game->has_game_flags(game_flags::disable_player_distances)) {
+        return 1;
+    }
+
+    auto from_it = std::ranges::find(m_game->m_alive_players, from);
+    auto to_it = std::ranges::find(m_game->m_alive_players, to);
+
+    int count_cw = 0;
+    int count_ccw = 0;
+    for (auto it = from_it; it != to_it;) {
+        if ((*it)->alive()) {
+            ++count_cw;
+        }
+        ++it;
+        if (it == m_game->m_alive_players.end()) {
+            it = m_game->m_alive_players.begin();
         }
     }
-    return 0;
+    for (auto it = from_it; it != to_it;) {
+        if ((*it)->alive()) {
+            ++count_ccw;
+        }
+        if (it == m_game->m_alive_players.begin()) {
+            it = m_game->m_alive_players.end();
+        }
+        --it;
+    }
+
+    int distance_mod = 0;
+    auto it = std::ranges::find(m_distances.distances, to, &player_distance_item::player);
+    if (it != m_distances.distances.end()) {
+        distance_mod = it->distance;
+    }
+    return std::min(count_cw, count_ccw) + distance_mod;
 }
 
 struct targetable_for_cards_other_player {
@@ -369,6 +430,15 @@ void target_finder::handle_auto_targets() {
         case target_type::player:
             for (player_view *p : m_game->m_alive_players) {
                 if (is_valid_target(effect_it->player_filter, p)) {
+                    m_targetable_borders.emplace_back(p, game_style::targetable);
+                }
+            }
+            return;
+        case target_type::adjacent_players:
+            for (player_view *p : m_game->m_alive_players) {
+                if (is_valid_target(target_player_filter::reachable | target_player_filter::notself, p)
+                    && std::ranges::any_of(m_game->m_alive_players, targetable_for_adjacent_players(p)))
+                {
                     m_targetable_borders.emplace_back(p, game_style::targetable);
                 }
             }
