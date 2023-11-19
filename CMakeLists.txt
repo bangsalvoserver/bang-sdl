@@ -58,6 +58,15 @@ generate_export_header(bangclient
 target_include_directories(bangclient PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/exports")
 
 target_link_libraries(bangclient PUBLIC bangcommon sdl2_libraries tiny-process-library)
+
+find_package(OpenSSL)
+if (OPENSSL_FOUND)
+    target_link_libraries(bangclient PRIVATE OpenSSL::SSL OpenSSL::Crypto)
+    target_compile_definitions(bangclient PRIVATE ENABLE_TLS_CLIENT)
+else()
+    message(WARNING "OpenSSL was not found, TLS is disabled for bangclient")
+endif()
+
 target_compile_definitions(bangclient PRIVATE BUILD_BANG_CLIENT)
 
 add_dependencies(bangclient cards_pak media_pak sounds_pak)
@@ -89,7 +98,7 @@ if (BUILD_GAME_RELEASE)
     add_library(git_client_version STATIC "${GIT_CLIENT_VERSION_C}" "${GIT_CARDS_VERSION_C}")
     add_dependencies(git_client_version check_git_client check_git_cards)
     target_compile_definitions(git_client_version PUBLIC HAVE_GIT_CLIENT_VERSION)
-
+    
     target_link_libraries(bangclient PUBLIC git_client_version)
 endif()
 

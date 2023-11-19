@@ -93,13 +93,7 @@ void client_manager::connect(const std::string &host) {
         add_chat_message(message_type::error, _("ERROR_NO_ADDRESS"));
     } else {
         m_connection_closed = false;
-
-        if (host.find(":") == std::string::npos) {
-            net::wsconnection::connect(fmt::format("{}:{}", host, default_server_port));
-        } else {
-            net::wsconnection::connect(host);
-        }
-
+        net::wsconnection::connect(host);
         switch_scene<loading_scene>(_("CONNECTING_TO", host));
     }
 }
@@ -195,7 +189,7 @@ void client_manager::start_listenserver() {
                 }
                 if (line.starts_with("Server listening")) {
                     asio::post(m_ctx, [&]{
-                        net::wsconnection::connect(fmt::format("localhost:{}", m_config.server_port));
+                        net::wsconnection::connect(fmt::format("ws://localhost:{}", m_config.server_port));
                     });
                 }
                 if (newline_pos == std::string_view::npos) break;

@@ -11,6 +11,12 @@ wsconnection::wsconnection(asio::io_context &ctx) {
     m_client.init_asio(&ctx);
     m_client.set_access_channels(websocketpp::log::alevel::none);
     m_client.set_error_channels(websocketpp::log::alevel::none);
+
+#ifdef ENABLE_TLS_CLIENT
+    m_client.set_tls_init_handler([](client_handle hdl) {
+        return std::make_shared<asio::ssl::context>(asio::ssl::context::tlsv1);
+    });
+#endif
 }
         
 void wsconnection::connect(const std::string &url) {
@@ -38,7 +44,8 @@ void wsconnection::connect(const std::string &url) {
 
     std::error_code ec;
     m_address = url;
-    auto con = m_client.get_connection(std::string("ws://") + url, ec);
+
+    auto con = m_client.get_connection(url, ec);
     if (!ec) {
         m_client.connect(con);
         m_con = con;
