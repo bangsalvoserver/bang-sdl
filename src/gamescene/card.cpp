@@ -95,7 +95,7 @@ namespace banggame {
             try {
                 card_base_surf = card_textures::get().get_card_resource(ranges::contains(image, '/') ? image : fmt::format("{}/{}", enums::to_string(deck), image));
             } catch (const std::out_of_range &error) {
-                std::cerr << error.what() << "\n";
+                fmt::print("{}\n", error.what());
                 sdl::rect mask_rect = card_textures::get().card_mask.get_rect();
                 card_base_surf = sdl::surface{mask_rect.w, mask_rect.h};
                 uint32_t color = SDL_MapRGBA(card_base_surf.get()->format, 0xff, 0x0, 0xff, 0xff);
