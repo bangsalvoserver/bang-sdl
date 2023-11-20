@@ -59,13 +59,8 @@ target_include_directories(bangclient PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/export
 
 target_link_libraries(bangclient PUBLIC bangcommon sdl2_libraries tiny-process-library)
 
-find_package(OpenSSL)
-if (OPENSSL_FOUND)
-    target_link_libraries(bangclient PRIVATE OpenSSL::SSL OpenSSL::Crypto)
-    target_compile_definitions(bangclient PRIVATE ENABLE_TLS_CLIENT)
-else()
-    message(WARNING "OpenSSL was not found, TLS is disabled for bangclient")
-endif()
+find_package(OpenSSL REQUIRED)
+target_link_libraries(bangclient PRIVATE OpenSSL::SSL OpenSSL::Crypto)
 
 target_compile_definitions(bangclient PRIVATE BUILD_BANG_CLIENT)
 

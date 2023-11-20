@@ -2,27 +2,24 @@
 #define __WSCONNECTION_H__
 
 #include <asio.hpp>
-#ifdef ENABLE_TLS_CLIENT
 #include <websocketpp/config/asio_client.hpp>
-#else
-#include <websocketpp/config/asio_no_tls_client.hpp>
-#endif
 #include <websocketpp/client.hpp>
+
+#include <variant>
+#include "utils/utils.h"
 
 namespace net {
 
     class wsconnection {
     public:
-#ifdef ENABLE_TLS_CLIENT
-        using client_type = websocketpp::client<websocketpp::config::asio_tls_client>;
-#else
         using client_type = websocketpp::client<websocketpp::config::asio_client>;
-#endif
+        using client_type_tls = websocketpp::client<websocketpp::config::asio_tls_client>;
         using client_handle = websocketpp::connection_hdl;
 
     private:
         client_type m_client;
-        client_type::connection_weak_ptr m_con;
+        client_type_tls m_client_tls;
+        std::variant<std::monostate, client_type::connection_weak_ptr, client_type_tls::connection_weak_ptr> m_con;
 
         std::string m_address;
     

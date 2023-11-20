@@ -2,72 +2,84 @@
 
 namespace net {
 
-template<typename T, typename U>
-bool check_weak_ptr(const std::weak_ptr<T> &lhs, const std::weak_ptr<U> &rhs) {
-    return !lhs.owner_before(rhs) && !rhs.owner_before(lhs);
-}
-
 wsconnection::wsconnection(asio::io_context &ctx) {
-    m_client.init_asio(&ctx);
-    m_client.set_access_channels(websocketpp::log::alevel::none);
-    m_client.set_error_channels(websocketpp::log::alevel::none);
+    auto init_client = [&]<typename Config>(websocketpp::client<Config> &client) {
+        client.init_asio(&ctx);
+        client.set_access_channels(websocketpp::log::alevel::none);
+        client.set_error_channels(websocketpp::log::alevel::none);
+        client.set_open_handler([this](client_handle hdl) {
+            on_open();
+        });
+        client.set_close_handler([this](client_handle hdl){
+            on_close();
+            m_con = std::monostate{};
+        });
+        client.set_fail_handler([this](client_handle hdl){
+            on_close();
+            m_con = std::monostate{};
+        });
+        client.set_message_handler([this](client_handle hdl, websocketpp::client<Config>::message_ptr msg) {
+            on_message(msg->get_payload());
+        });
+    };
 
-#ifdef ENABLE_TLS_CLIENT
-    m_client.set_tls_init_handler([](client_handle hdl) {
-        return std::make_shared<asio::ssl::context>(asio::ssl::context::tlsv1);
+    init_client(m_client);
+    init_client(m_client_tls);
+
+    m_client_tls.set_tls_init_handler([](client_handle hdl) {
+        return std::make_shared<asio::ssl::context>(asio::ssl::context::tls_client);
     });
-#endif
 }
         
 void wsconnection::connect(const std::string &url) {
-    m_client.set_open_handler([this](client_handle hdl) {
-        if (check_weak_ptr(hdl, m_con)) {
-            on_open();
-        }
-    });
-
-    auto client_disconnect_handler = [this](client_handle hdl) {
-        if (check_weak_ptr(hdl, m_con)) {
-            on_close();
-            m_con.reset();
-        }
-    };
-
-    m_client.set_close_handler(client_disconnect_handler);
-    m_client.set_fail_handler(client_disconnect_handler);
-
-    m_client.set_message_handler([this](client_handle hdl, client_type::message_ptr msg) {
-        if (check_weak_ptr(hdl, m_con)) {
-            on_message(msg->get_payload());
-        }
-    });
-
     std::error_code ec;
-    m_address = url;
 
-    auto con = m_client.get_connection(url, ec);
-    if (!ec) {
-        m_client.connect(con);
-        m_con = con;
+    auto uri = std::make_shared<websocketpp::uri>(url);
+    if (uri->get_secure()) {
+        auto con = m_client_tls.get_connection(uri, ec);
+        if (!ec) {
+            m_client_tls.connect(con);
+            m_con = con;
+            m_address = url;
+        }
+    } else {
+        auto con = m_client.get_connection(uri, ec);
+        if (!ec) {
+            m_client.connect(con);
+            m_con = con;
+            m_address = url;
+        }
     }
 }
 
 void wsconnection::disconnect() {
-    if (auto con = m_con.lock()) {
-        switch (con->get_state()) {
-        case websocketpp::session::state::connecting:
-            con->terminate(make_error_code(websocketpp::error::operation_canceled));
-            break;
-        case websocketpp::session::state::open:
-            con->close(0, "");
-            break;
+    std::visit([](auto &con) {
+        if constexpr (requires { con.lock(); }) {
+            if (auto ptr = con.lock()) {
+                switch (ptr->get_state()) {
+                case websocketpp::session::state::connecting:
+                    ptr->terminate(make_error_code(websocketpp::error::operation_canceled));
+                    break;
+                case websocketpp::session::state::open:
+                    ptr->close(0, "DISCONNECT");
+                    break;
+                }
+            }
         }
-    }
+    }, m_con);
 }
 
 void wsconnection::push_message(const std::string &message) {
     std::error_code ec;
-    m_client.send(m_con, message, websocketpp::frame::opcode::text, ec);
+    std::visit(overloaded{
+        [](std::monostate) {},
+        [&](client_type::connection_weak_ptr con) {
+            m_client.send(con, message, websocketpp::frame::opcode::text, ec);
+        },
+        [&](client_type_tls::connection_weak_ptr con) {
+            m_client_tls.send(con, message, websocketpp::frame::opcode::text, ec);
+        }
+    }, m_con);
 }
 
 }
