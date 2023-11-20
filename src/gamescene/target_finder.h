@@ -45,7 +45,6 @@ namespace banggame {
         card_view *m_request_origin_card = nullptr;
         player_view *m_request_origin = nullptr;
         player_view *m_request_target = nullptr;
-        bool m_auto_select = false;
         bool m_response = false;
 
         std::optional<timer_id_t> get_timer_id() const {

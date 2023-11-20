@@ -129,7 +129,6 @@ void target_finder::set_response_cards(const request_status_args &args) {
     m_request_origin_card = args.origin_card;
     m_request_origin = args.origin;
     m_request_target = args.target;
-    m_auto_select = args.auto_select;
     m_response = true;
 
     m_pick_cards = args.pick_cards;
@@ -160,8 +159,11 @@ void target_finder::clear_targets() {
 }
 
 void target_finder::handle_auto_select() {
-    if (m_auto_select && m_mode == target_mode::start && m_play_cards.size() == 1 && m_pick_cards.empty()) {
-        select_playing_card(m_play_cards.front().card);
+    if (m_response && m_mode == target_mode::start && m_play_cards.size() == 1 && m_pick_cards.empty()) {
+        card_view *c = m_play_cards.front().card;
+        if (c->has_tag(tag_type::auto_select)) {
+            select_playing_card(c);
+        }
     }
 }
 
