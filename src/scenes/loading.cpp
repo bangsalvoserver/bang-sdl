@@ -3,13 +3,18 @@
 #include "../manager.h"
 #include "../media_pak.h"
 
-loading_scene::loading_scene(client_manager *parent, const std::string &text)
+loading_scene::loading_scene(client_manager *parent, const std::string &text, const std::string &address)
     : scene_base(parent)
     , m_loading_text(text)
     , m_cancel_btn(_("BUTTON_CANCEL"), [parent]{
         parent->add_chat_message(message_type::server_log, _("ERROR_CONNECTION_CANCELED"));
         parent->disconnect();
-    }) {}
+    })
+    , m_address(address) {}
+
+void loading_scene::handle_message(SRV_TAG(client_accepted), const banggame::client_accepted_args &args) {
+    parent->client_accepted(args, m_address);
+}
 
 void loading_scene::refresh_layout() {
     const auto win_rect = parent->get_rect();

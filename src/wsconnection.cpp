@@ -1,61 +1,67 @@
 #include "wsconnection.h"
 
 namespace net {
+        
+void wsconnection::connect(const std::string &url) {
+    auto init_client = [&]<typename Config>(std::in_place_type_t<Config>) -> decltype(auto) {
+        auto &client = m_client.emplace<client_and_connection<Config>>().client;
+        client.init_asio(&m_ctx);
 
-wsconnection::wsconnection(asio::io_context &ctx) {
-    auto init_client = [&]<typename Config>(websocketpp::client<Config> &client) {
-        client.init_asio(&ctx);
         client.set_access_channels(websocketpp::log::alevel::none);
         client.set_error_channels(websocketpp::log::alevel::none);
+        
         client.set_open_handler([this](client_handle hdl) {
             on_open();
         });
         client.set_close_handler([this](client_handle hdl){
             on_close();
-            m_con = std::monostate{};
+            m_client = std::monostate{};
         });
         client.set_fail_handler([this](client_handle hdl){
             on_close();
-            m_con = std::monostate{};
+            m_client = std::monostate{};
         });
         client.set_message_handler([this](client_handle hdl, websocketpp::client<Config>::message_ptr msg) {
             on_message(msg->get_payload());
         });
+
+        return client;
     };
-
-    init_client(m_client);
-    init_client(m_client_tls);
-
-    m_client_tls.set_tls_init_handler([](client_handle hdl) {
-        return std::make_shared<asio::ssl::context>(asio::ssl::context::tls_client);
-    });
-}
-        
-void wsconnection::connect(const std::string &url) {
-    std::error_code ec;
 
     auto uri = std::make_shared<websocketpp::uri>(url);
     if (uri->get_secure()) {
-        auto con = m_client_tls.get_connection(uri, ec);
-        if (!ec) {
-            m_client_tls.connect(con);
-            m_con = con;
-            m_address = url;
-        }
+        init_client(std::in_place_type<websocketpp::config::asio_tls_client>)
+            .set_tls_init_handler([](client_handle hdl) {
+                return std::make_shared<asio::ssl::context>(asio::ssl::context::tls_client);
+            });
     } else {
-        auto con = m_client.get_connection(uri, ec);
-        if (!ec) {
-            m_client.connect(con);
-            m_con = con;
-            m_address = url;
+        init_client(std::in_place_type<websocketpp::config::asio_client>);
+    }
+
+    bool result = std::visit(overloaded{
+        [](std::monostate) { return false; },
+        [&]<typename Config>(client_and_connection<Config> &client) {
+            std::error_code ec;
+            auto con = client.client.get_connection(uri, ec);
+            if (!ec) {
+                client.client.connect(con);
+                client.connection = con;
+                return true;
+            }
+            return false;
         }
+    }, m_client);
+
+    if (!result) {
+        m_client = std::monostate{};
     }
 }
 
 void wsconnection::disconnect() {
-    std::visit([](auto &con) {
-        if constexpr (requires { con.lock(); }) {
-            if (auto ptr = con.lock()) {
+    std::visit(overloaded{
+        [](std::monostate) {},
+        []<typename Config>(client_and_connection<Config> &client) {
+            if (auto ptr = client.connection.lock()) {
                 switch (ptr->get_state()) {
                 case websocketpp::session::state::connecting:
                     ptr->terminate(make_error_code(websocketpp::error::operation_canceled));
@@ -66,20 +72,17 @@ void wsconnection::disconnect() {
                 }
             }
         }
-    }, m_con);
+    }, m_client);
 }
 
 void wsconnection::push_message(const std::string &message) {
     std::error_code ec;
     std::visit(overloaded{
         [](std::monostate) {},
-        [&](client_type::connection_weak_ptr con) {
-            m_client.send(con, message, websocketpp::frame::opcode::text, ec);
+        [&]<typename Config>(client_and_connection<Config> &client) {
+            client.client.send(client.connection, message, websocketpp::frame::opcode::text, ec);
         },
-        [&](client_type_tls::connection_weak_ptr con) {
-            m_client_tls.send(con, message, websocketpp::frame::opcode::text, ec);
-        }
-    }, m_con);
+    }, m_client);
 }
 
 }

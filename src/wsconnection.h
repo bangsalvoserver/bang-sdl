@@ -10,18 +10,26 @@
 
 namespace net {
 
+    template<typename Config>
+    struct client_and_connection {
+        using client_type = websocketpp::client<Config>;
+
+        client_type client;
+        client_type::connection_weak_ptr connection;
+    };
+
     class wsconnection {
     public:
-        using client_type = websocketpp::client<websocketpp::config::asio_client>;
-        using client_type_tls = websocketpp::client<websocketpp::config::asio_tls_client>;
         using client_handle = websocketpp::connection_hdl;
 
     private:
-        client_type m_client;
-        client_type_tls m_client_tls;
-        std::variant<std::monostate, client_type::connection_weak_ptr, client_type_tls::connection_weak_ptr> m_con;
+        asio::io_context &m_ctx;
 
-        std::string m_address;
+        std::variant<
+            std::monostate,
+            client_and_connection<websocketpp::config::asio_client>,
+            client_and_connection<websocketpp::config::asio_tls_client>
+        > m_client;
     
     protected:
         virtual void on_open() = 0;
@@ -29,17 +37,13 @@ namespace net {
         virtual void on_message(const std::string &message) = 0;
 
     public:
-        wsconnection(asio::io_context &ctx);
+        wsconnection(asio::io_context &ctx) : m_ctx{ctx} {}
 
         virtual ~wsconnection() = default;
             
         void connect(const std::string &url);
         
         void disconnect();
-
-        const std::string &address_string() const {
-            return m_address;
-        }
 
         void push_message(const std::string &message);
     };

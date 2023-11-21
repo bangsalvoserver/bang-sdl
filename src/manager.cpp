@@ -94,7 +94,7 @@ void client_manager::connect(const std::string &host) {
     } else {
         m_connection_closed = false;
         net::wsconnection::connect(host);
-        switch_scene<loading_scene>(_("CONNECTING_TO", host));
+        switch_scene<loading_scene>(_("CONNECTING_TO", host), host);
     }
 }
 
@@ -238,12 +238,9 @@ void client_manager::handle_message(SRV_TAG(ping)) {
     add_message<banggame::client_message_type::pong>();
 }
 
-void client_manager::handle_message(SRV_TAG(client_accepted), const client_accepted_args &args) {
-    if (!m_listenserver) {
-        auto it = std::ranges::find(m_config.recent_servers, address_string());
-        if (it == m_config.recent_servers.end()) {
-            m_config.recent_servers.push_back(address_string());
-        }
+void client_manager::client_accepted(const client_accepted_args &args, const std::string &address) {
+    if (!address.empty() && !ranges::contains(m_config.recent_servers, address)) {
+        m_config.recent_servers.push_back(address);
     }
     m_accept_timer.cancel();
     m_users.clear();

@@ -72,6 +72,7 @@ public:
     int get_user_own_id() const { return m_config.user_id; }
     int get_lobby_owner_id() const { return m_lobby_owner_id; }
 
+    void client_accepted(const banggame::client_accepted_args &args, const std::string &address);
     void start_listenserver();
     void stop_listenserver();
 
@@ -99,7 +100,6 @@ protected:
 
 private:
     void handle_message(SRV_TAG(ping));
-    void handle_message(SRV_TAG(client_accepted), const banggame::client_accepted_args &args);
     void handle_message(SRV_TAG(lobby_error), const std::string &message);
     void handle_message(SRV_TAG(lobby_owner), const banggame::user_id_args &args);
     void handle_message(SRV_TAG(lobby_entered), const banggame::lobby_entered_args &args);
