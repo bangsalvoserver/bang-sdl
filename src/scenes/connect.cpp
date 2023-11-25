@@ -30,7 +30,6 @@ connect_scene::connect_scene(client_manager *parent)
     , m_connect_btn(_("BUTTON_CONNECT"), [this]{
         do_connect(m_address_box.get_value());
     })
-    , m_create_server_btn(_("BUTTON_CREATE_SERVER"), [this]{ do_create_server(); })
     , m_reset_servers_btn(_("BUTTON_RESET_SERVERS"), [this]{ do_reset_server_list(); })
 {
     m_username_box.set_value(parent->get_config().user_name);
@@ -53,6 +52,10 @@ connect_scene::connect_scene(client_manager *parent)
         refresh_layout();
     });
     m_propic.set_texture(sdl::texture(parent->get_renderer(), parent->get_config().profile_image_data));
+
+    if (parent->is_listenserver_present()) {
+        m_create_server_btn.emplace(_("BUTTON_CREATE_SERVER"), [this]{ do_create_server(); });
+    }
 }
 
 void connect_scene::refresh_layout() {
@@ -74,15 +77,11 @@ void connect_scene::refresh_layout() {
         m_username_box.get_rect().y + m_username_box.get_rect().h / 2
     });
 
-    m_create_server_btn.set_rect(sdl::rect{(win_rect.w - 200) / 2, 100, 200, 25});
-
-    sdl::rect rect{100, 150, win_rect.w - 200, 25};
+    sdl::rect rect{100, 100, win_rect.w - 200, 25};
     for (auto &line : m_recents) {
         line.set_rect(rect);
         rect.y += 35;
     }
-
-    m_reset_servers_btn.set_rect(sdl::rect{(win_rect.w - 200) / 2, rect.y + 35, 200, 25});
 
     label_rect = m_address_label.get_rect();
     label_rect.x = rect.x;
@@ -92,6 +91,14 @@ void connect_scene::refresh_layout() {
     m_address_box.set_rect(sdl::rect{rect.x + label_rect.w + 15, rect.y, rect.w - 125 - label_rect.w, rect.h});
     
     m_connect_btn.set_rect(sdl::rect{rect.x + rect.w - 100, rect.y, 100, rect.h});
+    rect.y += 50;
+
+    if (m_create_server_btn) {
+        m_create_server_btn->set_rect(sdl::rect{(win_rect.w - 200) / 2, rect.y, 200, 25});
+        rect.y += 35;
+    }
+
+    m_reset_servers_btn.set_rect(sdl::rect{(win_rect.w - 200) / 2, rect.y, 200, 25});
 }
 
 void connect_scene::tick(duration_type time_elapsed) {
@@ -111,7 +118,9 @@ void connect_scene::render(sdl::renderer &renderer) {
     m_address_label.render(renderer);
     m_address_box.render(renderer);
     m_connect_btn.render(renderer);
-    m_create_server_btn.render(renderer);
+    if (m_create_server_btn) {
+        m_create_server_btn->render(renderer);
+    }
     m_reset_servers_btn.render(renderer);
 }
 

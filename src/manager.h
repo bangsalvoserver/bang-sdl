@@ -73,6 +73,9 @@ public:
     int get_lobby_owner_id() const { return m_lobby_owner_id; }
 
     void client_accepted(const banggame::client_accepted_args &args, const std::string &address);
+
+    std::filesystem::path get_listenserver_path() const;
+    bool is_listenserver_present() const;
     void start_listenserver();
     void stop_listenserver();
 

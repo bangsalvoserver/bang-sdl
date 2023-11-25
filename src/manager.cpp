@@ -161,28 +161,48 @@ void client_manager::add_chat_message(message_type type, const std::string &mess
     m_chat.add_message(type, message);
 }
 
-void client_manager::start_listenserver() {
-    switch_scene<loading_scene>(_("CREATING_SERVER"));
-    m_connection_closed = false;
-
+std::filesystem::path client_manager::get_listenserver_path() const {
     std::filesystem::path server_path = m_base_path / "bangserver";
 #ifdef _WIN32
     server_path.replace_extension(".exe");
 #endif
+    return server_path;
+}
+
+bool client_manager::is_listenserver_present() const {
+#ifdef HAVE_GIT_VERSION
+    std::atomic<bool> result = false;
+    TinyProcessLib::Process proc(
+        fmt::format("{} --version", get_listenserver_path().string()), "",
+        [&](const char *bytes, size_t n) {
+            std::string_view str{bytes, n};
+            result.store(str.substr(0, str.find_first_of("\r\n")) == net::server_commit_hash);
+        },
+        nullptr
+    );
+    return proc.get_exit_status() == 0 && result.load();
+#else
+    return true;
+#endif
+}
+
+void client_manager::start_listenserver() {
+    switch_scene<loading_scene>(_("CREATING_SERVER"));
+    m_connection_closed = false;
 
     if (!m_config.server_port) {
         m_config.server_port = default_server_port;
     }
     m_listenserver = std::make_unique<TinyProcessLib::Process>(
         fmt::format("{} {} {} {}",
-            server_path.string(),
+            get_listenserver_path().string(),
             m_config.server_enable_cheats ? "--cheats" : "",
             m_config.server_verbose ? "--verbose" : "",
             m_config.server_port), "",
         [&](const char *bytes, size_t n) {
             std::string_view str{bytes, n};
             while (true) {
-                size_t newline_pos = str.find('\n');
+                size_t newline_pos = str.find_first_of("\r\n");
                 auto line = str.substr(0, newline_pos);
                 if (!line.empty()) {
                     add_chat_message(message_type::server_log, std::string(line));
@@ -199,7 +219,7 @@ void client_manager::start_listenserver() {
         [&, buffer = std::string()](const char *bytes, size_t n) mutable {
             buffer.append(bytes, n);
             while (true) {
-                size_t newline_pos = buffer.find('\n');
+                size_t newline_pos = buffer.find_first_of("\r\n");
                 if (newline_pos == std::string_view::npos) break;
                 if (newline_pos) {
                     add_chat_message(message_type::error, buffer.substr(0, newline_pos));

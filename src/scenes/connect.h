@@ -46,7 +46,7 @@ private:
     widgets::stattext m_address_label;
     widgets::textbox m_address_box;
     widgets::button m_connect_btn;
-    widgets::button m_create_server_btn;
+    std::optional<widgets::button> m_create_server_btn;
     widgets::button m_reset_servers_btn;
 
     std::list<recent_server_line> m_recents;

@@ -56,7 +56,7 @@ jobs:
     - name: Build
       shell: msys2 {0}
       working-directory: ${{github.workspace}}
-      run: cmake --build build --config ${{env.BUILD_TYPE}}
+      run: cmake --build build --config ${{env.BUILD_TYPE}} --target bangclient
 
     - name: Prepare bang.zip
       shell: msys2 {0}
@@ -64,7 +64,7 @@ jobs:
       run: |
         mkdir -p bang
         ldd build/libbangclient.dll | grep -i -v /c/windows/ | gawk 'match($0, /=> (.+\.dll)/, a) { print a[1]}' | xargs cp -n -t bang
-        cp -t bang build/libbangclient.dll build/bangserver.exe build/media.pak build/sounds.pak
+        cp -t bang build/libbangclient.dll build/media.pak build/sounds.pak
         zip -r bang.zip bang
     
     - name: Create Release
