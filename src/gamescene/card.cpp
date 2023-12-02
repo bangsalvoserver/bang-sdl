@@ -89,11 +89,24 @@ namespace banggame {
         return ret;
     }
 
+    static std::string parse_image(std::string_view image, card_deck_type deck) {
+        auto colon_index = image.find(':');
+        if (colon_index != std::string_view::npos) {
+            // TODO handle backface
+            image = image.substr(0, colon_index);
+        }
+        if (ranges::contains(image, '/')) {
+            return std::string(image);
+        } else {
+            return fmt::format("{}/{}", enums::to_string(deck), image);
+        }
+    }
+
     void card_view::make_texture_front(sdl::renderer &renderer) {
         auto do_make_texture = [&](float scale) {
             sdl::surface card_base_surf;
             try {
-                card_base_surf = card_textures::get().get_card_resource(ranges::contains(image, '/') ? image : fmt::format("{}/{}", enums::to_string(deck), image));
+                card_base_surf = card_textures::get().get_card_resource(parse_image(image, deck));
             } catch (const std::out_of_range &error) {
                 fmt::print("{}\n", error.what());
                 sdl::rect mask_rect = card_textures::get().card_mask.get_rect();
