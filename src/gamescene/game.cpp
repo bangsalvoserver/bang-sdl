@@ -408,7 +408,7 @@ void game_scene::handle_game_update(UPD_TAG(add_cards), const add_cards_update &
     for (auto [id, deck] : args.card_ids) {
         card_view *card = &m_context.cards.emplace(id);
         card->deck = deck;
-        card->texture_back = card_textures::get().backfaces[enums::indexof(deck)];
+        card->make_texture_back(parent->get_renderer());
         
         pocket.add_card(card);
     }
@@ -499,6 +499,7 @@ void game_scene::handle_game_update(UPD_TAG(show_card), const show_card_update &
 
         if (!args.card->image.empty()) {
             args.card->make_texture_front(parent->get_renderer());
+            args.card->make_texture_back(parent->get_renderer());
         }
         if (args.card->pocket) {
             args.card->pocket->update_card(args.card);
@@ -572,7 +573,7 @@ void game_scene::handle_game_update(UPD_TAG(player_add), const player_add_update
             m_alive_players.push_back(&p);
         }
         
-        p.m_role.texture_back = card_textures::get().backfaces[enums::indexof(card_deck_type::role)];
+        p.m_role.make_texture_back(parent->get_renderer());
         if (user_id == parent->get_user_own_id()) {
             m_player_self = &p;
         }

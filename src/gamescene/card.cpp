@@ -31,12 +31,6 @@ namespace banggame {
         , card_mask (get_card_resource("misc/card_mask"))
         , card_border (renderer, get_card_resource("misc/card_border"))
 
-        , backfaces([&]<card_deck_type ... Es>(enums::enum_sequence<Es ...>) {
-            return std::array {
-                make_backface_texture(renderer, Es) ...
-            };
-        }(enums::make_enum_sequence<card_deck_type>()))
-
         , rank_icons([&]<card_rank ... Es>(enums::enum_sequence<Es ...>) {
             return std::array {
                 get_card_resource(fmt::format("misc/{}", enums::to_string(Es))) ...
@@ -52,10 +46,14 @@ namespace banggame {
         s_instance = this;
     }
 
-    sdl::texture card_textures::make_backface_texture(sdl::renderer &renderer, card_deck_type type) {
-        auto name = fmt::format("backface/{}", enums::to_string(type));
-        if (card_resources.contains(name)) {
-            return { renderer, apply_card_mask(get_card_resource(name)) };
+    sdl::texture_ref card_textures::get_backface_texture(std::string_view name, sdl::renderer &renderer) const {
+        if (auto it = backfaces.find(name); it != backfaces.end()) {
+            return it->second;
+        } else if (card_resources.contains(name)) {
+            return backfaces.emplace(std::piecewise_construct,
+                std::forward_as_tuple(name),
+                std::forward_as_tuple(renderer, apply_card_mask(get_card_resource(name)))
+            ).first->second;
         } else {
             return {};
         }
@@ -89,10 +87,15 @@ namespace banggame {
         return ret;
     }
 
-    static std::string parse_image(std::string_view image, card_deck_type deck) {
+    static std::string parse_image(std::string_view image, card_deck_type deck, bool backface = false) {
         auto colon_index = image.find(':');
-        if (colon_index != std::string_view::npos) {
-            // TODO handle backface
+        if (backface) {
+            if (colon_index != std::string_view::npos) {
+                image = image.substr(colon_index + 1);
+            } else {
+                return fmt::format("backface/{}", enums::to_string(deck));
+            }
+        } else if (colon_index != std::string_view::npos) {
             image = image.substr(0, colon_index);
         }
         if (ranges::contains(image, '/')) {
@@ -150,12 +153,20 @@ namespace banggame {
         texture_front_scaled = sdl::texture(renderer, surface_front_scaled);
     }
 
+    void card_view::make_texture_back(sdl::renderer &renderer) {
+        texture_back = card_textures::get().get_backface_texture(parse_image(image, deck, true), renderer);
+    }
+
     void role_card::make_texture_front(sdl::renderer &renderer) {
         sdl::surface surface_front = card_textures::get().apply_card_mask(
             card_textures::get().get_card_resource(fmt::format("role/{}", enums::to_string(role))));
         texture_front = sdl::texture(renderer, surface_front);
         texture_front_scaled = sdl::texture(renderer, sdl::scale_surface(surface_front,
             texture_front.get_rect().w / options.card_width));
+    }
+
+    void role_card::make_texture_back(sdl::renderer &renderer) {
+        texture_back = card_textures::get().get_backface_texture(parse_image("", card_deck_type::role, true), renderer);
     }
 
     void cube_widget::render(sdl::renderer &renderer, render_flags flags) {

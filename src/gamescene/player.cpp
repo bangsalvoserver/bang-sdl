@@ -105,11 +105,12 @@ namespace banggame {
             self->m_role.render(renderer);
 
             if (!self->m_backup_characters.empty()) {
-                self->m_backup_characters.front()->render(renderer);
+                card_view *character = self->m_backup_characters.front();
+                character->render(renderer);
                 if (self->hp > 5) {
-                    sdl::rect hp_marker_rect = self->m_backup_characters.front()->get_rect();
+                    sdl::rect hp_marker_rect = character->get_rect();
                     hp_marker_rect.y += options.one_hp_size * 5;
-                    card_textures::get().backfaces[enums::indexof(card_deck_type::character)].render(renderer, hp_marker_rect);
+                    character->texture_back.render(renderer, hp_marker_rect);
                 }
             }
             for (card_view *c : self->m_characters) {

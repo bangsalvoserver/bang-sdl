@@ -33,12 +33,12 @@ namespace banggame {
         sdl::surface card_mask;
         sdl::texture card_border;
 
-        std::array<sdl::texture, enums::num_members_v<card_deck_type>> backfaces;
+        mutable std::map<std::string, sdl::texture, std::less<>> backfaces;
 
         std::array<sdl::surface, enums::num_members_v<card_rank> - 1> rank_icons;
         std::array<sdl::surface, enums::num_members_v<card_suit> - 1> suit_icons;
 
-        sdl::texture make_backface_texture(sdl::renderer &renderer, card_deck_type type);
+        sdl::texture_ref get_backface_texture(std::string_view name, sdl::renderer &renderer) const;
         sdl::surface apply_card_mask(const sdl::surface &source) const;
 
         sdl::surface get_card_resource(std::string_view name) const {
@@ -134,6 +134,7 @@ namespace banggame {
         sdl::texture_ref texture_back;
         
         void make_texture_front(sdl::renderer &renderer);
+        void make_texture_back(sdl::renderer &renderer);
 
     private:
         sdl::rect get_base_rect(sdl::texture_ref tex) const;
@@ -147,6 +148,7 @@ namespace banggame {
         player_role role = player_role::unknown;
 
         void make_texture_front(sdl::renderer &renderer);
+        void make_texture_back(sdl::renderer &renderer);
     };
     
     class pocket_view_base {
