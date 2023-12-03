@@ -18,13 +18,10 @@
 
 using namespace banggame;
 
-client_manager::client_manager(sdl::window &window, sdl::renderer &renderer, asio::io_context &ctx, const std::filesystem::path &base_path)
-    : net::wsconnection(ctx)
-    , m_window(window)
+client_manager::client_manager(sdl::window &window, sdl::renderer &renderer, const std::filesystem::path &base_path)
+    : m_window(window)
     , m_renderer(renderer)
     , m_base_path(base_path)
-    , m_ctx(ctx)
-    , m_accept_timer(ctx)
 {
     m_config.load();
     switch_scene<connect_scene>();
@@ -38,13 +35,7 @@ client_manager::~client_manager() {
 void client_manager::on_open() {
     m_connection_open = true;
 
-    m_accept_timer.expires_after(accept_timeout);
-    m_accept_timer.async_wait([this](const std::error_code &ec) {
-        if (!ec) {
-            add_chat_message(message_type::error, _("ACCEPT_TIMEOUT_EXPIRED"));
-            disconnect();
-        }
-    });
+    m_accept_timer = accept_timeout;
 
     add_message<banggame::client_message_type::connect>(
         banggame::user_info {
@@ -65,7 +56,7 @@ void client_manager::on_close() {
     if (m_connection_open.exchange(false)) {
         add_chat_message(message_type::server_log, _("ERROR_DISCONNECTED"));
     }
-    m_accept_timer.cancel();
+    m_accept_timer.reset();
 }
 
 void client_manager::on_message(const std::string &message) {
@@ -133,6 +124,13 @@ static void render_tiled(sdl::renderer &renderer, sdl::texture_ref texture, cons
 }
 
 void client_manager::tick(duration_type time_elapsed) {
+    poll();
+    
+    if (m_accept_timer && (*m_accept_timer -= time_elapsed) <= duration_type{}) {
+        add_chat_message(message_type::error, _("ACCEPT_TIMEOUT_EXPIRED"));
+        disconnect();
+    }
+
     m_scene->tick(time_elapsed);
     m_chat.tick(time_elapsed);
 }
@@ -208,7 +206,7 @@ void client_manager::start_listenserver() {
                     add_chat_message(message_type::server_log, std::string(line));
                 }
                 if (line.starts_with("Server listening")) {
-                    asio::post(m_ctx, [&]{
+                    asio::post(get_executor(), [&]{
                         net::wsconnection::connect(fmt::format("ws://localhost:{}", m_config.server_port));
                     });
                 }
@@ -233,7 +231,7 @@ void client_manager::start_listenserver() {
     }
     m_listenserver_thread = std::thread([&]{
         m_listenserver->get_exit_status();
-        asio::post(m_ctx, [&]{
+        asio::post(get_executor(), [&]{
             m_listenserver.reset();
             on_close();
         });
@@ -262,7 +260,7 @@ void client_manager::client_accepted(const client_accepted_args &args, const std
     if (!address.empty() && !ranges::contains(m_config.recent_servers, address)) {
         m_config.recent_servers.push_back(address);
     }
-    m_accept_timer.cancel();
+    m_accept_timer.reset();
     m_users.clear();
     m_config.user_id = args.user_id;
     switch_scene<lobby_list_scene>();

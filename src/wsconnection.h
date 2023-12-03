@@ -23,7 +23,8 @@ namespace net {
         using client_handle = websocketpp::connection_hdl;
 
     private:
-        asio::io_context &m_ctx;
+        asio::io_context m_ctx;
+        asio::executor_work_guard<asio::io_context::executor_type> m_work_guard;
 
         std::variant<
             std::monostate,
@@ -37,13 +38,18 @@ namespace net {
         virtual void on_message(const std::string &message) = 0;
 
     public:
-        wsconnection(asio::io_context &ctx) : m_ctx{ctx} {}
-
+        wsconnection() : m_work_guard(asio::make_work_guard(m_ctx.get_executor())) {}
         virtual ~wsconnection() = default;
             
         void connect(const std::string &url);
         
         void disconnect();
+
+        asio::io_context::executor_type get_executor() {
+            return m_ctx.get_executor();
+        }
+
+        void poll();
 
         void push_message(const std::string &message);
     };

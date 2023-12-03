@@ -21,7 +21,7 @@ static constexpr std::chrono::seconds accept_timeout{5};
 
 class client_manager : private net::wsconnection {
 public:
-    client_manager(sdl::window &window, sdl::renderer &renderer, asio::io_context &ctx, const std::filesystem::path &base_path);
+    client_manager(sdl::window &window, sdl::renderer &renderer, const std::filesystem::path &base_path);
     ~client_manager();
 
     void refresh_layout();
@@ -125,12 +125,10 @@ private:
     int m_lobby_owner_id = 0;
 
 private:
-    asio::io_context &m_ctx;
-
     std::atomic<bool> m_connection_open = false;
     std::atomic<bool> m_connection_closed = false;
 
-    asio::basic_waitable_timer<std::chrono::system_clock> m_accept_timer;
+    std::optional<duration_type> m_accept_timer;
 
     std::unique_ptr<TinyProcessLib::Process> m_listenserver;
     std::thread m_listenserver_thread;

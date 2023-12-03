@@ -75,6 +75,10 @@ void wsconnection::disconnect() {
     }, m_client);
 }
 
+void wsconnection::poll() {
+    m_ctx.poll();
+}
+
 void wsconnection::push_message(const std::string &message) {
     std::error_code ec;
     std::visit(overloaded{

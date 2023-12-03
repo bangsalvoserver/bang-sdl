@@ -47,10 +47,7 @@ extern "C" BANGCLIENT_EXPORT long STDCALL entrypoint(const char *base_path) {
         media_pak resources{base_path, renderer};
         SDL_SetWindowIcon(window.get(), media_pak::get().icon_bang.get());
 
-        asio::io_context ctx;
-        auto work_guard = asio::make_work_guard(ctx.get_executor());
-
-        client_manager mgr{window, renderer, ctx, base_path};
+        client_manager mgr{window, renderer, base_path};
 
         sdl::event event;
         bool quit = false;
@@ -79,8 +76,6 @@ extern "C" BANGCLIENT_EXPORT long STDCALL entrypoint(const char *base_path) {
                     break;
                 }
             }
-
-            ctx.poll();
 
             auto next_tick = clock::now();
             mgr.tick(next_tick - last_tick);
