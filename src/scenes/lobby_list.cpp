@@ -32,7 +32,7 @@ void lobby_line::render(sdl::renderer &renderer) {
     m_join_btn.render(renderer);
 }
 
-lobby_list_scene::lobby_list_scene(client_manager *parent)
+lobby_list_scene::lobby_list_scene(client_manager *parent, const std::vector<lobby_data> &lobbies)
     : scene_base(parent)
     , m_make_lobby_btn(_("BUTTON_MAKE_LOBBY"), [this]{ do_make_lobby(); })
     , m_disconnect_btn(_("BUTTON_DISCONNECT"), [parent]{
@@ -41,7 +41,10 @@ lobby_list_scene::lobby_list_scene(client_manager *parent)
 {
     m_lobby_name_box.set_value(parent->get_config().lobby_name);
     m_lobby_name_box.set_onenter([this](const std::string &value){ do_make_lobby(); });
-    parent->add_message<banggame::client_message_type::lobby_list>();
+
+    for (const lobby_data &lobby : lobbies) {
+        m_lobby_lines.emplace_back(this, lobby);
+    }
 }
 
 void lobby_list_scene::refresh_layout() {

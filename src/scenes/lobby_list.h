@@ -30,7 +30,7 @@ class lobby_list_scene : public scene_base,
 public message_handler<banggame::server_message_type::lobby_update>,
 public message_handler<banggame::server_message_type::lobby_removed> {
 public:
-    lobby_list_scene(client_manager *parent);
+    lobby_list_scene(client_manager *parent, const std::vector<banggame::lobby_data> &lobbies);
 
     void refresh_layout() override;
     void tick(duration_type time_elapsed) override;

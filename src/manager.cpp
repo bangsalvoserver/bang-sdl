@@ -263,7 +263,7 @@ void client_manager::client_accepted(const client_accepted_args &args, const std
     m_accept_timer.reset();
     m_users.clear();
     m_config.user_id = args.user_id;
-    switch_scene<lobby_list_scene>();
+    switch_scene<lobby_list_scene>(m_lobbies);
 }
 
 void client_manager::handle_message(SRV_TAG(lobby_error), const std::string &message) {
@@ -288,10 +288,26 @@ void client_manager::handle_message(SRV_TAG(lobby_add_user), const user_info_id_
 void client_manager::handle_message(SRV_TAG(lobby_remove_user), const user_id_args &args) {
     if (args.user_id == get_user_own_id()) {
         m_users.clear();
-        switch_scene<lobby_list_scene>();
+        switch_scene<lobby_list_scene>(m_lobbies);
     } else if (auto it = m_users.find(args.user_id); it != m_users.end()) {
         add_chat_message(message_type::server_log, _("GAME_USER_DISCONNECTED", it->second.name));
         m_users.erase(it);
+    }
+}
+
+void client_manager::handle_message(SRV_TAG(lobby_update), const lobby_data &args) {
+    auto it = std::ranges::find(m_lobbies, args.lobby_id, &lobby_data::lobby_id);
+    if (it == m_lobbies.end()) {
+        m_lobbies.emplace_back(args);
+    } else {
+        *it = args;
+    }
+}
+
+void client_manager::handle_message(SRV_TAG(lobby_removed), const lobby_id_args &args) {
+    auto it = std::ranges::find(m_lobbies, args.lobby_id, &lobby_data::lobby_id);
+    if (it != m_lobbies.end()) {
+        m_lobbies.erase(it);
     }
 }
 

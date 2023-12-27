@@ -108,6 +108,8 @@ private:
     void handle_message(SRV_TAG(lobby_entered), const banggame::lobby_entered_args &args);
     void handle_message(SRV_TAG(lobby_add_user), const banggame::user_info_id_args &args);
     void handle_message(SRV_TAG(lobby_remove_user), const banggame::user_id_args &args);
+    void handle_message(SRV_TAG(lobby_update), const banggame::lobby_data &args);
+    void handle_message(SRV_TAG(lobby_removed), const banggame::lobby_id_args &args);
     void handle_message(SRV_TAG(lobby_chat), const banggame::lobby_chat_args &args);
     void handle_message(SRV_TAG(game_started));
 
@@ -134,6 +136,7 @@ private:
     std::thread m_listenserver_thread;
 
     std::map<int, banggame::user_info> m_users;
+    std::vector<banggame::lobby_data> m_lobbies;
     friend struct bang_connection;
 };
 
