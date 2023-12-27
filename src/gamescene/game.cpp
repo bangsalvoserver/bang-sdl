@@ -266,9 +266,7 @@ void game_scene::handle_message(SRV_TAG(game_update), const json::json &update) 
 }
 
 void game_scene::handle_message(SRV_TAG(lobby_owner), const user_id_args &args) {
-    if (has_game_flags(game_flags::game_over)) {
-        m_ui.enable_golobby(parent->get_user_own_id() == args.user_id);
-    }
+    m_ui.enable_golobby(parent->get_user_own_id() == args.user_id);
 }
 
 void game_scene::handle_message(SRV_TAG(lobby_error), const std::string &message) {
