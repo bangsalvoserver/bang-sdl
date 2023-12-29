@@ -279,9 +279,14 @@ void client_manager::handle_message(SRV_TAG(lobby_owner), const user_id_args &ar
 }
 
 void client_manager::handle_message(SRV_TAG(lobby_add_user), const user_info_id_args &args) {
-    auto [it, inserted] = m_users.insert_or_assign(args.user_id, args.user);
-    if (inserted && !args.is_read) {
-        add_chat_message(message_type::server_log, _("GAME_USER_CONNECTED", args.user.name));
+    auto it = std::ranges::find(m_users, args.user_id, &id_user_info_pair::first);
+    if (it == m_users.end()) {
+        m_users.emplace_back(args.user_id, args.user);
+        if (!args.is_read && args.user_id >= 0) {
+            add_chat_message(message_type::server_log, _("GAME_USER_CONNECTED", args.user.name));
+        }
+    } else {
+        *it = id_user_info_pair{ args.user_id, args.user };
     }
 }
 
@@ -289,8 +294,10 @@ void client_manager::handle_message(SRV_TAG(lobby_remove_user), const user_id_ar
     if (args.user_id == get_user_own_id()) {
         m_users.clear();
         switch_scene<lobby_list_scene>(m_lobbies);
-    } else if (auto it = m_users.find(args.user_id); it != m_users.end()) {
-        add_chat_message(message_type::server_log, _("GAME_USER_DISCONNECTED", it->second.name));
+    } else if (auto it = std::ranges::find(m_users, args.user_id, &id_user_info_pair::first); it != m_users.end()) {
+        if (args.user_id >= 0) {
+            add_chat_message(message_type::server_log, _("GAME_USER_DISCONNECTED", it->second.name));
+        }
         m_users.erase(it);
     }
 }
@@ -313,7 +320,7 @@ void client_manager::handle_message(SRV_TAG(lobby_removed), const lobby_id_args 
 
 void client_manager::handle_message(SRV_TAG(lobby_chat), const lobby_chat_args &args) {
     if (!args.is_read) {
-        if (banggame::user_info *info = get_user_info(args.user_id)) {
+        if (const banggame::user_info *info = get_user_info(args.user_id)) {
             add_chat_message(message_type::chat, fmt::format("{}: {}", info->name, args.message));
         } else {
             add_chat_message(message_type::chat, args.message);

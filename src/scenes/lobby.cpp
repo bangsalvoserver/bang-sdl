@@ -58,19 +58,20 @@ void lobby_scene::lobby_player_item::render(sdl::renderer &renderer) {
 using box_vector = std::vector<std::unique_ptr<option_input_box_base>>;
 
 template<size_t I>
-static void add_box(box_vector &vector, lobby_scene *parent, banggame::game_options &options) {
+static void add_box(box_vector &vector, lobby_scene *parent, banggame::game_options &options, bool is_owner) {
     auto field_data = reflector::get_field_data<I>(options);
     auto &field = field_data.get();
     using box_type = option_input_box<std::remove_reference_t<decltype(field)>>;
     if constexpr (requires (std::string label) { box_type{parent, label, field}; }) {
-        vector.emplace_back(std::make_unique<box_type>(parent,
+        auto &box = vector.emplace_back(std::make_unique<box_type>(parent,
             _(fmt::format("game_options::{}", field_data.name())), field));
+        box->set_locked(!is_owner);
     }
 }
 
 template<size_t ... Is>
-static void add_boxes(box_vector &vector, lobby_scene *parent, banggame::game_options &options, std::index_sequence<Is...>) {
-    (add_box<Is>(vector, parent, options), ...);
+static void add_boxes(box_vector &vector, lobby_scene *parent, banggame::game_options &options, bool is_owner, std::index_sequence<Is...>) {
+    (add_box<Is>(vector, parent, options, is_owner), ...);
 }
 
 lobby_scene::lobby_scene(client_manager *parent, const lobby_entered_args &args)
@@ -83,7 +84,13 @@ lobby_scene::lobby_scene(client_manager *parent, const lobby_entered_args &args)
     , m_chat_btn(_("BUTTON_CHAT"), [parent]{ parent->enable_chat(); })
     , m_lobby_options(args.options)
 {
-    add_boxes(m_option_boxes, this, m_lobby_options, std::make_index_sequence<reflector::num_fields<banggame::game_options>>());
+    bool is_owner = parent->get_lobby_owner_id() == parent->get_user_own_id();
+    m_start_btn.set_enabled(is_owner);
+
+    add_boxes(m_option_boxes, this, m_lobby_options, is_owner, std::make_index_sequence<reflector::num_fields<banggame::game_options>>());
+    for (const auto &[id, user] : parent->get_users()) {
+        m_player_list.emplace_back(this, id, user);
+    }
 }
 
 void lobby_scene::handle_message(SRV_TAG(lobby_edited), const lobby_info &info) {

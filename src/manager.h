@@ -19,6 +19,7 @@
 
 static constexpr std::chrono::seconds accept_timeout{5};
 
+using id_user_info_pair = std::pair<int, banggame::user_info>;
 class client_manager : private net::wsconnection {
 public:
     client_manager(sdl::window &window, sdl::renderer &renderer, const std::filesystem::path &base_path);
@@ -79,9 +80,12 @@ public:
     void start_listenserver();
     void stop_listenserver();
 
-    banggame::user_info *get_user_info(int id) {
-        auto it = m_users.find(id);
-        if (it != m_users.end()) {
+    const std::vector<id_user_info_pair> &get_users() const {
+        return m_users;
+    }
+
+    const banggame::user_info *get_user_info(int id) const {
+        if (auto it = std::ranges::find(m_users, id, &id_user_info_pair::first); it != m_users.end()) {
             return &it->second;
         } else {
             return nullptr;
@@ -135,7 +139,7 @@ private:
     std::unique_ptr<TinyProcessLib::Process> m_listenserver;
     std::thread m_listenserver_thread;
 
-    std::map<int, banggame::user_info> m_users;
+    std::vector<id_user_info_pair> m_users;
     std::vector<banggame::lobby_data> m_lobbies;
     friend struct bang_connection;
 };
