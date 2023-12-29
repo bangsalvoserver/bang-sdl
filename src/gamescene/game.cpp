@@ -20,7 +20,7 @@ game_scene::game_scene(client_manager *parent)
     if (parent->get_config().sound_volume > 0) {
         m_sounds.emplace(parent->get_base_path());
     }
-    m_ui.enable_golobby(false);
+    m_ui.enable_golobby(parent->get_user_own_id() == parent->get_lobby_owner_id());
 }
 
 void game_scene::refresh_layout() {
@@ -706,7 +706,6 @@ void game_scene::handle_game_update(UPD_TAG(game_flags), const game_flags &args)
     if (has_game_flags(game_flags::game_over)) {
         m_target.clear_status();
         m_ui.set_status(_("STATUS_GAME_OVER"));
-        handle_message(SRV_TAG(lobby_owner){}, {parent->get_lobby_owner_id()});
     }
 }
 
