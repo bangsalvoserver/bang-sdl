@@ -192,7 +192,7 @@ bool target_finder::is_card_clickable() const {
 const card_modifier_tree &target_finder::get_current_tree() const {
     const card_modifier_tree *tree = &m_play_cards;
     for (const auto &[mod_card, targets] : m_modifiers) {
-        if (auto it = std::ranges::find(*tree, mod_card, &card_modifier_node::card); it != tree->end()) {
+        if (auto it = rn::find(*tree, mod_card, &card_modifier_node::card); it != tree->end()) {
             tree = &it->branches;
         } else {
             throw std::runtime_error("Cannot find modifier card");
@@ -202,16 +202,16 @@ const card_modifier_tree &target_finder::get_current_tree() const {
 }
 
 bool target_finder::can_play_card(card_view *target_card) const {
-    return ranges::contains(get_current_tree(), target_card, &card_modifier_node::card);
+    return rn::contains(get_current_tree(), target_card, &card_modifier_node::card);
 }
 
 bool target_finder::can_pick_card(pocket_type pocket, player_view *player, card_view *card) const {
     switch (pocket) {
     case pocket_type::main_deck:
     case pocket_type::discard_pile:
-        return ranges::contains(m_pick_cards, pocket, [](card_view *c) { return c->pocket->type; });
+        return rn::contains(m_pick_cards, pocket, [](card_view *c) { return c->pocket->type; });
     default:
-        return ranges::contains(m_pick_cards, card);
+        return rn::contains(m_pick_cards, card);
     }
 }
 
@@ -300,7 +300,7 @@ bool target_finder::on_click_player(player_view *player) {
             if (vec.empty()) {
                 if (is_valid_target(target_player_filter::notself | target_player_filter::reachable, player)) {
                     m_targetable_borders.clear();
-                    for (player_view *p : m_game->m_alive_players | std::views::filter(targetable_for_adjacent_players(player))) {
+                    for (player_view *p : m_game->m_alive_players | rv::filter(targetable_for_adjacent_players(player))) {
                         m_targetable_borders.emplace_back(p, game_style::targetable);
                     }
 
@@ -325,8 +325,8 @@ int target_finder::calc_distance(player_view *from, player_view *to) const {
         return 1;
     }
 
-    auto from_it = std::ranges::find(m_game->m_alive_players, from);
-    auto to_it = std::ranges::find(m_game->m_alive_players, to);
+    auto from_it = rn::find(m_game->m_alive_players, from);
+    auto to_it = rn::find(m_game->m_alive_players, to);
 
     int count_cw = 0;
     int count_ccw = 0;
@@ -350,7 +350,7 @@ int target_finder::calc_distance(player_view *from, player_view *to) const {
     }
 
     int distance_mod = 0;
-    auto it = std::ranges::find(m_distances.distances, to, &player_distance_item::player);
+    auto it = rn::find(m_distances.distances, to, &player_distance_item::player);
     if (it != m_distances.distances.end()) {
         distance_mod = it->distance;
     }
@@ -363,7 +363,7 @@ struct targetable_for_cards_other_player {
 
     bool operator()(player_view *target) const {
         return target != origin && target != skipped_player && target->alive()
-            && (!target->hand.empty() || std::ranges::any_of(target->table, std::not_fn(&card_view::is_black)));
+            && (!target->hand.empty() || rn::any_of(target->table, std::not_fn(&card_view::is_black)));
     }
 };
 
@@ -378,15 +378,15 @@ void target_finder::handle_auto_targets() {
     bool auto_confirmable = false;
     if (can_confirm()) {
         if (current_card->has_tag(tag_type::auto_confirm)) {
-            auto_confirmable = std::ranges::any_of(optionals, [&](const effect_holder &holder) {
+            auto_confirmable = rn::any_of(optionals, [&](const effect_holder &holder) {
                 return holder.target == target_type::player
-                    && std::ranges::none_of(m_game->m_alive_players, make_target_check(holder.player_filter));
+                    && rn::none_of(m_game->m_alive_players, make_target_check(holder.player_filter));
             });
         } else if (current_card->has_tag(tag_type::auto_confirm_red_ringo)) {
             auto_confirmable = current_card->cubes.size() <= 1
-                || ranges::accumulate(m_game->m_player_self->table
-                    | ranges::views::filter(&card_view::is_orange)
-                    | ranges::views::transform([](const card_view *card) {
+                || rn::accumulate(m_game->m_player_self->table
+                    | rv::filter(&card_view::is_orange)
+                    | rv::transform([](const card_view *card) {
                         return 4 - int(card->cubes.size());
                     }), 0) <= 1;
         } else if (repeatable && *repeatable) {
@@ -424,7 +424,7 @@ void target_finder::handle_auto_targets() {
             targets.emplace_back(enums::enum_tag<target_type::none>);
             break;
         case target_type::conditional_player:
-            if (std::ranges::none_of(m_game->m_alive_players, make_target_check(effect_it->player_filter))) {
+            if (rn::none_of(m_game->m_alive_players, make_target_check(effect_it->player_filter))) {
                 targets.emplace_back(enums::enum_tag<target_type::conditional_player>);
                 break;
             }
@@ -439,7 +439,7 @@ void target_finder::handle_auto_targets() {
         case target_type::adjacent_players:
             for (player_view *p : m_game->m_alive_players) {
                 if (is_valid_target(target_player_filter::reachable | target_player_filter::notself, p)
-                    && std::ranges::any_of(m_game->m_alive_players, targetable_for_adjacent_players(p)))
+                    && rn::any_of(m_game->m_alive_players, targetable_for_adjacent_players(p)))
                 {
                     m_targetable_borders.emplace_back(p, game_style::targetable);
                 }
@@ -453,12 +453,12 @@ void target_finder::handle_auto_targets() {
             [[fallthrough]];
         case target_type::card:
         case target_type::cards:
-            for (card_view *c : ranges::views::concat(
+            for (card_view *c : rv::concat(
                 m_game->m_alive_players
-                    | ranges::views::filter(make_target_check(effect_it->player_filter))
-                    | ranges::views::for_each([&](player_view *p) {
-                        return ranges::views::concat(p->hand, p->table)
-                            | ranges::views::filter(make_target_check(effect_it->card_filter));
+                    | rv::filter(make_target_check(effect_it->player_filter))
+                    | rv::for_each([&](player_view *p) {
+                        return rv::concat(p->hand, p->table)
+                            | rv::filter(make_target_check(effect_it->card_filter));
                     }),
                 m_game->m_selection
             )) {
@@ -467,11 +467,11 @@ void target_finder::handle_auto_targets() {
             return;
         case target_type::cards_other_players:
             if (auto targetable = m_game->m_alive_players
-                | ranges::views::filter(targetable_for_cards_other_player{m_game->m_player_self, m_context.skipped_player}))
+                | rv::filter(targetable_for_cards_other_player{m_game->m_player_self, m_context.skipped_player}))
             {
-                for (card_view *c : targetable | ranges::views::for_each([&](player_view *p) {
-                    return ranges::views::concat(
-                        p->table | ranges::views::remove_if(&card_view::is_black),
+                for (card_view *c : targetable | rv::for_each([&](player_view *p) {
+                    return rv::concat(
+                        p->table | rv::remove_if(&card_view::is_black),
                         p->hand
                     );
                 })) {
@@ -486,13 +486,13 @@ void target_finder::handle_auto_targets() {
             targets.emplace_back(enums::enum_tag<target_type::players>);
             break;
         case target_type::select_cubes:
-            for (card_view *c : ranges::views::concat(
+            for (card_view *c : rv::concat(
                 m_game->m_player_self->table,
-                m_game->m_player_self->m_characters | ranges::views::take(1)
+                m_game->m_player_self->m_characters | rv::take(1)
             )) {
                 if (!c->cubes.empty()) {
                     for (auto &cube : c->cubes
-                        | std::views::take(int(c->cubes.size()) - count_selected_cubes(c)))
+                        | rv::take(int(c->cubes.size()) - count_selected_cubes(c)))
                     {
                         m_targetable_borders.emplace_back(cube.get(), game_style::targetable);
                     }
@@ -521,9 +521,9 @@ template<typename T> struct contains_element {
         return value == other;
     }
 
-    template<std::ranges::range R> requires std::invocable<contains_element<T>, std::ranges::range_value_t<R>>
+    template<rn::range R> requires std::invocable<contains_element<T>, rn::range_value_t<R>>
     bool operator()(R &&range) const {
-        return std::ranges::any_of(std::forward<R>(range), *this);
+        return rn::any_of(std::forward<R>(range), *this);
     }
 
     template<enums::is_enum_variant U>
@@ -535,10 +535,10 @@ template<typename T> struct contains_element {
 template<typename T> contains_element(const T &) -> contains_element<T>;
 
 inline auto all_targets(const target_status &value) {
-    return ranges::views::concat(
-        ranges::views::all(value.m_targets),
-        ranges::views::for_each(value.m_modifiers, &modifier_pair::targets),
-        ranges::views::transform(value.m_modifiers, [](const modifier_pair &pair) {
+    return rv::concat(
+        rv::all(value.m_targets),
+        rv::for_each(value.m_modifiers, &modifier_pair::targets),
+        rv::transform(value.m_modifiers, [](const modifier_pair &pair) {
             return play_card_target{enums::enum_tag<target_type::card>, pair.card};
         })
     );
@@ -608,12 +608,12 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
         if (index >= targets.size()) {
             targets.emplace_back(enums::enum_tag<target_type::cards_other_players>);
             targets.back().get<target_type::cards_other_players>().reserve(
-                std::ranges::count_if(m_game->m_alive_players,
+                rn::count_if(m_game->m_alive_players,
                 targetable_for_cards_other_player{m_game->m_player_self, m_context.skipped_player}));
         }
         if (auto &vec = targets.back().get<target_type::cards_other_players>();
             !card->is_black() && player != m_game->m_player_self && player != m_context.skipped_player
-            && !ranges::contains(vec, player, [](card_view *card) { return card->pocket->owner; }))
+            && !rn::contains(vec, player, [](card_view *card) { return card->pocket->owner; }))
         {
             if (player != m_game->m_player_self && card->pocket == &player->hand) {
                 for (card_view *hand_card : player->hand) {
@@ -651,7 +651,7 @@ int target_finder::count_selected_cubes(card_view *target_card) {
     auto do_count = [&](card_view *card, const target_list &targets) {
         for (const auto &[target, effect] : zip_card_targets(targets, card, m_response)) {
             if (const std::vector<card_view *> *val = target.get_if<target_type::select_cubes>()) {
-                selected += int(std::ranges::count(*val, target_card));
+                selected += int(rn::count(*val, target_card));
             } else if (target.is(target_type::self_cubes)) {
                 if (card == target_card) {
                     selected += effect.target_value;

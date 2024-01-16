@@ -146,7 +146,7 @@ void connect_scene::do_reset_server_list() {
 }
 
 void connect_scene::do_delete_address(recent_server_line *addr) {
-    auto it = std::ranges::find(m_recents, addr, [](const auto &obj) { return &obj; });
+    auto it = rn::find(m_recents, addr, [](const auto &obj) { return &obj; });
     auto &servers = parent->get_config().recent_servers;
     servers.erase(servers.begin() + std::distance(m_recents.begin(), it));
     m_recents.erase(it);

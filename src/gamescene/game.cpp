@@ -157,7 +157,7 @@ void game_scene::handle_event(const sdl::event &event) {
         switch (event.button.button) {
         case SDL_BUTTON_LEFT:
             if (m_target.is_card_clickable()) {
-                if (std::ranges::none_of(m_alive_players, [&](player_view *p) {
+                if (rn::none_of(m_alive_players, [&](player_view *p) {
                     return sdl::point_in_rect(m_mouse_pt, p->m_bounding_rect)
                         && m_target.on_click_player(p);
                 })) {
@@ -200,7 +200,7 @@ void game_scene::handle_event(const sdl::event &event) {
 }
 
 std::tuple<pocket_type, player_view *, card_view *> game_scene::find_card_at(sdl::point pt) const {
-    for (player_view *p : m_dead_players | std::views::reverse) {
+    for (player_view *p : m_dead_players | rv::reverse) {
         if (sdl::point_in_rect(pt, p->m_role.get_rect())) {
             return {pocket_type::none, p, &p->m_role};
         }
@@ -211,7 +211,7 @@ std::tuple<pocket_type, player_view *, card_view *> game_scene::find_card_at(sdl
     if (card_view *card = m_selection.find_card_at(pt)) {
         return {pocket_type::selection, nullptr, card};
     }
-    for (player_view *p : m_alive_players | std::views::reverse) {
+    for (player_view *p : m_alive_players | rv::reverse) {
         if (card_view *card = p->hand.find_card_at(pt)) {
             return {pocket_type::player_hand, p, card};
         }
@@ -594,7 +594,7 @@ void game_scene::handle_game_update(UPD_TAG(player_add), const player_add_update
         });
 #endif
 
-        std::ranges::rotate(m_alive_players, std::ranges::find(m_alive_players, m_player_self));
+        rn::rotate(m_alive_players, rn::find(m_alive_players, m_player_self));
     }
     
     move_player_views();
@@ -606,9 +606,9 @@ void game_scene::handle_game_update(UPD_TAG(player_order), const player_order_up
 
     auto rotate_to = [&](player_view *p) {
         if (!p) return false;
-        auto it = std::ranges::find(m_alive_players, p);
+        auto it = rn::find(m_alive_players, p);
         if (it != m_alive_players.end()) {
-            std::ranges::rotate(m_alive_players, it);
+            rn::rotate(m_alive_players, it);
             return true;
         }
         return false;
@@ -620,7 +620,7 @@ void game_scene::handle_game_update(UPD_TAG(player_order), const player_order_up
 }
 
 void game_scene::handle_message(SRV_TAG(lobby_add_user), const user_info_id_args &args) {
-    auto it = std::ranges::find(m_context.players, args.user_id, &player_view::user_id);
+    auto it = rn::find(m_context.players, args.user_id, &player_view::user_id);
     if (it != m_context.players.end()) {
         it->set_user_info(parent->get_user_info(args.user_id));
         it->set_position(it->get_position());
@@ -628,7 +628,7 @@ void game_scene::handle_message(SRV_TAG(lobby_add_user), const user_info_id_args
 }
 
 void game_scene::handle_message(SRV_TAG(lobby_remove_user), const user_id_args &args) {
-    auto it = std::ranges::find(m_context.players, args.user_id, &player_view::user_id);
+    auto it = rn::find(m_context.players, args.user_id, &player_view::user_id);
     if (it != m_context.players.end()) {
         it->set_user_info(nullptr);
         it->set_position(it->get_position());
@@ -664,7 +664,7 @@ void game_scene::handle_game_update(UPD_TAG(player_flags), const player_flags_up
     args.player->m_player_flags = args.flags;
 
     if (bool(args.flags & player_flags::removed)) {
-        auto it = std::ranges::find(m_alive_players, args.player);
+        auto it = rn::find(m_alive_players, args.player);
         if (it != m_alive_players.end()) {
             m_alive_players.erase(it);
 

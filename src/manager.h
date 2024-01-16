@@ -85,7 +85,7 @@ public:
     }
 
     const banggame::user_info *get_user_info(int id) const {
-        if (auto it = std::ranges::find(m_users, id, &id_user_info_pair::first); it != m_users.end()) {
+        if (auto it = rn::find(m_users, id, &id_user_info_pair::first); it != m_users.end()) {
             return &it->second;
         } else {
             return nullptr;

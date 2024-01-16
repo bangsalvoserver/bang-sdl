@@ -98,7 +98,7 @@ namespace banggame {
         } else if (colon_index != std::string_view::npos) {
             image = image.substr(0, colon_index);
         }
-        if (ranges::contains(image, '/')) {
+        if (rn::contains(image, '/')) {
             return std::string(image);
         } else {
             return fmt::format("{}/{}", enums::to_string(deck), image);
@@ -255,7 +255,7 @@ namespace banggame {
     }
 
     void pocket_view_base::erase_card(card_view *card) {
-        if (auto it = std::ranges::find(*this, card); it != end()) {
+        if (auto it = rn::find(*this, card); it != end()) {
             m_cards.erase(it);
         }
     }
@@ -265,10 +265,11 @@ namespace banggame {
     }
 
     card_view *pocket_view_base::find_card_at(sdl::point point) const {
-        auto it = std::ranges::find_if(*this | std::views::reverse, [&](card_view *card) {
+        auto range = *this | rv::reverse;
+        auto it = rn::find_if(range, [&](card_view *card) {
             return sdl::point_in_rect(point, card->get_rect());
         });
-        return (it == rend()) ? nullptr : *it;
+        return (it == range.end()) ? nullptr : *it;
     }
 
     void pocket_view_base::render(sdl::renderer &renderer) {
@@ -278,7 +279,7 @@ namespace banggame {
     }
 
     void pocket_view_base::render_first(sdl::renderer &renderer, int ncards) {
-        for (card_view *c : *this | std::views::take(ncards)) {
+        for (card_view *c : *this | rv::take(ncards)) {
             c->render(renderer);
         }
     }
@@ -286,8 +287,8 @@ namespace banggame {
     void pocket_view_base::render_last(sdl::renderer &renderer, int ncards) {
         if (!empty()) {
             for (card_view *c : *this
-                | ranges::views::take_last(ncards)
-                | ranges::views::drop_last(1)
+                | rv::take_last(ncards)
+                | rv::drop_last(1)
             ) {
                 c->render(renderer, render_flags::no_draw_border);
             }
@@ -330,7 +331,7 @@ namespace banggame {
 
     sdl::point card_choice_pocket::get_offset(card_view *card) const {
         const float xoffset = float(options.card_width + options.card_choice_xoffset);
-        const int diff = int(std::ranges::distance(begin(), std::ranges::find(*this, card)));
+        const int diff = int(rn::distance(begin(), rn::find(*this, card)));
         return sdl::point{(int)(xoffset * (diff - (size() - 1) * .5f)), options.card_choice_yoffset};
     }
 
@@ -355,7 +356,7 @@ namespace banggame {
             return {0, 0};
         }
         const float xoffset = std::min(float(width) / (size() - 1), float(options.card_width + options.card_pocket_xoff));
-        const int diff = int(std::ranges::distance(begin(), std::ranges::find(*this, card)));
+        const int diff = int(rn::distance(begin(), rn::find(*this, card)));
         return sdl::point{(int)(xoffset * (diff - (size() - 1) * .5f)), 0};
     }
 
@@ -365,7 +366,7 @@ namespace banggame {
     }
 
     sdl::point train_pocket::get_offset(card_view *card) const {
-        const sdl::point diff = options.train_card_offset * int(std::ranges::distance(begin(), std::ranges::find(*this, card)));
+        const sdl::point diff = options.train_card_offset * int(rn::distance(begin(), rn::find(*this, card)));
         if (type == pocket_type::train) {
             return -diff;
         } else {
@@ -374,7 +375,7 @@ namespace banggame {
     }
 
     sdl::point character_pile::get_offset(card_view *card) const {
-        int diff = int(std::ranges::distance(begin(), std::ranges::find(*this, card)));
+        int diff = int(rn::distance(begin(), rn::find(*this, card)));
         return options.card_diag_offset * diff;
     }
 
@@ -394,7 +395,7 @@ namespace banggame {
     }
 
     sdl::point card_cube_pile::get_offset(cube_widget *cube) const {
-        int diff = int(std::ranges::distance(begin(), std::ranges::find(*this, cube, &std::unique_ptr<cube_widget>::get)));
+        int diff = int(rn::distance(begin(), rn::find(*this, cube, &std::unique_ptr<cube_widget>::get)));
         return sdl::point{options.cube_xdiff, options.cube_ydiff + options.cube_yoff * diff};
     }
 

@@ -30,13 +30,13 @@ namespace banggame::filters::detail {
     }
 
     int count_player_table_cards(player_view *origin) {
-        return int(std::ranges::count_if(origin->table, std::not_fn(&card_view::is_black)));
+        return int(rn::count_if(origin->table, std::not_fn(&card_view::is_black)));
     }
 
     int count_player_cubes(player_view *origin) {
-        return ranges::accumulate(
-            ranges::views::concat(origin->table, origin->m_characters)
-            | ranges::views::transform([](card_view *card) { return card->cubes.size(); }),
+        return rn::accumulate(
+            rv::concat(origin->table, origin->m_characters)
+            | rv::transform([](card_view *card) { return card->cubes.size(); }),
             0
         );
     }

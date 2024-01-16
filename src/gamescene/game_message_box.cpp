@@ -27,8 +27,8 @@ namespace banggame {
 
         constexpr int button_offset = 10;
 
-        int tot_width = -button_offset + ranges::accumulate(m_buttons
-            | ranges::views::transform([](const widgets::button &btn) {
+        int tot_width = -button_offset + rn::accumulate(m_buttons
+            | rv::transform([](const widgets::button &btn) {
                 return btn.get_rect().w + button_offset;
             }), 0);
         int x = (win_rect.w - tot_width) / 2;

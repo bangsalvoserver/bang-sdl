@@ -7,6 +7,8 @@
 #include <algorithm>
 #include <functional>
 
+#include "utils/utils.h"
+
 namespace widgets {
 
     using button_callback_fun = std::function<void()>;
@@ -32,7 +34,7 @@ namespace widgets {
             if (focused()) {
                 set_focus(nullptr);
             }
-            s_handlers.erase(std::ranges::find(s_handlers, this));
+            s_handlers.erase(rn::find(s_handlers, this));
         }
 
         event_handler(const event_handler &) = delete;

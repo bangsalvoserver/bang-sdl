@@ -90,7 +90,7 @@ void lobby_list_scene::do_make_lobby() {
 }
 
 void lobby_list_scene::handle_message(SRV_TAG(lobby_update), const lobby_data &args) {
-    auto it = std::ranges::find(m_lobby_lines, args.lobby_id, &lobby_line::lobby_id);
+    auto it = rn::find(m_lobby_lines, args.lobby_id, &lobby_line::lobby_id);
     if (it == m_lobby_lines.end()) {
         m_lobby_lines.emplace_back(this, args);
     } else {
@@ -100,7 +100,7 @@ void lobby_list_scene::handle_message(SRV_TAG(lobby_update), const lobby_data &a
 }
 
 void lobby_list_scene::handle_message(SRV_TAG(lobby_removed), const lobby_id_args &args) {
-    auto it = std::ranges::find(m_lobby_lines, args.lobby_id, &lobby_line::lobby_id);
+    auto it = rn::find(m_lobby_lines, args.lobby_id, &lobby_line::lobby_id);
     if (it != m_lobby_lines.end()) {
         m_lobby_lines.erase(it);
     }

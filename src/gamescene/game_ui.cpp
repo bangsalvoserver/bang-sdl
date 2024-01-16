@@ -74,10 +74,10 @@ void button_row_pocket::set_pos(const sdl::point &pos) {
 
     constexpr int button_offset = 10;
 
-    int tot_width = std::transform_reduce(m_buttons.begin(), m_buttons.end(), -button_offset, std::plus(),
-        [](const widgets::button &btn) {
+    int tot_width = rn::accumulate(m_buttons 
+        | rv::transform([](const widgets::button &btn) {
             return btn.get_rect().w + button_offset;
-        });
+        }), -button_offset);
     int x = pos.x - tot_width / 2;
 
     for (auto &btn : m_buttons) {

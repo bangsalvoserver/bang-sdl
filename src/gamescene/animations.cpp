@@ -32,7 +32,7 @@ namespace banggame {
     }
 
     void card_move_animation::add_move_card(card_view *card) {
-        if (std::ranges::find(data, card, &decltype(data)::value_type::first) == data.end()) {
+        if (rn::find(data, card, &decltype(data)::value_type::first) == data.end()) {
             data.emplace_back(card, card->get_pos());
         }
     }
@@ -101,11 +101,11 @@ namespace banggame {
     }
 
     void deck_shuffle_animation::render(sdl::renderer &renderer) {
-        auto first_card = std::ranges::find_if(*cards, [](card_view *card) { return card->flip_amt <= 0.5f; });
-        for (card_view *card : std::ranges::subrange(first_card, cards->end()) | std::views::reverse) {
+        auto first_card = rn::find_if(*cards, [](card_view *card) { return card->flip_amt <= 0.5f; });
+        for (card_view *card : rn::subrange(first_card, cards->end()) | rv::reverse) {
             card->render(renderer, render_flags::no_skip_animating);
         }
-        for (card_view *card : std::ranges::subrange(cards->begin(), first_card)) {
+        for (card_view *card : rn::subrange(cards->begin(), first_card)) {
             card->render(renderer, render_flags::no_skip_animating);
         }
     }

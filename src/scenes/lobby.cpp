@@ -174,7 +174,7 @@ void lobby_scene::handle_event(const sdl::event &event) {
 
 void lobby_scene::handle_message(SRV_TAG(lobby_add_user), const user_info_id_args &args) {
     if (const banggame::user_info *user = parent->get_user_info(args.user_id)) {
-        if (auto it = std::ranges::find(m_player_list, args.user_id, &lobby_player_item::user_id); it != m_player_list.end()) {
+        if (auto it = rn::find(m_player_list, args.user_id, &lobby_player_item::user_id); it != m_player_list.end()) {
             *it = lobby_player_item(this, args.user_id, *user);
         } else {
             m_player_list.emplace_back(this, args.user_id, *user);
@@ -184,7 +184,7 @@ void lobby_scene::handle_message(SRV_TAG(lobby_add_user), const user_info_id_arg
 }
 
 void lobby_scene::handle_message(SRV_TAG(lobby_remove_user), const user_id_args &args) {
-    auto it = std::ranges::find(m_player_list, args.user_id, &lobby_player_item::user_id);
+    auto it = rn::find(m_player_list, args.user_id, &lobby_player_item::user_id);
     if (it != m_player_list.end()) {
         m_player_list.erase(it);
     }

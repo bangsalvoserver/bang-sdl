@@ -257,7 +257,7 @@ void client_manager::handle_message(SRV_TAG(ping)) {
 }
 
 void client_manager::client_accepted(const client_accepted_args &args, const std::string &address) {
-    if (!address.empty() && !ranges::contains(m_config.recent_servers, address)) {
+    if (!address.empty() && !rn::contains(m_config.recent_servers, address)) {
         m_config.recent_servers.push_back(address);
     }
     m_accept_timer.reset();
@@ -279,7 +279,7 @@ void client_manager::handle_message(SRV_TAG(lobby_owner), const user_id_args &ar
 }
 
 void client_manager::handle_message(SRV_TAG(lobby_add_user), const user_info_id_args &args) {
-    auto it = std::ranges::find(m_users, args.user_id, &id_user_info_pair::first);
+    auto it = rn::find(m_users, args.user_id, &id_user_info_pair::first);
     if (it == m_users.end()) {
         m_users.emplace_back(args.user_id, args.user);
         if (!args.is_read && args.user_id >= 0) {
@@ -294,7 +294,7 @@ void client_manager::handle_message(SRV_TAG(lobby_remove_user), const user_id_ar
     if (args.user_id == get_user_own_id()) {
         m_users.clear();
         switch_scene<lobby_list_scene>(m_lobbies);
-    } else if (auto it = std::ranges::find(m_users, args.user_id, &id_user_info_pair::first); it != m_users.end()) {
+    } else if (auto it = rn::find(m_users, args.user_id, &id_user_info_pair::first); it != m_users.end()) {
         if (args.user_id >= 0) {
             add_chat_message(message_type::server_log, _("GAME_USER_DISCONNECTED", it->second.name));
         }
@@ -303,7 +303,7 @@ void client_manager::handle_message(SRV_TAG(lobby_remove_user), const user_id_ar
 }
 
 void client_manager::handle_message(SRV_TAG(lobby_update), const lobby_data &args) {
-    auto it = std::ranges::find(m_lobbies, args.lobby_id, &lobby_data::lobby_id);
+    auto it = rn::find(m_lobbies, args.lobby_id, &lobby_data::lobby_id);
     if (it == m_lobbies.end()) {
         m_lobbies.emplace_back(args);
     } else {
@@ -312,7 +312,7 @@ void client_manager::handle_message(SRV_TAG(lobby_update), const lobby_data &arg
 }
 
 void client_manager::handle_message(SRV_TAG(lobby_removed), const lobby_id_args &args) {
-    auto it = std::ranges::find(m_lobbies, args.lobby_id, &lobby_data::lobby_id);
+    auto it = rn::find(m_lobbies, args.lobby_id, &lobby_data::lobby_id);
     if (it != m_lobbies.end()) {
         m_lobbies.erase(it);
     }
