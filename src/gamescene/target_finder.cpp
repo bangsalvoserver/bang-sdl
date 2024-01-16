@@ -373,7 +373,7 @@ void target_finder::handle_auto_targets() {
     auto &targets = get_current_target_list();
 
     auto &optionals = current_card->optionals;
-    auto repeatable = current_card->get_tag_value(tag_type::repeatable);
+    bool repeatable = current_card->has_tag(tag_type::repeatable);
 
     bool auto_confirmable = false;
     if (can_confirm()) {
@@ -389,8 +389,6 @@ void target_finder::handle_auto_targets() {
                     | rv::transform([](const card_view *card) {
                         return 4 - int(card->cubes.size());
                     }), 0) <= 1;
-        } else if (repeatable && *repeatable) {
-            auto_confirmable = targets.size() - effects.size() == optionals.size() * *repeatable;
         }
     }
     
@@ -453,6 +451,7 @@ void target_finder::handle_auto_targets() {
             [[fallthrough]];
         case target_type::card:
         case target_type::cards:
+        case target_type::max_cards:
             for (card_view *c : rv::concat(
                 m_game->m_alive_players
                     | rv::filter(make_target_check(effect_it->player_filter))
@@ -574,6 +573,7 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
     case target_type::card:
     case target_type::extra_card:
     case target_type::cards:
+    case target_type::max_cards:
         if ((!player || is_valid_target(cur_target.player_filter, player)) && is_valid_target(cur_target.card_filter, card)) {
             if (player && player != m_game->m_player_self && card->pocket == &player->hand) {
                 for (card_view *hand_card : player->hand) {
@@ -591,13 +591,34 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
             } else if (cur_target.target == target_type::extra_card) {
                 targets.emplace_back(enums::enum_tag<target_type::extra_card>, card);
                 handle_auto_targets();
-            } else {
+            } else if (cur_target.target == target_type::cards) {
                 if (index >= targets.size()) {
                     targets.emplace_back(enums::enum_tag<target_type::cards>);
                     targets.back().get<target_type::cards>().reserve(std::max<int>(1, cur_target.target_value));
                 }
                 auto &vec = targets.back().get<target_type::cards>();
                 vec.push_back(card);
+                if (vec.size() == vec.capacity()) {
+                    handle_auto_targets();
+                }
+            } else {
+                if (index >= targets.size()) {
+                    targets.emplace_back(enums::enum_tag<target_type::max_cards>);
+                    targets.back().get<target_type::max_cards>().reserve(std::max<int>(1, cur_target.target_value));
+                }
+                auto &vec = targets.back().get<target_type::max_cards>();
+                vec.push_back(card);
+
+                if (rn::none_of(m_game->m_alive_players
+                    | rv::filter(make_target_check(cur_target.player_filter))
+                    | rv::for_each([](player_view *p) {
+                        return rv::concat(p->hand, p->table);
+                    }), make_target_check(cur_target.card_filter)))
+                {
+                    // HACK: you should be able to manually confirm half way
+                    vec.shrink_to_fit();
+                }
+
                 if (vec.size() == vec.capacity()) {
                     handle_auto_targets();
                 }
