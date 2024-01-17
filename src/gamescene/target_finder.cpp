@@ -173,6 +173,11 @@ bool target_finder::can_confirm() const {
         const size_t neffects = current_card->get_effect_list(m_response).size();
         const size_t noptionals = current_card->optionals.size();
         const auto &targets = get_current_target_list();
+
+        if (!targets.empty() && targets.back().is(target_type::max_cards)) {
+            return true;
+        }
+
         return noptionals != 0
             && targets.size() >= neffects
             && ((targets.size() - neffects) % noptionals == 0);
