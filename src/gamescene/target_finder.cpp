@@ -185,6 +185,19 @@ bool target_finder::can_confirm() const {
     return false;
 }
 
+bool target_finder::finalize_last_target() {
+    if (m_mode == target_mode::target || m_mode == target_mode::modifier) {
+        auto &targets = get_current_target_list();
+        if (!targets.empty()) {
+            if (auto *last_target = targets.back().get_if<target_type::max_cards>()) {
+                last_target->shrink_to_fit();
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 bool target_finder::is_card_clickable() const {
     return m_game->m_player_self
         && !m_game->has_game_flags(game_flags::game_over)
@@ -222,7 +235,11 @@ bool target_finder::can_pick_card(pocket_type pocket, player_view *player, card_
 
 void target_finder::on_click_card(pocket_type pocket, player_view *player, card_view *card) {
     if (card && card->has_tag(tag_type::confirm) && can_confirm()) {
-        send_play_card();
+        if (finalize_last_target()) {
+            handle_auto_targets();
+        } else {
+            send_play_card();
+        }
     } else if (m_mode == target_mode::target || m_mode == target_mode::modifier) {
         switch (pocket) {
         case pocket_type::player_character:
@@ -609,20 +626,17 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
             } else {
                 if (index >= targets.size()) {
                     targets.emplace_back(enums::enum_tag<target_type::max_cards>);
-                    targets.back().get<target_type::max_cards>().reserve(std::max<int>(1, cur_target.target_value));
+                    targets.back().get<target_type::max_cards>().reserve(std::min<int>(cur_target.target_value,
+                        rn::count_if(m_game->m_alive_players
+                            | rv::filter(make_target_check(cur_target.player_filter))
+                            | rv::for_each([](player_view *p) {
+                                return rv::concat(p->hand, p->table);
+                            }),
+                            make_target_check(cur_target.card_filter)
+                    )));
                 }
                 auto &vec = targets.back().get<target_type::max_cards>();
                 vec.push_back(card);
-
-                if (rn::none_of(m_game->m_alive_players
-                    | rv::filter(make_target_check(cur_target.player_filter))
-                    | rv::for_each([](player_view *p) {
-                        return rv::concat(p->hand, p->table);
-                    }), make_target_check(cur_target.card_filter)))
-                {
-                    // HACK: you should be able to manually confirm half way
-                    vec.shrink_to_fit();
-                }
 
                 if (vec.size() == vec.capacity()) {
                     handle_auto_targets();

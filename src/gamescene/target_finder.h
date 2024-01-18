@@ -89,6 +89,7 @@ namespace banggame {
 
         const card_modifier_tree &get_current_tree() const;
         bool can_play_card(card_view *card) const;
+        bool finalize_last_target();
 
         void add_modifier_context(card_view *mod_card, player_view *target_player, card_view *target_card);
 
