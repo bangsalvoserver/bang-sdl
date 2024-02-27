@@ -590,12 +590,8 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
     auto &targets = get_current_target_list();
     int index = get_target_index(targets);
     auto cur_target = get_effect_holder(current_card->get_effect_list(m_response), current_card->optionals, index);
-    
-    switch (cur_target.target) {
-    case target_type::card:
-    case target_type::extra_card:
-    case target_type::cards:
-    case target_type::max_cards:
+
+    auto check_player_target = [&]{
         if ((!player || is_valid_target(cur_target.player_filter, player)) && is_valid_target(cur_target.card_filter, card)) {
             if (player && player != m_game->m_player_self && card->pocket == &player->hand) {
                 for (card_view *hand_card : player->hand) {
@@ -604,43 +600,61 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
             } else {
                 m_target_borders.emplace_back(card, game_style::selected_target);
             }
-            if (cur_target.target == target_type::card) {
-                targets.emplace_back(enums::enum_tag<target_type::card>, card);
-                if (m_mode == target_mode::modifier && cur_target.type == effect_type::ctx_add) {
-                    add_modifier_context(current_card, nullptr, card);
-                }
+            return true;
+        }
+        return false;
+    };
+    
+    switch (cur_target.target) {
+    case target_type::card:
+        if (check_player_target()) {
+            targets.emplace_back(enums::enum_tag<target_type::card>, card);
+            if (m_mode == target_mode::modifier && cur_target.type == effect_type::ctx_add) {
+                add_modifier_context(current_card, nullptr, card);
+            }
+            handle_auto_targets();
+        }
+        break;
+    case target_type::extra_card:
+        if (check_player_target()) {
+            targets.emplace_back(enums::enum_tag<target_type::extra_card>, card);
+            handle_auto_targets();
+        }
+        break;
+    case target_type::cards:
+        if (check_player_target()) {
+            if (index >= targets.size()) {
+                targets.emplace_back(enums::enum_tag<target_type::cards>);
+                targets.back().get<target_type::cards>().reserve(std::max<int>(1, cur_target.target_value));
+            }
+            auto &vec = targets.back().get<target_type::cards>();
+            vec.push_back(card);
+            if (vec.size() == vec.capacity()) {
                 handle_auto_targets();
-            } else if (cur_target.target == target_type::extra_card) {
-                targets.emplace_back(enums::enum_tag<target_type::extra_card>, card);
-                handle_auto_targets();
-            } else if (cur_target.target == target_type::cards) {
-                if (index >= targets.size()) {
-                    targets.emplace_back(enums::enum_tag<target_type::cards>);
-                    targets.back().get<target_type::cards>().reserve(std::max<int>(1, cur_target.target_value));
+            }
+        }
+        break;
+    case target_type::max_cards:
+        if (check_player_target()) {
+            if (index >= targets.size()) {
+                targets.emplace_back(enums::enum_tag<target_type::max_cards>);
+                size_t count_cards = rn::count_if(m_game->m_alive_players
+                    | rv::filter(make_target_check(cur_target.player_filter))
+                    | rv::for_each([](player_view *p) {
+                        return rv::concat(p->hand, p->table);
+                    }),
+                    make_target_check(cur_target.card_filter));
+                
+                if (cur_target.target_value != 0 && cur_target.target_value < count_cards) {
+                    count_cards = cur_target.target_value;
                 }
-                auto &vec = targets.back().get<target_type::cards>();
-                vec.push_back(card);
-                if (vec.size() == vec.capacity()) {
-                    handle_auto_targets();
-                }
-            } else {
-                if (index >= targets.size()) {
-                    targets.emplace_back(enums::enum_tag<target_type::max_cards>);
-                    targets.back().get<target_type::max_cards>().reserve(std::min<int>(cur_target.target_value,
-                        rn::count_if(m_game->m_alive_players
-                            | rv::filter(make_target_check(cur_target.player_filter))
-                            | rv::for_each([](player_view *p) {
-                                return rv::concat(p->hand, p->table);
-                            }),
-                            make_target_check(cur_target.card_filter)
-                    )));
-                }
-                auto &vec = targets.back().get<target_type::max_cards>();
-                vec.push_back(card);
+                targets.back().get<target_type::max_cards>().reserve(count_cards);
+            }
+            auto &vec = targets.back().get<target_type::max_cards>();
+            vec.push_back(card);
 
-                if (vec.size() == vec.capacity()) {
-                    handle_auto_targets();
-                }
+            if (vec.size() == vec.capacity()) {
+                handle_auto_targets();
             }
         }
         break;
