@@ -119,6 +119,8 @@ namespace banggame {
 
         void send_pick_card(pocket_type pocket, player_view *player, card_view *card);
         void send_play_card();
+        
+        void send_game_action(const game_action &action);
 
         player_target_check make_target_check(target_player_filter filter) const;
         card_target_check make_target_check(target_card_filter filter) const;
@@ -134,9 +136,6 @@ namespace banggame {
         
     private:
         game_scene *m_game;
-
-        template<game_action_type T, typename ... Ts>
-        void add_action(Ts && ... args);
     };
 
 }

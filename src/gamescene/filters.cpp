@@ -81,4 +81,8 @@ namespace banggame::filters::detail {
     target_list get_request_target_set(player_view *origin) {
         return origin->m_game->get_target_finder().get_request_status().m_request_target_set;
     }
+
+    bool can_pick_card(player_view *origin, card_view *target) {
+        return rn::contains(origin->m_game->get_target_finder().get_request_status().m_pick_cards, target);
+    }
 }

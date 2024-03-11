@@ -93,11 +93,6 @@ void target_finder::select_equip_card(card_view *card) {
     }
 }
 
-template<game_action_type T>
-void target_finder::add_action(auto && ... args) {
-    m_game->parent->add_message<banggame::client_message_type::game_action>(json::serialize(banggame::game_action{enums::enum_tag<T>, FWD(args) ...}, m_game->context()));
-}
-
 void target_finder::set_request_borders() {
     m_request_borders.clear();
 
@@ -761,13 +756,18 @@ void target_finder::add_modifier_context(card_view *mod_card, player_view *targe
     }
 }
 
+
+void target_finder::send_game_action(const game_action &action) {
+    m_game->parent->add_message<banggame::client_message_type::game_action>(json::serialize(action, m_game->context()));
+}
+
 void target_finder::send_play_card() {
     if (m_mode == target_mode::modifier) {
         m_mode = target_mode::start;
         add_modifier_context(m_modifiers.back().card, nullptr, nullptr);
     } else {
         m_mode = target_mode::finish;
-        add_action<game_action_type::play_card>(m_playing_card, m_modifiers, m_targets, m_game->manager()->get_config().bypass_prompt, get_timer_id());
+        send_game_action({ m_playing_card, m_modifiers, m_targets, m_game->manager()->get_config().bypass_prompt, get_timer_id() });
     }
 }
 
@@ -778,7 +778,11 @@ void target_finder::send_pick_card(pocket_type pocket, player_view *player, card
     }
     if (card) {
         m_target_borders.emplace_back(card, game_style::picked);
-        add_action<game_action_type::pick_card>(card, m_game->manager()->get_config().bypass_prompt, get_timer_id());
+        card_view *origin_card = rn::find_if(m_play_cards, [](const card_modifier_node &node) {
+            return node.card->has_tag(tag_type::pick);
+        })->card;
+        m_targets.emplace_back(enums::enum_tag<target_type::card>, card);
+        send_game_action({ origin_card, m_modifiers, m_targets, m_game->manager()->get_config().bypass_prompt, get_timer_id() });
         m_mode = target_mode::finish;
         m_picked_card = card;
     }
@@ -787,9 +791,9 @@ void target_finder::send_pick_card(pocket_type pocket, player_view *player, card
 void target_finder::send_prompt_response(bool response) {
     if (response) {
         if (m_picked_card) {
-            add_action<game_action_type::pick_card>(m_picked_card, true, get_timer_id());
+            send_pick_card(m_picked_card->pocket->type, nullptr, m_picked_card);
         } else {
-            add_action<game_action_type::play_card>(m_playing_card, m_modifiers, m_targets, true, get_timer_id());
+            send_game_action({m_playing_card, m_modifiers, m_targets, true, get_timer_id()});
         }
     } else {
         clear_targets();
