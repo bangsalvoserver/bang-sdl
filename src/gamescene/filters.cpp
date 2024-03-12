@@ -45,6 +45,13 @@ namespace banggame::filters::detail {
         return origin->m_game->get_target_finder().calc_distance(origin, target);
     }
 
+    const player_view *get_card_owner(card_view *target) {
+        if (target->pocket) {
+            return target->pocket->owner;
+        }
+        return nullptr;
+    }
+
     card_sign get_card_sign(card_view *target) {
         return target->sign;
     }
