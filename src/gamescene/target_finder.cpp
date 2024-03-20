@@ -298,9 +298,6 @@ bool target_finder::on_click_player(player_view *player) {
             if (is_valid_target(cur_target.player_filter, player)) {
                 if (cur_target.target == target_type::player) {
                     targets.emplace_back(enums::enum_tag<target_type::player>, player);
-                    if (m_mode == target_mode::modifier && cur_target.type == effect_type::ctx_add) {
-                        add_modifier_context(current_card, player, nullptr);
-                    }
                 } else {
                     targets.emplace_back(enums::enum_tag<target_type::conditional_player>, player);
                 }
@@ -604,9 +601,6 @@ void target_finder::add_card_target(player_view *player, card_view *card) {
     case target_type::card:
         if (check_player_target()) {
             targets.emplace_back(enums::enum_tag<target_type::card>, card);
-            if (m_mode == target_mode::modifier && cur_target.type == effect_type::ctx_add) {
-                add_modifier_context(current_card, nullptr, card);
-            }
             handle_auto_targets();
         }
         break;
@@ -730,7 +724,7 @@ bool target_finder::add_selected_cube(card_view *card, int ncubes) {
     return true;
 }
 
-void target_finder::add_modifier_context(card_view *mod_card, player_view *target_player, card_view *target_card) {
+void target_finder::add_modifier_context(card_view *mod_card) {
     switch (mod_card->modifier.type) {
     case modifier_type::belltower:
         m_context.ignore_distances = true;
@@ -749,8 +743,10 @@ void target_finder::add_modifier_context(card_view *mod_card, player_view *targe
         }
         break;
     case modifier_type::sgt_blaze:
-        if (target_player) {
-            m_context.skipped_player = target_player;
+        for (const auto &[target, effect] : zip_card_targets(m_modifiers.back().targets, mod_card, m_response)) {
+            if (effect.type == effect_type::skip_player && target.is(target_type::player)) {
+                m_context.skipped_player = target.get<target_type::player>();
+            }
         }
         break;
     }
@@ -764,7 +760,7 @@ void target_finder::send_game_action(const game_action &action) {
 void target_finder::send_play_card() {
     if (m_mode == target_mode::modifier) {
         m_mode = target_mode::start;
-        add_modifier_context(m_modifiers.back().card, nullptr, nullptr);
+        add_modifier_context(m_modifiers.back().card);
     } else {
         m_mode = target_mode::finish;
         send_game_action({ m_playing_card, m_modifiers, m_targets, m_game->manager()->get_config().bypass_prompt, get_timer_id() });

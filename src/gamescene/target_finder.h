@@ -91,7 +91,7 @@ namespace banggame {
         bool can_play_card(card_view *card) const;
         bool finalize_last_target();
 
-        void add_modifier_context(card_view *mod_card, player_view *target_player, card_view *target_card);
+        void add_modifier_context(card_view *mod_card);
 
         bool can_pick_card(pocket_type pocket, player_view *player, card_view *card) const;
 
