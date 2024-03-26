@@ -30,7 +30,6 @@ connect_scene::connect_scene(client_manager *parent)
     , m_connect_btn(_("BUTTON_CONNECT"), [this]{
         do_connect(m_address_box.get_value());
     })
-    , m_reset_servers_btn(_("BUTTON_RESET_SERVERS"), [this]{ do_reset_server_list(); })
 {
     m_username_box.set_value(parent->get_config().user_name);
     m_address_box.set_onenter([this](const std::string &value){
@@ -97,8 +96,6 @@ void connect_scene::refresh_layout() {
         m_create_server_btn->set_rect(sdl::rect{(win_rect.w - 200) / 2, rect.y, 200, 25});
         rect.y += 35;
     }
-
-    m_reset_servers_btn.set_rect(sdl::rect{(win_rect.w - 200) / 2, rect.y, 200, 25});
 }
 
 void connect_scene::tick(duration_type time_elapsed) {
@@ -121,7 +118,6 @@ void connect_scene::render(sdl::renderer &renderer) {
     if (m_create_server_btn) {
         m_create_server_btn->render(renderer);
     }
-    m_reset_servers_btn.render(renderer);
 }
 
 void connect_scene::do_connect(const std::string &address) {
@@ -131,18 +127,6 @@ void connect_scene::do_connect(const std::string &address) {
         parent->get_config().user_name = m_username_box.get_value();
         parent->connect(address);
     }
-}
-
-void connect_scene::do_reset_server_list() {
-    auto &recent_servers = parent->get_config().recent_servers;
-    recent_servers = config::default_server_list();
-    
-    m_recents.clear();
-    for (const auto &obj : recent_servers) {
-        m_recents.emplace_back(this, obj);
-    }
-
-    refresh_layout();
 }
 
 void connect_scene::do_delete_address(recent_server_line *addr) {

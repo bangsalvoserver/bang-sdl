@@ -50,13 +50,12 @@ jobs:
         -DCMAKE_CXX_COMPILER=g++
         -DBUILD_LAUNCHER=OFF
         -DBUILD_GAME_RELEASE=ON
-        -DOFFICIAL_BANG_SERVER=${{vars.OFFICIAL_BANG_SERVER}}
         -G Ninja
       
     - name: Build
       shell: msys2 {0}
       working-directory: ${{github.workspace}}
-      run: cmake --build build --config ${{env.BUILD_TYPE}} --target bangclient
+      run: cmake --build build --config ${{env.BUILD_TYPE}}
 
     - name: Prepare bang.zip
       shell: msys2 {0}
@@ -64,7 +63,7 @@ jobs:
       run: |
         mkdir -p bang
         ldd build/libbangclient.dll | grep -i -v /c/windows/ | gawk 'match($0, /=> (.+\.dll)/, a) { print a[1]}' | xargs cp -n -t bang
-        cp -t bang build/libbangclient.dll build/media.pak build/sounds.pak
+        cp -t bang build/libbangclient.dll build/bangserver.exe  build/media.pak build/sounds.pak
         zip -r bang.zip bang
     
     - name: Create Release

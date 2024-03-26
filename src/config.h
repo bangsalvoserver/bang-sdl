@@ -13,7 +13,7 @@
 #include "cards/card_enums.h"
 
 DEFINE_STRUCT(config,
-    (std::vector<std::string>, recent_servers, default_server_list())
+    (std::vector<std::string>, recent_servers)
     (std::string, user_name)
     (std::string, profile_image)
     (sdl::surface, profile_image_data)
@@ -26,8 +26,6 @@ DEFINE_STRUCT(config,
     (bool, server_enable_cheats)
     (bool, server_verbose)
     (int, user_id),
-
-    static std::vector<std::string> default_server_list();
     
     void load();
     void save();
