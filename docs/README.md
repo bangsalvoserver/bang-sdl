@@ -8,7 +8,7 @@ It's currently only working on windows
 
 A server is up right now 24/7, everyone is welcome to try!
 
-[Download](https://github.com/salvoilmiosi/bang-launcher/releases/download/v3.4/banglauncher.exe)
+[Download](https://github.com/salvoilmiosi/bang-launcher/releases/download/v3.5/banglauncher.exe)
 
 ![Game Screenshot](game.webp)
 
