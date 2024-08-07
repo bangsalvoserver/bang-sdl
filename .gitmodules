@@ -1,9 +1,9 @@
 [submodule "banggameserver"]
 	path = game
-	url = https://github.com/salvoilmiosi/banggameserver
+	url = https://github.com/bangsalvoserver/bang-server
 [submodule "resources/cards"]
 	path = resources/cards
-	url = http://github.com/salvoilmiosi/bang-cards
+	url = http://github.com/bangsalvoserver/bang-cards
 [submodule "external/tiny-process-library"]
 	path = external/tiny-process-library
 	url = https://gitlab.com/eidheim/tiny-process-library
