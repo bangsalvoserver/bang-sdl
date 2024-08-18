@@ -15,8 +15,6 @@
 
 #include "net/messages.h"
 
-#include <process.hpp>
-
 static constexpr std::chrono::seconds accept_timeout{5};
 
 using id_user_info_pair = std::pair<int, banggame::user_info>;
@@ -38,7 +36,6 @@ public:
     }
 
     void connect(const std::string &host);
-    void disconnect();
 
     template<std::derived_from<scene_base> T>
     void switch_scene(auto && ... args) {
@@ -75,11 +72,6 @@ public:
 
     void client_accepted(const banggame::client_accepted_args &args, const std::string &address);
 
-    std::filesystem::path get_listenserver_path() const;
-    bool is_listenserver_present() const;
-    void start_listenserver();
-    void stop_listenserver();
-
     const std::vector<id_user_info_pair> &get_users() const {
         return m_users;
     }
@@ -106,16 +98,16 @@ protected:
     void on_message(const std::string &msg) override;
 
 private:
-    void handle_message(SRV_TAG(ping));
-    void handle_message(SRV_TAG(lobby_error), const std::string &message);
-    void handle_message(SRV_TAG(lobby_owner), const banggame::user_id_args &args);
-    void handle_message(SRV_TAG(lobby_entered), const banggame::lobby_entered_args &args);
-    void handle_message(SRV_TAG(lobby_add_user), const banggame::user_info_id_args &args);
-    void handle_message(SRV_TAG(lobby_remove_user), const banggame::user_id_args &args);
-    void handle_message(SRV_TAG(lobby_update), const banggame::lobby_data &args);
-    void handle_message(SRV_TAG(lobby_removed), const banggame::lobby_id_args &args);
-    void handle_message(SRV_TAG(lobby_chat), const banggame::lobby_chat_args &args);
-    void handle_message(SRV_TAG(game_started));
+    void handle_message(TAG(ping));
+    void handle_message(TAG(lobby_error), const std::string &message);
+    void handle_message(TAG(lobby_owner), const banggame::user_id_args &args);
+    void handle_message(TAG(lobby_entered), const banggame::lobby_entered_args &args);
+    void handle_message(TAG(lobby_add_user), const banggame::user_info_id_args &args);
+    void handle_message(TAG(lobby_remove_user), const banggame::user_id_args &args);
+    void handle_message(TAG(lobby_update), const banggame::lobby_data &args);
+    void handle_message(TAG(lobby_removed), const banggame::lobby_id_args &args);
+    void handle_message(TAG(lobby_chat), const banggame::lobby_chat_args &args);
+    void handle_message(TAG(game_started));
 
 private:
     sdl::window &m_window;
@@ -135,9 +127,6 @@ private:
     std::atomic<bool> m_connection_closed = false;
 
     std::optional<duration_type> m_accept_timer;
-
-    std::unique_ptr<TinyProcessLib::Process> m_listenserver;
-    std::thread m_listenserver_thread;
 
     std::vector<id_user_info_pair> m_users;
     std::vector<banggame::lobby_data> m_lobbies;

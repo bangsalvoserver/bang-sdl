@@ -14,7 +14,7 @@ lobby_line::lobby_line(lobby_list_scene *parent, const lobby_data &args)
 
 void lobby_line::handle_update(const lobby_data &args) {
     m_name_text.set_value(args.name);
-    m_players_text.set_value(fmt::format("{}/{}", args.num_players, banggame::lobby_max_players));
+    m_players_text.set_value(std::format("{}/{}", args.num_players, banggame::lobby_max_players));
     m_state_text.set_value(_(args.state));
 }
 
@@ -89,7 +89,7 @@ void lobby_list_scene::do_make_lobby() {
     }
 }
 
-void lobby_list_scene::handle_message(SRV_TAG(lobby_update), const lobby_data &args) {
+void lobby_list_scene::handle_message(TAG(lobby_update), const lobby_data &args) {
     auto it = rn::find(m_lobby_lines, args.lobby_id, &lobby_line::lobby_id);
     if (it == m_lobby_lines.end()) {
         m_lobby_lines.emplace_back(this, args);
@@ -99,7 +99,7 @@ void lobby_list_scene::handle_message(SRV_TAG(lobby_update), const lobby_data &a
     refresh_layout();
 }
 
-void lobby_list_scene::handle_message(SRV_TAG(lobby_removed), const lobby_id_args &args) {
+void lobby_list_scene::handle_message(TAG(lobby_removed), const lobby_id_args &args) {
     auto it = rn::find(m_lobby_lines, args.lobby_id, &lobby_line::lobby_id);
     if (it != m_lobby_lines.end()) {
         m_lobby_lines.erase(it);

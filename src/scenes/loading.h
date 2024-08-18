@@ -4,11 +4,11 @@
 #include "scene_base.h"
 
 class loading_scene : public scene_base,
-public message_handler<banggame::server_message_type::client_accepted> {
+public message_handler<"client_accepted"> {
 public:
     loading_scene(client_manager *parent, const std::string &text, const std::string &address = "");
     
-    void handle_message(SRV_TAG(client_accepted), const banggame::client_accepted_args &args) override;
+    void handle_message(TAG(client_accepted), const banggame::client_accepted_args &args) override;
 
 public:
     void refresh_layout() override;

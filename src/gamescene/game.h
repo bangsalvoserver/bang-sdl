@@ -7,10 +7,8 @@
 #include "animation.h"
 #include "game_ui.h"
 
-#include "target_finder.h"
-
 #include "utils/id_map.h"
-#include "utils/utils.h"
+#include "utils/misc.h"
 
 #include <deque>
 #include <random>
@@ -26,23 +24,23 @@ namespace banggame {
             if (auto it = cards.find(id); it != cards.end()) {
                 return &*it;
             }
-            throw std::runtime_error(fmt::format("client.find_card: ID {} not found", id));
+            throw std::runtime_error(std::format("client.find_card: ID {} not found", id));
         }
 
         player_view *find_player(int id) const {
             if (auto it = players.find(id); it != players.end()) {
                 return &*it;
             }
-            throw std::runtime_error(fmt::format("client.find_player: ID {} not found", id));
+            throw std::runtime_error(std::format("client.find_player: ID {} not found", id));
         }
     };
 
     class game_scene : public scene_base,
-    public message_handler<server_message_type::game_update>,
-    public message_handler<server_message_type::lobby_owner>,
-    public message_handler<server_message_type::lobby_error>,
-    public message_handler<server_message_type::lobby_add_user>,
-    public message_handler<server_message_type::lobby_remove_user> {
+    public message_handler<"game_update">,
+    public message_handler<"lobby_owner">,
+    public message_handler<"lobby_error">,
+    public message_handler<"lobby_add_user">,
+    public message_handler<"lobby_remove_user"> {
     public:
         game_scene(client_manager *parent);
         
@@ -53,18 +51,14 @@ namespace banggame {
 
         void play_sound(std::string_view sound_id);
 
-        void handle_message(SRV_TAG(game_update), const json::json &update) override;
-        void handle_message(SRV_TAG(lobby_owner), const user_id_args &args) override;
-        void handle_message(SRV_TAG(lobby_error), const std::string &message) override;
-        void handle_message(SRV_TAG(lobby_add_user), const user_info_id_args &args) override;
-        void handle_message(SRV_TAG(lobby_remove_user), const user_id_args &args) override;
+        void handle_message(TAG(game_update), const json::json &update) override;
+        void handle_message(TAG(lobby_owner), const user_id_args &args) override;
+        void handle_message(TAG(lobby_error), const std::string &message) override;
+        void handle_message(TAG(lobby_add_user), const user_info_id_args &args) override;
+        void handle_message(TAG(lobby_remove_user), const user_id_args &args) override;
 
         const game_context_view &context() const {
             return m_context;
-        }
-
-        const target_finder &get_target_finder() const {
-            return m_target;
         }
 
         bool has_game_flags(game_flags flags) const {
@@ -72,34 +66,34 @@ namespace banggame {
         }
 
     private:
-        void handle_game_update(UPD_TAG(game_error),       const game_string &args);
-        void handle_game_update(UPD_TAG(game_log),         const game_string &args);
-        void handle_game_update(UPD_TAG(game_prompt),      const game_string &args);
-        void handle_game_update(UPD_TAG(add_cards),        const add_cards_update &args);
-        void handle_game_update(UPD_TAG(remove_cards),     const remove_cards_update &args);
-        void handle_game_update(UPD_TAG(move_card),        const move_card_update &args);
-        void handle_game_update(UPD_TAG(add_cubes),        const add_cubes_update &args);
-        void handle_game_update(UPD_TAG(move_cubes),       const move_cubes_update &args);
-        void handle_game_update(UPD_TAG(move_train),       const move_train_update &args);
-        void handle_game_update(UPD_TAG(deck_shuffled),    const deck_shuffled_update &args);
-        void handle_game_update(UPD_TAG(show_card),        const show_card_update &args);
-        void handle_game_update(UPD_TAG(hide_card),        const hide_card_update &args);
-        void handle_game_update(UPD_TAG(tap_card),         const tap_card_update &args);
-        void handle_game_update(UPD_TAG(flash_card),       const flash_card_update &args);
-        void handle_game_update(UPD_TAG(short_pause),      const short_pause_update &args);
-        void handle_game_update(UPD_TAG(player_add),       const player_add_update &args);
-        void handle_game_update(UPD_TAG(player_order),     const player_order_update &args);
-        void handle_game_update(UPD_TAG(player_hp),        const player_hp_update &args);
-        void handle_game_update(UPD_TAG(player_gold),      const player_gold_update &args);
-        void handle_game_update(UPD_TAG(player_show_role), const player_show_role_update &args);
-        void handle_game_update(UPD_TAG(player_flags),     const player_flags_update &args);
-        void handle_game_update(UPD_TAG(switch_turn),      player_view *player);
-        void handle_game_update(UPD_TAG(request_status),   const request_status_args &args);
-        void handle_game_update(UPD_TAG(status_ready),     const status_ready_args &args);
-        void handle_game_update(UPD_TAG(game_flags),       const game_flags &args);
-        void handle_game_update(UPD_TAG(play_sound),       const std::string &sound_id);
-        void handle_game_update(UPD_TAG(status_clear));
-        void handle_game_update(UPD_TAG(clear_logs));
+        void handle_game_update(TAG(game_error),       const game_string &args);
+        void handle_game_update(TAG(game_log),         const game_string &args);
+        void handle_game_update(TAG(game_prompt),      const game_string &args);
+        void handle_game_update(TAG(add_cards),        const add_cards_update &args);
+        void handle_game_update(TAG(remove_cards),     const remove_cards_update &args);
+        void handle_game_update(TAG(move_card),        const move_card_update &args);
+        void handle_game_update(TAG(add_cubes),        const add_cubes_update &args);
+        void handle_game_update(TAG(move_cubes),       const move_cubes_update &args);
+        void handle_game_update(TAG(move_train),       const move_train_update &args);
+        void handle_game_update(TAG(deck_shuffled),    const deck_shuffled_update &args);
+        void handle_game_update(TAG(show_card),        const show_card_update &args);
+        void handle_game_update(TAG(hide_card),        const hide_card_update &args);
+        void handle_game_update(TAG(tap_card),         const tap_card_update &args);
+        void handle_game_update(TAG(flash_card),       const flash_card_update &args);
+        void handle_game_update(TAG(short_pause),      const short_pause_update &args);
+        void handle_game_update(TAG(player_add),       const player_add_update &args);
+        void handle_game_update(TAG(player_order),     const player_order_update &args);
+        void handle_game_update(TAG(player_hp),        const player_hp_update &args);
+        void handle_game_update(TAG(player_gold),      const player_gold_update &args);
+        void handle_game_update(TAG(player_show_role), const player_show_role_update &args);
+        void handle_game_update(TAG(player_flags),     const player_flags_update &args);
+        void handle_game_update(TAG(switch_turn),      player_view *player);
+        void handle_game_update(TAG(request_status),   const request_status_args &args);
+        void handle_game_update(TAG(status_ready),     const status_ready_args &args);
+        void handle_game_update(TAG(game_flags),       const game_flags &args);
+        void handle_game_update(TAG(play_sound),       const std::string &sound_id);
+        void handle_game_update(TAG(status_clear));
+        void handle_game_update(TAG(clear_logs));
 
         template<typename T>
         void add_animation(anim_duration_type duration, auto && ... args) {
@@ -125,7 +119,7 @@ namespace banggame {
 
         game_ui m_ui;
 
-        target_finder m_target;
+        // target_finder m_target;
 
         std::deque<json::json> m_pending_updates;
         std::deque<animation> m_animations;
@@ -175,7 +169,7 @@ namespace banggame {
         cube_pile_base &get_cube_pile(card_view *card);
 
         friend class game_ui;
-        friend class target_finder;
+        // friend class target_finder;
         friend class player_view;
         friend class button_row_pocket;
     };

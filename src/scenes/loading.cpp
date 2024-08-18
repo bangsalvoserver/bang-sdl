@@ -12,7 +12,7 @@ loading_scene::loading_scene(client_manager *parent, const std::string &text, co
     })
     , m_address(address) {}
 
-void loading_scene::handle_message(SRV_TAG(client_accepted), const banggame::client_accepted_args &args) {
+void loading_scene::handle_message(TAG(client_accepted), const banggame::client_accepted_args &args) {
     parent->client_accepted(args, m_address);
 }
 

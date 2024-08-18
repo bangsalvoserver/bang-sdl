@@ -4,7 +4,7 @@ namespace sdl {
     wav_file::wav_file(resource_view res)
         : base(Mix_LoadWAV_RW(SDL_RWFromConstMem(res.data, int(res.length)), 0)) {
         if (!*this) {
-            throw error(fmt::format("Error: cannot load wav: {}", Mix_GetError()));
+            throw error(std::format("Error: cannot load wav: {}", Mix_GetError()));
         }
     }
 }
@@ -14,7 +14,7 @@ sounds_pak::sounds_pak(const std::filesystem::path &base_path)
     , sounds_resources(sounds_pak_data)
 {   
     if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 2048) < 0) {
-        throw sdl::error(fmt::format("Error: could not initialize mixer: {}", Mix_GetError()));
+        throw sdl::error(std::format("Error: could not initialize mixer: {}", Mix_GetError()));
     }
 }
 

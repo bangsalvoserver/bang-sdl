@@ -64,7 +64,7 @@ static void add_box(box_vector &vector, lobby_scene *parent, banggame::game_opti
     using box_type = option_input_box<std::remove_reference_t<decltype(field)>>;
     if constexpr (requires (std::string label) { box_type{parent, label, field}; }) {
         auto &box = vector.emplace_back(std::make_unique<box_type>(parent,
-            _(fmt::format("game_options::{}", field_data.name())), field));
+            _(std::format("game_options::{}", field_data.name())), field));
         box->set_locked(!is_owner);
     }
 }
@@ -93,7 +93,7 @@ lobby_scene::lobby_scene(client_manager *parent, const lobby_entered_args &args)
     }
 }
 
-void lobby_scene::handle_message(SRV_TAG(lobby_edited), const lobby_info &info) {
+void lobby_scene::handle_message(TAG(lobby_edited), const lobby_info &info) {
     m_lobby_name_text.set_value(info.name);
 
     m_lobby_options = info.options;
@@ -112,7 +112,7 @@ void lobby_scene::send_lobby_edited() {
     parent->get_config().options = m_lobby_options;
 }
 
-void lobby_scene::handle_message(SRV_TAG(lobby_owner), const user_id_args &args) {
+void lobby_scene::handle_message(TAG(lobby_owner), const user_id_args &args) {
     for (auto &box : m_option_boxes) {
         box->set_locked(args.user_id != parent->get_user_own_id());
     }
@@ -172,7 +172,7 @@ void lobby_scene::handle_event(const sdl::event &event) {
     }
 }
 
-void lobby_scene::handle_message(SRV_TAG(lobby_add_user), const user_info_id_args &args) {
+void lobby_scene::handle_message(TAG(lobby_add_user), const user_info_id_args &args) {
     if (const banggame::user_info *user = parent->get_user_info(args.user_id)) {
         if (auto it = rn::find(m_player_list, args.user_id, &lobby_player_item::user_id); it != m_player_list.end()) {
             *it = lobby_player_item(this, args.user_id, *user);
@@ -183,7 +183,7 @@ void lobby_scene::handle_message(SRV_TAG(lobby_add_user), const user_info_id_arg
     }
 }
 
-void lobby_scene::handle_message(SRV_TAG(lobby_remove_user), const user_id_args &args) {
+void lobby_scene::handle_message(TAG(lobby_remove_user), const user_id_args &args) {
     auto it = rn::find(m_player_list, args.user_id, &lobby_player_item::user_id);
     if (it != m_player_list.end()) {
         m_player_list.erase(it);

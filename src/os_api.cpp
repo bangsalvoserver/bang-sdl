@@ -22,7 +22,7 @@ static std::string string_join(const std::initializer_list<std::string> &strs, s
 #include <memory>
 #include <cwchar>
 #include <array>
-#include <fmt/format.h>
+#include <format>
 
 namespace os_api {
 
@@ -56,9 +56,9 @@ std::optional<std::filesystem::path> open_file_dialog(
         using namespace std::string_view_literals;
         const std::string filter_str = string_join(fs, ";");
         if (description.empty()) {
-            filter.append(fmt::format("{0}\0{0}\0"sv, filter_str));
+            filter.append(std::format("{0}\0{0}\0"sv, filter_str));
         } else {
-            filter.append(fmt::format("{0} ({1})\0{1}\0"sv, description, filter_str));
+            filter.append(std::format("{0} ({1})\0{1}\0"sv, description, filter_str));
         }
     }
     std::wstring wfilter = utf8_to_wstring(filter);
@@ -109,7 +109,7 @@ std::optional<std::filesystem::path> open_file_dialog(
     for (const auto &[fs, description] : filters) {
         std::string str = string_join(fs, " ");
         if (!description.empty()) {
-            str = fmt::format("{0} ({1}) | {1}", description, str);
+            str = std::format("{0} ({1}) | {1}", description, str);
         }
         zenity_command << " --file-filter=" << std::quoted(str);
     }

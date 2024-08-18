@@ -88,10 +88,10 @@ extern "C" BANGCLIENT_EXPORT long STDCALL entrypoint(const char *base_path) {
         }
 
     } catch (const std::exception &error) {
-        fmt::print(stderr, "Uncaught exception: {}\n", error.what());
+        std::cerr << std::format("Uncaught exception: {}\n", error.what());
         return 1;
     } catch (...) {
-        fmt::print(stderr, "Uncaught exception\n");
+        std::cerr << "Uncaught exception\n";
         return 1;
     }
     

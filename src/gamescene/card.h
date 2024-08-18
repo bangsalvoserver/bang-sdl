@@ -1,8 +1,8 @@
 #ifndef __CLIENT_CARD_H__
 #define __CLIENT_CARD_H__
 
-#include "cards/card_enums.h"
-#include "game/game_update.h"
+// #include "cards/card_enums.h"
+#include "net/game_update.h"
 
 #include "sdl_wrap.h"
 #include "utils/unpacker.h"
@@ -35,8 +35,8 @@ namespace banggame {
 
         mutable std::map<std::string, sdl::texture, std::less<>> backfaces;
 
-        std::array<sdl::surface, enums::num_members_v<card_rank> - 1> rank_icons;
-        std::array<sdl::surface, enums::num_members_v<card_suit> - 1> suit_icons;
+        std::array<sdl::surface, enums::enum_values<card_rank>().size() - 1> rank_icons;
+        std::array<sdl::surface, enums::enum_values<card_suit>().size() - 1> suit_icons;
 
         sdl::texture_ref get_backface_texture(std::string_view name, sdl::renderer &renderer) const;
         sdl::surface apply_card_mask(const sdl::surface &source) const;
@@ -50,10 +50,12 @@ namespace banggame {
         }
     };
 
-    DEFINE_ENUM_FLAGS(render_flags,
-        (no_skip_animating)
-        (no_draw_border)
-    )
+    enum class render_flag {
+        no_skip_animating,
+        no_draw_border,
+    };
+
+    using render_flags = enums::bitset<render_flag>;
 
     class pocket_view;
     class card_view;

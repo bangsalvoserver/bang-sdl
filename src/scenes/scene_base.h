@@ -10,14 +10,14 @@
 
 class client_manager;
 
-template<banggame::server_message_type E>
+template<utils::fixed_string E> requires banggame::server_message_type<E>
 struct message_handler {
-    virtual void handle_message(enums::enum_tag_t<E>) = 0;
+    virtual void handle_message(utils::tag<E>) = 0;
 };
 
-template<banggame::server_message_type E> requires enums::value_with_type<E>
+template<utils::fixed_string E> requires banggame::server_message_type<E>
 struct message_handler<E> {
-    virtual void handle_message(enums::enum_tag_t<E>, const enums::enum_type_t<E> &args) = 0;
+    virtual void handle_message(utils::tag<E>, utils::tagged_variant_value_type<banggame::server_message, utils::tag<E>> const &args) = 0;
 };
 
 class scene_base {

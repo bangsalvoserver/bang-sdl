@@ -5,15 +5,15 @@
 #include "utils/enums.h"
 
 namespace intl {
-    DEFINE_ENUM(language,
-        (english)
-        (italian)
-    )
+    enum class language {
+        english,
+        italian,
+    };
 
-    DEFINE_ENUM(category,
-        (basic)
-        (cards)
-    )
+    enum class category {
+        basic,
+        cards,
+    };
 }
 
 #define BEGIN_LOCALE(CAT, LANG) \

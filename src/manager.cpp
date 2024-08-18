@@ -28,7 +28,6 @@ client_manager::client_manager(sdl::window &window, sdl::renderer &renderer, con
 }
 
 client_manager::~client_manager() {
-    stop_listenserver();
     m_config.save();
 }
 
@@ -63,7 +62,7 @@ void client_manager::on_message(const std::string &message) {
     try {
         auto server_msg = json::deserialize<server_message>(json::json::parse(message));
         try {
-            enums::visit_indexed([&]<server_message_type E>(enums::enum_tag_t<E> tag, auto && ... args) {
+            enums::visit_indexed([&](utils::tag_for<server_message> auto tag, auto && ... args) {
                 if constexpr (requires { handle_message(tag, args...); }) {
                     handle_message(tag, args...);
                 }
@@ -72,7 +71,7 @@ void client_manager::on_message(const std::string &message) {
                 } 
             }, server_msg);
         } catch (const std::exception &error) {
-            add_chat_message(message_type::error, fmt::format("Error: {}", error.what()));
+            add_chat_message(message_type::error, std::format("Error: {}", error.what()));
         }
     } catch (const std::exception &) {
         disconnect();
@@ -87,11 +86,6 @@ void client_manager::connect(const std::string &host) {
         net::wsconnection::connect(host);
         switch_scene<loading_scene>(_("CONNECTING_TO", host), host);
     }
-}
-
-void client_manager::disconnect() {
-    stop_listenserver();
-    net::wsconnection::disconnect();
 }
 
 void client_manager::refresh_layout() {
@@ -159,100 +153,7 @@ void client_manager::add_chat_message(message_type type, const std::string &mess
     m_chat.add_message(type, message);
 }
 
-std::filesystem::path client_manager::get_listenserver_path() const {
-    std::filesystem::path server_path = m_base_path / "bangserver";
-#ifdef _WIN32
-    server_path.replace_extension(".exe");
-#endif
-    return server_path;
-}
-
-bool client_manager::is_listenserver_present() const {
-#ifdef HAVE_GIT_VERSION
-    std::atomic<bool> result = false;
-    TinyProcessLib::Process proc(
-        fmt::format("{} --version", get_listenserver_path().string()), "",
-        [&](const char *bytes, size_t n) {
-            std::string_view str{bytes, n};
-            result.store(str.substr(0, str.find_first_of("\r\n")) == net::server_commit_hash);
-        },
-        nullptr
-    );
-    return proc.get_exit_status() == 0 && result.load();
-#else
-    return true;
-#endif
-}
-
-void client_manager::start_listenserver() {
-    switch_scene<loading_scene>(_("CREATING_SERVER"));
-    m_connection_closed = false;
-
-    if (!m_config.server_port) {
-        m_config.server_port = default_server_port;
-    }
-    m_listenserver = std::make_unique<TinyProcessLib::Process>(
-        fmt::format("{} {} {} {}",
-            get_listenserver_path().string(),
-            m_config.server_enable_cheats ? "--cheats" : "",
-            m_config.server_verbose ? "--verbose" : "",
-            m_config.server_port), "",
-        [&](const char *bytes, size_t n) {
-            std::string_view str{bytes, n};
-            while (true) {
-                size_t newline_pos = str.find_first_of("\r\n");
-                auto line = str.substr(0, newline_pos);
-                if (!line.empty()) {
-                    add_chat_message(message_type::server_log, std::string(line));
-                }
-                if (line.starts_with("Server listening")) {
-                    asio::post(get_executor(), [&]{
-                        net::wsconnection::connect(fmt::format("ws://localhost:{}", m_config.server_port));
-                    });
-                }
-                if (newline_pos == std::string_view::npos) break;
-                str = str.substr(newline_pos + 1);
-            }
-        },
-        [&, buffer = std::string()](const char *bytes, size_t n) mutable {
-            buffer.append(bytes, n);
-            while (true) {
-                size_t newline_pos = buffer.find_first_of("\r\n");
-                if (newline_pos == std::string_view::npos) break;
-                if (newline_pos) {
-                    add_chat_message(message_type::error, buffer.substr(0, newline_pos));
-                }
-                buffer.erase(0, newline_pos + 1);
-            }
-        });
-    
-    if (m_listenserver_thread.joinable()) {
-        m_listenserver_thread.join();
-    }
-    m_listenserver_thread = std::thread([&]{
-        m_listenserver->get_exit_status();
-        asio::post(get_executor(), [&]{
-            m_listenserver.reset();
-            on_close();
-        });
-    });
-}
-
-void client_manager::stop_listenserver() {
-    if (m_listenserver) {
-#ifdef _WIN32
-        m_listenserver->kill();
-#else
-        m_listenserver->signal(SIGTERM);
-#endif
-    }
-    if (m_listenserver_thread.joinable()) {
-        m_listenserver_thread.join();
-    }
-    m_listenserver.reset();
-}
-
-void client_manager::handle_message(SRV_TAG(ping)) {
+void client_manager::handle_message(TAG(ping)) {
     add_message<banggame::client_message_type::pong>();
 }
 
@@ -266,19 +167,19 @@ void client_manager::client_accepted(const client_accepted_args &args, const std
     switch_scene<lobby_list_scene>(m_lobbies);
 }
 
-void client_manager::handle_message(SRV_TAG(lobby_error), const std::string &message) {
+void client_manager::handle_message(TAG(lobby_error), const std::string &message) {
     add_chat_message(message_type::error, _(message));
 }
 
-void client_manager::handle_message(SRV_TAG(lobby_entered), const lobby_entered_args &args) {
+void client_manager::handle_message(TAG(lobby_entered), const lobby_entered_args &args) {
     switch_scene<lobby_scene>(args);
 }
 
-void client_manager::handle_message(SRV_TAG(lobby_owner), const user_id_args &args) {
+void client_manager::handle_message(TAG(lobby_owner), const user_id_args &args) {
     m_lobby_owner_id = args.user_id;
 }
 
-void client_manager::handle_message(SRV_TAG(lobby_add_user), const user_info_id_args &args) {
+void client_manager::handle_message(TAG(lobby_add_user), const user_info_id_args &args) {
     auto it = rn::find(m_users, args.user_id, &id_user_info_pair::first);
     if (it == m_users.end()) {
         m_users.emplace_back(args.user_id, args.user);
@@ -290,7 +191,7 @@ void client_manager::handle_message(SRV_TAG(lobby_add_user), const user_info_id_
     }
 }
 
-void client_manager::handle_message(SRV_TAG(lobby_remove_user), const user_id_args &args) {
+void client_manager::handle_message(TAG(lobby_remove_user), const user_id_args &args) {
     if (args.user_id == get_user_own_id()) {
         m_users.clear();
         switch_scene<lobby_list_scene>(m_lobbies);
@@ -302,7 +203,7 @@ void client_manager::handle_message(SRV_TAG(lobby_remove_user), const user_id_ar
     }
 }
 
-void client_manager::handle_message(SRV_TAG(lobby_update), const lobby_data &args) {
+void client_manager::handle_message(TAG(lobby_update), const lobby_data &args) {
     auto it = rn::find(m_lobbies, args.lobby_id, &lobby_data::lobby_id);
     if (it == m_lobbies.end()) {
         m_lobbies.emplace_back(args);
@@ -311,24 +212,24 @@ void client_manager::handle_message(SRV_TAG(lobby_update), const lobby_data &arg
     }
 }
 
-void client_manager::handle_message(SRV_TAG(lobby_removed), const lobby_id_args &args) {
+void client_manager::handle_message(TAG(lobby_removed), const lobby_id_args &args) {
     auto it = rn::find(m_lobbies, args.lobby_id, &lobby_data::lobby_id);
     if (it != m_lobbies.end()) {
         m_lobbies.erase(it);
     }
 }
 
-void client_manager::handle_message(SRV_TAG(lobby_chat), const lobby_chat_args &args) {
+void client_manager::handle_message(TAG(lobby_chat), const lobby_chat_args &args) {
     if (!args.is_read) {
         if (const banggame::user_info *info = get_user_info(args.user_id)) {
-            add_chat_message(message_type::chat, fmt::format("{}: {}", info->name, args.message));
+            add_chat_message(message_type::chat, std::format("{}: {}", info->name, args.message));
         } else {
             add_chat_message(message_type::chat, args.message);
         }
     }
 }
 
-void client_manager::handle_message(SRV_TAG(game_started)) {
+void client_manager::handle_message(TAG(game_started)) {
     switch_scene<banggame::game_scene>();
 }
 

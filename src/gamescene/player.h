@@ -2,8 +2,7 @@
 #define __CLIENT_PLAYER_H__
 
 #include "card.h"
-
-#include "cards/filters.h"
+#include "filters.h"
 
 #include "../widgets/stattext.h"
 #include "../widgets/profile_pic.h"

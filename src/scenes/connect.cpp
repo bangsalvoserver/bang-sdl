@@ -51,10 +51,6 @@ connect_scene::connect_scene(client_manager *parent)
         refresh_layout();
     });
     m_propic.set_texture(sdl::texture(parent->get_renderer(), parent->get_config().profile_image_data));
-
-    if (parent->is_listenserver_present()) {
-        m_create_server_btn.emplace(_("BUTTON_CREATE_SERVER"), [this]{ do_create_server(); });
-    }
 }
 
 void connect_scene::refresh_layout() {
@@ -91,11 +87,6 @@ void connect_scene::refresh_layout() {
     
     m_connect_btn.set_rect(sdl::rect{rect.x + rect.w - 100, rect.y, 100, rect.h});
     rect.y += 50;
-
-    if (m_create_server_btn) {
-        m_create_server_btn->set_rect(sdl::rect{(win_rect.w - 200) / 2, rect.y, 200, 25});
-        rect.y += 35;
-    }
 }
 
 void connect_scene::tick(duration_type time_elapsed) {
@@ -115,9 +106,6 @@ void connect_scene::render(sdl::renderer &renderer) {
     m_address_label.render(renderer);
     m_address_box.render(renderer);
     m_connect_btn.render(renderer);
-    if (m_create_server_btn) {
-        m_create_server_btn->render(renderer);
-    }
 }
 
 void connect_scene::do_connect(const std::string &address) {
@@ -136,13 +124,4 @@ void connect_scene::do_delete_address(recent_server_line *addr) {
     m_recents.erase(it);
 
     refresh_layout();
-}
-
-void connect_scene::do_create_server() {
-    if (m_username_box.get_value().empty()) {
-        parent->add_chat_message(message_type::error, _("ERROR_NO_USERNAME"));
-    } else {
-        parent->get_config().user_name = m_username_box.get_value();
-        parent->start_listenserver();
-    }
 }

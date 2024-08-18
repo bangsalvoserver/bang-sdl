@@ -34,8 +34,6 @@ public:
 
     void do_delete_address(recent_server_line *addr);
 
-    void do_create_server();
-
 private:
     widgets::stattext m_username_label;
     widgets::textbox m_username_box;
@@ -44,7 +42,6 @@ private:
     widgets::stattext m_address_label;
     widgets::textbox m_address_box;
     widgets::button m_connect_btn;
-    std::optional<widgets::button> m_create_server_btn;
 
     std::list<recent_server_line> m_recents;
 };

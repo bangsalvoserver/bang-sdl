@@ -73,7 +73,7 @@ private:
 template<typename T>
 concept parsable = requires (std::string_view str, T value) {
     { parse_string<T>(str) } -> std::convertible_to<std::optional<T>>;
-    typename fmt::formatter<T>;
+    typename std::formatter<T>;
 };
 
 template<parsable T>
@@ -116,7 +116,7 @@ public:
     }
 
     virtual void update_value() override {
-        m_textbox.set_value(fmt::format("{}", m_value));
+        m_textbox.set_value(std::format("{}", m_value));
     }
 
     virtual void set_locked(bool locked) override {

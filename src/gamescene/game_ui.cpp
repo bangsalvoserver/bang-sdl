@@ -5,8 +5,6 @@
 
 #include "../manager.h"
 
-#include "cards/filter_enums.h"
-
 using namespace banggame;
 
 game_ui::game_ui(game_scene *parent)

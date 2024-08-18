@@ -14,6 +14,12 @@ if(WIN32)
     add_compile_definitions(_WIN32_WINNT=0x0601)
 endif()
 
+# external dependencies
+
+add_library(banglibs INTERFACE)
+
+# sdl2
+
 add_library(sdl2_libraries INTERFACE)
 if (MSVC)
     find_package(SDL2 REQUIRED)
@@ -34,14 +40,54 @@ else()
     target_link_libraries(sdl2_libraries INTERFACE PkgConfig::SDL2 PkgConfig::SDL2_ttf PkgConfig::SDL2_image PkgConfig::SDL2_gfx PkgConfig::SDL2_mixer)
 endif()
 
-add_subdirectory(game)
-add_subdirectory(resources)
-add_subdirectory(external/tiny-process-library)
+target_link_libraries(banglibs INTERFACE sdl2_libraries)
 
-set_target_properties(tiny-process-library PROPERTIES
-    POSITION_INDEPENDENT_CODE ON)
+# asio
+
+target_compile_definitions(banglibs INTERFACE ASIO_STANDALONE)
+
+if(MINGW)
+    target_link_libraries(banglibs INTERFACE wsock32 ws2_32)
+endif()
+
+# openssl
+
+find_package(OpenSSL)
+if (NOT OPENSSL_FOUND)
+    message(WARNING "Could not find OpenSSL")
+    target_compile_definitions(banglibs INTERFACE WSCLIENT_NO_TLS)
+else()
+    target_link_libraries(banglibs INTERFACE OpenSSL::SSL OpenSSL::Crypto)
+endif()
+
+# websocketpp
+
+target_include_directories(banglibs INTERFACE external/websocketpp)
+target_compile_definitions(banglibs INTERFACE _WEBSOCKETPP_CPP11_STL_)
+target_compile_definitions(banglibs INTERFACE _WEBSOCKETPP_CPP11_THREAD_)
+
+# range-v3
+
+find_package(range-v3 REQUIRED)
+target_link_libraries(banglibs INTERFACE range-v3)
+
+# nlohmann-json
+
+find_package(nlohmann_json 3.11.0 REQUIRED)
+target_link_libraries(banglibs INTERFACE nlohmann_json::nlohmann_json)
+
+# reflect
+
+target_include_directories(banglibs INTERFACE external/reflect)
+target_compile_definitions(banglibs INTERFACE NTEST)
+
+# bang client dll
 
 add_library(bangclient SHARED)
+
+target_link_libraries(bangclient PRIVATE banglibs)
+
+add_subdirectory(resources)
 add_subdirectory(src)
 
 target_include_directories(bangclient PRIVATE src)
@@ -55,18 +101,7 @@ generate_export_header(bangclient
 
 target_include_directories(bangclient PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/exports")
 
-target_link_libraries(bangclient PUBLIC bangcommon sdl2_libraries tiny-process-library)
-
-find_package(OpenSSL REQUIRED)
-target_link_libraries(bangclient PRIVATE OpenSSL::SSL OpenSSL::Crypto)
-
-target_compile_definitions(bangclient PRIVATE BUILD_BANG_CLIENT)
-
 add_dependencies(bangclient cards_pak media_pak sounds_pak)
-
-set_target_properties(bangclient bangserver tiny-process-library PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
-    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 option(BUILD_LAUNCHER "Build Launcher" ON)
 

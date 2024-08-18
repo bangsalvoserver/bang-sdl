@@ -4,23 +4,23 @@
 #include <string>
 #include <ranges>
 #include <stdexcept>
-#include <fmt/format.h>
-#include <fmt/args.h>
+#include <format>
 
 #include "locales/locales.h"
 
 namespace intl {
     std::string translate(category cat, std::string_view str);
 
-    std::string translate(category cat, enums::reflected_enum auto value) {
-        return translate(cat, fmt::format("{}::{}", enums::enum_name_v<decltype(value)>, enums::to_string(value)));
+    template<enums::enumeral T> 
+    std::string translate(category cat, T value) {
+        return translate(cat, std::format("{}::{}", reflect::type_name<T>(), enums::to_string(value)));
     }
 
     template<typename ... Ts>
     std::string format(const std::string &format_str, const Ts & ... args) {
         try {
-            return fmt::vformat(format_str, fmt::make_format_args(args ... ));
-        } catch (const fmt::format_error &) {
+            return std::vformat(format_str, std::make_format_args(args ... ));
+        } catch (const std::format_error &) {
             return format_str;
         }
     }

@@ -10,25 +10,24 @@
 
 #include "utils/resource.h"
 
-#include "cards/card_enums.h"
+#include "net/game_options.h"
 
-DEFINE_STRUCT(config,
-    (std::vector<std::string>, recent_servers)
-    (std::string, user_name)
-    (std::string, profile_image)
-    (sdl::surface, profile_image_data)
-    (std::string, lobby_name)
-    (banggame::game_options, options)
-    (bool, allow_unofficial_expansions)
-    (bool, bypass_prompt)
-    (float, sound_volume, .5f)
-    (uint16_t, server_port)
-    (bool, server_enable_cheats)
-    (bool, server_verbose)
-    (int, user_id),
+struct config {
+    std::vector<std::string> recent_servers{};
+    std::string user_name{};
+    std::string profile_image{};
+    sdl::surface profile_image_data{};
+    std::string lobby_name{};
+    banggame::game_options options{};
+    bool allow_unofficial_expansions{};
+    bool bypass_prompt{};
+    float sound_volume{.5f};
+    uint16_t server_port{};
+    bool server_enable_cheats{};
+    bool server_verbose{};
     
     void load();
     void save();
-)
+};
 
 #endif

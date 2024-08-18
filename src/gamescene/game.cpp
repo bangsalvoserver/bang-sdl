@@ -2,8 +2,6 @@
 #include "../manager.h"
 #include "../media_pak.h"
 
-#include "cards/effect_enums.h"
-
 #include <iostream>
 #include <numbers>
 #include <ranges>
@@ -96,7 +94,7 @@ void game_scene::tick(duration_type time_elapsed) {
             }
         }
     } catch (const std::exception &error) {
-        parent->add_chat_message(message_type::error, fmt::format("Error: {}", error.what()));
+        parent->add_chat_message(message_type::error, std::format("Error: {}", error.what()));
         parent->disconnect();
     }
 }
@@ -261,26 +259,25 @@ void game_scene::play_sound(std::string_view sound_id) {
     }
 }
 
-void game_scene::handle_message(SRV_TAG(game_update), const json::json &update) {
+void game_scene::handle_message(TAG(game_update), const json::json &update) {
     m_pending_updates.push_back(update);
 }
 
-void game_scene::handle_message(SRV_TAG(lobby_owner), const user_id_args &args) {
+void game_scene::handle_message(TAG(lobby_owner), const user_id_args &args) {
     m_ui.enable_golobby(parent->get_user_own_id() == args.user_id);
 }
 
-void game_scene::handle_message(SRV_TAG(lobby_error), const std::string &message) {
+void game_scene::handle_message(TAG(lobby_error), const std::string &message) {
     m_target.clear_targets();
 }
 
-template<> class fmt::formatter<game_format_arg> {
+template<> class std::formatter<game_format_arg> {
 private:
     std::string_view format_singular = "{}";
     std::string_view format_plural = "{}";
 
 public:
-    template<typename ParseContext>
-    constexpr auto parse(ParseContext &ctx) {
+    constexpr auto parse(std::format_parse_context &ctx) {
         if (ctx.begin() == ctx.end()) {
             return ctx.end();
         }
@@ -289,7 +286,7 @@ public:
         auto semicolon_pos = ctx.end();
         int curly_count = 1;
         while (curly_count != 0) {
-            if (end == ctx.end()) throw fmt::format_error("Unmatched '{' in format string");
+            if (end == ctx.end()) throw std::format_error("Unmatched '{' in format string");
             else if (*end == '{') ++curly_count;
             else if (*end == '}') --curly_count;
             else if (*end == ';' && semicolon_pos == ctx.end()) semicolon_pos = end;
@@ -305,66 +302,62 @@ public:
         return end;
     }
 
-    template<typename FormatContext>
-    auto format(const game_format_arg &arg, FormatContext &ctx) {
+    auto format(const format_arg_variant &arg, std::format_context &ctx) {
         return ::enums::visit(overloaded{
             [&](int value) {
                 std::string_view format_str = value == 1 ? format_singular : format_plural;
-                return fmt::vformat_to(ctx.out(), format_str, fmt::make_format_args(value));
+                return std::vformat_to(ctx.out(), format_str, std::make_format_args(value));
             },
-            [&](const card_format &value) {
+            [&](const format_card &value) {
                 if (value.sign) {
-                    return fmt::format_to(ctx.out(), "{} ({}{})",
+                    return std::format_to(ctx.out(), "{} ({}{})",
                         _(intl::category::cards, value.name),
                         ::enums::get_data(value.sign.rank),
                         reinterpret_cast<const char *>(::enums::get_data(value.sign.suit)));
                 } else if (!value.name.empty()) {
-                    return fmt::format_to(ctx.out(), "{}", _(intl::category::cards, value.name));
+                    return std::format_to(ctx.out(), "{}", _(intl::category::cards, value.name));
                 } else {
-                    return fmt::format_to(ctx.out(), "{}", _("UNKNOWN_CARD"));
+                    return std::format_to(ctx.out(), "{}", _("UNKNOWN_CARD"));
                 }
             },
-            [&](player_view *player) {
-                return fmt::format_to(ctx.out(), "{}", player ? player->m_username_text.get_value() : _("UNKNOWN_PLAYER"));
+            [&](const_player_ptr player) {
+                return std::format_to(ctx.out(), "{}", player ? player->m_username_text.get_value() : _("UNKNOWN_PLAYER"));
             }
         }, arg);
     }
 };
 
 std::string format_game_string(const banggame::game_string &str) {
-    fmt::dynamic_format_arg_store<fmt::format_context> store;
-    store.reserve(str.format_args.size(), 0);
-    for (const auto &arg: str.format_args) {
-        store.push_back(arg);
-    }
-
     std::string format_str = _(str.format_str);
     try {
-        return fmt::vformat(format_str, store);
+        static constexpr size_t max_args_size = 5;
+        return fmt::vformat(format_str, [&]<size_t ... Is>(std::index_sequence<Is...>) {
+            return std::make_format_args((Is < str.format_args.size() ? str.format_args[Is] : format_arg_variant{}) ...);
+        }(std::make_index_sequence<max_args_size>()));
     } catch (const fmt::format_error &) {
         return format_str;
     }
 }
 
-void game_scene::handle_game_update(UPD_TAG(game_error), const game_string &args) {
+void game_scene::handle_game_update(TAG(game_error), const game_string &args) {
     m_target.clear_targets();
     m_target.handle_auto_select();
     parent->add_chat_message(message_type::error, format_game_string(args));
     play_sound("invalid");
 }
 
-void game_scene::handle_game_update(UPD_TAG(game_log), const game_string &args) {
+void game_scene::handle_game_update(TAG(game_log), const game_string &args) {
     m_ui.add_game_log(format_game_string(args));
 }
 
-void game_scene::handle_game_update(UPD_TAG(game_prompt), const game_string &args) {
+void game_scene::handle_game_update(TAG(game_prompt), const game_string &args) {
     m_ui.show_message_box(format_game_string(args), {
         {_("BUTTON_YES"), [&]{ m_target.send_prompt_response(true); }},
         {_("BUTTON_NO"),  [&]{ m_target.send_prompt_response(false); }}
     });
 }
 
-void game_scene::handle_game_update(UPD_TAG(deck_shuffled), const deck_shuffled_update &args) {
+void game_scene::handle_game_update(TAG(deck_shuffled), const deck_shuffled_update &args) {
     auto &from_pocket = get_pocket(args.pocket == pocket_type::main_deck ? pocket_type::discard_pile : pocket_type::shop_discard);
     auto &to_pocket = get_pocket(args.pocket);
     for (card_view *card : from_pocket) {
@@ -400,7 +393,7 @@ pocket_view &game_scene::get_pocket(pocket_type pocket, player_view *player) {
     }
 }
 
-void game_scene::handle_game_update(UPD_TAG(add_cards), const add_cards_update &args) {
+void game_scene::handle_game_update(TAG(add_cards), const add_cards_update &args) {
     auto &pocket = get_pocket(args.pocket, args.player);
 
     for (auto [id, deck] : args.card_ids) {
@@ -415,7 +408,7 @@ void game_scene::handle_game_update(UPD_TAG(add_cards), const add_cards_update &
     }
 }
 
-void game_scene::handle_game_update(UPD_TAG(remove_cards), const remove_cards_update &args) {
+void game_scene::handle_game_update(TAG(remove_cards), const remove_cards_update &args) {
     for (auto *c : args.cards) {
         if (c == m_overlay) {
             m_overlay = nullptr;
@@ -427,7 +420,7 @@ void game_scene::handle_game_update(UPD_TAG(remove_cards), const remove_cards_up
     }
 }
 
-void game_scene::handle_game_update(UPD_TAG(move_card), const move_card_update &args) {
+void game_scene::handle_game_update(TAG(move_card), const move_card_update &args) {
     add_animation<card_move_animation>(args.duration, [&]{
         pocket_view *old_pile = args.card->pocket;
         pocket_view *new_pile = &get_pocket(args.pocket, args.player);
@@ -462,7 +455,7 @@ cube_pile_base &game_scene::get_cube_pile(card_view *card) {
     }
 }
 
-void game_scene::handle_game_update(UPD_TAG(add_cubes), const add_cubes_update &args) {
+void game_scene::handle_game_update(TAG(add_cubes), const add_cubes_update &args) {
     auto &pile = get_cube_pile(args.target_card);
     for (int i=0; i<args.num_cubes; ++i) {
         auto &cube = pile.emplace_back(std::make_unique<cube_widget>());
@@ -470,7 +463,7 @@ void game_scene::handle_game_update(UPD_TAG(add_cubes), const add_cubes_update &
     }
 }
 
-void game_scene::handle_game_update(UPD_TAG(move_cubes), const move_cubes_update &args) {
+void game_scene::handle_game_update(TAG(move_cubes), const move_cubes_update &args) {
     add_animation<cube_move_animation>(args.duration, [&]{
         auto &origin_pile = get_cube_pile(args.origin_card);
         auto &target_pile = get_cube_pile(args.target_card);
@@ -486,11 +479,11 @@ void game_scene::handle_game_update(UPD_TAG(move_cubes), const move_cubes_update
     }());
 }
 
-void game_scene::handle_game_update(UPD_TAG(move_train), const move_train_update &args) {
+void game_scene::handle_game_update(TAG(move_train), const move_train_update &args) {
     add_animation<train_move_animation>(args.duration, &m_train, &m_stations, m_train_position = args.position);
 }
 
-void game_scene::handle_game_update(UPD_TAG(show_card), const show_card_update &args) {
+void game_scene::handle_game_update(TAG(show_card), const show_card_update &args) {
     if (!args.card->known) {
         *static_cast<card_data *>(args.card) = args.info;
         args.card->known = true;
@@ -507,25 +500,25 @@ void game_scene::handle_game_update(UPD_TAG(show_card), const show_card_update &
     }
 }
 
-void game_scene::handle_game_update(UPD_TAG(hide_card), const hide_card_update &args) {
+void game_scene::handle_game_update(TAG(hide_card), const hide_card_update &args) {
     if (args.card->known) {
         args.card->known = false;
         add_animation<card_flip_animation>(args.duration, args.card, true);
     }
 }
 
-void game_scene::handle_game_update(UPD_TAG(tap_card), const tap_card_update &args) {
+void game_scene::handle_game_update(TAG(tap_card), const tap_card_update &args) {
     if (args.card->inactive != args.inactive) {
         args.card->inactive = args.inactive;
         add_animation<card_tap_animation>(args.duration, args.card, args.inactive);
     }
 }
 
-void game_scene::handle_game_update(UPD_TAG(flash_card), const flash_card_update &args) {
+void game_scene::handle_game_update(TAG(flash_card), const flash_card_update &args) {
     add_animation<card_flash_animation>(args.duration, args.card);
 }
 
-void game_scene::handle_game_update(UPD_TAG(short_pause), const short_pause_update &args) {
+void game_scene::handle_game_update(TAG(short_pause), const short_pause_update &args) {
     add_animation<pause_animation>(args.duration, args.card);
 }
 
@@ -564,7 +557,7 @@ void game_scene::move_player_views(anim_duration_type duration) {
     }());
 }
 
-void game_scene::handle_game_update(UPD_TAG(player_add), const player_add_update &args) {
+void game_scene::handle_game_update(TAG(player_add), const player_add_update &args) {
     for (auto [player_id, user_id] : args.players) {
         auto [p, inserted] = m_context.players.try_emplace(this, player_id, user_id);
         if (inserted) {
@@ -600,7 +593,7 @@ void game_scene::handle_game_update(UPD_TAG(player_add), const player_add_update
     move_player_views();
 }
 
-void game_scene::handle_game_update(UPD_TAG(player_order), const player_order_update &args) {
+void game_scene::handle_game_update(TAG(player_order), const player_order_update &args) {
     player_view *first_player = m_alive_players.empty() ? nullptr : m_alive_players.front();
     m_alive_players = args.players;
 
@@ -619,7 +612,7 @@ void game_scene::handle_game_update(UPD_TAG(player_order), const player_order_up
     move_player_views(args.duration);
 }
 
-void game_scene::handle_message(SRV_TAG(lobby_add_user), const user_info_id_args &args) {
+void game_scene::handle_message(TAG(lobby_add_user), const user_info_id_args &args) {
     auto it = rn::find(m_context.players, args.user_id, &player_view::user_id);
     if (it != m_context.players.end()) {
         it->set_user_info(parent->get_user_info(args.user_id));
@@ -627,7 +620,7 @@ void game_scene::handle_message(SRV_TAG(lobby_add_user), const user_info_id_args
     }
 }
 
-void game_scene::handle_message(SRV_TAG(lobby_remove_user), const user_id_args &args) {
+void game_scene::handle_message(TAG(lobby_remove_user), const user_id_args &args) {
     auto it = rn::find(m_context.players, args.user_id, &player_view::user_id);
     if (it != m_context.players.end()) {
         it->set_user_info(nullptr);
@@ -635,17 +628,17 @@ void game_scene::handle_message(SRV_TAG(lobby_remove_user), const user_id_args &
     }
 }
 
-void game_scene::handle_game_update(UPD_TAG(player_hp), const player_hp_update &args) {
+void game_scene::handle_game_update(TAG(player_hp), const player_hp_update &args) {
     int prev_hp = args.player->hp;
     args.player->hp = args.hp;
     add_animation<player_hp_animation>(args.duration, args.player, prev_hp);
 }
 
-void game_scene::handle_game_update(UPD_TAG(player_gold), const player_gold_update &args) {
+void game_scene::handle_game_update(TAG(player_gold), const player_gold_update &args) {
     args.player->set_gold(args.gold);
 }
 
-void game_scene::handle_game_update(UPD_TAG(player_show_role), const player_show_role_update &args) {
+void game_scene::handle_game_update(TAG(player_show_role), const player_show_role_update &args) {
     role_card &card = args.player->m_role;
     if (card.role != args.role) {
         card.role = args.role;
@@ -660,7 +653,7 @@ void game_scene::handle_game_update(UPD_TAG(player_show_role), const player_show
     }
 }
 
-void game_scene::handle_game_update(UPD_TAG(player_flags), const player_flags_update &args) {
+void game_scene::handle_game_update(TAG(player_flags), const player_flags_update &args) {
     args.player->m_player_flags = args.flags;
 
     if (bool(args.flags & player_flags::removed)) {
@@ -677,7 +670,7 @@ void game_scene::handle_game_update(UPD_TAG(player_flags), const player_flags_up
     }
 }
 
-void game_scene::handle_game_update(UPD_TAG(switch_turn), player_view *player) {
+void game_scene::handle_game_update(TAG(switch_turn), player_view *player) {
     if (player != m_playing) {
         m_playing = player;
         if (m_playing) {
@@ -688,7 +681,7 @@ void game_scene::handle_game_update(UPD_TAG(switch_turn), player_view *player) {
     }
 }
 
-void game_scene::handle_game_update(UPD_TAG(request_status), const request_status_args &args) {
+void game_scene::handle_game_update(TAG(request_status), const request_status_args &args) {
     m_target.set_response_cards(args);
 
     if (args.status_text) {
@@ -696,11 +689,11 @@ void game_scene::handle_game_update(UPD_TAG(request_status), const request_statu
     }
 }
 
-void game_scene::handle_game_update(UPD_TAG(status_ready), const status_ready_args &args) {
+void game_scene::handle_game_update(TAG(status_ready), const status_ready_args &args) {
     m_target.set_play_cards(args);
 }
 
-void game_scene::handle_game_update(UPD_TAG(game_flags), const game_flags &args) {
+void game_scene::handle_game_update(TAG(game_flags), const game_flags &args) {
     m_game_flags = args;
 
     if (has_game_flags(game_flags::game_over)) {
@@ -709,15 +702,15 @@ void game_scene::handle_game_update(UPD_TAG(game_flags), const game_flags &args)
     }
 }
 
-void game_scene::handle_game_update(UPD_TAG(play_sound), const std::string &sound_id) {
+void game_scene::handle_game_update(TAG(play_sound), const std::string &sound_id) {
     play_sound(sound_id);
 }
 
-void game_scene::handle_game_update(UPD_TAG(status_clear)) {
+void game_scene::handle_game_update(TAG(status_clear)) {
     m_ui.clear_status();
     m_target.clear_status();
 }
 
-void game_scene::handle_game_update(UPD_TAG(clear_logs)) {
+void game_scene::handle_game_update(TAG(clear_logs)) {
     m_ui.clear_game_logs();
 }
