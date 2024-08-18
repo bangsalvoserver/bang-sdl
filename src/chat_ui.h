@@ -53,7 +53,7 @@ private:
     std::list<chat_message> m_messages;
 
     static constexpr size_t max_messages = 100;
-    util::tsqueue<std::pair<message_type, std::string>, max_messages> m_pending_messages;
+    utils::tsqueue<std::pair<message_type, std::string>, max_messages> m_pending_messages;
 
     chat_textbox m_chat_box;
 };

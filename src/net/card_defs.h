@@ -139,7 +139,6 @@ namespace banggame {
 
     struct mth_holder {
         std::string type;
-        small_int_set args;
     };
 
     using effect_list = std::vector<effect_holder>;

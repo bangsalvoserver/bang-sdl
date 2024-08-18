@@ -30,9 +30,9 @@ public:
 
     void handle_event(const sdl::event &event);
 
-    template<banggame::client_message_type E>
+    template<utils::fixed_string E> requires banggame::client_message_type<E>
     void add_message(auto && ... args) {
-        push_message(json::serialize(banggame::client_message{enums::enum_tag<E>, FWD(args) ...}).dump());
+        push_message(json::serialize(banggame::client_message{utils::tag<E>{}, FWD(args) ...}).dump());
     }
 
     void connect(const std::string &host);

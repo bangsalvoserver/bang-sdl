@@ -2,7 +2,6 @@
 #define __CARD_FWD_H__
 
 #include "utils/enum_bitset.h"
-#include "utils/small_int_set.h"
 #include "utils/nullable.h"
 #include "utils/misc.h"
 

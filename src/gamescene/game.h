@@ -17,8 +17,8 @@ namespace banggame {
 
     class game_context_view {
     public:
-        util::id_map<card_view> cards;
-        util::id_map<player_view> players;
+        utils::id_map<card_view> cards;
+        utils::id_map<player_view> players;
 
         card_view *find_card(int id) const {
             if (auto it = cards.find(id); it != cards.end()) {
