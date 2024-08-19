@@ -7,6 +7,8 @@
 #include "animation.h"
 #include "game_ui.h"
 
+#include "target_selector.h"
+
 #include "utils/id_map.h"
 #include "utils/misc.h"
 
@@ -119,7 +121,7 @@ namespace banggame {
 
         game_ui m_ui;
 
-        // target_finder m_target;
+        target_selector m_selector;
 
         std::deque<json::json> m_pending_updates;
         std::deque<animation> m_animations;
@@ -169,7 +171,7 @@ namespace banggame {
         cube_pile_base &get_cube_pile(card_view *card);
 
         friend class game_ui;
-        // friend class target_finder;
+        friend class target_selector;
         friend class player_view;
         friend class button_row_pocket;
     };

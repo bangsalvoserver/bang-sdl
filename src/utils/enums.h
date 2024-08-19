@@ -70,10 +70,6 @@ namespace enums {
         }
         return std::nullopt;
     }
-
-    template<enumeral auto ... Values> struct enum_sequence {
-        static constexpr size_t size = sizeof...(Values);
-    };
     
 }
 

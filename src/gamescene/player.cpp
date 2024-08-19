@@ -145,7 +145,7 @@ namespace banggame {
                 texture.render_colored(renderer, rect, color);
             };
 
-            if (!self->m_game->has_game_flags(game_flags::game_over)) {
+            if (!self->m_game->has_game_flags(game_flag::game_over)) {
                 if (self == self->m_game->m_playing) {
                     render_icon(media_pak::get().icon_turn, colors.turn_indicator);
                     x -= 32;
@@ -157,7 +157,7 @@ namespace banggame {
                 // if (self == self->m_game->get_target_finder().get_request_status().m_request_origin) {
                 //     render_icon(media_pak::get().icon_origin, colors.request_origin_indicator);
                 // }
-            } else if (bool(self->has_player_flags(player_flags::winner))) {
+            } else if (self->has_player_flags(player_flag::winner)) {
                 render_icon(media_pak::get().icon_winner, colors.winner_indicator);
             }
         }
@@ -188,7 +188,7 @@ namespace banggame {
             self->m_propic.render(renderer);
             self->m_username_text.render(renderer);
 
-            if (self->has_player_flags(player_flags::winner)) {
+            if (self->has_player_flags(player_flag::winner)) {
                 sdl::texture_ref texture = media_pak::get().icon_winner;
                 sdl::rect rect = texture.get_rect();
                 rect.x = self->m_propic.get_pos().x - rect.w - widgets::profile_pic::size / 2 - 5;

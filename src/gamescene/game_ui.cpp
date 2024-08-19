@@ -90,7 +90,7 @@ void button_row_pocket::render(sdl::renderer &renderer) {
     for (auto &btn : m_buttons) {
         card_view *card = *it;
 
-        if (card->has_tag(tag_type::confirm) && parent->m_target.can_confirm()) {
+        if (card->has_tag(tag_type::confirm) && parent->m_selector.can_confirm()) {
             btn.set_toggled_color(colors.game_ui_button_confirm);
         } else if (auto style = card->get_style()) {
             btn.set_toggled_color(button_toggle_color(*style));
@@ -106,9 +106,9 @@ void button_row_pocket::render(sdl::renderer &renderer) {
 void button_row_pocket::add_card(card_view *card) {
     pocket_view::add_card(card);
 
-    auto &button = m_buttons.emplace_back(std::string{}, [&target = parent->m_target, card]{
-        if (target.is_card_clickable()) {
-            target.on_click_card(pocket_type::button_row, nullptr, card);
+    auto &button = m_buttons.emplace_back(std::string{}, [&selector = parent->m_selector, card]{
+        if (selector.is_card_clickable()) {
+            selector.on_click_card(pocket_type::button_row, nullptr, card);
         }
     }, widgets::button_style {
         .down_color = colors.game_ui_button_down

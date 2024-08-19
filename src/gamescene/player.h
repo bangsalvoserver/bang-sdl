@@ -4,6 +4,8 @@
 #include "card.h"
 #include "filters.h"
 
+#include "net/game_enums.h"
+
 #include "../widgets/stattext.h"
 #include "../widgets/profile_pic.h"
 
@@ -54,8 +56,8 @@ namespace banggame {
 
         void set_user_info(const user_info *info);
 
-        bool has_player_flags(player_flags flags) const {
-            return (m_player_flags & flags) == flags;
+        bool has_player_flags(player_flag flag) const {
+            return m_player_flags.check(flag);
         }
 
         bool alive() const {

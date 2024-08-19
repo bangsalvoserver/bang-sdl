@@ -53,7 +53,7 @@ namespace banggame {
 
     void card_move_animation::render(sdl::renderer &renderer) {
         for (auto &[card, _] : data) {
-            card->render(renderer, render_flags::no_skip_animating);
+            card->render(renderer, render_flag::no_skip_animating);
         }
     }
 
@@ -74,7 +74,7 @@ namespace banggame {
     }
 
     void card_flip_animation::render(sdl::renderer &renderer) {
-        card->render(renderer, render_flags::no_skip_animating);
+        card->render(renderer, render_flag::no_skip_animating);
     }
 
     void deck_shuffle_animation::end() {
@@ -103,10 +103,10 @@ namespace banggame {
     void deck_shuffle_animation::render(sdl::renderer &renderer) {
         auto first_card = rn::find_if(*cards, [](card_view *card) { return card->flip_amt <= 0.5f; });
         for (card_view *card : rn::subrange(first_card, cards->end()) | rv::reverse) {
-            card->render(renderer, render_flags::no_skip_animating);
+            card->render(renderer, render_flag::no_skip_animating);
         }
         for (card_view *card : rn::subrange(cards->begin(), first_card)) {
-            card->render(renderer, render_flags::no_skip_animating);
+            card->render(renderer, render_flag::no_skip_animating);
         }
     }
 
@@ -121,7 +121,7 @@ namespace banggame {
     }
 
     void card_tap_animation::render(sdl::renderer &renderer) {
-        card->render(renderer, render_flags::no_skip_animating);
+        card->render(renderer, render_flag::no_skip_animating);
     }
 
     card_flash_animation::card_flash_animation(card_view *card)
@@ -138,7 +138,7 @@ namespace banggame {
     }
 
     void card_flash_animation::render(sdl::renderer &renderer) {
-        card->render(renderer, render_flags::no_skip_animating);
+        card->render(renderer, render_flag::no_skip_animating);
     }
 
     void player_hp_animation::do_animation_impl(float amt) {
@@ -147,7 +147,7 @@ namespace banggame {
 
     void cube_move_animation::render(sdl::renderer &renderer) {
         for (auto &item : data) {
-            item.cube->render(renderer, render_flags::no_skip_animating);
+            item.cube->render(renderer, render_flag::no_skip_animating);
         }
     }
 
@@ -187,7 +187,7 @@ namespace banggame {
 
     void pause_animation::render(sdl::renderer &renderer) {
         if (card) {
-            card->render(renderer, render_flags::no_skip_animating);
+            card->render(renderer, render_flag::no_skip_animating);
         }
     }
 

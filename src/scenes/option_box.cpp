@@ -29,8 +29,8 @@ option_input_box<banggame::expansion_type>::option_input_box(lobby_scene *parent
         .bg_color = sdl::rgba(0)
     })
 {
-    for (auto E : enums::enum_values_v<banggame::expansion_type>) {
-        if (!parent->manager()->get_config().allow_unofficial_expansions && bool(banggame::unofficial_expansions & E)) continue;
+    for (auto E : enums::enum_values<banggame::expansion_type>()) {
+        // if (!parent->manager()->get_config().allow_unofficial_expansions && banggame::unofficial_expansions.check(E)) continue;
 
         m_checkboxes.emplace_back(_(E), E).set_ontoggle([=, this](bool value){
             if (value) {

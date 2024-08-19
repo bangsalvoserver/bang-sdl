@@ -35,8 +35,8 @@ namespace banggame {
 
         mutable std::map<std::string, sdl::texture, std::less<>> backfaces;
 
-        std::array<sdl::surface, enums::enum_values<card_rank>().size() - 1> rank_icons;
-        std::array<sdl::surface, enums::enum_values<card_suit>().size() - 1> suit_icons;
+        std::array<sdl::surface, enums::enum_values<card_rank>().size()> rank_icons;
+        std::array<sdl::surface, enums::enum_values<card_suit>().size()> suit_icons;
 
         sdl::texture_ref get_backface_texture(std::string_view name, sdl::renderer &renderer) const;
         sdl::surface apply_card_mask(const sdl::surface &source) const;
@@ -267,7 +267,7 @@ namespace banggame {
         sdl::point get_offset(card_view *card) const override;
 
         card_view *get_anchor() const { return anchor; }
-        void set_anchor(card_view *card, const card_modifier_tree &tree);
+        // void set_anchor(card_view *card, const card_modifier_tree &tree);
 
         void clear() override;
     };

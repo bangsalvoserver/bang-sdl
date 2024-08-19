@@ -13,7 +13,7 @@ game_scene::game_scene(client_manager *parent)
     : scene_base(parent)
     , m_card_textures(parent->get_base_path(), parent->get_renderer())
     , m_ui(this)
-    , m_target(this)
+    , m_selector(this)
 {
     if (parent->get_config().sound_volume > 0) {
         m_sounds.emplace(parent->get_base_path());
@@ -154,21 +154,21 @@ void game_scene::handle_event(const sdl::event &event) {
         m_mouse_pt = {event.button.x, event.button.y};
         switch (event.button.button) {
         case SDL_BUTTON_LEFT:
-            if (m_target.is_card_clickable()) {
+            if (m_selector.is_card_clickable()) {
                 if (rn::none_of(m_alive_players, [&](player_view *p) {
                     return sdl::point_in_rect(m_mouse_pt, p->m_bounding_rect)
-                        && m_target.on_click_player(p);
+                        && m_selector.on_click_player(p);
                 })) {
                     if (auto [pocket, player, card] = find_card_at(m_mouse_pt); pocket != pocket_type::none) {
-                        m_target.on_click_card(pocket, player, card);
+                        m_selector.on_click_card(pocket, player, card);
                     }
                 }
             }
             break;
         case SDL_BUTTON_RIGHT:
-            if (!m_target.finished() && !m_ui.is_message_box_open()) {
-                m_target.clear_targets();
-                m_target.handle_auto_select();
+            if (!m_selector.finished() && !m_ui.is_message_box_open()) {
+                m_selector.clear_targets();
+                m_selector.handle_auto_select();
             }
             break;
         case SDL_BUTTON_MIDDLE:
@@ -268,7 +268,7 @@ void game_scene::handle_message(TAG(lobby_owner), const user_id_args &args) {
 }
 
 void game_scene::handle_message(TAG(lobby_error), const std::string &message) {
-    m_target.clear_targets();
+    m_selector.clear_targets();
 }
 
 template<> class std::formatter<game_format_arg> {
@@ -340,8 +340,8 @@ std::string format_game_string(const banggame::game_string &str) {
 }
 
 void game_scene::handle_game_update(TAG(game_error), const game_string &args) {
-    m_target.clear_targets();
-    m_target.handle_auto_select();
+    m_selector.clear_targets();
+    m_selector.handle_auto_select();
     parent->add_chat_message(message_type::error, format_game_string(args));
     play_sound("invalid");
 }
@@ -352,8 +352,8 @@ void game_scene::handle_game_update(TAG(game_log), const game_string &args) {
 
 void game_scene::handle_game_update(TAG(game_prompt), const game_string &args) {
     m_ui.show_message_box(format_game_string(args), {
-        {_("BUTTON_YES"), [&]{ m_target.send_prompt_response(true); }},
-        {_("BUTTON_NO"),  [&]{ m_target.send_prompt_response(false); }}
+        {_("BUTTON_YES"), [&]{ m_selector.send_prompt_response(true); }},
+        {_("BUTTON_NO"),  [&]{ m_selector.send_prompt_response(false); }}
     });
 }
 
@@ -656,7 +656,7 @@ void game_scene::handle_game_update(TAG(player_show_role), const player_show_rol
 void game_scene::handle_game_update(TAG(player_flags), const player_flags_update &args) {
     args.player->m_player_flags = args.flags;
 
-    if (bool(args.flags & player_flags::removed)) {
+    if (args.check(player_flag::removed)) {
         auto it = rn::find(m_alive_players, args.player);
         if (it != m_alive_players.end()) {
             m_alive_players.erase(it);
@@ -682,7 +682,7 @@ void game_scene::handle_game_update(TAG(switch_turn), player_view *player) {
 }
 
 void game_scene::handle_game_update(TAG(request_status), const request_status_args &args) {
-    m_target.set_response_cards(args);
+    m_selector.set_response_cards(args);
 
     if (args.status_text) {
         m_ui.set_status(format_game_string(args.status_text));
@@ -690,14 +690,14 @@ void game_scene::handle_game_update(TAG(request_status), const request_status_ar
 }
 
 void game_scene::handle_game_update(TAG(status_ready), const status_ready_args &args) {
-    m_target.set_play_cards(args);
+    m_selector.set_play_cards(args);
 }
 
 void game_scene::handle_game_update(TAG(game_flags), const game_flags &args) {
     m_game_flags = args;
 
-    if (has_game_flags(game_flags::game_over)) {
-        m_target.clear_status();
+    if (has_game_flags(game_flag::game_over)) {
+        m_targm_selectoret.clear_status();
         m_ui.set_status(_("STATUS_GAME_OVER"));
     }
 }
@@ -708,7 +708,7 @@ void game_scene::handle_game_update(TAG(play_sound), const std::string &sound_id
 
 void game_scene::handle_game_update(TAG(status_clear)) {
     m_ui.clear_status();
-    m_target.clear_status();
+    m_selector.clear_status();
 }
 
 void game_scene::handle_game_update(TAG(clear_logs)) {

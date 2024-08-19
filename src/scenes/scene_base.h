@@ -16,7 +16,7 @@ struct message_handler {
 };
 
 template<utils::fixed_string E> requires banggame::server_message_type<E>
-using server_message_value_type = utils::tagged_variant_value_type<banggame::server_message, utils::tag<E>>
+using server_message_value_type = utils::tagged_variant_value_type<banggame::server_message, utils::tag<E>>;
 
 template<utils::fixed_string E> requires (banggame::server_message_type<E> && !std::is_void_v<server_message_value_type<E>>)
 struct message_handler<E> {

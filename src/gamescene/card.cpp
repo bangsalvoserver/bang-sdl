@@ -6,6 +6,11 @@
 
 namespace enums {
 
+    template<enumeral auto ... Values>
+    struct enum_sequence {
+        static constexpr size_t size = sizeof...(Values);
+    };
+
     namespace detail {
         template<enumeral E, typename ISeq>
         struct make_enum_sequence;
@@ -25,21 +30,6 @@ namespace banggame {
 
     using namespace sdl::point_math;
 
-    template<typename T>
-    concept first_is_none = requires {
-        requires enums::enumeral<T>;
-        T::none;
-        requires static_cast<size_t>(T::none) == 0;
-    };
-
-    template<typename ESeq> struct remove_first{};
-
-    template<first_is_none auto None, first_is_none auto ... Es>
-    struct remove_first<enums::enum_sequence<None, Es ...>> : enums::enum_sequence<Es ...> {};
-
-    template<first_is_none T>
-    struct skip_none : remove_first<enums::make_enum_sequence<T>> {};
-
     card_textures::card_textures(const std::filesystem::path &base_path, sdl::renderer &renderer)
         : cards_pak_data(ifstream_or_throw(base_path / "cards.pak"))
         , card_resources(cards_pak_data)
@@ -49,15 +39,17 @@ namespace banggame {
 
         , rank_icons([&]<card_rank ... Es>(enums::enum_sequence<Es ...>) {
             return std::array {
-                get_card_resource(std::format("misc/{}", enums::to_string(Es))) ...
+                (Es == card_rank::none ? sdl::surface{} :
+                get_card_resource(std::format("misc/{}", enums::to_string(Es)))) ...
             };
-        }(skip_none<card_rank>()))
+        }(enums::make_enum_sequence<card_rank>()))
 
         , suit_icons([&]<card_suit ... Es>(enums::enum_sequence<Es ...>) {
             return std::array {
-                get_card_resource(std::format("misc/suit_{}", enums::to_string(Es))) ...
+                (Es == card_suit::none ? sdl::surface{} :
+                get_card_resource(std::format("misc/suit_{}", enums::to_string(Es)))) ...
             };
-        }(skip_none<card_suit>()))
+        }(enums::make_enum_sequence<card_suit>()))
     {
         s_instance = this;
     }
@@ -137,7 +129,7 @@ namespace banggame {
             if (sign) {
                 sdl::rect card_rect = card_base_surf.get_rect();
 
-                const auto &card_rank_surf = card_textures::get().rank_icons[enums::indexof(sign.rank) - 1];
+                const auto &card_rank_surf = card_textures::get().rank_icons[enums::indexof(sign.rank)];
                 sdl::rect rank_rect = card_rank_surf.get_rect();
 
                 rank_rect.w = int(rank_rect.w * scale);
@@ -147,7 +139,7 @@ namespace banggame {
                     
                 SDL_BlitScaled(card_rank_surf.get(), nullptr, card_base_surf.get(), &rank_rect);
                 
-                const auto &card_suit_surf = card_textures::get().suit_icons[enums::indexof(sign.suit) - 1];
+                const auto &card_suit_surf = card_textures::get().suit_icons[enums::indexof(sign.suit)];
                 sdl::rect suit_rect = card_suit_surf.get_rect();
 
                 suit_rect.w = int(suit_rect.w * scale);
@@ -190,7 +182,7 @@ namespace banggame {
             tex.render_colored(renderer, sdl::move_rect_center(tex.get_rect(), pos), color);
         };
 
-        if (bool(flags & render_flags::no_skip_animating) || !animating) {
+        if (flags.check(render_flag::no_skip_animating) || !animating) {
             if (auto style = get_style()) {
                 do_render(media_pak::get().sprite_cube_border, cube_border_color(*style));
             }
@@ -233,14 +225,14 @@ namespace banggame {
 
     void card_view::render(sdl::renderer &renderer, render_flags flags) {
         sdl::texture_ref tex = get_texture();
-        if (!tex || animating && !bool(flags & render_flags::no_skip_animating)) return;
+        if (!tex || animating && !flags.check(render_flag::no_skip_animating)) return;
 
         sdl::rect rect = get_base_rect(tex);
         float wscale = std::abs(1.f - 2.f * flip_amt);
         rect.x += int(rect.w * (1.f - wscale) * 0.5f);
         rect.w = int(rect.w * wscale);
 
-        if (!bool(flags & render_flags::no_draw_border)) {
+        if (!flags.check(render_flag::no_draw_border)) {
             sdl::color border_color{};
             if (auto style = get_style()) {
                 border_color = card_border_color(*style);
@@ -306,7 +298,7 @@ namespace banggame {
                 | rv::take_last(ncards)
                 | rv::drop_last(1)
             ) {
-                c->render(renderer, render_flags::no_draw_border);
+                c->render(renderer, render_flag::no_draw_border);
             }
             back()->render(renderer);
         }
@@ -351,16 +343,16 @@ namespace banggame {
         return sdl::point{(int)(xoffset * (diff - (size() - 1) * .5f)), options.card_choice_yoffset};
     }
 
-    void card_choice_pocket::set_anchor(card_view *card, const card_modifier_tree &tree) {
-        anchor = card;
-        set_pos(card->get_pos());
-        for (const card_modifier_node &node : tree) {
-            add_card(node.card);
-        }
-        for (card_view *c : *this) {
-            c->set_pos(get_pos() + get_offset(c));
-        }
-    }
+    // void card_choice_pocket::set_anchor(card_view *card, const card_modifier_tree &tree) {
+    //     anchor = card;
+    //     set_pos(card->get_pos());
+    //     for (const card_modifier_node &node : tree) {
+    //         add_card(node.card);
+    //     }
+    //     for (card_view *c : *this) {
+    //         c->set_pos(get_pos() + get_offset(c));
+    //     }
+    // }
 
     void card_choice_pocket::clear() {
         pocket_view_base::clear();

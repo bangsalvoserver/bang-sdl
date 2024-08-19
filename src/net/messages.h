@@ -52,6 +52,9 @@ namespace banggame {
         utils::tag<"game_action", json::json>
     >;
 
+    template<utils::fixed_string Name>
+    concept client_message_type = utils::tag_for<utils::tag<Name>, client_message>;
+
     enum class lobby_state {
         waiting,
         playing,
